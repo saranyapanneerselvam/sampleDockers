@@ -1,0 +1,41 @@
+{
+  "name": "logintest",
+  "main": "server.js",
+  "dependencies": {
+    "bcrypt-nodejs": "latest",
+    "body-parser": "~1.0.0",
+    "browserify": "^12.0.1",
+    "connect-flash": "~0.1.1",
+    "cookie-parser": "^1.0.1",
+    "deasync": "^0.1.4",
+    "ejs": "~0.8.5",
+    "events": "*",
+    "express": "~4.0.0",
+    "express-session": "^1.0.4",
+    "fbgraph": "^1.1.0",
+    "google-oauth2": "^0.1.0",
+    "googleapis": "^2.1.7",
+    "method-override": "~1.0.0",
+    "mongoose": "~3.8.1",
+    "morgan": "~1.0.0",
+    "oauth": "^0.9.14",
+    "passport": "~0.1.17",
+    "passport-facebook": "~1.0.2",
+    "passport-google-oauth": "~0.1.5",
+    "passport-local": "~0.1.6",
+    "passport-twitter": "~1.0.2",
+    "request": "^2.69.0",
+    "sharify": "^0.1.6",
+    "simple-oauth2": "^0.5.1"
+  },
+  "devDependencies": {
+    "connect-mongo": "^1.1.0",
+    "facebook-node": "0.0.3",
+    "fb": "^1.0.2",
+    "fbgraph-batch": "0.0.10",
+    "googleanalytics": "^0.3.7",
+    "node-gapi": "^0.1.0",
+    "path": "^0.12.7",
+    "refresh-token": "^0.1.0"
+  }
+}

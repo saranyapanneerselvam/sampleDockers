@@ -1,0 +1,49 @@
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
+<span>Choose the option</span>
+<select id="selectPage">
+    <option>Choose a page</option>
+</select>
+<select id="metric">
+    <option id="1">page_impressions
+    </option>
+    <option id="2">page_stories</option>
+    <option id="3">page_stories_by_story_type</option>
+    <option id="4">page_impressions_unique</option>
+    <option id="5">page_impressions_paid_unique</option>
+</select>
+<button onClick="send()" id="submit">Submit</button>
+</html>
+<script>
+    //To get the list of pages from server
+    var myVar = '<%- ranking %>';
+    //To convert string to json object
+    var result = JSON.parse(myVar);
+
+    //To load the drop down dynamically
+    var select = document.getElementById("selectPage");
+    for (var i = 0; i < result.length; i++) {
+        var opt = result[i].name;
+
+        var el = document.createElement("option");
+        el.textContent = opt;
+        el.value = result[i].id;
+        el.id = result[i].name;
+        select.appendChild(el);
+        console.log('id', el.id);
+    }
+    console.log('el', el.value);
+    //Function to send the seelcted page id to the server
+    function send() {
+        var name = document.getElementById('selectPage').value,
+
+                metric = document.getElementById('metric').value,
+                id = document.getElementById('selectPage').textCont;
+        pageName = $("#selectPage option:selected").text();
+        console.log('page name', pageName);
+
+        $.post("/postLatLng", {page: name, impression: metric, pageName: pageName});
+    }
+
+</script>

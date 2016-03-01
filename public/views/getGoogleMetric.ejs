@@ -1,0 +1,75 @@
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
+<!--<form name="myForm" action="http://localhost:8080/getUserRequest" method="post">-->
+<span>Choose the option</span>
+<select id="selectPage" onchange="getProperty()">
+    <option>Choose a page</option>
+</select>
+<select id="selectProperty">
+    <option>Choose a page</option>
+</select>
+
+<button onClick="send()" id="submit">Submit</button>
+<a href="/addGoogleAccount" class="btn btn-success"><span class=""></span> Add new</a>
+<!--</form>-->
+</html>
+<script>
+    //To get the list of pages from server
+    var myVar = '<%- accountDetails %>';
+    //To convert string to json object
+    var result = JSON.parse(myVar);
+
+    //To load the drop down dynamically
+    var select = document.getElementById("selectPage");
+
+    for (var i = 0; i < result.length; i++) {
+        var opt = result[i].google.email;
+        var el = document.createElement("option");
+        el.textContent = opt;
+        el.value = result[i].google.refreshToken;
+        // el.value = result[i].google.refreshToken;
+        el.id = result[i].google.refreshToken;
+        select.appendChild(el);
+        console.log('id', el.id);
+    }
+    console.log('el', el.id);
+
+    function getProperty() {
+        var name = document.getElementById('selectPage').value;
+        id = document.getElementById('selectPage').textCont;
+        pageName = $("#selectPage option:selected").text();
+        console.log('res', result, 'id', pageName, name);
+        // $.post("/getUserRequest", {refreshToken: name,email:pageName});
+        $.ajax({
+            type: "POST",
+            url: "/getUserRequest",
+            data: {refreshToken: name, email: pageName},
+            success: function (data) {
+                //show content
+                console.log('success', data);
+
+                //To load the drop down dynamically
+                var select = document.getElementById("selectProperty");
+
+                for (var i = 0; i < data.length; i++) {
+                    var opt = data[i].google.email;
+                    var el = document.createElement("option");
+                    el.textContent = opt;
+                    el.value = data[i].google.refreshToken;
+                    // el.value = result[i].google.refreshToken;
+                    el.id = data[i].google.refreshToken;
+                    select.appendChild(el);
+                    console.log('id', el.id);
+                }
+            },
+        });
+
+    }
+    //Function to send the seelcted page id to the server
+    function send() {
+
+        $.post("/getUserRequest", {refreshToken: name, email: pageName});
+    }
+
+</script>

@@ -56,12 +56,12 @@ module.exports = function (app) {
 
                     //Calling the storeProfiles middleware to store the data
                     user.storeProfiles(req, function (err, response) {
-                        if (response.status == 200) {
+                        if (response) {
                             //If response of the storeProfiles function is success then redirect it to profile page
-                            res.redirect('/profile.html');
+                            res.render('profile.ejs');
                         }
                         else {
-                            res.json('Already user exist');
+                            res.json('Error');
                         }
                     });
                 }

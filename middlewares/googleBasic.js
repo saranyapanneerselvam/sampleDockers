@@ -31,7 +31,7 @@ exports.listAccounts = function (req, res, next) {
     req.showMetric.webPropertyViewIdList = [];
 
     profile.find({
-        'email': 'dheepika.sk@gmail.com',
+        'email': 'metroweddingsindia@gmail.com',
         'channelId': '56d52c07e4b0196c549033b6'
     }, function (err, user) {
         req.showMetric.user = user;
@@ -113,10 +113,10 @@ exports.listAccounts = function (req, res, next) {
                 }
                 analytics.data.ga.get({
                     'ids': 'ga:109151059',
-                    'start-date': '2016-01-01',
-                    'end-date': '2016-02-20',
-                    'metrics': 'ga:users ',
-                    'dimension': 'ga:userType'
+                    'start-date': '2016-02-15',
+                    'end-date': '2016-02-16',
+                    'metrics': 'ga:sessions ',
+
                 }, function (err, result) {
                     req.showMetric.result = result;
                     console.log('data', req.showMetric.result);

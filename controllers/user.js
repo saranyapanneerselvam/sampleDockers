@@ -65,6 +65,5 @@ module.exports = function (app, passport) {
         console.log('req', req.user);
     });
 
-
     module.exports = app;
 };

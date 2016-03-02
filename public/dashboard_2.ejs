@@ -134,53 +134,13 @@
                             </div>
                         </div>
                     </div>
-                    <!--<div class="col-md-5 where">-->
-                    <!--<div class="ibox">-->
-                    <!--<div class="title-bg">-->
-                    <!--<h4 class="text-center">Where?</h4>-->
-                    <!--</div>-->
-                    <!--<div class="ibox-content">-->
-                    <!--<form class="form-horizontal">-->
-                    <!--<div class="form-group">-->
-                    <!--<div class="col-lg-2"></div>-->
-                    <!--<select data-placeholder="" class="chosen-select col-lg-8"  tabindex="2">-->
-                    <!--<option value="Profile1" class="profile-click">Profile 1</option>-->
-                    <!--<option value="Profile2" class="profile-click">Profile 2</option>-->
-                    <!--<option value="Profile3" class="profile-click">Profile 3</option>-->
-                    <!--<option value="Profile4" class="profile-click">Profile 4</option>-->
-                    <!--</select>-->
-                    <!--<div class="col-lg-2"></div>-->
-                    <!--</div>-->
-                    <!--<div class="form-group">-->
-                    <!--<div class="col-lg-2"></div>-->
 
-                    <!--<select data-placeholder="Dashboards" class="chosen-select col-lg-8"  tabindex="2"></select>-->
-
-
-                    <!--<div class="col-lg-2"></div>-->
-                    <!--</div>-->
-                    <!--<div class="form-group">-->
-                    <!--<div class="col-lg-2"></div>-->
-                    <!--<div class="col-lg-8 where-multiple">-->
-                    <!--<select multiple="" class="form-control">-->
-                    <!--<option class="profile-click">Profile 1</option>-->
-                    <!--<option class="profile-click">Profile 2</option>-->
-                    <!--<option class="profile-click">Profile 3</option>-->
-                    <!--<option class="profile-click">Profile 4</option>-->
-                    <!--</select>-->
-                    <!--</div>-->
-                    <!--<div class="col-lg-2"></div>-->
-                    <!--</div>-->
-                    <!--</form>-->
-                    <!--</div>-->
-                    <!--</div>-->
-                    <!--</div>-->
                     <div class="col-md-1"></div>
                 </div>
                 <div class="modal-footer">
-                    <div>
+                    <div ng-controller="graphCtrl">
                         <a data-toggle="modal" data-target="#myModal2" data-dismiss="modal"><button type="button" class="btn btn-danger btn-box">Back</button></a>
-                        <a href="#"><button type="button" class="btn btn-primary btn-box" id="next3">Next</button></a>
+                        <a href="graphshow.ejs"> <span ng-click="getGraph()"><button type="button" class="btn btn-primary btn-box" id="next3">Next</button></span> </a>
                     </div>
                 </div>
             </div>

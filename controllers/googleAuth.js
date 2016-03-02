@@ -74,7 +74,7 @@ module.exports = function (app) {
     app.get('/api/v1/google/data/:metricName', getGoogleMetricData.listAccounts, function (req, res) {
         var googleAnalyticData = req.showMetric.result;
         if(googleAnalyticData)
-        res.json({'metricName':googleAnalyticData.columnHeaders[0].name,'totalCount':googleAnalyticData.totalsForAllResults});
+        res.json({'metricName':googleAnalyticData.columnHeaders[0].name,'totalCount':googleAnalyticData.rows[0][0]});
         else
         res.json({'message':req.showMetric.error.message});
     });

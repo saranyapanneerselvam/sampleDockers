@@ -84,6 +84,27 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                 }
             }
         })
+
+        .state('graph', {
+        abstract: true,
+        templateUrl: "common/content.ejs",
+    })
+
+        .state('graph.graphshow', {
+            url: "/graphshow",
+            templateUrl: "graphshow.ejs",
+            data: { pageTitle: 'Dashboard 4' },
+            resolve: {
+                loadPlugin: function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+
+                        'css/plugins/animate.css', 'css/plugins/style.css',
+                        'js/charts/chart.js', 'js/makechart.js'
+                    ]);
+                }
+            }
+        })
+
         //.state('dashboards_top', {
         //    abstract: true,
         //    url: "/dashboards_top",

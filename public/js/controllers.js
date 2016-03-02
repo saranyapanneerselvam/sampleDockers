@@ -41,7 +41,7 @@
  *
  *
  */
-
+var globalMetricname;
 /**
  * MainCtrl - controller
  * Contains severals global data used in diferent view
@@ -2911,6 +2911,7 @@ function MetricSend($scope, $http){
         console.log('Postmetric inside');
        console.log(metric_name.name);
         var metricName = metric_name.name;
+        globalMetricname = metricName;
         //$scope.selected.metric_name = metric_name;
         //console.log('Metric name coming...', selected.metric_name);
         $http({
@@ -2923,8 +2924,8 @@ function MetricSend($scope, $http){
         }, function errorCallback(error) {
             console.log('error coming');
         });
-
     };
+
 }
 
 function ProfileCtrl($scope,$http){
@@ -2954,6 +2955,30 @@ $http(
 //$scope.getProfile();
 }
 
+function graphCtrl($scope,$http){
+$scope.getGraph = function(){
+
+    $http({
+        method: 'GET',
+        url: '/api/v1/google/data/' + globalMetricname
+    }).then(function successCallback(response) {
+        //countList = [];
+         console.log('metric name', response);
+        var metricNnamee = response.data;
+        console.log(metricNnamee);
+        //for (var i = 0; i < metricNnamee.length; i++) {
+        //    countList.push({'totalcount':  metricNnamee[i].totalCount});
+        //    console.log('List coming..', metricNnamee[i]);
+        //}
+       var countList =  metricNnamee.totalCount;
+        console.log('totalCount', countList);
+        $scope.totalcountList  = countList;
+    }, function errorCallback(response) {
+       console.log('error');
+    });
+   };
+
+}
 
 function testController($compile, $scope,$window){
 
@@ -3003,4 +3028,5 @@ angular
     .controller('testController', testController)
     .controller('MetricCtrl', MetricCtrl)
     .controller('ProfileCtrl', ProfileCtrl)
-    .controller('MetricSend', MetricSend);
+    .controller('MetricSend', MetricSend)
+    .controller('graphCtrl',graphCtrl);

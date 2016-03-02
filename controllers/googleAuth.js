@@ -69,13 +69,23 @@ module.exports = function (app) {
         }
     })
     /**
-     * To get the google analytic data based on metric name
+     * To get the google account,property,views detatail based on account detail
      */
-    app.get('/api/v1/google/data/:metricName', getGoogleMetricData.listAccounts, function (req, res) {
-        var googleAnalyticData = req.showMetric.result;
-        if(googleAnalyticData)
-        res.json({'metricName':googleAnalyticData.columnHeaders[0].name,'totalCount':googleAnalyticData.totalsForAllResults});
+    /*  app.get('/api/v1/google/data/:metricName', getGoogleMetricData.listAccounts, function (req, res) {
+     var googleAnalyticData = req.showMetric.result;
+     if(googleAnalyticData)
+     res.json({'metricName':googleAnalyticData.columnHeaders[0].name,'totalCount':googleAnalyticData.totalsForAllResults});
+     else
+     res.json({'message':req.showMetric.error.message});
+     });*/
+
+
+    // To get the google data based on metric name
+    app.get('/api/v1/google/data/:metricName', getGoogleMetricData.getGoogleAnalyticData, function (req, res) {
+        var googleAnalyticData = req.app.result;
+        if (googleAnalyticData)
+            res.json({'metricName': googleAnalyticData});
         else
-        res.json({'message':req.showMetric.error.message});
+            res.json({'message': req.app.error.message});
     });
 }

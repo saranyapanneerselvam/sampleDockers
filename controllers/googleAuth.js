@@ -68,8 +68,14 @@ module.exports = function (app) {
             })
         }
     })
-    app.get('/api/v1/google/data', getGoogleMetricData.listAccounts, function (req, res) {
-        // console.log('callback',res);
-        //res.redirect(authorization_uri);
+    /**
+     * To get the google analytic data based on metric name
+     */
+    app.get('/api/v1/google/data/:metricName', getGoogleMetricData.listAccounts, function (req, res) {
+        var googleAnalyticData = req.showMetric.result;
+        if(googleAnalyticData)
+        res.json({'metricName':googleAnalyticData.columnHeaders[0].name,'totalCount':googleAnalyticData.totalsForAllResults});
+        else
+        res.json({'message':req.showMetric.error.message});
     });
 }

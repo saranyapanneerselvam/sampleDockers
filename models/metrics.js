@@ -14,6 +14,7 @@ var metricsSchema = mongoose.Schema({
     xAxis: String,
     yAxis: String,
     scopes: Array,
+    meta:Object,
     endPoints: {
         objectTypeId: Number,
         endPoint: String

@@ -163,60 +163,41 @@ exports.getGoogleAnalyticData = function (req, res, next) {
      */
     function googleDataEntireFunction() {
 
-        //Query to find the metric details based on metric name
-
         //To get API Nomenclature value for metric name
         metrics.find({name: req.params.metricName}, function (err, response) {
             if (response.length) {
                 //To find the day's difference between start and end date
-                var startDate = new Date('2016-02-20');
-                var endDate = new Date('2016-02-29');
+                var startDate = new Date('2015-02-28');
+                var endDate = new Date('2016-03-02');
                 var timeDiff = Math.abs(endDate.getTime() - startDate.getTime());
                 var totalDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
                 var metricName = response[0].meta.gaMetricName;
                 req.app.noOfRequest = totalDays;
-
-                //To iterate untill reach the total days count
-                for (var i = 0; i <= totalDays; i++) {
-
-                    var d = new Date(startDate),
-                        month = '' + (d.getMonth() + 1),
-                        day = '' + d.getDate(),
-                        year = d.getFullYear();
-                    if (month.length < 2) month = '0' + month;
-                    if (day.length < 2) day = '0' + day;
-                    var startDateForQuery = [year, month, day].join('-');
-                    var totalRequest = req.app.noOfRequest;
-                    finalGoogleData(startDateForQuery, metricName, totalRequest);
-
-                    //Increate the date by one
-                    startDate.setDate(startDate.getDate() + 1);
-                }
-
-                /**
-                 * function to get the google analytic data
-                 * @param startDateForQuery - start date vale
-                 * @param metricName - metric's meta name eg ga:session
-                 * @param totalRequest - define total number of request
+                var totalRequest = req.app.noOfRequest;
+                /**Method to call the google api
+                 * @param oauth2Client - set credentials
                  */
-                function finalGoogleData(startDateForQuery, metricName, totalRequest) {
+                analytics.data.ga.get({
+                    'auth': oauth2Client,
+                    'ids': 'ga:109151059',
+                    'start-date': '2015-02-28',
+                    'end-date': '2016-03-02',
+                    'dimensions': 'ga:date',
+                    'metrics': metricName,
+                    prettyPrint: true
+                }, function (err, result) {
 
-                    /**Method to call the google api
-                     * @param oauth2Client - set credentials
-                     */
-                    analytics.data.ga.get({
-                        'auth': oauth2Client,
-                        'ids': 'ga:109151059',
-                        'start-date': startDateForQuery,
-                        'end-date': startDateForQuery,
-                        'metrics': metricName,
-                        prettyPrint: true
-                    }, function (err, result) {
-                        if (!err) {
+                    if (!err) {
+                        var resultLength = result.rows.length;
+                        console.log('length', result.rows.length);
+                        for (var i = 0; i < resultLength; i++) {
+                            var year = result.rows[i][0].substring(0, 4);
+                            var month = result.rows[i][0].substring(4, 6);
+                            var date = result.rows[i][0].substring(6, 8);
                             storeGoogleData.push({
-                                'date': startDateForQuery,
+                                'date': [year, month, date].join('-'),
                                 'metricName': req.params.metricName,
-                                'totalResult': result.rows[0][0]
+                                'totalResult': result.rows[i][1]
                             })
                             if (storeGoogleData.length == totalRequest) {
                                 console.log('data', storeGoogleData);
@@ -224,14 +205,14 @@ exports.getGoogleAnalyticData = function (req, res, next) {
                                 next();
                             }
                         }
-                        //If there is error the refresh the access token
-                        else {
-                            oauth2Client.refreshAccessToken(function (err, tokens) {
-                            });
-                            getData();
-                        }
-                    });
-                }
+                    }
+                    //If there is error, then refresh the access token
+                    else {
+                        oauth2Client.refreshAccessToken(function (err, tokens) {
+                        });
+                        googleDataEntireFunction();
+                    }
+                });
             }
 
             //If empty response from database set the error message

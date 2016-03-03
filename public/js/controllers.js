@@ -41,7 +41,7 @@
  *
  *
  */
-
+var globalMetricname;
 /**
  * MainCtrl - controller
  * Contains severals global data used in diferent view
@@ -2844,42 +2844,141 @@ function toastrCtrl($scope, toaster){
     };
 }
 
-function MetricCtrl($scope, $http){
-    $scope.getMetric = function() {
+//function MetricCtrl($scope, $http){
+//    $scope.getMetric = function() {
+//        console.log('get metric function');
+//        var vm = this;
+//         vm.supplierList = {};
+//        $http({
+//            method: 'GET',
+//            url: '/api/v1/get/metrics/56ceeec6e4b036a44ac5e068'
+//        }).then(function successCallback(response) {
+//            vm.supplierList = response;
+//            console.log('List of Metrics', response);
+//            var metricList = response.data;
+//            for(var i=0; i<metricList.length; i++){
+//                     //supplierList[];
+//                     return metricList.name[i];
+//            }
+//        }, function errorCallback(error) {
+//            console.log('Error in finding metrics');
+//        });
+//
+//        ///*  var vm = this;
+//  //  vm.supplierList = {};*/
+//  //  $http.get('/api/v1/get/metrics/56d52c07e4b0196c549033b6', function(response){
+//  //      //vm.supplierList = response;
+//  //      console.log('List of Metrics', response);
+//  //  });
+//};
+//}
+
+function MetricCtrl($scope, $http) {
+    $scope.getMetric = function () {
         console.log('get metric function');
-        var vm = this;
-         vm.supplierList = {};
+        //var vm = this;
+        //vm.supplierList = {};
         $http({
             method: 'GET',
             url: '/api/v1/get/metrics/56ceeec6e4b036a44ac5e068'
         }).then(function successCallback(response) {
-            vm.supplierList = response;
+            supplierList = [];
             console.log('List of Metrics', response);
-            var metricList = response.data;
-            for(var i=0; i<metricList.length; i++){
-                     //supplierList[];
-                     return metricList.name[i];
+            var metricList1 = response.data.metricsList;
+            console.log('List shows the error');
+
+            console.log(response.data.metricsList);//response.data);
+
+            for (var i = 0; i < metricList1.length; i++) {
+                //supplierList[];
+                supplierList.push({'name':  metricList1[i].name,'meta':  metricList1[i].meta});
+                //supplierList.push({'meta':  metricList1[i].meta});
+                console.log('List coming..', metricList1[i]);
             }
+            console.log(supplierList);
+            $scope.metList  = supplierList;
         }, function errorCallback(error) {
             console.log('Error in finding metrics');
         });
+    };
 
-        ///*  var vm = this;
-  //  vm.supplierList = {};*/
-  //  $http.get('/api/v1/get/metrics/56d52c07e4b0196c549033b6', function(response){
-  //      //vm.supplierList = response;
-  //      console.log('List of Metrics', response);
-  //  });
-};
+    $scope.getMetric();
+}
+
+function MetricSend($scope, $http){
+    $scope.selected = {};
+    $scope.postMetric = function(metric_name) {
+        console.log('Postmetric inside');
+       console.log(metric_name.name);
+        var metricName = metric_name.name;
+        globalMetricname = metricName;
+        //$scope.selected.metric_name = metric_name;
+        //console.log('Metric name coming...', selected.metric_name);
+        $http({
+            method: 'GET',
+            url: '/api/v1/google/data/' + metricName
+        }).then(function successCallback(response) {
+             console.log('Response came', response);
+            $scope.profile = response.email;
+            console.log(profile);
+        }, function errorCallback(error) {
+            console.log('error coming');
+        });
+    };
+
 }
 
 function ProfileCtrl($scope,$http){
-  $scope.getProfile = function(){
-
+  $scope.getProfile = function() {
+  console.log('get profile');
+$http(
+    {
+        method: 'GET',
+        url: '/api/v1/get/profiles/56d52c07e4b0196c549033b6'
+    }).then(function successCallback(response) {
+    profilePage = [];
+    //console.log('List of profiles', response);
+    var profileList1 = response.data.profileList;
+    console.log('got the profiles');
+    console.log(response.data.profileList);
+    for (var i = 0; i < profileList1.length; i++) {
+        //supplierList[];
+        profilePage.push({'email':  profileList1[i].email});
+        console.log('List coming..', profileList1[i]);
+    }
+    console.log(profilePage);
+    $scope.proPag  = profilePage;
+}, function errorCallback(error) {
+    console.log('Error in finding metrics');
+});
   };
-
+//$scope.getProfile();
 }
 
+function graphCtrl($scope,$http){
+$scope.getGraph = function(){
+
+    $http({
+        method: 'GET',
+        url: '/api/v1/google/data/' + globalMetricname
+    }).then(function successCallback(response) {
+        //countList = [];
+         console.log('metric name', response);
+        var metricNnamee = response.data;
+        console.log(metricNnamee);
+        //for (var i = 0; i < metricNnamee.length; i++) {
+        //    countList.push({'totalcount':  metricNnamee[i].totalCount});
+        //    console.log('List coming..', metricNnamee[i]);
+        //}
+       var countList =  metricNnamee.totalCount;
+        console.log('totalCount', countList);
+        $scope.totalcountList  = countList;
+    }, function errorCallback(response) {
+       console.log('error');
+    });
+   };
+
+}
 
 function testController($compile, $scope,$window){
 
@@ -2928,4 +3027,6 @@ angular
     .controller('toastrCtrl', toastrCtrl)
     .controller('testController', testController)
     .controller('MetricCtrl', MetricCtrl)
-    .controller('ProfileCtrl', ProfileCtrl);
+    .controller('ProfileCtrl', ProfileCtrl)
+    .controller('MetricSend', MetricSend)
+    .controller('graphCtrl',graphCtrl);

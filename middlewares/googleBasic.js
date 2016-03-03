@@ -146,11 +146,10 @@ exports.getGoogleAnalyticData = function (req, res, next) {
 
     //Query to get the user details based on profile info
     profile.findOne({
-        'email': 'metroweddingsindia@gmail.com',
-        'channelId': '56d52c07e4b0196c549033b6'
+        'email': req.body.object.email,
+        'channelId': req.body.object.channelId
     }, function (err, profile) {
         //check error status
-        console.log('profile', profile);
         // req.showMetric.user = user;
         oauth2Client.setCredentials({
             access_token: profile.accessToken,
@@ -165,42 +164,70 @@ exports.getGoogleAnalyticData = function (req, res, next) {
     function googleDataEntireFunction() {
 
         //To get API Nomenclature value for metric name
-        metrics.find({name: req.params.metricName}, function (err, response) {
+        metrics.find({name: req.body.object.metricName}, function (err, response) {
             if (response.length) {
                 //To find the day's difference between start and end date
-                var startDate = new Date('2016-02-28');
-                var endDate = new Date('2016-03-02');
+                var startDate = new Date(req.body.object.startDate);
+                var endDate = new Date(req.body.object.endDate);
                 var timeDiff = Math.abs(endDate.getTime() - startDate.getTime());
                 var totalDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
                 var metricName = response[0].meta.gaMetricName;
                 req.app.noOfRequest = totalDays;
                 var totalRequest = req.app.noOfRequest;
+
+                var dimensionArray = [];
+                var dimensionList = req.body.object.dimensionList;
+                //This is for testing now hard coded
+               // dimensionList.push({'name': 'ga:date'}, {'name': 'ga:year'}, {'name': 'ga:month'}, {'name': 'ga:day'}, {'name': 'ga:year'}, {'name': 'ga:week'});
+                var getDimension = dimensionList[0].name;
+                var dimensionListLength = dimensionList.length;
+
+                //Dynamically form the dimension object like {ga:}
+                for (var k = 1; k < dimensionListLength; k++) {
+                    getDimension = getDimension + ',' + dimensionList[k].name;
+                    dimensionArray.push({'dimension': getDimension});
+                }
+
                 /**Method to call the google api
                  * @param oauth2Client - set credentials
                  */
                 analytics.data.ga.get({
                     'auth': oauth2Client,
-                    'ids': 'ga:109151059',
-                    'start-date': '2016-02-28',
-                    'end-date': '2016-03-02',
-                    'dimensions': 'ga:date',
+                    'ids': 'ga:'+req.body.object.pageId,
+                    'start-date': req.body.object.startDate,
+                    'end-date': req.body.object.endDate,
+                    'dimensions': dimensionArray[dimensionArray.length - 1].dimension,
                     'metrics': metricName,
                     prettyPrint: true
                 }, function (err, result) {
                     if (!err) {
+
+                        //calculating the result length
                         var resultLength = result.rows.length;
-                        console.log('length', result.rows.length);
+                        var resultCount = result.rows[0].length - 1;
+
+                        //loop to store the entire result into an array
                         for (var i = 0; i < resultLength; i++) {
-                            var year = result.rows[i][0].substring(0, 4);
-                            var month = result.rows[i][0].substring(4, 6);
-                            var date = result.rows[i][0].substring(6, 8);
-                            storeGoogleData.push({
-                                'date': [year, month, date].join('-'),
-                                'metricName': req.params.metricName,
-                                'totalResult': result.rows[i][1]
-                            })
+                            var obj = {};
+
+                            //loop generate array dynamically based on given dimension list
+                            for (var m = 0; m < dimensionList.length; m++) {
+                                if (m == 0) {
+
+                                    //date value is coming in the format of 20160301 so splitting like yyyy-mm--dd format
+                                    var year = result.rows[i][0].substring(0, 4);
+                                    var month = result.rows[i][0].substring(4, 6);
+                                    var date = result.rows[i][0].substring(6, 8);
+                                    obj[dimensionList[m].name.substr(3)] = [year, month, date].join('-');
+                                }
+                                else {
+                                    obj[dimensionList[m].name.substr(3)] = result.rows[i][m];
+                                    obj['metricName'] = metricName;
+                                    obj['total'] = result.rows[i][resultCount];
+                                }
+                            }
+                            storeGoogleData.push(obj)
                             if (storeGoogleData.length == totalRequest) {
-                                console.log('data', storeGoogleData);
                                 req.app.result = storeGoogleData;
 
                                 //Save the result to data collection

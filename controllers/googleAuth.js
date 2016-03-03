@@ -43,27 +43,38 @@ module.exports = function (app) {
                 console.log('Access Token Error', error.message);
             }
             token = oauth2.accessToken.create(result);
-            console.log('token', token);
+
+            //To get logged user's userId ,email..
             request('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=' + token.token.access_token, function (error, response, body) {
-                console.log('body', body);
+
                 if (!error && response.statusCode == 200) {
 
-                    //set the body into userdata
-                    req.userData = body;
+                    //To get the profile name .. based on access token
+                    request('https://www.googleapis.com/oauth2/v2/userinfo?access_token=' + token.token.access_token, function (err, responseData, result) {
+                        if (!err) {
 
-                    //set token details to tokens
-                    req.tokens = token.token;
+                            //To parse profile result
+                            var parsedResult = JSON.parse(result);
 
-                    //Calling the storeProfiles middleware to store the data
-                    user.storeProfiles(req, function (err, response) {
-                        if (response) {
-                            //If response of the storeProfiles function is success then redirect it to profile page
-                            res.render('profile.ejs');
+                            //set the body into userdata
+                            req.userData = body;
+                            req.profileName = parsedResult.name;
+
+                            //set token details to tokens
+                            req.tokens = token.token;
+
+                            //Calling the storeProfiles middleware to store the data
+                            user.storeProfiles(req, function (err, response) {
+                                if (err)
+                                    res.json('Error');
+                                else {
+
+                                    //If response of the storeProfiles function is success then redirect it to profile page
+                                    res.render('profile.ejs');
+                                }
+                            });
                         }
-                        else {
-                            res.json('Error');
-                        }
-                    });
+                    })
                 }
             })
         }
@@ -81,7 +92,7 @@ module.exports = function (app) {
 
 
     // To get the google data based on metric name
-    app.get('/api/v1/google/data/:metricName', getGoogleMetricData.getGoogleAnalyticData, function (req, res) {
+    app.post('/api/v1/google/data', getGoogleMetricData.getGoogleAnalyticData, function (req, res) {
         var googleAnalyticData = req.app.result;
         if (googleAnalyticData)
             res.json({'metricName': googleAnalyticData});

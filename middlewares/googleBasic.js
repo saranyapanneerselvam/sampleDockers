@@ -1,7 +1,8 @@
 var exports = module.exports = {};
 var googleapis = require('googleapis');//To use google api's
-var profile = require('../models/profiles');//load up the user model
-var metrics = require('../models/metrics');
+var profile = require('../models/profiles');//To load up the user model
+var metrics = require('../models/metrics');//To load the metrics model
+var dataCollection = require('../models/data');//To load the data model
 var OAuth2 = googleapis.auth.OAuth2;//Set OAuth
 var configAuth = require('../config/auth');//Load the auth file
 var oauth2Client = new OAuth2(configAuth.googleAuth.clientID, configAuth.googleAuth.clientSecret, configAuth.googleAuth.callbackURL);//set credentials in OAuth2
@@ -167,7 +168,7 @@ exports.getGoogleAnalyticData = function (req, res, next) {
         metrics.find({name: req.params.metricName}, function (err, response) {
             if (response.length) {
                 //To find the day's difference between start and end date
-                var startDate = new Date('2015-02-28');
+                var startDate = new Date('2016-02-28');
                 var endDate = new Date('2016-03-02');
                 var timeDiff = Math.abs(endDate.getTime() - startDate.getTime());
                 var totalDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
@@ -180,13 +181,12 @@ exports.getGoogleAnalyticData = function (req, res, next) {
                 analytics.data.ga.get({
                     'auth': oauth2Client,
                     'ids': 'ga:109151059',
-                    'start-date': '2015-02-28',
+                    'start-date': '2016-02-28',
                     'end-date': '2016-03-02',
                     'dimensions': 'ga:date',
                     'metrics': metricName,
                     prettyPrint: true
                 }, function (err, result) {
-
                     if (!err) {
                         var resultLength = result.rows.length;
                         console.log('length', result.rows.length);
@@ -202,7 +202,17 @@ exports.getGoogleAnalyticData = function (req, res, next) {
                             if (storeGoogleData.length == totalRequest) {
                                 console.log('data', storeGoogleData);
                                 req.app.result = storeGoogleData;
-                                next();
+
+                                //Save the result to data collection
+                                //input channelId,channelObjId,metricId
+                                var data = new dataCollection();
+                                data.metricId = '56cef57ee4b036a44ac5e0d3';
+                                data.data = storeGoogleData;
+                                data.save(function saveData(err, googleData) {
+                                    if (!err)
+                                        next();
+                                })
+
                             }
                         }
                     }

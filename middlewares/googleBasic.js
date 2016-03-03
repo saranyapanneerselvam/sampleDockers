@@ -159,7 +159,7 @@ exports.getGoogleAnalyticData = function (req, res, next) {
     });
 
     /**
-     * function to calculate the total days and process to next function i.e finalGoogleData
+     * function to calculate the total days and process to find the google analytic data
      */
     function googleDataEntireFunction() {
 

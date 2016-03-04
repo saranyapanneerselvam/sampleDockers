@@ -24,34 +24,51 @@ exports.checkAccountCount = function (req, res, next) {
     });
 }
 
+/**
+ * middleware to get the account details based on user account
+
+ */
 exports.listAccounts = function (req, res, next) {
-    console.log('metric name', req.params.metricName);
+
+    //create showmetric object in req
     req.showMetric = {};
+
+    //Array to hold web property list
     var accountWebpropertList = [];
+
+    //Array to hold view list
     var webPropertyViewIdList = [];
+
+    //array to hold google data
     req.showMetric.webPropertyViewIdList = [];
 
+    //Query to find profile details
     profile.find({
         'email': 'metroweddingsindia@gmail.com',
         'channelId': '56d52c07e4b0196c549033b6'
     }, function (err, user) {
+        //check error status
+
         req.showMetric.user = user;
         passUserDetails(req, req.showMetric.user);
     });
+
+//Function to set the credentials & call the next functions
     function passUserDetails(req, userDetails) {
-        console.log('userDetails', userDetails);
         oauth2Client.setCredentials({
             access_token: userDetails[0].accessToken,
             refresh_token: userDetails[0].refreshToken
         });
         getMetricResults(req, req.showMetric.user[0], next);
+
+        //Function to referesh the access token
         function refreshingAccessToken(userDetails) {
             oauth2Client.refreshAccessToken(function (err, tokens) {
                 // your access_token is now refreshed and stored in oauth2Client
                 // store these new tokens in a safe place (e.g. database)
                 var userDetails = {};
                 userDetails.token = tokens.access_token;
-                getMetricResults(req, userDetails);
+                getMetricResults(req, userDetails, next);
                 profile.update({'email': req.showMetric.user[0].email}, {$set: {"accessToken": tokens.access_token}}, {upsert: true}, function (err, updateResult) {
                     if (err || !updateResult)console.log('failure');
                     else console.log('Update success');
@@ -59,6 +76,7 @@ exports.listAccounts = function (req, res, next) {
             });
         }
 
+        //function to get the account list
         function getMetricResults(req, userDetails, next) {
             analytics.management.accounts.list({
                 access_token: userDetails.accessToken,
@@ -78,6 +96,7 @@ exports.listAccounts = function (req, res, next) {
         }
     }
 
+    //function to get property list
     function getWebProperty(i, result) {
         analytics.management.webproperties.list({
             'accountId': result.items[i].id,
@@ -91,55 +110,137 @@ exports.listAccounts = function (req, res, next) {
         })
     }
 
+    //function to get the views list
     function getWebPropertView(i, j, response, result, next) {
         analytics.management.profiles.list({
             'accountId': result.items[i].id,
             'webPropertyId': response.items[j].id
         }, function (err, getProperty) {
             for (var k = 0; k < getProperty.items.length; k++) {
-                webPropertyViewIdList.push({
-                    'accountId': result.items[i].id,
-                    'webProperty': response.items[j].id,
-                    'webPropertyName': response.items[j].name,
-                    'viewId': getProperty.items[k].id,
-                    'viewName': getProperty.items[k].name
-                });
                 if (!err) {
-                    //To get API Nomenclature value for metric name
-                    metrics.find({name: req.params.metricName}, function (err, response) {
-                        /*  //To find the day difference between start and end date
-
-                         for(var i=0;i++;i<1){
-
-                         }*/
-                        if (response.length) {
-                            analytics.data.ga.get({
-                                reportType: 'ga',
-                                'ids': 'ga:109151059',
-                                'start-date': '5daysAgo',
-                                'end-date': 'today',
-                                'metrics': response[0].meta.gaMetricName,
-                                prettyPrint: true
-                            }, function (err, result) {
-                                req.showMetric.result = result;
-                                next();
-                                // return req.showMetric.result;
-                            });
-                        }
-                        else {
-                            req.showMetric.error = {'message': 'No data found'};
-                            next();
-                        }
-                    })
-
+                    req.app.viewSelected = false;
+                    webPropertyViewIdList.push({
+                        'accountId': result.items[i].id,
+                        'webProperty': response.items[j].id,
+                        'webPropertyName': response.items[j].name,
+                        'viewId': getProperty.items[k].id,
+                        'viewName': getProperty.items[k].name
+                    });
                 }
             }
         })
     }
+}
+/**
+ * middleware to to get the google analytic data based on profile,metric,view,dates
+ * @param req req from controller
+ * @param res
+ * @param next callback to send response back to controller
+ */
+exports.getGoogleAnalyticData = function (req, res, next) {
+    req.app = {};
 
-    // next();
-    //console.log('global object',req);
+    //Array to hold the final google data
+    var storeGoogleData = [];
 
+    //Query to get the user details based on profile info
+    profile.findOne({
+        'email': 'metroweddingsindia@gmail.com',
+        'channelId': '56d52c07e4b0196c549033b6'
+    }, function (err, profile) {
+        //check error status
+        console.log('profile', profile);
+        // req.showMetric.user = user;
+        oauth2Client.setCredentials({
+            access_token: profile.accessToken,
+            refresh_token: profile.refreshToken
+        });
+        googleDataEntireFunction();
+    });
+
+    /**
+     * function to calculate the total days and process to next function i.e finalGoogleData
+     */
+    function googleDataEntireFunction() {
+
+        //Query to find the metric details based on metric name
+
+        //To get API Nomenclature value for metric name
+        metrics.find({name: req.params.metricName}, function (err, response) {
+            if (response.length) {
+                //To find the day's difference between start and end date
+                var startDate = new Date('2016-02-20');
+                var endDate = new Date('2016-02-29');
+                var timeDiff = Math.abs(endDate.getTime() - startDate.getTime());
+                var totalDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                var metricName = response[0].meta.gaMetricName;
+                req.app.noOfRequest = totalDays;
+
+                //To iterate untill reach the total days count
+                for (var i = 0; i <= totalDays; i++) {
+
+                    var d = new Date(startDate),
+                        month = '' + (d.getMonth() + 1),
+                        day = '' + d.getDate(),
+                        year = d.getFullYear();
+                    if (month.length < 2) month = '0' + month;
+                    if (day.length < 2) day = '0' + day;
+                    var startDateForQuery = [year, month, day].join('-');
+                    var totalRequest = req.app.noOfRequest;
+                    finalGoogleData(startDateForQuery, metricName, totalRequest);
+
+                    //Increate the date by one
+                    startDate.setDate(startDate.getDate() + 1);
+                }
+
+                /**
+                 * function to get the google analytic data
+                 * @param startDateForQuery - start date vale
+                 * @param metricName - metric's meta name eg ga:session
+                 * @param totalRequest - define total number of request
+                 */
+                function finalGoogleData(startDateForQuery, metricName, totalRequest) {
+
+                    /**Method to call the google api
+                     * @param oauth2Client - set credentials
+                     */
+                    analytics.data.ga.get({
+                        'auth': oauth2Client,
+                        'ids': 'ga:109151059',
+                        'start-date': startDateForQuery,
+                        'end-date': startDateForQuery,
+                        'metrics': metricName,
+                        prettyPrint: true
+                    }, function (err, result) {
+                        if (!err) {
+                            storeGoogleData.push({
+                                'date': startDateForQuery,
+                                'metricName': req.params.metricName,
+                                'totalResult': result.rows[0][0]
+                            })
+                            if (storeGoogleData.length == totalRequest) {
+                                console.log('data', storeGoogleData);
+                                req.app.result = storeGoogleData;
+                                next();
+                            }
+                        }
+                        //If there is error the refresh the access token
+                        else {
+                            oauth2Client.refreshAccessToken(function (err, tokens) {
+                            });
+                            getData();
+                        }
+                    });
+                }
+            }
+
+            //If empty response from database set the error message
+            else {
+                req.app.error = {'message': 'No data found'};
+                next();
+            }
+        })
+    }
 }
 
 

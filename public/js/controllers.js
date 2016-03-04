@@ -2844,34 +2844,6 @@ function toastrCtrl($scope, toaster){
     };
 }
 
-//function MetricCtrl($scope, $http){
-//    $scope.getMetric = function() {
-//        console.log('get metric function');
-//        var vm = this;
-//         vm.supplierList = {};
-//        $http({
-//            method: 'GET',
-//            url: '/api/v1/get/metrics/56ceeec6e4b036a44ac5e068'
-//        }).then(function successCallback(response) {
-//            vm.supplierList = response;
-//            console.log('List of Metrics', response);
-//            var metricList = response.data;
-//            for(var i=0; i<metricList.length; i++){
-//                     //supplierList[];
-//                     return metricList.name[i];
-//            }
-//        }, function errorCallback(error) {
-//            console.log('Error in finding metrics');
-//        });
-//
-//        ///*  var vm = this;
-//  //  vm.supplierList = {};*/
-//  //  $http.get('/api/v1/get/metrics/56d52c07e4b0196c549033b6', function(response){
-//  //      //vm.supplierList = response;
-//  //      console.log('List of Metrics', response);
-//  //  });
-//};
-//}
 
 function MetricCtrl($scope, $http) {
     $scope.getMetric = function () {
@@ -2912,8 +2884,7 @@ function MetricSend($scope, $http){
        console.log(metric_name.name);
         var metricName = metric_name.name;
         globalMetricname = metricName;
-        //$scope.selected.metric_name = metric_name;
-        //console.log('Metric name coming...', selected.metric_name);
+
         $http({
             method: 'GET',
             url: '/api/v1/google/data/' + metricName
@@ -2942,7 +2913,7 @@ $http(
     console.log('got the profiles');
     console.log(response.data.profileList);
     for (var i = 0; i < profileList1.length; i++) {
-        //supplierList[];
+
         profilePage.push({'email':  profileList1[i].email});
         console.log('List coming..', profileList1[i]);
     }

@@ -98,8 +98,8 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                 loadPlugin: function ($ocLazyLoad) {
                     return $ocLazyLoad.load([
 
-                        'css/plugins/animate.css', 'css/plugins/style.css',
-                        'js/charts/chart.js', 'js/makechart.js'
+                        'css/animate.css', 'css/style.css',
+                        'js/charts/chart.js', 'js/cahrts/makechart.js'
                     ]);
                 }
             }

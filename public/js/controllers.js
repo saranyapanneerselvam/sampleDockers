@@ -2905,27 +2905,50 @@ function MetricCtrl($scope, $http) {
     $scope.getMetric();
 }
 
-function MetricSend($scope, $http){
-    //$scope.selected = {};
-    $scope.postMetric = function(metric_name) {
-        console.log('Postmetric inside');
-       console.log(metric_name.name);
-        var metricName = metric_name.name;
-        globalMetricname = metricName;
+//function MetricSend($scope, $http){
+//    //$scope.selected = {};
+//    $scope.postMetric = function(metric_name) {
+//        console.log('Postmetric inside');
+//       console.log(metric_name.name);
+//        var metricName = metric_name.name;
+//        globalMetricname = metricName;
+//
+//        $http({
+//            method: 'GET',
+//            url: '/api/v1/google/data/' + metricName
+//        }).then(function successCallback(response) {
+//             console.log('Response came', response);
+//            $scope.profile = response.email;
+//            console.log(profile);
+//        }, function errorCallback(error) {
+//            console.log('error coming');
+//        });
+//    };
+//}
 
-        $http({
-            method: 'GET',
-            url: '/api/v1/google/data/' + metricName
-        }).then(function successCallback(response) {
-             console.log('Response came', response);
-            $scope.profile = response.email;
-            console.log(profile);
-        }, function errorCallback(error) {
-            console.log('error coming');
-        });
+
+function MetricSend($scope, $http) {
+    $scope.postMetric = function () {
+        console.log('metricsend');
+        var jsonData = {
+            "endDate": "2016-03-02",
+            "startDate": "2016-02-28",
+            "dimensionList": [{"name": "ga:date"}, {"name": "ga:year"}, {"name": "ga:month"}],
+            "channelId": "56d52c07e4b0196c549033b6",
+            "pageId": "109151059",
+            "email": "metroweddingsindia@gmail.com",
+            "metricName": "sessions"
+        }
+        $http.post('/api/v1/google/data/', jsonData)
+            .then(function (response) {
+                console.log('Response Came', response);
+            })   // success
+            .catch(function (erro) {
+                console.log('error in sending json object');
+            }); // error
     };
-}
 
+}
 function ProfileCtrl($scope,$http){
   $scope.getProfile = function() {
   console.log('get profile');

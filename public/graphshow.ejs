@@ -47,8 +47,10 @@
                     <strong>token</strong>: <%= user.facebook.token %><br>
                     <strong>email</strong>: <%= user.facebook.email %><br>
                     <strong>name</strong>: <%= user.facebook.name %>
-                    <strong>Impressions</strong>: <%= FBImpressions %>
-                   <span ng-controller="graphCtrl"> <input type="hidden" id="impressions" value="">{{totalcountList}} </span>
+                    <!--<strong>Impressions</strong>: <%= FBImpressions %>-->
+                   <div ng-controller="graphCtrl">
+                       <input type="hidden" id="impressions">{{totalcountList}}
+                   </div>
                     <strong>Dates</strong>: <%= FBDates %>
                     <input type="hidden" id="dates" value="<%= FBDates %>">
                 </p>

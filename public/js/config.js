@@ -99,7 +99,7 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                     return $ocLazyLoad.load([
 
                         'css/animate.css', 'css/style.css',
-                        'js/charts/chart.js', 'js/cahrts/makechart.js'
+                        'js/charts/chart.js', 'js/charts/makechart.js'
                     ]);
                 }
             }

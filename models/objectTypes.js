@@ -6,7 +6,7 @@ var mongoose = require('mongoose');
 // define the schema for our user model
 var objectTypesSchema = mongoose.Schema({
     type: String,
-    channelId: Number,
+    channelId: String,
     created: Date,
     updated: Date,
     deleted: Date

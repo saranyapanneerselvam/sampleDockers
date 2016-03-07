@@ -15,7 +15,7 @@ module.exports = function (app, passport) {
     app.get('/api/v1/login', function (req, res) {
 
         // render the page and pass in any flash data if it exists
-        res.render('login.ejs', {message: req.flash('loginMessage')});
+        res.render('login.ejs',{message: req.flash('loginMessage')});
     });
 
     // process the login form
@@ -34,7 +34,7 @@ module.exports = function (app, passport) {
     app.get('/api/v1/signup', function (req, res) {
 
         // render the page and pass in any flash data if it exists
-        res.render('signup.ejs', {message: req.flash('signupMessage')});
+        res.render('signup.ejs');
     });
 
     // process the signup form
@@ -60,9 +60,9 @@ module.exports = function (app, passport) {
         console.log('user', req.user);
         res.render('profile.ejs');
     });
-    app.get('/api/v1/signout', function (req) {
+    app.get('/api/v1/signout', function (req,res) {
         req.logout();
-        console.log('req', req.user);
+        //res.render('signup.ejs');
     });
 
     module.exports = app;

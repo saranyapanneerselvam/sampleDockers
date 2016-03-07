@@ -1,8 +1,12 @@
 var exports = module.exports = {};
+var FB = require('fb');//Importing the fb module
 var googleapis = require('googleapis');//To use google api's
+var graph = require('fbgraph');//Importing the fbgraph module
 var profile = require('../models/profiles');//To load up the user model
 var metrics = require('../models/metrics');//To load the metrics model
 var dataCollection = require('../models/data');//To load the data model
+var objectCollection = require('../models/objects');//To load the data model
+var objectTypeCollection = require('../models/objectTypes');//To load the data model
 var OAuth2 = googleapis.auth.OAuth2;//Set OAuth
 var configAuth = require('../config/auth');//Load the auth file
 var oauth2Client = new OAuth2(configAuth.googleAuth.clientID, configAuth.googleAuth.clientSecret, configAuth.googleAuth.callbackURL);//set credentials in OAuth2
@@ -17,7 +21,6 @@ var analytics = googleapis.analytics({version: 'v3', auth: oauth2Client});// set
  */
 exports.checkAccountCount = function (req, res, next) {
     req.showMetric = {};
-    showMetric = {};
     profile.find({email: 'dheepika.sk@gmail.com'}, function (err, user) {
         req.showMetric.userDetails = user;
         next();
@@ -30,6 +33,7 @@ exports.checkAccountCount = function (req, res, next) {
 
  */
 exports.listAccounts = function (req, res, next) {
+    console.log('req', req.query.email);
 
     //create showmetric object in req
     req.showMetric = {};
@@ -43,34 +47,50 @@ exports.listAccounts = function (req, res, next) {
     //array to hold google data
     req.showMetric.webPropertyViewIdList = [];
 
-    //Query to find profile details
-    profile.find({
-        'email': 'metroweddingsindia@gmail.com',
-        'channelId': '56d52c07e4b0196c549033b6'
-    }, function (err, user) {
-        //check error status
+    //To check the channel
+    switch (req.query.channelCode) {
+        case '1':
+            console.log('channel');
+            getGAPageList();
+            break;
+        case '2':
+            getFBPageList();
+            break;
+    }
 
-        req.showMetric.user = user;
-        passUserDetails(req, req.showMetric.user);
-    });
+    //function to get the list of ga pages
+    function getGAPageList() {
+        var channelId = '56d52c07e4b0196c549033b6';
+
+        //Query to find profile details
+        profile.findOne({
+            'email': req.query.email,
+            'channelId': channelId
+        }, function (err, user) {
+            if (!err)
+                passUserDetails(req, user);
+        });
+    }
 
 //Function to set the credentials & call the next functions
     function passUserDetails(req, userDetails) {
+        console.log('user details', userDetails);
         oauth2Client.setCredentials({
-            access_token: userDetails[0].accessToken,
-            refresh_token: userDetails[0].refreshToken
+            access_token: userDetails.accessToken,
+            refresh_token: userDetails.refreshToken
         });
-        getMetricResults(req, req.showMetric.user[0], next);
+        getMetricResults(req, userDetails, next);
 
         //Function to referesh the access token
         function refreshingAccessToken(userDetails) {
             oauth2Client.refreshAccessToken(function (err, tokens) {
+
                 // your access_token is now refreshed and stored in oauth2Client
                 // store these new tokens in a safe place (e.g. database)
                 var userDetails = {};
                 userDetails.token = tokens.access_token;
                 getMetricResults(req, userDetails, next);
-                profile.update({'email': req.showMetric.user[0].email}, {$set: {"accessToken": tokens.access_token}}, {upsert: true}, function (err, updateResult) {
+                profile.update({'email': req.query.email}, {$set: {"accessToken": tokens.access_token}}, {upsert: true}, function (err, updateResult) {
                     if (err || !updateResult)console.log('failure');
                     else console.log('Update success');
                 })
@@ -129,7 +149,64 @@ exports.listAccounts = function (req, res, next) {
                     });
                 }
             }
+            //console.log('webPropertyViewIdList',webPropertyViewIdList);
+
         })
+    }
+
+    /**
+     Function to get the user's all owned pages of facebook user
+     @params 1.req contains the facebook user details i.e. username,token,email etc
+     2.res have the query response
+     @event pageList is used to send & receive the list of pages result
+     */
+    function getFBPageList() {
+        var channelId = '56d52c7ae4b0196c549033ca';
+
+        //Query to find profile details
+        profile.findOne({
+            'email': req.query.email,
+            'channelId': channelId
+        }, function (err, profile) {
+            if (!err)
+                passUserDetails(profile);
+        });
+        function passUserDetails(userProfile) {
+            var channelObjectDetails = [];
+
+            //To get the object type id from database
+            objectTypeCollection.findOne({'type': 'page', 'channelId': channelId}, function (err, res) {
+                var typeId = '56dd573fe4b0c05f88d0229b';
+                if (!err) {
+                    FB.setAccessToken(userProfile.accessToken);//Set access token
+                    FB.api(
+                        "/" + userProfile.userId + "/accounts",
+                        function (pageList) {
+                            var length = pageList.data.length;
+                            req.showMetric.result = pageList;
+                            for (var i = 0; i < length; i++) {
+                                var objectsResult = new objectCollection();
+                                objectsResult.profileId = userProfile._id;
+                                objectsResult.objectTypeId = typeId;
+                                objectsResult.channelObjectId = pageList.data[i].id;
+                                objectsResult.name = pageList.data[i].name
+                                objectsResult.save(function (err, result) {
+                                    if (!err) {
+                                        channelObjectDetails.push({
+                                            'result': result
+                                        })
+                                        if (pageList.data.length == channelObjectDetails.length) {
+                                            req.showMetric.pageLists = pageList;
+                                            next();
+                                        }
+                                    }
+                                })
+                            }
+                        }
+                    );
+                }
+            })
+        }
     }
 }
 /**
@@ -139,46 +216,147 @@ exports.listAccounts = function (req, res, next) {
  * @param next callback to send response back to controller
  */
 exports.getGoogleAnalyticData = function (req, res, next) {
-    req.app = {};
+    switch (req.body.channelCode) {
+        case '1':
+            console.log('channel');
+            getGAPageData();
+            break;
+        case '2':
+            getFBPageData();
+            break;
+    }
+    function getFBPageData() {
+        var channelId = '56d52c7ae4b0196c549033ca';
 
-    //Array to hold the final google data
-    var storeGoogleData = [];
+        //Query to find profile details
+        profile.findOne({
+            'email': req.body.email,
+            'channelId': channelId
+        }, function (err, profile) {
+            //console.log('user', profile);
+            //check error status
 
-    //Query to get the user details based on profile info
-    profile.findOne({
-        'email': req.body.object.email,
-        'channelId': req.body.object.channelId
-    }, function (err, profile) {
-        //check error status
-        // req.showMetric.user = user;
-        oauth2Client.setCredentials({
-            access_token: profile.accessToken,
-            refresh_token: profile.refreshToken
+            passUserDetails(profile);
         });
-        googleDataEntireFunction();
-    });
+        function passUserDetails(profile) {
+
+            var email = req.body.email;
+            var pageId = req.body.pageId;
+
+            graph.setAccessToken(profile.accessToken);
+            metrics.findById(req.body.metricId, function (err, response) {
+                if (!err) {
+                    var query = pageId + "/insights/" + response.meta.fbMetricName + "/day";
+
+                    fetchFBData(query, response.name, email, profile);
+                }
+            })
+
+
+        }
+    }
+
+    /*
+     function to execute the query and get impression details of a chosen single metric
+     */
+    function fetchFBData(query, metricName, email, profile) {
+
+        var impressions = [];
+        var dates = [];
+        var finalData = [];
+        graph.get(query, function (err, res) {
+
+            for (i = 0; i < res.data[0].values.length; i++) {
+                impressions.push(res.data[0].values[i].value);
+                dates.push(res.data[0].values[i].end_time);
+            }
+
+            //To get objectId from database based on profile&pageId
+            objectCollection.findOne({
+                'channelObjectId': req.body.pageId,
+                'profileId': profile._id
+            }, function (err, response) {
+                console.log('response', response, req.body.pageId, profile._id);
+                // create the impression object
+                var saveResult = new dataCollection();
+                var length = impressions.length;
+                for (var i = 0; i < length; i++) {
+                    // set the page's impressions
+
+                    // saveResult.pageName = pageName;
+                    // saveResult.profileName = profileName;
+                    //saveResult.userId = userId;
+                    saveResult.objectId = response._id;
+                    saveResult.email = email;
+                    finalData.push({'impressionCount': impressions[i], 'date': dates[i], 'metricName': metricName});
+                    saveResult.data = finalData;
+
+                }
+
+
+                // save the user
+                saveResult.save(function (err, saved) {
+                    if (err || !saved) console.log("User not saved");
+                    else {
+                        console.log("User saved", saved);
+                        req.app.result = saved;
+                        next();
+                    }
+                });
+            })
+
+
+        })
+
+    }
+
+    function getGAPageData() {
+        var channelId = '56d52c07e4b0196c549033b6';
+        req.app = {};
+
+        //Query to get the user details based on profile info
+        profile.findOne({
+            'email': req.body.email,
+            'channelId': channelId
+        }, function (err, profile) {
+
+            if (!err) {
+                //check error status
+                oauth2Client.setCredentials({
+                    access_token: profile.accessToken,
+                    refresh_token: profile.refreshToken
+                });
+                googleDataEntireFunction();
+            }
+
+        })
+    }
+
 
     /**
      * function to calculate the total days and process to find the google analytic data
      */
     function googleDataEntireFunction() {
-
+        console.log('msg', req.body);
         //To get API Nomenclature value for metric name
-        metrics.find({name: req.body.object.metricName}, function (err, response) {
+        metrics.find({name: req.body.metricName}, function (err, response) {
             if (response.length) {
+
                 //To find the day's difference between start and end date
-                var startDate = new Date(req.body.object.startDate);
-                var endDate = new Date(req.body.object.endDate);
+                var startDate = new Date(req.body.startDate);
+                var endDate = new Date(req.body.endDate);
                 var timeDiff = Math.abs(endDate.getTime() - startDate.getTime());
                 var totalDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
                 var metricName = response[0].meta.gaMetricName;
                 req.app.noOfRequest = totalDays;
                 var totalRequest = req.app.noOfRequest;
-
                 var dimensionArray = [];
-                var dimensionList = req.body.object.dimensionList;
+                var dimensionList = req.body.dimensionList;
+
+                //Array to hold the final google data
+                var storeGoogleData = [];
                 //This is for testing now hard coded
-               // dimensionList.push({'name': 'ga:date'}, {'name': 'ga:year'}, {'name': 'ga:month'}, {'name': 'ga:day'}, {'name': 'ga:year'}, {'name': 'ga:week'});
+                // dimensionList.push({'name': 'ga:date'}, {'name': 'ga:year'}, {'name': 'ga:month'}, {'name': 'ga:day'}, {'name': 'ga:year'}, {'name': 'ga:week'});
                 var getDimension = dimensionList[0].name;
                 var dimensionListLength = dimensionList.length;
 
@@ -193,9 +371,9 @@ exports.getGoogleAnalyticData = function (req, res, next) {
                  */
                 analytics.data.ga.get({
                     'auth': oauth2Client,
-                    'ids': 'ga:'+req.body.object.pageId,
-                    'start-date': req.body.object.startDate,
-                    'end-date': req.body.object.endDate,
+                    'ids': 'ga:' + req.body.pageId,
+                    'start-date': req.body.startDate,
+                    'end-date': req.body.endDate,
                     'dimensions': dimensionArray[dimensionArray.length - 1].dimension,
                     'metrics': metricName,
                     prettyPrint: true
@@ -233,7 +411,7 @@ exports.getGoogleAnalyticData = function (req, res, next) {
                                 //Save the result to data collection
                                 //input channelId,channelObjId,metricId
                                 var data = new dataCollection();
-                                data.metricId = '56cef57ee4b036a44ac5e0d3';
+                                data.metricId = response[0]._id;
                                 data.data = storeGoogleData;
                                 data.save(function saveData(err, googleData) {
                                     if (!err)

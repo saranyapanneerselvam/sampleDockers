@@ -43,39 +43,50 @@ module.exports = function (app) {
                 console.log('Access Token Error', error.message);
             }
             token = oauth2.accessToken.create(result);
-            console.log('token', token);
+
+            //To get logged user's userId ,email..
             request('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=' + token.token.access_token, function (error, response, body) {
-                console.log('body', body);
+
                 if (!error && response.statusCode == 200) {
 
-                    //set the body into userdata
-                    req.userData = body;
+                    //To get the profile name .. based on access token
+                    request('https://www.googleapis.com/oauth2/v2/userinfo?access_token=' + token.token.access_token, function (err, responseData, result) {
+                        if (!err) {
 
-                    //set token details to tokens
-                    req.tokens = token.token;
 
-                    //Calling the storeProfiles middleware to store the data
-                    user.storeProfiles(req, function (err, response) {
-                        if (response) {
-                            //If response of the storeProfiles function is success then redirect it to profile page
-                            res.render('profile.ejs');
+                            //To parse the access token details
+                            var parsedBodyResult = JSON.parse(body);
+
+
+                            //To parse profile result
+                            var parsedResult = JSON.parse(result);
+
+                            //set the body into userdata
+                            req.userEmail = parsedBodyResult.email;
+                            req.userId = parsedBodyResult.user_id;
+                            req.profileName = parsedResult.name;
+
+                            //set token details to tokens
+                            req.tokens = token.token;
+                            req.channelId = '56d52c07e4b0196c549033b6';
+                            req.channelCode = '1';
+
+                            //Calling the storeProfiles middleware to store the data
+                            user.storeProfiles(req, function (err, response) {
+                                if (err)
+                                    res.json('Error');
+                                else {
+
+                                    //If response of the storeProfiles function is success then redirect it to profile page
+                                    res.redirect('/profile');
+                                }
+                            });
                         }
-                        else {
-                            res.json('Error');
-                        }
-                    });
+                    })
                 }
             })
+
         }
     })
-    /**
-     * To get the google analytic data based on metric name
-     */
-    app.get('/api/v1/google/data/:metricName', getGoogleMetricData.listAccounts, function (req, res) {
-        var googleAnalyticData = req.showMetric.result;
-        if(googleAnalyticData)
-        res.json({'metricName':googleAnalyticData.columnHeaders[0].name,'totalCount':googleAnalyticData.totalsForAllResults});
-        else
-        res.json({'message':req.showMetric.error.message});
-    });
+
 }

@@ -22,6 +22,12 @@ var sessionConfig = {
         mongooseConnection: mongoose.connection
     })
 }
+
+
+router.use(function (req, res, next) {
+    req.showMetric = {};
+    next();
+})
 // configuration ===============================================================
 mongoose.connect(configDB.url); // connect to our database
 
@@ -41,12 +47,15 @@ app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
 
+
+
 //app.use(express.static(path.join(__dirname, './views')));
 app.set('views', path.join(__dirname, 'public/views'));
 app.use(express.static(__dirname + '/public'));
 
+
 // routes ======================================================================
-require('./helpers/facebookAuth')(app);
+require('./controllers/facebookAuth')(app);
 require('./controllers/googleAuth')(app);
 require('./helpers/twitterAuth')(app);
 require('./controllers/channels')(app);
@@ -54,14 +63,12 @@ require('./controllers/metrics')(app);
 require('./controllers/profiles')(app);
 require('./controllers/dashboards')(app);
 require('./controllers/widgets')(app);
+require('./controllers/getPageMetricResult')(app);
 //require('./controllers/googleBasic')(app);
 require('./controllers/user')(app, passport);
 
 
-router.use(function (req, res, next) {
-    req.showMetric = {};
-    next();
-})
+
 
 // launch ======================================================================
 app.listen(port);

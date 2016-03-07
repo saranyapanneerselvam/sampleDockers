@@ -229,7 +229,6 @@ exports.getGoogleAnalyticData = function (req, res, next) {
                             storeGoogleData.push(obj)
                             if (storeGoogleData.length == totalRequest) {
                                 req.app.result = storeGoogleData;
-
                                 //Save the result to data collection
                                 //input channelId,channelObjId,metricId
                                 var data = new dataCollection();

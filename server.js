@@ -57,7 +57,7 @@ app.use(express.static(__dirname + '/public'));
 // routes ======================================================================
 require('./controllers/facebookAuth')(app);
 require('./controllers/googleAuth')(app);
-require('./helpers/twitterAuth')(app);
+require('./controllers/twitterAuth')(app);
 require('./controllers/channels')(app);
 require('./controllers/metrics')(app);
 require('./controllers/profiles')(app);

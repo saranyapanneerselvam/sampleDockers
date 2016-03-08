@@ -23,7 +23,7 @@ module.exports = function (app) {
     });
 
 // Initial page redirecting to Github
-    app.get('/auth/facebook', function (req, res) {
+    app.get('/api/v1/auth/facebook', function (req, res) {
 
         res.redirect(authorization_uri);
     });

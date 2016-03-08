@@ -248,7 +248,7 @@ exports.getGoogleAnalyticData = function (req, res, next) {
                 if (!err) {
                     var query = pageId + "/insights/" + response.meta.fbMetricName + "/day";
 
-                    fetchFBData(query, response.name, email, profile);
+                    fetchFBData(query,profile);
                 }
             })
 
@@ -259,7 +259,7 @@ exports.getGoogleAnalyticData = function (req, res, next) {
     /*
      function to execute the query and get impression details of a chosen single metric
      */
-    function fetchFBData(query, metricName, email, profile) {
+    function fetchFBData(query, profile) {
 
         var impressions = [];
         var dates = [];
@@ -287,8 +287,10 @@ exports.getGoogleAnalyticData = function (req, res, next) {
                     // saveResult.profileName = profileName;
                     //saveResult.userId = userId;
                     saveResult.objectId = response._id;
-                    saveResult.email = email;
-                    finalData.push({'impressionCount': impressions[i], 'date': dates[i], 'metricName': metricName});
+                    saveResult.metricId = req.body.metricId;
+                    saveResult.created = new Date();
+                    saveResult.updated = new Date();
+                    finalData.push({'impressionCount': impressions[i], 'date': dates[i]});
                     saveResult.data = finalData;
 
                 }
@@ -413,6 +415,7 @@ exports.getGoogleAnalyticData = function (req, res, next) {
                                 var data = new dataCollection();
                                 data.metricId = response[0]._id;
                                 data.data = storeGoogleData;
+
                                 data.save(function saveData(err, googleData) {
                                     if (!err)
                                         next();

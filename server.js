@@ -22,7 +22,7 @@ var sessionConfig = {
         mongooseConnection: mongoose.connection
     })
 }
-// configuration ===============================================================
+// configuration 
 mongoose.connect(configDB.url); // connect to our database
 
 require('./helpers/passport')(passport); // pass passport for configuration

@@ -19,6 +19,7 @@ var metricsSchema = mongoose.Schema({
         objectTypeId: Number,
         endPoint: String
     },
+    defaultChartType:String,
     created: Date,
     updated: Date,
     deleted: Date

@@ -24,8 +24,8 @@ var sessionConfig = {
 }
 
 
-router.use(function (req, res, next) {
-    req.showMetric = {};
+app.use(function (req, res, next) {
+    req.app = {};
     next();
 })
 // configuration ===============================================================
@@ -64,7 +64,7 @@ require('./controllers/profiles')(app);
 require('./controllers/dashboards')(app);
 require('./controllers/widgets')(app);
 require('./controllers/getPageMetricResult')(app);
-//require('./controllers/googleBasic')(app);
+require('./controllers/updateDashboardWidgetData')(app);
 require('./controllers/user')(app, passport);
 
 

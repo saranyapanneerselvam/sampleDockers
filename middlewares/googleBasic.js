@@ -7,6 +7,7 @@ var metrics = require('../models/metrics');//To load the metrics model
 var dataCollection = require('../models/data');//To load the data model
 var objectCollection = require('../models/objects');//To load the data model
 var objectTypeCollection = require('../models/objectTypes');//To load the data model
+var userCollection = require('../models/user');
 var OAuth2 = googleapis.auth.OAuth2;//Set OAuth
 var configAuth = require('../config/auth');//Load the auth file
 var oauth2Client = new OAuth2(configAuth.googleAuth.clientID, configAuth.googleAuth.clientSecret, configAuth.googleAuth.callbackURL);//set credentials in OAuth2
@@ -99,6 +100,7 @@ exports.listAccounts = function (req, res, next) {
 
         //function to get the account list
         function getMetricResults(req, userDetails, next) {
+            length = 0;
             analytics.management.accounts.list({
                 access_token: userDetails.accessToken,
                 auth: oauth2Client
@@ -114,6 +116,7 @@ exports.listAccounts = function (req, res, next) {
                     refreshingAccessToken(userDetails);
                 }
             })
+
         }
     }
 
@@ -149,9 +152,17 @@ exports.listAccounts = function (req, res, next) {
                     });
                 }
             }
-            //console.log('webPropertyViewIdList',webPropertyViewIdList);
+            length = length + getProperty.items.length;
+            if(result.items.length-1==i){
+                console.log('webPropertyViewIdList', webPropertyViewIdList,result.items.length-1);
+                req.showMetric.pageLists = webPropertyViewIdList;
+                next();
+            }
+
+
 
         })
+        console.log(req.showMetric.webPropertyViewIdList);
     }
 
     /**
@@ -246,9 +257,65 @@ exports.getGoogleAnalyticData = function (req, res, next) {
             graph.setAccessToken(profile.accessToken);
             metrics.findById(req.body.metricId, function (err, response) {
                 if (!err) {
-                    var query = pageId + "/insights/" + response.meta.fbMetricName + "/day";
 
-                    fetchFBData(query,profile);
+                    //To get objectId from database based on profile&pageId
+                    objectCollection.find({
+                        'channelObjectId': req.body.pageId,
+                        'profileId': profile._id
+                    }, function (err, objectResult) {
+                        if (!err) {
+                            dataCollection.find({'objectId': objectResult[0]._id}, function (err, dataResult) {
+                                function calculateDate(d) {
+                                    month = '' + (d.getMonth() + 1),
+                                        day = '' + d.getDate(),
+                                        year = d.getFullYear();
+
+                                    if (month.length < 2) month = '0' + month;
+                                    if (day.length < 2) day = '0' + day;
+                                    var startDate = [year, month, day].join('-');
+                                    return startDate;
+                                }
+
+                                if (dataResult.length) {
+                                    userCollection.find().sort({lastLoggedIn: -1}).exec(function (err, result) {
+                                        console.log('result', result);
+                                        var date = calculateDate(result[1].lastLoggedIn);
+                                        console.log('start', date);
+                                    });
+                                    //get date from database
+                                    //check date in data collection if date<now the set start date as date and end date as now merge the result into data in collection
+                                    var query = pageId + "/insights/" + response.meta.fbMetricName + "/day";
+                                    // fetchFBData(query, objectResult);
+
+                                }
+                                else {
+                                    //call the facebook api & store one year data
+                                    //ex end date = 09/03/2016 start date = 09/03/2015
+                                    var d = new Date();
+
+                                    function setStartEndDate(n, count) {
+
+                                        var endDate = calculateDate(d);
+                                        d.setDate(d.getDate() - n);
+                                        var startDate = calculateDate(d);
+                                        var query = pageId + "/insights/" + response.meta.fbMetricName + "?since=" + startDate + "&until=" + endDate;
+                                        fetchFBData(query, objectResult, count);
+                                    }
+
+                                    for (var j = 0; j < 3; j++) {
+                                        setStartEndDate(93);
+                                        if (j == 2) {
+                                            setStartEndDate(86, 3);
+                                        }
+
+                                    }
+                                }
+
+                            })
+
+                        }
+                    })
+
                 }
             })
 
@@ -259,56 +326,68 @@ exports.getGoogleAnalyticData = function (req, res, next) {
     /*
      function to execute the query and get impression details of a chosen single metric
      */
-    function fetchFBData(query, profile) {
+    function fetchFBData(query, response, count) {
 
         var impressions = [];
         var dates = [];
         var finalData = [];
+        totalImpressions = [];
+        totalDates = [];
         graph.get(query, function (err, res) {
-
             for (i = 0; i < res.data[0].values.length; i++) {
                 impressions.push(res.data[0].values[i].value);
                 dates.push(res.data[0].values[i].end_time);
             }
+            for (var k = 0; k < impressions.length; k++) {
+                totalImpressions.push(impressions[k]);
+                totalDates.push(dates[k]);
 
-            //To get objectId from database based on profile&pageId
-            objectCollection.findOne({
-                'channelObjectId': req.body.pageId,
-                'profileId': profile._id
-            }, function (err, response) {
-                console.log('response', response, req.body.pageId, profile._id);
-                // create the impression object
-                var saveResult = new dataCollection();
-                var length = impressions.length;
-                for (var i = 0; i < length; i++) {
-                    // set the page's impressions
+            }
 
-                    // saveResult.pageName = pageName;
-                    // saveResult.profileName = profileName;
-                    //saveResult.userId = userId;
-                    saveResult.objectId = response._id;
-                    saveResult.metricId = req.body.metricId;
-                    saveResult.created = new Date();
-                    saveResult.updated = new Date();
-                    finalData.push({'impressionCount': impressions[i], 'date': dates[i]});
-                    saveResult.data = finalData;
+            // create the impression object
+            var saveResult = new dataCollection();
+            var length = totalImpressions.length;
+            for (var i = 0; i < length; i++) {
+                // set the page's impressions
 
-                }
+                // saveResult.pageName = pageName;
+                // saveResult.profileName = profileName;
+                //saveResult.userId = userId;
+                saveResult.objectId = response[0]._id;
+                saveResult.metricId = req.body.metricId;
+                saveResult.created = new Date();
+                saveResult.updated = new Date();
+                finalData.push({'impressionCount': totalImpressions[i], 'date': totalDates[i]});
+                saveResult.data = finalData;
+
+            }
+
+            console.log('finaldata', finalData, 'length', finalData.length);
 
 
-                // save the user
+            // save the user
+
+            if (count == 3) {
                 saveResult.save(function (err, saved) {
                     if (err || !saved) console.log("User not saved");
                     else {
-                        console.log("User saved", saved);
-                        req.app.result = saved;
-                        next();
+                        console.log('saved');
+                        dataCollection.find({'objectId': response[0]._id}, function (err, response) {
+                            if (!err) {
+                                req.app.result = response;
+                                next();
+                            }
+                        })
+
                     }
                 });
-            })
+            }
+            //});
+            //  })
 
 
         })
+
 
     }
 
@@ -415,7 +494,7 @@ exports.getGoogleAnalyticData = function (req, res, next) {
                                 var data = new dataCollection();
                                 data.metricId = response[0]._id;
                                 data.data = storeGoogleData;
-
+console.log('storeGoogleData',storeGoogleData);
                                 data.save(function saveData(err, googleData) {
                                     if (!err)
                                         next();

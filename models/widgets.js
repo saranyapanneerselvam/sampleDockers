@@ -15,7 +15,7 @@ var widgetsSchema = mongoose.Schema({
     minSize: Object,
     maxSize: Object,
     widgetType: String,
-    metrics: Object,
+    metrics: Array,
     created: Date,
     updated: Date,
     deleted: Date

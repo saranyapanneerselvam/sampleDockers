@@ -27,10 +27,16 @@ exports.getChannels = function (req, res, next) {
 
 }
 
+//To get the list of object types for a channel
 exports.getObjectTypes = function (req, res, next) {
-console.log('channelId',req.params.channelId);
-    objectType.find({'channelId':req.params.channelId}, function (err,objectTypes) {
-        console.log('types',objectTypes);
-    })
+    objectType.find({'channelId':req.params.channelId}, function (err, types) {
+        if(err)
+            req.app.result = {'error': err};
+        else if (types.length)
+            req.app.result = {'status': '200', 'objectTypes': types};
+        else
+            req.app.result = {'status': '301'};
+        next();
+    });
 
 }

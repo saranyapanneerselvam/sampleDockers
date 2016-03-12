@@ -15,9 +15,10 @@ module.exports = function (app) {
     app.get('/api/v1/channels/objectsList', getGoogleMetricData.listAccounts, function (req, res) {
 
         var googleAnalyticData = req.showMetric.pageLists;
+        console.log('googleAnalyticData',googleAnalyticData);
         if (googleAnalyticData)
             res.json({
-                'listOfPages': googleAnalyticData.data
+                'listOfPages': googleAnalyticData
             });
         else
             res.json({'message': req.showMetric.error.message});
@@ -25,11 +26,15 @@ module.exports = function (app) {
 
 
     // To get the google data based on metric name
-    app.post('/api/v1/google/data', getGoogleMetricData.getGoogleAnalyticData, function (req, res) {
+    app.post('/api/v1/channels/data', getGoogleMetricData.getGoogleAnalyticData, function (req, res) {
+        console.log('result');
         var googleAnalyticData = req.app.result;
         if (googleAnalyticData)
             res.json({'result': googleAnalyticData});
         else
             res.json({'message': req.app.error.message});
     });
+
+
+
 };

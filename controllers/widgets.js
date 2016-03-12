@@ -1,14 +1,24 @@
 var widgetsList = require('../middlewares/getWidget');
 
-/**
- * This is the middleware to get the list of metrics based on channels
- * @param app - loading the app which is for using express ,etc
- * @param req - request from client - contains urls,inputs ..
- * @callback dashboard - result from db call
- */
+
 module.exports = function (app) {
-    app.get('/api/v1/get/widgets/:dashboardId', widgetsList.widgets, function (req, res) {
+    /**
+     *  to get the list of widgets based on dashboard
+     * @param app - loading the app which is for using express ,etc
+     * @param req - request from client - contains urls,inputs ..
+     * @callback dashboard - result from db call
+     */
+    app.get('/api/v1/dashboards/widgets/:dashboardId', widgetsList.widgets, function (req, res) {
         var widgets = req.showMetric.widgets;
+        if (widgets)
+            res.json({widgetsList: widgets});
+        else
+            res.status(500).send({error: ""});
+    });
+
+    //To store the widgets
+    app.post('/api/v1/widgets', widgetsList.saveWidgets, function (req, res) {
+        var widgets = req.app.result;
         if (widgets)
             res.json({widgetsList: widgets});
         else

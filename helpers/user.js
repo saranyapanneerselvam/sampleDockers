@@ -7,6 +7,7 @@ var exports = module.exports = {};
  2.res have the query response
  */
 exports.storeProfiles = function (req, done) {
+    console.log('store profile');
     req.showMetric = {};
     var tokens = req.tokens;
 
@@ -18,6 +19,12 @@ exports.storeProfiles = function (req, done) {
 
         // check to see if theres already a user with that email
         else if (profileDetails) {
+            if(req.channelCode =='2'){
+                profile.update({'email': req.query.email}, {$set: {"accessToken": tokens.access_token}}, function (err, updateResult) {
+
+                })
+            }
+
             req.showMetric.status = 302;
             done(null, {status: 302});
         }

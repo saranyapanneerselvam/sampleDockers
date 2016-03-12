@@ -1,6 +1,7 @@
 var user = require('../models/user');
 var profile = require('../models/profiles');
 var exports = module.exports = {};
+
 /**
  Function to get the user's details such as organization id,name ..
  @params 1.req contains the facebook user details i.e. username,token,email etc

@@ -7,22 +7,44 @@ var exports = module.exports = {};
  2.res have the query response
  */
 exports.storeProfiles = function (req, done) {
+    console.log('store profile');
     req.showMetric = {};
     var tokens = req.tokens;
 
     profile.findOne({'email': req.userEmail, 'channelId': req.channelId}, function (err, profileDetails) {
-        console.log('profile', profileDetails,'length');
+        console.log('profile', profileDetails, 'length');
         // if there are any errors, return the error
         if (err)
             done(err);
 
         // check to see if theres already a user with that email
         else if (profileDetails) {
-            req.showMetric.status = 302;
-            done(null, {status: 302});
+            var updated = new Date();
+
+            //Facebook doesn't have refresh token,store refresh token if the channel is google
+            if (req.channelCode == '1') {
+                var accessToken = tokens.access_token;
+                var refreshToken = tokens.refresh_token;
+            }
+
+            //Store the refresh token for facebook
+            else
+                var accessToken = tokens;
+
+            profile.update({'email': req.userEmail}, {
+                $set: {
+                    "accessToken": tokens.access_token,
+                    'updated': updated
+                }
+            }, function (err, updateResult) {
+                if (!err) {
+                    req.showMetric.status = 302;
+                    done(null, {status: 302});
+                }
+
+            })
         }
         else {
-
 
             // if there is no profile with that email
             // create the profile
@@ -50,7 +72,7 @@ exports.storeProfiles = function (req, done) {
 
             // save the user
             newProfile.save(function (err, user) {
-                console.log('user',user);
+                    console.log('user', user);
                     if (err)
                         done(err);
                     else {

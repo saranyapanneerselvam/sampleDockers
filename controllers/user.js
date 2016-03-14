@@ -15,7 +15,7 @@ module.exports = function (app, passport) {
     app.get('/api/v1/login', function (req, res) {
 
         // render the page and pass in any flash data if it exists
-        res.render('login.ejs',{message: req.flash('loginMessage')});
+        res.render('login',{message: req.flash('loginMessage')});
     });
 
     // process the login form

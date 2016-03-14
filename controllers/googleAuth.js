@@ -20,7 +20,7 @@ module.exports = function (app) {
         redirect_uri: 'http://localhost:8080/auth/google/callback',
         approval_prompt: 'force',
         access_type: 'offline',
-        scope: 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/analytics.readonly https://www.googleapis.com/auth/analytics.manage.users ',
+        scope: 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/analytics.readonly ',
         state: '3832$'
     });
 

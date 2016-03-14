@@ -11,24 +11,11 @@ var widgetsSchema = mongoose.Schema({
     chartType: String,
     order: Number,
     offSet: Number,
-    size: {
-        width: Number,
-        height: Number
-    },
-    minSize: {
-        width: Number,
-        height: Number
-    },
-    maxSize: {
-        width: Number,
-        height: Number
-    },
+    size: Object,
+    minSize: Object,
+    maxSize: Object,
     widgetType: String,
-    metrics: {
-        id: Number,
-        metricId: Number,
-        tag: String
-    },
+    metrics: Array,
     created: Date,
     updated: Date,
     deleted: Date

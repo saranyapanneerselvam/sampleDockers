@@ -24,13 +24,13 @@ var sessionConfig = {
 }
 
 
-router.use(function (req, res, next) {
-    req.showMetric = {};
+app.use(function (req, res, next) {
+    req.app = {};
     next();
 })
 // configuration ===============================================================
 mongoose.connect(configDB.url); // connect to our database
-
+mongoose.set('debug', true) ; //set debug
 require('./helpers/passport')(passport); // pass passport for configuration
 
 // set up our express application
@@ -50,7 +50,7 @@ app.use(flash()); // use connect-flash for flash messages stored in session
 
 
 //app.use(express.static(path.join(__dirname, './views')));
-app.set('views', path.join(__dirname, 'public/views'));
+app.set('views', path.join(__dirname, 'public/templates'));
 app.use(express.static(__dirname + '/public'));
 
 
@@ -64,7 +64,7 @@ require('./controllers/profiles')(app);
 require('./controllers/dashboards')(app);
 require('./controllers/widgets')(app);
 require('./controllers/getPageMetricResult')(app);
-//require('./controllers/googleBasic')(app);
+require('./controllers/updateDashboardWidgetData')(app);
 require('./controllers/user')(app, passport);
 
 

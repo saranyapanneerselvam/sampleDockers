@@ -13,5 +13,5 @@ var objectTypesSchema = mongoose.Schema({
 });
 
 // create the model for organization and expose it to our app
-module.exports = mongoose.model('objectTypes', objectTypesSchema);
+module.exports = mongoose.model('Objecttype', objectTypesSchema);
 

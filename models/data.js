@@ -7,7 +7,7 @@ var mongoose = require('mongoose');
 var dataSchema = mongoose.Schema({
     objectId: String,
     metricId: String,
-    data: Object,
+    data: Array,
     created: Date,
     updated: Date,
     deleted: Date

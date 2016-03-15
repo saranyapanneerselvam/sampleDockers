@@ -1,8 +1,8 @@
 module.exports = function (app) {
     var request = require('request');
     var user = require('../helpers/user');
-    var getGoogleMetricData = require('../middlewares/googleBasic');
-// load the auth variables
+    var getGoogleMetricData = require('../middlewares/channelObjectList');
+    // load the auth variables
     var configAuth = require('../config/auth');
     var googleapis = require('googleapis');//To use google api'
     var OAuth2 = googleapis.auth.OAuth2;
@@ -14,8 +14,8 @@ module.exports = function (app) {
         tokenPath: 'https://accounts.google.com/o/oauth2/token',
         authorizationPath: 'oauth2/auth',
     });
-    console.log('config details', configAuth.googleAuth.clientID);
-// Authorization uri definition
+   
+    // Authorization uri definition
     var authorization_uri = oauth2.authCode.authorizeURL({
         redirect_uri: 'http://localhost:8080/auth/google/callback',
         approval_prompt: 'force',

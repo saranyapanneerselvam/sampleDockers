@@ -1,6 +1,6 @@
 var channelMiddleWare = require('../middlewares/getChannels');
 var getChannelMetricData = require('../middlewares/getChannelData');
-var getChannelPageList = require('../middlewares/googleBasic');
+var getChannelPageList = require('../middlewares/channelObjectList');
 
 /**
  * This is the middleware to get the list of channels based on orgId

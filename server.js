@@ -57,6 +57,7 @@ require('./controllers/widgets')(app);
 require('./controllers/getPageMetricResult')(app);
 require('./controllers/updateDashboardWidgetData')(app);
 require('./controllers/user')(app, passport);
+require('./controllers/facebookInsights')(app);
 
 
 router.use(function (req, res, next) {

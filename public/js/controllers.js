@@ -339,94 +339,6 @@ function MainCtrl() {
 };
 
 
-/**
- * dashboardFlotOne - simple controller for data
- * for Flot chart in Dashboard view
- */
-function dashboardFlotOne() {
-
-    var data1 = [
-        [0, 4],
-        [1, 8],
-        [2, 5],
-        [3, 10],
-        [4, 4],
-        [5, 16],
-        [6, 5],
-        [7, 11],
-        [8, 6],
-        [9, 11],
-        [10, 30],
-        [11, 10],
-        [12, 13],
-        [13, 4],
-        [14, 3],
-        [15, 3],
-        [16, 6]
-    ];
-    var data2 = [
-        [0, 1],
-        [1, 0],
-        [2, 2],
-        [3, 0],
-        [4, 1],
-        [5, 3],
-        [6, 1],
-        [7, 5],
-        [8, 2],
-        [9, 3],
-        [10, 2],
-        [11, 1],
-        [12, 0],
-        [13, 2],
-        [14, 8],
-        [15, 0],
-        [16, 0]
-    ];
-
-    var options = {
-        series: {
-            lines: {
-                show: false,
-                fill: true
-            },
-            splines: {
-                show: true,
-                tension: 0.4,
-                lineWidth: 1,
-                fill: 0.4
-            },
-            points: {
-                radius: 0,
-                show: true
-            },
-            shadowSize: 2,
-            grow: {stepMode:"linear",stepDirection:"up",steps:80}
-        },
-        grow: {stepMode:"linear",stepDirection:"up",steps:80},
-        grid: {
-            hoverable: true,
-            clickable: true,
-            tickColor: "#d5d5d5",
-            borderWidth: 1,
-            color: '#d5d5d5'
-        },
-        colors: ["#1ab394", "#1C84C6"],
-        xaxis: {
-        },
-        yaxis: {
-            ticks: 4
-        },
-        tooltip: false
-    };
-
-    /**
-     * Definition of variables
-     * Flot chart
-     */
-    this.flotData = [data1, data2];
-    this.flotOptions = options;
-}
 
 /**
  * dashboardFlotTwo - simple controller for data
@@ -1006,6 +918,13 @@ function flotChartCtrl() {
     this.flotMultiOptions = multiOptions;
 }
 
+function appController($scope, $state) {
+    $scope.openLightBox = function() {
+        $state.go('app.reporting.dashboard.basicWidget');
+        //console.log($state.current.name);
+    };
+}
+
 /**
  * Date Picker code
  */
@@ -1543,117 +1462,6 @@ function widgetFlotChart() {
 
 }
 
-/**
- * modalDemoCtrl - Controller used to run modal view
- * used in Basic form view
- */
-function modalDemoCtrl($scope, $modal) {
-
-    $scope.open = function () {
-
-        var modalInstance = $modal.open({
-            templateUrl: 'views/modal_example.html',
-            controller: ModalInstanceCtrl
-        });
-    };
-
-    $scope.open1 = function () {
-        var modalInstance = $modal.open({
-            templateUrl: 'views/modal_example1.html',
-            controller: ModalInstanceCtrl
-        });
-    };
-
-    $scope.open2 = function () {
-        var modalInstance = $modal.open({
-            templateUrl: 'views/modal_example2.html',
-            controller: ModalInstanceCtrl,
-            windowClass: "animated fadeIn"
-        });
-    };
-
-    $scope.open3 = function (size) {
-        var modalInstance = $modal.open({
-            templateUrl: 'views/modal_example3.html',
-            size: size,
-            controller: ModalInstanceCtrl
-        });
-    };
-
-    $scope.open4 = function () {
-        var modalInstance = $modal.open({
-            templateUrl: 'views/modal_example2.html',
-            controller: ModalInstanceCtrl,
-            windowClass: "animated flipInY"
-        });
-    };
-};
-
-function ModalInstanceCtrl ($scope, $modalInstance) {
-
-    $scope.ok = function () {
-        $modalInstance.close();
-    };
-
-    $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
-    };
-
-
-    $scope.states = [
-        'Alabama',
-        'Alaska',
-        'Arizona',
-        'Arkansas',
-        'California',
-        'Colorado',
-        'Connecticut',
-        'Delaware',
-        'Florida',
-        'Georgia',
-        'Hawaii',
-        'Idaho',
-        'Illinois',
-        'Indiana',
-        'Iowa',
-        'Kansas',
-        'Kentucky',
-        'Louisiana',
-        'Maine',
-        'Maryland',
-        'Massachusetts',
-        'Michigan',
-        'Minnesota',
-        'Mississippi',
-        'Missouri',
-        'Montana',
-        'Nebraska',
-        'Nevada',
-        'New Hampshire',
-        'New Jersey',
-        'New Mexico',
-        'New York',
-        'North Carolina',
-        'North Dakota',
-        'Ohio',
-        'Oklahoma',
-        'Oregon',
-        'Pennsylvania',
-        'Rhode Island',
-        'South Carolina',
-        'South Dakota',
-        'Tennessee',
-        'Texas',
-        'Utah',
-        'Vermont',
-        'Virginia',
-        'Washington',
-        'West Virginia',
-        'Wisconsin',
-        'Wyoming'
-    ];
-
-};
 
 /**
  * ionSlider - Controller for data for Ion Slider plugin
@@ -2872,64 +2680,136 @@ function toastrCtrl($scope, toaster){
 //  //  });
 //};
 //}
+function BasicWidgetLightBoxController($scope,$http,$state) {
 
-function MetricCtrl($scope, $http) {
-    $scope.getMetric = function () {
-        console.log('get metric function');
-        //var vm = this;
-        //vm.supplierList = {};
+    $scope.currentView = 'step_one';
+    $scope.changeCurrentView = function (obj) {
+        $scope.currentView = obj;
+        //console.log($scope.currentView);
+    };
+
+    $scope.getChannels = function () {
+        //console.log('Inside the func get channels   ');
         $http({
             method: 'GET',
-            url: '/api/v1/get/metrics/56ceeec6e4b036a44ac5e068'
+            url: '/api/v1/get/channels'
         }).then(function successCallback(response) {
-            supplierList = [];
-            console.log('List of Metrics', response);
-            var metricList1 = response.data.metricsList;
-            console.log('List shows the error');
-
-            console.log(response.data.metricsList);//response.data);
-
-            for (var i = 0; i < metricList1.length; i++) {
-                //supplierList[];
-                supplierList.push({'name':  metricList1[i].name,'meta':  metricList1[i].meta});
-                //supplierList.push({'meta':  metricList1[i].meta});
-                console.log('List coming..', metricList1[i]);
-            }
-            console.log(supplierList);
-            $scope.metList  = supplierList;
+            $scope.channelList = response.data.channelList;
         }, function errorCallback(error) {
-            console.log('Error in finding metrics');
+            console.log('Error in finding channels');
         });
     };
 
-    $scope.getMetric();
-}
+    $scope.getMetrics = function () {
+        $http({
+            method: 'GET',
+            url: '/api/v1/get/metrics/'+$scope.storedChannelId
+        }).then(function successCallback(response) {
+            //console.log($scope.storedChannelId);
+            $scope.metricList = response.data.metricsList;
+            //console.log($scope.metricList);
+        }, function errorCallback(error) {
+            //console.log('Error in finding metrics');
+        });
+    };
 
-//function MetricSend($scope, $http){
-//    //$scope.selected = {};
-//    $scope.postMetric = function(metric_name) {
-//        console.log('Postmetric inside');
-//       console.log(metric_name.name);
-//        var metricName = metric_name.name;
-//        globalMetricname = metricName;
-//
-//        $http({
-//            method: 'GET',
-//            url: '/api/v1/google/data/' + metricName
-//        }).then(function successCallback(response) {
-//             console.log('Response came', response);
-//            $scope.profile = response.email;
-//            console.log(profile);
-//        }, function errorCallback(error) {
-//            console.log('error coming');
-//        });
-//    };
-//}
+    $scope.getProfiles = function () {
+        //console.log('stored channel ID',$scope.storedChannelId);
+        $http({
+            method: 'GET',
+            url: '/api/v1/get/profiles/'+$scope.storedChannelId
+        }).then(function successCallback(response) {
+            $scope.profileList = response.data.profileList;
+        }, function errorCallback(error) {
+            console.log('Error in finding profiles');
+        });
+    };
+
+    $scope.getObjects = function () {
+        var dropdownvalue = document.getElementById("profileDropdown");
+        $scope.storedProfileId = dropdownvalue.options[dropdownvalue.selectedIndex].id;
+        //console.log('Testing',$scope.storedProfileId);
+        //console.log(parseInt($scope.storedProfileId));
+
+        $http({
+            method: 'GET',
+            url: '/api/v1/get/objects/'+$scope.storedProfileId
+        }).then(function successCallback(response) {
+            $scope.objectList = response.data.objectList;
+            //console.log(response);
+        }, function errorCallback(error) {
+            console.log('Error in finding objects', error);
+        });
+    };
+
+    $scope.clearStoredObject = function () {
+        $scope.storedObjectID = null;
+    };
+
+    /*
+     $scope.addProfile = function () {
+     //console.log('Inside the func add profile');
+     $http({
+     method: 'GET',
+     url: '/api/v1/auth/google'
+     }).then(function successCallback(response) {
+     console.log(response);
+     }, function errorCallback(error) {
+     console.log('Error in authentication', error);
+     });
+     };
+     */
+
+    $scope.clearChannel = function(){
+        $scope.storedChannelName = null;
+        $scope.storedChannelId = null;
+    };
+
+    $scope.clearMetric = function(){
+        $scope.storedMetricName = null;
+    };
+
+    $scope.storeChannel = function(){
+        $scope.storedChannelId = this.ChannelName._id;
+        $scope.storedChannelName = this.ChannelName.name;
+        //console.log($scope.storedChannelId, $scope.storedChannelName);
+    };
+
+    $scope.storeMetric = function(){
+        $scope.storedMetricId = this.MetricName._id;
+        $scope.storedMetricName = this.MetricName.code;
+        //console.log($scope.storedMetricId, $scope.storedMetricName);
+    };
+
+    $scope.closeLightBox = function (){
+        $state.go('^');
+    };
+
+    /*
+     $scope.isChannelChosen = function (){
+     if($scope.storedChannelName != null){
+     this.url = "analyticsReporting.analyticsDashboardTemplate.basicWidget.lightBox_two";
+     }
+     else {
+     this.url = "";
+     }
+     };
+     $scope.isMetricChosen = function (){
+     if($scope.storedMetricName != null){
+     this.url = "analyticsReporting.analyticsDashboardTemplate.basicWidget.lightBox_three";
+     }
+     else {
+     this.url = "";
+     }
+     };
+     */
+    $scope.getChannels();
+}
 
 
 function MetricSend($scope, $http) {
     $scope.postMetric = function () {
-        console.log('metricsend');
+        //console.log('metricsend');
         var jsonData = {
             "endDate": "2016-03-02",
             "startDate": "2016-02-28",
@@ -2938,67 +2818,257 @@ function MetricSend($scope, $http) {
             "pageId": "109151059",
             "email": "metroweddingsindia@gmail.com",
             "metricName": "sessions"
-        }
+        };
         $http.post('/api/v1/google/data/', jsonData)
             .then(function (response) {
-                console.log('Response Came', response);
+                //console.log('Response Came', response);
             })   // success
             .catch(function (erro) {
-                console.log('error in sending json object');
+                //console.log('error in sending json object');
             }); // error
     };
 
 }
-function ProfileCtrl($scope,$http){
-  $scope.getProfile = function() {
-  console.log('get profile');
-$http(
-    {
-        method: 'GET',
-        url: '/api/v1/get/profiles/56d52c07e4b0196c549033b6'
-    }).then(function successCallback(response) {
-    profilePage = [];
-    //console.log('List of profiles', response);
-    var profileList1 = response.data.profileList;
-    console.log('got the profiles');
-    console.log(response.data.profileList);
-    for (var i = 0; i < profileList1.length; i++) {
-
-        profilePage.push({'email':  profileList1[i].email});
-        console.log('List coming..', profileList1[i]);
-    }
-    console.log(profilePage);
-    $scope.proPag  = profilePage;
-}, function errorCallback(error) {
-    console.log('Error in finding metrics');
-});
-  };
-//$scope.getProfile();
-}
 
 function graphCtrl($scope,$http){
-$scope.getGraph = function(){
+    $scope.getGraph = function(){
+        $http({
+            method: 'GET',
+            url: '/api/v1/google/data/' + globalMetricname
+        }).then(function successCallback(response) {
+            countList = [];
+            //console.log('metric name', response);
+            //console.log('State name', $state.current.name);
+            var metricNnamee = response.data;
+            //console.log(metricNnamee);
+            for (var i = 0; i < metricNnamee.length; i++) {
+                countList.push({'totalcount':  metricNnamee[i].totalCount});
+                //console.log('List coming..', metricNnamee[i]);
+            }
+            var countList =  metricNnamee.totalCount;
+            //console.log('totalCount', countList);
+            $scope.totalcountList  = countList;
+        },function errorCallback(response) {
+            //console.log('error');
+        });
+    };
+}
 
-    $http({
-        method: 'GET',
-        url: '/api/v1/google/data/' + globalMetricname
-    }).then(function successCallback(response) {
-        countList = [];
-         console.log('metric name', response);
-        var metricNnamee = response.data;
-        console.log(metricNnamee);
-        for (var i = 0; i < metricNnamee.length; i++) {
-            countList.push({'totalcount':  metricNnamee[i].totalCount});
-            console.log('List coming..', metricNnamee[i]);
+/**
+ *
+ */
+
+function ModalDemoCtrl($scope, $uibModal, $log, $state) {
+    $scope.state = $state;
+
+    $scope.items = ['item1', 'item2', 'item3'];
+    $scope.animationsEnabled = true;
+
+    $scope.open = function (size) {
+        var modalInstance = $uibModal.open({
+            animation: $scope.animationsEnabled,
+            templateUrl: 'modal.ejs',
+            controller: 'ModalInstanceCtrl',
+            size: "lg",
+            resolve: {
+                items: function () {
+                    return $scope.items;
+                }
+            }
+        });
+
+        modalInstance.result.then(function (selectedItem) {
+            $scope.selected = selectedItem;
+            console.log('Displaying selected item',$scope.selected);
+            $state.go('^');
+        }, function () {
+            $state.go('^');
+            $log.info('Modal dismissed at: ' + new Date());
+        });
+    };
+
+    $scope.toggleAnimation = function () {
+        $scope.animationsEnabled = !$scope.animationsEnabled;
+    };
+}
+
+/**
+ *
+ */
+
+function ModalInstanceCtrl($scope, $uibModalInstance, items) {
+
+    $scope.items = items;
+    $scope.selected = {
+        item: $scope.items[0]
+    };
+
+    $scope.ok = function () {
+        $uibModalInstance.close($scope.selected.item);
+    };
+
+    $scope.cancel = function () {
+        $uibModalInstance.dismiss('cancel');
+    };
+}
+
+function DashboardController($scope,$timeout){
+    $scope.gridsterOptions = {
+        margins: [20, 20],
+        columns: 6,
+        draggable: {
+            enabled: true,
+            handle: 'box-header'
+        },
+        pushing: true, // whether to push other items out of the way on move or resize
+        floating: true // whether to automatically float items up so they stack (you can temporarily disable if you are adding unsorted items with ng-repeat)
+        /*
+         columns: 6, // the width of the grid, in columns
+         pushing: true, // whether to push other items out of the way on move or resize
+         floating: true, // whether to automatically float items up so they stack (you can temporarily disable if you are adding unsorted items with ng-repeat)
+         swapping: false, // whether or not to have items of the same size switch places instead of pushing down if they are the same size
+         width: 'auto', // can be an integer or 'auto'. 'auto' scales gridster to be the full width of its containing element
+         colWidth: 'auto', // can be an integer or 'auto'.  'auto' uses the pixel width of the element divided by 'columns'
+         rowHeight: 'match', // can be an integer or 'match'.  Match uses the colWidth, giving you square widgets.
+         margins: [20, 20], // the pixel distance between each widget
+         outerMargin: true, // whether margins apply to outer edges of the grid
+         isMobile: false, // stacks the grid items if true
+         mobileBreakPoint: 200, // if the screen is not wider that this, remove the grid layout and stack the items
+         mobileModeEnabled: true, // whether or not to toggle mobile mode when screen width is less than mobileBreakPoint
+         minColumns: 1, // the minimum columns the grid must have
+         minRows: 2, // the minimum height of the grid, in rows
+         maxRows: 100,
+         defaultSizeX: 2, // the default width of a gridster item, if not specifed
+         defaultSizeY: 1, // the default height of a gridster item, if not specified
+         minSizeX: 1, // minimum column width of an item
+         maxSizeX: null, // maximum column width of an item
+         minSizeY: 1, // minumum row height of an item
+         maxSizeY: null, // maximum row height of an item
+         resizable: {
+         enabled: true,
+         handles: ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'],
+         start: function(event, $element, widgets) {console.log('trying start');}, // optional callback fired when resize is started,
+         resize: function(event, $element, widgets) {console.log('trying drag');}, // optional callback fired when item is resized,
+         stop: function(event, $element, widgets) {console.log('trying stop');} // optional callback fired when item is finished resizing
+         },
+         draggable: {
+         enabled: true, // whether dragging items is supported
+         //handle: '.my-class', // optional selector for resize handle
+         start: function(event, $element, widgets) {console.log('trying start');}, // optional callback fired when drag is started,
+         drag: function(event, $element, widgets) {console.log('trying drag');}, // optional callback fired when item is moved,
+         stop: function(event, $element, widgets) {console.log('trying stop');} // optional callback fired when item is finished dragging
+         }
+         */
+    };
+
+
+    $scope.dashboards = {
+        '1': {
+            id: '1',
+            name: 'Home',
+            widgets: [{
+                col: 0,
+                row: 0,
+                sizeY: 1,
+                sizeX: 1,
+                name: "Widget 1"
+            }, {
+                col: 2,
+                row: 1,
+                sizeY: 1,
+                sizeX: 1,
+                name: "Widget 2"
+            }, {
+                col: 2,
+                row: 1,
+                sizeY: 1,
+                sizeX: 1,
+                name: "Widget 3"
+            }, {
+                col: 2,
+                row: 1,
+                sizeY: 1,
+                sizeX: 1,
+                name: "Widget 4"
+            }, {
+                col: 2,
+                row: 1,
+                sizeY: 1,
+                sizeX: 1,
+                name: "Widget 5"
+            }]
         }
-       var countList =  metricNnamee.totalCount;
-        console.log('totalCount', countList);
-        $scope.totalcountList  = countList;
-    }, function errorCallback(response) {
-       console.log('error');
-    });
-   };
+    };
 
+    $scope.clear = function() {
+        $scope.dashboard.widgets = [];
+    };
+
+    $scope.addWidget = function() {
+        $scope.dashboard.widgets.push({
+            name: "New Metric",
+            sizeX: 1,
+            sizeY: 1
+        });
+    };
+
+    $scope.$watch('selectedDashboardId', function(newVal, oldVal) {
+        if (newVal !== oldVal) {
+            $scope.dashboard = $scope.dashboards[newVal];
+            console.log('In the watch function 1');
+        } else {
+            $scope.dashboard = $scope.dashboards[oldVal];
+        }
+    });
+
+    // init dashboard
+    $scope.selectedDashboardId = '1';
+    //console.log($scope.gridsterOptions);
+}
+
+function CustomWidgetController($scope,$uibModal) {
+    $scope.remove = function(widget) {
+        $scope.dashboard.widgets.splice($scope.dashboard.widgets.indexOf(widget), 1);
+    };
+
+    $scope.openSettings = function(widget) {
+        $uibModal.open({
+            scope: $scope,
+            templateUrl: 'widget_settings.ejs',
+            controller: 'widgetSettingsController',
+            resolve: {
+                widget: function() {
+                    return widget;
+                }
+            }
+        });
+    };
+}
+
+function WidgetSettingsController($scope,$uibModalInstance, widget) {
+    $scope.widget = widget;
+
+    $scope.form = {
+        name: widget.name,
+        sizeX: widget.sizeX,
+        sizeY: widget.sizeY,
+        col: widget.col,
+        row: widget.row
+    };
+
+    $scope.dismiss = function() {
+        $uibModalInstance.dismiss();
+    };
+
+    $scope.remove = function() {
+        $scope.dashboard.widgets.splice($scope.dashboard.widgets.indexOf(widget), 1);
+        $uibModalInstance.close();
+    };
+
+    $scope.submit = function() {
+        angular.extend(widget, $scope.form);
+        $uibModalInstance.close(widget);
+    };
 }
 
 function testController($compile, $scope,$window){
@@ -3015,7 +3085,6 @@ angular
     .module('inspinia')
     .controller('MainCtrl', MainCtrl)
     .controller('TestCtrl')
-    .controller('dashboardFlotOne', dashboardFlotOne)
     .controller('dashboardFlotTwo', dashboardFlotTwo)
     .controller('dashboardFive', dashboardFive)
     .controller('dashboardMap', dashboardMap)
@@ -3023,7 +3092,8 @@ angular
     .controller('rickshawChartCtrl', rickshawChartCtrl)
     .controller('sparklineChartCtrl', sparklineChartCtrl)
     .controller('widgetFlotChart', widgetFlotChart)
-    .controller('modalDemoCtrl', modalDemoCtrl)
+    .controller('ModalDemoCtrl', ModalDemoCtrl)
+    .controller('ModalInstanceCtrl', ModalInstanceCtrl)
     .controller('ionSlider', ionSlider)
     .controller('wizardCtrl', wizardCtrl)
     .controller('CalendarCtrl', CalendarCtrl)
@@ -3042,12 +3112,14 @@ angular
     .controller('agileBoard', agileBoard)
     .controller('draggablePanels', draggablePanels)
     .controller('chartistCtrl', chartistCtrl)
-    .controller('metricsCtrl', metricsCtrl)
     .controller('sweetAlertCtrl', sweetAlertCtrl)
     .controller('selectCtrl', selectCtrl)
     .controller('toastrCtrl', toastrCtrl)
     .controller('testController', testController)
-    .controller('MetricCtrl', MetricCtrl)
-    .controller('ProfileCtrl', ProfileCtrl)
     .controller('MetricSend', MetricSend)
-    .controller('graphCtrl',graphCtrl);
+    .controller('graphCtrl',graphCtrl)
+    .controller('appController',appController)
+    .controller('BasicWidgetLightBoxController',BasicWidgetLightBoxController)
+    .controller('DashboardController',DashboardController)
+    .controller('CustomWidgetController',CustomWidgetController)
+    .controller('WidgetSettingsController',WidgetSettingsController);

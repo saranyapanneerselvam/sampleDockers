@@ -2694,7 +2694,7 @@ function BasicWidgetLightBoxController($scope,$http,$state) {
             method: 'GET',
             url: '/api/v1/get/channels'
         }).then(function successCallback(response) {
-            $scope.channelList = response.data.channelList;
+            $scope.channelList = response.data;
         }, function errorCallback(error) {
             console.log('Error in finding channels');
         });
@@ -2705,16 +2705,13 @@ function BasicWidgetLightBoxController($scope,$http,$state) {
             method: 'GET',
             url: '/api/v1/get/metrics/'+$scope.storedChannelId
         }).then(function successCallback(response) {
-            //console.log($scope.storedChannelId);
             $scope.metricList = response.data.metricsList;
-            //console.log($scope.metricList);
         }, function errorCallback(error) {
-            //console.log('Error in finding metrics');
+            console.log('Error in finding metrics');
         });
     };
 
     $scope.getProfiles = function () {
-        //console.log('stored channel ID',$scope.storedChannelId);
         $http({
             method: 'GET',
             url: '/api/v1/get/profiles/'+$scope.storedChannelId
@@ -2728,15 +2725,12 @@ function BasicWidgetLightBoxController($scope,$http,$state) {
     $scope.getObjects = function () {
         var dropdownvalue = document.getElementById("profileDropdown");
         $scope.storedProfileId = dropdownvalue.options[dropdownvalue.selectedIndex].id;
-        //console.log('Testing',$scope.storedProfileId);
-        //console.log(parseInt($scope.storedProfileId));
 
         $http({
             method: 'GET',
             url: '/api/v1/get/objects/'+$scope.storedProfileId
         }).then(function successCallback(response) {
             $scope.objectList = response.data.objectList;
-            //console.log(response);
         }, function errorCallback(error) {
             console.log('Error in finding objects', error);
         });
@@ -2770,8 +2764,8 @@ function BasicWidgetLightBoxController($scope,$http,$state) {
     };
 
     $scope.storeChannel = function(){
-        $scope.storedChannelId = this.ChannelName._id;
-        $scope.storedChannelName = this.ChannelName.name;
+        $scope.storedChannelId = this.data._id;
+        $scope.storedChannelName = this.data.name;
         //console.log($scope.storedChannelId, $scope.storedChannelName);
     };
 
@@ -2880,9 +2874,9 @@ function ModalDemoCtrl($scope, $uibModal, $log, $state) {
         modalInstance.result.then(function (selectedItem) {
             $scope.selected = selectedItem;
             console.log('Displaying selected item',$scope.selected);
-            $state.go('^');
+            //$state.go('^');
         }, function () {
-            $state.go('^');
+            //$state.go('^');
             $log.info('Modal dismissed at: ' + new Date());
         });
     };
@@ -3015,7 +3009,6 @@ function DashboardController($scope,$timeout){
     $scope.$watch('selectedDashboardId', function(newVal, oldVal) {
         if (newVal !== oldVal) {
             $scope.dashboard = $scope.dashboards[newVal];
-            console.log('In the watch function 1');
         } else {
             $scope.dashboard = $scope.dashboards[oldVal];
         }

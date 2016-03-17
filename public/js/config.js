@@ -65,9 +65,15 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
         })
 
         .state('app.reporting.dashboard.basicWidget', {
-            url: "",
-            templateUrl: "basicWidget.ejs",
-            controller: 'ModalDemoCtrl',
+            url: "/lightBox",
+            views: {
+                'lightbox@app.reporting.dashboard': {
+                    templateUrl: "basicWidget.ejs",
+                    controller: 'ModalDemoCtrl'
+                }
+            },
+            //templateUrl: "basicWidget.ejs",
+            //controller: 'ModalDemoCtrl',
             resolve: {
                 loadPlugin: function ($ocLazyLoad) {
                     return $ocLazyLoad.load([

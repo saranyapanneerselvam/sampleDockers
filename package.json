@@ -28,7 +28,6 @@
     "sharify": "^0.1.6",
     "simple-oauth2": "^0.5.1",
     "lightbox2": "*",
-    "angular-ui-bootstrap": "*",
     "angular-gridster":"*"
   },
   "devDependencies": {

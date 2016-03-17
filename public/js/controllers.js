@@ -15,7 +15,6 @@
  *  - rickshawChartCtrl
  *  - sparklineChartCtrl
  *  - widgetFlotChart
- *  - modalDemoCtrl
  *  - ionSlider
  *  - wizardCtrl
  *  - CalendarCtrl
@@ -38,8 +37,10 @@
  *  - sweetAlertCtrl
  *  - selectCtrl
  *  - toastrCtrl
- *
- *
+
+ *  - AppController
+ *  - LightBoxController
+ *  - BasicWidgetController
  */
 var globalMetricname;
 /**
@@ -916,13 +917,6 @@ function flotChartCtrl() {
     this.flotLineAreaOptions = lineAreaOptions;
     this.flotMultiData = multiData;
     this.flotMultiOptions = multiOptions;
-}
-
-function appController($scope, $state) {
-    $scope.openLightBox = function() {
-        $state.go('app.reporting.dashboard.basicWidget');
-        //console.log($state.current.name);
-    };
 }
 
 /**
@@ -2649,47 +2643,22 @@ function toastrCtrl($scope, toaster){
             showCloseButton: true,
             timeout: 600
         });
-    };
+
+};
 }
 
-//function MetricCtrl($scope, $http){
-//    $scope.getMetric = function() {
-//        console.log('get metric function');
-//        var vm = this;
-//         vm.supplierList = {};
-//        $http({
-//            method: 'GET',
-//            url: '/api/v1/get/metrics/56ceeec6e4b036a44ac5e068'
-//        }).then(function successCallback(response) {
-//            vm.supplierList = response;
-//            console.log('List of Metrics', response);
-//            var metricList = response.data;
-//            for(var i=0; i<metricList.length; i++){
-//                     //supplierList[];
-//                     return metricList.name[i];
-//            }
-//        }, function errorCallback(error) {
-//            console.log('Error in finding metrics');
-//        });
-//
-//        ///*  var vm = this;
-//  //  vm.supplierList = {};*/
-//  //  $http.get('/api/v1/get/metrics/56d52c07e4b0196c549033b6', function(response){
-//  //      //vm.supplierList = response;
-//  //      console.log('List of Metrics', response);
-//  //  });
-//};
-//}
-function BasicWidgetLightBoxController($scope,$http,$state) {
+function AppController($state) {
+
+}
+
+function BasicWidgetController($scope,$http,$state) {
 
     $scope.currentView = 'step_one';
     $scope.changeCurrentView = function (obj) {
         $scope.currentView = obj;
-        //console.log($scope.currentView);
     };
 
     $scope.getChannels = function () {
-        //console.log('Inside the func get channels   ');
         $http({
             method: 'GET',
             url: '/api/v1/get/channels'
@@ -2766,13 +2735,11 @@ function BasicWidgetLightBoxController($scope,$http,$state) {
     $scope.storeChannel = function(){
         $scope.storedChannelId = this.data._id;
         $scope.storedChannelName = this.data.name;
-        //console.log($scope.storedChannelId, $scope.storedChannelName);
     };
 
     $scope.storeMetric = function(){
         $scope.storedMetricId = this.MetricName._id;
         $scope.storedMetricName = this.MetricName.code;
-        //console.log($scope.storedMetricId, $scope.storedMetricName);
     };
 
     $scope.closeLightBox = function (){
@@ -2798,30 +2765,6 @@ function BasicWidgetLightBoxController($scope,$http,$state) {
      };
      */
     $scope.getChannels();
-}
-
-
-function MetricSend($scope, $http) {
-    $scope.postMetric = function () {
-        //console.log('metricsend');
-        var jsonData = {
-            "endDate": "2016-03-02",
-            "startDate": "2016-02-28",
-            "dimensionList": [{"name": "ga:date"}, {"name": "ga:year"}, {"name": "ga:month"}],
-            "channelId": "56d52c07e4b0196c549033b6",
-            "pageId": "109151059",
-            "email": "metroweddingsindia@gmail.com",
-            "metricName": "sessions"
-        };
-        $http.post('/api/v1/google/data/', jsonData)
-            .then(function (response) {
-                //console.log('Response Came', response);
-            })   // success
-            .catch(function (erro) {
-                //console.log('error in sending json object');
-            }); // error
-    };
-
 }
 
 function graphCtrl($scope,$http){
@@ -2852,7 +2795,7 @@ function graphCtrl($scope,$http){
  *
  */
 
-function ModalDemoCtrl($scope, $uibModal, $log, $state) {
+function LightBoxController($scope, $uibModal, $log, $state) {
     $scope.state = $state;
 
     $scope.items = ['item1', 'item2', 'item3'];
@@ -2874,9 +2817,9 @@ function ModalDemoCtrl($scope, $uibModal, $log, $state) {
         modalInstance.result.then(function (selectedItem) {
             $scope.selected = selectedItem;
             console.log('Displaying selected item',$scope.selected);
-            //$state.go('^');
+            $state.go('^');
         }, function () {
-            //$state.go('^');
+            $state.go('^');
             $log.info('Modal dismissed at: ' + new Date());
         });
     };
@@ -3085,8 +3028,6 @@ angular
     .controller('rickshawChartCtrl', rickshawChartCtrl)
     .controller('sparklineChartCtrl', sparklineChartCtrl)
     .controller('widgetFlotChart', widgetFlotChart)
-    .controller('ModalDemoCtrl', ModalDemoCtrl)
-    .controller('ModalInstanceCtrl', ModalInstanceCtrl)
     .controller('ionSlider', ionSlider)
     .controller('wizardCtrl', wizardCtrl)
     .controller('CalendarCtrl', CalendarCtrl)
@@ -3109,10 +3050,15 @@ angular
     .controller('selectCtrl', selectCtrl)
     .controller('toastrCtrl', toastrCtrl)
     .controller('testController', testController)
-    .controller('MetricSend', MetricSend)
+
     .controller('graphCtrl',graphCtrl)
-    .controller('appController',appController)
-    .controller('BasicWidgetLightBoxController',BasicWidgetLightBoxController)
+
+    .controller('AppController', AppController)
+
+    .controller('LightBoxController', LightBoxController)
+    .controller('ModalInstanceCtrl', ModalInstanceCtrl)
+    .controller('BasicWidgetController',BasicWidgetController)
+
     .controller('DashboardController',DashboardController)
     .controller('CustomWidgetController',CustomWidgetController)
     .controller('WidgetSettingsController',WidgetSettingsController);

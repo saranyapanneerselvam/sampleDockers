@@ -25,7 +25,7 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
         .state('app', {
             abstract: true,
             templateUrl: "common/content.ejs",
-            controller: 'appController'
+            controller: 'AppController'
         })
 
         //Defining two sub-parent states 'adReporting' and 'reporting'
@@ -54,26 +54,24 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                 loadPlugin: function ($ocLazyLoad) {
                     return $ocLazyLoad.load([
                         {
-                            files: ['css/angular-gridster.min.css',
-                                'css/style_gridster.css',
-                                'js/jquery.resize.js'
+                            files: ['css/angular-gridster/angular-gridster.min.css',
+                                'css/angular-gridster/style_gridster.css',
+                                'js/angular-gridster/jquery.resize.js'
                             ]
                         }
                     ]);
-                }
-            }
-        })
+}
+}
+})
 
         .state('app.reporting.dashboard.basicWidget', {
             url: "/lightBox",
             views: {
                 'lightbox@app.reporting.dashboard': {
                     templateUrl: "basicWidget.ejs",
-                    controller: 'ModalDemoCtrl'
+                    controller: 'LightBoxController'
                 }
             },
-            //templateUrl: "basicWidget.ejs",
-            //controller: 'ModalDemoCtrl',
             resolve: {
                 loadPlugin: function ($ocLazyLoad) {
                     return $ocLazyLoad.load([

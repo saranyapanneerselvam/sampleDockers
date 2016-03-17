@@ -5,7 +5,7 @@
 
 	if (typeof define === 'function' && define.amd) {
 		// AMD
-		define(['angular'], factory);
+		define(['../bower_components/angular/angular'], factory);
 	} else if (typeof exports === 'object') {
 		// CommonJS
 		module.exports = factory(require('angular'));

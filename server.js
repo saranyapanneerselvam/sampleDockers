@@ -54,6 +54,7 @@ require('./controllers/metrics')(app);
 require('./controllers/profiles')(app);
 require('./controllers/dashboards')(app);
 require('./controllers/widgets')(app);
+require('./controllers/objects')(app);
 require('./controllers/getPageMetricResult')(app);
 require('./controllers/updateDashboardWidgetData')(app);
 require('./controllers/user')(app, passport);

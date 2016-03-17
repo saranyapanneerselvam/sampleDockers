@@ -2847,6 +2847,7 @@ function DashboardController($scope,$timeout,generator) {
             enabled: true,
             handles: ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'],
 
+
             // optional callback fired when resize is started
             start: function (event, $element, widget) {},
 

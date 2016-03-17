@@ -12,7 +12,8 @@
         'ngSanitize',
         'ngAnimate',
         'ui.bootstrap.tpls',
-        'gridster'
+        'gridster',
+        'nvd3'
     ])
 })();
 

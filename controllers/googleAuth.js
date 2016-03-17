@@ -14,7 +14,7 @@ module.exports = function (app) {
         tokenPath: 'https://accounts.google.com/o/oauth2/token',
         authorizationPath: 'oauth2/auth',
     });
-   
+
     // Authorization uri definition
     var authorization_uri = oauth2.authCode.authorizeURL({
         redirect_uri: 'http://localhost:8080/auth/google/callback',

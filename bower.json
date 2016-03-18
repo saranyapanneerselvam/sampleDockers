@@ -1,0 +1,27 @@
+{
+  "name": "ShowMetricDev",
+  "description": "ShowMetric Development version phase 1",
+  "main": "server.js",
+  "authors": [
+    "RAJESH"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Showmetric/ShowmetricBeta",
+  "moduleType": [
+    "node"
+  ],
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "~1.5.1",
+    "d3": "~3.5.16",
+    "nvd3": "~1.8.2",
+    "angular-nvd3": "~1.0.5"
+  }
+}

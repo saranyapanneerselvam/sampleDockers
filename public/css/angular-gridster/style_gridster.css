@@ -26,6 +26,7 @@ ul {
 }
 .box-content {
     padding: 10px;
+    height: 100%;
 }
 .box-header-btns {
     top: 15px;

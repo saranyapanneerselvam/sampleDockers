@@ -3,22 +3,18 @@ var facebookPageInsights = require('../middlewares/facebookInsights');
 
 module.exports = function (app) {
 
-//to search pages
-    app.get('/facebookSearch', function (req, res) {
-        res.render('facebookSearchPages.ejs'); // load the index.ejs file
+    //to search pages
+    app.get('/api/v1/facebookSearch', function (req, res) {
+        res.render('facebookSearchPages.ejs'); // load the facebookSearchPages.ejs file
     });
 
-    //to handle the user request
-    app.get('/getUserRequest',faceBookSearch.getSearchResult, function (req, res) {
-        console.log('req',req.app.result.length);
+    //To get the page list for searched keyword
+    app.get('/api/v1/getUserRequest',faceBookSearch.getSearchResult, function (req, res) {
         res.json({pageLists:req.app.result});
-        //res.render('showPages.ejs',{pageLists:req.app.result}); // load the index.ejs file
     });
 
-    app.get('/getUserPage',facebookPageInsights.getPageInsights, function (req, res) {
-        console.log('req',req.app.result.length);
-        res.json({pageLists:req.app.result});
-        //res.render('showPages.ejs',{pageLists:req.app.result}); // load the index.ejs file
+    app.get('/api/v1/getUserPage',facebookPageInsights.getPageInsights, function (req, res) {
+        res.json({top10Fans:req.app.result});
     });
 
     module.exports = app;

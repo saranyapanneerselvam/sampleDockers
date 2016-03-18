@@ -1,172 +1,270 @@
-var FB = require('fb');//Importing the fb module
+//Importing the fb module
+var FB = require('fb');
+
+//Importing the request module
 var request = require('request');
+
+//Define exports
 var exports = module.exports = {};
-var getEvents = require('events');//To require events module
-var event = new getEvents.EventEmitter();//To create event object to use
 
 /**
- Function to get post's comments,likes,user's details
+ Function to get all posts for a given page id
  @params 1.req contains the  user request i.e page id
- 2.next callback
-
  */
-exports.getPageInsights = function (req) {
-    var accessToken = 'CAACEdEose0cBAHscIUUbZCNXRdWKsqcAp2kyyIsxjYEajwBhK1kCjtyLC1C42IhVSryr8CHiOEv3VNkuCc6u9hzG8jq4IuXVKi7RbKv3lWLc0invdUbDEti4c1Ew9wgjBmAstAInEX8s3peQXXgzn4ZBGhjL5drtMr4dFT5RZAW1ZC0bt4ZAD3xua0DkwCiUZD';
-    var finalPageList = [];
+exports.getPageInsights = function (req, res, next) {
+    var accessToken = 'CAACEdEose0cBAKvF3ZAHtORZBeTI7vzpyVPMVH07ExmxdYdUueNIEd70zbvlCTQD1qXl2zBIdujvsm0myKRj4Uu5xaT1nU7BbFkQ97ZATUQ5HkMUPvJcrk6EzWeY0EFTs7TyjWGwTXw3zVL8qgUdAc57Epbmqh5a47ntebq3DnRWdmqOhttiWKneynZC6PGzU4Jq8gNJCQZDZD';
+
+    //Array to hold the list for a given page id
+    var finalPostList = [];
     var d = new Date();
+
+    //Store the end date
     var endDate = calculateDate(d);
+
+    //To set start date ,before 6 months
     d.setDate(d.getDate() - 180);
+
+    //Store start date
     var startDate = calculateDate(d);
     console.log('start', startDate, 'end', endDate)
 
     //For testing start& end date is hard coded it will be replaced by startDate & endDate
-    var query = 'v2.5/436080606450092?fields=posts.until( 2016-03-17).since(2016-03-07)&access_token=' + accessToken;
-    callGetPostApi(query);
+    var query = 'v2.5/' + req.query.pageId + '?fields=posts.until(' + endDate + ').since(' + startDate + ')&access_token=' + accessToken;
+    return callGetPostApi(query);
 
-    //to get the list of posts for a given keyword
+    //to get the list of posts for a given page id
     function callGetPostApi(query) {
-
+        console.log('query');
         /* make the API call */
         FB.api(
             query,
             function (postList) {
+
+              /*  //To handle timeout error
+                if(postList.error.code === 'ETIMEDOUT'){
+                    req.app.result = {message:'Timed out error',status:408};
+                    next();
+                }*/
+
+
+                //First time data array will come inside posts object
                 if (postList.posts != undefined) {
+
+                    //To get the query from next param
                     var query = postList.posts.paging.next.substr(postList.posts.paging.next.indexOf('v'));
-                    for (key in postList.posts.data) {
-                        finalPageList.push(postList.posts.data[key].id);
-                    }
+                    for (var key in postList.posts.data)
+                        finalPostList.push(postList.posts.data[key].id);
                     return callGetPostApi(query);
                 }
                 else if (postList.posts == undefined && postList.data.length) {
+
+                    //To get the query from next param
                     var query = postList.paging.next.substr(postList.paging.next.indexOf('v'));
-                    for (key in postList.data) {
-                        finalPageList.push(postList.data[key].id);
-                    }
-                    // req.app.result = finalPageList;
-                   return callGetPostApi(query);
+                    for (var key in postList.data)
+                        finalPostList.push(postList.data[key].id);
+                    return callGetPostApi(query);
                 }
-                else {
-                    console.log('pagelist', finalPageList.length);
-                    getPostData(finalPageList);
-                }
+                else
+                    getPostData(finalPostList);
             }
         );
     }
 
     //To form the comment query for each post
     function getPostData(postList) {
+
+        //Store the postlist length
         var length = postList.length;
+
+        //Store all comment's details
         var finalCommentList = [];
+
+        //Store all like's details
         var finalLikeList = [];
+        var likesRes = 0;
+        var commentsRes = 0;
+        var typeComment = 0;
+        var typeLike = 1;
+
+        //To store all comment's& like's details
+        var commentLikedUserList = [];
+
+        //Final user list
+        var finalUserList = [];
         for (var i = 0; i < length; i++) {
-            var likesRes = 0;
-            var commentsRes = 0;
-            var commentLikedUserList=[];
-            var finalUserList=[];
-            error = false; //not used now
-            var commentQuery = 'v2.5/' + postList[i] + '/comments?access_token=CAACEdEose0cBAHscIUUbZCNXRdWKsqcAp2kyyIsxjYEajwBhK1kCjtyLC1C42IhVSryr8CHiOEv3VNkuCc6u9hzG8jq4IuXVKi7RbKv3lWLc0invdUbDEti4c1Ew9wgjBmAstAInEX8s3peQXXgzn4ZBGhjL5drtMr4dFT5RZAW1ZC0bt4ZAD3xua0DkwCiUZD';
-            var likeQuery = 'v2.5/' + postList[i] + '/likes?access_token=CAACEdEose0cBAHscIUUbZCNXRdWKsqcAp2kyyIsxjYEajwBhK1kCjtyLC1C42IhVSryr8CHiOEv3VNkuCc6u9hzG8jq4IuXVKi7RbKv3lWLc0invdUbDEti4c1Ew9wgjBmAstAInEX8s3peQXXgzn4ZBGhjL5drtMr4dFT5RZAW1ZC0bt4ZAD3xua0DkwCiUZD';
+            var error = false; //not used now
+
+            //access token is hard coded for testing
+            var commentQuery = 'v2.5/' + postList[i] + '/comments?access_token=CAACEdEose0cBAKvF3ZAHtORZBeTI7vzpyVPMVH07ExmxdYdUueNIEd70zbvlCTQD1qXl2zBIdujvsm0myKRj4Uu5xaT1nU7BbFkQ97ZATUQ5HkMUPvJcrk6EzWeY0EFTs7TyjWGwTXw3zVL8qgUdAc57Epbmqh5a47ntebq3DnRWdmqOhttiWKneynZC6PGzU4Jq8gNJCQZDZD';
+            var likeQuery = 'v2.5/' + postList[i] + '/likes?access_token=CAACEdEose0cBAKvF3ZAHtORZBeTI7vzpyVPMVH07ExmxdYdUueNIEd70zbvlCTQD1qXl2zBIdujvsm0myKRj4Uu5xaT1nU7BbFkQ97ZATUQ5HkMUPvJcrk6EzWeY0EFTs7TyjWGwTXw3zVL8qgUdAc57Epbmqh5a47ntebq3DnRWdmqOhttiWKneynZC6PGzU4Jq8gNJCQZDZD';
 
             //to call getCommentData to get comments details
-            getCommentData(commentQuery, finalCommentList,function(err,commentsData){
+            getCommentData(commentQuery, finalCommentList, function (err, commentsData) {
                 commentsRes++;
-                if(commentsRes==length){
-                    for(var key in commentsData){
+                if (commentsRes == length) {
+                    for (var key in commentsData)
                         commentLikedUserList.push(commentsData[key]);
-                    }
-                    //console.log('commentsRes',commentsData.length);
-                    console.log('final',commentLikedUserList.length);
-                    callToGetTopFans(commentLikedUserList,finalUserList,'fromComment');
-
+                    return callToGetTopFans(commentLikedUserList, finalUserList, typeComment, next);
                 }
             });
 
             //to call getLikeData to get likes details
             getLikeData(likeQuery, finalLikeList, function (err, response) {
                 likesRes++;
-                if(likesRes==length){
-                    for(var key in response){
+                if (likesRes == length) {
+                    for (var key in response)
                         commentLikedUserList.push(response[key]);
-                    }
-                    callToGetTopFans(commentLikedUserList,finalUserList,'fromLike');
+                    return callToGetTopFans(commentLikedUserList, finalUserList, typeLike, next);
                 }
             });
         }
     }
-    function callToGetTopFans(commentLikedUserList,finalUserList,type){
-        for(var key in commentLikedUserList){
-            finalUserList.push(commentLikedUserList[key]);
-
-        }
-        console.log('total users',type,finalUserList.length);
-    }
 
     //To get the like details
-    function getLikeData(commentQuery, finalLikeList,callback) {
+    function getLikeData(commentQuery, finalLikeList, callback) {
 
         // make the API call
         FB.api(
             commentQuery,
             function (likeDetails) {
 
+              /*  //To handle timeout error
+                if(likeDetails.error.code === 'ETIMEDOUT'){
+                    req.app.result = {message:'Timed out error',status:408};
+                    next();
+                }*/
+                console.log('like', likeDetails)
                 //To check the next in data array
                 if (likeDetails.data.length && likeDetails.paging.next) {
-                    var query = likeDetails.paging.next.substr(likeDetails.paging.next.indexOf('v'));
 
-                    for (var key in likeDetails.data) {
+                    //To get the query from next param
+                    var query = likeDetails.paging.next.substr(likeDetails.paging.next.indexOf('v'));
+                    for (var key in likeDetails.data)
                         finalLikeList.push(likeDetails.data[key]);
-                    }
-                    return getLikeData(query, finalLikeList,callback);
+                    return getLikeData(query, finalLikeList, callback);
                 }
                 else if (likeDetails.data.length && likeDetails.paging.next == undefined) {
-                    for (var key in likeDetails.data) {
+                    for (var key in likeDetails.data)
                         finalLikeList.push(likeDetails.data[key]);
-                    }
                 }
                 else {
-                    for (var key in likeDetails.data) {
+                    for (var key in likeDetails.data)
                         finalLikeList.push(likeDetails.data[key]);
-                    }
-                    req.app.result = finalLikeList;
                 }
-                callback(null,finalLikeList);
+                callback(null, finalLikeList);
             }
         );
     }
 
     //To get the comment details
-    function getCommentData(commentQuery, finalCommentList,callback) {
+    function getCommentData(commentQuery, finalCommentList, callback) {
 
         // make the API call
         FB.api(
             commentQuery,
-            function (pageList) {
+            function (commentList) {
+                console.log('commentList',commentList)
+
+               /* //To handle timeout error
+                if(commentList.error.code === 'ETIMEDOUT'){
+                    req.app.result = {message:'Timed out error',status:408};
+                    next();
+                }*/
+
 
                 //To check the next in data array
-                if (pageList.data.length && pageList.paging.next) {
-                    var query = pageList.paging.next.substr(pageList.paging.next.indexOf('v'));
-                    for (var key in pageList.data) {
-                        finalCommentList.push({id:pageList.data[key].id,name:pageList.data[key].from.name});
-                    }
-                   return getCommentData(query,callback);
+                if (commentList.data.length && commentList.paging.next) {
+
+                    //To get the query from next param
+                    var query = commentList.paging.next.substr(commentList.paging.next.indexOf('v'));
+                    for (var key in commentList.data)
+                        finalCommentList.push({id: commentList.data[key].id, name: commentList.data[key].from.name});
+                    return getCommentData(query, callback);
                 }
-                else if (pageList.data.length && pageList.paging.next == undefined) {
-                    for (var key in pageList.data) {
-                        finalCommentList.push({id:pageList.data[key].id,name:pageList.data[key].from.name});
-                    }
-                    // req.app.result = finalPageList;
-                    //getPostData(finalPageList);
+                else if (commentList.data.length && commentList.paging.next == undefined) {
+                    for (var key in commentList.data)
+                        finalCommentList.push({id: commentList.data[key].id, name: commentList.data[key].from.name});
                 }
                 else {
-                    for (var key in pageList.data) {
-                        finalCommentList.push({id:pageList.data[key].id,name:pageList.data[key].from.name});
+                    for (var key in commentList.data) {
+                        finalCommentList.push({id: commentList.data[key].id, name: commentList.data[key].from.name});
                     }
                 }
-                callback(null,finalCommentList);
+                callback(null, finalCommentList);
             }
         );
     }
 
+    //Combine the results from comment's & like's details
+    function callToGetTopFans(commentLikedUserList, finalUserList, type, next) {
+        for (var key in commentLikedUserList)
+            finalUserList.push(commentLikedUserList[key]);
+        if (type == 1)
+            getTopFans(finalUserList, next);
+    }
+
+    //To get the top ten users
+    function getTopFans(sampleset) {
+
+        //To hold the names of the top ten fans ,here names will be duplicated
+        var repeatedNames = [];
+
+        //Array to hold list of fan's ids
+        var fansList = [];
+
+        //Object to hold the number of occurrences of each user
+        var result = {};
+
+        //Array to hold sorted fans list
+        var sortable = [];
+
+        //Object to hold the unique name
+        var temp = {};
+
+        //Array to store the final result
+        var storeFinalResult = [];
+
+        //To find the number of occurrences of an id
+        for (var i = 0; i < sampleset.length; ++i) {
+            if (!result[sampleset[i].id])
+                result[sampleset[i].id] = 0;
+            ++result[sampleset[i].id];
+        }
+
+        for (var element in result)
+            sortable.push([element, result[element]]);
+
+        //To sort the values in sortable array
+        sortable.sort(function (a, b) {
+            return b[1] - a[1]
+        });
+
+        //Push the top 10 fans id list
+        for (var i = 0; i < 10; i++) {
+            fansList.push(sortable[i][0]);
+        }
+
+        //Find the names for matched ids
+        for (var j = 0; j < fansList.length; j++) {
+            for (var i = 0; i < sampleset.length; i++) {
+                if (sampleset[i].id == fansList[j]) {
+                    repeatedNames.push(sampleset[i].name);
+                }
+            }
+        }
+
+        //To remove duplicates
+        for (var i = 0; i < repeatedNames.length; i++)
+            temp[repeatedNames[i]] = true;
+
+        //To store the final result
+        for (var k in temp)
+            storeFinalResult.push(k);
+
+        req.app.result = storeFinalResult;
+        next();
+        console.log("Your Top 10 fans are: " + storeFinalResult);
+    }
 
     //To format the date
     function calculateDate(d) {
@@ -180,40 +278,3 @@ exports.getPageInsights = function (req) {
     }
 }
 
-/*
- *
- *
- N posts
-
- likesRes=0;
- commentsRes=0;
- error=false;
-
- for{
- getLikeData(a,b,c,d,function(err,likes){
- if(err)
- error=true;
- likesRes++;
- if(likesRes==N && commentsRes==N){
-
- if(error){
- }else{
- // your array is complete.
- req.app.data = data;
- }
- }
- })
- }
-
- getLikeData:
- 10 likes // push to array
- 10 likes// push to array
- 5 likes// push to array
- = 25 likes
- callback(err)
- callback(null)
-
-
- *
- *
- * */

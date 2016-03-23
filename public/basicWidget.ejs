@@ -1,6 +1,6 @@
-<div class="row" ng-init="open()">
+<div class="modal-dialog" ng-init="open()">
     <script type="text/ng-template" id="modal.ejs">
-        <div class="col-lg-12">
+        <div class="col-lg-12 modal-content">
             <div class="ibox">
                 <div class="ibox-title">
                     <div class="ibox-tools">
@@ -51,7 +51,7 @@
                                         <a class="btn btn-primary" ng-click="changeCurrentView('step_one');clearChannel()">Back</a>
                                     </div>
                                     <div class="col-lg-3 text-right">
-                                        <a class="btn btn-primary" ng-click="changeCurrentView('step_three');getProfiles()">Next</a>
+                                        <a class="btn btn-primary" ng-click="changeCurrentView('step_three')">Next</a>
                                     </div>
                                 </div>
                             </div>
@@ -83,8 +83,8 @@
                                             <div class="row">
                                                 <div class="col-lg-12">
                                                 <span ng-click="getObjects()" class="col-lg-12">
-                                                    <select data-placeholder="Choose a Profile" class="chosen-select col-lg-5 " tabindex="2" id="profileDropdown">
-                                                        <option ng-repeat="Profiles in profileList" value="{{Profiles.name}}" id="{{Profiles._id}}">{{Profiles.name}}</option>
+                                                    <select data-placeholder="Choose a Profile" class="chosen-select col-lg-5 " tabindex="2" id="profileOptions">
+                                                        <option ng-repeat="Profiles in profileList" value="{{Profiles.name}}" id="{{Profiles._id}}" ng-selected="defaultItem(this)">{{Profiles.name}}</option>
                                                     </select>
                                                 </span>
                                                 </div>
@@ -112,8 +112,8 @@
                                             <div class="row">
                                                 <div class="col-lg-12">
                                                     <span>
-                                                        <select data-placeholder="Choose a page" class="chosen-select col-lg-5 " tabindex="2">
-                                                            <option ng-repeat="Objects in objectList" value="">{{Objects.name}}</option>
+                                                        <select data-placeholder="Choose a page" class="chosen-select col-lg-5 " tabindex="2" ng-click="storeObject();" id="objectOptions">
+                                                            <option ng-repeat="Objects in objectList" value="{{Objects.name}}" id="{{Objects._id}}">{{Objects.name}}</option>
                                                         </select>
                                                     </span>
                                                 </div>
@@ -130,7 +130,7 @@
                                         <a class="btn btn-primary" ng-click="changeCurrentView('step_two');clearMetric()">Back</a>
                                     </div>
                                     <div class="col-lg-3 text-right">
-                                        <a class="btn btn-primary" ng-click="closeLightBox()">Submit</a>
+                                        <a class="btn btn-primary" ng-click="getWidget();cancel()">Submit</a>
                                     </div>
                                 </div>
                             </div>

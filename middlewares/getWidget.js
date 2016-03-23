@@ -22,15 +22,15 @@ exports.widgets = function (req, res, next) {
         req.showMetric.widgets = widgets;
         next();
     })
-}
+};
 
 exports.saveWidgets = function (req, res, next) {
 //console.log('req',req.body);
     var metricId = req.body.metrics[0].metricId;
-    console.log('metri id', metricId);
+    console.log('is the metric ID there',metricId);
     //To get the default chart type from metric collection based on metric id
     metrics.findOne({_id: metricId}, {defaultChartType: 1}, function (err, response) {
-        console.log('chart', response);
+        console.log('is the chart working', response);
         if (err) {
 
             //send error status
@@ -41,7 +41,6 @@ exports.saveWidgets = function (req, res, next) {
             //To store the widget
             //To check whether new dashboard or not
             if (req.body.widgetId == undefined) {
-                console.log('widget');
                 createWidget.dashboardId = req.body.dashboardId;
                 createWidget.widgetType = req.body.widgetType;
                 createWidget.metrics = req.body.metrics;
@@ -112,11 +111,8 @@ exports.saveWidgets = function (req, res, next) {
                     }
                 });
             }
-
         }
     })
-
-
-}
+};
 
 

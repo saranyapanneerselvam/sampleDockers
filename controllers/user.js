@@ -46,8 +46,11 @@ module.exports = function (app, passport) {
     }));
     //Get the details of logged in user
     app.get('/api/v1/me', userDetails.getUserDetails, function (req, res) {
-        console.log('user', req.showMetric.userDetails);
-        // res.render({text:'hello'});
+        console.log('user details', req.showMetric.userDetails);
+        if (req)
+            res.json({userDetails: req.showMetric.userDetails});
+        else
+            res.status(500).send({error: ""});        // res.render({text:'hello'});
         //res.json({ id: req.user.id, username: req.user.username });
     });
 

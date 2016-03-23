@@ -17,13 +17,9 @@ module.exports = function (app) {
             res.json( req.app.result);
     });
 
-
     // To get the google data based on metric name
     app.post('/api/v1/widgets/data/:widgetId', getChannelMetricData.getChannelData, function (req, res) {
         var getChannelData = req.app.result;
             res.json(getChannelData);
     });
-
-
-
 };

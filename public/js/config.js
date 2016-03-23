@@ -60,9 +60,9 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                             ]
                         }
                     ]);
-}
-}
-})
+                }
+            }
+        })
 
         .state('app.reporting.dashboard.basicWidget', {
             url: "/lightBox",
@@ -80,6 +80,10 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                         }
                     ]);
                 }
+            },
+            params: {
+                firstParam: ["Hi","bye"],
+                secondParam: 'bye'
             }
         });
 }

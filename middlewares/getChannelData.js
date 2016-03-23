@@ -289,21 +289,20 @@ exports.getChannelData = function (req, res, next) {
         })
     }
 
-    //to get google analtic data
+    //to get google analytic data
     function googleDataEntireFunction(profileInfo, channelDetails, widgetDetails, objectDetails, oauth2Client) {
 
         //To get API Nomenclature value for metric name
         metrics.find({'_id': widgetDetails.metrics[0].metricId}, function (err, response) {
             if (response.length) {
-
                 //To find the day's difference between start and end date
                 var startDate = new Date(req.body.startDate);
                 var endDate = new Date(req.body.endDate);
-               /* var timeDiff = Math.abs(endDate.getTime() - startDate.getTime());
+                var timeDiff = Math.abs(endDate.getTime() - startDate.getTime());
                 var totalDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
                 var metricName = response[0].meta.gaMetricName;
                 req.app.noOfRequest = totalDays;
-                var totalRequest = req.app.noOfRequest;*/
+                var totalRequest = req.app.noOfRequest;
                 var dimension;
                 var dimensionArray = [];
                 var dimensionList = [];
@@ -353,7 +352,6 @@ exports.getChannelData = function (req, res, next) {
                         var startDate = calculateDate(dataList.updated);
                         var endDate = calculateDate(d);
                         if (startDate < endDate) {
-
                             //set start date end date
                             analyticData(oauth2Client, objectDetails, dimension, metricName, startDate, endDate, response, dataList);
                         }
@@ -363,7 +361,7 @@ exports.getChannelData = function (req, res, next) {
                         }
                     }
                     else {
-
+                        console.log('Step 5');
                         //call google api
                         d.setDate(d.getDate() - 365);
                         var startDate = calculateDate(d);
@@ -394,7 +392,6 @@ exports.getChannelData = function (req, res, next) {
                         prettyPrint: true
                     }, function (err, result) {
                         if (!err) {
-
                             //calculating the result length
                             var resultLength = result.rows.length;
                             var resultCount = result.rows[0].length - 1;
@@ -412,12 +409,12 @@ exports.getChannelData = function (req, res, next) {
                                         var month = result.rows[i][0].substring(4, 6);
                                         var date = result.rows[i][0].substring(6, 8);
                                         obj[dimensionList[m].name.substr(3)] = [year, month, date].join('-');
-                                        obj['metricName'] = metricName;
+                                        //obj['metricName'] = metricName;
                                         obj['total'] = result.rows[i][resultCount];
                                     }
                                     else {
                                         obj[dimensionList[m].name.substr(3)] = result.rows[i][m];
-                                        obj['metricName'] = metricName;
+                                        //obj['metricName'] = metricName;
                                         obj['total'] = result.rows[i][resultCount];
                                     }
                                 }
@@ -481,6 +478,7 @@ exports.getChannelData = function (req, res, next) {
                         //If there is error in token expiration, then refresh the access token
                         else {
                             oauth2Client.refreshAccessToken(function (err, tokens) {
+                                console.log(tokens);
                                 profileInfo.token = tokens.access_token;
                                 oauth2Client.setCredentials({
                                     access_token: tokens.access_token,
@@ -491,15 +489,13 @@ exports.getChannelData = function (req, res, next) {
                                     if (err || !updateResult)console.log('failure');
                                     else console.log('Update success');
                                 })
-
                             });
-
                         }
                     }
                 );
             }
         })
     }
-}
+};
 
 

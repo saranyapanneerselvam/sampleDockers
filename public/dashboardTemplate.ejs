@@ -1,4 +1,7 @@
-<div>
+<div ng-init="fetchDashboardId()">
+    <div>
+        <a class="btn btn-primary" ng-click="clear()">Clear all widgets</a>
+    </div>
     <div gridster="gridsterOptions">
         <ul>
             <li gridster-item="widget" ng-repeat="widget in dashboard.widgets">
@@ -15,5 +18,5 @@
             </li>
         </ul>
     </div>
+    <div ui-view="lightbox"></div>
 </div>
-<div ui-view="lightbox"></div>

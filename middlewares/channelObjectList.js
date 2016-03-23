@@ -98,7 +98,7 @@ console.log('page',req.query);
             getMetricResults(profileInfo, next);
             profile.update({'email': profileInfo.email}, {$set: {"accessToken": tokens.access_token}}, {upsert: true}, function (err, updateResult) {
                 if (err || !updateResult)console.log('failure');
-                else console.log('Update success');
+                else console.log('Access token Update success');
             })
         });
     }

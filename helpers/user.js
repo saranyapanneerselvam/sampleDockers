@@ -45,7 +45,7 @@ exports.storeProfiles = function (req, done) {
             newProfile.channelId = req.channelId;
 
             //Facebook doesn't have refresh token,store refresh token if the channel is google
-            if (req.channelCode == '1') {
+            if (req.channelCode == req.channelId) {
                 newProfile.accessToken = tokens.access_token;
                 newProfile.refreshToken = tokens.refresh_token;
             }

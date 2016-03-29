@@ -12,7 +12,7 @@ exports.storeProfiles = function (req, done) {
     var tokens = req.tokens;
 
     profile.findOne({'email': req.userEmail, 'channelId': req.channelId}, function (err, profileDetails) {
-        console.log('profile', profileDetails, 'length');
+
         // if there are any errors, return the error
         if (err)
             done(err);
@@ -23,6 +23,7 @@ exports.storeProfiles = function (req, done) {
 
             //Facebook doesn't have refresh token,store refresh token if the channel is google
             if (req.channelCode == '1') {
+                console.log('if');
                 var accessToken = tokens.access_token;
                 var refreshToken = tokens.refresh_token;
             }

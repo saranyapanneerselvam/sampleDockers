@@ -13,7 +13,7 @@ module.exports = function (app, passport) {
 
     // show the login form
     app.get('/api/v1/login', function (req, res) {
-
+console.log(req.flash)
         // render the page and pass in any flash data if it exists
         res.render('login',{message: req.flash('loginMessage')});
     });
@@ -22,7 +22,7 @@ module.exports = function (app, passport) {
     // app.post('/login', do all our passport stuff here);
 
     app.post('/api/v1/login', passport.authenticate('local-login', {
-        successRedirect: '/profile', // redirect to the secure profile section
+        successRedirect: '/api/v1/profile', // redirect to the secure profile section
         failureRedirect: '/api/v1/login', // redirect back to the signup page if there is an error
         failureFlash: true // allow flash messages
     }));
@@ -34,7 +34,7 @@ module.exports = function (app, passport) {
     app.get('/api/v1/signup', function (req, res) {
 
         // render the page and pass in any flash data if it exists
-        res.render('signup.ejs');
+        res.render('signup.ejs',{message:req.flash('signupMessage')});
     });
 
     // process the signup form
@@ -45,7 +45,7 @@ module.exports = function (app, passport) {
         failureFlash: true // allow flash messages
     }));
     //Get the details of logged in user
-    app.get('/api/v1/me', userDetails.getUserDetails, function (req, res) {
+    app.get('/api/v1/me', userDetails.getDetails, function (req, res) {
         console.log('user details', req.showMetric.userDetails);
         if (req)
             res.json({userDetails: req.showMetric.userDetails});
@@ -59,13 +59,13 @@ module.exports = function (app, passport) {
     // =====================================
     // we will want this protected so you have to be logged in to visit
     // we will use route middleware to verify this (the isLoggedIn function)
-    app.get('/profile', function (req, res) {
+    app.get('/api/v1/profile', function (req, res) {
         console.log('user', req.user);
         res.render('profile.ejs');
     });
     app.get('/api/v1/signout', function (req,res) {
         req.logout();
-        //res.render('signup.ejs');
+        res.render('login.ejs');
     });
 
 

@@ -12,7 +12,7 @@ var exports = module.exports = {};
  @params 1.req contains the  user request i.e page id
  */
 exports.getPageInsights = function (req, res, next) {
-    var accessToken = 'CAACEdEose0cBAKvF3ZAHtORZBeTI7vzpyVPMVH07ExmxdYdUueNIEd70zbvlCTQD1qXl2zBIdujvsm0myKRj4Uu5xaT1nU7BbFkQ97ZATUQ5HkMUPvJcrk6EzWeY0EFTs7TyjWGwTXw3zVL8qgUdAc57Epbmqh5a47ntebq3DnRWdmqOhttiWKneynZC6PGzU4Jq8gNJCQZDZD';
+    var accessToken = 'CAACEdEose0cBAGNkZCMc3dFZAbGrEmFHe5ygfWNMfhHbdoyiwSEgTeBJ86dez6lLqz9vxGLUKCzrnCwDBsBPdNZAYLFqDDHs5xxvR6TzuFxEQvcZChI6mDZBQsthipdZCRz7V2jKPBnIKLzz6Gn7Natut7jUbxvBMR67XtQMVt84baWwsZBl3My1T8oMvZC5Kf4ZBlWb0yxxsnAZDZD';
 
     //Array to hold the list for a given page id
     var finalPostList = [];
@@ -39,12 +39,13 @@ exports.getPageInsights = function (req, res, next) {
         FB.api(
             query,
             function (postList) {
+                console.log('post list', postList);
 
-              /*  //To handle timeout error
-                if(postList.error.code === 'ETIMEDOUT'){
-                    req.app.result = {message:'Timed out error',status:408};
-                    next();
-                }*/
+                /*  //To handle timeout error
+                 if(postList.error.code === 'ETIMEDOUT'){
+                 req.app.result = {message:'Timed out error',status:408};
+                 next();
+                 }*/
 
 
                 //First time data array will come inside posts object
@@ -95,8 +96,8 @@ exports.getPageInsights = function (req, res, next) {
             var error = false; //not used now
 
             //access token is hard coded for testing
-            var commentQuery = 'v2.5/' + postList[i] + '/comments?access_token=CAACEdEose0cBAKvF3ZAHtORZBeTI7vzpyVPMVH07ExmxdYdUueNIEd70zbvlCTQD1qXl2zBIdujvsm0myKRj4Uu5xaT1nU7BbFkQ97ZATUQ5HkMUPvJcrk6EzWeY0EFTs7TyjWGwTXw3zVL8qgUdAc57Epbmqh5a47ntebq3DnRWdmqOhttiWKneynZC6PGzU4Jq8gNJCQZDZD';
-            var likeQuery = 'v2.5/' + postList[i] + '/likes?access_token=CAACEdEose0cBAKvF3ZAHtORZBeTI7vzpyVPMVH07ExmxdYdUueNIEd70zbvlCTQD1qXl2zBIdujvsm0myKRj4Uu5xaT1nU7BbFkQ97ZATUQ5HkMUPvJcrk6EzWeY0EFTs7TyjWGwTXw3zVL8qgUdAc57Epbmqh5a47ntebq3DnRWdmqOhttiWKneynZC6PGzU4Jq8gNJCQZDZD';
+            var commentQuery = 'v2.5/' + postList[i] + '/comments?access_token=CAACEdEose0cBAGNkZCMc3dFZAbGrEmFHe5ygfWNMfhHbdoyiwSEgTeBJ86dez6lLqz9vxGLUKCzrnCwDBsBPdNZAYLFqDDHs5xxvR6TzuFxEQvcZChI6mDZBQsthipdZCRz7V2jKPBnIKLzz6Gn7Natut7jUbxvBMR67XtQMVt84baWwsZBl3My1T8oMvZC5Kf4ZBlWb0yxxsnAZDZD';
+            var likeQuery = 'v2.5/' + postList[i] + '/likes?access_token=CAACEdEose0cBAGNkZCMc3dFZAbGrEmFHe5ygfWNMfhHbdoyiwSEgTeBJ86dez6lLqz9vxGLUKCzrnCwDBsBPdNZAYLFqDDHs5xxvR6TzuFxEQvcZChI6mDZBQsthipdZCRz7V2jKPBnIKLzz6Gn7Natut7jUbxvBMR67XtQMVt84baWwsZBl3My1T8oMvZC5Kf4ZBlWb0yxxsnAZDZD';
 
             //to call getCommentData to get comments details
             getCommentData(commentQuery, finalCommentList, function (err, commentsData) {
@@ -128,11 +129,11 @@ exports.getPageInsights = function (req, res, next) {
             commentQuery,
             function (likeDetails) {
 
-              /*  //To handle timeout error
-                if(likeDetails.error.code === 'ETIMEDOUT'){
-                    req.app.result = {message:'Timed out error',status:408};
-                    next();
-                }*/
+                /*  //To handle timeout error
+                 if(likeDetails.error.code === 'ETIMEDOUT'){
+                 req.app.result = {message:'Timed out error',status:408};
+                 next();
+                 }*/
                 console.log('like', likeDetails)
                 //To check the next in data array
                 if (likeDetails.data.length && likeDetails.paging.next) {
@@ -163,13 +164,13 @@ exports.getPageInsights = function (req, res, next) {
         FB.api(
             commentQuery,
             function (commentList) {
-                console.log('commentList',commentList)
+                console.log('commentList', commentList)
 
-               /* //To handle timeout error
-                if(commentList.error.code === 'ETIMEDOUT'){
-                    req.app.result = {message:'Timed out error',status:408};
-                    next();
-                }*/
+                /* //To handle timeout error
+                 if(commentList.error.code === 'ETIMEDOUT'){
+                 req.app.result = {message:'Timed out error',status:408};
+                 next();
+                 }*/
 
 
                 //To check the next in data array

@@ -61,7 +61,6 @@ exports.listAccounts = function (req, res, next) {
     })
 
     function selectGAObjectType(profileInfo, channelDetails) {
-
         console.log('page',req.query);
 
         //To select which object type
@@ -113,6 +112,7 @@ exports.listAccounts = function (req, res, next) {
         }, function (err, result) {
             if (!err) {
                 for (var i = 0; i < result.items.length; i++) {
+
                     getWebProperty(i, result,profileInfo);
                 }
             }
@@ -127,7 +127,7 @@ exports.listAccounts = function (req, res, next) {
     //function to get property list
     function getWebProperty(i, result,profileInfo) {
         analytics.management.webproperties.list({
-            'accountId': result.items[i].id
+            'accountId': result.items[i].id,
         }, function (err, response) {
             for (var j = 0; j < response.items.length; j++) {
                 accountWebpropertList.push({'accountId': result.items[i].id, webPropertyId: response.items[j].id});
@@ -161,6 +161,9 @@ exports.listAccounts = function (req, res, next) {
                 console.log('webPropertyViewIdList', webPropertyViewIdList, result.items.length - 1);
                 var storeObjectLists = objectCollection();
                 console.log('profile',profileInfo);
+
+
+
                 req.app.result = webPropertyViewIdList;
                 next();
             }

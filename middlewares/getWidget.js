@@ -36,6 +36,7 @@ exports.saveWidgets = function (req, res, next) {
             //send error status
         }
         else if (response) {
+            console.log('response')
             var createWidget = new widgetsList();
 
             //To store the widget
@@ -52,6 +53,8 @@ exports.saveWidgets = function (req, res, next) {
                 createWidget.chartType = response.defaultChartType;
                 createWidget.created = new Date();
                 createWidget.updated = new Date();
+console.log('created',createWidget.created);
+
 
                 createWidget.save(function (err, widgetDetail) {
                     if (!err)

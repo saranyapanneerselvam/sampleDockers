@@ -24,6 +24,7 @@ var sessionConfig = {
 }
 // configuration ===============================================================
 mongoose.connect(configDB.url); // connect to our database
+mongoose.set('debug',true);
 
 require('./helpers/passport')(passport); // pass passport for configuration
 
@@ -42,7 +43,7 @@ app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
 
 //app.use(express.static(path.join(__dirname, './views')));
-app.set('views', path.join(__dirname, 'public/views'));
+//app.set('views', path.join(__dirname, 'public/views'));
 app.use(express.static(__dirname + '/public'));
 app.use('/bower_components',  express.static(__dirname + '/bower_components'));
 

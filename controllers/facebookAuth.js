@@ -26,6 +26,7 @@ module.exports = function (app) {
     app.get('/api/v1/auth/facebook', function (req, res) {
 
         res.redirect(authorization_uri);
+        console.log('res',res);
     });
 
 // Callback service parsing the authorization token and asking for the access token
@@ -62,7 +63,7 @@ module.exports = function (app) {
                         console.log('id', parsedData);
                         //set token details to tokens
                         req.tokens = accessToken;
-                        req.channelId = '56d52c7ae4b0196c549033ca';
+                        req.channelId = '56f8de49e4b05e6b92be7744';
                         req.channelCode = '2';
                         FB.setAccessToken(accessToken);//Set access token
                         FB.api(req.userId, {fields: ['id', 'name', 'email']}, function (profile) {
@@ -75,12 +76,13 @@ module.exports = function (app) {
                                 console.log('email', req.userEmail);
                                 //Call the helper to store user details
                                 user.storeProfiles(req, function (err, response) {
+                                    console.log('stored');
                                     if (err)
                                         res.json('Error');
                                     else {
 
                                         //If response of the storeProfiles function is success then redirect it to profile page
-                                        res.redirect('/profile');
+                                        res.redirect('/api/v1/profile');
                                     }
                                 });
                             }

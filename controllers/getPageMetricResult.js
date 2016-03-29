@@ -11,7 +11,7 @@ var getChannelPageList = require('../middlewares/channelObjectList');
 module.exports = function (app) {
 
     /**
-     * To get the google account,property,views detatail based on account detail
+     * To get the google account,property,views detail based on account detail
      */
     app.get('/api/v1/channel/profiles/objectsList/:profileId', getChannelPageList.listAccounts, function (req, res) {
             res.json( req.app.result);

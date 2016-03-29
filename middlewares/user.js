@@ -8,7 +8,9 @@ var exports = module.exports = {};
  2.res have the query response
  @event pageList is used to send & receive the list of pages result
  */
-exports.getUserDetails = function (req, res, next) {
+
+exports.getDetails = function (req, res, next) {
+    console.log('req',req);
     req.showMetric = {};
     user.find({_id: req.user._id}, function (err, response) {
         req.showMetric.userDetails = response;
@@ -16,6 +18,5 @@ exports.getUserDetails = function (req, res, next) {
     });
 
 };
-
 
 

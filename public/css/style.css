@@ -3338,7 +3338,7 @@ video {
     z-index: 2200;
 }
 .modal-body {
-    padding: 20px 30px 30px 30px;
+    padding: 15px 25px 25px 25px;
 }
 .inmodal .modal-body {
     background: #f8fafb;
@@ -3662,7 +3662,6 @@ code {
 }
 .ibox:after,
 .ibox:before {
-    display: table;
 }
 .ibox-title {
     -moz-border-bottom-colors: none;
@@ -3677,7 +3676,7 @@ code {
     color: inherit;
     margin-bottom: 0;
     padding: 14px 15px 7px;
-    min-height: 68px;
+    min-height: 40px;
 }
 .ibox-content {
     background-color: #ffffff;
@@ -5141,6 +5140,52 @@ ins {
 del {
     background-color: #ffc6c6;
 }
+
+/* Basic widget */
+.widget-icons {
+    padding: 10px;
+    margin: 15px;
+    text-align: center;
+    border: 2px solid #e7eaec;
+}
+.widget-icons:hover,
+.widget-icons.active {
+    border: 2px solid #1AB394;
+    /*
+    -webkit-box-shadow: 0px -3px -3px 0px #a8a8a8;
+    -moz-box-shadow: 0px -3px -3px 0px #a8a8a8;
+    box-shadow: 0px -3px 0px 0px #a8a8a8;
+    */
+}
+
+.scrollbar{
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 300px;
+}
+
+#scroller::-webkit-scrollbar{
+    width:10px;
+    background-color:#FFFFFF;
+}
+#scroller::-webkit-scrollbar-thumb{
+    background-color: #1ab394;
+    border-radius:10px;
+}
+#scroller::-webkit-scrollbar-thumb:hover{
+    background-color:#1ab394;
+    border:1px solid #FFFFFF;
+}
+#scroller::-webkit-scrollbar-thumb:active{
+    background-color:#1ab394;
+    border:1px solid #FFFFFF;
+}
+#scroller::-webkit-scrollbar-track{
+    border:1px white solid;
+    border-radius:10px;
+    -webkit-box-shadow:0 0 1px white inset;
+}
+
 /* E-commerce */
 .product-box {
     padding: 0;

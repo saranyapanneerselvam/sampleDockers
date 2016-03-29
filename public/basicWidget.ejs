@@ -1,142 +1,118 @@
-<div class="modal-dialog" ng-init="open()">
+<div class="modal-dialog modal-lg"  ng-init="open()">
     <script type="text/ng-template" id="modal.ejs">
-        <div class="col-lg-12 modal-content">
-            <div class="ibox">
-                <div class="ibox-title">
-                    <div class="ibox-tools">
-                        <h5>Add a Basic Widget</h5>
-                        <a class="close-link" ng-click="cancel()"><i class="fa fa-times"></i></a>
+        <div class="modal-content" ng-controller="BasicWidgetController" ng-init="changeCurrentView('step_one')">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Add a Basic Widget</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="row" ng-show="currentView === 'step_one'">
+                            <div class="col-lg-12">
+                                <div class="wizard clearfix">
+                                    <div class="steps clearfix">
+                                        <ul role="tablist">
+                                            <li role="tab" class="first current" aria-disabled="false" aria-selected="true"><a aria-controls="wizard-p-0"><span class="current-info audible">current step: </span><span class="number">1.</span> Select an app</a></li>
+                                            <li role="tab" class="disabled" aria-disabled="true"><a aria-controls="wizard-p-1"><span class="number">2.</span> Choose a metric</a></li>
+                                            <li role="tab" class="disabled" aria-disabled="true"><a aria-controls="wizard-p-1"><span class="number">3.</span> Authenticate profile</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" ng-show="currentView === 'step_two'">
+                            <div class="col-lg-12">
+                                <div class="wizard clearfix">
+                                    <div class="steps clearfix">
+                                        <ul role="tablist">
+                                            <li role="tab" class="disabled" aria-disabled="true" aria-selected="true"><a aria-controls="wizard-p-0"><span class="number">1.</span> Select an app</a></li>
+                                            <li role="tab" class="current" aria-disabled="false"><a aria-controls="wizard-p-1"><span class="current-info audible">current step: </span><span class="number">2.</span> Choose a metric</a></li>
+                                            <li role="tab" class="disabled" aria-disabled="true"><a aria-controls="wizard-p-1"><span class="number">3.</span> Authenticate profile</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" ng-show="currentView === 'step_three'">
+                            <div class="col-lg-12">
+                                <div class="wizard clearfix">
+                                    <div class="steps clearfix">
+                                        <ul role="tablist">
+                                            <li role="tab" class="disabled" aria-disabled="true" aria-selected="true"><a aria-controls="wizard-p-0"><span class="number">1.</span> Select an app</a></li>
+                                            <li role="tab" class="disabled" aria-disabled="true"><a aria-controls="wizard-p-1"><span class="number">2.</span> Choose a metric</a></li>
+                                            <li role="tab" class="current" aria-disabled="false"><a aria-controls="wizard-p-1"><span class="current-info audible">current step: </span><span class="number">3.</span> Authenticate profile</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="ibox-content" ng-controller="BasicWidgetController" ng-init="getChannels()">
-                    <form action="#" class="wizard-big wizard clearfix">
-                        <div class="steps clearfix col-lg-12" ng-show="currentView === 'step_one'">
-                            <ul role="tablist">
-                                <li role="tab" class="first current"><a><span class="number">1.</span> Select an app</a></li>
-                                <li role="tab" class="disabled"><a><span class="number">2.</span> Choose a metric</a></li>
-                                <li role="tab" class="disabled"><a><span class="number">3.</span> Authenticate Profile</a></li>
-                            </ul>
-                            <br><br>
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <div ng-repeat="data in channelList" name="{{data._id}}" class="col-lg-3 col-md-4 col-sm-5 text-center white-bg social-meet" ng-click="storeChannel();changeCurrentView('step_two');getMetrics()" style="margin: 20px">
-                                        <a name="{{data.name}}">
-                                            <img src="image/lightbox/{{data.name}}.png" width="90" height="50" align="center"/>
-                                            <br/> <strong>{{data.name}}</strong>
-                                        </a>
+                <div class="wrapper wrapper-content">
+                    <div class="scrollbar" id="scroller">
+                        <div class="row" ng-show="currentView === 'step_one'">
+                            <div class="col-lg-12">
+                                <div ng-repeat="data in channelList" name="{{data._id}}" class="col-lg-3 widget-icons" ng-click="storeChannel();changeCurrentView('step_two')">
+                                    <img src="image/lightbox/{{data.name}}.png" style="max-width: 100%;max-height: 100%"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" ng-show="currentView === 'step_two'">
+                            <div class="col-lg-12">
+                                <div ng-repeat="MetricName in metricList" name="{{MetricName.name}}" class="col-lg-3 widget-icons" ng-click="storeMetric();changeCurrentView('step_three')">
+                                    <h4>{{MetricName.name}}</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" ng-show="currentView === 'step_three'">
+                            <div class="col-lg-12" style="background-color: #f3f3f4">
+                                <div class="row" style="margin: 5px">
+                                    <div class="col-lg-12" style="margin: 0px">
+                                        <div class="ibox float-e-margins">
+                                            <div class="ibox-title" style="vertical-align: middle">
+                                                <h5><img src="image/lightbox/{{storedChannelName}}.png" align="left" style="max-height: 30px;max-width: 30px"/>{{storedChannelName}} Account</h5>
+                                            </div>
+                                            <div class="ibox-content" style="display: block;">
+                                                <form class="form-horizontal">
+                                                    <div class="form-group">
+                                                        <div class="col-lg-9">
+                                                            <select class="form-control m-b" ng-model="profileOptionsModel" id="profileOptions" ng-options="profiles as profiles.profileName for profiles in promises"></select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-lg-9">
+                                                            <select class="form-control m-b" ng-model="objectOptionsModel" id="objectOptions" ng-options="objects as objects.name for objects in profileOptionsModel.profileObjects"></select>
+                                                            <div class="infont col-md-3 col-sm-4"><a href="#"><i class="fa fa-refresh"></i></a></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-lg-10" style="margin: 0px;padding: 0px">
+                                                            <div class="col-lg-5" style="float: left;margin: 0px">
+                                                                <a><button type="button" class="btn btn-link"><i class="fa fa-plus-square-o"></i>   Add Profile</button></a>
+                                                            </div>
+                                                            <div class="col-lg-5" style="float: right;margin: 0px">
+                                                                <a><button type="button" class="btn btn-link"><i class="fa fa-trash"></i>   Remove Profile</button></a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="steps clearfix col-lg-12" ng-show="currentView === 'step_two'">
-                            <ul role="tablist">
-                                <li role="tab" class="first disabled"><a><span class="number">1.</span> Select an app</a></li>
-                                <li role="tab" class="current"><a><span class="number">2.</span> Choose a metric</a></li>
-                                <li role="tab" class="disabled"><a><span class="number">3.</span> Authenticate Profile</a></li>
-                            </ul>
-                            <br><br>
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <div class="widget-text-box navy-bg text-center col-lg-2" ng-repeat="MetricName in metricList" name="{{MetricName.name}}" ng-click="storeMetric()">
-                                        <div class="m-b-sm">
-                                            <h4 class="m-xs">{{MetricName.name}}</h4>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <br>
-                            <div class="row">
-                                <div class="col-lg-12 col-lg-push-6 text-right">
-                                    <div class="col-lg-3 text-right">
-                                        <a class="btn btn-primary" ng-click="changeCurrentView('step_one');clearChannel()">Back</a>
-                                    </div>
-                                    <div class="col-lg-3 text-right">
-                                        <a class="btn btn-primary" ng-click="changeCurrentView('step_three')">Next</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <br>
-                        </div>
-                        <div class="steps clearfix col-lg-12" ng-show="currentView === 'step_three'">
-                            <ul role="tablist">
-                                <li role="tab" class="first disabled"><a><span class="number">1.</span> Select an app</a></li>
-                                <li role="tab" class="disabled"><a><span class="number">2.</span> Choose a metric</a></li>
-                                <li role="tab" class="current"><a><span class="number">3.</span> Authenticate Profile</a></li>
-                            </ul>
-                            <br><br>
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <div class="col-lg-3 text-center" >
-                                        <img src="image/lightbox/{{storedChannelName}}.png" class="img img-thumbnail"/>
-                                    </div>
-                                    <div class="col-lg-9 text-left text-primary" style="vertical-align: middle">
-                                        <strong>{{storedChannelName}} Account</strong>
-                                    </div>
-                                </div>
-                            </div>
-                            <br>
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <div class="row">
-                                        <div class="col-lg-3"></div>
-                                        <div class="col-lg-9">
-                                            <div class="row">
-                                                <div class="col-lg-12">
-                                                <span ng-click="getObjects()" class="col-lg-12">
-                                                    <select data-placeholder="Choose a Profile" class="chosen-select col-lg-5 " tabindex="2" id="profileOptions">
-                                                        <option ng-repeat="Profiles in profileList" value="{{Profiles.name}}" id="{{Profiles._id}}" ng-selected="defaultItem(this)">{{Profiles.name}}</option>
-                                                    </select>
-                                                </span>
-                                                </div>
-                                            </div>
-                                            <br>
-                                            <div class="row">
-                                                <div class="col-lg-6" align="left">
-                                                    <a class="small text-muted" ng-click="addProfile()"><i class="fa fa-plus-square-o"></i>Add account</a>
-                                                </div>
-                                                <div class="col-lg-6" align="right">
-                                                    <a class="small text-muted"><i class="fa fa-trash"></i>Remove account</a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-3"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <br>
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <div class="row">
-                                        <div class="col-lg-3"></div>
-                                        <div class="col-lg-9">
-                                            <div class="row">
-                                                <div class="col-lg-12">
-                                                    <span>
-                                                        <select data-placeholder="Choose a page" class="chosen-select col-lg-5 " tabindex="2" ng-click="storeObject();" id="objectOptions">
-                                                            <option ng-repeat="Objects in objectList" value="{{Objects.name}}" id="{{Objects._id}}">{{Objects.name}}</option>
-                                                        </select>
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-3"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <br>
-                            <div class="row">
-                                <div class="col-lg-12 col-lg-push-6 text-right">
-                                    <div class="col-lg-3 text-right">
-                                        <a class="btn btn-primary" ng-click="changeCurrentView('step_two');clearMetric()">Back</a>
-                                    </div>
-                                    <div class="col-lg-3 text-right">
-                                        <a class="btn btn-primary" ng-click="getWidget();cancel()">Submit</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <br>
-                        </div>
-                    </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-lg-12 text-right">
+                        <button class="btn btn-white" id="basicWidgetBackButton1" ng-hide="currentView === 'step_two'" ng-click="changeCurrentView('step_two')">Back</button>
+                        <button class="btn btn-white" id="basicWidgetBackButton2" ng-show="currentView === 'step_two'" ng-click="changeCurrentView('step_one')">Back</button>
+                        <button class="btn btn-primary" id="basicWidgetNextButton" ng-click="getWidget();cancel()">Next</button>
+                    </div>
                 </div>
             </div>
         </div>

@@ -15,7 +15,7 @@ exports.getUserDetails = function (req, res, next) {
         next();
     });
 
-}
+};
 
 
 

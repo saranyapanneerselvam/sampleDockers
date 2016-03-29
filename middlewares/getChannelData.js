@@ -233,7 +233,7 @@ exports.getChannelData = function (req, res, next) {
                     }, {upsert: true}, function (err) {
                         if (err) console.log("User not saved");
                         else {
-                            dataCollection.find({'objectId': widgetDetails.metrics[0].objectId}, function (err, response) {
+                            dataCollection.find({'objectId': widgetDetails.metrics[0].objectId,'metricId':widgetDetails.metrics[0].metricId}, function (err, response) {
                                 if (!err)
                                     req.app.result = response;
                                 else if (!response.length)
@@ -484,6 +484,7 @@ exports.getChannelData = function (req, res, next) {
                                     access_token: tokens.access_token,
                                     refresh_token: tokens.refresh_token
                                 });
+                                console.log('Looping');
                                 googleDataEntireFunction(profileInfo, channelDetails, widgetDetails, objectDetails, oauth2Client);
                                 profile.update({'email': profileInfo.email}, {$set: {"accessToken": tokens.access_token}}, {upsert: true}, function (err, updateResult) {
                                     if (err || !updateResult)console.log('failure');

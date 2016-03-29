@@ -68,7 +68,7 @@ module.exports = function (app) {
 
                             //set token details to tokens
                             req.tokens = token.token;
-                            req.channelId = '56d52c07e4b0196c549033b6';
+                            req.channelId = '56f905d2e4b05e6b92be7a70';
                             req.channelCode = '1';
 
                             //Calling the storeProfiles middleware to store the data

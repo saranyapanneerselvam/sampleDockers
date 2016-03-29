@@ -1,3 +1,4 @@
+var channels = require('../models/channels');
 module.exports = function (app) {
     var request = require('request');
     var user = require('../helpers/user');
@@ -46,11 +47,12 @@ module.exports = function (app) {
                 token = oauth2.accessToken.create(result);
                 var accessToken = result.substr(result.indexOf('=') + 1);
                 var indexExpires = accessToken.indexOf('&');
-                var expires = accessToken.substr(indexExpires);
-                console.log('expires',expires);
-                if(expires){
+                if(indexExpires===-1)
+                    var accessToken = result.substr(result.indexOf('=') + 1);
+                else{
+                    console.log('expires',accessToken);
+                    var expires = accessToken.substr(indexExpires);
                     var accessToken = accessToken.substr(0,indexExpires);
-                    console.log('accesstoken',accessToken)
                 }
 
 
@@ -71,30 +73,35 @@ module.exports = function (app) {
                         console.log('id', parsedData);
                         //set token details to tokens
                         req.tokens = accessToken;
-                        req.channelId = '56f8de49e4b05e6b92be7744';
-                        req.channelCode = '2';
-                        FB.setAccessToken(accessToken);//Set access token
-                        FB.api(req.userId, {fields: ['id', 'name', 'email']}, function (profile) {
-                            if (!profile || profile.error) {
-                                console.log(!profile ? 'error occurred' : profile.error);
-                                return;
-                            }
-                            else {
-                                req.userEmail = profile.email;
-                                console.log('email', req.userEmail);
-                                //Call the helper to store user details
-                                user.storeProfiles(req, function (err, response) {
-                                    console.log('stored');
-                                    if (err)
-                                        res.json('Error');
-                                    else {
+                        channels.findOne({code: 'facebook'}, function (err, channelDetails) {
+                            console.log('parse',req.userId,accessToken);
+                            req.channelId = channelDetails._id;
+                            req.channelCode = '2';
+                            FB.setAccessToken(accessToken);//Set access token
+                            FB.api(req.userId, {fields: ['id', 'name', 'email']}, function (profile) {
+                                console.log('profile',profile)
+                                if (!profile || profile.error) {
+                                    console.log(!profile ? 'error occurred' : profile.error);
+                                    return;
+                                }
+                                else {
+                                    req.userEmail = profile.email;
+                                    console.log('email', req.userEmail);
+                                    //Call the helper to store user details
+                                    user.storeProfiles(req, function (err, response) {
+                                        console.log('stored');
+                                        if (err)
+                                            res.json('Error');
+                                        else {
 
-                                        //If response of the storeProfiles function is success then redirect it to profile page
-                                        res.redirect('/api/v1/profile');
-                                    }
-                                });
-                            }
-                        });
+                                            //If response of the storeProfiles function is success then redirect it to profile page
+                                            res.redirect('/api/v1/profile');
+                                        }
+                                    });
+                                }
+                            });
+                        })
+
                     }
                 })
             }

@@ -10,29 +10,17 @@ exports.storeProfiles = function (req, done) {
     console.log('store profile');
     req.showMetric = {};
     var tokens = req.tokens;
-
     profile.findOne({'email': req.userEmail, 'channelId': req.channelId}, function (err, profileDetails) {
-
+        console.log('profiles', profileDetails)
         // if there are any errors, return the error
         if (err)
             done(err);
 
         // check to see if theres already a user with that email
         else if (profileDetails) {
+            console.log('inside else if');
             var updated = new Date();
-
-            //Facebook doesn't have refresh token,store refresh token if the channel is google
-            if (req.channelCode == '1') {
-                console.log('if');
-                var accessToken = tokens.access_token;
-                var refreshToken = tokens.refresh_token;
-            }
-
-            //Store the refresh token for facebook
-            else
-                var accessToken = tokens;
-
-            profile.update({'email': req.userEmail}, {
+            profile.update({'email': req.userEmail,'channelId': req.channelId}, {
                 $set: {
                     "accessToken": tokens.access_token,
                     'updated': updated

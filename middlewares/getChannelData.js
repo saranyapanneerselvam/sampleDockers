@@ -58,7 +58,7 @@ exports.getChannelData = function (req, res, next) {
                         else {
 
                             //To find the channel
-                            channels.findOne({'_id': profileInfo.channelId}, {code: 1}, function (err, channelDetails) {
+                            channels.findOne({'_id': profileInfo.channelId},  function (err, channelDetails) {
                                 req.app.result = profileInfo;
 
                                 //To check the channel
@@ -82,7 +82,7 @@ exports.getChannelData = function (req, res, next) {
     function selectFBObjectType(profileInfo, channelDetails, widgetDetails, objectDetails) {
 
         //select object type
-        objectTypeCollection.findOne({'_id': objectDetails.objectTypeId}, {type: 1}, function (err, objectType) {
+        objectTypeCollection.findOne({'_id': objectDetails.objectTypeId}, function (err, objectType) {
             if (err)
                 req.app.result = {error: err, message: 'Database error'};
             else if (!profileInfo)
@@ -272,7 +272,7 @@ exports.getChannelData = function (req, res, next) {
 
     //set oauth credentials and get object type details
     function getGAPageData(profileInfo, channelDetails, widgetDetails, objectDetails) {
-        objectTypeCollection.findOne({'_id': objectDetails.objectTypeId}, {type: 1}, function (err, objectType) {
+        objectTypeCollection.findOne({'_id': objectDetails.objectTypeId}, function (err, objectType) {
             if (err)
                 req.app.result = {error: err, message: 'Database error'};
             else if (!profileInfo)

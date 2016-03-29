@@ -1,7 +1,7 @@
 module.exports = function (app) {
     var request = require('request');
     var user = require('../helpers/user');
-    var getGoogleMetricData = require('../middlewares/channelObjectList');
+    var channels = require('../models/channels');
     // load the auth variables
     var configAuth = require('../config/auth');
     var googleapis = require('googleapis');//To use google api'
@@ -68,18 +68,21 @@ module.exports = function (app) {
 
                             //set token details to tokens
                             req.tokens = token.token;
-                            req.channelId = '56f905d2e4b05e6b92be7a70';
-                            req.channelCode = '1';
+                            channels.findOne({code: 'googleanalytics'}, function (err, channelDetails) {
+                                console.log('channelDetails', channelDetails)
+                                req.channelId = channelDetails._id;
+                                req.channelCode = channelDetails._id;
 
-                            //Calling the storeProfiles middleware to store the data
-                            user.storeProfiles(req, function (err, response) {
-                                if (err)
-                                    res.json('Error');
-                                else {
+                                //Calling the storeProfiles middleware to store the data
+                                user.storeProfiles(req, function (err, response) {
+                                    if (err)
+                                        res.json('Error');
+                                    else {
 
-                                    //If response of the storeProfiles function is success then redirect it to profile page
-                                    res.redirect('/api/v1/profile');
-                                }
+                                        //If response of the storeProfiles function is success then redirect it to profile page
+                                        res.redirect('/api/v1/profile');
+                                    }
+                                });
                             });
                         }
                     })

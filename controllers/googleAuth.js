@@ -12,7 +12,7 @@ module.exports = function (app) {
         clientSecret: configAuth.googleAuth.clientSecret,
         site: 'https://accounts.google.com/o/',
         tokenPath: 'https://accounts.google.com/o/oauth2/token',
-        authorizationPath: 'oauth2/auth',
+        authorizationPath: 'oauth2/auth'
     });
 
     // Authorization uri definition

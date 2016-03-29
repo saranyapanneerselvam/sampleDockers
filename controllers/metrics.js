@@ -16,4 +16,15 @@ module.exports = function (app) {
         else
             res.status(500).send({error: ""});
     });
+
+    app.get('/api/v1/get/metricDetails/:metricId', getmetricsList.metricDetails, function (req, res) {
+        var metrics = req.showMetric.metrics;
+        console.log('Here it comes');
+        if (metrics){
+            console.log(metrics);
+            res.json({metricsList: metrics});}
+        else
+            res.status(500).send({error: ""});
+    });
+
 };

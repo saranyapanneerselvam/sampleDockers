@@ -205,7 +205,7 @@ exports.getChannelData = function (req, res, next) {
                 saveResult.metricId = widgetDetails.metrics[0].metricId;
                 saveResult.created = new Date();
                 saveResult.updated = new Date();
-                finalData.push({'impressionCount': totalImpressions[i], 'date': totalDates[i]});
+                finalData.push({'total': totalImpressions[i], 'date': totalDates[i]});
             }
 
             // save the user
@@ -453,7 +453,7 @@ exports.getChannelData = function (req, res, next) {
                                         }, {upsert: true}, function (err) {
                                             if (err) console.log("User not saved");
                                             else {
-                                                dataCollection.find({'objectId': widgetDetails.metrics[0].objectId,'metricId':widgetDetails.metrics[0].metricId}, function (err, response) {
+                                                dataCollection.find({'objectId': widgetDetails.metrics[0].objectId}, function (err, response) {
                                                     if (!err)
                                                         req.app.result = response;
                                                     else if (!response.length)

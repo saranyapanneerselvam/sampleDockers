@@ -22,6 +22,22 @@ exports.metrics = function (req, res, next) {
         req.showMetric.metrics = metrics;
         next();
     })
-}
+};
 
 
+exports.metricDetails = function (req, res, next) {
+    //Set object in req to send the query response to controller
+    req.showMetric = {};
+    /**
+     * Query to find the details of a given metric
+     * @params req.params.metricId metric id from request
+     * @params err - error response
+     * @params metricDetails - query response
+     * callback next which returns response to controller
+     */
+    metricsList.find({_id: req.params.metricId}, function (err, metrics) {
+        console.log('metric details', req.params.metricId, 'err', err, 'metric details', metrics);
+        req.showMetric.metrics = metrics;
+        next();
+    })
+};

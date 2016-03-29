@@ -23,18 +23,12 @@ var widgetCollection = require('../models/widgets');
  */
 exports.getChannelData = function (req, res, next) {
 
-
     //Query to find objectId,metricId
     widgetCollection.findOne({'_id': req.params.widgetId}, {metrics: 1}, function (err, widgetDetails) {
-        if (err){
+        if (err)
             req.app.result = {error: err, message: 'Database error'};
-            next();
-        }
-        else if (!widgetDetails){
+        else if (!widgetDetails)
             req.app.result = {status: 302, message: 'No record found'};
-            next();
-        }
-
         else {
 
             //Query to find the profile id
@@ -70,7 +64,6 @@ exports.getChannelData = function (req, res, next) {
                                 //To check the channel
                                 switch (channelDetails.code) {
                                     case 'googleanalytics':
-                                        console.log('ga')
                                         getGAPageData(profileInfo, channelDetails, widgetDetails, objectDetails);
                                         break;
                                     case 'facebook':
@@ -128,7 +121,6 @@ exports.getChannelData = function (req, res, next) {
                             'objectId': widgetDetails.metrics[0].objectId,
                             'metricId': widgetDetails.metrics[0].metricId
                         }, function (err, dataResult) {
-                            console.log('data', dataResult)
 
                             //Function to format the date
                             function calculateDate(d) {
@@ -140,8 +132,7 @@ exports.getChannelData = function (req, res, next) {
                                 var startDate = [year, month, day].join('-');
                                 return startDate;
                             }
-
-                            d = new Date();
+                             d = new Date();
 
                             //to form query based on start end date
                             function setStartEndDate(n, count) {
@@ -161,7 +152,6 @@ exports.getChannelData = function (req, res, next) {
                                 var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
                                 if (updated < currentDate) {
                                     var query = pageId + "/insights/" + response.meta.fbMetricName + "?since=" + updated + "&until=" + endDate;
-
                                     fetchFBData(query, 3, widgetDetails, dataResult, 1);
                                 }
                                 else {
@@ -175,7 +165,6 @@ exports.getChannelData = function (req, res, next) {
                                 //call the facebook api & store one year data
                                 //ex end date = 09/03/2016 start date = 09/03/2015
                                 for (var j = 0; j < 3; j++) {
-                                    console.log('i',j)
                                     setStartEndDate(93);
                                     if (j == 2) {
                                         setStartEndDate(86, 3);
@@ -263,7 +252,7 @@ exports.getChannelData = function (req, res, next) {
                     saveResult.save(function (err, saved) {
                         if (err || !saved) console.log("User not saved");
                         else {
-                            dataCollection.find({'objectId': widgetDetails.metrics[0].objectId}, function (err, response) {
+                            dataCollection.find({'objectId': widgetDetails.metrics[0].objectId,'metricId':widgetDetails.metrics[0].metricId}, function (err, response) {
                                 wholeResponse.push(saved);
                                 wholeResponse.push(response);
                                 if (!err)
@@ -302,7 +291,6 @@ exports.getChannelData = function (req, res, next) {
 
     //to get google analytic data
     function googleDataEntireFunction(profileInfo, channelDetails, widgetDetails, objectDetails, oauth2Client) {
-        console.log('inside google entire function')
 
         //To get API Nomenclature value for metric name
         metrics.find({'_id': widgetDetails.metrics[0].metricId}, function (err, response) {
@@ -337,7 +325,7 @@ exports.getChannelData = function (req, res, next) {
                     dimension = dimensionArray[dimensionArray.length - 1].dimension;
                 }
 
-                //if user didn't specify any dimension
+                //if user didnt specify any dimension
                 else {
                     dimensionList.push({'name': 'ga:date'});
                     dimension = 'ga:date';
@@ -346,8 +334,7 @@ exports.getChannelData = function (req, res, next) {
                 var endDate = new Date(req.body.endDate);
 
                 //get the entire data from db
-                dataCollection.findOne({'objectId': widgetDetails.metrics[0].objectId}, function (err, dataList) {
-                    console.log('data', dataList);
+                dataCollection.findOne({'objectId': widgetDetails.metrics[0].objectId,'metricId':widgetDetails.metrics[0].metricId}, function (err, dataList) {
 
                     //Function to format the date
                     function calculateDate(d) {
@@ -364,7 +351,6 @@ exports.getChannelData = function (req, res, next) {
                     if (dataList) {
                         var startDate = calculateDate(dataList.updated);
                         var endDate = calculateDate(d);
-                        console.log('updated', startDate, endDate);
                         if (startDate < endDate) {
                             //set start date end date
                             analyticData(oauth2Client, objectDetails, dimension, metricName, startDate, endDate, response, dataList);
@@ -456,7 +442,7 @@ exports.getChannelData = function (req, res, next) {
                                             wholeResponse.push(finalData[data]);
                                         }
 
-                                        var updated = new Date();
+                                       var updated = new Date();
 
                                         //Updating the old data with new one
                                         dataCollection.update({
@@ -467,7 +453,7 @@ exports.getChannelData = function (req, res, next) {
                                         }, {upsert: true}, function (err) {
                                             if (err) console.log("User not saved");
                                             else {
-                                                dataCollection.find({'objectId': widgetDetails.metrics[0].objectId}, function (err, response) {
+                                                dataCollection.find({'objectId': widgetDetails.metrics[0].objectId,'metricId':widgetDetails.metrics[0].metricId}, function (err, response) {
                                                     if (!err)
                                                         req.app.result = response;
                                                     else if (!response.length)

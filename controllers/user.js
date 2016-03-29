@@ -22,7 +22,7 @@ console.log(req.flash)
     // app.post('/login', do all our passport stuff here);
 
     app.post('/api/v1/login', passport.authenticate('local-login', {
-        successRedirect: '/api/v1/profile', // redirect to the secure profile section
+        successRedirect: '/profile', // redirect to the secure profile section
         failureRedirect: '/api/v1/login', // redirect back to the signup page if there is an error
         failureFlash: true // allow flash messages
     }));
@@ -59,7 +59,7 @@ console.log(req.flash)
     // =====================================
     // we will want this protected so you have to be logged in to visit
     // we will use route middleware to verify this (the isLoggedIn function)
-    app.get('/api/v1/profile', function (req, res) {
+    app.get('/profile', function (req, res) {
         console.log('user', req.user);
         res.render('profile.ejs');
     });

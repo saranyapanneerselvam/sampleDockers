@@ -1,5 +1,9 @@
 {
-  "name": "logintest",
+  "name": "ShowMetricDev",
+  "description": "ShowMetric Development version phase 1",
+  "authors": [
+    "RAJESH"
+  ],
   "main": "server.js",
   "scripts": {
     "test": "mocha /tests/server/googleAuth.js -w"

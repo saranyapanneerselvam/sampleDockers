@@ -27,4 +27,3 @@ var metricsSchema = mongoose.Schema({
 
 // create the model for organization and expose it to our app
 module.exports = mongoose.model('Metrics', metricsSchema);
-

@@ -14,13 +14,14 @@ ul {
     background-color: #fff;
 }
 .box-header {
-    background-color: #eee;
+    background-color: #1AB394;
     padding: 0 30px 0 10px;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid #1AB394;
     cursor: move;
     position: relative;
 }
 .box-header h3 {
+    text-decoration-color: #FFFFFF;
     margin-top: 10px;
     display: inline-block;
 }

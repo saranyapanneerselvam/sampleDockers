@@ -69,7 +69,7 @@ module.exports = function (app) {
                             //set token details to tokens
                             req.tokens = token.token;
                             channels.findOne({code: 'googleanalytics'}, function (err, channelDetails) {
-                                console.log('channelDetails', channelDetails)
+                                console.log('channelDetails', channelDetails);
                                 req.channelId = channelDetails._id;
                                 req.channelCode = channelDetails._id;
 
@@ -80,7 +80,7 @@ module.exports = function (app) {
                                     else {
 
                                         //If response of the storeProfiles function is success then redirect it to profile page
-                                        res.redirect('/api/v1/profile');
+                                        res.redirect('/profile');
                                     }
                                 });
                             });

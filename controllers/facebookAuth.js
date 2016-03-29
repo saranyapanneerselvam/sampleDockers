@@ -95,7 +95,7 @@ module.exports = function (app) {
                                         else {
 
                                             //If response of the storeProfiles function is success then redirect it to profile page
-                                            res.redirect('/api/v1/profile');
+                                            res.redirect('/profile');
                                         }
                                     });
                                 }

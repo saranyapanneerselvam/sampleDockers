@@ -2687,44 +2687,21 @@ function LineChartController($scope,$rootScope,generator,$http,DashboardControll
 /**
  *
  */
-function DashboardController($scope,$timeout,$rootScope,generator,dashboardService,$http) {
-    $rootScope.$on('createNewBasicWidget', function(e,obj){
-        console.log('Inside widget creation',obj);
-        var sampleData = [];
-        for(i=0;i<obj.data.data.length;i++){
-            splitDate = [obj.data.data[i].date];
-            newDate = splitDate[1]+'/'+splitDate[2]+'/'+splitDate[0];
-            inputDate = new Date(newDate).getTime();
-            sampleData.push({x: inputDate, y: obj.data.data[i].impressionCount});
-        }
-        var graphData;
-        graphData = [
-            {
-                values: sampleData,      //values - represents the array of {x,y} data points
-                key: 'Impressions', //key  - the name of the series.
-                color: '#1ab394'  //color - optional: choose your own line color.
-            }
-        ];
-        $scope.addWidget(graphData);
-    });
+function DashboardController($scope,$timeout,$rootScope,generator,$http) {
 
     $scope.gridsterOptions = {
         margins: [10, 10], columns: 6, mobileModeEnabled: false, defaultSizeX: 2, defaultSizeY: 2, minSizeX: 2, minSizeY: 2,
         draggable: {enabled: true, handle: 'box-header'},
         resizable: {enabled: true,handles: ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'],
-            // optional callback fired when resize is started
-            start: function (event, $element, widget) {},
-            // optional callback fired when item is resized,
-            resize: function (event, $element, widget) {if (widget.chart.api) widget.chart.api.update();},
-            // optional callback fired when item is finished resizing
-            stop: function (event, $element, widget) {$timeout(function () {if (widget.chart.api) widget.chart.api.update();}, 400)}
+            start: function (event, $element, widget) {}, // optional callback fired when resize is started
+            resize: function (event, $element, widget) {if (widget.chart.api) widget.chart.api.update();}, // optional callback fired when item is resized,
+            stop: function (event, $element, widget) {$timeout(function () {if (widget.chart.api) widget.chart.api.update();}, 400)} // optional callback fired when item is finished resizing
         }
     };
 
     $scope.fetchDashboardId = function () {
         $http({
-            method: 'GET',
-            url: '/api/v1/me'
+            method: 'GET', url: '/api/v1/me'
         }).then(function successCallback(response) {
             $scope.currentDashboardId = response.data.userDetails[0].lastDashboardId;
             $scope.populateDashboardWidgets();
@@ -2735,50 +2712,11 @@ function DashboardController($scope,$timeout,$rootScope,generator,dashboardServi
 
     $scope.populateDashboardWidgets = function(){
         $http({
-            method: 'GET',
-            url: '/api/v1/dashboards/widgets/'+$scope.currentDashboardId
+            method: 'GET', url: '/api/v1/dashboards/widgets/'+$scope.currentDashboardId
         }).then(function successCallback(response) {
-            console.log('widgets in the dashboard response',response.data.widgetsList);
             var responseData = response.data.widgetsList;
-            for(i=0;i<responseData.length;i++) {
-                console.log('response data',responseData[i]);
-
-            }
-
-            for(i=0;i<responseData.length;i++){
-                console.log(responseData[i]._id);
-/*
-                $rootScope.$emit('event#'+i,
-                    $http({
-                        method: 'POST',
-                        url: '/api/v1/widgets/data/'+responseData[i]._id
-                    }).then(function successCallback(response){
-                        console.log('Widget #'+i+" created: ",response.data[0]);
-                        return(response.data[0]);
-                    },function errorCallback(error){
-                        console.log('Error in getting graph data',error);
-                        return(error);
-                    })
-                );
-*/
-/*
-                $http({
-                    method: 'POST',
-                    url: '/api/v1/widgets/data/'+responseData[i]._id
-                }).then(function successCallback(response){
-                    console.log('Widget #'+i+" created: ",response.data[0]);
-                    $scope.$emit('event#'+i,response.data[0]);
-                },function errorCallback(error){
-                    console.log('Error in getting graph data',error);
-                });
-*/
-/*
-                $rootScope.$on('event#'+i,function(e,obj){
-                    console.log('after event',obj);
-                    next();
-                });
-*/
-            }
+            for(i=0;i<responseData.length;i++) {console.log('response data',responseData[i]);}
+            for(i=0;i<responseData.length;i++){console.log(responseData[i]._id);}
             for(i=0;i<responseData.length;i++){
                 $scope.dashboard.widgets.push({
                     name: responseData._id,
@@ -2787,24 +2725,12 @@ function DashboardController($scope,$timeout,$rootScope,generator,dashboardServi
                         options: {
                             chart: {
                                 type: 'lineChart',
-                                margin : {
-                                    top: 20,
-                                    right: 20,
-                                    bottom: 40,
-                                    left: 55
-                                },
+                                margin : { top: 20, right: 20, bottom: 40, left: 55},
                                 x: function(d){ return d.x; },
                                 y: function(d){ return d.y; },
                                 useInteractiveGuideline: true,
-                                xAxis: {
-                                    axisLabel: 'Time (date)',
-                                    tickFormat: function(d) {
-                                        return d3.time.format('%m/%d/%y')(new Date(d))
-                                    }
-                                },
-                                yAxis: {
-                                    axisLabel: 'Sessions'
-                                }
+                                xAxis: {axisLabel: 'Time (date)',tickFormat: function(d) {return d3.time.format('%m/%d/%y')(new Date(d))}},
+                                yAxis: {axisLabel: 'Sessions'}
                             }
                         },
                         data: {},
@@ -2818,53 +2744,40 @@ function DashboardController($scope,$timeout,$rootScope,generator,dashboardServi
         });
     };
 
-    $scope.dashboard = {
-        widgets: [{
-            col: 0, row: 0, sizeY: 2, sizeX: 2, name: "Line Chart Widget", type: 'lineChart',
-            chart: { options: generator.lineChart.options(), data: generator.lineChart.data(), api: {} }
-        }, {
-            col: 2, row: 0, sizeY: 1, sizeX: 1, name: "Pie Chart Widget", type: 'pieChart',
-            chart: { options: generator.pieChart.options(), data: generator.pieChart.data(), api: {} }
-        }, {
-            col: 3, row: 0, sizeY: 1, sizeX: 1, name: "Box Plot Widget",type: 'boxPlotChart',
-            chart: { options: generator.boxPlotChart.options(), data: generator.boxPlotChart.data(), api: {} }
-        }, {
-            col: 0, row: 1, sizeY: 1, sizeX: 2, name: "Discrete Bar Chart Widget", type: 'discreteBarChart',
-            chart: { options: generator.discreteBarChart.options(), data: generator.discreteBarChart.data(), api: {} }
-        }, {
-            col: 2, row: 1, sizeY: 1, sizeX: 2, name: "Stacked Area Chart Widget", type: 'stackedAreaChart',
-            chart: { options: generator.stackedAreaChart.options(), data: generator.stackedAreaChart.data(),api: {} }
-        }]
-    };
-
-    // widget events
-    $scope.events = {
-        resize: function (e, scope) {
-            $timeout(function () {
-                if (scope.api && scope.api.update)
-                    scope.api.update();
-            }, 200)
-        }
-    };
-
-    $scope.config = {visible: false};
-
-    //make chart visible after grid have been created
-    $timeout(function () {
-        $scope.config.visible = true;
-    }, 200);
-
-    //subscribe widget on window resize event
-    angular.element(window).on('resize', function (e) {
-        $scope.$broadcast('resize');
+    $rootScope.$on('createNewBasicWidget', function(e,obj){
+        var graphData, metricNameInGraph;
+        var dataToBePopulated = [];
+        $http({
+            method: 'POST', url: '/api/v1/widgets/data/'+obj.data.widgetsList.id._id
+        }).then(function successCallback(response){
+            console.log(response);
+            for(i=0;i<response.data.data.length;i++){
+                splitDate = [response.data.data[i].date];
+                newDate = splitDate[1]+'/'+splitDate[2]+'/'+splitDate[0];
+                inputDate = new Date(newDate).getTime();
+                dataToBePopulated.push({x: inputDate, y: response.data.data[i].total});
+            }
+            console.log(dataToBePopulated);
+            $http({
+                method:'GET', url:'/api/v1/get/metricDetails/' + response.data.metricId
+            }).then(function successCallback(response){
+                metricNameInGraph = response.data.metricsList[0].name;
+                graphData = [{
+                    values: dataToBePopulated,      //values - represents the array of {x,y} data points
+                    key: metricNameInGraph, //key  - the name of the series.
+                    color: '#1ab394'  //color - optional: choose your own line color.
+                }];
+                console.log(graphData);
+            },function errorCallback(error){
+               console.log('Error in getting metric details',error);
+            });
+        },function errorCallback(error){
+            console.log('Error in getting data after widget creation',error);
+        });
+        $scope.addBasicWidget(graphData);
     });
 
-    // grid manipulation
-    $scope.clear = function () {
-        $scope.dashboard.widgets = [];
-    };
-
-    $scope.addWidget = function (graphData) {
+    $scope.addBasicWidget = function (graphData) {
         $scope.dashboard.widgets.push({
             sizeX: 2,
             sizeY: 2,
@@ -2874,24 +2787,12 @@ function DashboardController($scope,$timeout,$rootScope,generator,dashboardServi
                 options: {
                     chart: {
                         type: 'lineChart',
-                        margin : {
-                            top: 20,
-                            right: 20,
-                            bottom: 40,
-                            left: 55
-                        },
+                        margin : {top: 20, right: 20, bottom: 40, left: 55},
                         x: function(d){ return d.x; },
                         y: function(d){ return d.y; },
                         useInteractiveGuideline: true,
-                        xAxis: {
-                            axisLabel: 'Time (date)',
-                            tickFormat: function(d) {
-                                return d3.time.format('%m/%d/%y')(new Date(d))
-                            }
-                        },
-                        yAxis: {
-                            axisLabel: 'Sessions'
-                        }
+                        xAxis: {axisLabel: 'Time (date)',tickFormat: function(d) {return d3.time.format('%m/%d/%y')(new Date(d))}},
+                        yAxis: {axisLabel: 'Sessions'}
                     }
                 },
                 data: graphData,
@@ -2899,6 +2800,31 @@ function DashboardController($scope,$timeout,$rootScope,generator,dashboardServi
             }
         });
     };
+
+    $scope.dashboard = {
+        widgets: [{
+            col: 0, row: 0, sizeY: 2, sizeX: 2, name: "Line Chart Widget", type: 'lineChart',
+            chart: { options: generator.lineChart.options(), data: generator.lineChart.data(), api: {} }
+        }, {
+            col: 0, row: 0, sizeY: 1, sizeX: 1, name: "Pie Chart Widget", type: 'pieChart',
+            chart: { options: generator.pieChart.options(), data: generator.pieChart.data(), api: {} }
+        }, {
+            col: 0, row: 0, sizeY: 1, sizeX: 1, name: "Box Plot Widget",type: 'boxPlotChart',
+            chart: { options: generator.boxPlotChart.options(), data: generator.boxPlotChart.data(), api: {} }
+        }, {
+            col: 0, row: 1, sizeY: 1, sizeX: 2, name: "Discrete Bar Chart Widget", type: 'discreteBarChart',
+            chart: { options: generator.discreteBarChart.options(), data: generator.discreteBarChart.data(), api: {} }
+        }, {
+            col: 0, row: 1, sizeY: 1, sizeX: 2, name: "Stacked Area Chart Widget", type: 'stackedAreaChart',
+            chart: { options: generator.stackedAreaChart.options(), data: generator.stackedAreaChart.data(),api: {} }
+        }]
+    };
+
+    $scope.events = {resize: function (e, scope) {$timeout(function () {if (scope.api && scope.api.update){scope.api.update();}}, 200)}};    // widget events
+    $scope.config = {visible: false};
+    $timeout(function () {$scope.config.visible = true;}, 200);    //make chart visible after grid have been created
+    angular.element(window).on('resize', function (e) {$scope.$broadcast('resize');});    //subscribe widget on window resize event
+    $scope.clear = function () {$scope.dashboard.widgets = [];};    // grid manipulation
 }
 
 
@@ -3008,6 +2934,8 @@ function BasicWidgetController($scope,$http,$state,$rootScope,dashboardService,$
             method: 'POST', url: '/api/v1/widgets', data: jsonData
         }).then(function successCallback(response){
             console.log('Response after creating widget', response);
+            $rootScope.$emit('createNewBasicWidget',response);
+/*
             $http({
                 method: 'POST', url: '/api/v1/widgets/data/'+response.data.widgetsList.id._id
             }).then(function successCallback(response){
@@ -3016,6 +2944,7 @@ function BasicWidgetController($scope,$http,$state,$rootScope,dashboardService,$
             },function errorCallback(error){
                 console.log('Error in getting data after widget creation',error);
             });
+*/
         }, function errorCallback (error){
             console.log('Error in getting widget id',error);
         });

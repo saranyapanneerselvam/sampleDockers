@@ -252,7 +252,7 @@ exports.getChannelData = function (req, res, next) {
                     saveResult.save(function (err, saved) {
                         if (err || !saved) console.log("User not saved");
                         else {
-                            dataCollection.find({'objectId': widgetDetails.metrics[0].objectId}, function (err, response) {
+                            dataCollection.find({'objectId': widgetDetails.metrics[0].objectId,'metricId':widgetDetails.metrics[0].metricId}, function (err, response) {
                                 wholeResponse.push(saved);
                                 wholeResponse.push(response);
                                 if (!err)
@@ -334,7 +334,7 @@ exports.getChannelData = function (req, res, next) {
                 var endDate = new Date(req.body.endDate);
 
                 //get the entire data from db
-                dataCollection.findOne({'objectId': widgetDetails.metrics[0].objectId}, function (err, dataList) {
+                dataCollection.findOne({'objectId': widgetDetails.metrics[0].objectId,'metricId':widgetDetails.metrics[0].metricId}, function (err, dataList) {
 
                     //Function to format the date
                     function calculateDate(d) {
@@ -453,7 +453,7 @@ exports.getChannelData = function (req, res, next) {
                                         }, {upsert: true}, function (err) {
                                             if (err) console.log("User not saved");
                                             else {
-                                                dataCollection.find({'objectId': widgetDetails.metrics[0].objectId}, function (err, response) {
+                                                dataCollection.find({'objectId': widgetDetails.metrics[0].objectId,'metricId':widgetDetails.metrics[0].metricId}, function (err, response) {
                                                     if (!err)
                                                         req.app.result = response;
                                                     else if (!response.length)

@@ -19,7 +19,7 @@ var analytics = googleapis.analytics({version: 'v3', auth: oauth2Client});// set
 
  */
 exports.listAccounts = function (req, res, next) {
-
+console.log('inside google page list',req.query.objectType);
     //Array to hold web property list
     var accountWebpropertList = [];
 

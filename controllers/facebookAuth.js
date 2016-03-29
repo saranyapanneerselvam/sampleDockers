@@ -9,8 +9,7 @@ module.exports = function (app) {
         clientSecret: configAuth.facebookAuth.clientSecret,
         site: 'https://www.facebook.com/dialog/',
         tokenPath: 'https://graph.facebook.com/oauth/access_token',
-        authorizationPath: 'oauth',
-
+        authorizationPath: 'oauth'
     });
     console.log('config details', configAuth.facebookAuth.clientID);
 // Authorization uri definition
@@ -46,7 +45,16 @@ module.exports = function (app) {
             else {
                 token = oauth2.accessToken.create(result);
                 var accessToken = result.substr(result.indexOf('=') + 1);
-                console.log('access token', accessToken);
+                var indexExpires = accessToken.indexOf('&');
+                var expires = accessToken.substr(indexExpires);
+                console.log('expires',expires);
+                if(expires){
+                    var accessToken = accessToken.substr(0,indexExpires);
+                    console.log('accesstoken',accessToken)
+                }
+
+
+                //console.log('access token', accessToken);
 
                 //To get logged user's userId ,email..
                 request('https://graph.facebook.com/me?access_token=' + accessToken, function (error, response, body) {

@@ -9,6 +9,7 @@ var objectsSchema = mongoose.Schema({
     profileId: String,
     channelObjectId: Number,
     objectTypeId: String,
+    meta:Object,
     created: Date,
     updated: Date,
     deleted: Date

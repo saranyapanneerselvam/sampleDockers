@@ -24,6 +24,18 @@ exports.widgets = function (req, res, next) {
     })
 };
 
+exports.deleteWidgets = function (req, res, next) {
+    console.log('widget id to be removed', req.params.widgetId);
+    widgetsList.remove({_id: req.params.widgetId}, function (err, response) {
+        if (err) {
+            console.log('Error in deleting widget', err);
+        }
+        else if (response) {
+            console.log('response',response);
+        }
+    })
+};
+
 exports.saveWidgets = function (req, res, next) {
 //console.log('req',req.body);
     var metricId = req.body.metrics[0].metricId;
@@ -36,7 +48,7 @@ exports.saveWidgets = function (req, res, next) {
             //send error status
         }
         else if (response) {
-            console.log('response')
+            console.log('response');
             var createWidget = new widgetsList();
 
             //To store the widget
@@ -53,8 +65,7 @@ exports.saveWidgets = function (req, res, next) {
                 createWidget.chartType = response.defaultChartType;
                 createWidget.created = new Date();
                 createWidget.updated = new Date();
-console.log('created',createWidget.created);
-
+                console.log('created',createWidget.created);
 
                 createWidget.save(function (err, widgetDetail) {
                     if (!err)

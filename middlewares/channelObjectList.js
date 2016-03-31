@@ -302,7 +302,7 @@ exports.listAccounts = function (req, res, next) {
                         console.log(adslength);
                         req.app.result = adAccount;
                         for(var i=0 ; i < adslength ; i++){
-                            var objectsResult = new objectCollection();
+                            var objectsResult = new Object();
                             var profileId = profile._id;
                             var objectTypeId = res._id;
                             var channelObjectId = adAccount.data[i].id;

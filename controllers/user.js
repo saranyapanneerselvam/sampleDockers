@@ -40,7 +40,7 @@ console.log(req.flash)
     // process the signup form
     // app.post('/signup', do all our passport stuff here);
     app.post('/api/v1/signup', passport.authenticate('local-signup', {
-        successRedirect: '/api/v1/profile', // redirect to the secure profile section
+        successRedirect: '/profile', // redirect to the secure profile section
         failureRedirect: '/api/v1/signup', // redirect back to the signup page if there is an error
         failureFlash: true // allow flash messages
     }));

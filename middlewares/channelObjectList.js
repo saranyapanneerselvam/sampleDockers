@@ -19,8 +19,7 @@ var analytics = googleapis.analytics({version: 'v3', auth: oauth2Client});// set
 
  */
 exports.listAccounts = function (req, res, next) {
-    console.log('inside google page list', req.query.objectType);
-
+    console.log('inside google page list',req.query.objectType);
     //Array to hold web property list
     var accountWebpropertList = [];
 
@@ -61,13 +60,17 @@ exports.listAccounts = function (req, res, next) {
 
                         //To check the channel
                         switch (channel.code) {
-                            case 'googleanalytics':
+                            case configAuth.channels.googleAnalytics:
                                 console.log('googleanalytics');
-                                selectGAObjectType(profile, channel, objecttype);
+                                selectGAObjectType(profile, channel);
                                 break;
-                            case 'facebook':
+                            case configAuth.channels.facebook:
                                 console.log('facebook');
-                                selectFbObjectType(profile, channel, objecttype);
+                                selectFbObjectType(profile, channel);
+                                break;
+                            case configAuth.channels.facebookAds:
+                                console.log('facebookAds');
+                                selectFbadsObjectType(profile, channel);
                                 break;
                         }
                     })
@@ -75,7 +78,6 @@ exports.listAccounts = function (req, res, next) {
             })
         }
     })
-
 
     function selectGAObjectType(profile, channel, objecttype) {
 
@@ -94,13 +96,11 @@ exports.listAccounts = function (req, res, next) {
             refresh_token: profile.refreshToken
         });
         getAccounts(profile, channel, objecttype);
-
     }
 
     //Function to referesh the access token
     function refreshingAccessToken(profile) {
         oauth2Client.refreshAccessToken(function (err, tokens) {
-
             // your access_token is now refreshed and stored in oauth2Client
             // store these new tokens in a safe place (e.g. database)
             var userDetails = {};
@@ -134,8 +134,7 @@ exports.listAccounts = function (req, res, next) {
                 accountError = true;
                 refreshingAccessToken(profile);
             }
-        })
-
+        });
     }
 
     //function to get property list
@@ -158,7 +157,7 @@ exports.listAccounts = function (req, res, next) {
             }
             else
                 propertyError = true;
-        })
+        });
     }
 
     //function to get the views list
@@ -180,7 +179,6 @@ exports.listAccounts = function (req, res, next) {
                         'viewName': view.items[k].name,
                         meta: {webPropertyName: webProperty.items[j].name, webPropertyId: webProperty.items[j].id}
                     });
-
                 }
             }
 
@@ -205,12 +203,6 @@ exports.listAccounts = function (req, res, next) {
                     next();
                 }
             }
-            /* else {
-             req.app.result = {status: 500, message: 'Error'};
-             next();
-             }*/
-
-
         })
     }
 
@@ -221,16 +213,14 @@ exports.listAccounts = function (req, res, next) {
      @event pageList is used to send & receive the list of pages result
      */
     function selectFbObjectType(profile, channel) {
-
-
         //To select which object type
         switch (req.query.objectType) {
-            case 'page':
+            case configAuth.objectType.facebookPage:
                 console.log('channel');
                 var query = "/" + profile.userId + "/accounts";
                 getFbPageList(profile, channel, query);
                 break;
-            case 'post':
+            case configAuth.objectType.facebookPost:
                 console.log('facebook');
                 getFBPageList(profile, channel);
                 break;
@@ -242,11 +232,11 @@ exports.listAccounts = function (req, res, next) {
 
         //To get the object type id from database
         Objecttype.findOne({
-                'type': req.query.objectType,
-                'channelId': profile.channelId
-            }, function (err, res) {
-                if (!err) {
-                    Object.find({'profileId': profile._id}).sort({updated: -1}).exec(function (err, objectList) {
+            'type': req.query.objectType,
+            'channelId': profile.channelId
+        }, function (err, res) {
+            if (!err) {
+                Object.find({'profileId': profile._id}).sort({updated: -1}).exec(function (err, objectList) {
                         if (err)
                             req.app.result = {error: err, message: 'Database error'};
                         else {
@@ -284,18 +274,84 @@ exports.listAccounts = function (req, res, next) {
                                                         next();
                                                     }
                                                 })
-
                                             }
                                         })
                                     }
-                                })
+                                }
+                            )
                         }
-                    });
-                }
+                    }
+                );
             }
-        );
+        })
     }
 
+    function getFbAdAccountList(profile, channel, query) {
+        var channelObjectDetails = [];
+        //To get the object type id from database
+        Objecttype.findOne({
+            'type':req.query.objectType,
+            'channelId' : profile.channelId
+        },function(err, res){
+            if(!err){
+                FB.setAccessToken(profile.accessToken);
+                FB.api(query,
+                    function(adAccount){
+                        console.log(adAccount);
+                        var adslength = adAccount.data.length;
+                        console.log(adslength);
+                        req.app.result = adAccount;
+                        for(var i=0 ; i < adslength ; i++){
+                            var objectsResult = new objectCollection();
+                            var profileId = profile._id;
+                            var objectTypeId = res._id;
+                            var channelObjectId = adAccount.data[i].id;
+                            var name = adAccount.data[i].name;
+                            var created = new Date();
+                            var updated = new Date();
+                            console.log ('profileInfo._id',profile._id)
+                            console.log ('channelObjectId',channelObjectId)
+                            //To store once
+                            Object.update({
+                                profileId: profile._id,
+                                channelObjectId: adAccount.data[i].id
+                            },{
+                                $setOnInsert: {created: created}, $set: {name: name, objectTypeId:objectTypeId,updated: updated}
+                            },{upsert: true}, function (err, res) {
+                                console.log(err)
+                                console.log(res);
+                                if (!err) {
+                                    Object.find({'profileId': profile._id}, function (err, objectList) {
+                                        channelObjectDetails.push({
+                                            'result': objectList
+                                        })
+                                        if (adAccount.data.length == channelObjectDetails.length) {
+                                            req.app.result = objectList;
+                                            console.log('er');
+                                            next();
+                                        }
+                                    })
+                                }
+                            })
+                        }
+                    }
+                );
+            }
+        })
+    }
 
-}
+    // This function to get adaccounts who login user
+    function selectFbadsObjectType(profile, channel){
+        console.log('insight fbadaccount',req.query.objectType);
+        //To select which object type
+        switch (req.query.objectType) {
+            case configAuth.objectType.facebookAds:
+                console.log('fbadaccount');
+                var query = "v2.5/"+profile.userId+"/adaccounts?fields=name";
+                getFbAdAccountList(profile, channel, query);
+                break;
+        }
+    }
+
+};
 

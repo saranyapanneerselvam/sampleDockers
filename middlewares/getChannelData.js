@@ -30,6 +30,7 @@ exports.getChannelData = function (req, res, next) {
         else if (!widgetDetails)
             req.app.result = {status: 302, message: 'No record found'};
         else {
+            console.log(widgetDetails);
 
             //Query to find the profile id
             objectCollection.findOne({'_id': widgetDetails.metrics[0].objectId}, {
@@ -37,6 +38,7 @@ exports.getChannelData = function (req, res, next) {
                 channelObjectId: 1,
                 objectTypeId: 1
             }, function (err, objectDetails) {
+                console.log(err);
                 if (err)
                     req.app.result = {error: err, message: 'Database error'};
                 else if (!objectDetails)
@@ -63,11 +65,14 @@ exports.getChannelData = function (req, res, next) {
 
                                 //To check the channel
                                 switch (channelDetails.code) {
-                                    case 'googleanalytics':
+                                    case configAuth.channels.googleAnalytics:
                                         getGAPageData(profileInfo, channelDetails, widgetDetails, objectDetails);
                                         break;
-                                    case 'facebook':
+                                    case configAuth.channels.facebook:
                                         selectFBObjectType(profileInfo, channelDetails, widgetDetails, objectDetails);
+                                        break;
+                                    case configAuth.channels.facebookAds:
+                                        selectFBadsObjectType(profileInfo, channelDetails, widgetDetails, objectDetails);
                                         break;
                                 }
                             })
@@ -91,11 +96,11 @@ exports.getChannelData = function (req, res, next) {
 
                 //To select which object type
                 switch (objectType.type) {
-                    case 'page':
+                    case configAuth.objectType.facebookPage:
                         var pageId = objectDetails.channelObjectId;
                         getFBPageData(profileInfo, widgetDetails, objectDetails, pageId);
                         break;
-                    case 'post':
+                    case configAuth.objectType.facebookPost:
                         getFBPageList(profileInfo, channelDetails);
                         break;
                 }
@@ -104,7 +109,166 @@ exports.getChannelData = function (req, res, next) {
 
 
     }
+    //Redirect to specific function based on object type
+    function selectFBadsObjectType(profileInfo, channelDetails, widgetDetails, objectDetails) {
 
+        //select object type
+        objectTypeCollection.findOne({'_id': objectDetails.objectTypeId}, function (err, objectType) {
+            if (err)
+                req.app.result = {error: err, message: 'Database error'};
+            else if (!profileInfo)
+                req.app.result = {status: 302, message: 'No record found'};
+            else {
+
+                //To select which object type
+                switch (objectType.type) {
+                    case configAuth.objectType.facebookAds:
+                        var adAccountId = objectDetails.channelObjectId;
+                        getFBadsinsightsData(profileInfo, widgetDetails, objectDetails, adAccountId);
+                        break;
+
+                }
+            }
+        })
+
+
+    }
+    //To get FacebookAds Insights Data
+    function getFBadsinsightsData(profileInfo, widgetDetails, objectDetails, adAccountId){
+         //To Get the Metrice Type throught widgetDetails
+        //and get metricid and object id from object
+        console.log('adAccountId',adAccountId);
+        metrics.findById(widgetDetails.metrics[0].metricId, function (err, response) {
+            console.log('metrictype',response);
+            if(!err){
+                objectCollection.find({
+                    'channelObjectId': objectDetails.channelObjectId,
+                    'profileId': profileInfo._id
+                }, function (err, objectResult) {
+                    if (!err) {
+                        dataCollection.findOne({
+                            'objectId': widgetDetails.metrics[0].objectId,
+                            'metricId': widgetDetails.metrics[0].metricId
+                        }, function (err, dataResult) {
+                            console.log('dataResult',dataResult);
+
+                            //Function to format the date
+                            function calculateDate(d) {
+                                month = '' + (d.getMonth() + 1),
+                                    day = '' + d.getDate(),
+                                    year = d.getFullYear();
+                                if (month.length < 2) month = '0' + month;
+                                if (day.length < 2) day = '0' + day;
+                                var startDate = [year, month, day].join('-');
+                                return startDate;
+                            }
+                            d = new Date();
+                            console.log('currentDate',d);
+
+                            //to form query based on start end date
+                            function setStartEndDate(n) {
+                                d.setDate(d.getDate() + 1);
+                                var endDate = calculateDate(d);
+                                d.setDate(d.getDate() - n);
+                                var startDate = calculateDate(d);
+                                console.log('startDate',startDate);
+                                console.log('endDate',endDate);
+                                console.log('adAccountId',adAccountId);
+                                var query = "v2.5/" + adAccountId + "/insights?limit=5&time_increment=1&fields=" + response.meta.fbAdsMetricName + '&time_range[since]=' + startDate+ '&time_range[until]=' + endDate;
+                                console.log('query',query);
+                                //var query = pageId + "/insights/" + response.meta.fbAdsMetricName + "?since=" + startDate + "&until=" + endDate;
+                                fetchFBadsData(profileInfo,query, widgetDetails, dataResult);
+                            }
+
+                            if (dataResult) {
+                                var updated = calculateDate(dataResult.updated);
+                                var currentDate = calculateDate(new Date());
+                                d.setDate(d.getDate() + 1);
+                                var endDate = calculateDate(d);
+                                var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+                                if (updated < currentDate) {
+                                    console.log('adAccountId',adAccountId);
+                                    var query = "v2.5/" + adAccountId + "/insights?limit=5&time_increment=1&fields=" + response.meta.fbMetricName + '&time_range[since]=' + updated+ '&time_range[until]=' + endDate;
+                                    console.log('query',query);
+                                    //var query = pageId + "/insights/" + response.meta.fbMetricName + "?since=" + updated + "&until=" + endDate;
+                                    fetchFBadsData(profileInfo,query, 3, widgetDetails, dataResult, 1);
+                                }
+                                else {
+                                    req.app.result = dataResult;
+                                    next();
+                                }
+                            }
+                            else {
+
+                                setStartEndDate(365);
+
+                            }
+                        })
+                    }
+                })
+
+            }
+        });
+    }
+
+// This Function executed to get insights data like(impression,clicks)
+    function fetchFBadsData(profileInfo,query, widgetDetails, dataResult, data) {
+
+        FB.setAccessToken(profileInfo.accessToken);
+        var tot_metric = [];
+        Adsinsights(query);
+        function Adsinsights(query) {
+            FB.api(query, function (res) {
+                console.log('insightsdata', res);
+                var wholeData = [];
+                //controlled pagination Data
+
+                    if (res.paging && res.paging.next) {
+                        console.log("insight if");
+                        tot_metric.push(res.data);
+                        var nextPage = res.paging.next;
+                        var str = nextPage;
+                        var recallApi = str.replace("https://graph.facebook.com/", " ").trim();
+                        console.log(recallApi);
+                        Adsinsights(recallApi);
+                    }
+
+                    else {
+                        tot_metric.push(res.data);
+                        console.log('tot_metric', tot_metric);
+                        for (var i = 0; i < tot_metric.length; i++) {
+                            var obj_metric = (tot_metric[i]);
+                            for (var j = 0; j < obj_metric.length; j++) {
+                                wholeData.push(obj_metric[j]);
+                            }
+                        }
+                        console.log('metricType',wholeData);
+                        updated = new Date();
+
+                        //Updating the old data with new one
+                        dataCollection.update({
+                            'objectId': widgetDetails.metrics[0].objectId
+                        }, {
+                            $set: {data: wholeData, updated: updated}
+                        }, {upsert: true}, function (err) {
+                            if (err) console.log("User not saved");
+                            else {
+                                dataCollection.find({'objectId': widgetDetails.metrics[0].objectId,'metricId':widgetDetails.metrics[0].metricId}, function (err, response) {
+                                    if (!err)
+                                        req.app.result = response;
+                                    else if (!response.length)
+                                        req.app.result = {error: err, message: 'Database error'};
+                                    else
+                                        req.app.result = {status: 302, message: 'No record found'};
+                                    next();
+                                })
+                            }
+                        });
+                    }
+
+            })
+        }
+    }
     //To get facebook data
     function getFBPageData(profileInfo, widgetDetails, objectDetails, pageId) {
         graph.setAccessToken(profileInfo.accessToken);
@@ -177,6 +341,7 @@ exports.getChannelData = function (req, res, next) {
             }
         })
     }
+
 
     /*
      function to execute the query and get impression details of a chosen single metric

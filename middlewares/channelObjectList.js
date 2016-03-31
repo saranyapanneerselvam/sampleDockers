@@ -1,36 +1,59 @@
 var Channel = require('../models/channels');
 var exports = module.exports = {};
-var FB = require('fb');//Importing the fb module
-var googleapis = require('googleapis');//To use google api's
-var graph = require('fbgraph');//Importing the fbgraph module
-var Profile = require('../models/profiles');//To load up the user model
-var metrics = require('../models/metrics');//To load the metrics model
-var dataCollection = require('../models/data');//To load the data model
-var Object = require('../models/objects');//To load the data model
-var Objecttype = require('../models/objectTypes');//To load the data model
-var userCollection = require('../models/user');
-var OAuth2 = googleapis.auth.OAuth2;//Set OAuth
-var configAuth = require('../config/auth');//Load the auth file
-var oauth2Client = new OAuth2(configAuth.googleAuth.clientID, configAuth.googleAuth.clientSecret, configAuth.googleAuth.callbackURL);//set credentials in OAuth2
-var analytics = googleapis.analytics({version: 'v3', auth: oauth2Client});// set auth as a global default
+
+//Importing the fb module
+var FB = require('fb');
+
+//To use google api's
+var googleapis = require('googleapis');
+
+//To load up the user model
+var Profile = require('../models/profiles');
+
+//To load the data model
+var Object = require('../models/objects');
+
+//To load the data model
+var Objecttype = require('../models/objectTypes');
+
+//Set OAuth
+var OAuth2 = googleapis.auth.OAuth2;
+
+//Load the auth file
+var configAuth = require('../config/auth');
+
+//set credentials in OAuth2
+var oauth2Client = new OAuth2(configAuth.googleAuth.clientID, configAuth.googleAuth.clientSecret, configAuth.googleAuth.callbackURL);
+
+// set auth as a global default
+var analytics = googleapis.analytics({version: 'v3', auth: oauth2Client});
 
 /**
  * middleware to get the account details based on user account
 
  */
 exports.listAccounts = function (req, res, next) {
-    console.log('inside google page list',req.query.objectType);
+    console.log('inside google page list', req.query.objectType);
+
     //Array to hold web property list
     var accountWebpropertList = [];
 
     //Array to hold view list
     var webPropertyViewIdList = [];
-    var totalAccounts = 0;
+
+    //To hold the total web property length
     var totalProperties = 0;
+
+    //To hold count value while calling the getWebProperty method
     var totalAccountCall = 0;
+
+    //To hold count value while calling the getWebPropertyView method
     var totalPropertyCall = 0;
+
+    //Set error
     var propertyError = false;
     var accountError = false;
+
     //array to hold google data
     req.app.webPropertyViewIdList = [];
 
@@ -79,11 +102,12 @@ exports.listAccounts = function (req, res, next) {
         }
     })
 
+
     function selectGAObjectType(profile, channel, objecttype) {
 
         //To select which object type
         switch (req.query.objectType) {
-            case 'view':
+            case configAuth.channels.googleView:
                 initializeGa(profile, channel, objecttype);
                 break;
         }
@@ -96,11 +120,13 @@ exports.listAccounts = function (req, res, next) {
             refresh_token: profile.refreshToken
         });
         getAccounts(profile, channel, objecttype);
+
     }
 
     //Function to referesh the access token
     function refreshingAccessToken(profile) {
         oauth2Client.refreshAccessToken(function (err, tokens) {
+
             // your access_token is now refreshed and stored in oauth2Client
             // store these new tokens in a safe place (e.g. database)
             var userDetails = {};
@@ -134,7 +160,8 @@ exports.listAccounts = function (req, res, next) {
                 accountError = true;
                 refreshingAccessToken(profile);
             }
-        });
+        })
+
     }
 
     //function to get property list
@@ -162,6 +189,7 @@ exports.listAccounts = function (req, res, next) {
 
     //function to get the views list
     function getWebPropertyView(i, j, webProperty, account, profile, channel, objecttype) {
+        console.log('objecttype',objecttype)
         analytics.management.profiles.list({
             'accountId': account.items[i].id,
             'webPropertyId': webProperty.items[j].id
@@ -203,6 +231,12 @@ exports.listAccounts = function (req, res, next) {
                     next();
                 }
             }
+            /* else {
+             req.app.result = {status: 500, message: 'Error'};
+             next();
+             }*/
+
+
         })
     }
 
@@ -232,11 +266,11 @@ exports.listAccounts = function (req, res, next) {
 
         //To get the object type id from database
         Objecttype.findOne({
-            'type': req.query.objectType,
-            'channelId': profile.channelId
-        }, function (err, res) {
-            if (!err) {
-                Object.find({'profileId': profile._id}).sort({updated: -1}).exec(function (err, objectList) {
+                'type': req.query.objectType,
+                'channelId': profile.channelId
+            }, function (err, res) {
+                if (!err) {
+                    Object.find({'profileId': profile._id}).sort({updated: -1}).exec(function (err, objectList) {
                         if (err)
                             req.app.result = {error: err, message: 'Database error'};
                         else {

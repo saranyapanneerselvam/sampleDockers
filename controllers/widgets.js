@@ -24,4 +24,14 @@ module.exports = function (app) {
         else
             res.status(500).send({error: ""});
     });
+
+    //To delete the widgets
+    app.post('/api/v1/delete/widgets/:widgetId', widgetsList.deleteWidgets, function (req, res) {
+        var widgets = req.app.result;
+        if (widgets)
+            res.json({widgetsList: widgets});
+        else
+            res.status(500).send({error: ""});
+    });
+
 };

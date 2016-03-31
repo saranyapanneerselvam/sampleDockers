@@ -188,6 +188,9 @@ exports.getChannelData = function (req, res, next) {
         totalImpressions = [];
         totalDates = [];
         graph.get(query, function (err, res) {
+            console.log('Printing query in fetchFBData',query);
+            console.log('Printing response in fetchFBData',res);
+            console.log('Printing error in fetchFBData',err);
             for (i = 0; i < res.data[0].values.length; i++) {
                 impressions.push(res.data[0].values[i].value);
                 dates.push(res.data[0].values[i].end_time.substr(0, 10));

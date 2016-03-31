@@ -73,7 +73,7 @@ module.exports = function (app) {
                         console.log('id', parsedData);
                         //set token details to tokens
                         req.tokens = accessToken;
-                        channels.findOne({code: 'facebook'}, function (err, channelDetails) {
+                        channels.findOne({code: configAuth.channels.facebook}, function (err, channelDetails) {
                             console.log('parse',req.userId,accessToken);
                             req.channelId = channelDetails._id;
                             req.channelCode = '2';

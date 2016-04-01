@@ -1,8 +1,27 @@
-<div ng-init="fetchDashboardId()">
-    <div>
-        <a class="btn btn-primary" ng-click="clear()">Clear all widgets</a>
+<div ng-init="populateDashboardWidgets()" class="wrapper wrapper-content">
+    <div class="row border-bottom">
+        <div class="col col-lg-12">
+            <div class="col-lg-4" style="-moz-box-sizing: border-box;-box-sizing: border-box;-webkit-transition: all 0.5s;-moz-transition: all 0.5s;-o-transition: all 0.5s;transition: all 0.5s">
+                <form class="navbar-form-custom">
+                    <input type="text" placeholder="Name your dashboard" class="form-control">
+                </form>
+            </div>
+            <div class="col-lg-8">
+                <div style="@media  screen and (max-width: 800px;){float: none;position: relative;box-sizing: border-box;display: block}">
+                    <a style="text-align: center;min-width: 75px">
+                        <div style="float: right;border: 1px solid #e8e8e8;border-radius: 9px;height: 50px;padding-top: 2px;text-align: center;box-sizing: border-box;display: block">
+                            <i class="fa fa-mail-forward"></i>
+                            <span class="text-muted">Export</span>
+                        </div>
+                    </a>
+                    <div class="infont col-md-1 col-sm-1" style="float: right"><a href="#"><i class="fa fa-file-pdf-o"></i></a></div>
+                    <div class="infont col-md-1 col-sm-1" ng-click="clear()" style="float: right"><a href="#"><i class="fa fa-times"></i></a></div>
+                </div>
+
+            </div>
+        </div>
     </div>
-    <div gridster="gridsterOptions">
+    <div gridster="gridsterOptions" class="row">
         <ul>
             <li gridster-item="widget" ng-repeat="widget in dashboard.widgets">
                 <div class="box" ng-controller="CustomWidgetController">
@@ -20,3 +39,34 @@
     </div>
     <div ui-view="lightbox"></div>
 </div>
+
+
+<!--
+                <div class="box" ng-controller="CustomWidgetController">
+                    <div class="ibox" style="height: 100%">
+                        <div class="ibox-title">
+                            <h5>{{widget.name}}</h5>
+                            <div class="ibox-tools">
+                                <a class="collapse-link ui-sortable">
+                                    <i class="fa fa-chevron-up"></i>
+                                </a>
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                    <i class="fa fa-wrench"></i>
+                                </a>
+                                <ul class="dropdown-menu dropdown-user">
+                                    <li><a href="#">Config option 1</a>
+                                    </li>
+                                    <li><a href="#">Config option 2</a>
+                                    </li>
+                                </ul>
+                                <a class="close-link">
+                                    <i class="fa fa-times"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="ibox-content" style="height: 100%">
+                            <nvd3 options="widget.chart.options" data="widget.chart.data" api="widget.chart.api" config="config" events="events"></nvd3>
+                        </div>
+                    </div>
+                </div>
+-->

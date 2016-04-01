@@ -12,7 +12,7 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
     IdleProvider.idle(5); // in seconds
     IdleProvider.timeout(120); // in seconds
 
-    $urlRouterProvider.otherwise("/reporting/dashboard");
+    $urlRouterProvider.otherwise("/reporting");
 
     $ocLazyLoadProvider.config({
         // Set to true if you want to see what and when is dynamically loaded
@@ -37,13 +37,29 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
 
         //Sub-parent state #2
         .state('app.reporting', {
-            abstract: true,
-            url: "/reporting"
+            url: "/reporting",
+            template: '{{loading}}',
+            controller: function ($http,$state,$scope){
+                $scope.loading = "";
+                if($state.$current.name == 'app.reporting'){
+                    $scope.loading="loading...";
+                    $http({
+                        method: 'GET', url: '/api/v1/me'
+                    }).then(function successCallback(response) {
+                        currentDashboardId = response.data.userDetails[0].lastDashboardId;
+                        $state.go('.dashboard',{id: currentDashboardId});
+                        $scope.loading='';
+                    }, function errorCallback(error) {
+                        console.log('Error in finding dashboard Id',error);
+                        return error;
+                    });
+                }
+            }
         })
 
         //Defining child states for parent state: 'reporting'
         .state('app.reporting.dashboard', {
-            url: "/dashboard",
+            url: "/dashboard/:id",
             views: {
                 'main@app': {
                     templateUrl: "dashboardTemplate.ejs",
@@ -65,7 +81,7 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
         })
 
         .state('app.reporting.dashboard.basicWidget', {
-            url: "/lightBox",
+            url: "",
             views: {
                 'lightbox@app.reporting.dashboard': {
                     templateUrl: "basicWidget.ejs",
@@ -80,12 +96,19 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                         }
                     ]);
                 }
-            },
-            params: {
-                firstParam: ["Hi","bye"],
-                secondParam: 'bye'
+            }
+        })
+
+        .state('app.reporting.dashboards', {
+            url: "/gridView",
+            views: {
+                'main@app': {
+                    templateUrl: "gridView.ejs",
+                    controller: 'GridviewController'
+                }
             }
         });
+
 }
 angular
     .module('inspinia')

@@ -2655,22 +2655,85 @@ function testController($compile, $scope,$window){
 }
 
 
-function AppController($state) {
+function AppController($http,$state,$scope) {
+
+    $scope.createNewDashboard = function(){
+       $http({
+           method: 'POST', url: '/api/v1/create/dashboards'
+       }).then(function successCallback(response){
+           console.log(response);
+           $state.transitionTo('app.reporting.dashboard',{id:response.data.id});
+       },function errorCallback(error){
+           console.log('Error in creating new Dashboard',error);
+       })
+    };
+
+/*
+    $scope.goToGridView = function(){
+        $http({
+            method: 'GET', url: '/api/v1/get/dashboards'
+        }).then(function successCallback(response){
+            $state.transitionTo('app.reporting.dashboards',{id:response.data.id});
+        },function errorCallback(error){
+            console.log('Error in creating new Dashboard',error);
+        })
+    };
+*/
+
+    $scope.controllerCheck = function(){
+        console.log('Controller is working');
+    };
+
+    /*
+    $scope.fetchDashboard = function (){
+        console.log('resolved the dashboard');
+        $http({
+            method: 'GET', url: '/api/v1/me'
+        }).then(function successCallback(response) {
+            currentDashboardId = response.data.userDetails[0].lastDashboardId;
+            console.log('dashboard id',currentDashboardId);
+            $state.go('.reporting.dashboard',{id: currentDashboardId});
+        }, function errorCallback(error) {
+            console.log('Error in finding dashboard Id',error);
+            return error;
+        });
+    };
+    $scope.fetchDashboard();
+    */
+
 }
 
 /**
  *
  */
-function DashboardController($scope,$timeout,$rootScope,$http,$window) {
+function GridviewController($scope,$http) {
+    $scope.fetchAllDashboards = function(){
+        $http({
+            method: 'GET', url: '/api/v1/get/dashboards'
+        }).then(function successCallback(response){
+            console.log(response.data);
+            $scope.dashboardList = response.data.dashboardList;
+        },function errorCallback(error){
+            console.log('Error in creating new Dashboard',error);
+        })
+    };
+}
+
+
+/**
+ *
+ */
+function DashboardController($scope,$timeout,$rootScope,$http,$window,$stateParams) {
 
     $scope.gridsterOptions = {
-        margins: [10, 10], columns: 6, mobileModeEnabled: false, defaultSizeX: 3, defaultSizeY: 3, minSizeX: 3, minSizeY: 3,
+        margins: [10, 10], columns: 6, defaultSizeX: 3, defaultSizeY: 3, minSizeX: 3, minSizeY: 3,
         draggable: {enabled: true, handle: 'box-header'},
         outerMargin: true, // whether margins apply to outer edges of the grid
-        mobileBreakPoint: 600,
-/*
-        isMobile: false, // stacks the grid items if true
-*/
+        mobileBreakPoint: 800,
+        mobileModeEnabled: true, // whether or not to toggle mobile mode when screen width is less than mobileBreakPoint
+        /*
+                isMobile: false, // stacks the grid items if true
+        */
         resizable: {enabled: true,handles: ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'],
             start: function (event, $element, widget) {}, // optional callback fired when resize is started
             resize: function (event, $element, widget) {if (widget.chart.api) widget.chart.api.update();}, // optional callback fired when item is resized,
@@ -2678,22 +2741,9 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window) {
         }
     };
 
-    $scope.fetchDashboardId = function () {
-        $http({
-            method: 'GET', url: '/api/v1/me'
-        }).then(function successCallback(response) {
-
-            $rootScope.currentDashboardId = response.data.userDetails[0].lastDashboardId;
-            console.log('dashboard id',$rootScope.currentDashboardId);
-            $scope.populateDashboardWidgets();
-        }, function errorCallback(error) {
-            console.log('Error in finding dashboard Id',error);
-        });
-    };
-
     $scope.populateDashboardWidgets = function(){
         $http({
-            method: 'GET', url: '/api/v1/dashboards/widgets/'+$rootScope.currentDashboardId
+            method: 'GET', url: '/api/v1/dashboards/widgets/'+ $stateParams.id
         }).then(function successCallback(response) {
             var responseData = response.data.widgetsList;
             for(i=0;i<responseData.length;i++){
@@ -2711,7 +2761,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window) {
         $http({
             method: 'POST', url: '/api/v1/widgets/data/'+widgetId
         }).then(function successCallback(response){
-            console.log(response);
+            console.log('Data response for creating graph',response);
             for(i=0;i<response.data.data.length;i++){
                 splitDate = [response.data.data[i].date];
                 newDate = splitDate[1]+'/'+splitDate[2]+'/'+splitDate[0];
@@ -2773,11 +2823,18 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window) {
         ]
     };
 
+
     $scope.events = {resize: function (e, scope) {$timeout(function () {if (scope.api && scope.api.update){scope.api.update();}}, 200)}};    // widget events
     $scope.config = {visible: false};
     $timeout(function () {$scope.config.visible = true;}, 200);    //make chart visible after grid have been created
-    angular.element($window).on('resize', function (e) {$scope.$broadcast('resize');});    //subscribe widget on window resize event
     $scope.clear = function () {$scope.dashboard.widgets = [];};    // grid manipulation
+
+    angular.element($window).on('resize', function (e) {$scope.$broadcast('resize')});    //subscribe widget on window resize event
+    $scope.$on('resize',function(e){
+        for(var i=0;i<$scope.dashboard.widgets.length;i++){$timeout(resizeWidget(i), 400);}
+        function resizeWidget(i) {return function() {if ($scope.dashboard.widgets[i].chart.api){$scope.dashboard.widgets[i].chart.api.update();}};}
+    });
+
 }
 
 
@@ -2939,6 +2996,7 @@ angular
     .controller('toastrCtrl', toastrCtrl)
     .controller('testController', testController)
     .controller('AppController', AppController)
+    .controller('GridviewController', GridviewController)
     .controller('LightBoxController', LightBoxController)
     .controller('ModalInstanceController', ModalInstanceController)
     .controller('BasicWidgetController',BasicWidgetController)

@@ -438,4 +438,56 @@ exports.listAccounts = function (req, res, next) {
 }
 
 
+    function selectTweetObjectType(profile , channel){
+        //console.log('insight fbadaccount',req.query.objectType);
+        //To select which object type
+        switch (req.query.objectType) {
+            case configAuth.objectType.twitter:
+                console.log('fbadaccount');
+                getTweet(profile, channel);
+                break;
+        }
+    }
+    //This function to create the Object
+    function getTweet(profile , channel){
+        var channelObjectDetails = [];
+        ObjectType.findOne({
+            'type': req.query.objectType,
+            'channelId': profile.channelId
+        },function(err, res){
+            console.log(res);
+            console.log(res._id);
+            var objectsResult = new Object();
+            var profileId = profile._id;
+            var objectTypeId = res._id;
+            var created = new Date();
+            var updated = new Date();
+            console.log ('profileInfo._id',profile._id);
+            console.log ('objectTypeId',objectTypeId);
+             //To store once
+            Object.update({
+                profileId: profile._id
+            },{
+                $setOnInsert: {created: created}, $set: { objectTypeId:objectTypeId,updated: updated}
+            },{upsert: true}, function (err, res) {
+                console.log(err)
+                console.log(res);
+                if (!err) {
+                    Object.find({'profileId': profile._id}, function (err, objectList) {
+                        channelObjectDetails.push({
+                            'result': objectList
+                        })
+                        if (objectList) {
+                            req.app.result = objectList;
+                            console.log(objectList);
+                            next();
+                        }
+                    })
+                }
+
+            })
+        });
+    }
+
+};
 

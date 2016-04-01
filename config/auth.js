@@ -8,11 +8,11 @@ module.exports = {
     },
 
     'twitterAuth': {
-        'consumerKey': 'WHFw38bP9Z9ushEcbY5WESIPs',
-        'consumerSecret': 'OkvPiJEBViYfjeR1OU1z8rZvgI1MZBCZtqvmKkklN7xcGxV4QR',
+        'consumerKey': 'mZ5GHKtuVoSanQzbMMiVCezXQ',
+        'consumerSecret': '2yEn5lkQdqNR2mfXBd10OQCfLMMffKtqQg7FIppGnxFGeQCBpA',
         'callbackURL': 'http://localhost:8080/auth/twitter/callback',
-        'AccessToken': '10251882-ni5BwChGKqwnUH1FAtucjfTp7RSyn2cqi9UF3oWnx',
-        'AccessTokenSecret':'APXRXindtRTptbFfD77ogOnCV3XsMbTYAncsij323pKuj'
+        'AccessToken': '709717246818406400-12lp03kRIX3prTZaJKilaf7BOEgcjKr',
+        'AccessTokenSecret':'NApHAIYXNdkMk5c4CJccFrWIrHyTbLENuM14Zpa0a7mjn'
     },
 
     'googleAuth': {
@@ -34,12 +34,19 @@ module.exports = {
     'channels': {
         facebook : 'facebook',
         facebookAds : 'facebookads',
-        googleAnalytics: 'googleanalytics'
+        googleAnalytics: 'googleanalytics',
+        twitter :'twitter'
     },
     'objectType':{
         facebookAds:'fbadaccount',
         facebookPage:'page',
         facebookPost:'post',
-        googleView:'view'
+        googleView:'view',
+        twitter :'tweet'
+    },
+    'twitterMetric':{
+        Keywordmentions : 'Keyword mentions',
+        Mentions : 'Mentions',
+        HighEngagementtweets :'High Engagement tweets'
     }
 };

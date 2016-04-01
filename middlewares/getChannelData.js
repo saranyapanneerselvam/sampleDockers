@@ -70,6 +70,7 @@ exports.getChannelData = function (req, res, next) {
                         refreshToken: 1,
                         channelId: 1,
                         userId: 1,
+                        name : 1,
                         email: 1
                     }, function (err, profile) {
                         if (err)
@@ -92,6 +93,9 @@ exports.getChannelData = function (req, res, next) {
                                         break;
                                     case configAuth.channels.facebookAds:
                                         selectFBadsObjectType(profile, channelDetails, widget, object);
+                                        break;
+                                    case configAuth.channels.twitter:
+                                        selectTweetObjectType(profile, channelDetails, widget, object);
                                         break;
                                 }
                             })
@@ -266,7 +270,8 @@ exports.getChannelData = function (req, res, next) {
 
                         //Updating the old data with new one
                         Data.update({
-                            'objectId': widget.metrics[0].objectId
+                            'objectId': widget.metrics[0].objectId,
+                            'metricId' :widget.metrics[0].metricId
                         }, {
                             $set: {data: wholeData, updated: updated}
                         }, {upsert: true}, function (err) {
@@ -619,18 +624,18 @@ exports.getChannelData = function (req, res, next) {
                                             wholeResponse.push(finalData[data]);
                                         }
 
-                                        var updated = new Date();
+                                       var updated = new Date();
 
                                         //Updating the old data with new one
-                                        Data.update({
-                                            'objectId': widget.metrics[0].objectId,
-                                            'metricId': widget.metrics[0].metricId
+                                        dataCollection.update({
+                                            'objectId': widgetDetails.metrics[0].objectId,
+                                            'metricId': widgetDetails.metrics[0].metricId
                                         }, {
                                             $set: {data: wholeResponse, updated: updated}
                                         }, {upsert: true}, function (err) {
                                             if (err) console.log("User not saved");
                                             else {
-                                                Data.find({'objectId': widget.metrics[0].objectId}, function (err, response) {
+                                                dataCollection.find({'objectId': widgetDetails.metrics[0].objectId}, function (err, response) {
                                                     if (!err)
                                                         req.app.result = response;
                                                     else if (!response.length)
@@ -672,4 +677,165 @@ exports.getChannelData = function (req, res, next) {
             }
         })
     }
-}
+    function selectTweetObjectType(profile, channelDetails, widget, object){
+        //select object type
+        Objecttype.findOne({'_id': object.objectTypeId}, function (err, objectType) {
+            if (err)
+                req.app.result = {error: err, message: 'Database error'};
+            else if (!profile)
+                req.app.result = {status: 302, message: 'No record found'};
+            else {
+
+                //To select which object type
+                switch (objectType.type) {
+                    case configAuth.objectType.twitter:
+                        getTweetData(profile, channelDetails, widget, object);
+                        break;
+
+                }
+            }
+        })
+    }
+
+    function getTweetData(profile, channelDetails, widget, object){
+        //To Get the Metrice Type throught widgetDetails
+        //and get metricid and object id from object
+        metrics.findById(widget.metrics[0].metricId, function (err, response) {
+            console.log('metrictype',response);
+            if(!err){
+                object.find({
+                    'profileId': profile._id
+                }, function (err, objectResult) {
+                    if (!err) {
+                        Data .findOne({
+                            'objectId': widget.metrics[0].objectId,
+                            'metricId': widget.metrics[0].metricId
+                        }, function (err, dataResult) {
+                            console.log('dataResult',dataResult);
+
+                            //Function to format the date
+                            function calculateDate(d) {
+                                month = '' + (d.getMonth() + 1),
+                                    day = '' + d.getDate(),
+                                    year = d.getFullYear();
+                                if (month.length < 2) month = '0' + month;
+                                if (day.length < 2) day = '0' + day;
+                                var startDate = [year, month, day].join('-');
+                                return startDate;
+                            }
+                            d = new Date();
+                            console.log('currentDate',d);
+                            if (dataResult) {
+                                var updated = calculateDate(dataResult.updated);
+                                var currentDate = calculateDate(new Date());
+                                d.setDate(d.getDate() + 1);
+                                var endDate = calculateDate(d);
+                                if (updated < currentDate) {
+                                    var query = response.meta.TweetMetricName;
+                                    console.log('query',query);
+                                    fetchTweetData(profile,query, widget, dataResult);
+                                }
+                                else {
+                                    req.app.result = dataResult;
+                                    next();
+                                }
+                            }
+                            else {
+                                var metricType = response.name;
+                                var query = response.meta.TweetMetricName;
+                                console.log('query',query);
+                                fetchTweetData(profile, metricType, query, widget, dataResult);
+
+                            }
+                        })
+                    }
+                })
+
+            }
+        });
+    }
+    function fetchTweetData(profile,metricType, query, widget, dataResult){
+        var wholetweetData = [];
+        var client = new Twitter({
+            consumer_key: configAuth.twitterAuth.consumerKey,
+            consumer_secret: configAuth.twitterAuth.consumerSecret,
+            access_token_key: configAuth.twitterAuth.AccessToken,
+            access_token_secret: configAuth.twitterAuth.AccessTokenSecret
+        });
+        if (metricType === configAuth.twitterMetric.Mentions || metricType === configAuth.twitterMetric.HighEngagementtweets ) {
+            console.log('Mentions'+profile.name);
+            client.get(query,  function (error, tweets, response) {
+                var  TweetObject;
+                for (var i = 0; i < tweets.length; i++) {
+                    TweetObject = tweets[i];
+                    wholetweetData.push(TweetObject);
+
+                }
+                storeTweetData(wholetweetData,widget);
+
+            });
+
+
+        }
+        else if(metricType === configAuth.twitterMetric.Keywordmentions){
+            console.log('Keyword Mentions')
+            client.get(query ,{q:'%23' + profile.name} ,  function (error, tweets, response) {
+                console.log('search',tweets);
+                console.log(tweets.length);
+                var  TweetObject;
+                for (var i = 0; i < tweets.length; i++) {
+                    TweetObject = tweets[i];
+                    wholetweetData.push(TweetObject);
+                }
+
+                storeTweetData(wholetweetData,widget);
+
+            });
+        }
+        else {
+            console.log('others'+metricType);
+            client.get(query, {screen_name: profile.name}, function (error, tweets, response) {
+                console.log(tweets.length);
+                var  TweetObject;
+                for (var i = 0; i < tweets.length; i++) {
+                    TweetObject = tweets[i];
+                    wholetweetData.push(TweetObject);
+
+                }
+                storeTweetData(wholetweetData,widget);
+
+            });
+        }
+        console.log('metricType', wholetweetData);
+        updated = new Date();
+
+        //Updating the old data with new one
+        function storeTweetData(wholetweetData,widget) {
+            Data.update({
+                'objectId': widget.metrics[0].objectId,
+                'metricId' :widget.metrics[0].metricId
+            }, {
+                $set: {data: wholetweetData, updated: updated}
+            }, {upsert: true}, function (err) {
+                if (err) console.log("User not saved");
+                else {
+                    Data.find({
+                        'objectId': widget.metrics[0].objectId,
+                        'metricId': widget.metrics[0].metricId
+                    }, function (err, response) {
+                        if (!err)
+                            req.app.result = response;
+                        else if (!response.length)
+                            req.app.result = {error: err, message: 'Database error'};
+                        else
+                            req.app.result = {status: 302, message: 'No record found'};
+                        next();
+                    })
+                }
+            });
+        }
+
+    }
+};
+
+

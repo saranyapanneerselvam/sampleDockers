@@ -1,0 +1,8 @@
+<div ng-init="fetchAllDashboards()" class="wrapper wrapper-content">
+    <p>GridView</p>
+    <div class="row">
+        <div class="col col-lg-4" ng-repeat="dashboard in dashboardList">
+            <a ui-sref="app.reporting.dashboard({id: dashboard._id})">{{dashboard._id}}</a>
+        </div>
+    </div>
+</div>

@@ -12,6 +12,7 @@ exports.storeProfiles = function (req, done) {
     var tokens = req.tokens;
     profile.findOne({'email': req.userEmail, 'channelId': req.channelId}, function (err, profileDetails) {
         console.log('profiles', profileDetails);
+
         // if there are any errors, return the error
         if (err)
             done(err);

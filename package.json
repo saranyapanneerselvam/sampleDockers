@@ -43,6 +43,8 @@
     "simple-oauth2": "^0.5.1",
     "superagent": "^1.8.3",
     "supertest": "^1.2.0",
+    "async": "^2.0.0-rc.2",
+    "twitter": "*",
     "zombie": "^4.2.1"
   },
   "devDependencies": {

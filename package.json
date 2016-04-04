@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "angular-gridster": "*",
-    "async": "^2.0.0-rc.2",
     "bcrypt-nodejs": "latest",
     "body-parser": "~1.0.0",
     "browserify": "^12.0.1",

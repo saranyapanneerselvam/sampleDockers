@@ -25,6 +25,9 @@ var Objecttype = require('../models/objectTypes');
 //Set OAuth
 var OAuth2 = googleapis.auth.OAuth2;
 
+//set Twitter module
+var Twitter = require('twitter');
+
 //Load the auth file
 var configAuth = require('../config/auth');
 
@@ -700,10 +703,10 @@ exports.getChannelData = function (req, res, next) {
     function getTweetData(profile, channelDetails, widget, object){
         //To Get the Metrice Type throught widgetDetails
         //and get metricid and object id from object
-        metrics.findById(widget.metrics[0].metricId, function (err, response) {
+        Metric.findById(widget.metrics[0].metricId, function (err, response) {
             console.log('metrictype',response);
             if(!err){
-                object.find({
+                Object.find({
                     'profileId': profile._id
                 }, function (err, objectResult) {
                     if (!err) {
@@ -829,7 +832,7 @@ exports.getChannelData = function (req, res, next) {
                             req.app.result = {error: err, message: 'Database error'};
                         else
                             req.app.result = {status: 302, message: 'No record found'};
-                        next();
+                             next();
                     })
                 }
             });

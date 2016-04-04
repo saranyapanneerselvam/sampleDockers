@@ -48,6 +48,7 @@ app.use(express.static(__dirname + '/public'));
 app.use('/bower_components',  express.static(__dirname + '/bower_components'));
 
 // routes ======================================================================
+require('./controllers/facebookAdsAuth')(app);
 require('./controllers/facebookAuth')(app);
 require('./controllers/googleAuth')(app);
 require('./controllers/twitterAuth')(app);

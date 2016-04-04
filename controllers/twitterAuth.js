@@ -1,12 +1,8 @@
 var request = require('request');
-var merticsList = require ('../middlewares/twitterMetrics');
 var configAuth = require('../config/auth');
 var profile = require('../models/profiles');
 var channels = require('../models/channels');
-var metrics = require('../models/metrics');
-var Twitter = require('twitter');
 var user = require('../helpers/user');
-var createDate = new Date().getTime();
 module.exports = function (app) {
     var OAuth = require('oauth').OAuth;
     var oa = new OAuth(

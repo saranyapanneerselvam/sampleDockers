@@ -2,9 +2,13 @@
     <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
         <div class="navbar-header">
             <span minimaliza-sidebar></span>
-            <a ui-sref="analyticsReporting/analyticsDashboardTemplate" class="btn btn-primary" style="margin-top:13px;"> <span></span> Reporting & Analytics</a>
-            <a ui-sref="adReporting/adDashboardTemplate" class="btn btn-primary" style="margin-top:13px;"> <span ></span> Ad campaign Analytics</a>
-            <!--<a href="" class="btn btn-primary" style="margin-top:13px;"> <span></span> Publishing and Monitoring</a>-->
+            <div class="tabs-container" style="width: 524px;">
+                    <ul class="nav nav-tabs">
+                        <li class="active"> <a data-toggle="tab" ui-sref="analyticsReporting/analyticsDashboardTemplate"  style="margin-top:13px;"> <span></span> Reporting & Analytics</a></li>
+                        <li class=""><a data-toggle="tab" ui-sref="adReporting/adDashboardTemplate"  style="margin-top:13px;"> <span ></span> Ad campaign Analytics</a></li>
+                    </ul>        <!--<a href="" class="btn btn-primary" style="margin-top:13px;"> <span></span> Publishing and Monitoring</a>-->
+             </div>
+
         </div>
 
         <ul class="nav navbar-top-links navbar-right">

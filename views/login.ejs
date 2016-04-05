@@ -1,50 +1,99 @@
-<!doctype html>
 <html>
+
 <head>
-    <title>Node Authentication</title>
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
-    <!-- load bootstrap css -->
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
-    <!-- load fontawesome -->
-    <style>
-        body {
-            padding-top: 80px;
-        }
-    </style>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/font-awesome/css/font-awesome.css" rel="stylesheet">
+
+    <link href="/css/animate.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+
+
+
+
 </head>
-<body>
-<div class="container">
 
-    <div class="col-sm-6 col-sm-offset-3">
+<body class="gray-bg">
 
-        <h1><span class="fa fa-sign-in"></span> Login</h1>
+<div class="loginColumns animated fadeInDown">
+    <div class="row">
 
-        <!-- show any messages that come back with authentication -->
-        <% if (message.length > 0) { %>
-        <div class="alert alert-danger"><%= message %></div>
-        <% } %>
+        <div class="col-md-6">
+            <h2 class="font-bold">Welcome to ShowMetric</h2>
 
-        <!-- LOGIN FORM -->
-        <form action="/api/v1/login" method="post">
-            <div class="form-group">
-                <label>Email</label>
-                <input type="text" class="form-control" name="email">
+            <p>
+                Perfectly designed and precisely prepared admin theme with over 50 pages with extra new web app views.
+            </p>
+
+            <p>
+                Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.
+            </p>
+
+            <p>
+                When an unknown printer took a galley of type and scrambled it to make a type specimen book.
+            </p>
+
+            <p>
+                <small>It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.</small>
+            </p>
+
+        </div>
+        <div class="col-md-6">
+            <div id="animation_box" class="animated pulse">
+                <div class="ibox-content ">
+                    <% if (message.length > 0) { %>
+                    <div class="alert alert-danger"><%= message %></div>
+
+                    <% } %>
+                    <form class="m-t" role="form" action="/api/v1/login" method="post">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Username" name="email" required="">
+                        </div>
+                        <div class="form-group">
+                            <input type="password" class="form-control" placeholder="Password" name="password" required="">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary block full-width m-b">Login</button>
+                        <a href="#">
+                            <small>Forgot password?</small>
+                        </a>
+
+                        <p class="text-muted text-center">
+                            <small>Do not have an account?</small>
+                        </p>
+                        <a class="btn btn-sm btn-white btn-block" href="/api/v1/signup">Create an account</a>
+                    </form>
+
+                </div>
             </div>
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" class="form-control" name="password">
-            </div>
-
-            <button type="submit" class="btn btn-warning btn-lg">Login</button>
-        </form>
-
-        <hr>
-
-        <p>Need an account? <a href="/api/v1/signup">Signup</a></p>
-        <p>Or go <a href="/profile">home</a></p>
-
+        </div>
     </div>
-
+    <hr/>
+    <div class="row">
+        <div class="col-md-6">
+            Copyright Example Company
+        </div>
+        <div class="col-md-6 text-right">
+            <small>© 2014-2015</small>
+        </div>
+    </div>
 </div>
+
+<!-- Mainly scripts -->
+<script>
+     var elementExists = document.getElementsByClassName("alert-danger").length;
+     if(elementExists==1){
+        var el =  document.getElementById("animation_box");
+         el.classList.remove("pulse");
+         el.classList.add("shake");
+         console.log( document.getElementById("animation_box".className));
+
+     }
+
+</script>
+
 </body>
+
 </html>

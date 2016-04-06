@@ -454,6 +454,7 @@ exports.getChannelData = function (req, res, next) {
                                 storeGoogleData.push(obj);
                                 if (storeGoogleData.length == resultLength) {
                                     req.app.result = storeGoogleData;
+                                    console.log('data',storeGoogleData)
 
                                     //Save the result to data collection
                                     //input channelId,channelObjId,metricId
@@ -501,6 +502,7 @@ exports.getChannelData = function (req, res, next) {
                                     }
                                     else {
                                         data.save(function saveData(err, googleData) {
+                                            req.app.result=googleData;
                                             if (!err)
                                                 next();
                                         })

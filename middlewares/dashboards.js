@@ -22,7 +22,7 @@ exports.getDashboards = function (req, res, next) {
         })
     }
 
-}
+};
 
 /**
  * To get the dashboard details based on dashboard id
@@ -43,7 +43,7 @@ exports.getDashboardDetails = function (req, res, next) {
 
     })
 
-}
+};
 
 /**
  * To store the dashboard details in database
@@ -104,6 +104,4 @@ exports.storeDashboards = function (req, res, next) {
             });
         }
     }
-}
-
-
+};

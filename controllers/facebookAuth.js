@@ -15,11 +15,10 @@ module.exports = function (app) {
     console.log('config details', configAuth.facebookAuth.clientID);
 // Authorization uri definition
     var authorization_uri = oauth2.authCode.authorizeURL({
-        redirect_uri: 'http://localhost:8080/auth/facebook/callback',
-        state: '3832$',
-        scope: ['email', 'manage_pages,', 'read_insights'],
-        profileFields: ["emails", "displayName"]
-
+        redirect_uri: configAuth.facebookAuth.callbackURL,
+        state: configAuth.facebookAuth.state,
+        scope: configAuth.facebookAuth.scope,
+        profileFields: configAuth.facebookAuth.profileFields
     });
 
 // Initial page redirecting to Github
@@ -76,10 +75,11 @@ module.exports = function (app) {
                         channels.findOne({code: configAuth.channels.facebook}, function (err, channelDetails) {
                             console.log('parse',req.userId,accessToken);
                             req.channelId = channelDetails._id;
+                            req.channelName = channelDetails.name;
                             req.channelCode = '2';
                             FB.setAccessToken(accessToken);//Set access token
                             FB.api(req.userId, {fields: ['id', 'name', 'email']}, function (profile) {
-                                console.log('profile',profile)
+                                console.log('profile',profile);
                                 if (!profile || profile.error) {
                                     console.log(!profile ? 'error occurred' : profile.error);
                                     return;
@@ -87,15 +87,15 @@ module.exports = function (app) {
                                 else {
                                     req.userEmail = profile.email;
                                     console.log('email', req.userEmail);
+                                    req.userId = profile.id;
                                     //Call the helper to store user details
                                     user.storeProfiles(req, function (err, response) {
                                         console.log('stored');
                                         if (err)
                                             res.json('Error');
                                         else {
-
-                                            //If response of the storeProfiles function is success then redirect it to profile page
-                                            res.redirect('/profile');
+                                            //If response of the storeProfiles function is success then close the authentication window
+                                            res.render('successAuthentication');
                                         }
                                     });
                                 }

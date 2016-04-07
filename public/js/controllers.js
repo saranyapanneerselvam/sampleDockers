@@ -2719,11 +2719,33 @@ function GridviewController($scope,$http) {
     };
 }
 
-
 /**
  *
  */
-function DashboardController($scope,$timeout,$rootScope,$http,$window,$stateParams) {
+function DashboardController($scope,$timeout,$rootScope,$http,$window,$state) {
+
+
+    $scope.nameDashboard = function (dashboardName) {console.log('dashboard name', dashboardName);};
+
+
+    $scope.calendarDate = null;
+    $scope.date = {startDate: moment().subtract(29, "days"), endDate: moment()};
+    $scope.opts = {
+        locale: {
+            applyClass: 'btn-green', applyLabel: "Apply", fromLabel: "From", toLabel: "To", cancelLabel: 'Cancel', customRangeLabel: 'Custom Range',
+            daysOfWeek: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], firstDay: 1,
+            monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+        },
+        ranges: {'Last 7 Days': [moment().subtract(6, 'days'), moment()],'Last 30 Days': [moment().subtract(29, 'days'), moment()]},
+        opens: "center",
+        minDate: moment().subtract(365,"days"),
+        maxDate: moment()
+    };
+    console.log($scope.opts.minDate,$scope.opts.minDate.utc().format(),$scope.opts.minDate.utc().valueOf());
+    $scope.runFunction = function() {console.log('running')};
+    //Watch for date changes
+    $scope.$watch('date', function(newDate) {console.log('New date set: ', newDate); $scope.calendarDate = newDate;}, false);
+
 
     $scope.gridsterOptions = {
         margins: [10, 10], columns: 6, defaultSizeX: 3, defaultSizeY: 3, minSizeX: 3, minSizeY: 3,
@@ -2743,11 +2765,12 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$statePara
 
     $scope.populateDashboardWidgets = function(){
         $http({
-            method: 'GET', url: '/api/v1/dashboards/widgets/'+ $stateParams.id
+            method: 'GET', url: '/api/v1/dashboards/widgets/'+ $state.params.id
         }).then(function successCallback(response) {
             var responseData = response.data.widgetsList;
             for(i=0;i<responseData.length;i++){
-                $rootScope.$emit('createNewBasicWidget',responseData[i]._id);
+                if(responseData[i].widgetType = 'basic')
+                    $rootScope.$emit('createNewBasicWidget',responseData[i]._id);
             }
         }, function errorCallback(error) {
             console.log('Error in finding widgets in the dashboard',error);
@@ -2755,13 +2778,18 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$statePara
     };
 
     $rootScope.$on('createNewBasicWidget', function(e,widgetId){
-        var graphData, metricNameInGraph,metricDetails;
+        var graphData, metricNameInGraph, metricDetails;
         var dataToBePopulated = [];
-        console.log(widgetId);
+        console.log('start date', moment.utc($scope.calendarDate.startDate._d).valueOf());
+        console.log('end date', moment.utc($scope.calendarDate.endDate._d).valueOf());
+        var jsonData = {
+            "startDate": moment.utc($scope.calendarDate.startDate._d).valueOf(),
+            "endDate": moment.utc($scope.calendarDate.endDate._d).valueOf()
+        };
         $http({
             method: 'POST', url: '/api/v1/widgets/data/'+widgetId
         }).then(function successCallback(response){
-            console.log('Data response for creating graph',response);
+            console.log('Data response for creating graph for widget',widgetId,':',response);
             for(i=0;i<response.data.data.length;i++){
                 splitDate = [response.data.data[i].date];
                 newDate = splitDate[1]+'/'+splitDate[2]+'/'+splitDate[0];
@@ -2817,32 +2845,37 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$statePara
         });
     };
 
-    $scope.dashboard = {
-        widgets: [
-/*{/!*col: 0, row: 0,*!/sizeY: 3, sizeX: 3, name: "Line Chart Widget", type: 'lineChart',chart: { options: generator.lineChart.options(), data: generator.lineChart.data(), api: {} }}, {col: 0, row: 0, sizeY: 1, sizeX: 1, name: "Pie Chart Widget", type: 'pieChart',chart: { options: generator.pieChart.options(), data: generator.pieChart.data(), api: {} }}, {col: 0, row: 0, sizeY: 1, sizeX: 1, name: "Box Plot Widget",type: 'boxPlotChart',chart: { options: generator.boxPlotChart.options(), data: generator.boxPlotChart.data(), api: {} }}, {col: 0, row: 1, sizeY: 1, sizeX: 2, name: "Discrete Bar Chart Widget", type: 'discreteBarChart',chart: { options: generator.discreteBarChart.options(), data: generator.discreteBarChart.data(), api: {} }}, {col: 0, row: 1, sizeY: 1, sizeX: 2, name: "Stacked Area Chart Widget", type: 'stackedAreaChart',chart: { options: generator.stackedAreaChart.options(), data: generator.stackedAreaChart.data(),api: {} }}*/
-        ]
-    };
-
-
+    $scope.dashboard = {widgets: []};
     $scope.events = {resize: function (e, scope) {$timeout(function () {if (scope.api && scope.api.update){scope.api.update();}}, 200)}};    // widget events
     $scope.config = {visible: false};
     $timeout(function () {$scope.config.visible = true;}, 200);    //make chart visible after grid have been created
     $scope.clear = function () {$scope.dashboard.widgets = [];};    // grid manipulation
-
     angular.element($window).on('resize', function (e) {$scope.$broadcast('resize')});    //subscribe widget on window resize event
     $scope.$on('resize',function(e){
-        for(var i=0;i<$scope.dashboard.widgets.length;i++){$timeout(resizeWidget(i), 400);}
-        function resizeWidget(i) {return function() {if ($scope.dashboard.widgets[i].chart.api){$scope.dashboard.widgets[i].chart.api.update();}};}
+        for(var i=0;i<$scope.dashboard.widgets.length;i++){
+            $timeout(resizeWidget(i), 400);
+        }
+        function resizeWidget(i) {
+            return function() {
+                if ($scope.dashboard.widgets[i].chart.api){
+                    $scope.dashboard.widgets[i].chart.api.update();
+                }
+            };
+        }
     });
-
 }
 
-
+/**
+ *
+ */
 function CustomWidgetController($scope,$uibModal) {
     $scope.remove = function(widget) {$scope.dashboard.widgets.splice($scope.dashboard.widgets.indexOf(widget), 1);console.log('removed');};
     $scope.openSettings = function(widget) {$uibModal.open({scope: $scope,backdrop: true,templateUrl: 'widget_settings.ejs',controller: 'widgetSettingsController',resolve: {widget: function() {return widget;}}});};
 }
 
+/**
+ *
+ */
 function WidgetSettingsController($scope,$uibModalInstance, widget) {
     $scope.widget = widget;
     $scope.form = {name: widget.name, sizeX: widget.sizeX, sizeY: widget.sizeY,col: widget.col,row: widget.row,type: widget.type};
@@ -2859,8 +2892,18 @@ function LightBoxController($scope, $uibModal, $log, $state) {
     $scope.state = $state;
     $scope.animationsEnabled = true;
     $scope.open = function (size) {
-        var modalInstance = $uibModal.open({animation: $scope.animationsEnabled,templateUrl: 'modal.ejs',controller: 'ModalInstanceController',size: size});
-        modalInstance.result.then(function (selectedItem) {$scope.selected = selectedItem;$state.go('^');}, function () {$state.go('^');$log.info('Modal dismissed at: ' + new Date());});
+        var modalInstance = $uibModal.open({
+            animation: $scope.animationsEnabled,
+            templateUrl: 'modal.ejs',
+            controller: 'ModalInstanceController',
+            size: size
+        });
+        modalInstance.result.then(function (selectedItem) {
+            $scope.selected = selectedItem;
+            $state.go('^');
+        }, function () {
+            $state.go('^');$log.info('Modal dismissed at: ' + new Date());
+        });
     };
     $scope.toggleAnimation = function () {$scope.animationsEnabled = !$scope.animationsEnabled;};
 }
@@ -2876,7 +2919,7 @@ function ModalInstanceController($scope, $uibModalInstance) {
 /**
  *
  */
-function BasicWidgetController($scope,$http,$state,$rootScope,dashboardService,$q) {
+function BasicWidgetController($scope,$http,$state,$rootScope,dashboardService,$q,$window) {
     $scope.currentView = 'step_one';
     $scope.objectList = {};
     $scope.promises = [];
@@ -2897,16 +2940,48 @@ function BasicWidgetController($scope,$http,$state,$rootScope,dashboardService,$
         }
     };
 
-    $scope.getChannels = function () {$http({method: 'GET', url: '/api/v1/get/channels'}).then(function successCallback(response) {$scope.channelList = response.data;}, function errorCallback(error) {console.log('Error in finding channels');});};
+    $scope.getChannels = function () {
+        $http({
+            method: 'GET',
+            url: '/api/v1/get/channels'
+        }).then(function successCallback(response) {
+            $scope.channelList = response.data;
+        }, function errorCallback(error) {
+            console.log('Error in finding channels');
+        });
+    };
 
     $scope.getMetrics = function () {
-        $http({method: 'GET', url: '/api/v1/get/metrics/'+$scope.storedChannelId}).then(function successCallback(response) {$scope.metricList = response.data.metricsList;}, function errorCallback(error) {console.log('Error in finding metrics');});};
+        $http({
+            method: 'GET',
+            url: '/api/v1/get/metrics/'+$scope.storedChannelId
+        }).then(function successCallback(response) {
+            $scope.metricList = response.data.metricsList;
+        }, function errorCallback(error) {
+            console.log('Error in finding metrics');
+        });
+    };
+
+    $scope.callObjects = function(){
+        console.log($scope.profileOptionsModel._id);
+        $http({
+            method: 'GET',
+            url: '/api/v1/get/objects/'+ $scope.profileOptionsModel._id
+        }).then(function successCallback(response) {
+            $scope.objectList=response.data.objectList;
+            console.log(response.data.objectList);
+        }, function errorCallback(error) {
+            console.log(error);
+        });
+    };
 
     $scope.getProfiles = function () {
-        $scope.promises = [];
         $http({ method: 'GET', url: '/api/v1/get/profiles/'+$scope.storedChannelId
         }).then(function successCallback(response) {
             $scope.profileList = response.data.profileList;
+            console.log('completed',response.data.profileList);
+
+/*
             for(i=0;i<$scope.profileList.length;i++){
                 $scope.promises.push($scope.getDynamicObjects({profileId: $scope.profileList[i]._id, profileName: $scope.profileList[i].name}));
             }
@@ -2915,13 +2990,36 @@ function BasicWidgetController($scope,$http,$state,$rootScope,dashboardService,$
             }).catch(function(err){
                 console.log(err);
             });
+*/
         }, function errorCallback(error) {
             console.log('Error in finding profiles');
         });
     };
 
     $scope.getDynamicObjects = function (data) {
+        $http({
+            method: 'GET',
+            url: '/api/v1/channel/profiles/objectsList/'+ data.profileId +'?objectType=page'
+        }).then(function successCallback(response) {
+            console.log('resolved',response, data.profileId,data.profileName);
+            return({profileId: data.profileId, profileName: data.profileName, profileObjects: response.data.objectList});
+        }, function errorCallback(error) {
+            return(error);
+        });
+
+/*
         return $q(function(resolve,reject){
+            $http({
+                method: 'GET',
+                url: '/api/v1/channel/profiles/objectsList/'+ data.profileId +'?objectType=view'
+            }).then(function successCallback(response) {
+                console.log('resolved',response, data.profileId,data.profileName);
+                resolve({profileId: data.profileId, profileName: data.profileName, profileObjects: response.data.objectList});
+            }, function errorCallback(error) {
+                reject(error);
+            });
+
+/!*
             $http({
                 method: 'GET',
                 url: '/api/v1/get/objects/'+ data.profileId
@@ -2930,15 +3028,82 @@ function BasicWidgetController($scope,$http,$state,$rootScope,dashboardService,$
             }, function errorCallback(error) {
                 reject(error);
             });
+*!/
         });
+*/
     };
 
-    $scope.getWidget =function() {
-        console.log('printing dashboard Id',$rootScope.currentDashboardId);
+    $scope.refreshObjects = function () {
+        if($scope.profileOptionsModel._id) {
+            switch ($scope.storedChannelName) {
+                case 'Facebook':
+                    $scope.objectType = 'page';
+                    break;
+                case 'Google Analytics':
+                    $scope.objectType = 'view';
+                    break;
+            }
+            $http({
+                method: 'GET',
+                url: '/api/v1/channel/profiles/objectsList/'+ $scope.profileOptionsModel._id +'?objectType='+ $scope.objectType
+            }).then(function successCallback(response) {
+                console.log(response.data);
+                $scope.objectList = response.data;
+            }, function errorCallback(error) {
+                console.log(error);
+            });
+        }
+    };
+
+    $scope.authenticateProfile = function () {
+        var url,title;
+        function popupwindow(url, title, w, h) {
+            switch ($scope.storedChannelName){
+                case 'Facebook':
+                    url = '/api/v1/auth/facebook';
+                    title = $scope.storedChannelName;
+                    break;
+                case 'Google Analytics':
+                    url = '/api/v1/auth/google';
+                    title = $scope.storedChannelName;
+                    break;
+            }
+                var left = (screen.width/2)-(w/2);
+            var top = (screen.height/2)-(h/2);
+            return window.open(url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width='+w+', height='+h+', top='+top+', left='+left);
+        }
+//        popupwindow("/api/v1/auth/facebook","Facebook Login",1000,400);
+        $scope.$watch(popupwindow(url,title, 1000,500),function(){
+            console.log('watch triggered');
+            $scope.getProfiles();
+        });
+
+/*
+        $window.popupCallback = function(){
+            $scope.getProfiles();
+        };
+*/
+
+
+/*
+        $http({
+            method: 'GET',
+            url: '/api/v1/auth/facebook'
+        }).then(function successCallback(response) {
+            console.log(response.data);
+            $scope.objectList = response;
+        }, function errorCallback(error) {
+            console.log(error);
+        });
+*/
+    };
+
+    $scope.getBasicWidget =function() {
         var jsonData = {
-            "dashboardId": $rootScope.currentDashboardId,
+            "dashboardId": $state.params.id,
             "widgetType":"basic",
-            "metrics":[{"metricId": $scope.storedMetricId, "objectId": $scope.promises[document.getElementById('profileOptions').selectedIndex].profileObjects[document.getElementById('objectOptions').selectedIndex]._id
+            "metrics":[{"metricId": $scope.storedMetricId,
+                "objectId": $scope.objectList[document.getElementById('objectOptions').selectedIndex]._id
             }]
         };
         $http({
@@ -2959,7 +3124,6 @@ function BasicWidgetController($scope,$http,$state,$rootScope,dashboardService,$
 }
 
 /**
- *
  * Pass all functions into module
  */
 angular

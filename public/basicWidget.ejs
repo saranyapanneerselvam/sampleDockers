@@ -77,6 +77,18 @@
                                                 <form class="form-horizontal">
                                                     <div class="form-group">
                                                         <div class="col-lg-9">
+                                                            <select class="form-control m-b" ng-model="profileOptionsModel" id="profileOptions" ng-options="profiles as profiles.name for profiles in profileList" ng-change="callObjects()"></select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-lg-9">
+                                                            <select class="form-control m-b" ng-model="objectOptionsModel" id="objectOptions" ng-options="objects as objects.name for objects in objectList"></select>
+                                                            <div class="infont col-md-3 col-sm-4"><a ng-click="refreshObjects()"><i class="fa fa-refresh"></i></a></div>
+                                                        </div>
+                                                    </div>
+<!--
+                                                    <div class="form-group">
+                                                        <div class="col-lg-9">
                                                             <select class="form-control m-b" ng-model="profileOptionsModel" id="profileOptions" ng-options="profiles as profiles.profileName for profiles in promises"></select>
                                                         </div>
                                                     </div>
@@ -86,10 +98,11 @@
                                                             <div class="infont col-md-3 col-sm-4"><a href="#"><i class="fa fa-refresh"></i></a></div>
                                                         </div>
                                                     </div>
+-->
                                                     <div class="form-group">
                                                         <div class="col-lg-10" style="margin: 0px;padding: 0px">
                                                             <div class="col-lg-5" style="float: left;margin: 0px">
-                                                                <a><button type="button" class="btn btn-link"><i class="fa fa-plus-square-o"></i>   Add Profile</button></a>
+                                                                <a ><button type="button" class="btn btn-link" ng-click="authenticateProfile()"><i class="fa fa-plus-square-o"></i>   Add Profile</button></a>
                                                             </div>
                                                             <div class="col-lg-5" style="float: right;margin: 0px">
                                                                 <a><button type="button" class="btn btn-link"><i class="fa fa-trash"></i>   Remove Profile</button></a>
@@ -111,7 +124,7 @@
                     <div class="col-lg-12 text-right">
                         <button class="btn btn-white" id="basicWidgetBackButton1" ng-hide="currentView === 'step_two'" ng-click="changeCurrentView('step_two')">Back</button>
                         <button class="btn btn-white" id="basicWidgetBackButton2" ng-show="currentView === 'step_two'" ng-click="changeCurrentView('step_one')">Back</button>
-                        <button class="btn btn-primary" id="basicWidgetNextButton" ng-click="getWidget();cancel()">Next</button>
+                        <button class="btn btn-primary" id="basicWidgetNextButton" ng-click="getBasicWidget();cancel()">Next</button>
                     </div>
                 </div>
             </div>

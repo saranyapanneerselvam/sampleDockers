@@ -1,27 +1,38 @@
-<div ng-init="populateDashboardWidgets()" class="wrapper wrapper-content">
-    <div class="row border-bottom">
-        <div class="col col-lg-12">
-            <div class="col-lg-4" style="-moz-box-sizing: border-box;-box-sizing: border-box;-webkit-transition: all 0.5s;-moz-transition: all 0.5s;-o-transition: all 0.5s;transition: all 0.5s">
-                <form class="navbar-form-custom">
-                    <input type="text" placeholder="Name your dashboard" class="form-control">
-                </form>
-            </div>
-            <div class="col-lg-8">
-                <div style="@media  screen and (max-width: 800px;){float: none;position: relative;box-sizing: border-box;display: block}">
-                    <a style="text-align: center;min-width: 75px">
-                        <div style="float: right;border: 1px solid #e8e8e8;border-radius: 9px; width: 8%; height: 30px;padding-top: 2px;text-align: center;box-sizing: border-box;display: block">
-                            <i class="fa fa-mail-forward"></i>
-                            <span class="text-muted">Export</span>
-                        </div>
-                    </a>
-                    <div class="infont col-md-1 col-sm-1" style="float: right"><a href="#"><i class="fa fa-file-pdf-o"></i></a></div>
-                    <div class="infont col-md-1 col-sm-1" ng-click="clear()" style="float: right"><a href="#"><i class="fa fa-times"></i></a></div>
+<div ng-init="populateDashboardWidgets()" class="">
+    <div class="border-bottom dashboardTitle white-bg">
+        <div class="row">
+            <div class="col col-sm-12">
+                <div class="col-sm-4">
+                    <form class="dashboardIcons" ng-submit="nameDashboard(dashboardName)">
+                        <a ui-sref="app.reporting.dashboard.dashboardName">
+                            <h2>Name your dashboard</h2>
+<!--
+                            <input type="text" placeholder="Name your dashboard" class="form-control" ng-model="dashboardName">
+-->
+                        </a>
+<!--
+                        <a ng-click="nameDashboard(dashboardName)"><i class="fa fa-pencil"></i></a>
+-->
+                    </form>
                 </div>
-
+                <div class="col-sm-4">
+                    <form class="dashboardCalendarHolder">
+                        <a style="vertical-align: baseline">
+                            <input date-range-picker id="" name="form-control dateRange" type="text" ng-model="date" options="opts" required style="background: none;border: medium none;font-size: 20px;font-weight: 500;vertical-align: middle"/>
+                        </a>
+                    </form>
+                </div>
+                <div class="col-sm-4">
+                    <form class="dashboardIcons">
+                        <a><div class="title-icons"><i class="fa fa-minus-square"></i><div>Delete</div></div></a>
+                        <a><div class="title-icons"><i class="fa fa-mail-forward"></i><div>Email</div></div></a>
+                        <a><div class="title-icons"><i class="fa fa-file-pdf-o"></i><div>Export</div></div></a>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-    <div gridster="gridsterOptions" class="row">
+    <div gridster="gridsterOptions" class="row" style="border: 1px solid #e8e8e8;min-height: 500px">
         <ul>
             <li gridster-item="widget" ng-repeat="widget in dashboard.widgets">
                 <div class="box" ng-controller="CustomWidgetController">
@@ -70,3 +81,57 @@
                     </div>
                 </div>
 -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--
+<div class="row border-bottom">
+    <div class="col col-lg-12">
+        <div class="col-lg-2" style="-moz-box-sizing: border-box;-box-sizing: border-box;-webkit-transition: all 0.5s;-moz-transition: all 0.5s;-o-transition: all 0.5s;transition: all 0.5s">
+            <form class="navbar-form-custom">
+                <input type="text" placeholder="Name your dashboard" class="form-control">
+            </form>
+        </div>
+        &lt;!&ndash;
+                    <div class="col-lg-4">
+                        <div style="@media  screen and (max-width: 800px;){float: none;position: relative;box-sizing: border-box;display: block}">
+                            <a><div class="title-icons"><i class="fa fa-minus-square"></i><div>Delete</div></div></a>
+                            <a><div class="title-icons"><i class="fa fa-mail-forward"></i><div>Email</div></div></a>
+                            <a><div class="title-icons"><i class="fa fa-file-pdf-o"></i></i><div>Export</div></div></a>
+                        </div>
+                    </div>
+        &ndash;&gt;
+        <div class="col-lg-4" style="@media  screen and (max-width: 400px;){float: none;position: relative;box-sizing: border-box;display: block}">
+            <input date-range-picker id="dateRange" name="dateRange" class="form-control date-picker" type="text" ng-model="date" options="opts" required/>
+        </div>
+        <div class="col-lg-2" style="-moz-box-sizing: border-box;-box-sizing: border-box;-webkit-transition: all 0.5s;-moz-transition: all 0.5s;-o-transition: all 0.5s;transition: all 0.5s">
+            <form class="navbar-form-custom">
+                <a><div class="title-icons"><i class="fa fa-minus-square"></i><div>Delete</div></div></a>
+                <a><div class="title-icons"><i class="fa fa-mail-forward"></i><div>Email</div></div></a>
+                <a><div class="title-icons"><i class="fa fa-file-pdf-o"></i><div>Export</div></div></a>
+            </form>
+        </div>
+    </div>
+</div>-->

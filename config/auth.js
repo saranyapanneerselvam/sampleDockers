@@ -1,10 +1,12 @@
 module.exports = {
 
     'facebookAuth': {
-        'clientID': '1693788390861075', // your App ID
-        'clientSecret': 'b606822266381df4c1604208f55f0024', // your App Secret
+        'clientID': '799332023525923', // your App ID
+        'clientSecret': '8e66d0413faaaecab964b8054d405aae', // your App Secret
+        'scope': 'manage_pages,read_insights',
         'callbackURL': 'http://localhost:8080/auth/facebook/callback',
-        profileFields: ["emails", "displayName"]
+        'profileFields': ["emails", "displayName","manage_pages","read_insights"],
+        'state': '3832$'
     },
 
     'twitterAuth': {

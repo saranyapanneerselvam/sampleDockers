@@ -420,7 +420,7 @@ exports.listAccounts = function (req, res, next) {
                                                 Object.find({'profileId': profile._id}, function (err, objectList) {
                                                     channelObjectDetails.push({
                                                         'result': objectList
-                                                    })
+                                                    });
                                                     if (pageList.data.length == channelObjectDetails.length) {
                                                         req.app.result = objectList;
                                                         console.log('er');

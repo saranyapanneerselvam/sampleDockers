@@ -5190,6 +5190,131 @@ del {
     -webkit-box-shadow:0 0 1px white inset;
 }
 
+/* Dashboard Title elements */
+.title-icons {
+    float: right;
+    border: 1px solid #e8e8e8;
+    border-radius: 9px;
+    height: 50px;
+    padding: 2px;
+    margin: 2px;
+    text-align: center;
+    box-sizing: border-box;
+    display: block;
+    min-width: 75px;
+    font-family: 'Open Sans', helvetica, arial, sans-serif;
+    color: #676a6c;
+    text-align: center;
+}
+
+.title-icons:hover,
+.title-icons.active {
+    border: 2px solid #e8e8e8;
+    /*
+    -webkit-box-shadow: 3px 3px 3px 0px #a8a8a8;
+    -moz-box-shadow: 3px 3px 3px 0px #a8a8a8;
+    box-shadow: 3px 3px 3px 3px #a8a8a8;
+    */
+}
+
+.dashboardIcons {
+    float: right;
+    height: 20px;
+    padding: 0;
+    box-sizing: border-box;
+    width: 250px;
+    font-weight: bold;
+    display: inline-table;
+}
+
+.dashboardCalendar {
+    float: left;
+    height: 20px;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    font-weight: bold;
+    display: inline-table;
+}
+
+.dashboardCalendarHolder {
+    float: none;
+    border: 1px solid #e8e8e8;
+    border-radius: 9px;
+    height: 50px;
+    padding: 2px;
+    margin: 2px;
+    text-align: center;
+    box-sizing: border-box;
+    font-weight: bold;
+    min-width: 75px;
+    color: #676a6c;
+}
+
+.dashboardCalendarHolder > .a > .form-control {
+    background: none;
+    border: medium none;
+    font-size: 20px;
+    height: 50px;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    z-index: 2000;
+}
+
+.dashboardIcons .form-control {
+    background: none repeat scroll 0 0 rgba(0, 0, 0, 0);
+    border: medium none;
+    font-size: 20px;
+    height: 50px;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    z-index: 2000;
+}
+
+
+@media (max-width: 1000px) {
+    #dashboardTitle {
+        position: inherit;
+        margin: 0 0 0 0px;
+        min-height: 1000px;
+    }
+    .dashboardIcons {
+        display: none;
+    }
+
+    .body-small .navbar-static-side {
+        display: none;
+        z-index: 2001;
+        position: absolute;
+        width: 70px;
+    }
+    .body-small.mini-navbar .navbar-static-side {
+        display: block;
+    }
+    .sidebard-panel {
+        z-index: 2;
+        position: relative;
+        width: auto;
+        min-height: 100% !important;
+    }
+    .sidebar-content .wrapper {
+        padding-right: 0px;
+        z-index: 1;
+    }
+    .fixed-sidebar.body-small .navbar-static-side {
+        display: none;
+        z-index: 2001;
+        position: fixed;
+        width: 220px;
+    }
+    .fixed-sidebar.body-small.mini-navbar .navbar-static-side {
+        display: block;
+    }
+}
+
+
 /* E-commerce */
 .product-box {
     padding: 0;

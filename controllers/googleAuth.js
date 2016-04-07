@@ -71,6 +71,7 @@ module.exports = function (app) {
                             channels.findOne({code: 'googleanalytics'}, function (err, channelDetails) {
                                 console.log('channelDetails', channelDetails);
                                 req.channelId = channelDetails._id;
+                                req.channelName = channelDetails.name;
                                 req.channelCode = channelDetails._id;
 
                                 //Calling the storeProfiles middleware to store the data
@@ -78,9 +79,8 @@ module.exports = function (app) {
                                     if (err)
                                         res.json('Error');
                                     else {
-
-                                        //If response of the storeProfiles function is success then redirect it to profile page
-                                        res.redirect('/profile');
+                                        //If response of the storeProfiles function is success then close the authentication window
+                                        res.render('successAuthentication');
                                     }
                                 });
                             });

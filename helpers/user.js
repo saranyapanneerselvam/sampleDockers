@@ -7,11 +7,9 @@ var exports = module.exports = {};
  2.res have the query response
  */
 exports.storeProfiles = function (req, done) {
-    console.log('store profile');
     req.showMetric = {};
     var tokens = req.tokens;
-    profile.findOne({'email': req.userEmail, 'channelId': req.channelId}, function (err, profileDetails) {
-        console.log('profiles', profileDetails);
+    profile.findOne({'userId': req.userId, 'channelId': req.channelId}, function (err, profileDetails) {
 
         // if there are any errors, return the error
         if (err)
@@ -19,23 +17,36 @@ exports.storeProfiles = function (req, done) {
 
         // check to see if theres already a user with that email
         else if (profileDetails) {
-            console.log('inside else if');
             var updated = new Date();
-            profile.update({'email': req.userEmail,'channelId': req.channelId}, {
+            var newAccessToken, newRefreshToken;
+            //Facebook doesn't have refresh token,store refresh token if the channel is google
+            if (req.channelCode == req.channelId) {
+                newAccessToken = tokens.access_token;
+                newRefreshToken = tokens.refresh_token;
+            }
+            //Store the refresh token for facebook
+            else {
+                newAccessToken = tokens;
+                newRefreshToken = "";
+            }
+
+            profile.update({'userId': req.userId,'channelId': req.channelId}, {
                 $set: {
-                    "accessToken": tokens.access_token,
+                    "accessToken": newAccessToken,
+                    "refreshToken": newRefreshToken,
                     'updated': updated
                 }
-            }, function (err, updateResult) {
+            }, {upsert: true}, function (err, updateResult) {
                 if (!err) {
                     req.showMetric.status = 302;
                     done(null, {status: 302});
                 }
-
+                else {
+                    done(null, {status: 302});
+                }
             })
         }
         else {
-
             // if there is no profile with that email
             // create the profile
             var newProfile = new profile();
@@ -62,7 +73,6 @@ exports.storeProfiles = function (req, done) {
 
             // save the user
             newProfile.save(function (err, user) {
-                    console.log('user', user);
                     if (err)
                         done(err);
                     else {

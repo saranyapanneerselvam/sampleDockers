@@ -72,7 +72,6 @@ exports.getChannelData = function (req, res, next) {
                 callback('No record found', '');
             else
                 callback(null, object);
-
         }
     }
 
@@ -134,7 +133,6 @@ exports.getChannelData = function (req, res, next) {
     //To call the respective function based on channel
     function getChannelDataRemote(results, callback) {
         var channel = results.get_channel;
-
         //To check the channel
         switch (channel.code) {
             case configAuth.channels.googleAnalytics:
@@ -268,7 +266,6 @@ exports.getChannelData = function (req, res, next) {
                         if (err) console.log("User not saved");
                         else
                             callback(null, 'success')
-
                     });
                 }
             }
@@ -300,7 +297,6 @@ exports.getChannelData = function (req, res, next) {
 
     //Get the data from db
     function getChannelDataDB(results, callback) {
-        console.log('req.body.startDate',req.body.startDate)
         Data.aggregate([
 
             // Unwind the array to denormalize
@@ -392,12 +388,10 @@ exports.getChannelData = function (req, res, next) {
                         analyticData(oauth2Client, results.object, dimension, metricName, startDate, endDate, results.response, dataList);
                     }
                     else {
-                        getFBChannelData();
-
+                        getGAChannelData();
                     }
                 }
                 else {
-
                     //call google api
                     d.setDate(d.getDate() - 365);
                     var startDate = formatDate(d);
@@ -411,7 +405,7 @@ exports.getChannelData = function (req, res, next) {
         else {
             return res.status(500).json({});
         }
-        function getFBChannelData() {
+        function getGAChannelData() {
 
             Data.aggregate([
 
@@ -430,7 +424,6 @@ exports.getChannelData = function (req, res, next) {
                         "objectId": {"$first": "$objectId"},
                         "updated": {"$first": "$updated"},
                         "created": {"$first": "$created"}
-
                     }
                 }
             ], function (err, data) {
@@ -438,13 +431,11 @@ exports.getChannelData = function (req, res, next) {
                     req.app.result = data;
                     next();
                 }
-
             })
         }
 
         //to get the final google analytic data
         function analyticData(oauth2Client, object, dimension, metricName, startDate, endDate, response, dataList, results) {
-
             /**Method to call the google api
              * @param oauth2Client - set credentials
              */
@@ -487,8 +478,6 @@ exports.getChannelData = function (req, res, next) {
                             storeGoogleData.push(obj);
                             if (storeGoogleData.length == resultLength) {
                                 req.app.result = storeGoogleData;
-                                console.log('data', storeGoogleData)
-
                                 //Save the result to data collection
                                 //input channelId,channelObjId,metricId
                                 var data = new Data();
@@ -520,14 +509,14 @@ exports.getChannelData = function (req, res, next) {
                                     }, {upsert: true}, function (err) {
                                         if (err) console.log("User not saved");
                                         else {
-                                            getFBChannelData();
+                                            getGAChannelData();
                                         }
                                     })
                                 }
                                 else {
                                     data.save(function saveData(err) {
                                         if (!err)
-                                            getFBChannelData();
+                                            getGAChannelData();
                                         else
                                             return res.status(500).json({});
                                     })
@@ -591,11 +580,7 @@ exports.getChannelData = function (req, res, next) {
                                 var endDate = calculateDate(d);
                                 d.setDate(d.getDate() - n);
                                 var startDate = calculateDate(d);
-                                console.log('startDate', startDate);
-                                console.log('endDate', endDate);
-                                console.log('adAccountId', adAccountId);
                                 var query = "v2.5/" + adAccountId + "/insights?limit=5&time_increment=1&fields=" + response.meta.fbAdsMetricName + '&time_range[since]=' + startDate + '&time_range[until]=' + endDate;
-                                console.log('query', query);
                                 //var query = pageId + "/insights/" + response.meta.fbAdsMetricName + "?since=" + startDate + "&until=" + endDate;
                                 fetchFBadsData(profile, query, widget, dataResult);
                             }
@@ -607,9 +592,7 @@ exports.getChannelData = function (req, res, next) {
                                 var endDate = calculateDate(d);
                                 var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
                                 if (updated < currentDate) {
-                                    console.log('adAccountId', adAccountId);
                                     var query = "v2.5/" + adAccountId + "/insights?limit=5&time_increment=1&fields=" + response.meta.fbMetricName + '&time_range[since]=' + updated + '&time_range[until]=' + endDate;
-                                    console.log('query', query);
                                     //var query = pageId + "/insights/" + response.meta.fbMetricName + "?since=" + updated + "&until=" + endDate;
                                     fetchFBadsData(profile, query, 3, widget, dataResult, 1);
                                 }
@@ -619,9 +602,7 @@ exports.getChannelData = function (req, res, next) {
                                 }
                             }
                             else {
-
                                 setStartEndDate(365);
-
                             }
                         })
                     }
@@ -639,30 +620,24 @@ exports.getChannelData = function (req, res, next) {
         Adsinsights(query);
         function Adsinsights(query) {
             FB.api(query, function (res) {
-                console.log('insightsdata', res);
                 var wholeData = [];
                 //controlled pagination Data
-
                 if (res.paging && res.paging.next) {
-                    console.log("insight if");
                     tot_metric.push(res.data);
                     var nextPage = res.paging.next;
                     var str = nextPage;
                     var recallApi = str.replace("https://graph.facebook.com/", " ").trim();
-                    console.log(recallApi);
                     Adsinsights(recallApi);
                 }
 
                 else {
                     tot_metric.push(res.data);
-                    console.log('tot_metric', tot_metric);
                     for (var i = 0; i < tot_metric.length; i++) {
                         var obj_metric = (tot_metric[i]);
                         for (var j = 0; j < obj_metric.length; j++) {
                             wholeData.push(obj_metric[j]);
                         }
                     }
-                    console.log('metricType', wholeData);
                     updated = new Date();
 
                     //Updating the old data with new one
@@ -718,7 +693,6 @@ exports.getChannelData = function (req, res, next) {
         //To Get the Metrice Type throught widgetDetails
         //and get metricid and object id from object
         Metric.findById(widget.metrics[0].metricId, function (err, response) {
-            console.log('metrictype', response);
             if (!err) {
                 Object.find({
                     'profileId': profile._id
@@ -728,7 +702,6 @@ exports.getChannelData = function (req, res, next) {
                             'objectId': widget.metrics[0].objectId,
                             'metricId': widget.metrics[0].metricId
                         }, function (err, dataResult) {
-                            console.log('dataResult', dataResult);
 
                             //Function to format the date
                             function calculateDate(d) {
@@ -742,7 +715,6 @@ exports.getChannelData = function (req, res, next) {
                             }
 
                             d = new Date();
-                            console.log('currentDate', d);
                             if (dataResult) {
                                 var updated = calculateDate(dataResult.updated);
                                 var currentDate = calculateDate(new Date());
@@ -750,7 +722,6 @@ exports.getChannelData = function (req, res, next) {
                                 var endDate = calculateDate(d);
                                 if (updated < currentDate) {
                                     var query = response.meta.TweetMetricName;
-                                    console.log('query', query);
                                     fetchTweetData(profile, query, widget, dataResult);
                                 }
                                 else {
@@ -761,9 +732,7 @@ exports.getChannelData = function (req, res, next) {
                             else {
                                 var metricType = response.name;
                                 var query = response.meta.TweetMetricName;
-                                console.log('query', query);
                                 fetchTweetData(profile, metricType, query, widget, dataResult);
-
                             }
                         })
                     }
@@ -782,50 +751,38 @@ exports.getChannelData = function (req, res, next) {
             access_token_secret: configAuth.twitterAuth.AccessTokenSecret
         });
         if (metricType === configAuth.twitterMetric.Mentions || metricType === configAuth.twitterMetric.HighEngagementtweets) {
-            console.log('Mentions' + profile.name);
             client.get(query, function (error, tweets, response) {
                 var TweetObject;
                 for (var i = 0; i < tweets.length; i++) {
                     TweetObject = tweets[i];
                     wholetweetData.push(TweetObject);
-
                 }
                 storeTweetData(wholetweetData, widget);
-
             });
 
 
         }
         else if (metricType === configAuth.twitterMetric.Keywordmentions) {
-            console.log('Keyword Mentions')
             client.get(query, {q: '%23' + profile.name}, function (error, tweets, response) {
-                console.log('search', tweets);
-                console.log(tweets.length);
                 var TweetObject;
                 for (var i = 0; i < tweets.length; i++) {
                     TweetObject = tweets[i];
                     wholetweetData.push(TweetObject);
                 }
-
                 storeTweetData(wholetweetData, widget);
-
             });
         }
         else {
-            console.log('others' + metricType);
             client.get(query, {screen_name: profile.name}, function (error, tweets, response) {
-                console.log(tweets.length);
                 var TweetObject;
                 for (var i = 0; i < tweets.length; i++) {
                     TweetObject = tweets[i];
                     wholetweetData.push(TweetObject);
-
                 }
                 storeTweetData(wholetweetData, widget);
 
             });
         }
-        console.log('metricType', wholetweetData);
         updated = new Date();
 
         //Updating the old data with new one
@@ -853,10 +810,5 @@ exports.getChannelData = function (req, res, next) {
                 }
             });
         }
-
     }
-
-}
-
-
-
+};

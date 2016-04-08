@@ -392,6 +392,7 @@ exports.getChannelData = function (req, res, next) {
                     }
                 }
                 else {
+
                     //call google api
                     d.setDate(d.getDate() - 365);
                     var startDate = formatDate(d);
@@ -436,6 +437,7 @@ exports.getChannelData = function (req, res, next) {
 
         //to get the final google analytic data
         function analyticData(oauth2Client, object, dimension, metricName, startDate, endDate, response, dataList, results) {
+
             /**Method to call the google api
              * @param oauth2Client - set credentials
              */
@@ -478,6 +480,8 @@ exports.getChannelData = function (req, res, next) {
                             storeGoogleData.push(obj);
                             if (storeGoogleData.length == resultLength) {
                                 req.app.result = storeGoogleData;
+                                console.log('data', storeGoogleData)
+
                                 //Save the result to data collection
                                 //input channelId,channelObjId,metricId
                                 var data = new Data();
@@ -580,7 +584,11 @@ exports.getChannelData = function (req, res, next) {
                                 var endDate = calculateDate(d);
                                 d.setDate(d.getDate() - n);
                                 var startDate = calculateDate(d);
+                                console.log('startDate', startDate);
+                                console.log('endDate', endDate);
+                                console.log('adAccountId', adAccountId);
                                 var query = "v2.5/" + adAccountId + "/insights?limit=5&time_increment=1&fields=" + response.meta.fbAdsMetricName + '&time_range[since]=' + startDate + '&time_range[until]=' + endDate;
+                                console.log('query', query);
                                 //var query = pageId + "/insights/" + response.meta.fbAdsMetricName + "?since=" + startDate + "&until=" + endDate;
                                 fetchFBadsData(profile, query, widget, dataResult);
                             }
@@ -592,13 +600,15 @@ exports.getChannelData = function (req, res, next) {
                                 var endDate = calculateDate(d);
                                 var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
                                 if (updated < currentDate) {
+                                    console.log('adAccountId', adAccountId);
                                     var query = "v2.5/" + adAccountId + "/insights?limit=5&time_increment=1&fields=" + response.meta.fbMetricName + '&time_range[since]=' + updated + '&time_range[until]=' + endDate;
+                                    console.log('query', query);
                                     //var query = pageId + "/insights/" + response.meta.fbMetricName + "?since=" + updated + "&until=" + endDate;
-                                    fetchFBadsData(profile, query, 3, widget, dataResult, 1);
+                                    fetchFBadsData(profile, query, widget, dataResult);
                                 }
                                 else {
-                                    req.app.result = dataResult;
-                                    next();
+                                    console.log('else')
+                                    getFbAdsData(widget);
                                 }
                             }
                             else {
@@ -612,6 +622,45 @@ exports.getChannelData = function (req, res, next) {
         });
     }
 
+    //To get data based on start date ,end date
+    function getFbAdsData(widget) {
+        Data.aggregate([
+
+            // Unwind the array to denormalize
+            {"$unwind": "$data"},
+
+
+            // Match specific array elements
+            {
+                "$match": {
+                    $and: [{"data.date": {$gte: req.body.startDate}}, {"data.date": {$lte: req.body.endDate}}, {'objectId': widget.metrics[0].objectId},
+                        {'metricId': widget.metrics[0].metricId}]
+                }
+            },
+
+            // Group back to array form
+            {
+                "$group": {
+                    "_id": "$_id",
+                    "data": {"$push": "$data"},
+                    "metricId": {"$first": "$metricId"},
+                    "objectId": {"$first": "$objectId"},
+                    "updated": {"$first": "$updated"},
+                    "created": {"$first": "$created"}
+
+                }
+            }
+        ], function (err, response) {
+            if (!err)
+                req.app.result = response;
+            else if (!response.length)
+                req.app.result = {error: err, message: 'Database error'};
+            else
+                req.app.result = {status: 302, message: 'No record found'};
+            next();
+        })
+    }
+
 // This Function executed to get insights data like(impression,clicks)
     function fetchFBadsData(profile, query, widget, dataResult, data) {
 
@@ -620,24 +669,42 @@ exports.getChannelData = function (req, res, next) {
         Adsinsights(query);
         function Adsinsights(query) {
             FB.api(query, function (res) {
+                console.log('insightsdata', res);
                 var wholeData = [];
                 //controlled pagination Data
+
                 if (res.paging && res.paging.next) {
-                    tot_metric.push(res.data);
+                    console.log("insight if");
+                    for (var key in res.data)
+                        tot_metric.push({total: res.data[key].spend, date: res.data[key].date_start});
                     var nextPage = res.paging.next;
                     var str = nextPage;
                     var recallApi = str.replace("https://graph.facebook.com/", " ").trim();
+                    console.log(recallApi);
                     Adsinsights(recallApi);
                 }
 
                 else {
-                    tot_metric.push(res.data);
-                    for (var i = 0; i < tot_metric.length; i++) {
-                        var obj_metric = (tot_metric[i]);
-                        for (var j = 0; j < obj_metric.length; j++) {
-                            wholeData.push(obj_metric[j]);
-                        }
+                    for (var key in res.data)
+                        tot_metric.push({total: res.data[key].spend, date: res.data[key].date_start});
+                    console.log('tot_metric', tot_metric);
+
+                    var obj_metric = tot_metric.length;
+                    for (var j = 0; j < obj_metric; j++) {
+                        console.log('data', wholeData)
+                        wholeData.push({date: tot_metric[j].date, total: tot_metric[j].total});
                     }
+
+                    if(dataResult){
+                        console.log('data reslt',dataResult.data.length,wholeData.length)
+                        for (var index=0;index<dataResult.data.length;index++){
+                            console.log('index',index)
+                            wholeData.push({date: dataResult.data[index].date, total: dataResult.data[index].total})
+                        }
+
+
+                    }
+                    console.log('metricType', wholeData);
                     updated = new Date();
 
                     //Updating the old data with new one
@@ -649,18 +716,8 @@ exports.getChannelData = function (req, res, next) {
                     }, {upsert: true}, function (err) {
                         if (err) console.log("User not saved");
                         else {
-                            Data.find({
-                                'objectId': widget.metrics[0].objectId,
-                                'metricId': widget.metrics[0].metricId
-                            }, function (err, response) {
-                                if (!err)
-                                    req.app.result = response;
-                                else if (!response.length)
-                                    req.app.result = {error: err, message: 'Database error'};
-                                else
-                                    req.app.result = {status: 302, message: 'No record found'};
-                                next();
-                            })
+                            console.log('data', req.body.endDate)
+                            getFbAdsData(widget);
                         }
                     });
                 }
@@ -693,6 +750,7 @@ exports.getChannelData = function (req, res, next) {
         //To Get the Metrice Type throught widgetDetails
         //and get metricid and object id from object
         Metric.findById(widget.metrics[0].metricId, function (err, response) {
+            console.log('metrictype', response);
             if (!err) {
                 Object.find({
                     'profileId': profile._id
@@ -702,6 +760,7 @@ exports.getChannelData = function (req, res, next) {
                             'objectId': widget.metrics[0].objectId,
                             'metricId': widget.metrics[0].metricId
                         }, function (err, dataResult) {
+                            console.log('dataResult', dataResult);
 
                             //Function to format the date
                             function calculateDate(d) {
@@ -715,6 +774,7 @@ exports.getChannelData = function (req, res, next) {
                             }
 
                             d = new Date();
+                            console.log('currentDate', d);
                             if (dataResult) {
                                 var updated = calculateDate(dataResult.updated);
                                 var currentDate = calculateDate(new Date());
@@ -722,6 +782,7 @@ exports.getChannelData = function (req, res, next) {
                                 var endDate = calculateDate(d);
                                 if (updated < currentDate) {
                                     var query = response.meta.TweetMetricName;
+                                    console.log('query', query);
                                     fetchTweetData(profile, query, widget, dataResult);
                                 }
                                 else {
@@ -732,6 +793,7 @@ exports.getChannelData = function (req, res, next) {
                             else {
                                 var metricType = response.name;
                                 var query = response.meta.TweetMetricName;
+                                console.log('query', query);
                                 fetchTweetData(profile, metricType, query, widget, dataResult);
                             }
                         })
@@ -751,19 +813,25 @@ exports.getChannelData = function (req, res, next) {
             access_token_secret: configAuth.twitterAuth.AccessTokenSecret
         });
         if (metricType === configAuth.twitterMetric.Mentions || metricType === configAuth.twitterMetric.HighEngagementtweets) {
+            console.log('Mentions' + profile.name);
             client.get(query, function (error, tweets, response) {
                 var TweetObject;
                 for (var i = 0; i < tweets.length; i++) {
                     TweetObject = tweets[i];
                     wholetweetData.push(TweetObject);
+
                 }
                 storeTweetData(wholetweetData, widget);
+
             });
 
 
         }
         else if (metricType === configAuth.twitterMetric.Keywordmentions) {
+            console.log('Keyword Mentions')
             client.get(query, {q: '%23' + profile.name}, function (error, tweets, response) {
+                console.log('search', tweets);
+                console.log(tweets.length);
                 var TweetObject;
                 for (var i = 0; i < tweets.length; i++) {
                     TweetObject = tweets[i];
@@ -773,7 +841,9 @@ exports.getChannelData = function (req, res, next) {
             });
         }
         else {
+            console.log('others' + metricType);
             client.get(query, {screen_name: profile.name}, function (error, tweets, response) {
+                console.log(tweets.length);
                 var TweetObject;
                 for (var i = 0; i < tweets.length; i++) {
                     TweetObject = tweets[i];
@@ -783,6 +853,7 @@ exports.getChannelData = function (req, res, next) {
 
             });
         }
+        console.log('metricType', wholetweetData);
         updated = new Date();
 
         //Updating the old data with new one

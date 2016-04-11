@@ -21,7 +21,7 @@ var sessionConfig = {
     store: new mongoStore({
         mongooseConnection: mongoose.connection
     })
-}
+};
 // configuration ===============================================================
 mongoose.connect(configDB.url); // connect to our database
 mongoose.set('debug',true);
@@ -67,7 +67,7 @@ require('./controllers/facebookInsights')(app);
 router.use(function (req, res, next) {
     req.showMetric = {};
     next();
-})
+});
 
 // launch ======================================================================
 app.listen(port);

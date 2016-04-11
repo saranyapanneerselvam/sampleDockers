@@ -2724,50 +2724,76 @@ function GridviewController($scope,$http) {
  */
 function DashboardController($scope,$timeout,$rootScope,$http,$window,$state) {
 
+    $scope.dashboardConfiguration = function () {
+        //Defining configuration parameters for dashboard calendar
+        $scope.date = {
+            startDate: moment().subtract(29, "days"),
+            endDate: moment()
+        };
+        $scope.opts = {
+            locale: {
+                applyClass: 'btn-green', applyLabel: "Apply",
+                fromLabel: "From", toLabel: "To", cancelLabel: 'Cancel', customRangeLabel: 'Custom Range',
+                daysOfWeek: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], firstDay: 1,
+                monthNames: [
+                    'January', 'February', 'March', 'April', 'May', 'June', 'July',
+                    'August', 'September', 'October', 'November', 'December']
+            },
+            ranges: {
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()]},
+            opens: "center",
+            minDate: moment().subtract(365,"days"),
+            maxDate: moment()
+        };
 
-    $scope.nameDashboard = function (dashboardName) {console.log('dashboard name', dashboardName);};
+        //Defining configuration parameters for dashboard layout
+        $scope.dashboard = {widgets: []};
+        $scope.gridsterOptions = {
+            margins: [10, 10], columns: 6, defaultSizeX: 3, defaultSizeY: 3, minSizeX: 3, minSizeY: 3,
+            draggable: {enabled: true, handle: 'box-header'},
+            outerMargin: true, // whether margins apply to outer edges of the grid
+            mobileBreakPoint: 600,
+            mobileModeEnabled: true, // whether or not to toggle mobile mode when screen width is less than mobileBreakPoint
+            /*
+             isMobile: false, // stacks the grid items if true
+             */
+            resizable: {enabled: true,handles: ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'],
+                start: function (event, $element, widget) {}, // optional callback fired when resize is started
+                resize: function (event, $element, widget) {if (widget.chart.api) widget.chart.api.update();}, // optional callback fired when item is resized,
+                stop: function (event, $element, widget) {$timeout(function () {if (widget.chart.api) widget.chart.api.update();}, 400)} // optional callback fired when item is finished resizing
+            }
+        };
 
+        //subscribe widget on window resize event and sidebar resize event
+        new ResizeSensor(document.getElementById('dashboardLayout'), function() {$scope.$broadcast('resize');});
+        angular.element($window).on('resize', function (e) {$scope.$broadcast('resize');});
+        $scope.$on('resize',function(e){
+            for(var i=0;i<$scope.dashboard.widgets.length;i++){$timeout(resizeWidget(i), 100);}
+            function resizeWidget(i) {
+                return function() {if ($scope.dashboard.widgets[i].chart.api){$scope.dashboard.widgets[i].chart.api.update();}};
+            }
+        });
 
-    $scope.calendarDate = null;
-    $scope.date = {startDate: moment().subtract(29, "days"), endDate: moment()};
-    $scope.opts = {
-        locale: {
-            applyClass: 'btn-green', applyLabel: "Apply", fromLabel: "From", toLabel: "To", cancelLabel: 'Cancel', customRangeLabel: 'Custom Range',
-            daysOfWeek: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], firstDay: 1,
-            monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-        },
-        ranges: {'Last 7 Days': [moment().subtract(6, 'days'), moment()],'Last 30 Days': [moment().subtract(29, 'days'), moment()]},
-        opens: "center",
-        minDate: moment().subtract(365,"days"),
-        maxDate: moment()
+        //Watch for date changes to repopulate dashboards
+        $scope.$watch('date', function(newDate) {$scope.populateDashboardWidgets();}, false);
+
+        //make chart visible after grid have been created
+        $scope.config = {visible: false};
+        $timeout(function () {$scope.config.visible = true;}, 200);
+
     };
-    console.log($scope.opts.minDate,$scope.opts.minDate.utc().format(),$scope.opts.minDate.utc().valueOf());
-    $scope.runFunction = function() {console.log('running')};
-    //Watch for date changes
-    $scope.$watch('date', function(newDate) {console.log('New date set: ', newDate); $scope.calendarDate = newDate;}, false);
 
-
-    $scope.gridsterOptions = {
-        margins: [10, 10], columns: 6, defaultSizeX: 3, defaultSizeY: 3, minSizeX: 3, minSizeY: 3,
-        draggable: {enabled: true, handle: 'box-header'},
-        outerMargin: true, // whether margins apply to outer edges of the grid
-        mobileBreakPoint: 800,
-        mobileModeEnabled: true, // whether or not to toggle mobile mode when screen width is less than mobileBreakPoint
-        /*
-                isMobile: false, // stacks the grid items if true
-        */
-        resizable: {enabled: true,handles: ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'],
-            start: function (event, $element, widget) {}, // optional callback fired when resize is started
-            resize: function (event, $element, widget) {if (widget.chart.api) widget.chart.api.update();}, // optional callback fired when item is resized,
-            stop: function (event, $element, widget) {$timeout(function () {if (widget.chart.api) widget.chart.api.update();}, 400)} // optional callback fired when item is finished resizing
-        }
-    };
+    $scope.editDashboardName = function (dashboardName) {console.log('dashboard name', dashboardName);};
 
     $scope.populateDashboardWidgets = function(){
+        $scope.dashboard.widgets = [];
+        $scope.widgetsCount = 0;
         $http({
             method: 'GET', url: '/api/v1/dashboards/widgets/'+ $state.params.id
         }).then(function successCallback(response) {
             var responseData = response.data.widgetsList;
+            $scope.widgetsCount = responseData.length;
             for(i=0;i<responseData.length;i++){
                 if(responseData[i].widgetType = 'basic')
                     $rootScope.$emit('createNewBasicWidget',responseData[i]._id);
@@ -2780,26 +2806,30 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state) {
     $rootScope.$on('createNewBasicWidget', function(e,widgetId){
         var graphData, metricNameInGraph, metricDetails;
         var dataToBePopulated = [];
-        console.log('start date', moment.utc($scope.calendarDate.startDate._d).valueOf());
-        console.log('end date', moment.utc($scope.calendarDate.endDate._d).valueOf());
         var jsonData = {
-            "startDate": moment.utc($scope.calendarDate.startDate._d).valueOf(),
-            "endDate": moment.utc($scope.calendarDate.endDate._d).valueOf()
+            "startDate": moment(moment.utc($scope.date.startDate._d).valueOf()).format('YYYY-MM-DD'),
+            "endDate": moment(moment.utc($scope.date.endDate._d).valueOf()).format('YYYY-MM-DD')
         };
+
+        $scope.dashboard.widgets.push({
+            sizeY: 3, sizeX: 3, id: widgetId, chart: {api: {}}, visibility: false
+        });
+
         $http({
-            method: 'POST', url: '/api/v1/widgets/data/'+widgetId
+            method: 'POST',
+            url: '/api/v1/widgets/data/'+widgetId,
+            data: jsonData
         }).then(function successCallback(response){
-            console.log('Data response for creating graph for widget',widgetId,':',response);
-            for(i=0;i<response.data.data.length;i++){
-                splitDate = [response.data.data[i].date];
+            console.log('Data for widget',widgetId,':',response);
+            for(i=0;i<response.data[0].data.length;i++){
+                splitDate = [response.data[0].data[i].date];
                 newDate = splitDate[1]+'/'+splitDate[2]+'/'+splitDate[0];
                 inputDate = new Date(newDate).getTime();
-                dataToBePopulated.push({x: inputDate, y: response.data.data[i].total});
+                dataToBePopulated.push({x: inputDate, y: response.data[0].data[i].total});
             }
             $http({
-                method:'GET', url:'/api/v1/get/metricDetails/' + response.data.metricId
+                method:'GET', url:'/api/v1/get/metricDetails/' + response.data[0].metricId
             }).then(function successCallback(response){
-                console.log(response);
                 metricDetails = response.data.metricsList[0];
                 graphData = [{
                     values: dataToBePopulated,      //values - represents the array of {x,y} data points
@@ -2808,30 +2838,66 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state) {
                 }];
                 $scope.addBasicWidget(graphData,metricDetails,widgetId);
             },function errorCallback(error){
-               console.log('Error in getting metric details',error);
+                console.log('Error in getting metric details',error);
             });
         },function errorCallback(error){
             console.log('Error in getting data after widget creation',error);
+            $scope.addBasicWidget(graphData,metricDetails,widgetId);
         });
     });
 
     $scope.addBasicWidget = function (graphData,metricDetails,widgetId) {
-        $scope.dashboard.widgets.push({
-            sizeY: 3, sizeX: 3, name: metricDetails.description, id: widgetId,
-            chart: {
-                options: {
-                    chart: {
-                        type: 'lineChart',
-                        margin : {top: 20, right: 20, bottom: 40, left: 55}, x: function(d){ return d.x; }, y: function(d){ return d.y; },
-                        useInteractiveGuideline: true,
-                        xAxis: {axisLabel: metricDetails.xAxis, tickFormat: function(d) {return d3.time.format('%m/%d/%y')(new Date(d))}},
-                        yAxis: {axisLabel: metricDetails.yAxis},
-                        axisLabelDistance: -10
-                    }
+        if(graphData){
+            var widgetIndex = $scope.dashboard.widgets.map(function(el) {
+                return el.id;
+            }).indexOf(widgetId);
+            console.log(widgetIndex);
+            $scope.dashboard.widgets[widgetIndex] = {
+                sizeY: 3, sizeX: 3, name: metricDetails.description, id: widgetId,
+                chart: {
+                    options: {
+                        chart: {
+                            type: 'lineChart',
+                            margin : {top: 20, right: 20, bottom: 40, left: 55}, x: function(d){ return d.x; }, y: function(d){ return d.y; },
+                            useInteractiveGuideline: true,
+                            xAxis: {axisLabel: metricDetails.xAxis, tickFormat: function(d) {return d3.time.format('%m/%d/%y')(new Date(d))}},
+                            yAxis: {axisLabel: metricDetails.yAxis},
+                            axisLabelDistance: -10
+                        }
+                    },
+                    data: graphData, api: {}
                 },
-                data: graphData, api: {}
+                visibility: true
             }
-        });
+        } else {
+            $scope.dashboard.widgets.push({
+                sizeY: 3, sizeX: 3, name: '', id: widgetId
+            });
+        }
+/*
+        if(graphData){
+            $scope.dashboard.widgets.push({
+                sizeY: 3, sizeX: 3, name: metricDetails.description, id: widgetId,
+                chart: {
+                    options: {
+                        chart: {
+                            type: 'lineChart',
+                            margin : {top: 20, right: 20, bottom: 40, left: 55}, x: function(d){ return d.x; }, y: function(d){ return d.y; },
+                            useInteractiveGuideline: true,
+                            xAxis: {axisLabel: metricDetails.xAxis, tickFormat: function(d) {return d3.time.format('%m/%d/%y')(new Date(d))}},
+                            yAxis: {axisLabel: metricDetails.yAxis},
+                            axisLabelDistance: -10
+                        }
+                    },
+                    data: graphData, api: {}
+                }
+            });
+        } else {
+            $scope.dashboard.widgets.push({
+                sizeY: 3, sizeX: 3, name: '', id: widgetId
+            });
+        }
+*/
     };
 
     $scope.deleteWidget = function(widget){
@@ -2845,11 +2911,59 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state) {
         });
     };
 
-    $scope.dashboard = {widgets: []};
-    $scope.events = {resize: function (e, scope) {$timeout(function () {if (scope.api && scope.api.update){scope.api.update();}}, 200)}};    // widget events
+/*
+
+    $scope.dashboardConfiguration = function () {
+
+
+    };
+    $scope.calendarDate = null;
+    $scope.date = {
+        startDate: moment().subtract(29, "days"),
+        endDate: moment()
+    };
+    $scope.opts = {
+        locale: {
+            applyClass: 'btn-green', applyLabel: "Apply",
+            fromLabel: "From", toLabel: "To", cancelLabel: 'Cancel', customRangeLabel: 'Custom Range',
+            daysOfWeek: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], firstDay: 1,
+            monthNames: [
+                'January', 'February', 'March', 'April', 'May', 'June', 'July',
+                'August', 'September', 'October', 'November', 'December']
+        },
+        ranges: {
+            'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+            'Last 30 Days': [moment().subtract(29, 'days'), moment()]},
+        opens: "center",
+        minDate: moment().subtract(365,"days"),
+        maxDate: moment()
+    };
+    //Watch for date changes
+    $scope.$watch('date', function(calendarDate) {
+        console.log('New date set: ', calendarDate);
+        $scope.calendarDate = calendarDate;
+        $scope.populateDashboardWidgets();
+    }, false);
+//        $scope.$watch($scope.widgetsCount == $scope.dashboard.widgets.length, function(){console.log('It is working da')});
+
     $scope.config = {visible: false};
-    $timeout(function () {$scope.config.visible = true;}, 200);    //make chart visible after grid have been created
-    $scope.clear = function () {$scope.dashboard.widgets = [];};    // grid manipulation
+    $scope.dashboard = {widgets: []};
+    $scope.gridsterOptions = {
+        margins: [10, 10], columns: 6, defaultSizeX: 3, defaultSizeY: 3, minSizeX: 3, minSizeY: 3,
+        draggable: {enabled: true, handle: 'box-header'},
+        outerMargin: true, // whether margins apply to outer edges of the grid
+        mobileBreakPoint: 600,
+        mobileModeEnabled: true, // whether or not to toggle mobile mode when screen width is less than mobileBreakPoint
+        /!*
+         isMobile: false, // stacks the grid items if true
+         *!/
+        resizable: {enabled: true,handles: ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'],
+            start: function (event, $element, widget) {}, // optional callback fired when resize is started
+            resize: function (event, $element, widget) {if (widget.chart.api) widget.chart.api.update();}, // optional callback fired when item is resized,
+            stop: function (event, $element, widget) {$timeout(function () {if (widget.chart.api) widget.chart.api.update();}, 400)} // optional callback fired when item is finished resizing
+        }
+    };
+
     angular.element($window).on('resize', function (e) {$scope.$broadcast('resize')});    //subscribe widget on window resize event
     $scope.$on('resize',function(e){
         for(var i=0;i<$scope.dashboard.widgets.length;i++){
@@ -2863,6 +2977,102 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state) {
             };
         }
     });
+    $scope.editDashboardName = function (dashboardName) {console.log('dashboard name', dashboardName);};
+    $scope.events = {resize: function (e, scope) {$timeout(function () {if (scope.api && scope.api.update){scope.api.update();}}, 200)}};    // widget events
+    $timeout(function () {$scope.config.visible = true;}, 5000);    //make chart visible after grid have been created
+    $scope.clear = function () {$scope.dashboard.widgets = [];};    // grid manipulation
+
+    $scope.populateDashboardWidgets = function(){
+        $scope.dashboard.widgets = [];
+        $scope.widgetsCount = null;
+        $http({
+            method: 'GET', url: '/api/v1/dashboards/widgets/'+ $state.params.id
+        }).then(function successCallback(response) {
+            //var responseData = response.data.widgetsList;
+            $scope.widgetsCount = response.data.widgetsList.length;
+            for(i=0;i<$scope.widgetsCount;i++){
+                if(response.data.widgetsList[i].widgetType = 'basic')
+                    $rootScope.$emit('createNewBasicWidget',response.data.widgetsList[i]._id);
+            }
+        }, function errorCallback(error) {
+            console.log('Error in finding widgets in the dashboard',error);
+        });
+    };
+
+    $rootScope.$on('createNewBasicWidget', function(e,widgetId){
+        var graphData, metricNameInGraph, metricDetails;
+        var dataToBePopulated = [];
+        var jsonData = {
+            "startDate": moment(moment.utc($scope.calendarDate.startDate._d).valueOf()).format('YYYY-MM-DD'),
+            "endDate": moment(moment.utc($scope.calendarDate.endDate._d).valueOf()).format('YYYY-MM-DD')
+        };
+        $http({
+            method: 'POST',
+            url: '/api/v1/widgets/data/'+widgetId,
+            data: jsonData
+        }).then(function successCallback(response){
+            console.log('Data for widget',widgetId,':',response);
+            for(i=0;i<response.data[0].data.length;i++){
+                splitDate = [response.data[0].data[i].date];
+                newDate = splitDate[1]+'/'+splitDate[2]+'/'+splitDate[0];
+                inputDate = new Date(newDate).getTime();
+                dataToBePopulated.push({x: inputDate, y: response.data[0].data[i].total});
+            }
+            $http({
+                method:'GET', url:'/api/v1/get/metricDetails/' + response.data[0].metricId
+            }).then(function successCallback(response){
+                metricDetails = response.data.metricsList[0];
+                graphData = [{
+                    values: dataToBePopulated,      //values - represents the array of {x,y} data points
+                    key: metricDetails.name, //key  - the name of the series.
+                    color: '#1ab394'  //color - optional: choose your own line color.
+                }];
+                $scope.addBasicWidget(graphData,metricDetails,widgetId);
+            },function errorCallback(error){
+               console.log('Error in getting metric details',error);
+            });
+        },function errorCallback(error){
+            console.log('Error in getting data after widget creation',error);
+            $scope.addBasicWidget(graphData,metricDetails,widgetId);
+        });
+    });
+
+    $scope.addBasicWidget = function (graphData,metricDetails,widgetId) {
+        if(graphData){
+            $scope.dashboard.widgets.push({
+                sizeY: 3, sizeX: 3, name: metricDetails.description, id: widgetId,
+                chart: {
+                    options: {
+                        chart: {
+                            type: 'lineChart',
+                            margin : {top: 20, right: 20, bottom: 40, left: 55}, x: function(d){ return d.x; }, y: function(d){ return d.y; },
+                            useInteractiveGuideline: true,
+                            xAxis: {axisLabel: metricDetails.xAxis, tickFormat: function(d) {return d3.time.format('%m/%d/%y')(new Date(d))}},
+                            yAxis: {axisLabel: metricDetails.yAxis},
+                            axisLabelDistance: -10
+                        }
+                    },
+                    data: graphData, api: {}
+                }
+            });
+        } else {
+            $scope.dashboard.widgets.push({
+                sizeY: 3, sizeX: 3, name: '', id: widgetId
+            });
+        }
+    };
+
+    $scope.deleteWidget = function(widget){
+        console.log(widget);
+        $http({
+            method:'POST', url:'/api/v1/delete/widgets/' + widget.id
+        }).then(function successCallback(response){
+            console.log(response);
+        },function errorCallback(error){
+            console.log('Error in deleting the widget',error);
+        });
+    };
+*/
 }
 
 /**
@@ -2919,12 +3129,13 @@ function ModalInstanceController($scope, $uibModalInstance) {
 /**
  *
  */
-function BasicWidgetController($scope,$http,$state,$rootScope,dashboardService,$q,$window) {
+function BasicWidgetController($scope,$http,$state,$rootScope) {
     $scope.currentView = 'step_one';
     $scope.objectList = {};
-    $scope.promises = [];
+    $scope.metricList = {};
+    $scope.profileList = {};
 
-    $scope.changeCurrentView = function (obj) {
+    $scope.changeViewsInBasicWidget = function (obj) {
         $scope.currentView = obj;
         if ($scope.currentView === 'step_three'){
             document.getElementById('basicWidgetBackButton1').disabled=false;
@@ -2932,15 +3143,16 @@ function BasicWidgetController($scope,$http,$state,$rootScope,dashboardService,$
         } else if($scope.currentView === 'step_two'){
             document.getElementById('basicWidgetBackButton1').disabled=false;
             document.getElementById('basicWidgetNextButton').disabled=true;
-            $scope.getMetrics(); $scope.getProfiles();
+            $scope.getMetricsForChosenChannel();
+            $scope.getProfilesForDropdown();
         } else if($scope.currentView === 'step_one'){
             document.getElementById('basicWidgetBackButton1').disabled=true;
             document.getElementById('basicWidgetNextButton').disabled=true;
-            $scope.getChannels();
+            $scope.getChannelsForBasicWidget();
         }
     };
 
-    $scope.getChannels = function () {
+    $scope.getChannelsForBasicWidget = function () {
         $http({
             method: 'GET',
             url: '/api/v1/get/channels'
@@ -2951,7 +3163,7 @@ function BasicWidgetController($scope,$http,$state,$rootScope,dashboardService,$
         });
     };
 
-    $scope.getMetrics = function () {
+    $scope.getMetricsForChosenChannel = function () {
         $http({
             method: 'GET',
             url: '/api/v1/get/metrics/'+$scope.storedChannelId
@@ -2962,7 +3174,29 @@ function BasicWidgetController($scope,$http,$state,$rootScope,dashboardService,$
         });
     };
 
-    $scope.callObjects = function(){
+    $scope.getProfilesForDropdown = function () {
+        $http({ method: 'GET', url: '/api/v1/get/profiles/'+$scope.storedChannelId
+        }).then(function successCallback(response) {
+            $scope.profileList = response.data.profileList;
+            /*
+             for(i=0;i<$scope.profileList.length;i++){
+             $scope.promises.push(
+             $scope.getDynamicObjects({profileId: $scope.profileList[i]._id,
+             profileName: $scope.profileList[i].name})
+             );
+             }
+             $q.all($scope.promises).then(function(dataArray){
+             $scope.promises = dataArray;
+             }).catch(function(err){
+             console.log(err);
+             });
+             */
+        }, function errorCallback(error) {
+            console.log('Error in finding profiles');
+        });
+    };
+
+    $scope.getObjectsForChosenProfile = function(){
         console.log($scope.profileOptionsModel._id);
         $http({
             method: 'GET',
@@ -2975,27 +3209,7 @@ function BasicWidgetController($scope,$http,$state,$rootScope,dashboardService,$
         });
     };
 
-    $scope.getProfiles = function () {
-        $http({ method: 'GET', url: '/api/v1/get/profiles/'+$scope.storedChannelId
-        }).then(function successCallback(response) {
-            $scope.profileList = response.data.profileList;
-            console.log('completed',response.data.profileList);
-
 /*
-            for(i=0;i<$scope.profileList.length;i++){
-                $scope.promises.push($scope.getDynamicObjects({profileId: $scope.profileList[i]._id, profileName: $scope.profileList[i].name}));
-            }
-            $q.all($scope.promises).then(function(dataArray){
-                $scope.promises = dataArray;
-            }).catch(function(err){
-                console.log(err);
-            });
-*/
-        }, function errorCallback(error) {
-            console.log('Error in finding profiles');
-        });
-    };
-
     $scope.getDynamicObjects = function (data) {
         $http({
             method: 'GET',
@@ -3007,7 +3221,7 @@ function BasicWidgetController($scope,$http,$state,$rootScope,dashboardService,$
             return(error);
         });
 
-/*
+/!*
         return $q(function(resolve,reject){
             $http({
                 method: 'GET',
@@ -3030,10 +3244,11 @@ function BasicWidgetController($scope,$http,$state,$rootScope,dashboardService,$
             });
 *!/
         });
-*/
+*!/
     };
+*/
 
-    $scope.refreshObjects = function () {
+    $scope.refreshObjectsForChosenProfile = function () {
         if($scope.profileOptionsModel._id) {
             switch ($scope.storedChannelName) {
                 case 'Facebook':
@@ -3055,7 +3270,7 @@ function BasicWidgetController($scope,$http,$state,$rootScope,dashboardService,$
         }
     };
 
-    $scope.authenticateProfile = function () {
+    $scope.addNewProfile = function () {
         var url,title;
         function popupwindow(url, title, w, h) {
             switch ($scope.storedChannelName){
@@ -3098,7 +3313,23 @@ function BasicWidgetController($scope,$http,$state,$rootScope,dashboardService,$
 */
     };
 
-    $scope.getBasicWidget =function() {
+    $scope.removeExistingProfile = function () {
+        if($scope.profileOptionsModel) {
+            console.log('Yes possible',$scope.profileOptionsModel._id);
+            $http({
+                method: 'POST',
+                url: '/api/v1/post/removeProfiles/'+$scope.profileOptionsModel._id
+            }).then(function successCallback(response){
+                console.log('success',response);
+            },function errorCallback(error){
+                console.log('Error in deleting profile',error)
+            });
+        } else {
+            console.log('Not possible');
+        }
+    };
+
+    $scope.createAndFetchBasicWidget =function() {
         var jsonData = {
             "dashboardId": $state.params.id,
             "widgetType":"basic",
@@ -3120,7 +3351,7 @@ function BasicWidgetController($scope,$http,$state,$rootScope,dashboardService,$
     $scope.storeMetric = function(){$scope.storedMetricId = this.MetricName._id;};
     $scope.clearChannel = function(){$scope.storedChannelId = null;};
     $scope.clearMetric = function(){$scope.storedMetricId = null;};
-    $scope.getChannels();
+    $scope.getChannelsForBasicWidget();
 }
 
 /**

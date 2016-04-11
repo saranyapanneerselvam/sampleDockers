@@ -1,6 +1,6 @@
 <div class="modal-dialog modal-lg"  ng-init="open()">
     <script type="text/ng-template" id="modal.ejs">
-        <div class="modal-content" ng-controller="BasicWidgetController" ng-init="changeCurrentView('step_one')">
+        <div class="modal-content" ng-controller="BasicWidgetController" ng-init="changeViewsInBasicWidget('step_one')">
             <div class="modal-header">
                 <button type="button" class="close" ng-click="cancel()"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
                 <h4 class="modal-title">Add a Basic Widget</h4>
@@ -53,14 +53,14 @@
                     <div class="scrollbar" id="scroller">
                         <div class="row" ng-show="currentView === 'step_one'">
                             <div class="col-lg-12">
-                                <div ng-repeat="data in channelList" name="{{data._id}}" class="col-lg-3 widget-icons" ng-click="storeChannel();changeCurrentView('step_two')">
+                                <div ng-repeat="data in channelList" name="{{data._id}}" class="col-lg-3 widget-icons" ng-click="storeChannel();changeViewsInBasicWidget('step_two')">
                                     <img src="image/lightbox/{{data.name}}.png" style="max-width: 100%;max-height: 100%"/>
                                 </div>
                             </div>
                         </div>
                         <div class="row" ng-show="currentView === 'step_two'">
                             <div class="col-lg-12">
-                                <div ng-repeat="MetricName in metricList" name="{{MetricName.name}}" class="col-lg-3 widget-icons" ng-click="storeMetric();changeCurrentView('step_three')">
+                                <div ng-repeat="MetricName in metricList" name="{{MetricName.name}}" class="col-lg-3 widget-icons" ng-click="storeMetric();changeViewsInBasicWidget('step_three')">
                                     <h4>{{MetricName.name}}</h4>
                                 </div>
                             </div>
@@ -77,13 +77,13 @@
                                                 <form class="form-horizontal">
                                                     <div class="form-group">
                                                         <div class="col-lg-9">
-                                                            <select class="form-control m-b" ng-model="profileOptionsModel" id="profileOptions" ng-options="profiles as profiles.name for profiles in profileList" ng-change="callObjects()"></select>
+                                                            <select class="form-control m-b" ng-model="profileOptionsModel" id="profileOptions" ng-options="profiles as profiles.name for profiles in profileList" ng-change="getObjectsForChosenProfile()"></select>
                                                         </div>
                                                     </div>
                                                     <div class="form-group">
                                                         <div class="col-lg-9">
                                                             <select class="form-control m-b" ng-model="objectOptionsModel" id="objectOptions" ng-options="objects as objects.name for objects in objectList"></select>
-                                                            <div class="infont col-md-3 col-sm-4"><a ng-click="refreshObjects()"><i class="fa fa-refresh"></i></a></div>
+                                                            <div class="infont col-md-3 col-sm-4"><a ng-click="refreshObjectsForChosenProfile()"><i class="fa fa-refresh"></i></a></div>
                                                         </div>
                                                     </div>
 <!--
@@ -102,10 +102,10 @@
                                                     <div class="form-group">
                                                         <div class="col-lg-10" style="margin: 0px;padding: 0px">
                                                             <div class="col-lg-5" style="float: left;margin: 0px">
-                                                                <a ><button type="button" class="btn btn-link" ng-click="authenticateProfile()"><i class="fa fa-plus-square-o"></i>   Add Profile</button></a>
+                                                                <a ><button type="button" class="btn btn-link" ng-click="addNewProfile()"><i class="fa fa-plus-square-o"></i>   Add Profile</button></a>
                                                             </div>
                                                             <div class="col-lg-5" style="float: right;margin: 0px">
-                                                                <a><button type="button" class="btn btn-link"><i class="fa fa-trash"></i>   Remove Profile</button></a>
+                                                                <a><button type="button" class="btn btn-link" ng-click="removeExistingProfile()"><i class="fa fa-trash"></i>   Remove Profile</button></a>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -122,9 +122,9 @@
             <div class="modal-footer">
                 <div class="row">
                     <div class="col-lg-12 text-right">
-                        <button class="btn btn-white" id="basicWidgetBackButton1" ng-hide="currentView === 'step_two'" ng-click="changeCurrentView('step_two')">Back</button>
-                        <button class="btn btn-white" id="basicWidgetBackButton2" ng-show="currentView === 'step_two'" ng-click="changeCurrentView('step_one')">Back</button>
-                        <button class="btn btn-primary" id="basicWidgetNextButton" ng-click="getBasicWidget();cancel()">Next</button>
+                        <button class="btn btn-white" id="basicWidgetBackButton1" ng-hide="currentView === 'step_two'" ng-click="changeViewsInBasicWidget('step_two')">Back</button>
+                        <button class="btn btn-white" id="basicWidgetBackButton2" ng-show="currentView === 'step_two'" ng-click="changeViewsInBasicWidget('step_one')">Back</button>
+                        <button class="btn btn-primary" id="basicWidgetNextButton" ng-click="createAndFetchBasicWidget();cancel()">Next</button>
                     </div>
                 </div>
             </div>

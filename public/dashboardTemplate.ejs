@@ -1,18 +1,14 @@
-<div ng-init="populateDashboardWidgets()" class="">
+<div ng-init="dashboardConfiguration()" id="dashboardLayout">
     <div class="border-bottom dashboardTitle white-bg">
         <div class="row">
             <div class="col col-sm-12">
                 <div class="col-sm-4">
-                    <form class="dashboardIcons" ng-submit="nameDashboard(dashboardName)">
+                    <form class="dashboardIcons" ng-submit="editDashboardName(dashboardName)">
                         <a ui-sref="app.reporting.dashboard.dashboardName">
                             <h2>Name your dashboard</h2>
-<!--
-                            <input type="text" placeholder="Name your dashboard" class="form-control" ng-model="dashboardName">
--->
+                            <!--<input type="text" placeholder="Name your dashboard" class="form-control" ng-model="dashboardName">-->
                         </a>
-<!--
-                        <a ng-click="nameDashboard(dashboardName)"><i class="fa fa-pencil"></i></a>
--->
+                        <!--<a ng-click="editDashboardName(dashboardName)"><i class="fa fa-pencil"></i></a>-->
                     </form>
                 </div>
                 <div class="col-sm-4">
@@ -32,106 +28,41 @@
             </div>
         </div>
     </div>
-    <div gridster="gridsterOptions" class="row" style="border: 1px solid #e8e8e8;min-height: 500px">
-        <ul>
-            <li gridster-item="widget" ng-repeat="widget in dashboard.widgets">
-                <div class="box" ng-controller="CustomWidgetController">
-                    <div class="box-header">
+    <div ng-switch="config.visible">
+        <div ng-switch-default>
+            <div class="sk-spinner sk-spinner-wave">
+                <div class="sk-rect1"></div>
+                <div class="sk-rect2"></div>
+                <div class="sk-rect3"></div>
+                <div class="sk-rect4"></div>
+                <div class="sk-rect5"></div>
+            </div>
+        </div>
+        <div gridster="gridsterOptions" class="row" style="border: 1px solid #e8e8e8;min-height: 500px" ng-switch-when="true">
+            <ul>
+                <li gridster-item="widget" ng-repeat="widget in dashboard.widgets">
+                    <div class="box" ng-controller="CustomWidgetController">
+                        <div class="box-header">
                             <h3>{{widget.name}}</h3>
                             <a title="settings" ng-click="openSettings(widget)"><i class="fa fa-cog"></i></a>
                             <a title="Remove widget" ng-click="remove(widget);deleteWidget(widget)"><i class="fa fa-minus-square"></i></a>
+                        </div>
+                        <div class="box-content" ng-switch="widget.visibility">
+                            <div ng-switch-default>
+                                <div class="sk-spinner sk-spinner-wave">
+                                    <div class="sk-rect1"></div>
+                                    <div class="sk-rect2"></div>
+                                    <div class="sk-rect3"></div>
+                                    <div class="sk-rect4"></div>
+                                    <div class="sk-rect5"></div>
+                                </div>
+                            </div>
+                            <nvd3 options="widget.chart.options" data="widget.chart.data" api="widget.chart.api" config="config" events="events" ng-switch-when="true"></nvd3>
+                        </div>
                     </div>
-                    <div class="box-content">
-                        <nvd3 options="widget.chart.options" data="widget.chart.data" api="widget.chart.api" config="config" events="events"></nvd3>
-                    </div>
-                </div>
-            </li>
-        </ul>
+                </li>
+            </ul>
+        </div>
     </div>
     <div ui-view="lightbox"></div>
 </div>
-
-
-<!--
-                <div class="box" ng-controller="CustomWidgetController">
-                    <div class="ibox" style="height: 100%">
-                        <div class="ibox-title">
-                            <h5>{{widget.name}}</h5>
-                            <div class="ibox-tools">
-                                <a class="collapse-link ui-sortable">
-                                    <i class="fa fa-chevron-up"></i>
-                                </a>
-                                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                                    <i class="fa fa-wrench"></i>
-                                </a>
-                                <ul class="dropdown-menu dropdown-user">
-                                    <li><a href="#">Config option 1</a>
-                                    </li>
-                                    <li><a href="#">Config option 2</a>
-                                    </li>
-                                </ul>
-                                <a class="close-link">
-                                    <i class="fa fa-times"></i>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="ibox-content" style="height: 100%">
-                            <nvd3 options="widget.chart.options" data="widget.chart.data" api="widget.chart.api" config="config" events="events"></nvd3>
-                        </div>
-                    </div>
-                </div>
--->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!--
-<div class="row border-bottom">
-    <div class="col col-lg-12">
-        <div class="col-lg-2" style="-moz-box-sizing: border-box;-box-sizing: border-box;-webkit-transition: all 0.5s;-moz-transition: all 0.5s;-o-transition: all 0.5s;transition: all 0.5s">
-            <form class="navbar-form-custom">
-                <input type="text" placeholder="Name your dashboard" class="form-control">
-            </form>
-        </div>
-        &lt;!&ndash;
-                    <div class="col-lg-4">
-                        <div style="@media  screen and (max-width: 800px;){float: none;position: relative;box-sizing: border-box;display: block}">
-                            <a><div class="title-icons"><i class="fa fa-minus-square"></i><div>Delete</div></div></a>
-                            <a><div class="title-icons"><i class="fa fa-mail-forward"></i><div>Email</div></div></a>
-                            <a><div class="title-icons"><i class="fa fa-file-pdf-o"></i></i><div>Export</div></div></a>
-                        </div>
-                    </div>
-        &ndash;&gt;
-        <div class="col-lg-4" style="@media  screen and (max-width: 400px;){float: none;position: relative;box-sizing: border-box;display: block}">
-            <input date-range-picker id="dateRange" name="dateRange" class="form-control date-picker" type="text" ng-model="date" options="opts" required/>
-        </div>
-        <div class="col-lg-2" style="-moz-box-sizing: border-box;-box-sizing: border-box;-webkit-transition: all 0.5s;-moz-transition: all 0.5s;-o-transition: all 0.5s;transition: all 0.5s">
-            <form class="navbar-form-custom">
-                <a><div class="title-icons"><i class="fa fa-minus-square"></i><div>Delete</div></div></a>
-                <a><div class="title-icons"><i class="fa fa-mail-forward"></i><div>Email</div></div></a>
-                <a><div class="title-icons"><i class="fa fa-file-pdf-o"></i><div>Export</div></div></a>
-            </form>
-        </div>
-    </div>
-</div>-->

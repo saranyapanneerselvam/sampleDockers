@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "angular-gridster": "*",
+    "async": "^2.0.0-rc.2",
     "bcrypt-nodejs": "latest",
     "body-parser": "~1.0.0",
     "browserify": "^12.0.1",
@@ -28,6 +29,7 @@
     "method-override": "~1.0.0",
     "mocha": "^2.4.5",
     "mockgoose": "^5.4.1",
+    "moment": "^2.12.0",
     "mongoose": "~3.8.1",
     "morgan": "~1.0.0",
     "oauth": "^0.9.14",
@@ -42,8 +44,7 @@
     "simple-oauth2": "^0.5.1",
     "superagent": "^1.8.3",
     "supertest": "^1.2.0",
-    "async": "^2.0.0-rc.2",
-    "twitter": "*",
+    "twitter": "^1.2.5",
     "zombie": "^4.2.1"
   },
   "devDependencies": {

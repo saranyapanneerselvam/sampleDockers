@@ -82,8 +82,8 @@ exports.storeDashboards = function (req, res, next) {
 
             // set all of the user data that we need
             var name = req.body.name == undefined ? ' ' : req.body.name;
-            var dashboardId = req.body.dashboardId == undefined ? '' : req.body.dashboardId;
-            var orgId = req.user.orgId;
+           // var dashboardId = req.body.dashboardId == undefined ? '' : req.body.dashboardId;
+            //var orgId = req.user.orgId;
             var order = req.body.type == undefined ? ' ' : req.body.order;
             var type = req.body.type == undefined ? ' ' : req.body.type;
             var updated = new Date();
@@ -91,7 +91,7 @@ exports.storeDashboards = function (req, res, next) {
 
             // update the dashboard data
             dashboardList.update({_id: _id}, {
-                $set: {'name': name, orgId: orgId, order: order, type: type, updated: updated}
+                $set: {'name': name,  order: order, type: type, updated: updated}
             }, {upsert: true}, function (err) {
                 if (!err) {
                     req.app.result = {'status': '200', 'dashboardId': _id};
@@ -104,4 +104,21 @@ exports.storeDashboards = function (req, res, next) {
             });
         }
     }
+};
+
+
+exports.getDashboards = function (req, res, next) {
+    req.showMetric = {};
+    if (!req.user) {
+        req.showMetric.error = 500;
+        next();
+    }
+    else {
+        dashboardList.find({orgId: req.user.orgId}, function (err, dashboard) {
+            console.log('result', req.params.channelId, dashboard);
+            req.showMetric.dashboard = dashboard;
+            next();
+        })
+    }
+
 };

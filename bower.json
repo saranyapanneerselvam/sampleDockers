@@ -25,6 +25,7 @@
     "angular-nvd3": "~1.0.5",
     "angular-bootstrap": "*",
     "angular-daterangepicker": "*",
-    "css-element-queries": "*"
+    "css-element-queries": "*",
+    "angular-xeditable": "*"
   }
 }

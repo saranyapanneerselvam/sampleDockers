@@ -86,8 +86,8 @@ module.exports = function(app) {
                                     else {
                                         /* specfic_user = res.userDetails.userId;*/
                                         /*getAccount(tokenAccess,'v2.5/me/adaccounts',specfic_user);*/
-                                        res.redirect('/profile');
-                                        //If response of the storeProfiles function is success then redirect it to profile page
+                                        res.render('successAuthentication');
+                                        //If response of the storeProfiles function is success then redirect it to successAuthentication page
                                     }
                                 });
                             }

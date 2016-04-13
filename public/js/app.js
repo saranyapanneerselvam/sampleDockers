@@ -14,7 +14,8 @@
         'ui.bootstrap.tpls',
         'gridster',
         'nvd3',
-        'daterangepicker'
+        'daterangepicker',
+        'xeditable'
     ])
 })();
 

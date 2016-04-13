@@ -2724,7 +2724,46 @@ function GridviewController($scope,$http) {
  */
 function DashboardController($scope,$timeout,$rootScope,$http,$window,$state) {
 
+
+/*
+
+    //Handle name changes to the dashboard
+    $scope.editDashboardName = true;
+    $scope.previousDashboardName = {};
+    var dashboardName = function () {
+        $http({
+            method: 'GET', url: '/api/v1/get/dashboards/'+ $state.params.id
+        }).then(function successCallback(response) {
+            console.log('successfully retrieved dashboard details',response.data.data.name);
+            return response.data.data.name;
+        }, function errorCallback(error) {
+            console.log('Error in getting dashboard details',error);
+            return null;
+        });
+    };
+    $scope.dashboardData.dashboardName = dashboardName();
+    $scope.editName = function(model) {$scope.previousDashboardName = angular.copy(model);};
+    $scope.cancelEdit = function(model){$scope.dashboardData[model] = angular.copy($scope.previousDashboardName);};
+    $scope.saveDashboardName = function (dashboardName) {
+        console.log('Dashboard Name', dashboardName);
+        var jsonData = {dashboardId: $state.params.id, name: dashboardName};
+        $http({
+            method: 'POST',
+            url: '/api/v1/create/dashboards',
+            data: jsonData
+        }).then(function successCallback(response) {
+            console.log('Dashboard Name updated successfully',response);
+        }, function errorCallback(error) {
+            console.log('Error in updating dashboard name',error);
+        });
+    };
+
+    //$scope.editDashboardName = function (dashboardName) {console.log('dashboard name', dashboardName);};
+
+*/
+
     $scope.dashboardConfiguration = function () {
+
         //Defining configuration parameters for dashboard calendar
         $scope.date = {
             startDate: moment().subtract(29, "days"),
@@ -2749,6 +2788,36 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state) {
 
         //Defining configuration parameters for dashboard layout
         $scope.dashboard = {widgets: []};
+        $scope.dashboard.dashboardName = '';
+
+        //
+        $scope.fetchDashboardName = function () {
+            $http({
+                method: 'GET', url: '/api/v1/get/dashboards/'+ $state.params.id
+            }).then(function successCallback(response) {
+                console.log('successfully retrieved dashboard details',response.data.data.name);
+                $scope.dashboard.dashboardName =  response.data.data.name;
+            }, function errorCallback(error) {
+                console.log('Error in getting dashboard details',error);
+                $scope.dashboard.dashboardName =   null;
+            });
+        };
+        $scope.fetchDashboardName();
+        $scope.changeDashboardName = function () {
+            console.log('This is working',$scope.dashboard.dashboardName);
+            var jsonData = {dashboardId: $state.params.id, name: $scope.dashboard.dashboardName};
+            $http({
+                method: 'POST',
+                url: '/api/v1/create/dashboards',
+                data: jsonData
+            }).then(function successCallback(response) {
+                console.log('Dashboard Name updated successfully',response);
+            }, function errorCallback(error) {
+                console.log('Error in updating dashboard name',error);
+            });
+        };
+
+        //Setting up grid configuration for widgets
         $scope.gridsterOptions = {
             margins: [10, 10], columns: 6, defaultSizeX: 3, defaultSizeY: 3, minSizeX: 3, minSizeY: 3,
             draggable: {enabled: true, handle: 'box-header'},
@@ -2775,16 +2844,13 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state) {
             }
         });
 
-        //Watch for date changes to repopulate dashboards
+        //Watch for date changes to repopulate dashboard widgets
         $scope.$watch('date', function(newDate) {$scope.populateDashboardWidgets();}, false);
 
         //make chart visible after grid have been created
         $scope.config = {visible: false};
-        $timeout(function () {$scope.config.visible = true;}, 200);
-
+        $timeout(function () {$scope.config.visible = true;}, 100);
     };
-
-    $scope.editDashboardName = function (dashboardName) {console.log('dashboard name', dashboardName);};
 
     $scope.populateDashboardWidgets = function(){
         $scope.dashboard.widgets = [];
@@ -2793,6 +2859,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state) {
             method: 'GET', url: '/api/v1/dashboards/widgets/'+ $state.params.id
         }).then(function successCallback(response) {
             var responseData = response.data.widgetsList;
+            console.log(response.data.widgetsList);
             $scope.widgetsCount = responseData.length;
             for(i=0;i<responseData.length;i++){
                 if(responseData[i].widgetType = 'basic')
@@ -2910,6 +2977,23 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state) {
             console.log('Error in deleting the widget',error);
         });
     };
+
+    $scope.printPDF = function () {
+
+    };
+
+/*
+    $scope.$on("$stateChangeStart", function(){
+        console.log('exiting the dashboard',$state.params.id);
+        $http({
+            method:'POST', url:'/api/v1/updateLastDashboardId/' + $state.params.id
+        }).then(function successCallback(response){
+            console.log('successfully updated last dashboard id',response)
+        },function errorCallback (error){
+            console.log('Failure in updating last dashboard id',error)
+        });
+    });
+*/
 
 /*
 
@@ -3078,58 +3162,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state) {
 /**
  *
  */
-function CustomWidgetController($scope,$uibModal) {
-    $scope.remove = function(widget) {$scope.dashboard.widgets.splice($scope.dashboard.widgets.indexOf(widget), 1);console.log('removed');};
-    $scope.openSettings = function(widget) {$uibModal.open({scope: $scope,backdrop: true,templateUrl: 'widget_settings.ejs',controller: 'widgetSettingsController',resolve: {widget: function() {return widget;}}});};
-}
-
-/**
- *
- */
-function WidgetSettingsController($scope,$uibModalInstance, widget) {
-    $scope.widget = widget;
-    $scope.form = {name: widget.name, sizeX: widget.sizeX, sizeY: widget.sizeY,col: widget.col,row: widget.row,type: widget.type};
-    $scope.sizeOptions = [{id: '1',name: '1'}, {id: '2',name: '2'}, {id: '3',name: '3'}, {id: '4',name: '4'}];
-    $scope.dismiss = function() {$uibModalInstance.dismiss();};
-    $scope.remove = function() {$scope.dashboard.widgets.splice($scope.dashboard.widgets.indexOf(widget), 1);$uibModalInstance.close();};
-    $scope.submit = function() {angular.extend(widget, $scope.form);$uibModalInstance.close(widget);};
-}
-
-/**
- *
- */
-function LightBoxController($scope, $uibModal, $log, $state) {
-    $scope.state = $state;
-    $scope.animationsEnabled = true;
-    $scope.open = function (size) {
-        var modalInstance = $uibModal.open({
-            animation: $scope.animationsEnabled,
-            templateUrl: 'modal.ejs',
-            controller: 'ModalInstanceController',
-            size: size
-        });
-        modalInstance.result.then(function (selectedItem) {
-            $scope.selected = selectedItem;
-            $state.go('^');
-        }, function () {
-            $state.go('^');$log.info('Modal dismissed at: ' + new Date());
-        });
-    };
-    $scope.toggleAnimation = function () {$scope.animationsEnabled = !$scope.animationsEnabled;};
-}
-
-/**
- *
- */
-function ModalInstanceController($scope, $uibModalInstance) {
-    $scope.ok = function () {$uibModalInstance.close();};
-    $scope.cancel = function () {$uibModalInstance.dismiss('cancel');};
-}
-
-/**
- *
- */
-function BasicWidgetController($scope,$http,$state,$rootScope) {
+function BasicWidgetController($scope,$http,$state,$rootScope,$window) {
     $scope.currentView = 'step_one';
     $scope.objectList = {};
     $scope.metricList = {};
@@ -3178,19 +3211,7 @@ function BasicWidgetController($scope,$http,$state,$rootScope) {
         $http({ method: 'GET', url: '/api/v1/get/profiles/'+$scope.storedChannelId
         }).then(function successCallback(response) {
             $scope.profileList = response.data.profileList;
-            /*
-             for(i=0;i<$scope.profileList.length;i++){
-             $scope.promises.push(
-             $scope.getDynamicObjects({profileId: $scope.profileList[i]._id,
-             profileName: $scope.profileList[i].name})
-             );
-             }
-             $q.all($scope.promises).then(function(dataArray){
-             $scope.promises = dataArray;
-             }).catch(function(err){
-             console.log(err);
-             });
-             */
+            $scope.objectList = [];
         }, function errorCallback(error) {
             console.log('Error in finding profiles');
         });
@@ -3209,55 +3230,56 @@ function BasicWidgetController($scope,$http,$state,$rootScope) {
         });
     };
 
-/*
-    $scope.getDynamicObjects = function (data) {
-        $http({
-            method: 'GET',
-            url: '/api/v1/channel/profiles/objectsList/'+ data.profileId +'?objectType=page'
-        }).then(function successCallback(response) {
-            console.log('resolved',response, data.profileId,data.profileName);
-            return({profileId: data.profileId, profileName: data.profileName, profileObjects: response.data.objectList});
-        }, function errorCallback(error) {
-            return(error);
-        });
+    /*
+     $scope.getDynamicObjects = function (data) {
+     $http({
+     method: 'GET',
+     url: '/api/v1/channel/profiles/objectsList/'+ data.profileId +'?objectType=page'
+     }).then(function successCallback(response) {
+     console.log('resolved',response, data.profileId,data.profileName);
+     return({profileId: data.profileId, profileName: data.profileName, profileObjects: response.data.objectList});
+     }, function errorCallback(error) {
+     return(error);
+     });
 
-/!*
-        return $q(function(resolve,reject){
-            $http({
-                method: 'GET',
-                url: '/api/v1/channel/profiles/objectsList/'+ data.profileId +'?objectType=view'
-            }).then(function successCallback(response) {
-                console.log('resolved',response, data.profileId,data.profileName);
-                resolve({profileId: data.profileId, profileName: data.profileName, profileObjects: response.data.objectList});
-            }, function errorCallback(error) {
-                reject(error);
-            });
+     /!*
+     return $q(function(resolve,reject){
+     $http({
+     method: 'GET',
+     url: '/api/v1/channel/profiles/objectsList/'+ data.profileId +'?objectType=view'
+     }).then(function successCallback(response) {
+     console.log('resolved',response, data.profileId,data.profileName);
+     resolve({profileId: data.profileId, profileName: data.profileName, profileObjects: response.data.objectList});
+     }, function errorCallback(error) {
+     reject(error);
+     });
 
-/!*
-            $http({
-                method: 'GET',
-                url: '/api/v1/get/objects/'+ data.profileId
-            }).then(function successCallback(response) {
-                resolve({profileId: data.profileId, profileName: data.profileName, profileObjects: response.data.objectList});
-            }, function errorCallback(error) {
-                reject(error);
-            });
-*!/
-        });
-*!/
-    };
-*/
+     /!*
+     $http({
+     method: 'GET',
+     url: '/api/v1/get/objects/'+ data.profileId
+     }).then(function successCallback(response) {
+     resolve({profileId: data.profileId, profileName: data.profileName, profileObjects: response.data.objectList});
+     }, function errorCallback(error) {
+     reject(error);
+     });
+     *!/
+     });
+     *!/
+     };
+     */
 
     $scope.refreshObjectsForChosenProfile = function () {
         if($scope.profileOptionsModel._id) {
             switch ($scope.storedChannelName) {
                 case 'Facebook':
-                    $scope.objectType = 'page';
-                    break;
+                    $scope.objectType = 'page'; break;
                 case 'Google Analytics':
-                    $scope.objectType = 'view';
-                    break;
+                    $scope.objectType = 'view'; break;
+                case 'Facebook Ads':
+                    $scope.objectType = 'fbadaccount'; break;
             }
+            console.log($scope.objectType);
             $http({
                 method: 'GET',
                 url: '/api/v1/channel/profiles/objectsList/'+ $scope.profileOptionsModel._id +'?objectType='+ $scope.objectType
@@ -3282,35 +3304,19 @@ function BasicWidgetController($scope,$http,$state,$rootScope) {
                     url = '/api/v1/auth/google';
                     title = $scope.storedChannelName;
                     break;
+                case 'Facebook Ads':
+                    url = '/api/auth/facebookads';
+                    title = $scope.storedChannelName;
+                    break;
             }
-                var left = (screen.width/2)-(w/2);
+            var left = (screen.width/2)-(w/2);
             var top = (screen.height/2)-(h/2);
             return window.open(url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width='+w+', height='+h+', top='+top+', left='+left);
         }
-//        popupwindow("/api/v1/auth/facebook","Facebook Login",1000,400);
-        $scope.$watch(popupwindow(url,title, 1000,500),function(){
-            console.log('watch triggered');
-            $scope.getProfiles();
-        });
-
-/*
-        $window.popupCallback = function(){
-            $scope.getProfiles();
-        };
-*/
-
-
-/*
-        $http({
-            method: 'GET',
-            url: '/api/v1/auth/facebook'
-        }).then(function successCallback(response) {
-            console.log(response.data);
-            $scope.objectList = response;
-        }, function errorCallback(error) {
-            console.log(error);
-        });
-*/
+        popupwindow(url,title, 1000,500);
+    };
+    $window.afterAuthentication = function () {
+        $scope.getProfilesForDropdown();
     };
 
     $scope.removeExistingProfile = function () {
@@ -3321,6 +3327,7 @@ function BasicWidgetController($scope,$http,$state,$rootScope) {
                 url: '/api/v1/post/removeProfiles/'+$scope.profileOptionsModel._id
             }).then(function successCallback(response){
                 console.log('success',response);
+                $scope.getProfilesForDropdown();
             },function errorCallback(error){
                 console.log('Error in deleting profile',error)
             });
@@ -3334,7 +3341,7 @@ function BasicWidgetController($scope,$http,$state,$rootScope) {
             "dashboardId": $state.params.id,
             "widgetType":"basic",
             "metrics":[{"metricId": $scope.storedMetricId,
-                "objectId": $scope.objectList[document.getElementById('objectOptions').selectedIndex]._id
+                "objectId": $scope.objectOptionsModel._id
             }]
         };
         $http({
@@ -3353,6 +3360,72 @@ function BasicWidgetController($scope,$http,$state,$rootScope) {
     $scope.clearMetric = function(){$scope.storedMetricId = null;};
     $scope.getChannelsForBasicWidget();
 }
+
+/**
+ *
+ */
+function CustomWidgetController($scope,$uibModal) {
+    $scope.remove = function(widget) {
+        $scope.dashboard.widgets.splice($scope.dashboard.widgets.indexOf(widget), 1);
+        console.log('removed');
+    };
+    $scope.openSettings = function(widget) {
+        $uibModal.open({
+            scope: $scope,backdrop: true,
+            templateUrl: 'widget_settings.ejs',
+            controller: 'widgetSettingsController',
+            resolve: {
+                widget: function() {
+                    return widget;
+                }
+            }
+        });
+    };
+}
+
+/**
+ *
+ */
+function WidgetSettingsController($scope,$uibModalInstance, widget) {
+    $scope.widget = widget;
+    $scope.form = {name: widget.name, sizeX: widget.sizeX, sizeY: widget.sizeY,col: widget.col,row: widget.row,type: widget.type};
+    $scope.sizeOptions = [{id: '1',name: '1'}, {id: '2',name: '2'}, {id: '3',name: '3'}, {id: '4',name: '4'}];
+    $scope.dismiss = function() {$uibModalInstance.dismiss();};
+    $scope.remove = function() {$scope.dashboard.widgets.splice($scope.dashboard.widgets.indexOf(widget), 1);$uibModalInstance.close();};
+    $scope.submit = function() {angular.extend(widget, $scope.form);$uibModalInstance.close(widget);};
+}
+
+/**
+ *
+ */
+function LightBoxController($scope, $uibModal, $log, $state) {
+    $scope.state = $state;
+    $scope.animationsEnabled = true;
+    $scope.open = function (size) {
+        var modalInstance = $uibModal.open({
+            animation: $scope.animationsEnabled,
+            templateUrl: 'modal.ejs',
+            controller: 'ModalInstanceController',
+            size: size
+        });
+        modalInstance.result.then(function (selectedItem) {
+            $scope.selected = selectedItem;
+            $state.go('^');
+        }, function () {
+            $state.go('^');$log.info('Modal dismissed at: ' + new Date());
+        });
+    };
+    $scope.toggleAnimation = function () {$scope.animationsEnabled = !$scope.animationsEnabled;};
+}
+
+/**
+ *
+ */
+function ModalInstanceController($scope, $uibModalInstance) {
+    $scope.ok = function () {$uibModalInstance.close();};
+    $scope.cancel = function () {$uibModalInstance.dismiss('cancel');};
+}
+
 
 /**
  * Pass all functions into module

@@ -3,13 +3,28 @@
         <div class="row">
             <div class="col col-sm-12">
                 <div class="col-sm-4">
+<!--
                     <form class="dashboardIcons" ng-submit="editDashboardName(dashboardName)">
                         <a ui-sref="app.reporting.dashboard.dashboardName">
                             <h2>Name your dashboard</h2>
-                            <!--<input type="text" placeholder="Name your dashboard" class="form-control" ng-model="dashboardName">-->
+                            &lt;!&ndash;<input type="text" placeholder="Name your dashboard" class="form-control" ng-model="dashboardName">&ndash;&gt;
                         </a>
-                        <!--<a ng-click="editDashboardName(dashboardName)"><i class="fa fa-pencil"></i></a>-->
+                        &lt;!&ndash;<a ng-click="editDashboardName(dashboardName)"><i class="fa fa-pencil"></i></a>&ndash;&gt;
                     </form>
+-->
+<!--
+                    <form class="dashboardIcons">
+                        <div ng-show="editDashboardName" ng-click="editDashboardName = false; editName(dashboardData.dashboardName)" class="form-control" style="display:block">
+                            <a>{{dashboardData.dashboardName || "Name your Dashboard"}}</a>
+                        </div>
+                        <div ng-show="!editDashboardName"  style="display:block">
+                            <input ng-model="dashboardData.dashboardName"  placeholder="Name your Dashboard" type="text" class="form-control"/>
+                            <a><i class="fa fa-check" ng-click="editDashboardName = true; update(dashboardData.dashboardName);saveDashboardName(dashboardData.dashboardName)"></i></a>
+                            <a><i class="fa fa-times" ng-click="editDashboardName = true; cancelEdit('dashboardName')"></i></a>
+                        </div>
+                    </form>
+-->
+                        <a href="#" ng-model="dashboardName" editable-text="dashboard.dashboardName" onaftersave="changeDashboardName()">{{ dashboard.dashboardName || 'Name your dashboard' }}</a>
                 </div>
                 <div class="col-sm-4">
                     <form class="dashboardCalendarHolder">
@@ -22,7 +37,7 @@
                     <form class="dashboardIcons">
                         <a><div class="title-icons"><i class="fa fa-minus-square"></i><div>Delete</div></div></a>
                         <a><div class="title-icons"><i class="fa fa-mail-forward"></i><div>Email</div></div></a>
-                        <a><div class="title-icons"><i class="fa fa-file-pdf-o"></i><div>Export</div></div></a>
+                        <a ng-click="printPDF()"><div class="title-icons"><i class="fa fa-file-pdf-o"></i><div>Export</div></div></a>
                     </form>
                 </div>
             </div>
@@ -47,7 +62,7 @@
                             <a title="settings" ng-click="openSettings(widget)"><i class="fa fa-cog"></i></a>
                             <a title="Remove widget" ng-click="remove(widget);deleteWidget(widget)"><i class="fa fa-minus-square"></i></a>
                         </div>
-                        <div class="box-content" ng-switch="widget.visibility">
+                        <div class="box-content" ng-switch="widget.visibility" style="vertical-align: middle">
                             <div ng-switch-default>
                                 <div class="sk-spinner sk-spinner-wave">
                                     <div class="sk-rect1"></div>

@@ -13,7 +13,7 @@ module.exports = function (app, passport) {
 
     // show the login form
     app.get('/api/v1/login', function (req, res) {
-console.log(req.flash)
+        console.log(req.flash);
         // render the page and pass in any flash data if it exists
         res.render('login',{message: req.flash('loginMessage')});
     });
@@ -68,7 +68,9 @@ console.log(req.flash)
         res.render('login.ejs');
     });
 
+    app.post('/api/v1/updateLastDashboardId/:id',userDetails.updateLastDashboardId, function (req, res) {
+        var result  = req.app.result;
+        res.json(result);
+    });
 
-
-    module.exports = app;
 };

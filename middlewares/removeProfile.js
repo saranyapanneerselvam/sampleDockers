@@ -67,7 +67,7 @@ exports.removeProfile = function (req, res, next) {
 
     function deleteObjects(results,callback) {
         console.log('inside delete objects');
-        Object.remove({profileId: req.params.profileId}, checkNullObject(callback));
+        Object.remove({profileId: req.params.profileId}, callback);
     }
 
     function deleteProfile(results,callback) {

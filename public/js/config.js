@@ -77,6 +77,15 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                         }
                     ]);
                 }
+            },
+            onEnter: function ($state,$http) {
+                $http({
+                    method:'POST', url:'/api/v1/updateLastDashboardId/' + $state.params.id
+                }).then(function successCallback(response){
+                    console.log('successfully updated last dashboard id',response)
+                },function errorCallback (error){
+                    console.log('Failure in updating last dashboard id',error)
+                });
             }
         })
 

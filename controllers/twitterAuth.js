@@ -63,10 +63,8 @@ module.exports = function (app) {
                                 if (err)
                                     res.json('Error');
                                 else {
-                                    //If response of the storeProfiles function is success then redirect it to profile page
-                                    res.redirect('/profile');
-
-
+                                    //If response of the storeProfiles function is success then render the successAuthentication page
+                                    res.render('successAuthentication');
                                 }
                             });
                         });

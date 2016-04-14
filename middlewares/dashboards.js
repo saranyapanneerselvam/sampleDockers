@@ -87,7 +87,7 @@ exports.storeDashboards = function (req, res, next) {
             var order = req.body.type == undefined ? ' ' : req.body.order;
             var type = req.body.type == undefined ? ' ' : req.body.type;
             var updated = new Date();
-            var _id = new mongoose.Schema.ObjectId(dashboardId).path;
+            var _id = new mongoose.Schema.ObjectId(req.body.dashboardId).path;
 
             // update the dashboard data
             dashboardList.update({_id: _id}, {

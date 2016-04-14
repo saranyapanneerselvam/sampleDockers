@@ -21,6 +21,15 @@ module.exports = {
         'clientSecret': 'FaSgJZEP_3PSo9QKH0hF250I',
         'callbackURL': 'http://localhost:8080/auth/google/callback'
     },
+
+    'googleAdwordsAuth':{
+        'clientID': '837692358996-slf0ol1u2btqki4d200qpv4fic9jp70d.apps.googleusercontent.com',
+        'clientSecret': 'nwlL0AVHi-h2jShCKfsvHQjK',
+        'callbackURL': 'http://localhost:8080/auth/adwords/callback',
+        'scope':'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/adwords',
+        'state' : '5$55#'
+    },
+
     'facebookAdsAuth' : {
         clientID        : '799332023525923',
         clientSecret    : '8e66d0413faaaecab964b8054d405aae',
@@ -36,15 +45,19 @@ module.exports = {
         facebook : 'facebook',
         facebookAds : 'facebookads',
         googleAnalytics: 'googleanalytics',
-        twitter :'twitter'
+        twitter :'twitter',
+        googleAdwords : 'googleAdwords'
     },
+
     'objectType':{
         facebookAds:'fbadaccount',
         facebookPage:'page',
         facebookPost:'post',
         googleView:'view',
-        twitter :'tweet'
+        twitter :'tweet',
+        googleAdword :'adwordaccount'
     },
+
     'twitterMetric':{
         Keywordmentions : 'Keyword mentions',
         Mentions : 'Mentions',

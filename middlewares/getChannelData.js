@@ -396,7 +396,7 @@ exports.getChannelData = function (req, res, next) {
                     var endDate = formatDate(d);
                     if (startDate < endDate) {
                         //set start date end date
-                        analyticData(oauth2Client, results.object, dimension, metricName, startDate, endDate, results.response, dataList);
+                        analyticData(oauth2Client, results.object, dimension, metricName, startDate, endDate, results.response, dataList,results);
                     }
                     else {
                         getGAChannelData();
@@ -517,8 +517,8 @@ exports.getChannelData = function (req, res, next) {
 
                                     //Updating the old data with new one
                                     Data.update({
-                                        'objectId': widget.metrics[0].objectId,
-                                        'metricId': widget.metrics[0].metricId
+                                        'objectId': results.widget.metrics[0].objectId,
+                                        'metricId': results.widget.metrics[0].metricId
                                     }, {
                                         $set: {data: wholeResponse, updated: updated}
                                     }, {upsert: true}, function (err) {

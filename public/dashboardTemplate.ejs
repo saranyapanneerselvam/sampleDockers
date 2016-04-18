@@ -1,4 +1,6 @@
 <div ng-init="dashboardConfiguration()" id="dashboardLayout">
+    <div id="testLayout"><p>Test layout</p></div>
+    <canvas id="canvas" style="height: 10px"></canvas>
     <div class="border-bottom dashboardTitle white-bg">
         <div class="row">
             <div class="col col-sm-12">
@@ -43,7 +45,7 @@
             </div>
         </div>
     </div>
-    <div ng-switch="config.visible">
+    <div ng-switch="config.visible" class="white-bg dashboardContent">
         <div ng-switch-default>
             <div class="sk-spinner sk-spinner-wave">
                 <div class="sk-rect1"></div>
@@ -53,10 +55,10 @@
                 <div class="sk-rect5"></div>
             </div>
         </div>
-        <div gridster="gridsterOptions" class="row" style="border: 1px solid #e8e8e8;min-height: 500px" ng-switch-when="true">
+        <div gridster="gridsterOptions" class="row" style="border: 1px solid #e8e8e8;min-height: 500px" ng-switch-when="true" id="gridsterItems">
             <ul>
                 <li gridster-item="widget" ng-repeat="widget in dashboard.widgets">
-                    <div class="box" ng-controller="CustomWidgetController">
+                    <div class="box" ng-controller="CustomWidgetController" id="{{widget.id}}">
                         <div class="box-header">
                             <h3>{{widget.name}}</h3>
                             <a title="settings" ng-click="openSettings(widget)"><i class="fa fa-cog"></i></a>
@@ -72,7 +74,8 @@
                                     <div class="sk-rect5"></div>
                                 </div>
                             </div>
-                            <nvd3 options="widget.chart.options" data="widget.chart.data" api="widget.chart.api" config="config" events="events" ng-switch-when="true"></nvd3>
+                            <nvd3 options="widget.chart.options" data="widget.chart.data" api="widget.chart.api" config="config" events="events" ng-switch-when="true">
+                            </nvd3>
                         </div>
                     </div>
                 </li>
@@ -81,3 +84,4 @@
     </div>
     <div ui-view="lightbox"></div>
 </div>
+<div id="justLayout"></div>

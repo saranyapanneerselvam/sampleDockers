@@ -26,6 +26,7 @@
     "angular-bootstrap": "*",
     "angular-daterangepicker": "*",
     "css-element-queries": "*",
-    "angular-xeditable": "*"
+    "angular-xeditable": "*",
+    "jspdf": "*"
   }
 }

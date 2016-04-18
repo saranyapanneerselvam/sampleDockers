@@ -62,6 +62,7 @@ require('./controllers/getPageMetricResult')(app);
 require('./controllers/updateDashboardWidgetData')(app);
 require('./controllers/user')(app, passport);
 require('./controllers/facebookInsights')(app);
+require('./controllers/googleAdwordsAuth')(app);
 
 
 router.use(function (req, res, next) {

@@ -2858,12 +2858,12 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state) {
         $http({
             method: 'GET', url: '/api/v1/dashboards/widgets/'+ $state.params.id
         }).then(function successCallback(response) {
-            var responseData = response.data.widgetsList;
+            $scope.dashboardWidgetList = response.data.widgetsList;
             console.log(response.data.widgetsList);
-            $scope.widgetsCount = responseData.length;
-            for(i=0;i<responseData.length;i++){
-                if(responseData[i].widgetType = 'basic')
-                    $rootScope.$emit('createNewBasicWidget',responseData[i]._id);
+            $scope.widgetsCount = $scope.dashboardWidgetList.length;
+            for(i=0;i<$scope.dashboardWidgetList.length;i++){
+                if($scope.dashboardWidgetList[i].widgetType = 'basic')
+                    $rootScope.$emit('createNewBasicWidget',$scope.dashboardWidgetList[i]._id);
             }
         }, function errorCallback(error) {
             console.log('Error in finding widgets in the dashboard',error);
@@ -2979,7 +2979,79 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state) {
     };
 
     $scope.printPDF = function () {
+        var pdf = new jsPDF('p', 'pt', 'a3');
 
+        var specialElementHandlers = {
+            '#justLayout': function(element, renderer){
+                return true;
+            }
+        };
+
+        var options = {
+            pagesplit: true
+        };
+
+        for(i=0;i<$scope.dashboardWidgetList.length;i++){
+            console.log($scope.dashboardWidgetList[i]._id);
+            console.log(document.getElementById($scope.dashboardWidgetList[i]._id));
+            elementToBeCanvased = document.getElementById($scope.dashboardWidgetList[i]._id).getElementsByTagName('svg').outerHTML;
+            console.log(elementToBeCanvased);
+            canvg(document.getElementById('canvas'),elementToBeCanvased);
+        }
+        pdf.addHTML($("#dashboardLayout"), {pagesplit: true}, function() {
+            console.log("THING");
+            pdf.save('Test.pdf');
+            //$("#printingDiv").remove();
+        });
+
+/*
+        pdf.fromHTML($('#dashboardLayout').html(), 15, 30, {
+            'width': 170,
+            //'margin': 1,
+            'elementHandlers': specialElementHandlers,
+            'pagesplit': true
+        });
+        pdf.fromHTML($('#gridsterItems').html(), 15, 30, {
+            'width': 170,
+            //'margin': 1,
+            'elementHandlers': specialElementHandlers,
+            'pagesplit': true
+        });
+        $timeout(function(){pdf.save('Test.pdf');},5000);
+*/
+
+/*
+        var doc = new jsPDF('p', 'in', 'letter');
+        var source = $('#testLayout').first();
+        var specialElementHandlers = {
+            '#bypassme': function(element, renderer) {
+                return true;
+            }
+        };
+
+        doc.fromHTML(
+            source, // HTML string or DOM elem ref.
+            0.5, // x coord
+            0.5, // y coord
+            {
+                'width': 7.5, // max width of content on PDF
+                'elementHandlers': specialElementHandlers
+            });
+
+        doc.save('Test.pdf');
+        window.print();
+*/
+/*
+        var doc = new jsPDF(    );
+        doc.text(20, 20, 'Hello world.');
+        console.log($('#dashboardLayout'));
+        console.log($('#testLayout'));
+        doc.addHTML('<p>testing out</p>');
+        doc.addHTML($('#dashboardLayout'));
+        doc.addHTML($('#testLayout'),function(){doc.save('Test.pdf');});
+        //doc.save('Test.pdf');
+        //doc.open(400);
+*/
     };
 
 /*

@@ -46,7 +46,7 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                     $http({
                         method: 'GET', url: '/api/v1/me'
                     }).then(function successCallback(response) {
-                        currentDashboardId = response.data.userDetails[0].lastDashboardId;
+                        var currentDashboardId = response.data.userDetails[0].lastDashboardId;
                         $state.go('.dashboard',{id: currentDashboardId});
                         $scope.loading='';
                     }, function errorCallback(error) {
@@ -78,9 +78,9 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                     ]);
                 }
             },
-            onEnter: function ($state,$http) {
+            onEnter: function ($stateParams,$http) {
                 $http({
-                    method:'POST', url:'/api/v1/updateLastDashboardId/' + $state.params.id
+                    method:'POST', url:'/api/v1/updateLastDashboardId/' + $stateParams.id
                 }).then(function successCallback(response){
                     console.log('successfully updated last dashboard id',response)
                 },function errorCallback (error){

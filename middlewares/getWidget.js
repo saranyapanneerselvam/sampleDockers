@@ -37,17 +37,6 @@ exports.deleteWidgets = function (req, res, next) {
 };
 
 exports.saveWidgets = function (req, res, next) {
-//console.log('req',req.body);
-    var metricId = req.body.metrics[0].metricId;
-    console.log('is the metric ID there',metricId);
-    //To get the default chart type from metric collection based on metric id
-    metrics.findOne({_id: metricId}, {defaultChartType: 1}, function (err, response) {
-        console.log('is the chart working', response);
-        if (err) {
-
-            //send error status
-        }
-        else if (response) {
             console.log('response');
             var createWidget = new widgetsList();
 
@@ -56,13 +45,13 @@ exports.saveWidgets = function (req, res, next) {
             if (req.body.widgetId == undefined) {
                 createWidget.dashboardId = req.body.dashboardId;
                 createWidget.widgetType = req.body.widgetType;
-                createWidget.metrics = req.body.metrics;
+                createWidget.charts = req.body.charts;
+                createWidget.referenceWidgetId = req.body.referenceWidgetId;
                 createWidget.order = req.body.order;
                 createWidget.offset = req.body.offset;
                 createWidget.size = req.body.size;
                 createWidget.minSize = req.body.minSize;
                 createWidget.maxSize = req.body.maxSize;
-                createWidget.chartType = response.defaultChartType;
                 createWidget.created = new Date();
                 createWidget.updated = new Date();
                 console.log('created',createWidget.created);
@@ -80,23 +69,23 @@ exports.saveWidgets = function (req, res, next) {
             else {
 
                 // set all of the user data that we need
-                var name = req.body.name == undefined ? ' ' : req.body.name;
+                var name = req.body.name == undefined ? '' : req.body.name;
                 var widgetId = req.body.widgetId;
-                var widgetType = req.body.widgetType == undefined ? ' ' : req.body.widgetType;
-                var metrics = req.body.metrics == undefined ? ' ' : req.body.metrics;
-                var order = req.body.order == undefined ? ' ' : req.body.order;
-                var offset = req.body.offset == undefined ? ' ' : req.body.offset;
-                var size = req.body.metrics == undefined ? ' ' : req.body.size;
-                var minSize = req.body.metrics == undefined ? ' ' : req.body.minSize;
-                var maxSize = req.body.metrics == undefined ? ' ' : req.body.maxSize;
-                var chartType = req.body.chartType == undefined ? ' ' : req.body.chartType;
+                var widgetType = req.body.widgetType == undefined ? '' : req.body.widgetType;
+                var metrics = req.body.metrics == undefined ? '' : req.body.metrics;
+                var order = req.body.order == undefined ? '' : req.body.order;
+                var offset = req.body.offset == undefined ? '' : req.body.offset;
+                var size = req.body.metrics == undefined ? '' : req.body.size;
+                var minSize = req.body.metrics == undefined ? '' : req.body.minSize;
+                var maxSize = req.body.metrics == undefined ? '' : req.body.maxSize;
+                var chartType = req.body.chartType == undefined ? '' : req.body.chartType;
                 var updated = new Date();
 
 
                 // update the dashboard data
                 widgetsList.update({_id: widgetId}, {
                     $set: {
-                        'name': name,
+                        name: name,
                         widgetType: widgetType,
                         order: order,
                         metrics: metrics,
@@ -125,8 +114,6 @@ exports.saveWidgets = function (req, res, next) {
                     }
                 });
             }
-        }
-    })
 };
 
 

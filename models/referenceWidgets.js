@@ -7,7 +7,6 @@ var mongoose = require('mongoose');
 var referenceWidgetSchema = mongoose.Schema({
     name: String,
     description: String,
-    chartType: String,
     order: Number,
     offSet: Number,
     size: {
@@ -23,11 +22,7 @@ var referenceWidgetSchema = mongoose.Schema({
         height: Number
     },
     widgetType: String,
-    metrics: {
-        channelId: Number,
-        metricId: Number,
-        tag: String
-    },
+    charts:Object,
     created: Date,
     updated: Date,
     deleted: Date
@@ -35,4 +30,3 @@ var referenceWidgetSchema = mongoose.Schema({
 
 // create the model for organization and expose it to our app
 module.exports = mongoose.model('referenceWidget', referenceWidgetSchema);
-

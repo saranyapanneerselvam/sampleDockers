@@ -121,25 +121,22 @@ exports.getChannelData = function (req, res, next) {
     function getData(results, callback) {
         console.log('metrics', results)
         var objectLength = results.widget.charts.length;
+
         for (var i = 0; i < objectLength; i++) {
+            var metricLength = results.widget.charts[i].metrics.length;
+            for(var j=0;j<metricLength;j++){
                 Data.findOne({
-                    'objectId': results.widget.charts[i].objectId,
-                    'metricId': results.widget.charts[i].metricId
+                    'objectId': results.widget.charts[i].metrics[j].objectId,
+                    'metricId': results.widget.charts[i].metrics[j].metricId
                 }, checkNullData(callback));
+            }
+
         }
 
 
     }
 
-    function getDataForEachObject(objects, callback) {
-        console.log('getdataforeachobject', initialRe)
 
-        // for(var i=0;i<length;i++){
-        Data.findOne({
-            'objectId': results.charts.objectId,
-            'metricId': results.charts.metricId
-        }, checkNullData(callback));
-    }
 
     //Function to get the data in metric collection
     function getMetricIdsFromRefWidget(results, callback) {
@@ -166,8 +163,8 @@ exports.getChannelData = function (req, res, next) {
     //Function to get each metric details
     function findEachMetrics(results, callback) {
         console.log('find each metrics', results);
-        Metric.find({_id: results.metricId},
-            {objectTypes: {$elemMatch: {objectTypeId: results.objectTypeId}}}, checkNullObject(callback))
+        Metric.find({_id: results.metrics[0].metricId,
+            objectTypes: {$elemMatch: {objectTypeId: results.metrics[0].objectTypeId}}}, checkNullObject(callback))
     }
 
 
@@ -185,7 +182,7 @@ exports.getChannelData = function (req, res, next) {
     //Function to get each object details
     function getEachObject(results, callback) {
         console.log('objects', results);
-        Object.find({'_id': results.objectId}, {
+        Object.find({'_id': results.metrics[0].objectId}, {
             profileId: 1,
             channelObjectId: 1,
             objectTypeId: 1
@@ -325,7 +322,6 @@ exports.getChannelData = function (req, res, next) {
             d.setDate(d.getDate() - n);
             var startDate = formatDate(d);
             var dates = {startDare: startDate, endDate: endDate};
-            console.log('updated',  'metric', initialResults.metric[0].endPoints, 'type', typeof initialResults.metric[0]);
             var query = initialResults.object[0].channelObjectId + "/insights/" + initialResults.metric[0].objectTypes[0].meta.fbMetricName + "?since=" + startDate + "&until=" + endDate;
             callback('', query);
         }
@@ -378,8 +374,8 @@ exports.getChannelData = function (req, res, next) {
 
             //Updating the old data with new one
             Data.update({
-                'objectId': initialResults.widget.charts[0].objectId,
-                'metricId': initialResults.widget.charts[0].metricId
+                'objectId': initialResults.widget.charts[0].metrics[0].objectId,
+                'metricId': initialResults.widget.charts[0].metrics[0].metricId
             }, {
                 $setOnInsert: {created: now},
                 $set: {data: finalData, updated: now}
@@ -404,8 +400,8 @@ exports.getChannelData = function (req, res, next) {
             // Match specific array elements
             {
                 "$match": {
-                    $and: [{"data.date": {$gte: req.body.startDate}}, {"data.date": {$lte: req.body.endDate}}, {'objectId': results.widget.charts[0].objectId},
-                        {'metricId': results.widget.charts[0].metricId}]
+                    $and: [{"data.date": {$gte: req.body.startDate}}, {"data.date": {$lte: req.body.endDate}}, {'objectId': results.widget.charts[0].metrics[0].objectId},
+                        {'metricId': results.widget.charts[0].metrics[0].metricId}]
                 }
             },
 
@@ -516,7 +512,7 @@ exports.getChannelData = function (req, res, next) {
                 {"$unwind": "$data"},
 
                 // Match specific array elements
-                {"$match": {$and: [{"data.date": {$gte: req.body.startDate}}, {"data.date": {$lte: req.body.endDate}}, {'objectId': results.widget.charts[0].objectId}, {'metricId': results.widget.charts[0].metricId}]}},
+                {"$match": {$and: [{"data.date": {$gte: req.body.startDate}}, {"data.date": {$lte: req.body.endDate}}, {'objectId': results.widget.charts[0].metrics[0].objectId}, {'metricId': results.widget.charts[0].metrics[0].metricId}]}},
 
                 // Group back to array form
                 {
@@ -588,8 +584,8 @@ exports.getChannelData = function (req, res, next) {
                                 //Save the result to data collection
                                 //input channelId,channelObjId,metricId
                                 var data = new Data();
-                                data.metricId =results.widget.charts[0].metricId;
-                                data.objectId = results.widget.charts[0].objectId;
+                                data.metricId =results.widget.charts[0].metrics[0].metricId;
+                                data.objectId = results.widget.charts[0].metrics[0].objectId;
                                 data.data = storeGoogleData;
                                 data.created = new Date();
                                 data.updated = new Date();
@@ -610,8 +606,8 @@ exports.getChannelData = function (req, res, next) {
 
                                     //Updating the old data with new one
                                     Data.update({
-                                        'objectId': results.widget.metrics[0].objectId,
-                                        'metricId': results.widget.metrics[0].metricId
+                                        'objectId': results.widget.charts[0].metrics[0].objectId,
+                                        'metricId': results.widget.charts[0].metrics[0].metricId
                                     }, {
                                         $set: {data: wholeResponse, updated: updated}
                                     }, {upsert: true}, function (err) {
@@ -713,8 +709,8 @@ exports.getChannelData = function (req, res, next) {
             // Match specific array elements
             {
                 "$match": {
-                    $and: [{"data.date": {$gte: req.body.startDate}}, {"data.date": {$lte: req.body.endDate}}, {'objectId': widget.widget.charts[0].objectId},
-                        {'metricId': widget.widget.charts[0].metricId}]
+                    $and: [{"data.date": {$gte: req.body.startDate}}, {"data.date": {$lte: req.body.endDate}}, {'objectId': widget.widget.charts[0].metrics[0].objectId},
+                        {'metricId': widget.widget.charts[0].metric[0].metricId}]
                 }
             },
 
@@ -846,12 +842,12 @@ console.log('storeDefaultValues',storeDefaultValues)
     }
 
     function getTweetData(results) {
-        console.log('results', results);
+        console.log('resullts', results.widget.charts[0].metrics);
         var dataResult = results.data;
 
         //To Get the Metrice Type throught widgetDetails
         //and get metricid and object id from object
-        Metric.findById(results.widget.charts[0].metricId, function (err, response) {
+        Metric.find({_id:results.widget.charts[0].metrics[0].metricId,objectTypes: {$elemMatch: {objectTypeId: results.widget.charts[0].metrics[0].objectTypeId}}}, function (err, response) {
             console.log('response', response)
             if (!err) {
 
@@ -874,14 +870,14 @@ console.log('storeDefaultValues',storeDefaultValues)
                     d.setDate(d.getDate() + 1);
                     var endDate = calculateDate(d);
                     //if (updated < currentDate) {
-                    var query = response.objectTypes[0].meta.TweetMetricName;
+                    var query = response[0].objectTypes[0].meta.TweetMetricName;
                     fetchTweetData(results.get_profile[0], metricType, query, results.widget, dataResult, response, results);
                     // }
                     /* else
                      sendFinalData(dataResult, response);*/
                 }
                 else {
-                    var query = response.objectTypes[0].meta.TweetMetricName;
+                    var query = response[0].objectTypes[0].meta.TweetMetricName;
                     fetchTweetData(results.get_profile[0], metricType, query, results.widget, dataResult, response, results);
                 }
 
@@ -982,8 +978,8 @@ console.log('storeDefaultValues',storeDefaultValues)
     function storeTweetData(wholetweetData, results, metric) {
         console.log('store tweet data', results)
         Data.update({
-            'objectId': results.widget.charts[0].objectId,
-            'metricId': results.widget.charts[0].metricId
+            'objectId': results.widget.charts[0].metrics[0].objectId,
+            'metricId': results.widget.charts[0].metrics[0].metricId
         }, {
             $set: {data: wholetweetData, updated: updated}
         }, {upsert: true}, function (err) {
@@ -991,8 +987,8 @@ console.log('storeDefaultValues',storeDefaultValues)
             else {
                 console.log('update');
                 Data.findOne({
-                    'objectId': results.widget.charts[0].objectId,
-                    'metricId': results.widget.charts[0].metricId
+                    'objectId': results.widget.charts[0].metrics[0].objectId,
+                    'metricId': results.widget.charts[0].metrics[0].metricId
                 }, function (err, response) {
                     if (!err) {
                         sendFinalData(response, metric);

@@ -75,7 +75,7 @@ exports.getChannelData = function (req, res, next) {
     //async's one of the method to run tasks ,one task may or may not depend on the other
     async.auto({
         widget: getWidget,
-        data: ['widget',  getData],
+        data: ['widget', getData],
         metric: ['widget', 'data', getMetric],
         object: ['widget', 'metric', getObject],
         get_profile: ['object', getProfile],
@@ -124,7 +124,7 @@ exports.getChannelData = function (req, res, next) {
 
         for (var i = 0; i < objectLength; i++) {
             var metricLength = results.widget.charts[i].metrics.length;
-            for(var j=0;j<metricLength;j++){
+            for (var j = 0; j < metricLength; j++) {
                 Data.findOne({
                     'objectId': results.widget.charts[i].metrics[j].objectId,
                     'metricId': results.widget.charts[i].metrics[j].metricId
@@ -135,7 +135,6 @@ exports.getChannelData = function (req, res, next) {
 
 
     }
-
 
 
     //Function to get the data in metric collection
@@ -163,8 +162,10 @@ exports.getChannelData = function (req, res, next) {
     //Function to get each metric details
     function findEachMetrics(results, callback) {
         console.log('find each metrics', results);
-        Metric.find({_id: results.metrics[0].metricId,
-            objectTypes: {$elemMatch: {objectTypeId: results.metrics[0].objectTypeId}}}, checkNullObject(callback))
+        Metric.find({
+            _id: results.metrics[0].metricId,
+            objectTypes: {$elemMatch: {objectTypeId: results.metrics[0].objectTypeId}}
+        }, checkNullObject(callback))
     }
 
 
@@ -584,7 +585,7 @@ exports.getChannelData = function (req, res, next) {
                                 //Save the result to data collection
                                 //input channelId,channelObjId,metricId
                                 var data = new Data();
-                                data.metricId =results.widget.charts[0].metrics[0].metricId;
+                                data.metricId = results.widget.charts[0].metrics[0].metricId;
                                 data.objectId = results.widget.charts[0].metrics[0].objectId;
                                 data.data = storeGoogleData;
                                 data.created = new Date();
@@ -671,9 +672,10 @@ exports.getChannelData = function (req, res, next) {
             var endDate = calculateDate(d);
             d.setDate(d.getDate() - n);
             var startDate = calculateDate(d);
+            console.log('start',endDate,startDate)
             var query = "v2.5/" + adAccountId + "/insights?limit=5&time_increment=1&fields=" + initialResults.metric[0].objectTypes[0].meta.fbAdsMetricName + '&time_range[since]=' + startDate + '&time_range[until]=' + endDate;
             //var query = pageId + "/insights/" + response.meta.fbAdsMetricName + "?since=" + startDate + "&until=" + endDate;
-            fetchFBadsData(initialResults.get_profile[0], query, initialResults, initialResults.data, startDate, updated);
+            fetchFBadsData(initialResults.get_profile[0], query, initialResults, initialResults.data, startDate, endDate);
         }
 
         if (initialResults.data != 'No data') {
@@ -682,10 +684,11 @@ exports.getChannelData = function (req, res, next) {
             d.setDate(d.getDate() + 1);
             var startDate = calculateDate(d);
             var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+            console.log('dates',updated,currentDate,startDate)
             if (updated < currentDate) {
-                var query = "v2.5/" + adAccountId + "/insights?limit=5&time_increment=1&fields=" + response.meta.fbMetricName + '&time_range[since]=' + updated + '&time_range[until]=' + startDate;
+                var query = "v2.5/" + adAccountId + "/insights?limit=5&time_increment=1&fields=" + initialResults.metric[0].objectTypes[0].meta.fbAdsMetricName + '&time_range[since]=' + updated + '&time_range[until]=' + startDate;
                 //var query = pageId + "/insights/" + response.meta.fbMetricName + "?since=" + updated + "&until=" + endDate;
-                fetchFBadsData(initialResults.get_profile[0], query, initialResults, initialResults.data, startDate, updated);
+                fetchFBadsData(initialResults.get_profile[0], query, initialResults, initialResults.data, updated,currentDate);
             }
             else
                 getFbAdsData(initialResults);
@@ -699,6 +702,7 @@ exports.getChannelData = function (req, res, next) {
 
     //To get data based on start date ,end date
     function getFbAdsData(widget) {
+        console.log('get fb ads data',widget)
         var finalResult = [];
         Data.aggregate([
 
@@ -710,7 +714,7 @@ exports.getChannelData = function (req, res, next) {
             {
                 "$match": {
                     $and: [{"data.date": {$gte: req.body.startDate}}, {"data.date": {$lte: req.body.endDate}}, {'objectId': widget.widget.charts[0].metrics[0].objectId},
-                        {'metricId': widget.widget.charts[0].metric[0].metricId}]
+                        {'metricId': widget.widget.charts[0].metrics[0].metricId}]
                 }
             },
 
@@ -746,9 +750,9 @@ exports.getChannelData = function (req, res, next) {
         Adsinsights(query);
         function Adsinsights(query) {
             FB.api(query, function (res) {
-                console.log('fb ads result', widget.metric[0].objectTypes[0].meta.fbAdsMetricName,'metric')
+                console.log('fb ads result', widget.metric[0].objectTypes[0].meta.fbAdsMetricName, 'metric')
                 var wholeData = [];
-                var storeMetricName =widget.metric[0].objectTypes[0].meta.fbAdsMetricName;
+                var storeMetricName = widget.metric[0].objectTypes[0].meta.fbAdsMetricName;
                 //controlled pagination Data
 
                 if (res.paging && res.paging.next) {
@@ -769,7 +773,7 @@ exports.getChannelData = function (req, res, next) {
                         //console.log('data', wholeData)
                         wholeData.push({date: tot_metric[j].date, total: tot_metric[j].total});
                     }
-console.log('whole data',wholeData)
+                    console.log('whole data', wholeData)
                     if (dataResult != 'No data') {
 
                         for (var index = 0; index < dataResult.data.length; index++) {
@@ -782,13 +786,15 @@ console.log('whole data',wholeData)
                     console.log('after if');
                     var storeStartDate = new Date(startDate);
                     var storeEndDate = new Date(endDate);
+                    console.log('storeStartDate',storeStartDate,'storeEndDate',storeEndDate)
                     var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
                     var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                    console.log('diffdays',diffDays)
                     for (var i = 0; i < diffDays; i++) {
                         var finalDate = calculateDate(storeStartDate);
                         storeDefaultValues.push({date: finalDate, total: 0});
                         storeStartDate.setDate(storeStartDate.getDate() + 1);
-                        console.log('storeDefaultValues before ',storeDefaultValues)
+                        console.log('storeDefaultValues before ', storeDefaultValues)
                     }
 
                     //To replace the missing dates in whole data with empty values
@@ -800,13 +806,13 @@ console.log('whole data',wholeData)
                         }
 
                     }
-console.log('storeDefaultValues',storeDefaultValues)
+                    console.log('storeDefaultValues', storeDefaultValues)
                     var now = new Date();
 
                     //Updating the old data with new one
                     Data.update({
-                        'objectId': widget.widget.charts[0].objectId,
-                        'metricId': widget.widget.charts[0].metricId
+                        'objectId': widget.widget.charts[0].metrics[0].objectId,
+                        'metricId': widget.widget.charts[0].metrics[0].metricId
                     }, {
                         $setOnInsert: {created: now}, $set: {data: storeDefaultValues, updated: now}
                     }, {upsert: true}, function (err) {
@@ -847,7 +853,10 @@ console.log('storeDefaultValues',storeDefaultValues)
 
         //To Get the Metrice Type throught widgetDetails
         //and get metricid and object id from object
-        Metric.find({_id:results.widget.charts[0].metrics[0].metricId,objectTypes: {$elemMatch: {objectTypeId: results.widget.charts[0].metrics[0].objectTypeId}}}, function (err, response) {
+        Metric.find({
+            _id: results.widget.charts[0].metrics[0].metricId,
+            objectTypes: {$elemMatch: {objectTypeId: results.widget.charts[0].metrics[0].objectTypeId}}
+        }, function (err, response) {
             console.log('response', response)
             if (!err) {
 

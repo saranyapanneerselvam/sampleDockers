@@ -84,7 +84,7 @@ exports.getChannelData = function (req, res, next) {
         get_channel_objects_db: ['get_channel_data_remote', getChannelDataDB]
     }, function (err, results) {
         console.log('error = ', err);
-        // console.log('results = ', results);
+         console.log('results = ', results);
         if (err) {
             return res.status(500).json({});
         }
@@ -232,7 +232,7 @@ exports.getChannelData = function (req, res, next) {
         }
 
         function dataForEachChannel(results, callback) {
-            // console.log('before switch', results)
+            console.log('before switch', results.code)
             //To check the channel
             switch (results.code) {
                 case configAuth.channels.googleAnalytics:
@@ -254,6 +254,7 @@ exports.getChannelData = function (req, res, next) {
 
     //Function to get facebook data
     function getFBPageData(initialResults, callback) {
+        console.log('initial',initialResults)
         d = new Date();
         graph.setAccessToken(initialResults.get_profile[0].accessToken);
         async.auto({
@@ -293,7 +294,7 @@ exports.getChannelData = function (req, res, next) {
                 if (updated < now) {
 
                     //for(var i=0;i<)
-                    var query = initialResults.object.channelObjectId + "/insights/" + initialResults.metric.objectTypes[0].meta.fbMetricName + "?since=" + updated + "&until=" + now;
+                    var query = initialResults.object[0].channelObjectId + "/insights/" + initialResults.metric[0].objectTypes[0].meta.fbMetricName + "?since=" + updated + "&until=" + now;
                     callback(null, query);
                 }
                 else
@@ -313,7 +314,6 @@ exports.getChannelData = function (req, res, next) {
             var endDate = formatDate(d);
             d.setDate(d.getDate() - n);
             var startDate = formatDate(d);
-            var dates = {startDare: startDate, endDate: endDate};
             var query = initialResults.object[0].channelObjectId + "/insights/" + initialResults.metric[0].objectTypes[0].meta.fbMetricName + "?since=" + startDate + "&until=" + endDate;
             callback('', query);
         }
@@ -329,6 +329,7 @@ exports.getChannelData = function (req, res, next) {
         //To get facebook data
         function getDataForEachQuery(query, callback) {
             graph.get(query, function (err, res) {
+                console.log('res',res)
                 callback('', res);
             })
         }

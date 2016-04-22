@@ -26,6 +26,12 @@ var configAuth = require('../config/auth');
 //set credentials in OAuth2
 var oauth2Client = new OAuth2(configAuth.googleAuth.clientID, configAuth.googleAuth.clientSecret, configAuth.googleAuth.callbackURL);
 
+//set credentials in OAuth2
+var oauth2AdsClient = new OAuth2(configAuth.googleAdwordsAuth.clientID, configAuth.googleAdwordsAuth.clientSecret, configAuth.googleAdwordsAuth.callbackURL);
+
+//set googleadword node library
+var AdWords = require('googleads-node-lib');
+
 // set auth as a global default
 var analytics = googleapis.analytics({version: 'v3', auth: oauth2Client});
 
@@ -105,6 +111,9 @@ exports.listAccounts = function (req, res, next) {
             case configAuth.channels.twitter:
                 console.log('tweeter');
                 selectTweetObjectType(results.get_profile, channel);
+                break;
+            case configAuth.channels.googleAdwords:
+                selectgoogleAdwords(results.get_profile, channel);
                 break;
             default:
                 callback('Bad Channel Code', null);
@@ -494,5 +503,93 @@ function getTweet(profile , channel){
         }
     }
 
+    function selectgoogleAdwords(results, callback) {
+        switch (req.query.objectType) {
+            case configAuth.objectType.googleAdword:
+                getAdwordsCustomerId(results, callback);
+                break;
+        }
+    }
+
+    //Get clientCustomerId from managerservices
+
+    function getAdwordsCustomerId(results, callback){
+        //To get the object type id from database
+        ObjectType.findOne({
+            'type': req.query.objectType,
+            'channelId': results.channelId
+        }, function (err, objectTypeId) {
+            if (!err) {
+                var service = new AdWords.ManagedCustomerService({
+                    ADWORDS_CLIENT_ID: configAuth.googleAdwordsAuth.clientID,
+                    ADWORDS_CLIENT_CUSTOMER_ID: configAuth.googleAdwordsAuth.managerClientId,
+                    ADWORDS_DEVELOPER_TOKEN: configAuth.googleAdwordsAuth.developerToken,
+                    ADWORDS_REFRESH_TOKEN: results.refreshToken,
+                    ADWORDS_SECRET: configAuth.googleAdwordsAuth.clientSecret,
+                    ADWORDS_USER_AGENT: configAuth.googleAdwordsAuth.userAgent
+                });
+                var clientCustomerId = configAuth.googleAdwordsAuth.managerClientId;
+                var selector = new AdWords.Selector.model({
+                    fields: service.selectable,
+                    ordering: [{field: 'Name', sortOrder: 'ASCENDING'}],
+                    paging: {startIndex: 0, numberResults: 100},
+                    predicates: []
+                });
+
+                service.get(clientCustomerId, selector, function(err, response) {
+                    if (err)
+                        console.log(err);
+                    else {
+                        queryExec(objectTypeId,results,callback,response);
+                    }
+                });
+            }
+        });
+    }
+    function  queryExec(objectTypeId,results,callback,response){
+        var model = response.entries.models;
+        var lengthOfModel = 0;
+        for(var i=0;i<model.length;i++){
+            if(model[i].attributes.canManageClients != true)
+                lengthOfModel++;
+        }
+        for (var i = 0; i < model.length; i++) {
+            var modelResult = model[i].attributes.canManageClients;
+            if (modelResult !== true) {
+                var accountName = model[i].attributes.name;
+                var customerId = model[i].attributes.customerId;
+                var channelObjectDetails =[];
+                var objectsResult = new Object();
+                var profileId = results._id;
+                var objectTypeId = objectTypeId._id;
+                var channelObjectId = customerId;
+                var name = accountName;
+                var created = new Date();
+                var updated = new Date();
+                //To store once
+                Object.update({
+                    profileId: results._id,
+                    channelObjectId: customerId
+                }, {
+                    $setOnInsert: {created: created},
+                    $set: {name: name, objectTypeId: objectTypeId, updated: updated}
+                }, {upsert: true}, function (err, res) {
+                    if (!err) {
+                        Object.find({'profileId': results._id}, function (err, objectList) {
+                            channelObjectDetails.push({
+                                'result': objectList
+                            });
+                            if (lengthOfModel == channelObjectDetails.length) {
+                                req.app.result = objectList;
+                                console.log('Adwords',objectList);
+                                next();
+                            }
+                        })
+                    }
+                });
+            }
+        }
+
+    }
 };
 

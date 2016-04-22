@@ -8,6 +8,102 @@
 /*@import url("https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&lang=en");*/
 /*@import url("https://fonts.googleapis.com/css?family=Roboto:400,300,500,700");*/
 
+.dashboardTemplate-items{margin-top:17px;}
+.editable-controls > input{
+    border-radius: 5px ;
+    border: 1px solid #e8e8e8;
+    width: 95% !important;
+    height: 35px;
+}
+.wizard > .steps .current a, .wizard > .steps{
+    background-color:#fff !important;
+}
+.editable-buttons {
+    vertical-align: middle !important;}
+.editable-click, a.editable-click { background-color:#fff !important}
+.editable-buttons button{
+    border-radius: 7px;
+    border: 1px solid;
+    background-color: #7E57C2;
+    color: #fff;}
+.model-title {
+    text-align:center !important;
+    font-size: 15px;
+}
+.choose-text{border-radius: 5px}
+.ibox-title span{padding-left: 10px; vertical-align: sub; }
+@font-face { font-family: Brandon Grotesque; src: url('../fonts/Brandon Grotesque/Brandon_light.otf'); }
+
+@font-face { font-family: Brandon Grotesque; font-weight: bold; src: url('../fonts/Brandon Grotesque/Brandon_bld.otf');}
+.add-profile{float: left;margin: 0px ; text-align: left;!important}
+.remove-profile{float: right;margin: 0px ;text-align: right;}
+.infont{
+    padding: 6px 14px 0px 12px !important;
+    margin-bottom: 15px !important;
+    margin-left: 4px;}
+.link-img{vertical-align: super;
+    font-size: 15px;
+    color: #000;
+    white-space: nowrap;}
+.link-span{vertical-align: top;}
+.button-mode{border: 1px solid #f5f5f5;
+    width: 10%;
+    background-color: #7E57C2 !important;
+    border-radius: 10px !important;
+    color:#fff !important;}
+.profile-picture{text-align:center;}
+.daterange .dr-selections .dr-calendar .dr-range-switcher{background-color: #7E57C2 !important;}
+.daterange .dr-selections .dr-calendar .dr-range-switcher .dr-switcher{
+    height: 3.5625rem !important;
+    font-size: 15px !important;
+    color: #fff !important;}
+.daterange .dr-selections .dr-calendar .dr-days-of-week-list{
+    font-size: 14px !important;
+    background-color: #7E57C2 !important;
+    color: #fff !important;
+    font-weight: 600 !important;
+    border: none !important;}
+.daterange .dr-selections .dr-calendar .dr-day-list{
+    font-size: 14px !important;}
+.daterange .dr-selections .dr-calendar{min-width: 305px; !important}
+.daterange .dr-selections .dr-preset-list{font-size: 15px !important;
+    font-weight: 600; !important}
+.daterange .dr-selections .dr-list-item .dr-item-aside{font-size: 11px;!important}
+.daterange .dr-input .dr-presets.dr-preset{}
+.daterange .dr-input .dr-presets {width: 100px !important;
+padding-left:3px;}
+.daterange .dr-input{border: 1px solid #e8e8e8 !important; color: #000 !important;}
+.dashboardName pre{
+    background-color: #fff !important;
+    border-radius: 5px !important;
+    font-size: 15px !important;
+    font-family: Brandon Grotesque !important ;
+    }
+.main-content{margin-top: 35px;
+    box-shadow:0px 0px 10px 1px #C9C9C9;
+    -webkit-box-shadow:0px 0px 10px 1px #C9C9C9;
+    -moz-box-shadow:0px 0px 10px 1px #C9C9C9;}
+.box-header{background-color: #fff !important;border-bottom: 1px solid #efefef !important;}
+.graph-icon{float: right; margin-top: 10px;margin-right: -21px;}
+.wizard > .steps > ul > li{width:auto !important;	position: relative !important;}
+.svg-line1{margin-top: 25px; margin-left: 40px;}
+.svg-line2{margin-top: 25px;margin-left: 40px;}
+.wizard > .steps > ul > li{float: left;
+    position: relative;}
+ .steps  ul  li:after{
+     content: url('data:image/svg+xml;utf8,<svg width="326px" height="6px" class="svg-line"  viewBox="446 30 217 6" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">&lt;!&ndash; Generator: Sketch 3.7.1 (28215) - http://www.bohemiancoding.com/sketch &ndash;&gt;<desc>Created with Sketch.</desc><defs></defs><path d="M448,35 L770,35" id="Line-Copy" stroke="#F0F0F0" stroke-width="3" stroke-linecap="square" fill="none"></path></svg>');
+     position: absolute;
+ }
+ .empty-dashboard{background: #E6E3E3 url('data:image/svg+xml;utf8,<svg width="81px" height="78px" viewBox="410 173 81 78" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><!-- Generator: Sketch 3.7.1 (28215) - http://www.bohemiancoding.com/sketch --> <desc>Created with Sketch.</desc> <defs></defs> <polygon id="Fill-2-Copy" stroke="none" fill="#8C8C8C" fill-rule="evenodd" points="461.530563 222.636364 461.530563 251 439.46169 251 439.46169 222.636364 410.036525 222.636364 410.036525 201.363636 439.46169 201.363636 439.46169 173 461.530563 173 461.530563 201.363636 490.955727 201.363636 490.955727 222.636364"></polygon> </svg>') no-repeat center;
+     width: 100%;height: 300px;text-align: center}
+ .empty-dashboard span{position: relative;
+     top: 190px;
+     text-align: center;
+     font-size: 15px;
+     color: #797676;}
+ .parallel-dashboard{padding: 20px;}
+.wizard > .steps a, .wizard > .steps a:hover, .wizard > .steps a:active {width: 5px !important;margin: 0 !important;padding: 0px !important;}
+.wizard > .steps .disabled a, .wizard > .steps .disabled a:hover, .wizard > .steps .disabled a:active{background: #fff !important; }
 h1,
 h2,
 h3,
@@ -88,6 +184,7 @@ h5 {
 .body-small .navbar-top-links li:last-child {
     margin-right: 0;
 }
+body{font-family: Brandon Grotesque; }
 .navbar-top-links li a {
     padding: 20px 10px;
     min-height: 50px;
@@ -167,8 +264,7 @@ h5 {
 }
 .nav-header {
     padding: 33px 25px;
-    /*background: url("patterns/header-profile.png");*/
-    background: #7E57C2;
+    background: #7E57C2  url('data:image/svg+xml;utf8,<svg width="168px" height="142px" viewBox="13 -4 168 142" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><defs><path d="M17,96.4198718 L39.2909091,48.3173077 L61.5818182,0.21474359 L119.290909,0.0858974359 L177,0 L177,53.6858974 C177,91.7384615 176.890909,107.371795 176.6,107.371795 C176.381818,107.371795 153.836364,100.800641 126.527273,92.8121795 C99.1818182,84.8237179 76.5272727,78.1666667 76.1636364,78.0807692 C75.6181818,77.9948718 73,83.3634615 62.4909091,105.86859 L49.5090909,133.785256 L33.2545455,133.914103 L17,134 L17,115.23141 L17,96.4198718 Z" id="path-1"></path><filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-2"><feOffset dx="0" dy="0" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset><feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0" type="matrix" in="shadowOffsetOuter1" result="shadowMatrixOuter1"></feColorMatrix><feOffset dx="0" dy="0" in="SourceAlpha" result="shadowOffsetOuter2"></feOffset><feGaussianBlur stdDeviation="2" in="shadowOffsetOuter2" result="shadowBlurOuter2"></feGaussianBlur><feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0" type="matrix" in="shadowBlurOuter2" result="shadowMatrixOuter2"></feColorMatrix><feMerge><feMergeNode in="shadowMatrixOuter1"></feMergeNode><feMergeNode in="shadowMatrixOuter2"></feMergeNode></feMerge></filter></defs><g id="Shape" stroke="none" fill="none"><use fill="black" fill-opacity="1" filter="url(#filter-2)" xlink:href="#path-1"></use><use fill="#512DA8" fill-rule="evenodd" xlink:href="#path-1" ></use></g></svg>')  no-repeat ;
 }
 .pace-done .nav-header {
     transition: all 0.5s;
@@ -244,6 +340,8 @@ h5 {
     padding: 7px 10px 7px 10px;
     padding-left: 52px;
     background: #FFFFFF;
+    font-size: 15px;
+    font-weight: 500;
 }
 .nav-third-level li a {
     padding-left: 62px;
@@ -898,8 +996,7 @@ fieldset[disabled] .btn-link.active {
 .btn-white {
     color: inherit;
     background: white;
-    border: 1px solid #e7eaec;
-}
+    }
 .btn-white:hover,
 .btn-white:focus,
 .btn-white:active,
@@ -3246,7 +3343,6 @@ a.forum-item-title:hover {
     border-bottom: 1px solid #e7eaec;
 }
 body {
-    font-family: "BrandonGrotesque-Regular";
     background-color: #FFFFFF;
     font-size: 12px;
     color: #7E57C2;
@@ -3360,9 +3456,11 @@ video {
 }
 .modal-dialog {
     z-index: 2200;
+    width:850px !important;
 }
 .modal-body {
     padding: 15px 25px 25px 25px;
+    height:450px;
 }
 .inmodal .modal-body {
     background: #f8fafb;
@@ -3393,10 +3491,10 @@ video {
     overflow-x: hidden;
 }
 .wrapper {
-    padding: 0 20px;
+    padding: 0 0px;
 }
 .wrapper-content {
-    padding: 20px 10px 40px;
+    padding: 20px 0px 40px;
 }
 #page-wrapper {
     padding: 0 15px;
@@ -3703,14 +3801,14 @@ code {
     border-width: 3px 0 0;
     color: inherit;
     margin-bottom: 0;
-    padding: 14px 15px 7px;
+    padding: 7px 140px 0px;
     min-height: 40px;
 }
 .ibox-content {
     background-color: #ffffff;
     color: inherit;
     padding: 15px 20px 20px 20px;
-    border-color: #e7eaec;
+    /*border-color: #e7eaec;*/
     border-image: none;
     border-style: solid solid none;
     border-width: 1px 0px;
@@ -5176,7 +5274,8 @@ del {
     margin: 15px;
     text-align: center;
     border: 2px solid #e7eaec;
-    width: 40%;
+    width: 20%;
+    float: left;
 }
 .widget-icons:hover,
 .widget-icons.active {
@@ -5191,7 +5290,7 @@ del {
 .scrollbar{
     overflow-y: auto;
     overflow-x: hidden;
-    height: 300px;
+    height: 400px;
 }
 
 #scroller::-webkit-scrollbar{
@@ -5219,36 +5318,28 @@ del {
 /* Dashboard Title elements */
 .title-icons {
     float: right;
-    border: 1px solid #e8e8e8;
-    border-radius: 9px;
-    height: 50px;
-    padding: 2px;
-    margin: 2px;
-    text-align: center;
-    box-sizing: border-box;
-    display: block;
     min-width: 75px;
     font-family: 'Open Sans', helvetica, arial, sans-serif;
     color: #676a6c;
-    text-align: center;
+
 }
 
-.title-icons:hover,
+/*.title-icons:hover,
 .title-icons.active {
     border: 2px solid #e8e8e8;
-    /*
+    !*
     -webkit-box-shadow: 3px 3px 3px 0px #a8a8a8;
     -moz-box-shadow: 3px 3px 3px 0px #a8a8a8;
     box-shadow: 3px 3px 3px 3px #a8a8a8;
-    */
-}
+    *!
+}*/
 
 .dashboardIcons {
     float: right;
     height: 20px;
     padding: 0;
     box-sizing: border-box;
-    width: 250px;
+    width: 225px;
     font-weight: bold;
     display: inline-table;
 }
@@ -5264,10 +5355,9 @@ del {
 }
 
 .dashboardCalendarHolder {
-    float: none;
     border: 1px solid #e8e8e8;
-    border-radius: 9px;
-    height: 50px;
+    border-radius: 5px;
+    height: 35px;
     padding: 2px;
     margin: 2px;
     text-align: center;
@@ -5306,9 +5396,7 @@ del {
         margin: 0 0 0 0px;
         min-height: 1000px;
     }
-    .dashboardIcons {
-        display: none;
-    }
+
 
     .body-small .navbar-static-side {
         display: none;
@@ -8298,10 +8386,37 @@ body.md-skin {
         text-align: left;
         display: inline-block;
     }
+
 }
-/* Only demo */
-@media (max-width: 1000px) {
-    .welcome-message {
-        display: none;
+@media (max-width: 768px) {
+    .widget-icons{width:40% !important;}
+    .modal-dialog{width:auto !important;}
+    .ibox-title span{display:none !important;}
+    .modal-body{height: auto !important;}
+    .button-mode{width: 25% !important;  }
+    .ibox-title{padding: 7px 101px 0px !important;}
+    .daterange{margin-left: 0px !important;
     }
+
 }
+@media (max-width: 1000px) {
+    .dashboardName{display:none !important;}
+    .dashboardSpace{display:none !important;}
+    .response-view{display:block !important;}
+    .desk-view{display:none !important ;}
+    .navbar-header {float:none !important ;}
+    .dashboardTitleIcons {display: none;}
+    .welcome-message {display: none; }
+
+    }
+/*@media(min-width:1000px){.daterange{width: 90% !important;margin-left: 20px !important;}}*/
+
+@media(max-width : 380px){
+    .widget-icons { width: 70% !important; margin-left: 30px; !important}
+    .minimalize-styl-2{margin: 5px 4px 5px 15px; !important}
+    .remove-profile{float: none !important;}
+
+}
+@media(max-width : 320px){ .daterange {width: 200px !important;}.remove-profile{float: left !important;}}
+/* Only demo */
+

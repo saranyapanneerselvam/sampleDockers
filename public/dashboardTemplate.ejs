@@ -1,10 +1,131 @@
 <div ng-init="dashboardConfiguration()" id="dashboardLayout">
-    <div id="testLayout"><p>Test layout</p></div>
-    <canvas id="canvas" style="height: 10px"></canvas>
+    <!--<div id="testLayout"><p>Test layout</p></div>
+    <canvas id="canvas" style="height: 10px"></canvas>-->
     <div class="border-bottom dashboardTitle white-bg">
         <div class="row">
             <div class="col col-sm-12">
-                <div class="col-sm-4">
+                <div class="dashboardTemplate-items">
+                    <div class="col-sm-3 dashboardName">
+                        <a href="#" ng-model="dashboardName" editable-text="dashboard.dashboardName"
+                           onaftersave="changeDashboardName()">
+                            <pre>{{ dashboard.dashboardName || 'Name your dashboard' }}</pre>
+                        </a>
+                    </div>
+                    <div class="col-sm-1 dashboardSpace"></div>
+                    <div class="col-sm-4">
+                        <div class="daterange daterange--double three"></div>
+                    </div>
+                    <div class="col-sm-4 dashboardTitleIcons">
+                        <form class="dashboardIcons">
+                            <a>
+                                <div class="title-icons">
+                                    <svg width="28px" height="28px" viewBox="0 0 19 20" version="1.1"
+                                         xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                        <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
+                                        <desc>Created with Sketch.</desc>
+                                        <defs></defs>
+                                        <path d="M0.782,4.831 C0.85,4.899 0.962,4.943 1.074,4.943 L2.264,4.943 L2.264,16.862 C2.264,17.536 2.466,18.142 2.847,18.613 C3.251,19.107 3.723,19.354 4.261,19.354 L14.699,19.354 C15.237,19.354 15.709,19.107 16.113,18.591 C16.494,18.097 16.696,17.491 16.696,16.795 L16.696,4.943 L17.886,4.943 C17.998,4.943 18.11,4.899 18.178,4.831 C18.245,4.764 18.29,4.652 18.29,4.539 L18.29,3.754 C18.29,3.642 18.245,3.529 18.178,3.462 C18.11,3.395 17.998,3.35 17.886,3.35 L14.025,3.35 L13.15,1.263 C13.038,0.948 12.791,0.679 12.476,0.477 C12.14,0.252 11.826,0.14 11.489,0.14 L7.471,0.14 C7.134,0.14 6.82,0.252 6.483,0.477 C6.169,0.679 5.922,0.948 5.81,1.263 L4.935,3.35 L1.074,3.35 C0.962,3.35 0.85,3.395 0.782,3.462 C0.715,3.529 0.67,3.642 0.67,3.754 L0.67,4.539 C0.67,4.652 0.715,4.764 0.782,4.831 L0.782,4.831 Z M3.857,4.943 L15.103,4.943 L15.103,16.817 C15.103,16.997 15.08,17.154 15.013,17.311 C14.945,17.468 14.901,17.58 14.833,17.648 C14.766,17.715 14.721,17.76 14.699,17.76 L4.261,17.76 C4.239,17.76 4.194,17.715 4.127,17.648 C4.059,17.58 4.014,17.468 3.947,17.311 C3.88,17.154 3.857,16.997 3.857,16.817 L3.857,4.943 L3.857,4.943 Z M5.586,15.246 C5.653,15.313 5.765,15.358 5.877,15.358 L6.663,15.358 C6.775,15.358 6.887,15.313 6.955,15.246 C7.022,15.179 7.067,15.067 7.067,14.954 L7.067,7.749 C7.067,7.637 7.022,7.525 6.955,7.458 C6.887,7.39 6.775,7.345 6.663,7.345 L5.877,7.345 C5.765,7.345 5.653,7.39 5.586,7.458 C5.518,7.525 5.473,7.637 5.473,7.749 L5.473,14.954 C5.473,15.067 5.518,15.179 5.586,15.246 L5.586,15.246 Z M7.292,1.868 C7.336,1.801 7.404,1.756 7.494,1.734 L11.466,1.734 C11.556,1.756 11.624,1.801 11.691,1.868 L12.297,3.35 L6.663,3.35 L7.292,1.868 L7.292,1.868 Z M8.795,15.246 C8.863,15.313 8.975,15.358 9.087,15.358 L9.873,15.358 C9.985,15.358 10.097,15.313 10.165,15.246 C10.232,15.179 10.277,15.067 10.277,14.954 L10.277,7.749 C10.277,7.637 10.232,7.525 10.165,7.458 C10.097,7.39 9.985,7.345 9.873,7.345 L9.087,7.345 C8.975,7.345 8.863,7.39 8.795,7.458 C8.728,7.525 8.683,7.637 8.683,7.749 L8.683,14.954 C8.683,15.067 8.728,15.179 8.795,15.246 L8.795,15.246 Z M12.005,15.246 C12.072,15.313 12.185,15.358 12.297,15.358 L13.082,15.358 C13.195,15.358 13.307,15.313 13.374,15.246 C13.442,15.179 13.487,15.067 13.487,14.954 L13.487,7.749 C13.487,7.637 13.442,7.525 13.374,7.458 C13.307,7.39 13.195,7.345 13.082,7.345 L12.297,7.345 C12.185,7.345 12.072,7.39 12.005,7.458 C11.938,7.525 11.893,7.637 11.893,7.749 L11.893,14.954 C11.893,15.067 11.938,15.179 12.005,15.246 L12.005,15.246 Z"
+                                              id="Fill-68" stroke="none" fill="#E2DEDE" fill-rule="evenodd"></path>
+                                    </svg>
+                                    <div>Delete</div>
+                                </div>
+                            </a>
+                            <a>
+                                <div class="title-icons">
+                                    <svg width="28px" height="28px" viewBox="709 11 28 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                        <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
+                                        <desc>Created with Sketch.</desc><defs></defs>
+                                        <path d="M715.97651,12.8791946 C718.121924,11.6263982 720.463087,11 723,11 C725.537696,11 727.878076,11.6263982 730.024273,12.8791946 C732.168904,14.1319911 733.868009,15.8310962 735.121588,17.9765101 C736.373602,20.1227069 737,22.4630872 737,25 C737,27.5369128 736.373602,29.8780761 735.121588,32.0234899 C733.868009,34.1689038 732.168904,35.8680089 730.024273,37.1208054 C727.878076,38.3736018 725.537696,39 723,39 C720.463087,39 718.121924,38.3736018 715.97651,37.1208054 C713.830313,35.8680089 712.131208,34.1689038 710.879195,32.0234899 C709.626398,29.8780761 709,27.5369128 709,25 C709,22.4630872 709.626398,20.1227069 710.879195,17.9765101 C712.131208,15.8310962 713.830313,14.1319911 715.97651,12.8791946 C715.97651,12.8791946 713.830313,14.1319911 715.97651,12.8791946 L715.97651,12.8791946 L715.97651,12.8791946 Z M729.871588,18.1291946 C727.968904,16.2265101 725.677852,15.2751678 723,15.2751678 C720.322148,15.2751678 718.031879,16.2265101 716.129195,18.1291946 C714.22651,20.0318792 713.275168,22.3221477 713.275168,25 C713.275168,27.6778523 714.22651,29.9681208 716.129195,31.8708054 C718.031879,33.7734899 720.322148,34.7248322 723,34.7248322 C725.677852,34.7248322 727.968904,33.7734899 729.871588,31.8708054 C731.77349,29.9681208 732.724832,27.6778523 732.724832,25 C732.724832,22.3221477 731.77349,20.0318792 729.871588,18.1291946 C729.871588,18.1291946 731.77349,20.0318792 729.871588,18.1291946 L729.871588,18.1291946 L729.871588,18.1291946 Z M723,25 L727.697987,25 L727.697987,27.3489933 L720.651007,27.3489933 L720.651007,17.9530201 L723,17.9530201 L723,25 L723,25 Z" id="Alert-Icon" stroke="none" fill="#E2DEDE" fill-rule="evenodd"></path>
+                                    </svg>
+                                    <div>Alerts</div>
+                                </div>
+                            </a>
+                            <a ng-click="printPDF()">
+                                <div class="title-icons">
+                                    <svg width="28px" height="26px" viewBox="835 11 28 26" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                        <desc>Created with Sketch.</desc><defs></defs>
+                                        <path d="M853.5,21.5431214 L844.409091,21.5431214 L844.409091,28.011294 L839.363636,28.011294 C838.166667,28.011294 837.140152,27.6016431 836.284848,26.7816225 C835.42803,25.9630394 835,24.9777211 835,23.8285424 C835,22.8360372 835.32197,21.9556471 835.966667,21.1866532 C836.609848,20.4190967 837.431818,19.9332651 838.432576,19.7327517 C838.401515,19.5595485 838.386364,19.292916 838.386364,18.9335731 C838.386364,16.7343944 839.204545,14.8629364 840.840909,13.3177619 C842.47803,11.7718686 844.44697,11 846.75,11 C848.416667,11 849.935606,11.4283368 851.307576,12.2828542 C852.67803,13.1380904 853.69697,14.2621151 854.363636,15.6563656 C855.030303,15.4551336 855.712121,15.3545176 856.409091,15.3545176 C858.22803,15.3545176 859.780303,15.9761808 861.068939,17.2195073 C862.356061,18.4635525 863,19.9469201 863,21.6724849 C863,23.4253596 862.356061,24.9202262 861.068939,26.1570845 C859.780303,27.3939429 858.22803,28.011294 856.409091,28.011294 L853.5,28.011294 L853.5,21.5431214 L853.5,21.5431214 L853.5,21.5431214 L853.5,21.5431214 Z M851.227273,23.6991789 L846.681818,23.6991789 L846.681818,30.1673516 L842.136364,30.1673516 L848.954545,36.6355242 L855.772727,30.1673516 L851.227273,30.1673516 L851.227273,23.6991789 L851.227273,23.6991789 Z" id="Export-Icon" stroke="none" fill="#E2DEDE" fill-rule="evenodd"></path>
+                                    </svg>
+                                    <div>Export</div>
+                                </div>
+                            </a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="parallel-dashboard" ng-show="dashboard.widgets.length == 0">
+        <div class="empty-dashboard"><span>Add your first widget</span></div>
+    </div>
+    <div ng-switch="config.visible" class="white-bg dashboardContent">
+        <div ng-switch-default>
+            <div class="sk-spinner sk-spinner-wave">
+                <div class="sk-rect1"></div>
+                <div class="sk-rect2"></div>
+                <div class="sk-rect3"></div>
+                <div class="sk-rect4"></div>
+                <div class="sk-rect5"></div>
+            </div>
+        </div>
+        <div gridster="gridsterOptions" class="row" style="border: 1px solid #efefef;min-height: 500px" ng-switch-when="true" id="gridsterItems">
+            <ul>
+                <li gridster-item="widget" ng-repeat="widget in dashboard.widgets">
+                    <div class="box" ng-controller="CustomWidgetController" id="{{widget.id}}">
+                        <div class="box-header">
+                            <h3>{{widget.name}}</h3>
+                            <div class="graph-icon">
+                            <a title="settings" ng-click="openSettings(widget)"><i class="fa fa-cog"></i></a>
+                           <a title="Remove widget" ng-click="remove(widget);deleteWidget(widget)"><i class="fa fa-minus-square"></i></a>
+                            </div>
+                        </div>
+                        <div class="box-content" ng-switch="widget.visibility" style="vertical-align: middle">
+                            <div ng-switch-default>
+                                <div class="sk-spinner sk-spinner-wave">
+                                    <div class="sk-rect1"></div>
+                                    <div class="sk-rect2"></div>
+                                    <div class="sk-rect3"></div>
+                                    <div class="sk-rect4"></div>
+                                    <div class="sk-rect5"></div>
+                                </div>
+                            </div>
+                            <nvd3 options="widget.chart.options" data="widget.chart.data" api="widget.chart.api" config="config" events="events" ng-switch-when="true">
+                            </nvd3>
+                            <div class="modal-footer">
+                                <div class="row">
+                                    <div class="col-lg-12 text-right">
+                                        <i class="fa fa-cog"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div ui-view="lightbox"></div>
+    <script src="js/datePicker/Calendar.js"></script>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--
+<div id="justLayout"></div>
+-->
+
 <!--
                     <form class="dashboardIcons" ng-submit="editDashboardName(dashboardName)">
                         <a ui-sref="app.reporting.dashboard.dashboardName">
@@ -26,62 +147,25 @@
                         </div>
                     </form>
 -->
-                        <a href="#" ng-model="dashboardName" editable-text="dashboard.dashboardName" onaftersave="changeDashboardName()">{{ dashboard.dashboardName || 'Name your dashboard' }}</a>
-                </div>
-                <div class="col-sm-4">
-                    <form class="dashboardCalendarHolder">
-                        <a style="vertical-align: baseline">
-                            <input date-range-picker id="" name="form-control dateRange" type="text" ng-model="date" options="opts" required style="background: none;border: medium none;font-size: 20px;font-weight: 500;vertical-align: middle"/>
-                        </a>
-                    </form>
-                </div>
-                <div class="col-sm-4">
-                    <form class="dashboardIcons">
-                        <a><div class="title-icons"><i class="fa fa-minus-square"></i><div>Delete</div></div></a>
-                        <a><div class="title-icons"><i class="fa fa-mail-forward"></i><div>Email</div></div></a>
-                        <a ng-click="printPDF()"><div class="title-icons"><i class="fa fa-file-pdf-o"></i><div>Export</div></div></a>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div ng-switch="config.visible" class="white-bg dashboardContent">
-        <div ng-switch-default>
-            <div class="sk-spinner sk-spinner-wave">
-                <div class="sk-rect1"></div>
-                <div class="sk-rect2"></div>
-                <div class="sk-rect3"></div>
-                <div class="sk-rect4"></div>
-                <div class="sk-rect5"></div>
-            </div>
-        </div>
-        <div gridster="gridsterOptions" class="row" style="border: 1px solid #e8e8e8;min-height: 500px" ng-switch-when="true" id="gridsterItems">
-            <ul>
-                <li gridster-item="widget" ng-repeat="widget in dashboard.widgets">
-                    <div class="box" ng-controller="CustomWidgetController" id="{{widget.id}}">
-                        <div class="box-header">
-                            <h3>{{widget.name}}</h3>
-                            <a title="settings" ng-click="openSettings(widget)"><i class="fa fa-cog"></i></a>
-                            <a title="Remove widget" ng-click="remove(widget);deleteWidget(widget)"><i class="fa fa-minus-square"></i></a>
-                        </div>
-                        <div class="box-content" ng-switch="widget.visibility" style="vertical-align: middle">
-                            <div ng-switch-default>
-                                <div class="sk-spinner sk-spinner-wave">
-                                    <div class="sk-rect1"></div>
-                                    <div class="sk-rect2"></div>
-                                    <div class="sk-rect3"></div>
-                                    <div class="sk-rect4"></div>
-                                    <div class="sk-rect5"></div>
-                                </div>
-                            </div>
-                            <nvd3 options="widget.chart.options" data="widget.chart.data" api="widget.chart.api" config="config" events="events" ng-switch-when="true">
-                            </nvd3>
-                        </div>
-                    </div>
-                </li>
-            </ul>
-        </div>
-    </div>
-    <div ui-view="lightbox"></div>
+
+
+<!--
+
+<div class="col-sm-4">
+    <a href="#" ng-model="dashboardName" editable-text="dashboard.dashboardName" onaftersave="changeDashboardName()">{{ dashboard.dashboardName || 'Name your dashboard' }}</a>
 </div>
-<div id="justLayout"></div>
+<div class="col-sm-4">
+    <form class="dashboardCalendarHolder">
+        <a style="vertical-align: baseline">
+            <input date-range-picker id="" name="form-control dateRange" type="text" ng-model="date" options="opts" required style="background: none;border: medium none;font-size: 20px;font-weight: 500;vertical-align: middle"/>
+        </a>
+    </form>
+</div>
+<div class="col-sm-4">
+    <form class="dashboardIcons">
+        <a><div class="title-icons"><i class="fa fa-minus-square"></i><div>Delete</div></div></a>
+        <a><div class="title-icons"><i class="fa fa-mail-forward"></i><div>Email</div></div></a>
+        <a ng-click="printPDF()"><div class="title-icons"><i class="fa fa-file-pdf-o"></i><div>Export</div></div></a>
+    </form>
+</div>
+-->

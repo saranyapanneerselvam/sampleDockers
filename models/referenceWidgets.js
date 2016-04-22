@@ -7,6 +7,7 @@ var mongoose = require('mongoose');
 var referenceWidgetSchema = mongoose.Schema({
     name: String,
     description: String,
+    chartType: String,
     order: Number,
     offSet: Number,
     size: {

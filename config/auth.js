@@ -27,7 +27,10 @@ module.exports = {
         'clientSecret': 'nwlL0AVHi-h2jShCKfsvHQjK',
         'callbackURL': 'http://localhost:8080/auth/adwords/callback',
         'scope':'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/adwords',
-        'state' : '5$55#'
+        'state': '5$55#',
+        'managerClientId':'507-960-6961',
+        'developerToken':'R45HDlrLXatt0pMUMDVlUw',
+        'userAgent':'ShowmetricDeveloment M:ReportDownloader:V1.0'
     },
 
     'facebookAdsAuth' : {
@@ -53,15 +56,29 @@ module.exports = {
         facebookAds:'fbadaccount',
         facebookPage:'page',
         facebookPost:'post',
-        googleView:'view',
+        googleView:'gaview',
         twitter :'tweet',
-        googleAdword :'adwordaccount'
+        googleAdword :'adwordaccount',
+        googleProperty: 'gaproperty',
+        googleAccount: 'gaaccount'
     },
 
     'twitterMetric':{
         Keywordmentions : 'Keyword mentions',
         Mentions : 'Mentions',
         HighEngagementtweets :'High Engagement tweets',
-        tweets:'tweets'
+        tweets: 'tweets'
+    },
+
+    'googleAdwordsMetric' :{
+        clicks: 'clicks',
+        cost:'cost',
+        impressions:'impressions',
+        clickThroughRate:'clickthroughRate',
+        costperConversion :'costPerConversion',
+        conversionrate : 'conversionRate',
+        conversions : 'conversions',
+        costperclick:'costperclick',
+        costperthousandImpressions:'costperthousandImpressions'
     }
 };

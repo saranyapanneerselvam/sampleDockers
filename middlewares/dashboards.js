@@ -107,18 +107,3 @@ exports.storeDashboards = function (req, res, next) {
 };
 
 
-exports.getDashboards = function (req, res, next) {
-    req.showMetric = {};
-    if (!req.user) {
-        req.showMetric.error = 500;
-        next();
-    }
-    else {
-        dashboardList.find({orgId: req.user.orgId}, function (err, dashboard) {
-            console.log('result', req.params.channelId, dashboard);
-            req.showMetric.dashboard = dashboard;
-            next();
-        })
-    }
-
-};

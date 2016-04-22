@@ -1,0 +1,36 @@
+{
+  "name": "google-adwords-kogi",
+  "version": "1.2.0",
+  "description": "google adwords for nodejs, updated version 2015",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "adwords-auth": "^0.0.10",
+    "lodash": "^3.10.0",
+    "bluebird": "^2.9.32",
+    "moment": "^2.10.3",
+    "unirest": "^0.4.2",
+    "xml2js": "^0.4.9"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tuannvm/google-adwords.git"
+  },
+  "keywords": [
+    "adwords",
+    "npm",
+    "google",
+    "node"
+  ],
+  "author": "Tuan Nguyen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tuannvm/google-adwords/issues"
+  },
+  "homepage": "https://github.com/tuannvm/google-adwords#readme"
+}

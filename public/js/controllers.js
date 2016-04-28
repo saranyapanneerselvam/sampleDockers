@@ -2683,7 +2683,7 @@ function GridviewController($scope,$http) {
     };
 }
 
-function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$stateParams) {
+function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$stateParams,createWidgets,$q) {
 
     $scope.dashboardConfiguration = function () {
         $scope.baremetricsCalendar = new Calendar({
@@ -2797,21 +2797,43 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
     $scope.populateDashboardWidgets = function(){
         $scope.dashboard.widgets = [];
         $http({
-            method: 'GET', url: '/api/v1/dashboards/widgets/'+ $state.params.id
+            method: 'GET',
+            url: '/api/v1/dashboards/widgets/'+ $state.params.id
         }).then(function successCallback(response) {
-            $scope.dashboardWidgetList = response.data.widgetsList;
+            var dashboardWidgetList = response.data.widgetsList;
             console.log(response.data.widgetsList);
-            $scope.widgetsCount = $scope.dashboardWidgetList.length;
-            for(i=0;i<$scope.dashboardWidgetList.length;i++){
-                if($scope.dashboardWidgetList[i].widgetType = 'basic')
-                    $rootScope.$emit('populateBasicWidgetData',$scope.dashboardWidgetList[i]._id);
+            $scope.widgetsCount = dashboardWidgetList.length;
+            var widgets = [];
+            for(var i=0;i<dashboardWidgetList.length;i++){
+                widgets.push(
+                    createWidgets.widgetDataFetchHandler(
+                        dashboardWidgetList[i],
+                        {
+                            'startDate': moment($scope.baremetricsCalendar.start_date).format('YYYY-MM-DD'),
+                            'endDate': moment($scope.baremetricsCalendar.end_date).format('YYYY-MM-DD')
+                        }
+                    )
+                );
             }
+            $q.all(widgets).then(function successCallback(widgets){
+                for(i=0;i<widgets.length;i++){
+                    widgets[i] = createWidgets.formatDataPoints(widgets[i]);
+
+                    
+
+                }
+            },function errorCallback(error){
+                console.log(error);
+            });
+
         }, function errorCallback(error) {
             console.log('Error in finding widgets in the dashboard',error);
         });
     };
 
-    $rootScope.$on('populateBasicWidgetData', function(e,widgetId){
+    $rootScope.$on('populateBasicWidgetData', function(e,widgetId,dataDateRange){
+        console.log('date range',dataDateRange);
+
         var graphData, metricNameInGraph, metricDetails;
         var dataToBePopulated = [];
         var jsonData = {
@@ -2999,24 +3021,24 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
 }
 
-function BasicWidgetController($scope,$http,$state,$rootScope,$window) {
+function BasicWidgetController($scope,$http,$state,$rootScope,$window,$stateParams) {
     $scope.currentView = 'step_one';
     $scope.objectList = {};
     $scope.metricList = {};
     $scope.referenceWidgetsList = [];
     $scope.profileList = {};
     $scope.storedObjects = {};
-    $scope.widgetType = 'basic';
-
+    $scope.widgetType = $stateParams.widgetType;
+    console.log('widgetType',$scope.widgetType);
     $scope.changeViewsInBasicWidget = function (obj) {
         $scope.currentView = obj;
         if($scope.currentView === 'step_one'){
             document.getElementById('basicWidgetBackButton1').disabled=true;
             document.getElementById('basicWidgetNextButton').disabled=true;
             $scope.listChannels();
+            $scope.clearReferenceWidget();
         } else if($scope.currentView === 'step_two'){
             document.getElementById('basicWidgetBackButton1').disabled=false;
-            $scope.clearReferenceWidget();
             $scope.getReferenceWidgetsForChosenChannel();
             $scope.getProfilesForDropdown();
         } else if ($scope.currentView === 'step_three'){
@@ -3175,7 +3197,10 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window) {
 
     $scope.storeChannel = function(){$scope.storedChannelId = this.data._id;$scope.storedChannelName = this.data.name;};
     $scope.storeReferenceWidget = function(){$scope.storedReferenceWidget = this.referenceWidgets;};
-    $scope.clearReferenceWidget = function(){$scope.storedReferenceWidget = null;};
+    $scope.clearReferenceWidget = function(item){
+        var index = $scope.referenceWidgetsList.indexOf(item) ;
+        $scope.referenceWidgetsList.splice(index, 1);
+    };
     $scope.objectForWidgetChosen = function() {
         if(this.objectOptionsModel != null)
             document.getElementById('basicWidgetNextButton').disabled=false;
@@ -3284,6 +3309,124 @@ angular
         .controller('toastrCtrl', toastrCtrl)
         .controller('testController', testController)
     */
+
+    .service('createWidgets',function($http,$q){
+        this.widgetDataFetchHandler = function(widget,chosenDateRange){
+
+            var deferredGraphData = $q.defer();
+            var finalWidget = [];
+
+            var getCharts = getDataForChosenDates(widget,chosenDateRange);
+
+            getCharts.then(function successCallback(widgetData){
+                finalWidget = widget;
+                finalWidget.charts = widgetData;
+                var metricDetailsArray = [];
+
+                for(i=0;i<finalWidget.charts.length;i++){
+                    metricDetailsArray.push(fetchMetricDetailsForCharts(finalWidget.charts[i]));
+                }
+                $q.all(metricDetailsArray).then(function successCallback(metricDetailsArray){
+                    for(i=0;i<finalWidget.charts.length;i++){
+                        finalWidget.charts[i].metricDetails = metricDetailsArray[i]
+                    }
+                    console.log('Final Widget',finalWidget);
+                    deferredGraphData.resolve(finalWidget);
+                },function errorCallback(error){
+                    console.log(error);
+                    deferredGraphData.reject(error);
+                });
+            },function errorCallback(error){
+                deferredGraphData.reject(error);
+            });
+            return deferredGraphData.promise;
+
+            function getDataForChosenDates(widget,chosenDateRange) {
+                var deferred = $q.defer();
+                $http({
+                    method: 'POST',
+                    url: '/api/v1/widgets/data/' + widget._id,
+                    data: {
+                        "startDate": chosenDateRange.startDate,
+                        "endDate": chosenDateRange.endDate
+                    }
+                }).then(function successCallback(response) {
+                    var widgetData = [];
+                    for(i=0;i<widget.charts.length;i++){
+                        for(j=0;j<response.data.length;j++){
+                            if(widget.charts[i].metrics[0].metricId === response.data[j].metricId){
+                                widgetData.push({
+                                    channelId: widget.charts[i].channelId,
+                                    chartName: widget.charts[i].name,
+                                    chartType: widget.charts[i].metrics[0].chartType,
+                                    chartData: response.data[j].data,
+                                    chartMetricId: response.data[j].metricId,
+                                    chartObjectId: response.data[j].objectId
+                                });
+                            }
+                        }
+                    }
+                    deferred.resolve(widgetData);
+                }, function errorCallback(error) {
+                    deferred.reject(error);
+                });
+                return deferred.promise;
+            }
+
+            function fetchMetricDetailsForCharts(chart) {
+                var deferred = $q.defer();
+                $http({
+                    method:'GET',
+                    url:'/api/v1/get/metricDetails/' + chart.chartMetricId
+                }).then(function successCallback(response){
+                    deferred.resolve(response.data.metricsList[0]);
+                },function errorCallback(error){
+                    deferred.reject(error);
+                });
+                return deferred.promise;
+            }
+
+        };
+
+
+        /*
+         var graphData, metricNameInGraph, metricDetails;
+         var dataToBePopulated = [];
+         $scope.dashboard.widgets.push({
+         sizeY: 3, sizeX: 3, id: widgetId, chart: {api: {}}, visibility: false
+         });
+
+         for(i=0;i<response.data[0].data.length;i++){
+         splitDate = [response.data[0].data[i].date];
+         newDate = splitDate[1]+'/'+splitDate[2]+'/'+splitDate[0];
+         inputDate = new Date(newDate).getTime();
+         dataToBePopulated.push({x: inputDate, y: response.data[0].data[i].total});
+         }
+         metricDetails = response.data.metricsList[0];
+         graphData = [{
+         values: dataToBePopulated,      //values - represents the array of {x,y} data points
+         key: metricDetails.name, //key  - the name of the series.
+         color: '#7E57C2'  //color - optional: choose your own line color.
+         }];
+         */
+
+        this.formatDataPoints = function(widget) {
+            for(i=0;i<widget.charts.length;i++){
+                if(widget.charts[i].chartType == 'line' || 'bar'){
+                    var formattedDataPoints = [];
+                    var splitDate, newDate, inputDate;
+                    for(j=0;j<widget.charts[i].chartData.length;j++){
+                        splitDate = widget.charts[i].chartData[j].date;
+                        newDate = splitDate[1]+'/'+splitDate[2]+'/'+splitDate[0];
+                        inputDate = new Date(newDate).getTime();
+                        formattedDataPoints.push({x: inputDate, y: widget.charts[i].chartData[j].total});
+                    }
+                    widget.charts[i].chartData = formattedDataPoints;
+                }
+            }
+            return widget;
+        }
+    })
 
     .service('dashboardService', function(){
         return {

@@ -15,12 +15,12 @@
                                         <ul role="tablist">
                                             <li role="tab" class="first current" aria-disabled="false" aria-selected="true">
                                                 <a aria-controls="">
-                                                <svg width="49px" height="49px" viewBox="771 9 49 49" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                                <svg class="animated bounceIn" width="49px" height="49px" viewBox="771 9 49 49" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                                                     <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
                                                     <desc>Created with Sketch.</desc>
                                                     <defs>
                                                         <pattern id="image" x="0" y="0" patternUnits="userSpaceOnUse" height="100%" width="100%" viewBox="7 0 33 15">
-                                                            <svg width="27px" height="32px" viewBox="40 20 27 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                                            <svg width="27px" height="32px"  viewBox="40 20 27 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                                                                 <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
                                                                 <desc>Created with Sketch.</desc>
                                                                 <defs></defs>
@@ -168,12 +168,12 @@
                                             <li role="tab" class="disabled" aria-disabled="true">
 
                                                 <a aria-controls="wizard-p-1">
-                                                    <svg width="49px" height="49px" viewBox="771 9 49 49" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                                    <svg class="animated bounceIn" width="49px" height="49px" viewBox="771 9 49 49" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                                                         <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
                                                         <desc>Created with Sketch.</desc>
                                                         <defs>
                                                             <pattern id="image2" x="0" y="0" patternUnits="userSpaceOnUse" height="100%" width="100%" viewBox="7 0 33 15">
-                                                                <svg width="25px" height="25px" viewBox="414 22 25 25" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                                                <svg width="25px" height="25px"  viewBox="414 22 25 25" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                                                                     <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
                                                                     <desc>Created with Sketch.</desc>
                                                                     <defs></defs>
@@ -311,12 +311,12 @@
                                                 </svg>
                                             </li>
                                             <li role="tab" class="disabled" aria-disabled="true"><a aria-controls="wizard-p-1">
-                                                    <svg width="49px" height="49px" viewBox="771 9 49 49" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                                    <svg width="49px" class="animated bounceIn" height="49px" viewBox="771 9 49 49" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                                                         <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
                                                         <desc>Created with Sketch.</desc>
                                                         <defs>
                                                             <pattern id="image3" x="0" y="0" patternUnits="userSpaceOnUse" height="100%" width="100%" viewBox="2 0 22 15">
-                                                                <svg width="25px" height="27px" viewBox="781 21 44 27" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                                                <svg  width="25px" height="27px" viewBox="781 21 44 27" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                                                                     <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
                                                                     <desc>Created with Sketch.</desc>
                                                                     <defs></defs>
@@ -358,7 +358,7 @@
                         <div class="row" ng-show="currentView === 'step_two'">
                             <h5 class="model-title">Step2.Choose a Metric</h5>
                             <div class="col-lg-12">
-                                <div ng-repeat="referenceWidgets in referenceWidgetsList" name="{{referenceWidgets.name}}" class="col-lg-2 widget-icons" ng-click="storeReferenceWidget();changeViewsInBasicWidget('step_three')">
+                                <div ng-repeat="referenceWidgets in referenceWidgetsList" name="{{referenceWidgets.name}}" class="col-lg-2 widget-icons" ng-click="storeReferenceWidget();changeViewsInBasicWidget('step_three');clearReferenceWidget(referenceWidgets)">
                                     <h4>{{referenceWidgets.name}}</h4>
                                 </div>
                             </div>
@@ -403,7 +403,7 @@
                                                         </div>
                                                     </div>
                                                     <div class="form-group">
-                                                        <div class="col-lg-12" style="display: flex;">
+                                                        <div class="col-lg-12 select-profiles" style="display: flex;">
                                                             <select class="form-control m-b" ng-model="objectOptionsModel" id="objectOptions" ng-options="objects as objects.name for objects in objectList" ng-change="objectForWidgetChosen()">
                                                                 <option value="">Select an item</option>
                                                             </select>

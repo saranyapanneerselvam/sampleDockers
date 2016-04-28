@@ -5287,6 +5287,19 @@ del {
     */
 }
 
+.getCustomPosition{
+    height: 75px;
+}
+
+.getCustomData{
+    font-size: 25px;
+    margin-top: 5px;
+}
+
+.customApiLink{
+    color:#337ab7 !important;
+}
+
 .scrollbar{
     overflow-y: auto;
     overflow-x: hidden;

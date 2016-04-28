@@ -65,7 +65,7 @@ require('./controllers/facebookInsights')(app);
 require('./controllers/googleAdwordsAuth')(app);
 require('./controllers/pdfExport')(app);
 require('./controllers/referenceWidgets')(app);
-
+require('./controllers/customIdentity')(app);
 
 router.use(function (req, res, next) {
     req.showMetric = {};

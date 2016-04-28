@@ -189,4 +189,24 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
     $scope.listChannels();
     //$scope.storeMetric = function(){$scope.storedMetricId = this.MetricName._id;};
     //$scope.clearMetric = function(){$scope.storedMetricId = null;};
+
+    $scope.storeCustomData = function () {
+        console.log("click custom data");
+        $(".selectCustomLinkHead").text("Step2.Select the Link");
+
+        var jsonData = {
+            "dashboardId": $state.params.id,
+            "widgetType": $scope.widgetType
+        };
+        console.log('json data',jsonData);
+        $http({
+            method: 'POST', url: '/api/v1/create/customIdentity', data: jsonData
+        }).then(function successCallback(response){
+            console.log('Response after creating customIdentity', response);
+            $scope.customApiLink = "http://localhost:8080/api/v1/create/customdata/"+response.data.id;
+        }, function errorCallback (error){
+            console.log('Error in getting customIdentity id',error);
+        });
+
+    };
 }

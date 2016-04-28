@@ -191,22 +191,37 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
     //$scope.clearMetric = function(){$scope.storedMetricId = null;};
 
     $scope.storeCustomData = function () {
-        console.log("click custom data");
         $(".selectCustomLinkHead").text("Step2.Select the Link");
 
-        var jsonData = {
-            "dashboardId": $state.params.id,
-            "widgetType": $scope.widgetType
-        };
-        console.log('json data',jsonData);
         $http({
-            method: 'POST', url: '/api/v1/create/customIdentity', data: jsonData
-        }).then(function successCallback(response){
-            console.log('Response after creating customIdentity', response);
-            $scope.customApiLink = "http://localhost:8080/api/v1/create/customdata/"+response.data.id;
-        }, function errorCallback (error){
-            console.log('Error in getting customIdentity id',error);
+            method: 'GET',
+            url: '/api/v1/me'
+        }).then(function successCallback(response) {
+            var userID=0;
+            for(var userInfo in response.data.userDetails){
+                userID=response.data.userDetails[userInfo]._id;
+            }
+
+            var jsonData = {
+                "userId":userID,
+                "dashboardId": $state.params.id,
+                "widgetType": $scope.widgetType
+            };
+            console.log('json data',jsonData);
+            $http({
+                method: 'POST', url: '/api/v1/create/customIdentity', data: jsonData
+            }).then(function successCallback(response){
+                console.log('Response after creating customIdentity', response);
+                $scope.customApiLink = "http://localhost:8080/api/v1/create/customdata/"+response.data.id;
+            }, function errorCallback (error){
+                console.log('Error in getting customIdentity id',error);
+            });
+
+        }, function errorCallback(error) {
+            console.log('Error in finding user info');
         });
+
+
 
     };
 }

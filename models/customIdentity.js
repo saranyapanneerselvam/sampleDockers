@@ -5,6 +5,7 @@ var mongoose = require('mongoose');
 
 // define the schema for our user model
 var customidentitySchema = mongoose.Schema({
+    userId: String,
     dashboardId: String,
     widgetType: String,
     created: Date,

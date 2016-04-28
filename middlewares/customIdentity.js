@@ -16,6 +16,7 @@ var exports = module.exports = {};
 exports.storeCustomIdentity = function (req, res, next) {
 
         var createCustomIdentity = new customIdentityList();
+        createCustomIdentity.userId = req.body.userId;
         createCustomIdentity.dashboardId = req.body.dashboardId;
         createCustomIdentity.widgetType = req.body.widgetType;
         createCustomIdentity.created = new Date();

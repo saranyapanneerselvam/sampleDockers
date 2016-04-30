@@ -117,3 +117,22 @@ exports.saveWidgets = function (req, res, next) {
 };
 
 
+
+exports.saveCustomWidgets = function (req, res, next) {
+        console.log('response');
+        var createCustomWidget = new widgetsList();
+
+        createCustomWidget.dashboardId = req.body.dashboardId;
+        createCustomWidget.widgetType = req.body.widgetType;
+        createCustomWidget.channelId = req.body.channelId;
+        createCustomWidget.created = new Date();
+        createCustomWidget.updated = new Date();
+        createCustomWidget.save(function (err, customWidgetDetail) {
+            if (!err)
+                req.app.result = {'status': '200', 'id': customWidgetDetail};
+            else
+                req.app.result = {'status': '302'};
+            next();
+        });
+
+};

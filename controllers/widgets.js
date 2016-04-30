@@ -25,6 +25,15 @@ module.exports = function (app) {
             res.status(500).send({error: ""});
     });
 
+    //To store the custom widgets
+    app.post('/api/v1/create/customwidgets', widgetsList.saveCustomWidgets, function (req, res) {
+        var customWidgets = req.app.result;
+        if (customWidgets)
+            res.json({widgetsList: customWidgets});
+        else
+            res.status(500).send({error: ""});
+    });
+
     //To delete the widgets
     app.post('/api/v1/delete/widgets/:widgetId', widgetsList.deleteWidgets, function (req, res) {
         var widgets = req.app.result;

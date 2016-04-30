@@ -2,6 +2,40 @@ var channels = require('../models/channels');
 var objectType = require('../models/objectTypes');
 var exports = module.exports = {};
 
+
+
+/**
+ Function to store a channel
+ @params 1.req contains the channel name
+ 2.res have the query response
+ */
+
+/**
+ * To store the channel details in database
+ * @param req - channel name
+ * @param res
+ * @param next - callback
+ */
+exports.storeChannel = function (req, res, next) {
+
+    var channel = new channels();
+    channel.name = req.body.channelName;
+    channel.code = req.body.channelName;
+    channel.created = new Date();
+    channel.updated = new Date();
+    channel.save(function (err, data) {
+        if (!err) {
+            req.app.result = {'status': '200', 'newChannelId': data._id};
+            next();
+        }
+        else {
+            req.app.result = {'status': '302'};
+            next();
+        }
+    });
+
+};
+
 /**
  Function to get the channel's details such as name,logo,code..
  @params 1.req contains the facebook user details i.e. username,email etc

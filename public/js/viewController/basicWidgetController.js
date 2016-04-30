@@ -8,9 +8,12 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
     $scope.profileList = {};
     $scope.storedObjects = {};
     $scope.widgetType = $stateParams.widgetType;
+    var getChannelName = "";
+    var getCustomWidgetId = "";
     console.log('widgetType',$scope.widgetType);
     $scope.changeViewsInBasicWidget = function (obj) {
         $scope.currentView = obj;
+        $rootScope.currentModalView = obj;
         if($scope.currentView === 'step_one'){
             document.getElementById('basicWidgetBackButton1').disabled=true;
             document.getElementById('basicWidgetNextButton').disabled=true;
@@ -18,8 +21,18 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
             $scope.clearReferenceWidget();
         } else if($scope.currentView === 'step_two'){
             document.getElementById('basicWidgetBackButton1').disabled=false;
-            $scope.getReferenceWidgetsForChosenChannel();
-            $scope.getProfilesForDropdown();
+            console.log("Chennal : "+getChannelName);
+            if(getChannelName=="CustomData"){
+                $scope.storeCustomData();
+                $(".showCustomUrlLink" ).show();
+                $(".showReferenceWidgets" ).html('');
+            }
+            else{
+                $scope.getReferenceWidgetsForChosenChannel();
+                $scope.getProfilesForDropdown();
+                $(".showReferenceWidgets" ).show();
+                $(".showCustomUrlLink").html('');
+            }
         } else if ($scope.currentView === 'step_three'){
             document.getElementById('basicWidgetBackButton1').disabled=false;
         }
@@ -142,39 +155,51 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
     };
 
     $scope.createAndFetchBasicWidget =function() {
-        var matchingMetric = [];
-        for(i=0;i<$scope.storedReferenceWidget.charts.length;i++) {
-            for(j=0;j<$scope.storedReferenceWidget.charts[i].metrics.length;j++) {
-                if($scope.storedReferenceWidget.charts[i].metrics[j].objectTypeId === this.objectOptionsModel.objectTypeId) {
-                    matchingMetric.push($scope.storedReferenceWidget.charts[i].metrics[j]);
-                    matchingMetric[i].objectId = this.objectOptionsModel._id;
-                }
-            }
-            $scope.storedReferenceWidget.charts[i].metrics = matchingMetric;
-            console.log('Displaying metrics',$scope.storedReferenceWidget.charts[i].metrics);
+        if(getChannelName=="CustomData"){
+            // final function after custom api url creation goes here
+            //$rootScope.$emit('populateCustomWidgetData',getCustomWidgetId);
         }
-        var jsonData = {
-            "dashboardId": $state.params.id,
-            "widgetType": $scope.widgetType,
-            "charts": $scope.storedReferenceWidget.charts,
-            "order": $scope.storedReferenceWidget.order,
-            "offset": $scope.storedReferenceWidget.offset,
-            "size": $scope.storedReferenceWidget.size,
-            "minSize": $scope.storedReferenceWidget.minSize,
-            "maxSize": $scope.storedReferenceWidget.maxSize
-        };
-        console.log('json data',jsonData);
-        $http({
-            method: 'POST', url: '/api/v1/widgets', data: jsonData
-        }).then(function successCallback(response){
-            console.log('Response after creating widget', response);
-            $rootScope.$emit('populateBasicWidgetData',response.data.widgetsList.id._id);
-        }, function errorCallback (error){
-            console.log('Error in getting widget id',error);
-        });
+        else{
+            // function for saving other widgets goes here
+            var matchingMetric = [];
+            for(i=0;i<$scope.storedReferenceWidget.charts.length;i++) {
+                for(j=0;j<$scope.storedReferenceWidget.charts[i].metrics.length;j++) {
+                    if($scope.storedReferenceWidget.charts[i].metrics[j].objectTypeId === this.objectOptionsModel.objectTypeId) {
+                        matchingMetric.push($scope.storedReferenceWidget.charts[i].metrics[j]);
+                        matchingMetric[i].objectId = this.objectOptionsModel._id;
+                    }
+                }
+                $scope.storedReferenceWidget.charts[i].metrics = matchingMetric;
+                console.log('Displaying metrics',$scope.storedReferenceWidget.charts[i].metrics);
+            }
+            var jsonData = {
+                "dashboardId": $state.params.id,
+                "widgetType": $scope.widgetType,
+                "charts": $scope.storedReferenceWidget.charts,
+                "order": $scope.storedReferenceWidget.order,
+                "offset": $scope.storedReferenceWidget.offset,
+                "size": $scope.storedReferenceWidget.size,
+                "minSize": $scope.storedReferenceWidget.minSize,
+                "maxSize": $scope.storedReferenceWidget.maxSize
+            };
+            console.log('json data',jsonData);
+            $http({
+                method: 'POST', url: '/api/v1/widgets', data: jsonData
+            }).then(function successCallback(response){
+                console.log('Response after creating widget', response);
+                $rootScope.$emit('populateBasicWidgetData',response.data.widgetsList.id._id);
+            }, function errorCallback (error){
+                console.log('Error in getting widget id',error);
+            });
+        }
     };
 
-    $scope.storeChannel = function(){$scope.storedChannelId = this.data._id;$scope.storedChannelName = this.data.name;};
+    $scope.storeChannel = function(){
+        $scope.storedChannelId = this.data._id;
+        $scope.storedChannelName = this.data.name;
+        getChannelName = this.data.name;
+    };
+
     $scope.storeReferenceWidget = function(){$scope.storedReferenceWidget = this.referenceWidgets;};
     $scope.clearReferenceWidget = function(item){
         var index = $scope.referenceWidgetsList.indexOf(item) ;
@@ -186,42 +211,42 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
         else
             document.getElementById('basicWidgetNextButton').disabled=true;
     };
-    $scope.listChannels();
+    //$scope.listChannels();
     //$scope.storeMetric = function(){$scope.storedMetricId = this.MetricName._id;};
     //$scope.clearMetric = function(){$scope.storedMetricId = null;};
 
     $scope.storeCustomData = function () {
         $(".selectCustomLinkHead").text("Step2.Select the Link");
 
+        var jsonData = {
+            "dashboardId": $state.params.id,
+            "widgetType": "custom",
+            "channelId": $scope.storedChannelId
+        };
+        console.log('json data', jsonData);
         $http({
-            method: 'GET',
-            url: '/api/v1/me'
-        }).then(function successCallback(response) {
-            var userID=0;
-            for(var userInfo in response.data.userDetails){
-                userID=response.data.userDetails[userInfo]._id;
-            }
-
-            var jsonData = {
-                "userId":userID,
-                "dashboardId": $state.params.id,
-                "widgetType": $scope.widgetType
-            };
-            console.log('json data',jsonData);
-            $http({
-                method: 'POST', url: '/api/v1/create/customIdentity', data: jsonData
-            }).then(function successCallback(response){
-                console.log('Response after creating customIdentity', response);
-                $scope.customApiLink = "http://localhost:8080/api/v1/create/customdata/"+response.data.id;
-            }, function errorCallback (error){
-                console.log('Error in getting customIdentity id',error);
-            });
-
-        }, function errorCallback(error) {
-            console.log('Error in finding user info');
+            method: 'POST', url: '/api/v1/create/customwidgets', data: jsonData
+        }).then(function successCallback(response){
+            console.log(response.data);
+            $scope.errorMessage=true;
+            document.getElementById('basicWidgetBackButton2').disabled=false;
+            document.getElementById('basicWidgetNextButton').disabled=false;
+            getCustomWidgetId = response.data.widgetsList.id._id;
+            $rootScope.customWidgetId=response.data.widgetsList.id._id;
+            $(".customApiLink").html('http://localhost:8080/api/v1/create/customdata/'+response.data.widgetsList.id._id);
+        }, function errorCallback (error){
+            console.log('Error in getting customwidgets',error);
+            document.getElementById('basicWidgetBackButton2').disabled=true;
+            document.getElementById('basicWidgetNextButton').disabled=true;
+            $scope.errorMessage=false;
         });
-
-
-
     };
+
+    $scope.selectCustomAPILink = function () {
+        var getCustomLink = $(".customApiLink").text();
+        console.log(getCustomLink);
+        $(".isChecked").show();
+        document.getElementById('basicWidgetNextButton').disabled=false;
+    };
+
 }

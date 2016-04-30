@@ -8,6 +8,7 @@ var widgetsSchema = mongoose.Schema({
     name: String,
     description: String,
     dashboardId: String,
+    channelId: String,
     order: Number,
     offSet: Number,
     size: Object,

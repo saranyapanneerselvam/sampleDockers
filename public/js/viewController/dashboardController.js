@@ -118,7 +118,17 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             url: '/api/v1/dashboards/widgets/'+ $state.params.id
         }).then(function successCallback(response) {
             var dashboardWidgetList = response.data.widgetsList;
+            console.log("populate Dashboard Widgets");
             console.log(response.data.widgetsList);
+
+            for(getWidgetInfo in dashboardWidgetList){
+                if(dashboardWidgetList[getWidgetInfo].widgetType=="custom"){
+                    // for custom widgets to be populated here
+                }
+                else{
+                    // for other widgets to be populated here
+                }
+            }
             $scope.widgetsCount = dashboardWidgetList.length;
             var widgets = [];
             for(var i=0;i<dashboardWidgetList.length;i++){
@@ -135,9 +145,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             $q.all(widgets).then(function successCallback(widgets){
                 for(i=0;i<widgets.length;i++){
                     widgets[i] = createWidgets.formatDataPoints(widgets[i]);
-
-
-
                 }
             },function errorCallback(error){
                 console.log(error);

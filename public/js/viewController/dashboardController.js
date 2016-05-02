@@ -108,10 +108,10 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         //make chart visible after grid have been created
         $scope.config = {visible: false};
         $timeout(function () {$scope.config.visible = true;}, 100);
-        $scope.populateDashboardWidgets();
+        $rootScope.populateDashboardWidgets();
     };
 
-    $scope.populateDashboardWidgets = function(){
+    $rootScope.populateDashboardWidgets = function(){
         $scope.dashboard.widgets = [];
         $http({
             method: 'GET',
@@ -124,6 +124,14 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             for(getWidgetInfo in dashboardWidgetList){
                 if(dashboardWidgetList[getWidgetInfo].widgetType=="custom"){
                     // for custom widgets to be populated here
+                    $http({
+                        method: 'GET',
+                        url: '/api/v1/customWidgetData/'+ dashboardWidgetList[getWidgetInfo]._id
+                    }).then(function successCallback(response) {
+                        //console.log(response);
+                    }, function errorCallback(error) {
+                        console.log('Error in finding customWidget data',error);
+                    });
                 }
                 else{
                     // for other widgets to be populated here

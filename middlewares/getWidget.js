@@ -24,6 +24,27 @@ exports.widgets = function (req, res, next) {
     })
 };
 
+
+
+
+exports.widgetDetails = function (req, res, next) {
+    //Set object in req to send the query response to controller
+    req.showMetric = {};
+    /**
+     * Query to find the widgets list
+     * @params req.params.dashboardId channel id from request
+     * @params err - error response
+     * @params metrics - query response
+     * callback next which returns response to controller
+     */
+    widgetsList.find({_id: req.params.widgetId}, function (err, widgetInfo) {
+        console.log('widgetInfo', req.params.widgetId, 'err', err);
+        req.showMetric.widgetInfo = widgetInfo;
+        next();
+    })
+};
+
+
 exports.deleteWidgets = function (req, res, next) {
     console.log('widget id to be removed', req.params.widgetId);
     widgetsList.remove({_id: req.params.widgetId}, function (err, response) {

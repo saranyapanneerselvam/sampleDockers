@@ -192,6 +192,7 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
                 console.log('Error in getting widget id',error);
             });
         }
+        $rootScope.populateDashboardWidgets();
     };
 
     $scope.storeChannel = function(){
@@ -230,7 +231,6 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
             console.log(response.data);
             $scope.errorMessage=true;
             document.getElementById('basicWidgetBackButton2').disabled=false;
-            document.getElementById('basicWidgetNextButton').disabled=false;
             getCustomWidgetId = response.data.widgetsList.id._id;
             $rootScope.customWidgetId=response.data.widgetsList.id._id;
             $(".customApiLink").html('http://localhost:8080/api/v1/create/customdata/'+response.data.widgetsList.id._id);

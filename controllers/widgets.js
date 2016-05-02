@@ -16,6 +16,14 @@ module.exports = function (app) {
             res.status(500).send({error: ""});
     });
 
+    app.get('/api/v1/widget/:widgetId', widgetsList.widgetDetails, function (req, res) {
+        var widgetInfo = req.showMetric.widgetInfo;
+        if (widgetInfo)
+            res.json(widgetInfo);
+        else
+            res.status(500).send({error: ""});
+    });
+
     //To store the widgets
     app.post('/api/v1/widgets', widgetsList.saveWidgets, function (req, res) {
         var widgets = req.app.result;

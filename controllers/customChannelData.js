@@ -16,4 +16,18 @@ module.exports = function (app) {
         else
             res.status(500).send({error: ""});
     });
+
+
+    app.get('/api/v1/customWidgetData/:widgetId', customChannelData.customWidgetDataInfo, function (req, res) {
+        if (req.showMetric.error)
+            res.status(500).send({error: "error in getting customData"});
+        else {
+            var customWidgetData = req.showMetric.customWidgetData;
+            if (customWidgetData)
+                res.json(customWidgetData);
+            else
+                res.json(404);
+        }
+    });
+
 };

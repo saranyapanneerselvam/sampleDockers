@@ -19,8 +19,8 @@ var exports = module.exports = {};
 exports.storeChannel = function (req, res, next) {
 
     var channel = new channels();
-    channel.name = req.body.channelName;
-    channel.code = req.body.channelName;
+    channel.name = "CustomData";
+    channel.code = "CustomData";
     channel.created = new Date();
     channel.updated = new Date();
     channel.save(function (err, data) {

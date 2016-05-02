@@ -66,6 +66,7 @@ require('./controllers/googleAdwordsAuth')(app);
 require('./controllers/pdfExport')(app);
 require('./controllers/referenceWidgets')(app);
 require('./controllers/customIdentity')(app);
+require('./controllers/customChannelData')(app);
 
 router.use(function (req, res, next) {
     req.showMetric = {};

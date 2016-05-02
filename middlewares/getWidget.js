@@ -29,10 +29,14 @@ exports.deleteWidgets = function (req, res, next) {
     widgetsList.remove({_id: req.params.widgetId}, function (err, response) {
         if (err) {
             console.log('Error in deleting widget', err);
+            req.app.error = err;
         }
         else if (response) {
+            req.app.result = response;
             console.log('response',response);
+
         }
+        next();
     })
 };
 

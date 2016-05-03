@@ -104,28 +104,29 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 }
                 else{
                     // for other widgets to be populated here
-                }
-            }
-            $scope.widgetsCount = dashboardWidgetList.length;
-            var widgets = [];
-            for(var i=0;i<dashboardWidgetList.length;i++){
-                widgets.push(
-                    createWidgets.widgetDataFetchHandler(
-                        dashboardWidgetList[i],
-                        {
-                            'startDate': moment($scope.dashboardCalendar.start_date).format('YYYY-MM-DD'),
-                            'endDate': moment($scope.dashboardCalendar.end_date).format('YYYY-MM-DD')
+                    $scope.widgetsCount = dashboardWidgetList.length;
+                    var widgets = [];
+                    for(var i=0;i<dashboardWidgetList.length;i++){
+                        widgets.push(
+                            createWidgets.widgetDataFetchHandler(
+                                dashboardWidgetList[i],
+                                {
+                                    'startDate': moment($scope.dashboardCalendar.start_date).format('YYYY-MM-DD'),
+                                    'endDate': moment($scope.dashboardCalendar.end_date).format('YYYY-MM-DD')
+                                }
+                            )
+                        );
+                    }
+                    $q.all(widgets).then(function successCallback(widgets){
+                        for(i=0;i<widgets.length;i++){
+                            widgets[i] = createWidgets.formatDataPoints(widgets[i]);
                         }
-                    )
-                );
-            }
-            $q.all(widgets).then(function successCallback(widgets){
-                for(i=0;i<widgets.length;i++){
-                    widgets[i] = createWidgets.formatDataPoints(widgets[i]);
+                    },function errorCallback(error){
+                        console.log(error);
+                    });
                 }
-            },function errorCallback(error){
-                console.log(error);
-            });
+            }
+
 
         }, function errorCallback(error) {
             console.log('Error in finding widgets in the dashboard',error);

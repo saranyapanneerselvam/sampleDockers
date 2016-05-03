@@ -42,7 +42,7 @@ exports.saveCustomChannelData = function (req, res, next) {
         }
         else{
             isSendPost="";
-            req.app.result = {'status': 'Error', 'message':'Input Date format is incorrect'};
+            req.app.result = {'status': 'Error', 'message':'Input Date format is incorrect. Allowed Date Format is DD/MM/YYYY or MM/DD/YYYY'};
             next();
         }
 

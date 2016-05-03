@@ -475,6 +475,14 @@ function fitHeight(){
     };
 }
 
+function channelDiv(){
+    return{
+        restrict : 'E',
+        scope:{channel:'= '},
+        template : '<div class="col-lg-4"></div>'
+
+    }
+}
 /**
  *
  * Pass all functions into module
@@ -499,4 +507,5 @@ angular
     .directive('landingScrollspy', landingScrollspy)
     .directive('fitHeight', fitHeight)
     .directive('iboxToolsFullScreen', iboxToolsFullScreen)
-    .directive('slimScroll', slimScroll);
+    .directive('slimScroll', slimScroll)
+    .directive('channelDiv',channelDiv);

@@ -2,8 +2,9 @@ showMetricApp.controller('DashboardController',DashboardController)
 
 function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$stateParams,createWidgets,$q) {
 
+    //Sets up all the required parameters for the dashboard to function properly when it is initially loaded. This is called in the ng-init function of the dashboard template
     $scope.dashboardConfiguration = function () {
-        $scope.baremetricsCalendar = new Calendar({
+        $scope.dashboardCalendar = new Calendar({
             element: $('.daterange--double'),
             earliest_date: moment(new Date()).subtract(365,'days'),
             latest_date: new Date(),
@@ -17,39 +18,12 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             }
         });
 
-        /*
-         //Defining configuration parameters for dashboard calendar
-         $scope.date = {
-         startDate: moment().subtract(29, "days"),
-         endDate: moment()
-         };
-         $scope.opts = {
-         locale: {
-         applyClass: 'btn-green', applyLabel: "Apply",
-         fromLabel: "From", toLabel: "To", cancelLabel: 'Cancel', customRangeLabel: 'Custom Range',
-         daysOfWeek: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], firstDay: 1,
-         monthNames: [
-         'January', 'February', 'March', 'April', 'May', 'June', 'July',
-         'August', 'September', 'October', 'November', 'December']
-         },
-         ranges: {
-         'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-         'Last 30 Days': [moment().subtract(29, 'days'), moment()]},
-         opens: "center",
-         minDate: moment().subtract(365,"days"),
-         maxDate: moment()
-         };
-
-         //Watch for date changes to repopulate dashboard widgets
-         $scope.$watch('date', function(newDate) {$scope.populateDashboardWidgets();}, false);
-         */
-
         //Defining configuration parameters for dashboard layout
         $scope.dashboard = {widgets: []};
         $scope.dashboard.dashboardName = '';
         $scope.widgetsCount = 0;
 
-        //
+        //To fetch the name of the dashboard from database and display it when the dashboard is loaded
         $scope.fetchDashboardName = function () {
             console.log($state.params,$stateParams);
             $http({
@@ -64,6 +38,8 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             });
         };
         $scope.fetchDashboardName();
+
+        //Function to change the name of the dashboard to user entered value
         $scope.changeDashboardName = function () {
             console.log('This is working',$scope.dashboard.dashboardName);
             var jsonData = {dashboardId: $state.params.id, name: $scope.dashboard.dashboardName};
@@ -137,8 +113,8 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     createWidgets.widgetDataFetchHandler(
                         dashboardWidgetList[i],
                         {
-                            'startDate': moment($scope.baremetricsCalendar.start_date).format('YYYY-MM-DD'),
-                            'endDate': moment($scope.baremetricsCalendar.end_date).format('YYYY-MM-DD')
+                            'startDate': moment($scope.dashboardCalendar.start_date).format('YYYY-MM-DD'),
+                            'endDate': moment($scope.dashboardCalendar.end_date).format('YYYY-MM-DD')
                         }
                     )
                 );
@@ -156,22 +132,20 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         });
     };
 
+    //To catch a request for a new widget creation and create the dashboard in the frontend
     $rootScope.$on('populateBasicWidgetData', function(e,widgetId,dataDateRange){
-        console.log('date range',dataDateRange);
-
         var graphData, metricNameInGraph, metricDetails;
         var dataToBePopulated = [];
         var jsonData = {
             /*"startDate": moment(moment.utc($scope.date.startDate._d).valueOf()).format('YYYY-MM-DD'),
              "endDate": moment(moment.utc($scope.date.endDate._d).valueOf()).format('YYYY-MM-DD')*/
-            "startDate": moment($scope.baremetricsCalendar.start_date).format('YYYY-MM-DD'),
-            "endDate": moment($scope.baremetricsCalendar.end_date).format('YYYY-MM-DD')
+            "startDate": moment($scope.dashboardCalendar.start_date).format('YYYY-MM-DD'),
+            "endDate": moment($scope.dashboardCalendar.end_date).format('YYYY-MM-DD')
         };
-        console.log('Displaying widget Id',widgetId);
+        console.log('Displaying data fetch inputs',widgetId,jsonData);
         $scope.dashboard.widgets.push({
             sizeY: 3, sizeX: 3, id: widgetId, chart: {api: {}}, visibility: false
         });
-
         $http({
             method: 'POST',
             url: '/api/v1/widgets/data/'+widgetId,
@@ -203,6 +177,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         });
     });
 
+    //To add the graph data of a widget to the angular gridster layout widget
     $scope.addBasicWidget = function (graphData,metricDetails,widgetId) {
         if(graphData){
             var widgetIndex = $scope.dashboard.widgets.map(function(el) {
@@ -233,6 +208,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         }
     };
 
+    //To delete a widget from the dashboard
     $scope.deleteWidget = function(widget){
         console.log(widget);
         $http({
@@ -244,6 +220,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         });
     };
 
+    //To export the dashboard into PDF format
     $scope.printPDF = function () {
         $http({
             method: 'GET',
@@ -254,94 +231,116 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             console.log(error);
         });
 
-        /*
-         var url,title;
-         url = '/export/'+ $state.params.id+ '/'+ moment(moment.utc($scope.date.startDate._d).valueOf()).format('YYYY-MM-DD')+'/'+moment(moment.utc($scope.date.endDate._d).valueOf()).format('YYYY-MM-DD');
-         console.log(url);
-         title = $state.params.id;
-         function popupwindow(url, title, w, h) {
-         var left = (screen.width/2)-(w/2);
-         var top = (screen.height/2)-(h/2);
-         return window.open(url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width='+w+', height='+h+', top='+top+', left='+left);
-         }
-         popupwindow(url,title, 1000,500);
-         */
-
-        /*
-         var pdf = new jsPDF('p', 'pt', 'a3');
-
-         var specialElementHandlers = {
-         '#justLayout': function(element, renderer){
-         return true;
-         }
-         };
-
-         var options = {
-         pagesplit: true
-         };
-
-         for(i=0;i<$scope.dashboardWidgetList.length;i++){
-         console.log($scope.dashboardWidgetList[i]._id);
-         console.log(document.getElementById($scope.dashboardWidgetList[i]._id));
-         elementToBeCanvased = document.getElementById($scope.dashboardWidgetList[i]._id).getElementsByTagName('svg').outerHTML;
-         console.log(elementToBeCanvased);
-         canvg(document.getElementById('canvas'),elementToBeCanvased);
-         }
-         pdf.addHTML($("#dashboardLayout"), {pagesplit: true}, function() {
-         console.log("THING");
-         pdf.save('Test.pdf');
-         //$("#printingDiv").remove();
-         });
-         */
-
-        /*
-         pdf.fromHTML($('#dashboardLayout').html(), 15, 30, {
-         'width': 170,
-         //'margin': 1,
-         'elementHandlers': specialElementHandlers,
-         'pagesplit': true
-         });
-         pdf.fromHTML($('#gridsterItems').html(), 15, 30, {
-         'width': 170,
-         //'margin': 1,
-         'elementHandlers': specialElementHandlers,
-         'pagesplit': true
-         });
-         $timeout(function(){pdf.save('Test.pdf');},5000);
-         */
-
-        /*
-         var doc = new jsPDF('p', 'in', 'letter');
-         var source = $('#testLayout').first();
-         var specialElementHandlers = {
-         '#bypassme': function(element, renderer) {
-         return true;
-         }
-         };
-
-         doc.fromHTML(
-         source, // HTML string or DOM elem ref.
-         0.5, // x coord
-         0.5, // y coord
-         {
-         'width': 7.5, // max width of content on PDF
-         'elementHandlers': specialElementHandlers
-         });
-
-         doc.save('Test.pdf');
-         window.print();
-         */
-        /*
-         var doc = new jsPDF(    );
-         doc.text(20, 20, 'Hello world.');
-         console.log($('#dashboardLayout'));
-         console.log($('#testLayout'));
-         doc.addHTML('<p>testing out</p>');
-         doc.addHTML($('#dashboardLayout'));
-         doc.addHTML($('#testLayout'),function(){doc.save('Test.pdf');});
-         //doc.save('Test.pdf');
-         //doc.open(400);
-         */
     };
-
 }
+/*
+ //Defining configuration parameters for dashboard calendar
+ $scope.date = {
+ startDate: moment().subtract(29, "days"),
+ endDate: moment()
+ };
+ $scope.opts = {
+ locale: {
+ applyClass: 'btn-green', applyLabel: "Apply",
+ fromLabel: "From", toLabel: "To", cancelLabel: 'Cancel', customRangeLabel: 'Custom Range',
+ daysOfWeek: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], firstDay: 1,
+ monthNames: [
+ 'January', 'February', 'March', 'April', 'May', 'June', 'July',
+ 'August', 'September', 'October', 'November', 'December']
+ },
+ ranges: {
+ 'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+ 'Last 30 Days': [moment().subtract(29, 'days'), moment()]},
+ opens: "center",
+ minDate: moment().subtract(365,"days"),
+ maxDate: moment()
+ };
+
+ //Watch for date changes to repopulate dashboard widgets
+ $scope.$watch('date', function(newDate) {$scope.populateDashboardWidgets();}, false);
+ */
+/*
+ var url,title;
+ url = '/export/'+ $state.params.id+ '/'+ moment(moment.utc($scope.date.startDate._d).valueOf()).format('YYYY-MM-DD')+'/'+moment(moment.utc($scope.date.endDate._d).valueOf()).format('YYYY-MM-DD');
+ console.log(url);
+ title = $state.params.id;
+ function popupwindow(url, title, w, h) {
+ var left = (screen.width/2)-(w/2);
+ var top = (screen.height/2)-(h/2);
+ return window.open(url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width='+w+', height='+h+', top='+top+', left='+left);
+ }
+ popupwindow(url,title, 1000,500);
+ */
+/*
+ var pdf = new jsPDF('p', 'pt', 'a3');
+
+ var specialElementHandlers = {
+ '#justLayout': function(element, renderer){
+ return true;
+ }
+ };
+
+ var options = {
+ pagesplit: true
+ };
+
+ for(i=0;i<$scope.dashboardWidgetList.length;i++){
+ console.log($scope.dashboardWidgetList[i]._id);
+ console.log(document.getElementById($scope.dashboardWidgetList[i]._id));
+ elementToBeCanvased = document.getElementById($scope.dashboardWidgetList[i]._id).getElementsByTagName('svg').outerHTML;
+ console.log(elementToBeCanvased);
+ canvg(document.getElementById('canvas'),elementToBeCanvased);
+ }
+ pdf.addHTML($("#dashboardLayout"), {pagesplit: true}, function() {
+ console.log("THING");
+ pdf.save('Test.pdf');
+ //$("#printingDiv").remove();
+ });
+ */
+/*
+ pdf.fromHTML($('#dashboardLayout').html(), 15, 30, {
+ 'width': 170,
+ //'margin': 1,
+ 'elementHandlers': specialElementHandlers,
+ 'pagesplit': true
+ });
+ pdf.fromHTML($('#gridsterItems').html(), 15, 30, {
+ 'width': 170,
+ //'margin': 1,
+ 'elementHandlers': specialElementHandlers,
+ 'pagesplit': true
+ });
+ $timeout(function(){pdf.save('Test.pdf');},5000);
+ */
+/*
+ var doc = new jsPDF('p', 'in', 'letter');
+ var source = $('#testLayout').first();
+ var specialElementHandlers = {
+ '#bypassme': function(element, renderer) {
+ return true;
+ }
+ };
+
+ doc.fromHTML(
+ source, // HTML string or DOM elem ref.
+ 0.5, // x coord
+ 0.5, // y coord
+ {
+ 'width': 7.5, // max width of content on PDF
+ 'elementHandlers': specialElementHandlers
+ });
+
+ doc.save('Test.pdf');
+ window.print();
+ */
+/*
+ var doc = new jsPDF(    );
+ doc.text(20, 20, 'Hello world.');
+ console.log($('#dashboardLayout'));
+ console.log($('#testLayout'));
+ doc.addHTML('<p>testing out</p>');
+ doc.addHTML($('#dashboardLayout'));
+ doc.addHTML($('#testLayout'),function(){doc.save('Test.pdf');});
+ //doc.save('Test.pdf');
+ //doc.open(400);
+ */

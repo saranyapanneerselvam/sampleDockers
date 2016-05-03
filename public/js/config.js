@@ -108,11 +108,11 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
             }
         })
 
-        .state('app.reporting.dashboard.dashboardName', {
+        .state('app.reporting.dashboard.fusionWidget', {
             url: "",
             views: {
                 'lightbox@app.reporting.dashboard': {
-                    templateUrl: "dashboardName.ejs",
+                    templateUrl: "fusionWidget.ejs",
                     controller: 'LightBoxController'
                 }
             },
@@ -136,7 +136,6 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                 }
             }
         });
-
 }
 angular
     .module('inspinia')

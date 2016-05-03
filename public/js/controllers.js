@@ -2507,6 +2507,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                         formattedDataPoints.push({x: inputDate, y: widget.charts[i].chartData[j].total});
                     }
                     widget.charts[i].chartData = formattedDataPoints;
+                } else {
+                    console.log('In the else condition. Needs to be addressed as chart type is different');
                 }
             }
             return widget;

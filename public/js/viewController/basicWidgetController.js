@@ -162,11 +162,12 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
         else{
             // function for saving other widgets goes here
             var matchingMetric = [];
-            for(i=0;i<$scope.storedReferenceWidget.charts.length;i++) {
-                for(j=0;j<$scope.storedReferenceWidget.charts[i].metrics.length;j++) {
+            for(var i=0;i<$scope.storedReferenceWidget.charts.length;i++) {
+                matchingMetric = [];
+                for(var j=0;j<$scope.storedReferenceWidget.charts[i].metrics.length;j++) {
                     if($scope.storedReferenceWidget.charts[i].metrics[j].objectTypeId === this.objectOptionsModel.objectTypeId) {
                         matchingMetric.push($scope.storedReferenceWidget.charts[i].metrics[j]);
-                        matchingMetric[i].objectId = this.objectOptionsModel._id;
+                        matchingMetric[0].objectId = this.objectOptionsModel._id;
                     }
                 }
                 $scope.storedReferenceWidget.charts[i].metrics = matchingMetric;

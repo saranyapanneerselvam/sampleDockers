@@ -215,7 +215,7 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
     //$scope.listChannels();
     //$scope.storeMetric = function(){$scope.storedMetricId = this.MetricName._id;};
     //$scope.clearMetric = function(){$scope.storedMetricId = null;};
-
+    $scope.errorMessage=true;
     $scope.storeCustomData = function () {
         $(".selectCustomLinkHead").text("Step2.Select the Link");
 

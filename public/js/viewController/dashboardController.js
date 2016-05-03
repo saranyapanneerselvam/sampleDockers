@@ -124,14 +124,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             for(getWidgetInfo in dashboardWidgetList){
                 if(dashboardWidgetList[getWidgetInfo].widgetType=="custom"){
                     // for custom widgets to be populated here
-                    $http({
-                        method: 'GET',
-                        url: '/api/v1/customWidgetData/'+ dashboardWidgetList[getWidgetInfo]._id
-                    }).then(function successCallback(response) {
-                        //console.log(response);
-                    }, function errorCallback(error) {
-                        console.log('Error in finding customWidget data',error);
-                    });
+                   
                 }
                 else{
                     // for other widgets to be populated here

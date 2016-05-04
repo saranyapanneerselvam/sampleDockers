@@ -9,7 +9,7 @@ function CustomWidgetController($scope,$uibModal) {
         $uibModal.open({
             scope: $scope,backdrop: true,
             templateUrl: 'widget_settings.ejs',
-            controller: 'widgetSettingsController',
+            controller: 'WidgetSettingsController',
             resolve: {
                 widget: function() {
                     return widget;

@@ -78,8 +78,8 @@
                             </div>
                         </div>
                         <div class="box-content" ng-switch="widget.visibility" style="vertical-align: middle">
-                            <div ng-switch-default>
-                                <div class="sk-spinner sk-spinner-wave">
+                            <div ng-switch-default ng-hide="skSpinner">
+                                <div class="sk-spinner sk-spinner-wave" >
                                     <div class="sk-rect1"></div>
                                     <div class="sk-rect2"></div>
                                     <div class="sk-rect3"></div>
@@ -87,8 +87,15 @@
                                     <div class="sk-rect5"></div>
                                 </div>
                             </div>
+                            <div ng-hide="noDataFound">
+                                <h1 style="text-align: center;">No Data</h1>
+                            </div>
+
+                            <nvd3 options="options" data="data" class="with-3d-shadow with-transitions" ng-hide="hideCustomDataValues"></nvd3>
+
                             <nvd3 options="widget.chart.options" data="widget.chart.data" api="widget.chart.api" config="config" events="events" ng-switch-when="true">
                             </nvd3>
+
                         </div>
                     </div>
                 </li>

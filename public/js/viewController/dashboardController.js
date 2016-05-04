@@ -71,20 +71,28 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             }
         };
 
-        //subscribe widget on window resize event and sidebar resize event
-        new ResizeSensor(document.getElementById('dashboardLayout'), function() {$scope.$broadcast('resize');});
-        angular.element($window).on('resize', function (e) {$scope.$broadcast('resize');});
-        $scope.$on('resize',function(e){
-            for(var i=0;i<$scope.dashboard.widgets.length;i++){$timeout(resizeWidget(i), 100);}
-            function resizeWidget(i) {
-                return function() {if ($scope.dashboard.widgets[i].chart.api){$scope.dashboard.widgets[i].chart.api.update();}};
-            }
-        });
+
+
+
+
+
+        // //subscribe widget on window resize event and sidebar resize event
+        // new ResizeSensor(document.getElementById('dashboardLayout'), function() {$scope.$broadcast('resize');});
+        // angular.element($window).on('resize', function (e) {$scope.$broadcast('resize');});
+        // $scope.$on('resize',function(e){
+        //     for(var i=0;i<$scope.dashboard.widgets.length;i++){$timeout(resizeWidget(i), 100);}
+        //     function resizeWidget(i) {
+        //         return function() {if ($scope.dashboard.widgets[i].chart.api){$scope.dashboard.widgets[i].chart.api.update();}};
+        //     }
+        // });
 
         //make chart visible after grid have been created
         $scope.config = {visible: false};
         $timeout(function () {$scope.config.visible = true;}, 100);
         $rootScope.populateDashboardWidgets();
+        $scope.noDataFound=true;
+        $scope.skSpinner=false;
+        $scope.hideCustomDataValues=true;
     };
 
     $rootScope.populateDashboardWidgets = function(){
@@ -96,11 +104,35 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             var dashboardWidgetList = response.data.widgetsList;
             console.log("populate Dashboard Widgets");
             console.log(response.data.widgetsList);
-
+            var countWidget = 0;
+            var getCustomDataWidgetArray = new Array();
             for(getWidgetInfo in dashboardWidgetList){
+
                 if(dashboardWidgetList[getWidgetInfo].widgetType=="custom"){
+                    countWidget++;
                     // for custom widgets to be populated here
-                   
+                    debugger;
+                    var dataWidgetObj = {
+                        col: countWidget,
+                        name:  "Custom Data "+countWidget
+                    };
+
+                    getCustomDataWidgetArray.push(dataWidgetObj);
+
+                    $scope.dashboards = {
+                        '0': {
+                            id: '1',
+                            name: 'Dashboard Custom Widget',
+                            widgets: getCustomDataWidgetArray
+                        }
+                    };
+
+                    $scope.dashboard = $scope.dashboards[0];
+
+                    $scope.skSpinner=true;
+                    $scope.noDataFound=false;
+                    $scope.hideCustomDataValues=true;
+ 
                 }
                 else{
                     // for other widgets to be populated here
@@ -126,6 +158,8 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     });
                 }
             }
+
+
 
 
         }, function errorCallback(error) {

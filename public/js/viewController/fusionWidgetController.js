@@ -21,7 +21,7 @@ function FusionWidgetController($scope, $http, $q, $window, $state ){
             $scope.listOfReferenceWidget();
         }
         else if($scope.currentView === 'step_two'){
-            document.getElementById('basicWidgetBackButton1').disabled=false;
+            document.getElementById('basicWidgetBackButton1').disabled=true;
             $scope.getProfilesForDropdown();
         }
     };
@@ -113,6 +113,10 @@ function FusionWidgetController($scope, $http, $q, $window, $state ){
                     break;
                 case 'FacebookAds':
                     url = '/api/auth/facebookads';
+                    title = $scope.uniquechannelNames[index];
+                    break;
+                case 'Twitter':
+                    url = '/api/auth/twitter';
                     title = $scope.uniquechannelNames[index];
                     break;
             }

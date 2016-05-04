@@ -224,19 +224,22 @@ exports.getChannelData = function (req, res, next) {
             callback(null, results);
         });
         function getEachChannelData(callback) {
-            if (initialResults.widget.widgetType == 'fusion')
-                async.concatSeries(initialResults.get_channel, dataForEachChannel, callback)
+            if (initialResults.widget.widgetType == 'fusion'){
+                console.log('Inside IF statement of geteachchanneldata');
+                async.concatSeries(initialResults.get_channel, dataForEachChannel, callback);
+            }
             else {
+                console.log('Inside ELSE statement of geteachchanneldata');
                 var newChannelArray = [];
                 newChannelArray.push(initialResults.get_channel[0]);
-                async.concatSeries(newChannelArray, dataForEachChannel, callback)
+                async.concatSeries(newChannelArray, dataForEachChannel, callback);
 
             }
 
         }
 
         function dataForEachChannel(results, callback) {
-
+            console.log('Inside DATAFOREACHCHANNEL');
             //To check the channel
             switch (results.code) {
                 case configAuth.channels.googleAnalytics:
@@ -261,7 +264,7 @@ exports.getChannelData = function (req, res, next) {
         graph.setAccessToken(initialResults.get_profile[0].accessToken);
         async.auto({
             get_start_end_dates: getDates,
-            get_object_list: ['get_start_end_dates', passQueryToGraphApi],
+            get_object_list: ['get_start_end_dates', passQueryToGraphApi]
 
         }, function (err, results) {
             // console.log('err = ', err);
@@ -286,10 +289,12 @@ exports.getChannelData = function (req, res, next) {
 
         //To get the start date ,end date required for query
         function getDates(callback) {
+            console.log('getdates')
             work(initialResults.data, initialResults.metric, callback);
             function work(data, metric, done) {
                 async.times(Math.min(data.length, metric.length), function (j, next) {
                     var d = new Date();
+                    var queryObject = {};
 
                     //check already there is one year data in db
                     if (data[j].data != null) {
@@ -301,17 +306,22 @@ exports.getChannelData = function (req, res, next) {
 
                             //for(var i=0;i<)
                             var query = initialResults.object[0].channelObjectId + "/insights/" + metric[j].objectTypes[0].meta.fbMetricName + "?since=" + updated + "&until=" + now;
-                            next(null, query);
+                            queryObject = {query:query,metricId:metric[j]._id};
+                            next(null, queryObject);
                         }
-                        else
-                            next(null, 'DataFromDb');
+                        else{
+                            queryObject = {query:'DataFromDb'};
+                            next(null,queryObject);
+                        }
+
                     }
 
                     //To four queries to get one year data
                     else {
                         var d = new Date();
                         async.map([93, 93, 93, 86], setStartEndDate, function (err, query) {
-                            next(null, query)
+
+                            next(null, query);
                         });
 
                     }
@@ -324,7 +334,8 @@ exports.getChannelData = function (req, res, next) {
                         d.setDate(d.getDate() - n);
                         var startDate = formatDate(d);
                         var query = initialResults.object[0].channelObjectId + "/insights/" + metric[j].objectTypes[0].meta.fbMetricName + "?since=" + startDate + "&until=" + endDate;
-                        callback('', query);
+                        queryObject = {query:query,metricId:metric[j]._id};
+                        callback('', queryObject);
                     }
                 }, done);
 
@@ -336,13 +347,14 @@ exports.getChannelData = function (req, res, next) {
 
         //To pass the query to graph api
         function passQueryToGraphApi(results, callback) {
-
+            console.log('results.get_start_end_dates',results.get_start_end_dates)
             async.concatSeries(results.get_start_end_dates, getDataForEachQuery, callback);
         }
 
         //To get facebook data
         function getDataForEachQuery(query, callback) {
-            if (typeof query == 'string')
+            console.log('geteachdata query',query)
+            if (typeof query.query == 'string')
                 async.map([query], getDataForAllQuery, callback);
             else
                 async.map(query, getDataForAllQuery, callback);
@@ -350,12 +362,14 @@ exports.getChannelData = function (req, res, next) {
         }
 
         function getDataForAllQuery(query, callback) {
-            if (query == 'DataFromDb')
+            if (query.query == 'DataFromDb')
                 callback(null, 'DataFromDb');
             else {
+                var queryResponse = {};
                 console.log('Query for FB',query);
-                graph.get(query, function (err, res) {
-                    callback('', res);
+                graph.get(query.query, function (err, res) {
+                    queryResponse = {res:res,metricId:query.metricId}
+                    callback('', queryResponse);
                 })
             }
 
@@ -489,7 +503,7 @@ exports.getChannelData = function (req, res, next) {
 
                 console.log('works', widget)
                 async.times(Math.min(widget.length, dataFromDb.length), function (j, next) {
-                    //console.log('dataFromRemote[j]', j, dataFromRemote)
+                    console.log('dataFromRemote[j]', j, dataFromRemote)
                    // console.log('data from server', dataFromRemote[j])
                     //Array to hold the final result
                     var finalData = [];
@@ -498,15 +512,20 @@ exports.getChannelData = function (req, res, next) {
                         if (dataFromRemote[key] === 'DataFromDb')
                             finalData.push();
                         else {
-                            for (var index in dataFromRemote[key].data[0].values) {
+                            for (var index in dataFromRemote[key].res.data[0].values) {
                                 var value = {};
                                 value = {
-                                    total: dataFromRemote[key].data[0].values[index].value,
-                                    date: dataFromRemote[key].data[0].values[index].end_time.substr(0, 10)
+                                    total: dataFromRemote[key].res.data[0].values[index].value,
+                                    date: dataFromRemote[key].res.data[0].values[index].end_time.substr(0, 10)
                                 };
-                                console.log('metricc',metric[j].objectTypes[0].meta.fbMetricName, dataFromRemote[key].data[0].name);
-                                if (metric[j].objectTypes[0].meta.fbMetricName == dataFromRemote[key].data[0].name)
+
+//                                console.log('metricc',metric[j].objectTypes[0].meta.fbMetricName, dataFromRemote.res[key].data[0].name,dataFromRemote[key]);
+                                //if (metric[j].objectTypes[0].meta.fbMetricName == dataFromRemote[key].data[0].name)
+                                if (metric[j]._id == dataFromRemote[key].metricId){
+                                    console.log('remote metric check',metric[j]._id,dataFromRemote[key].metricId)
                                     finalData.push(value);
+                                }
+
                             }
 
                         }
@@ -516,8 +535,8 @@ exports.getChannelData = function (req, res, next) {
                     if (dataFromRemote[j] != 'DataFromDb') {
                         if (dataFromDb[j].data !=null) {
 
-                            console.log('foreach',dataFromDb[j].metricId,metric[j].objectTypes[0].meta.fbMetricName, dataFromRemote[j].data[0].name)
-                            if (metric[j].objectTypes[0].meta.fbAdsMetricName == dataFromRemote[j].metricId){
+
+                            if (metric[j]._id == dataFromRemote[j].metricId){
 
                                 //merge the old data with new one and update it in db
                                 for (var key = 0; key < dataFromDb[j].data.data.length; key++) {
@@ -532,19 +551,20 @@ exports.getChannelData = function (req, res, next) {
                       //  console.log('finalDatafinalData', metricId)
                         var now = new Date();
 
-                        for (var metricIndex in dataFromDb) {
+                       /* for (var metricIndex in dataFromDb) {
                         //    console.log('ifremote',metric[metricIndex]._id, dataFromRemote[j].data[0].name, dataFromDb[metricIndex].metricId)
                             // console.log('dbmetric',widget[metricIndex].metrics[0].metricId,'remotemetric',dataFromRemote[j].metricId,'index',metricIndex)
-                            if (metric[metricIndex].objectTypes[0].meta.fbMetricName == dataFromRemote[j].data[0].name) {
+                            if(metric[j]._id == dataFromRemote[j].metricId ){
 
                                 var metricId = metric[j]._id;
+                                console.log('metric id',metricId,)
                             }
 
-                        }
+                        }*/
                         //Updating the old data with new one
                         Data.update({
                             'objectId': widget[j].metrics[0].objectId,
-                            'metricId': metricId
+                            'metricId': metric[j]._id
                         }, {
                             $setOnInsert: {created: now},
                             $set: {data: finalData, updated: now}
@@ -577,6 +597,7 @@ exports.getChannelData = function (req, res, next) {
 
 
                         for (var data in dataFromRemote[j].data) {
+                            if (metric[j]._id == dataFromRemote[j].metricId)
                             finalData.push(dataFromRemote[j].data[data]);
 
                             /*if (metric[j].objectTypes[0].meta.fbAdsMetricName == dataFromRemote[j].metricId)
@@ -584,14 +605,7 @@ exports.getChannelData = function (req, res, next) {
                             /* if (dataFromRemote[j].metricId == dataFromDb[j].metricId)
                              finalData.push(dataFromRemote[j].data[data]);*/
                         }
-                        metric.forEach(function(metric){
-                            console.log('foreach',metric,metric.objectTypes[0].meta.fbAdsMetricName, dataFromRemote[j].metricId)
-                            if (metric.objectTypes[0].meta.fbAdsMetricName == dataFromRemote[j].metricId){
-                                metricId = metric._id;
-                                console.log('name metric',metricId,metric.objectTypes[0].meta.fbAdsMetricName,dataFromRemote[j].metricId)
-                            }
 
-                        })
                     }
                     /* else {
                      for (data in dataFromRemote[j].data)
@@ -609,20 +623,12 @@ exports.getChannelData = function (req, res, next) {
 
                         console.log('fbads data', finalData)
                         var now = new Date();
-                        for (var metricIndex in dataFromDb) {
-                            console.log('ifremote', dataFromRemote[j], dataFromDb[metricIndex].metricId)
-                            // console.log('dbmetric',widget[metricIndex].metrics[0].metricId,'remotemetric',dataFromRemote[j].metricId,'index',metricIndex)
-                            if (metric[metricIndex].objectTypes[0].meta.fbMetricName == dataFromRemote[j].data[0].name) {
 
-                                var metricId = metric[j]._id;
-                            }
-
-                        }
 
                         //Updating the old data with new one
                         Data.update({
                             'objectId': widget[j].metrics[0].objectId,
-                            'metricId': metricId
+                            'metricId': dataFromRemote[j].metricId
                         }, {
                             $setOnInsert: {created: now}, $set: {data: finalData, updated: now}
                         }, {upsert: true}, function (err) {
@@ -1042,7 +1048,7 @@ exports.getChannelData = function (req, res, next) {
                         FB.api(query, function (res) {
                             console.log('adsdataquery', res)
                             var wholeData = [];
-                            var storeMetricName = allObjects.call_fb_ads_data[times].widget.objectTypes[0].meta.fbAdsMetricName;
+                            var storeMetricName = allObjects.call_fb_ads_data[times].widget._id;
                             //controlled pagination Data
 
                             if (res.paging && res.paging.next) {

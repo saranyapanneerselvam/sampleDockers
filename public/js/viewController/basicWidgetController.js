@@ -28,6 +28,7 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
                 $(".showReferenceWidgets" ).html('');
             }
             else{
+                $scope.clearReferenceWidget();
                 $scope.getReferenceWidgetsForChosenChannel();
                 $scope.getProfilesForDropdown();
                 $(".showReferenceWidgets" ).show();
@@ -193,7 +194,7 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
                 console.log('Error in getting widget id',error);
             });
         }
-        $rootScope.populateDashboardWidgets();
+        //$rootScope.populateDashboardWidgets();
     };
 
     $scope.storeChannel = function(){
@@ -203,9 +204,8 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
     };
 
     $scope.storeReferenceWidget = function(){$scope.storedReferenceWidget = this.referenceWidgets;};
-    $scope.clearReferenceWidget = function(item){
-        var index = $scope.referenceWidgetsList.indexOf(item) ;
-        $scope.referenceWidgetsList.splice(index, 1);
+    $scope.clearReferenceWidget = function(){
+        $scope.referenceWidgetsList= [];
     };
     $scope.objectForWidgetChosen = function() {
         if(this.objectOptionsModel != null)

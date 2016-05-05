@@ -172,7 +172,7 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
                     }
                 }
                 $scope.storedReferenceWidget.charts[i].metrics = matchingMetric;
-                console.log('Displaying metrics',$scope.storedReferenceWidget.charts[i].metrics);
+                //console.log('Displaying metrics',$scope.storedReferenceWidget.charts[i].metrics);
             }
             var jsonData = {
                 "dashboardId": $state.params.id,
@@ -186,15 +186,16 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
             };
             console.log('json data',jsonData);
             $http({
-                method: 'POST', url: '/api/v1/widgets', data: jsonData
+                method: 'POST',
+                url: '/api/v1/widgets',
+                data: jsonData
             }).then(function successCallback(response){
                 console.log('Response after creating widget', response);
-                $rootScope.$emit('populateBasicWidgetData',response.data.widgetsList.id._id);
+                $rootScope.$broadcast('populateWidget',response.data.widgetsList.id._id);
             }, function errorCallback (error){
                 console.log('Error in getting widget id',error);
             });
         }
-        //$rootScope.populateDashboardWidgets();
     };
 
     $scope.storeChannel = function(){

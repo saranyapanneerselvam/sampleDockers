@@ -71,20 +71,15 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             }
         };
 
-
-
-
-
-
-        // //subscribe widget on window resize event and sidebar resize event
-        // new ResizeSensor(document.getElementById('dashboardLayout'), function() {$scope.$broadcast('resize');});
-        // angular.element($window).on('resize', function (e) {$scope.$broadcast('resize');});
-        // $scope.$on('resize',function(e){
-        //     for(var i=0;i<$scope.dashboard.widgets.length;i++){$timeout(resizeWidget(i), 100);}
-        //     function resizeWidget(i) {
-        //         return function() {if ($scope.dashboard.widgets[i].chart.api){$scope.dashboard.widgets[i].chart.api.update();}};
-        //     }
-        // });
+        //subscribe widget on window resize event and sidebar resize event
+        new ResizeSensor(document.getElementById('dashboardLayout'), function() {$scope.$broadcast('resize');});
+        angular.element($window).on('resize', function (e) {$scope.$broadcast('resize');});
+        $scope.$on('resize',function(e){
+            for(var i=0;i<$scope.dashboard.widgets.length;i++){$timeout(resizeWidget(i), 100);}
+            function resizeWidget(i) {
+                return function() {if ($scope.dashboard.widgets[i].chart.api){$scope.dashboard.widgets[i].chart.api.update();}};
+            }
+        });
 
         //make chart visible after grid have been created
         $scope.config = {visible: false};
@@ -106,6 +101,8 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             console.log(response.data.widgetsList);
             var countWidget = 0;
             var getCustomDataWidgetArray = new Array();
+            $scope.widgetsCount = dashboardWidgetList.length;
+            var widgets = [];
             for(getWidgetInfo in dashboardWidgetList){
 
                 if(dashboardWidgetList[getWidgetInfo].widgetType=="custom"){
@@ -132,48 +129,38 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     $scope.skSpinner=true;
                     $scope.noDataFound=false;
                     $scope.hideCustomDataValues=true;
- 
+
                 }
                 else{
                     // for other widgets to be populated here
-                    $scope.widgetsCount = dashboardWidgetList.length;
-                    var widgets = [];
-                    for(var i=0;i<dashboardWidgetList.length;i++){
-                        widgets.push(
-                            createWidgets.widgetDataFetchHandler(
-                                dashboardWidgetList[i],
-                                {
-                                    'startDate': moment($scope.dashboardCalendar.start_date).format('YYYY-MM-DD'),
-                                    'endDate': moment($scope.dashboardCalendar.end_date).format('YYYY-MM-DD')
-                                }
-                            )
-                        );
-                    }
-                    $q.all(widgets).then(function successCallback(widgets){
-                        for(i=0;i<widgets.length;i++){
-                            widgets[i] = createWidgets.formatDataPoints(widgets[i]);
-                        }
-                    },function errorCallback(error){
-                        console.log(error);
-                    });
+                    widgets.push(
+                        createWidgets.widgetDataFetchHandler(
+                            dashboardWidgetList[getWidgetInfo],
+                            {
+                                'startDate': moment($scope.dashboardCalendar.start_date).format('YYYY-MM-DD'),
+                                'endDate': moment($scope.dashboardCalendar.end_date).format('YYYY-MM-DD')
+                            }
+                        )
+                    );
                 }
             }
-
-
-
-
+            $q.all(widgets).then(function successCallback(widgets){
+                for(i=0;i<widgets.length;i++){
+                    console.log('Widget after formatting',widgets[i]);
+                }
+            },function errorCallback(error){
+                console.log(error);
+            });
         }, function errorCallback(error) {
             console.log('Error in finding widgets in the dashboard',error);
         });
     };
 
     //To catch a request for a new widget creation and create the dashboard in the frontend
-    $rootScope.$on('populateBasicWidgetData', function(e,widgetId,dataDateRange){
-        var graphData, metricNameInGraph, metricDetails;
+    $scope.$on('populateWidget', function(e,widgetId,dataDateRange){
+        var graphData, metricDetails;
         var dataToBePopulated = [];
         var jsonData = {
-            /*"startDate": moment(moment.utc($scope.date.startDate._d).valueOf()).format('YYYY-MM-DD'),
-             "endDate": moment(moment.utc($scope.date.endDate._d).valueOf()).format('YYYY-MM-DD')*/
             "startDate": moment($scope.dashboardCalendar.start_date).format('YYYY-MM-DD'),
             "endDate": moment($scope.dashboardCalendar.end_date).format('YYYY-MM-DD')
         };
@@ -267,115 +254,5 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         });
 
     };
+
 }
-/*
- //Defining configuration parameters for dashboard calendar
- $scope.date = {
- startDate: moment().subtract(29, "days"),
- endDate: moment()
- };
- $scope.opts = {
- locale: {
- applyClass: 'btn-green', applyLabel: "Apply",
- fromLabel: "From", toLabel: "To", cancelLabel: 'Cancel', customRangeLabel: 'Custom Range',
- daysOfWeek: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], firstDay: 1,
- monthNames: [
- 'January', 'February', 'March', 'April', 'May', 'June', 'July',
- 'August', 'September', 'October', 'November', 'December']
- },
- ranges: {
- 'Last 7 Days': [moment().subtract(6, 'days'), moment()],
- 'Last 30 Days': [moment().subtract(29, 'days'), moment()]},
- opens: "center",
- minDate: moment().subtract(365,"days"),
- maxDate: moment()
- };
-
- //Watch for date changes to repopulate dashboard widgets
- $scope.$watch('date', function(newDate) {$scope.populateDashboardWidgets();}, false);
- */
-/*
- var url,title;
- url = '/export/'+ $state.params.id+ '/'+ moment(moment.utc($scope.date.startDate._d).valueOf()).format('YYYY-MM-DD')+'/'+moment(moment.utc($scope.date.endDate._d).valueOf()).format('YYYY-MM-DD');
- console.log(url);
- title = $state.params.id;
- function popupwindow(url, title, w, h) {
- var left = (screen.width/2)-(w/2);
- var top = (screen.height/2)-(h/2);
- return window.open(url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width='+w+', height='+h+', top='+top+', left='+left);
- }
- popupwindow(url,title, 1000,500);
- */
-/*
- var pdf = new jsPDF('p', 'pt', 'a3');
-
- var specialElementHandlers = {
- '#justLayout': function(element, renderer){
- return true;
- }
- };
-
- var options = {
- pagesplit: true
- };
-
- for(i=0;i<$scope.dashboardWidgetList.length;i++){
- console.log($scope.dashboardWidgetList[i]._id);
- console.log(document.getElementById($scope.dashboardWidgetList[i]._id));
- elementToBeCanvased = document.getElementById($scope.dashboardWidgetList[i]._id).getElementsByTagName('svg').outerHTML;
- console.log(elementToBeCanvased);
- canvg(document.getElementById('canvas'),elementToBeCanvased);
- }
- pdf.addHTML($("#dashboardLayout"), {pagesplit: true}, function() {
- console.log("THING");
- pdf.save('Test.pdf');
- //$("#printingDiv").remove();
- });
- */
-/*
- pdf.fromHTML($('#dashboardLayout').html(), 15, 30, {
- 'width': 170,
- //'margin': 1,
- 'elementHandlers': specialElementHandlers,
- 'pagesplit': true
- });
- pdf.fromHTML($('#gridsterItems').html(), 15, 30, {
- 'width': 170,
- //'margin': 1,
- 'elementHandlers': specialElementHandlers,
- 'pagesplit': true
- });
- $timeout(function(){pdf.save('Test.pdf');},5000);
- */
-/*
- var doc = new jsPDF('p', 'in', 'letter');
- var source = $('#testLayout').first();
- var specialElementHandlers = {
- '#bypassme': function(element, renderer) {
- return true;
- }
- };
-
- doc.fromHTML(
- source, // HTML string or DOM elem ref.
- 0.5, // x coord
- 0.5, // y coord
- {
- 'width': 7.5, // max width of content on PDF
- 'elementHandlers': specialElementHandlers
- });
-
- doc.save('Test.pdf');
- window.print();
- */
-/*
- var doc = new jsPDF(    );
- doc.text(20, 20, 'Hello world.');
- console.log($('#dashboardLayout'));
- console.log($('#testLayout'));
- doc.addHTML('<p>testing out</p>');
- doc.addHTML($('#dashboardLayout'));
- doc.addHTML($('#testLayout'),function(){doc.save('Test.pdf');});
- //doc.save('Test.pdf');
- //doc.open(400);
- */

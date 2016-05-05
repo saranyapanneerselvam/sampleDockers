@@ -1,6 +1,6 @@
 showMetricApp.controller('FusionWidgetController', FusionWidgetController)
 
-function FusionWidgetController($scope, $http, $q, $window, $state ){
+function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope){
     $scope.currentView = 'step_one';
     $scope.objectList = [];
     $scope.metricList = {};
@@ -251,7 +251,6 @@ function FusionWidgetController($scope, $http, $q, $window, $state ){
                             matchingMetric.push($scope.storedReferenceCharts[i].metrics[k]);
                             matchingMetric[0].objectId = $scope.storedUserChosenValues[j].object._id;
                         }
-
                     }
 
                 }
@@ -271,14 +270,16 @@ function FusionWidgetController($scope, $http, $q, $window, $state ){
          "maxSize": $scope.storedReferenceWidget.maxSize
          };
          console.log('json data',jsonData);
-        /* $http({
-         method: 'POST', url: '/api/v1/widgets', data: jsonData
+         $http({
+             method: 'POST',
+             url: '/api/v1/widgets',
+             data: jsonData
          }).then(function successCallback(response){
-         console.log('Response after creating widget', response);
-         $rootScope.$emit('populateBasicWidgetData',response.data.widgetsList.id._id);
+             console.log('Response after creating widget', response);
+             $rootScope.$broadcast('populateWidget',response.data.widgetsList.id._id);
          }, function errorCallback (error){
-         console.log('Error in getting widget id',error);
-         });*/
+             console.log('Error in getting widget id',error);
+         });
     };
 }
 

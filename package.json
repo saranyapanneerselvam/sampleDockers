@@ -59,7 +59,8 @@
     "gulp-minify-css": "*",
     "gulp-newer": "*",
     "gulp-sass": "*",
-    "gulp-uglify": "*"
+    "gulp-uglify": "*",
+    "nodemailer": "^2.3.2"
   },
   "devDependencies": {
     "adwords-auth": "0.0.10",

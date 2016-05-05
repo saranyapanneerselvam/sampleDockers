@@ -1,92 +1,270 @@
 <!DOCTYPE html>
-<html lang="en" class="no-js">
+<html lang="en">
 <head>
-    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-    <meta content="utf-8" http-equiv="encoding">
+    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Showmetric</title>
-    <!--<meta name="description" content="A perspective slideshow based on Franklin Ta's CSS matrix3d transforms" />-->
-    <!--<meta name="keywords" content="perspective, mockup, slideshow, transform, 3d, matrix, css" />-->
-    <meta name="author" content="Codrops" />
-    <link rel="shortcut icon" href="../favicon.ico">
-    <link rel="stylesheet" type="text/css" href="css/normalize.css" />
-    <!--<link rel="stylesheet" type="text/css" href="fonts/font-awesome-4.2.0/css/font-awesome.min.css" />-->
-    <link rel="stylesheet" type="text/css" href="css/demo.css" />
-    <link rel="stylesheet" type="text/css" href="css/animate1.css" />
-    <link rel="stylesheet" type="text/css" href="css/mockup4.css" />
-    <script src="js/modernizr.custom.js"></script>
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!-- Add Your favicon here -->
+    <!--<link rel="icon" href="img/favicon.ico">-->
+
+    <title>Datapoolt - Catapult your marketing strategy with data!</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+    <link href="css/style2.css" rel="stylesheet">
+    <!-- Animation CSS -->
+    <link href="css/animate.css" rel="stylesheet">
+
+    <link href="font-awesome/css/font-awesome.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+	
+    <!-- Custom styles for this template -->
+	
 </head>
-<body class="demo-4">
-<div class="container">
-    <!-- Top Navigation -->
-    <div id="wrap" class="wrap">
-        <div class="mockup">
-            <img class="mockup__img" src="image/mockup4.jpg" />
+<body id="page-top">
 
-            <div class="screen">
-                <ul id="slideshow-2" class="slideshow">
-                    <li class="slideshow__item current"> <img src="image/large/1.jpg"/></li>
-                    <li class="slideshow__item"><img src="image/large/2.jpg"/></li>
-                    <li class="slideshow__item"><img src="image/large/3.jpg"/></li>
-                    <li class="slideshow__item"><img src="image/large/4.jpg"/></li>
-                </ul>
+<div class="navbar-wrapper">
+        <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="container">
+                <div class="navbar-header page-scroll">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="/"><img src="image/logo.png"></a>
+                </div>
+                <div id="navbar" class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li><a class="page-scroll" href="#page-top">Home</a></li>
+                        <li><a class="page-scroll" href="#features">Features</a></li>
+			            <li><a class="page-scroll" href="#invite">Get Invite!</a></li>
+                        <li><a href="/api/v1/login">Login</a></li>
+                    </ul>
+                </div>
             </div>
+        </nav>
+</div>
+<div id="inSlider" class="carousel carousel-fade" data-ride="carousel">
+    <ol class="carousel-indicators">
+        <li data-target="#inSlider" data-slide-to="0" class="active"></li>
+        <li data-target="#inSlider" data-slide-to="1"></li>
+    </ol>
+    <div class="carousel-inner" role="listbox">
+        <div class="item active">
+            <div class="container">
+                <div class="carousel-caption">
+                    <h1>Marketing Intelligence<br/>
+                        made simple <br/></h1>
+                    <p>Digital marketing management platform for all stages of marketing <br/>from listening, publishing, performance monitoring,<br/> insights and spend optimization.</p>
+                    <p>
+                        <a class="btn btn-lg btn-primary" href="/api/v1/signup">Sign Up</a>
+                    </p>
+                </div>
+                <!--<div class="carousel-image wow zoomIn">-->
+                    <!--<//img src="image/gallery/1.jpg" alt=""/>-->
+                <!--</div>-->
+            </div>
+            <!-- Set background for slide in css -->
+            <div class="header-back one"><div class="overlay"></div></div>
 
-            <header class="codrops-header">
-                <a href="/api/v1/login" class="myButton">Sign In</a>
-                <a href="/api/v1/signup" class="myButton1">Sign Up</a>
-                <h3>ShowMetric<!--Slideshow <i>An animated perspective mockup with 3D transforms computed with <a href="http://franklinta.com/2014/09/08/computing-css-matrix3d-transforms/">Franklin Ta's helper script</a></i>-->
-                </h3>
+        </div>
+        <div class="item">
+            <div class="container">
+                <div class="carousel-caption blank">
+                    <h1>Informed decisions.<br/> Exceptional execution.<br/> Intelligent spending.<br/> Digital marketer’s <br/>ultimate companion.</h1>
+                    <p><a class="btn btn-lg btn-primary" href="/api/v1/signup" role="button">Sign Up</a></p>
+                </div>
+            </div>
+            <!-- Set background for slide in css -->
+            <div class="header-back two"><div class="overlay"></div></div>
+        </div>
+    </div>
+    <a class="left carousel-control" href="#inSlider" role="button" data-slide="prev">
+        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+        <span class="sr-only">Previous</span>
+    </a>
+    <a class="right carousel-control" href="#inSlider" role="button" data-slide="next">
+        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+        <span class="sr-only">Next</span>
+    </a>
+<div height="200">
+</div><br/> <br/> <br/>
 
-            </header>
+<section id="features" class="container services">
+    <div class="row">
+	<div class="col-lg-12 text-center">
+            <div class="navy-line"></div>
+            <h1>Features</h1>
+        </div>
+        <div class="col-sm-3">
+            <h2>Reporting Analysis</h2>
+            <p style="text-align:justify;">Execution is a very small part of Digital Marketing. The real trick lies in measuring the effectiveness of your digital marketing actions and making informed decisions.ShowMetric provides a single platform to monitor all your digital marketing KPIs and gather actionable insights on a near real time basis.
+</p>
+            
+        </div>
+        <div class="col-sm-3">
+            <h2>Listening and Publishing</h2>
+            <p style="text-align:justify;">Find out what your audience are saying about your brand across all channels on a real time basis. Engage with your brand’s influencers and respond to competitor activities across all channels from a single platform.
+</p>
+            
+        </div>
+        <div class="col-sm-3">
+            <h2>Marketing automation</h2>
+            <p style="text-align:justify;">Leverage the ability to schedule and publish your messages across all your social channels. Automate your email campaigns and follow-up campaign mails by setting up automated rules
+</p>
+            
+        </div>
+        <div class="col-sm-3">
+            <h2>Ad Spend Optimization</h2>
+            <p style="text-align:justify;">Reap the maximum out of your ads budget by extracting the best performance for your goals. Automate the optimization of your ad campaign spends across all channels using automated pre-set rules
+</p>
+            
+        </div>
+    </div>
+</section>
+
+<section  id="beta1" class="container features">
+    <div class="row">
+        <div class="col-lg-12 text-center">
+            <div class="navy-line"></div>
+            <h1>Features of<br/> <span class="navy"> Beta 1.0</span> </h1>
+            <p>To get started with, these are the features that will be available immediately for free to our initial beta users </p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3 text-center wow fadeInLeft">
+            <div>
+                <i class="fa fa-mobile features-icon"></i>
+                <h2>Get all your data in one place</h2>
+                <p>Get rid of the need for multiple browser tabs open. With our reporting dashboards, all your digital marketing data will be available for you in one place!</p>
+            </div>
+            <div class="m-t-lg">
+                <i class="fa fa-bar-chart features-icon"></i>
+                <h2>Cross channel analysis</h2>
+                <p>Want to ensure you don’t miss any opportunities across the social channels? Our fusion insights help you to compare cross channel metrics and spot trends and correlations.</p>
+            </div>
+        </div>
+        <div class="col-md-6 text-center  wow zoomIn">
+            <img src="image/perspective.png" alt="dashboard" class="img-responsive">
+        </div>
+        <div class="col-md-3 text-center wow fadeInRight">
+            <div>
+                <i class="fa fa-envelope features-icon"></i>
+                <h2>Readymade reporting dashboards</h2>
+                <p>We offer you multiple pre-built dashboards with well formulated set of insights. Each of these dashboards will suit specific type of need of yours and will help you get started instantly </p>
+            </div>
+            <div class="m-t-lg">
+                <i class="fa fa-google features-icon"></i>
+                <h2>Actionable Insights</h2>
+                <p>Ever needed help to make sense of all your data? Well, ShowMetric will provide you all the insights you need from actionable data available from all your digital marketing channels </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="invite" class="gray-section team">
+    <div class="container">
+        <div class="row m-b-lg">
+            <div class="col-lg-12 text-center">
+                <div class="navy-line"></div>
+                <h1>Get an Invite!</h1>
+                <p>Just fill in your details below and we'll send you an early access invite to try out Datapoolt!</p>
+            </div>
+        </div>
+        <div class="text-center">
+            <form id="nl-form" class="nl-form" name='contactform' action="/getinvite" method="post">
+                Hi Datapoolt! My name is
+                <input type="text" name="name"/>.
+                <br /> I am from a
+                <select name="typeofcustomer">
+                    <option value="marketingagency" selected>marketing agency</option>
+                    <option value="startup">startup</option>
+                    <option value="freelancer">freelance marketer</option>
+                    <option value="others">other type of firm</option>
+                </select>
+                and would like an invite to your beta.
+                <br /> My phone number is
+                <input type="text" name="phonenumber" />
+                and my email ID is
+                <input type="email" name="email" />
+                <br /> Please send me an invite to your product!
+                <div class="nl-submit-wrap">
+                    <button class="nl-submit" type="submit">Send us your details</button>
+                </div>
+            </form>
         </div>
     </div>
 
-</div><!-- /container -->
+</section>
+
+
+
+
+<section id="contact" class="gray-section contact">
+    <div class="container">
+        <div class="row m-b-lg">
+            <div class="col-lg-12 text-center">
+                <div class="navy-line"></div>
+                <h1>Contact Us</h1>
+                <p>We would love to talk to you! Get in touch with us now to know about us.</p>
+            </div>
+        </div>
+        <div class="row m-b-lg">
+            <div class="col-lg-3 col-lg-offset-3">
+                <address>
+				    <i class="fa fa-phone"> <span style="font-size:15px"> (91)95000 63611 </span> </i><br/> <br/>
+					<i class="fa fa-skype"> <span style="font-size:15px">  rajeshkumar2v </span> </i> <br/>
+					<i class="fa fa-envelope"></i> <span style="font-size:15px"> <a href="mailto:sales@showmetric.co"> sales@showmetric.co</a> </span><br/> <br/>
+                </address>
+            </div>
+            <div class="col-lg-4">
+                <i class="fa fa-map-marker"></i> <span style="font-size:15px">
+					 140, 1st Floor, JC Complex,<br/>
+                     Thiruvanmiyur,<br/>
+                     Chennai, India - 600041</span><br/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <p class="m-t-sm">
+                    Or follow us on social platforms
+                </p>
+                <ul class="list-inline social-icon">
+                    <li><a href="http://www.twitter.com/ShowMetric" target="_blank"><i class="fa fa-twitter"></i></a>
+                    </li>
+                    <li><a href="http://www.facebook.com/ShowMetric" target="_blank"><i class="fa fa-facebook"></i></a>
+                    </li>
+                    <li><a href="http://www.linkedin.com/company/showmetric" target="_blank"><i class="fa fa-linkedin"></i></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 text-center m-t-lg m-b-lg">
+                <p><strong>&copy; 2016 Datapoolt - Cormallen Digital LLP</strong></p>
+            </div>
+        </div>
+    </div>
+</section>
+		
+    </div>
+  </div>
+
+<script src="js/jquery/jquery-2.1.1.js"></script>
+<script src="js/pace.min.js"></script>
+<script src="js/bootstrap/bootstrap.min.js"></script>
 <script src="js/classie.js"></script>
-<script src="js/main.js"></script>
-<script>
-    (function() {
-        //new Slideshow( document.getElementById( 'slideshow-1' ) );
-        setTimeout( function() {
-            new Slideshow( document.getElementById( 'slideshow-2' ) );
-        }, 1750 );
-
-        /* Mockup responsiveness */
-        var body = docElem = window.document.documentElement,
-                wrap = document.getElementById( 'wrap' ),
-                mockup = wrap.querySelector( '.mockup' ),
-                mockupWidth = mockup.offsetWidth;
-
-        scaleMockup();
-
-        function scaleMockup() {
-            var wrapWidth = wrap.offsetWidth,
-                    val = wrapWidth / mockupWidth;
-
-            mockup.style.transform = 'scale3d(' + val + ', ' + val + ', 1)';
-        }
-
-        window.addEventListener( 'resize', resizeHandler );
-
-        function resizeHandler() {
-            function delayed() {
-                resize();
-                resizeTimeout = null;
-            }
-            if ( typeof resizeTimeout != 'undefined' ) {
-                clearTimeout( resizeTimeout );
-            }
-            resizeTimeout = setTimeout( delayed, 50 );
-        }
-
-        function resize() {
-            scaleMockup();
-        }
-    })();
-</script>
+<script src="js/cbpAnimatedHeader.js"></script>
+<script src="js/wow.min.js"></script>
+<script src="js/inspinia.js"></script>
 </body>
 </html>
-
-

@@ -12,7 +12,11 @@ showMetricApp.service('createWidgets',function($http,$q){
             getCharts.then(function successCallback(charts){
                 unformattedWidget = widget;
 
-
+                if(unformattedWidget.widgetType=="custom"){
+                    // Need to get custom data
+                    console.log(unformattedWidget.widgetType);
+                }
+                else{
                     unformattedWidget.charts = charts;
                     var metricDetailsArray = [];
 
@@ -34,6 +38,9 @@ showMetricApp.service('createWidgets',function($http,$q){
                         console.log(error);
                         deferredWidget.reject(error);
                     });
+                }
+
+
 
 
             },function errorCallback(error){
@@ -55,7 +62,20 @@ showMetricApp.service('createWidgets',function($http,$q){
                     }).then(function successCallback(response) {
                         console.log(response);
                         var charts = [];
-                        //deferred.resolve(charts);
+                        for(getData in response){
+                            if(response[getData].widgetId==widget._id){
+                                charts.push({
+                                    _id: response[getData]._id,
+                                    widgetId: response[getData].widgetId,
+                                    chartType: response[getData].chartType,
+                                    intervalType: response[getData].intervalType,
+                                    metricsCount: response[getData].metricsCount
+                                });
+                            }
+
+                        }
+ 
+                        deferred.resolve(charts);
                     }, function errorCallback(error) {
                         deferred.reject(error);
                     });

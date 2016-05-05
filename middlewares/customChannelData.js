@@ -1,6 +1,7 @@
 var exports = module.exports = {};
-
+var async = require("async");
 //To load the data model
+var Widget = require('../models/widgets');
 var customData = require('../models/data');
 
 
@@ -62,6 +63,42 @@ exports.customWidgetDataInfo = function (req, res, next) {
             req.showMetric.customWidgetData = result;
             next();
         })
+    }
+
+};
+
+
+exports.getCustomChannelWidgetData = function (req, res, next) {
+
+    async.auto({
+        widgetCustomData: getWidgetData
+    }, function (err, results) {
+        console.log('error = ', err);
+
+        if (err) {
+            return res.status(500).json({});
+        }
+        req.app.result = results.widgetCustomData;
+        next();
+    });
+
+    //Function to get the data in widget collection
+    function getWidgetData(callback) {
+        customData.findOne({'widgetId': req.params.widgetId}, checkNullObject(callback));
+    }
+
+
+
+    //Function to handle all queries result here
+    function checkNullObject(callback) {
+        return function (err, object) {
+             if (err)
+                callback('Database error: ' + err, null);
+            else if (!object)
+                callback('No record found', '');
+            else
+                callback(null, object);
+        }
     }
 
 };

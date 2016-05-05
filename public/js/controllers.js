@@ -46,29 +46,16 @@ showMetricApp.service('createWidgets',function($http,$q){
                 console.log("Widget Type : "+widget.widgetType);
                 if(widget.widgetType=="custom"){
                     $http({
-                        method: 'GET',
-                        url: '/api/v1/customWidgetData/' + widget._id,
+                        method: 'POST',
+                        url: '/api/v1/customWidget/data/' + widget._id,
                         data: {
                             "startDate": chosenDateRange.startDate,
                             "endDate": chosenDateRange.endDate
                         }
                     }).then(function successCallback(response) {
-                        //console.log(response);
-                         var charts = [];
-                         for(getWidgetData in response.data){
-                             // console.log("ID : "+response.data[getWidgetData]._id);
-                             // console.log("ChartType : "+response.data[getWidgetData].chartType);
-                             // console.log("MetricCount : "+response.data[getWidgetData].metricsCount);
-                             // console.log("IntervalType : "+response.data[getWidgetData].intervalType);
-                             // console.log(response.data[getWidgetData].data);
-                             for(getDataValue in response.data[getWidgetData].data){
-                                 // console.log("Date : "+response.data[getWidgetData].data[getDataValue].date);
-                                 // console.log("Name : "+response.data[getWidgetData].data[getDataValue].name);
-                                 // console.log("Total : "+response.data[getWidgetData].data[getDataValue].total);
-
-                             }
-                         }
-                        deferred.resolve(charts);
+                        console.log(response);
+                        var charts = [];
+                        //deferred.resolve(charts);
                     }, function errorCallback(error) {
                         deferred.reject(error);
                     });

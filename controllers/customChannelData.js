@@ -30,4 +30,10 @@ module.exports = function (app) {
         }
     });
 
+
+    app.post('/api/v1/customWidget/data/:widgetId', customChannelData.getCustomChannelWidgetData, function (req, res) {
+        var getCustomChannelData = req.app.result;
+        res.json(getCustomChannelData);
+    });
+
 };

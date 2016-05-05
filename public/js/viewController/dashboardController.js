@@ -105,34 +105,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             var widgets = [];
             for(getWidgetInfo in dashboardWidgetList){
 
-                if(dashboardWidgetList[getWidgetInfo].widgetType=="custom"){
-                    countWidget++;
-                    // for custom widgets to be populated here
-                    debugger;
-                    var dataWidgetObj = {
-                        col: countWidget,
-                        name:  "Custom Data "+countWidget
-                    };
-
-                    getCustomDataWidgetArray.push(dataWidgetObj);
-
-                    $scope.dashboards = {
-                        '0': {
-                            id: '1',
-                            name: 'Dashboard Custom Widget',
-                            widgets: getCustomDataWidgetArray
-                        }
-                    };
-
-                    $scope.dashboard = $scope.dashboards[0];
-
-                    $scope.skSpinner=true;
-                    $scope.noDataFound=false;
-                    $scope.hideCustomDataValues=true;
-
-                }
-                else{
-                    // for other widgets to be populated here
                     widgets.push(
                         createWidgets.widgetDataFetchHandler(
                             dashboardWidgetList[getWidgetInfo],
@@ -142,11 +114,12 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                             }
                         )
                     );
-                }
+
             }
             $q.all(widgets).then(function successCallback(widgets){
+                console.log('Widget after formatting');
                 for(i=0;i<widgets.length;i++){
-                    console.log('Widget after formatting',widgets[i]);
+                    console.log(widgets[i]);
                 }
             },function errorCallback(error){
                 console.log(error);

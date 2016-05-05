@@ -11,27 +11,31 @@ showMetricApp.service('createWidgets',function($http,$q){
 
             getCharts.then(function successCallback(charts){
                 unformattedWidget = widget;
-                unformattedWidget.charts = charts;
-                var metricDetailsArray = [];
 
-                for(i=0;i<unformattedWidget.charts.length;i++){
-                    metricDetailsArray.push(fetchMetricDetailsForCharts(unformattedWidget.charts[i]));
-                }
-                $q.all(metricDetailsArray).then(function successCallback(metricDetailsArray){
+
+                    unformattedWidget.charts = charts;
+                    var metricDetailsArray = [];
+
                     for(i=0;i<unformattedWidget.charts.length;i++){
-                        unformattedWidget.charts[i].metricDetails = metricDetailsArray[i];
+                        metricDetailsArray.push(fetchMetricDetailsForCharts(unformattedWidget.charts[i]));
                     }
-                    finalWidget = formatDataPoints(unformattedWidget);
-                    finalWidget.then(function successCallback(finalWidget){
-                        deferredWidget.resolve(finalWidget);
+                    $q.all(metricDetailsArray).then(function successCallback(metricDetailsArray){
+                        for(i=0;i<unformattedWidget.charts.length;i++){
+                            unformattedWidget.charts[i].metricDetails = metricDetailsArray[i];
+                        }
+                        finalWidget = formatDataPoints(unformattedWidget);
+                        finalWidget.then(function successCallback(finalWidget){
+                            deferredWidget.resolve(finalWidget);
+                        },function errorCallback(error){
+                            console.log(error);
+                            deferredWidget.reject(error);
+                        });
                     },function errorCallback(error){
                         console.log(error);
                         deferredWidget.reject(error);
                     });
-                },function errorCallback(error){
-                    console.log(error);
-                    deferredWidget.reject(error);
-                });
+
+
             },function errorCallback(error){
                 deferredWidget.reject(error);
             });
@@ -39,47 +43,87 @@ showMetricApp.service('createWidgets',function($http,$q){
 
             function getDataForChosenDates(widget,chosenDateRange) {
                 var deferred = $q.defer();
-                $http({
-                    method: 'POST',
-                    url: '/api/v1/widgets/data/' + widget._id,
-                    data: {
-                        "startDate": chosenDateRange.startDate,
-                        "endDate": chosenDateRange.endDate
-                    }
-                }).then(function successCallback(response) {
-                    var charts = [];
-                    for(i=0;i<widget.charts.length;i++){
-                        for(j=0;j<response.data.length;j++){
-                            if(widget.charts[i].metrics[0].metricId === response.data[j].metricId){
-                                charts.push({
-                                    channelId: widget.charts[i].channelId,
-                                    chartName: widget.charts[i].name,
-                                    chartType: widget.charts[i].metrics[0].chartType,
-                                    chartObjectTypeId: widget.charts[i].metrics[0].objectTypeId,
-                                    chartData: response.data[j].data,
-                                    chartMetricId: response.data[j].metricId,
-                                    chartObjectId: response.data[j].objectId
-                                });
+                console.log("Widget Type : "+widget.widgetType);
+                if(widget.widgetType=="custom"){
+                    $http({
+                        method: 'GET',
+                        url: '/api/v1/customWidgetData/' + widget._id,
+                        data: {
+                            "startDate": chosenDateRange.startDate,
+                            "endDate": chosenDateRange.endDate
+                        }
+                    }).then(function successCallback(response) {
+                        //console.log(response);
+                         var charts = [];
+                         for(getWidgetData in response.data){
+                             // console.log("ID : "+response.data[getWidgetData]._id);
+                             // console.log("ChartType : "+response.data[getWidgetData].chartType);
+                             // console.log("MetricCount : "+response.data[getWidgetData].metricsCount);
+                             // console.log("IntervalType : "+response.data[getWidgetData].intervalType);
+                             // console.log(response.data[getWidgetData].data);
+                             for(getDataValue in response.data[getWidgetData].data){
+                                 // console.log("Date : "+response.data[getWidgetData].data[getDataValue].date);
+                                 // console.log("Name : "+response.data[getWidgetData].data[getDataValue].name);
+                                 // console.log("Total : "+response.data[getWidgetData].data[getDataValue].total);
+
+                             }
+                         }
+                        deferred.resolve(charts);
+                    }, function errorCallback(error) {
+                        deferred.reject(error);
+                    });
+                    return deferred.promise;
+                }
+                else{
+                    $http({
+                        method: 'POST',
+                        url: '/api/v1/widgets/data/' + widget._id,
+                        data: {
+                            "startDate": chosenDateRange.startDate,
+                            "endDate": chosenDateRange.endDate
+                        }
+                    }).then(function successCallback(response) {
+                        var charts = [];
+                        for(i=0;i<widget.charts.length;i++){
+                            for(j=0;j<response.data.length;j++){
+                                if(widget.charts[i].metrics[0].metricId === response.data[j].metricId){
+                                    charts.push({
+                                        channelId: widget.charts[i].channelId,
+                                        chartName: widget.charts[i].name,
+                                        chartType: widget.charts[i].metrics[0].chartType,
+                                        chartObjectTypeId: widget.charts[i].metrics[0].objectTypeId,
+                                        chartData: response.data[j].data,
+                                        chartMetricId: response.data[j].metricId,
+                                        chartObjectId: response.data[j].objectId
+                                    });
+                                }
                             }
                         }
-                    }
-                    deferred.resolve(charts);
-                }, function errorCallback(error) {
-                    deferred.reject(error);
-                });
-                return deferred.promise;
+                        deferred.resolve(charts);
+                    }, function errorCallback(error) {
+                        deferred.reject(error);
+                    });
+                    return deferred.promise;
+                } // widgetType
+
             }
 
             function fetchMetricDetailsForCharts(chart) {
                 var deferred = $q.defer();
-                $http({
-                    method:'GET',
-                    url:'/api/v1/get/metricDetails/' + chart.chartMetricId
-                }).then(function successCallback(response){
-                    deferred.resolve(response.data.metricsList[0]);
-                },function errorCallback(error){
-                    deferred.reject(error);
-                });
+                if(chart.chartMetricId==undefined){
+
+                }
+                else{
+                    $http({
+                        method:'GET',
+                        url:'/api/v1/get/metricDetails/' + chart.chartMetricId
+                    }).then(function successCallback(response){
+                        deferred.resolve(response.data.metricsList[0]);
+                    },function errorCallback(error){
+                        deferred.reject(error);
+                    });
+                }
+
                 return deferred.promise;
             }
 

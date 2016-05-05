@@ -170,11 +170,11 @@ body.landing-page {
   z-index:10;
 }
 .header-back.one {
-  background: url('../image/header_2.jpeg') no-repeat fixed center;
+  background: url('../image/Header_2.jpeg') no-repeat fixed center;
   z-index:5;
 }
 .header-back.two {
-  background: url('../image/header_1.jpeg') no-repeat fixed center;
+  background: url('../image/Header_1.jpeg') no-repeat fixed center;
   z-index:5;
 }
 

@@ -21,7 +21,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         //Defining configuration parameters for dashboard layout
         $scope.dashboard = {widgets: []};
         $scope.dashboard.dashboardName = '';
-        $scope.widgetsCount = 0;
 
         //To fetch the name of the dashboard from database and display it when the dashboard is loaded
         $scope.fetchDashboardName = function () {
@@ -90,6 +89,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         $scope.hideCustomDataValues=true;
     };
 
+    //To populate all the widgets in a dashboard when the dashboard is refreshed or opened or calendar date range in the dashboard header is changed
     $rootScope.populateDashboardWidgets = function(){
         $scope.dashboard.widgets = [];
         $http({
@@ -97,30 +97,130 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             url: '/api/v1/dashboards/widgets/'+ $state.params.id
         }).then(function successCallback(response) {
             var dashboardWidgetList = response.data.widgetsList;
-            console.log("populate Dashboard Widgets");
-            console.log(response.data.widgetsList);
-            var countWidget = 0;
-            var getCustomDataWidgetArray = new Array();
-            $scope.widgetsCount = dashboardWidgetList.length;
             var widgets = [];
+
+            console.log("populate Dashboard Widgets", response.data.widgetsList);
+
             for(getWidgetInfo in dashboardWidgetList){
+                widgets.push(
+                    createWidgets.widgetDataFetchHandler(
+                        dashboardWidgetList[getWidgetInfo],
+                        {
+                            'startDate': moment($scope.dashboardCalendar.start_date).format('YYYY-MM-DD'),
+                            'endDate': moment($scope.dashboardCalendar.end_date).format('YYYY-MM-DD')
+                        }
+                    )
+                );
 
-                    widgets.push(
-                        createWidgets.widgetDataFetchHandler(
-                            dashboardWidgetList[getWidgetInfo],
-                            {
-                                'startDate': moment($scope.dashboardCalendar.start_date).format('YYYY-MM-DD'),
-                                'endDate': moment($scope.dashboardCalendar.end_date).format('YYYY-MM-DD')
-                            }
-                        )
-                    );
-
+                //To temporarily create an empty widget with same id as the widgetId till all the data required for the widget is fetched by the called service
+                $scope.dashboard.widgets.push({sizeY: 3, sizeX: 3, id: dashboardWidgetList[getWidgetInfo]._id, chart: {api: {}},visibility: false});
             }
+
             $q.all(widgets).then(function successCallback(widgets){
-                console.log('Widget after formatting');
-                for(i=0;i<widgets.length;i++){
-                    console.log(widgets[i]);
+                var finalChartData,widgetIndex;
+                for(getWidgets in widgets){
+                    finalChartData = createWidgets.dataLoader(widgets[getWidgets]);
+
+                    widgetIndex = $scope.dashboard.widgets.map(function(el) {
+                        return el.id;
+                    }).indexOf(widgets[getWidgets]._id);
+
+                    $scope.dashboard.widgets[widgetIndex] = {
+                        sizeY: 3, sizeX: 3, name: 'chart', visibility: true,
+                        id: widgets[getWidgets]._id,
+                        chart: finalChartData
+                    };
+                    console.log($scope.dashboard.widgets[widgetIndex]);
                 }
+/*
+                var widgetIndex;
+                var graphData = [];
+                var charts = [];
+                graphData.lineData = [];
+                graphData.barData = [];
+                graphData.lineDataOptions = [];
+                graphData.barDataOptions = [];
+                for(var i=0;i<widgets.length;i++){
+                    console.log('Widget after formatting',widgets[i]);
+                    for(var j=0;j<widgets[i].charts.length;j++){
+                        if(widgets[i].charts[j].chartType == 'line'){
+                            graphData.lineData.push({
+                                values: widgets[i].charts[j].chartData,      //values - represents the array of {x,y} data points
+                                key: widgets[i].charts[j].metricDetails.name, //key  - the name of the series.
+                                color: '#7E57C2'  //color - optional: choose your own line color.
+                            });
+                        } else if (widgets[i].charts[j].chartType == 'bar'){
+                            graphData.barData.push({
+                                values: widgets[i].charts[j].chartData,      //values - represents the array of {x,y} data points
+                                key: widgets[i].charts[j].metricDetails.name, //key  - the name of the series.
+                                color: '#7E57C2'  //color - optional: choose your own line color.
+                            });
+                        }
+                    }
+                    console.log(graphData);
+                    if(graphData.lineData != null){
+                        graphData.lineDataOptions = {
+                            chart: {
+                                type: 'cumulativeLineChart',
+                                margin : {top: 20, right: 20, bottom: 40, left: 55},
+                                x: function(d){ return d.x; },
+                                y: function(d){ return d.y; },
+                                useInteractiveGuideline: true,
+                                xAxis: {
+                                    axisLabel: 'Line Chart xaxis',
+                                    tickFormat: function(d) {
+                                        return d3.time.format('%m/%d/%y')(new Date(d))}
+                                },
+                                yAxis: {
+                                    axisLabel: 'Line Chart yaxis'
+                                },
+                                axisLabelDistance: -10
+                            }
+                        }
+                    }
+                    if(graphData.barData != null){
+                        graphData.barDataOptions = {
+                            chart: {
+                                type: 'discreteBarChart',
+                                margin : {top: 20, right: 20, bottom: 40, left: 55},
+                                x: function(d){ return d.x; },
+                                y: function(d){ return d.y; },
+                                useInteractiveGuideline: true,
+                                xAxis: {
+                                    axisLabel: 'Bar Chart xaxis',
+                                    tickFormat: function(d) {
+                                        return d3.time.format('%m/%d/%y')(new Date(d))}
+                                },
+                                yAxis: {
+                                    axisLabel: 'Bar Chart yaxis'
+                                },
+                                axisLabelDistance: -10
+                            }
+                        }
+                    }
+                    widgetIndex = $scope.dashboard.widgets.map(function(el) {
+                        return el.id;
+                    }).indexOf(widgets[i]._id);
+                    var tempChart = {
+                        'options': graphData.lineDataOptions,
+                        'data': graphData.lineData,
+                        'api': {}
+                    };
+                    /!*,
+                     {
+                     'options': graphData.barDataOptions,
+                     'data': graphData.barData,
+                     'api': {}
+                     }*!/
+
+                     $scope.dashboard.widgets[widgetIndex] = {
+                     sizeY: 3, sizeX: 3, name: 'chart', visibility: true,
+                     id: widgets[i]._id,
+                     chart: tempChart
+                     };
+                     console.log($scope.dashboard.widgets[widgetIndex]);
+
+*/
             },function errorCallback(error){
                 console.log(error);
             });
@@ -139,7 +239,13 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         };
         console.log('Displaying data fetch inputs',widgetId,jsonData);
         $scope.dashboard.widgets.push({
-            sizeY: 3, sizeX: 3, id: widgetId, chart: {api: {}}, visibility: false
+            sizeY: 3,
+            sizeX: 3,
+            id: widgetId,
+            chart: {
+                api: {}
+            },
+            visibility: false
         });
         $http({
             method: 'POST',
@@ -180,25 +286,41 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             }).indexOf(widgetId);
             console.log(widgetIndex);
             $scope.dashboard.widgets[widgetIndex] = {
-                sizeY: 3, sizeX: 3, name: metricDetails.description, id: widgetId,
+                sizeY: 3,
+                sizeX: 3,
+                name: metricDetails.description,
+                id: widgetId,
+                visibility: true,
                 chart: {
                     options: {
                         chart: {
                             type: 'lineChart',
-                            margin : {top: 20, right: 20, bottom: 40, left: 55}, x: function(d){ return d.x; }, y: function(d){ return d.y; },
+                            margin : {top: 20, right: 20, bottom: 40, left: 55},
+                            x: function(d){ return d.x; },
+                            y: function(d){ return d.y; },
                             useInteractiveGuideline: true,
-                            xAxis: {axisLabel: metricDetails.xAxis, tickFormat: function(d) {return d3.time.format('%m/%d/%y')(new Date(d))}},
-                            yAxis: {axisLabel: metricDetails.yAxis},
+                            xAxis: {
+                                axisLabel: metricDetails.xAxis,
+                                tickFormat: function(d) {
+                                    return d3.time.format('%m/%d/%y')(new Date(d))}
+                            },
+                            yAxis: {
+                                axisLabel: metricDetails.yAxis
+                            },
                             axisLabelDistance: -10
                         }
                     },
-                    data: graphData, api: {}
-                },
-                visibility: true
+                    data: graphData,
+                    api: {}
+                }
             }
+            console.log($scope.dashboard.widgets[widgetIndex]);
         } else {
             $scope.dashboard.widgets.push({
-                sizeY: 3, sizeX: 3, name: '', id: widgetId
+                sizeY: 3,
+                sizeX: 3,
+                name: '',
+                id: widgetId
             });
         }
     };

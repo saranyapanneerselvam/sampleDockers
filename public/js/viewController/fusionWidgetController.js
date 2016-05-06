@@ -247,7 +247,6 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope){
                     matchingMetric = [];
                     for(var k=0; k<$scope.storedReferenceCharts[i].metrics.length;k++){
                         if($scope.storedReferenceCharts[i].metrics[k].objectTypeId === $scope.storedUserChosenValues[j].object.objectTypeId ){
-                            console.log('objectId',i,j,k,$scope.storedReferenceCharts[i].metrics[k].objectTypeId ,$scope.storedUserChosenValues[j].object.objectTypeId)
                             matchingMetric.push($scope.storedReferenceCharts[i].metrics[k]);
                             matchingMetric[0].objectId = $scope.storedUserChosenValues[j].object._id;
                         }
@@ -255,28 +254,15 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope){
 
                 }
             }
-            console.log('matchingList',matchingMetric);
             $scope.storedReferenceWidget.charts[i].metrics = matchingMetric;
         }
-        console.log('storedReferenceCharts',$scope.storedReferenceWidget);
-          var jsonData = {
-         "dashboardId": $state.params.id,
-         "widgetType": $scope.widgetType,
-         "charts": $scope.storedReferenceWidget.charts,
-         "order": $scope.storedReferenceWidget.order,
-         "offset": $scope.storedReferenceWidget.offset,
-         "size": $scope.storedReferenceWidget.size,
-         "minSize": $scope.storedReferenceWidget.minSize,
-         "maxSize": $scope.storedReferenceWidget.maxSize
-         };
-         console.log('json data',jsonData);
          $http({
              method: 'POST',
              url: '/api/v1/widgets',
              data: jsonData
          }).then(function successCallback(response){
              console.log('Response after creating widget', response);
-             $rootScope.$broadcast('populateWidget',response.data.widgetsList.id._id);
+             $rootScope.$broadcast('populateWidget',response.data.widgetsList.id);
          }, function errorCallback (error){
              console.log('Error in getting widget id',error);
          });

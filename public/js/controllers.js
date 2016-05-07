@@ -7,7 +7,7 @@ showMetricApp.service('createWidgets',function($http,$q){
         var deferredWidget = $q.defer();
         var unformattedWidget = [];
         var finalWidget = [];
-
+        var countCustomData = 0;
         var getCharts = getDataForChosenDates(widget,chosenDateRange);
 
         getCharts.then(function successCallback(charts){
@@ -15,7 +15,22 @@ showMetricApp.service('createWidgets',function($http,$q){
 
             if(unformattedWidget.widgetType=="custom"){
                 // Need to get custom data
-                console.log(unformattedWidget.widgetType);
+                // Need to get custom data
+                unformattedWidget.charts = charts;
+
+                for(i=0;i<unformattedWidget.charts.length;i++) {
+                    for(getCustomName in unformattedWidget.charts[i].chartData){
+                        // console.log(unformattedWidget.charts[i].chartData[getCustomName].name);
+                    }
+                }
+
+                finalWidget = formatDataPoints(unformattedWidget);
+                finalWidget.then(function successCallback(finalWidget){
+                    deferredWidget.resolve(finalWidget);
+                },function errorCallback(error){
+                    console.log(error);
+                    deferredWidget.reject(error);
+                });
             }
             else{
                 unformattedWidget.charts = charts;
@@ -57,20 +72,23 @@ showMetricApp.service('createWidgets',function($http,$q){
                         "endDate": chosenDateRange.endDate
                     }
                 }).then(function successCallback(response) {
-                    console.log(response);
-                    var charts = [];
-                    for(getData in response){
-                        if(response[getData].widgetId==widget._id){
-                            charts.push({
-                                _id: response[getData]._id,
-                                widgetId: response[getData].widgetId,
-                                chartType: response[getData].chartType,
-                                intervalType: response[getData].intervalType,
-                                metricsCount: response[getData].metricsCount
+                    //console.log(response);
+                    var formattedCharts = [];
+                    countCustomData++;
+                    for(getData in response.data){
+                        if(response.data[getData].widgetId==widget._id){
+                            formattedCharts.push({
+                                _id: response.data[getData]._id,
+                                chartName: "Custom Data "+countCustomData,
+                                chartType: response.data[getData].chartType,
+                                widgetId: response.data[getData].widgetId,
+                                chartData: response.data[getData].data,
+                                intervalType: response.data[getData].intervalType,
+                                metricsCount: response.data[getData].metricsCount
                             });
                         }
                     }
-                    deferred.resolve(charts);
+                    deferred.resolve(formattedCharts);
                 }, function errorCallback(error) {
                     deferred.reject(error);
                 });
@@ -171,16 +189,23 @@ showMetricApp.service('createWidgets',function($http,$q){
         graphData.lineDataOptions = []; graphData.barDataOptions = [];
 
         for(var i=0;i<widgetData.charts.length;i++){
+            var keyValue;
+            if(widgetData.charts[i].metricDetails!=undefined){
+                keyValue = widgetData.charts[i].metricDetails.name;
+            }
+            else{
+                keyValue = "CustomName";
+            }
             if(widgetData.charts[i].chartType == 'line'){
                 graphData.lineData.push({
                     values: widgetData.charts[i].chartData,      //values - represents the array of {x,y} data points
-                    key: widgetData.charts[i].metricDetails.name, //key  - the name of the series.
+                    key: keyValue, //key  - the name of the series.
                     color: '#7E57C2'  //color - optional: choose your own line color.
                 });
             } else if (widgetData.charts[i].chartType == 'bar'){
                 graphData.barData.push({
                     values: widgetData.charts[i].chartData,      //values - represents the array of {x,y} data points
-                    key: widgetData.charts[i].metricDetails.name, //key  - the name of the series.
+                    key: keyValue, //key  - the name of the series.
                     color: '#7E57C2'  //color - optional: choose your own line color.
                 });
             }

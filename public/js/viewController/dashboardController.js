@@ -84,9 +84,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         $scope.config = {visible: false};
         $timeout(function () {$scope.config.visible = true;}, 100);
         $rootScope.populateDashboardWidgets();
-        $scope.noDataFound=true;
         $scope.skSpinner=false;
-        $scope.hideCustomDataValues=true;
     };
 
     //To populate all the widgets in a dashboard when the dashboard is refreshed or opened or calendar date range in the dashboard header is changed

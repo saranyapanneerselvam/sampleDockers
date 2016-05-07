@@ -20,14 +20,32 @@ exports.saveCustomChannelData = function (req, res, next) {
         var data = JSON.parse(newJson);
 
         var pattern =/^([0-9]{2})\/([0-9]{2})\/([0-9]{4})$/; // DD/MM/YYYY or MM/DD/YYYY
+        var convertDateMMDDYYYY = function(usDate) {
+            var dateParts = usDate.split(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+            return dateParts[3] + "-" + dateParts[1] + "-" + dateParts[2];
+        }
 
         for(getChcekValue in data){
-            console.log("Valid Date Check : "+pattern.test(data[getChcekValue].date));
             if(pattern.test(data[getChcekValue].date)==false){
                 isSendPost=0;
             }
+
+            var inDate = data[getChcekValue].date;
+            var outDateMMDDYYYY = convertDateMMDDYYYY(inDate);
+            var date = data[getChcekValue].date;
+            var checkMonthDate = date.split("/");
+            var outDateDDMMYYYY = date.split("/").reverse().join("-");
+
+            if(checkMonthDate[0] > 12){
+                data[getChcekValue].date = outDateDDMMYYYY;
+            }
+            else{
+                data[getChcekValue].date = outDateMMDDYYYY;
+            }
         }
+
         console.log("Is Send Post : "+isSendPost);
+        console.log(data);
         createCustomData.data= data;
         createCustomData.created = new Date();
         createCustomData.updated = new Date();
@@ -49,56 +67,15 @@ exports.saveCustomChannelData = function (req, res, next) {
 
 };
 
-
-exports.customWidgetDataInfo = function (req, res, next) {
-
-    req.showMetric = {};
-    if (!req.user) {
-        req.showMetric.error = 500;
-        next();
-    }
-    else {
-        customData.find({widgetId: req.params.widgetId}, function (err, result) {
-            console.log('result', req.params.widgetId, result);
-            req.showMetric.customWidgetData = result;
-            next();
-        })
-    }
-
-};
-
-
 exports.getCustomChannelWidgetData = function (req, res, next) {
 
-    async.auto({
-        widgetCustomData: getWidgetData
-    }, function (err, results) {
-        console.log('error = ', err);
-
-        if (err) {
-            return res.status(500).json({});
-        }
-        req.app.result = results.widgetCustomData;
+    customData.find({'widgetId':req.params.widgetId}, function (err, result) {
+        if(err)
+            req.app.result = {'error': err};
+        else if (result.length)
+            req.app.result = result;
+        else
+            req.app.result = {'status': '301', 'message':'No Records Found'};
         next();
     });
-
-    //Function to get the data in widget collection
-    function getWidgetData(callback) {
-        customData.findOne({'widgetId': req.params.widgetId}, checkNullObject(callback));
-    }
-
-
-
-    //Function to handle all queries result here
-    function checkNullObject(callback) {
-        return function (err, object) {
-             if (err)
-                callback('Database error: ' + err, null);
-            else if (!object)
-                callback('No record found', '');
-            else
-                callback(null, object);
-        }
-    }
-
 };

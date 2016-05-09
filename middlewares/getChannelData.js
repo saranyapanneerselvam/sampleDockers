@@ -35,6 +35,11 @@ var Twitter = require('twitter');
 //Load the auth file
 var configAuth = require('../config/auth');
 
+//set googleAdwords node module
+var googleAds = require('../lib/googleAdwords');
+var spec = {host: 'https://adwords.google.com/api/adwords/reportdownload/v201601'};
+googleAds.GoogleAdwords(spec);
+
 //set credentials in OAuth2
 var oauth2Client = new OAuth2(configAuth.googleAuth.clientID, configAuth.googleAuth.clientSecret, configAuth.googleAuth.callbackURL);
 
@@ -207,6 +212,7 @@ exports.getChannelData = function (req, res, next) {
                     _id: channel[index]._id,
                     code: channel[index].code
                 });
+                console.log('uniqueChannelArray38', uniqueChannelArray, channel.length)
             }
             else {
                 uniqueChannelArray.forEach(function (item, key) {
@@ -217,11 +223,13 @@ exports.getChannelData = function (req, res, next) {
                         });
 
                     }
+
                 })
             }
 
 
         })
+        console.log('uniqueChannelArray3238', uniqueChannelArray, channel.length)
         return uniqueChannelArray;
     }
 
@@ -286,6 +294,14 @@ exports.getChannelData = function (req, res, next) {
                 case configAuth.channels.twitter:
                     getTweetData(initialResults);
                     break;
+                case configAuth.channels.googleAdwords:
+                    setDataBasedChannelCode(results, function (err, result) {
+                        console.log('inside googleAdwords')
+                        selectAdwordsObjectType(result, callback);
+                    });
+                    break;
+                default:
+                    console.log('No channel selected')
             }
         }
 
@@ -561,30 +577,36 @@ exports.getChannelData = function (req, res, next) {
         var allChannels = results.get_channel;
         var wholeQueryResult = results.get_channel_data_remote.get_each_channel_data;
         var uniqueChannelFromDb = getUniqueChannel(allChannels, uniqueChannelArray);
-        console.log('wholeQueryResultwholeQueryResult', wholeQueryResult, wholeQueryResult.length)
-        wholeQueryResult.forEach(function (item, index) {
-            console.log('uniqueChannelArray22', unique);
-            //  console.log('first', uniqueChannel, 'uniqueChannelFromDb',uniqueChannelFromDb.length,uniqueChannel.length);
-            var channelId = wholeQueryResult[index].channelId;
-            if (unique.length == 0) {
-                console.log('channelId:channelId', channelId, 'f', wholeQueryResult[index].queryResults)
-                unique.push({channelId: channelId, allResults: wholeQueryResult[index].queryResults});
-            }
-            else {
-                for (var k = 0; k < unique.length; k++) {
-                    console.log('item', 'uniqueChannel[k].channelId', unique[k].channelId, channelId)
-                    if (unique[k].channelId != channelId) {
-                        unique.push({
-                            channelId: channelId,
-                            allResults: wholeQueryResult[index].queryResults
-                        });
+        console.log('wholeQueryResultwholeQueryResult',  wholeQueryResult, uniqueChannelFromDb)
+        if (results.widget.widgetType == 'fusion') {
+            wholeQueryResult.forEach(function (item, index) {
+                console.log('uniqueChannelArray22', unique);
+                //  console.log('first', uniqueChannel, 'uniqueChannelFromDb',uniqueChannelFromDb.length,uniqueChannel.length);
+                var channelId = wholeQueryResult[index].channelId;
+                if (unique.length == 0) {
+                    console.log('channelId:channelId', channelId, 'f', wholeQueryResult[index].queryResults)
+                    unique.push({channelId: channelId, allResults: wholeQueryResult[index].queryResults});
+                }
+                else {
+                    for (var k = 0; k < unique.length; k++) {
+                        console.log('item', 'uniqueChannel[k].channelId', unique[k].channelId, channelId)
+                        if (unique[k].channelId != channelId) {
+                            unique.push({
+                                channelId: channelId,
+                                allResults: wholeQueryResult[index].queryResults
+                            });
 
+                        }
                     }
                 }
-            }
 
 
-        })
+            })
+        }
+        else{
+            unique.push({channelId:uniqueChannelFromDb[0]._id,code:uniqueChannelFromDb[0].code,allResults: wholeQueryResult[0].queryResults});
+        }
+
         console.log('storefinaldataunique', unique, unique.length);
         for (var a = 0; a < unique.length; a++) {
             //for(var b=0;b<uniqueChannelFromDb.length;b++){
@@ -594,7 +616,7 @@ exports.getChannelData = function (req, res, next) {
                 allQueryResult.push({channel: uniqueChannelFromDb[a], allData: unique[a].allResults})
             }
 
-
+console.log('allQueryResult38',allQueryResult)
             // }
         }
 
@@ -872,6 +894,72 @@ exports.getChannelData = function (req, res, next) {
                             next(null, 'success')
                     }, done);
                 }
+            }
+            else if (allQueryResult.channel.code == configAuth.channels.googleAdwords) {
+                storeDataForAdwords(results.get_channel_data_remote.get_each_channel_data, results.data, results.widget.charts, results.metric, callback);
+                function storeDataForAdwords(dataFromRemote, dataFromDb, widget, metric, done) {
+                    console.log('works', widget, 'dataFromDb', dataFromDb, metric.length);
+                    async.times(metric.length, function (j, next) {
+                        var finalData = [];
+                        console.log('dataFromRemote[j]', metric[j],dataFromRemote.length, dataFromRemote);
+                        //Array to hold the final result
+                        //Array to hold the final result
+                        for (var key in dataFromRemote) {
+                           // for (var i = 0; i < dataFromRemote[key].apiResponse.length; i++) {
+
+                                if (dataFromRemote[key].apiResponse === 'DataFromDb') {
+                                   // console.log('place ofDB', dataFromRemote[key].get_google_adsword_data_from_remote[i]);
+                                    finalData.push();
+                                }
+                                else {
+                                    console.log('dataFromRemote[key]',  dataFromRemote[key].apiResponse.length)
+                                    //console.log('remote metric check', metric[j]._id, dataFromRemote[key].metricId)
+                                    if (String(metric[j]._id) == String(dataFromRemote[key].metricId)) {
+                                        console.log('remote metric check', typeof metric[j]._id,metric[j]._id,typeof dataFromRemote[key].metricId,dataFromRemote[key].metricId,dataFromRemote[key].apiResponse)
+                                        finalData = dataFromRemote[key].apiResponse;
+                                    }
+                                }
+                            //}
+                        }
+                        console.log('dbDataLength', finalData.length, 'metricId', metricId);
+                        if (dataFromRemote[j].apiResponse != 'DataFromDb') {
+                            console.log('hello', dataFromDb[j].data);
+                            if (dataFromDb[j].data != null) {
+                                if (dataFromRemote[j].metricId == dataFromDb[j].metricId) {
+                                    console.log('nullOfDataFromDB', dataFromDb[j].data);
+                                    //merge the old data with new one and update it in db
+                                    for (var key = 0; key < dataFromDb[j].data.length; key++) {
+                                        finalData.push(dataFromDb[j].data[key]);
+                                    }
+                                    var metricId = metric._id;
+                                }
+
+                            }
+                            console.log('widget[j].metrics[0].objectId',metric[j]._id,widget[j].metrics[0].objectId)
+                            var now = new Date();
+
+                            //Updating the old data with new one
+                            Data.update({
+                                'objectId': widget[j].metrics[0].objectId,
+                                'metricId': metric[j]._id
+                            }, {
+                                $setOnInsert: {created: now},
+                                $set: {data: finalData, updated: now}
+                            }, {upsert: true}, function (err) {
+                                if (err) console.log("User not saved");
+                                else
+                                    next(null, 'success')
+                            });
+                        }
+
+                        else
+                            next(null, 'success')
+
+                    }, done);
+
+
+                }
+
             }
         }
 
@@ -1299,38 +1387,38 @@ exports.getChannelData = function (req, res, next) {
                             }
                             else {
 
-                                    for (var key in res.data)
-                                        tot_metric.push({
-                                            total: res.data[key][storeMetricName],
-                                            date: res.data[key].date_start
-                                        });
+                                for (var key in res.data)
+                                    tot_metric.push({
+                                        total: res.data[key][storeMetricName],
+                                        date: res.data[key].date_start
+                                    });
 
-                                    var obj_metric = tot_metric.length;
-                                    for (var j = 0; j < obj_metric; j++) {
-                                        //console.log('data', wholeData)
-                                        wholeData.push({date: tot_metric[j].date, total: tot_metric[j].total});
+                                var obj_metric = tot_metric.length;
+                                for (var j = 0; j < obj_metric; j++) {
+                                    //console.log('data', wholeData)
+                                    wholeData.push({date: tot_metric[j].date, total: tot_metric[j].total});
+                                }
+                                if (results.dataResult != 'No data')   console.log('after if');
+
+                                for (var i = 0; i < diffDays; i++) {
+                                    var finalDate = calculateDate(storeStartDate);
+                                    //console.log('finaldate',finalDate,storeStartDate)
+                                    storeDefaultValues.push({date: finalDate, total: 0});
+                                    storeStartDate.setDate(storeStartDate.getDate() + 1);
+                                }
+                                // console.log('storeDefaultValues',storeDefaultValues)
+
+
+                                //To replace the missing dates in whole data with empty values
+                                var validData = wholeData.length;
+                                for (var j = 0; j < validData; j++) {
+                                    for (var k = 0; k < storeDefaultValues.length; k++) {
+                                        //console.log('wholeData[j].date',wholeData[j].date,'storeDefaultValues[k].date',storeDefaultValues[k].date)
+                                        if (wholeData[j].date === storeDefaultValues[k].date)
+                                            storeDefaultValues[k].total = wholeData[j].total;
                                     }
-                                    if (results.dataResult != 'No data')   console.log('after if');
 
-                                    for (var i = 0; i < diffDays; i++) {
-                                        var finalDate = calculateDate(storeStartDate);
-                                        //console.log('finaldate',finalDate,storeStartDate)
-                                        storeDefaultValues.push({date: finalDate, total: 0});
-                                        storeStartDate.setDate(storeStartDate.getDate() + 1);
-                                    }
-                                    // console.log('storeDefaultValues',storeDefaultValues)
-
-
-                                    //To replace the missing dates in whole data with empty values
-                                    var validData = wholeData.length;
-                                    for (var j = 0; j < validData; j++) {
-                                        for (var k = 0; k < storeDefaultValues.length; k++) {
-                                            //console.log('wholeData[j].date',wholeData[j].date,'storeDefaultValues[k].date',storeDefaultValues[k].date)
-                                            if (wholeData[j].date === storeDefaultValues[k].date)
-                                                storeDefaultValues[k].total = wholeData[j].total;
-                                        }
-
-                                    }
+                                }
                             }
                         }
                         else {
@@ -1361,6 +1449,222 @@ exports.getChannelData = function (req, res, next) {
         }
 
 
+    }
+
+    function selectAdwordsObjectType(initialResults, callback) {
+        async.auto({
+            call_adword_data: fetchAdwordsQuery,
+            get_google_adsword_data_from_remote: ['call_adword_data', fetchGoogleAdwordsData]
+        }, function (err, results) {
+            console.log('err = ', err);
+            console.log('get data rem = ', results);
+            if (err) {
+                return callback(err, null);
+            }
+            callback(null, results.get_google_adsword_data_from_remote);
+        });
+        function fetchAdwordsQuery(callback) {
+            work(initialResults.data, initialResults.object, initialResults.metric, callback);
+            function work(data, object, metric, done) {
+                async.timesSeries(metric.length, function (j, next) {
+                    console.log('work', j, metric[j])
+                    var adAccountId = initialResults.object[j].channelObjectId;
+                    d = new Date();
+                    var allObjects = {};
+                    if (data[j].data != null) {
+                        console.log('data no empty data')
+                        var updated = calculateDate(data[j].data.updated);
+                        var newStartDate = updated.replace(/-/g, "");
+                        updated = newStartDate;
+                        var currentDate = calculateDate(new Date());
+                        d.setDate(d.getDate() + 1);
+                        var startDate = calculateDate(d);
+                        var newEndDate = startDate.replace(/-/g, "");
+                        startDate = newEndDate;
+                        var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+                        if (updated < currentDate) {
+                            var query = 'Date,' + initialResults.metric[0].objectTypes[0].meta.gAdsMetricName;
+                            allObjects = {
+                                profile: initialResults.get_profile[j],
+                                query: query,
+                                widget: metric[j],
+                                dataResult: data[j].data,
+                                startDate: updated,
+                                objects: object[j].channelObjectId,
+                                endDate: currentDate,
+                                metricId: metric[j]._id,
+                                metricCode: metric[j].code
+                            }
+                            console.log('GoogleAuthAllObjectIfData', allObjects);
+                            next(null, allObjects);
+                        }
+                        else
+                            next(null, 'DataFromDb');
+                    }
+                    else {
+                        console.log('elsedd', metric[j]._id)
+                        //call google api
+                        d.setDate(d.getDate() - 365);
+                        var startDate = formatDate(d);
+                        var newStr = startDate.replace(/-/g, "");
+                        startDate = newStr;
+                        var endDate = formatDate(new Date());
+                        var newEndDate = endDate.replace(/-/g, "");
+                        var endDate = newEndDate;
+                        var query = 'Date,' + initialResults.metric[0].objectTypes[0].meta.gAdsMetricName;
+                        // async.concat(results.metric, setEachMetric, callback);
+                        allObjects = {
+                            profile: initialResults.get_profile[j],
+                            query: query,
+                            widget: metric[j],
+                            dataResult: data[j].data,
+                            objects: object[j].channelObjectId,
+                            startDate: startDate,
+                            endDate: endDate,
+                            metricId: metric[j]._id,
+                            metricCode: metric[j].code
+                        };
+                        console.log('GoogleAuthAllObjectElse', allObjects);
+                        next(null, allObjects);
+
+                    }
+
+                }, done)
+            }
+        }
+
+        // This Function executed to get insights data like(impression,clicks)
+        function fetchGoogleAdwordsData(allObjects, callback) {
+            console.log('fetchGoogleAdworsData', allObjects);
+            var count = 0;
+            var actualFinalApiData={};
+            async.concatSeries(allObjects.call_adword_data, checkDbData, callback);
+            function checkDbData(result, callback) {
+                count++;
+                console.log('countres', count,result);
+                if (result == 'DataFromDb'){
+                    actualFinalApiData = {
+                        apiResponse: 'DataFromDb',
+                       // metricId: results.metricId,
+                        queryResults: initialResults,
+                        channelId: initialResults.metric[0].channelId
+                    }
+                    callback(null,actualFinalApiData);
+                }
+
+                else {
+                    console.log('async starts ', result);
+                    getAdwordsDataForEachMetric(result, callback);
+
+                }
+            }
+        }
+
+        function getAdwordsDataForEachMetric(results, callback) {
+            var during = results.startDate + ',' + results.endDate;
+            console.log('during', results);
+            googleAds.use({
+                clientID: configAuth.googleAdwordsAuth.clientID,
+                clientSecret: configAuth.googleAdwordsAuth.clientSecret,
+                developerToken: configAuth.googleAdwordsAuth.developerToken
+            });
+            googleAds.use({
+                accessToken: results.profile.accessToken,
+                //tokenExpires: 1424716834341, // Integer: Unix Timestamp of expiration time
+                refreshToken: results.profile.refreshToken,
+                clientCustomerID: results.objects
+            });
+            googleAds.awql()
+                .select(results.query)
+                .from('ACCOUNT_PERFORMANCE_REPORT')
+                .during(during)
+                .send().then(function (response) {
+                    storeAdwordsFinalData(results, response.data);
+                })
+                .catch(function (error) {
+                    console.log('Error', error);
+                    callback(error, null);
+
+                });
+            //To store the final result in db
+            function storeAdwordsFinalData(results, data) {
+                var actualFinalApiData = {};
+                if (data.error) {
+                    console.log('error')
+                }
+                console.log('storeAdwordsFinalData', results.metricCode);
+                //Array to hold the final result
+                var param = [];
+                if (results.metricCode === configAuth.googleAdwordsMetric.clicks) {
+                    param.push('clicks');
+                }
+                else if (results.metricCode === configAuth.googleAdwordsMetric.cost) {
+                    param.push('cost');
+                }
+                else if (results.metricCode === configAuth.googleAdwordsMetric.conversionrate) {
+                    param.push('conv. rate');
+                }
+                else if (results.metricCode === configAuth.googleAdwordsMetric.conversions) {
+                    param.push('conversions');
+                }
+                else if (results.metricCode === configAuth.googleAdwordsMetric.impressions) {
+                    param.push('impressions');
+                }
+                else if (results.metricCode === configAuth.googleAdwordsMetric.clickThroughRate) {
+                    param.push('ctr')
+                }
+                else if (results.metricCode === configAuth.googleAdwordsMetric.costperclick) {
+                    param.push('avg. cpc');
+                }
+                else if (results.metricCode === configAuth.googleAdwordsMetric.costperthousandImpressions) {
+                    param.push('avg. cpm');
+                }
+                else {
+                    param.push('cost / conv.');
+                }
+                console.log('param', param);
+                var finalData = [];
+                for (var prop = 0; prop < data.length; prop++) {
+                    console.log('gad data', data[0])
+                    var value = {};
+                    value = {
+                        total: parseInt(data[prop][param]),
+                        date: data[prop].day
+                    };
+                    finalData.push(value);
+                }
+
+                if (results.dataResult != null) {
+                    //merge the old data with new one and update it in db
+                    for (var key = 0; key < results.dataResult.length; key++) {
+                        finalData.push(results.dataResult[key]);
+                    }
+                    actualFinalApiData = {
+                        apiResponse: finalData,
+                        metricId: results.metricId,
+                        queryResults: initialResults,
+                        channelId: initialResults.metric[0].channelId
+                    }
+                    //actualFinalApiData = {apiResponse : finalData , metricId : results.metricId}
+                    console.log('finalData', finalData);
+                    callback(null, actualFinalApiData);
+
+                }
+                else {
+                    console.log('finalDataElse', finalData);
+                    actualFinalApiData = {
+                        apiResponse: finalData,
+                        metricId: results.metricId,
+                        queryResults: initialResults,
+                        channelId: initialResults.metric[0].channelId
+                    }
+                    // actualFinalApiData = {apiResponse: finalData, metricId: results.metricId}
+                    callback(null, actualFinalApiData);
+                }
+
+            }
+
+        }
     }
 
 

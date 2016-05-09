@@ -214,7 +214,7 @@ showMetricApp.service('createWidgets',function($http,$q){
         if(graphData.lineData != null){
             graphData.lineDataOptions = {
                 chart: {
-                    type: 'cumulativeLineChart',
+                    type: 'lineChart',
                     margin : {top: 20, right: 20, bottom: 40, left: 55},
                     x: function(d){ return d.x; },
                     y: function(d){ return d.y; },

@@ -101,7 +101,7 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
             switch ($scope.storedChannelName) {
                 case 'Facebook':            $scope.objectType = 'page';         break;
                 case 'Google Analytics':    $scope.objectType = 'view';         break;
-                case 'Facebook Ads':        $scope.objectType = 'fbadaccount';  break;
+                case 'FacebookAds':        $scope.objectType = 'fbadaccount';  break;
             }
             $http({
                 method: 'GET',
@@ -126,7 +126,7 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
                     url = '/api/v1/auth/google';
                     title = $scope.storedChannelName;
                     break;
-                case 'Facebook Ads':
+                case 'FacebookAds':
                     url = '/api/auth/facebookads';
                     title = $scope.storedChannelName;
                     break;

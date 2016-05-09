@@ -256,6 +256,18 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope){
             }
             $scope.storedReferenceWidget.charts[i].metrics = matchingMetric;
         }
+        console.log('storedReferenceCharts',$scope.storedReferenceWidget);
+          var jsonData = {
+         "dashboardId": $state.params.id,
+         "widgetType": $scope.widgetType,
+         "charts": $scope.storedReferenceWidget.charts,
+         "order": $scope.storedReferenceWidget.order,
+         "offset": $scope.storedReferenceWidget.offset,
+         "size": $scope.storedReferenceWidget.size,
+         "minSize": $scope.storedReferenceWidget.minSize,
+         "maxSize": $scope.storedReferenceWidget.maxSize
+         };
+         console.log('json data',jsonData);
          $http({
              method: 'POST',
              url: '/api/v1/widgets',

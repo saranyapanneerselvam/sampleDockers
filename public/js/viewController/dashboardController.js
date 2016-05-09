@@ -128,7 +128,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                         id: widgets[getWidgets]._id,
                         chart: finalChartData
                     };
-                    console.log($scope.dashboard.widgets[widgetIndex]);
                 }
 /*
                 var widgetIndex;
@@ -259,54 +258,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 console.log(error);
             }
         );
-
-        /*
-                var graphData, metricDetails;
-                var dataToBePopulated = [];
-                var jsonData = {
-                    "startDate": moment($scope.dashboardCalendar.start_date).format('YYYY-MM-DD'),
-                    "endDate": moment($scope.dashboardCalendar.end_date).format('YYYY-MM-DD')
-                };
-                console.log('Displaying data fetch inputs',widgetId,jsonData);
-                $scope.dashboard.widgets.push({
-                    sizeY: 3,
-                    sizeX: 3,
-                    id: widgetId,
-                    chart: {
-                        api: {}
-                    },
-                    visibility: false
-                });
-                $http({
-                    method: 'POST',
-                    url: '/api/v1/widgets/data/'+widgetId,
-                    data: jsonData
-                }).then(function successCallback(response){
-                    console.log('Data for widget',widgetId,':',response);
-                    for(i=0;i<response.data[0].data.length;i++){
-                        splitDate = [response.data[0].data[i].date];
-                        newDate = splitDate[1]+'/'+splitDate[2]+'/'+splitDate[0];
-                        inputDate = new Date(newDate).getTime();
-                        dataToBePopulated.push({x: inputDate, y: response.data[0].data[i].total});
-                    }
-                    $http({
-                        method:'GET', url:'/api/v1/get/metricDetails/' + response.data[0].metricId
-                    }).then(function successCallback(response){
-                        metricDetails = response.data.metricsList[0];
-                        graphData = [{
-                            values: dataToBePopulated,      //values - represents the array of {x,y} data points
-                            key: metricDetails.name, //key  - the name of the series.
-                            color: '#7E57C2'  //color - optional: choose your own line color.
-                        }];
-                        $scope.addBasicWidget(graphData,metricDetails,widgetId);
-                    },function errorCallback(error){
-                        console.log('Error in getting metric details',error);
-                    });
-                },function errorCallback(error){
-                    console.log('Error in getting data after widget creation',error);
-                    //$scope.addBasicWidget(graphData,metricDetails,widgetId);
-                });
-        */
     });
 
     //To add the graph data of a widget to the angular gridster layout widget

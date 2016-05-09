@@ -22,7 +22,7 @@ exports.saveCustomChannelData = function (req, res, next) {
         var pattern =/^([0-9]{2})\/([0-9]{2})\/([0-9]{4})$/; // DD/MM/YYYY or MM/DD/YYYY
         var convertDateMMDDYYYY = function(usDate) {
             var dateParts = usDate.split(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-            return dateParts[3] + "-" + dateParts[1] + "-" + dateParts[2];
+            return dateParts[3] + "-" + dateParts[2] + "-" + dateParts[1];
         }
 
         for(getChcekValue in data){
@@ -42,6 +42,9 @@ exports.saveCustomChannelData = function (req, res, next) {
             else{
                 data[getChcekValue].date = outDateMMDDYYYY;
             }
+
+            var inTotal = parseInt(data[getChcekValue].total);
+            data[getChcekValue].total = inTotal;
         }
 
         console.log("Is Send Post : "+isSendPost);

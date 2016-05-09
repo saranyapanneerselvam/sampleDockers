@@ -1,7 +1,7 @@
 module.exports = function (app) {
     var request = require('request');
     var user = require('../helpers/user');
-    var getGoogleMetricData = require('../middlewares/channelObjectList');
+    var channels = require('../models/channels');
     // load the auth variables
     var configAuth = require('../config/auth');
     var googleapis = require('googleapis');//To use google api'
@@ -12,7 +12,7 @@ module.exports = function (app) {
         clientSecret: configAuth.googleAuth.clientSecret,
         site: 'https://accounts.google.com/o/',
         tokenPath: 'https://accounts.google.com/o/oauth2/token',
-        authorizationPath: 'oauth2/auth',
+        authorizationPath: 'oauth2/auth'
     });
 
     // Authorization uri definition
@@ -68,18 +68,21 @@ module.exports = function (app) {
 
                             //set token details to tokens
                             req.tokens = token.token;
-                            req.channelId = '56d52c07e4b0196c549033b6';
-                            req.channelCode = '1';
+                            channels.findOne({code: 'googleanalytics'}, function (err, channelDetails) {
+                                console.log('channelDetails', channelDetails);
+                                req.channelId = channelDetails._id;
+                                req.channelName = channelDetails.name;
+                                req.channelCode = channelDetails._id;
 
-                            //Calling the storeProfiles middleware to store the data
-                            user.storeProfiles(req, function (err, response) {
-                                if (err)
-                                    res.json('Error');
-                                else {
-
-                                    //If response of the storeProfiles function is success then redirect it to profile page
-                                    res.redirect('/profile');
-                                }
+                                //Calling the storeProfiles middleware to store the data
+                                user.storeProfiles(req, function (err, response) {
+                                    if (err)
+                                        res.json('Error');
+                                    else {
+                                        //If response of the storeProfiles function is success then close the authentication window
+                                        res.render('successAuthentication');
+                                    }
+                                });
                             });
                         }
                     })

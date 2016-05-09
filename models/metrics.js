@@ -14,7 +14,7 @@ var metricsSchema = mongoose.Schema({
     xAxis: String,
     yAxis: String,
     scopes: Array,
-    meta:Object,
+    objectTypes:Array,
     endPoints: {
         objectTypeId: Number,
         endPoint: String
@@ -27,4 +27,3 @@ var metricsSchema = mongoose.Schema({
 
 // create the model for organization and expose it to our app
 module.exports = mongoose.model('Metrics', metricsSchema);
-

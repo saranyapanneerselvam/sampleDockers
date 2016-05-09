@@ -14,19 +14,22 @@
     <title page-title></title>
 
     <!-- Bootstrap -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!--<link href="css/bootstrap.css" rel="stylesheet">-->
+    <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.css">
+    <!--<link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">-->
 
     <!-- Font awesome -->
     <link href="font-awesome/css/font-awesome.css" rel="stylesheet">
-    <!--<link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">-->
     <!-- Main Inspinia CSS files -->
     <link href="css/animate.css" rel="stylesheet">
     <link id="loadBefore" href="css/style.css" rel="stylesheet">
-</head>
+    <link href="css/datePicker/application.css" rel="stylesheet">
+
+  </head>
 
 <!-- ControllerAs syntax -->
 <!-- Main controller with serveral data used in Inspinia theme on diferent view -->
-<body ng-controller="MainCtrl as main" class="{{$state.current.data.specialClass}}" landing-scrollspy id="page-top">
+<body ng-controller="MainCtrl as main" class="{{$state.current.data.specialClass}} mini-navbar" landing-scrollspy id="page-top">
 
 <!-- Main view  -->
 <div ui-view> </div>
@@ -35,6 +38,9 @@
 <script src="js/jquery/jquery-2.1.1.min.js"></script>
 <script src="js/plugins/jquery-ui/jquery-ui.js"></script>
 <script src="js/bootstrap/bootstrap.min.js"></script>
+<!--<script src="datePicker/js/vendor/jquery.js"></script>
+<script src="datePicker/js/vendor/moment.js"></script>-->
+
 
 <!-- MetsiMenu -->
 <script src="js/plugins/metisMenu/jquery.metisMenu.js"></script>
@@ -56,7 +62,26 @@
 <script src="/bower_components/d3/d3.js"></script>
 <script src="/bower_components/nvd3/build/nv.d3.js"></script> <!-- or use another assembly -->
 <script src="/bower_components/angular-nvd3/dist/angular-nvd3.js"></script>
+<script src="/bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+<script src="/bower_components/angular-bootstrap/ui-bootstrap.js"></script>
 <link rel="stylesheet" href="/bower_components/nvd3/build/nv.d3.css">
+<link rel="stylesheet" href="/bower_components/angular-bootstrap/ui-bootstrap-csp.css">
+<script src="bower_components/jquery/dist/jquery.js"></script>
+<script src="bower_components/moment/moment.js"></script>
+<script src="bower_components/bootstrap-daterangepicker/daterangepicker.js"></script>
+<script src="bower_components/angular-daterangepicker/js/angular-daterangepicker.js"></script>
+<link rel="stylesheet" href="bower_components/bootstrap-daterangepicker/daterangepicker.css"/>
+
+<script src="bower_components/css-element-queries/src/ResizeSensor.js"></script>
+<script src="bower_components/css-element-queries/src/ElementQueries.js"></script>
+
+<link href="bower_components/angular-xeditable/dist/css/xeditable.css" rel="stylesheet">
+<script src="bower_components/angular-xeditable/dist/js/xeditable.js"></script>
+<script src="bower_components/jspdf/dist/jspdf.min.js"></script>
+
+<script type="text/javascript" src="http://gabelerner.github.io/canvg/rgbcolor.js"></script>
+<script type="text/javascript" src="http://gabelerner.github.io/canvg/StackBlur.js"></script>
+<script type="text/javascript" src="http://gabelerner.github.io/canvg/canvg.js"></script>
 
 <!--
 <script src="js/angular/angular.js"></script>
@@ -76,12 +101,13 @@
 <!--
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.2.1/ui-bootstrap-tpls.js"></script>
 -->
+<!--
 <script src="js/ui-bootstrap-tpls/ui-bootstrap-tpls.js"></script>
+-->
 <script src="js/angular-gridster/angular-gridster.min.js"></script>
 <script src="js/plugins/angular-idle/angular-idle.js"></script>
 
 
- You need to include this script on any page that has a Google Map.
 <!--
  You need to include this script on any page that has a Google Map.
  When using Google Maps on your own site you MUST signup for your own API key at:
@@ -96,5 +122,15 @@
 <script src="js/translations.js"></script>
 <script src="js/directives.js"></script>
 <script src="js/controllers.js"></script>
+<script src="js/viewController/mainController.js"></script>
+<script src="js/viewController/appController.js"></script>
+<script src="js/viewController/basicWidgetController.js"></script>
+<script src="js/viewController/customWidgetController.js"></script>
+<script src="js/viewController/gridviewController.js"></script>
+<script src="js/viewController/widgetSettingsController.js"></script>
+<script src="js/viewController/lightBoxController.js"></script>
+<script src="js/viewController/dashboardController.js"></script>
+<script src="js/viewController/modalInstanceController.js"></script>
+<script src="js/viewController/fusionWidgetController.js"></script>
 </body>
 </html>

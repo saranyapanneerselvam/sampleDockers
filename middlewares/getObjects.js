@@ -11,6 +11,6 @@ exports.objects = function (req, res, next) {
         req.showMetric.objects = objects;
         next();
     })
-}
+};
 
 

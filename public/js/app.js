@@ -13,7 +13,9 @@
         'ngAnimate',
         'ui.bootstrap.tpls',
         'gridster',
-        'nvd3'
+        'nvd3',
+        'daterangepicker',
+        'xeditable'
     ])
 })();
 

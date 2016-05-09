@@ -7,6 +7,10 @@ var mongoose = require('mongoose');
 var dataSchema = mongoose.Schema({
     objectId: String,
     metricId: String,
+    widgetId: String,
+    chartType: String,
+    intervalType: String,
+    metricsCount: String,
     data: Array,
     created: Date,
     updated: Date,

@@ -12,7 +12,7 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
     IdleProvider.idle(5); // in seconds
     IdleProvider.timeout(120); // in seconds
 
-    $urlRouterProvider.otherwise("/reporting/dashboard");
+    $urlRouterProvider.otherwise("/reporting");
 
     $ocLazyLoadProvider.config({
         // Set to true if you want to see what and when is dynamically loaded
@@ -37,13 +37,29 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
 
         //Sub-parent state #2
         .state('app.reporting', {
-            abstract: true,
-            url: "/reporting"
+            url: "/reporting",
+            template: '{{loading}}',
+            controller: function ($http,$state,$scope){
+                $scope.loading = "";
+                if($state.$current.name == 'app.reporting'){
+                    $scope.loading="loading...";
+                    $http({
+                        method: 'GET', url: '/api/v1/me'
+                    }).then(function successCallback(response) {
+                        var currentDashboardId = response.data.userDetails[0].lastDashboardId;
+                        $state.go('.dashboard',{id: currentDashboardId});
+                        $scope.loading='';
+                    }, function errorCallback(error) {
+                        console.log('Error in finding dashboard Id',error);
+                        return error;
+                    });
+                }
+            }
         })
 
         //Defining child states for parent state: 'reporting'
         .state('app.reporting.dashboard', {
-            url: "/dashboard",
+            url: "/dashboard/:id",
             views: {
                 'main@app': {
                     templateUrl: "dashboardTemplate.ejs",
@@ -60,12 +76,21 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                             ]
                         }
                     ]);
-}
-}
-})
+                }
+            },
+            onEnter: function ($stateParams,$http) {
+                $http({
+                    method:'POST', url:'/api/v1/updateLastDashboardId/' + $stateParams.id
+                }).then(function successCallback(response){
+                    console.log('successfully updated last dashboard id',response)
+                },function errorCallback (error){
+                    console.log('Failure in updating last dashboard id',error)
+                });
+            }
+        })
 
         .state('app.reporting.dashboard.basicWidget', {
-            url: "/lightBox",
+            url: "/{widgetType}",
             views: {
                 'lightbox@app.reporting.dashboard': {
                     templateUrl: "basicWidget.ejs",
@@ -79,6 +104,35 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                             files: ['css/plugins/steps/jquery.steps.css']
                         }
                     ]);
+                }
+            }
+        })
+
+        .state('app.reporting.dashboard.fusionWidget', {
+            url: "",
+            views: {
+                'lightbox@app.reporting.dashboard': {
+                    templateUrl: "fusionWidget.ejs",
+                    controller: 'LightBoxController'
+                }
+            },
+            resolve: {
+                loadPlugin: function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        {
+                            files: ['css/plugins/steps/jquery.steps.css']
+                        }
+                    ]);
+                }
+            }
+        })
+
+        .state('app.reporting.dashboards', {
+            url: "/gridView",
+            views: {
+                'main@app': {
+                    templateUrl: "gridView.ejs",
+                    controller: 'GridviewController'
                 }
             }
         });

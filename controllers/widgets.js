@@ -16,6 +16,14 @@ module.exports = function (app) {
             res.status(500).send({error: ""});
     });
 
+    app.get('/api/v1/widget/:widgetId', widgetsList.widgetDetails, function (req, res) {
+        var widgetInfo = req.showMetric.widgetInfo;
+        if (widgetInfo)
+            res.json(widgetInfo);
+        else
+            res.status(500).send({error: ""});
+    });
+
     //To store the widgets
     app.post('/api/v1/widgets', widgetsList.saveWidgets, function (req, res) {
         var widgets = req.app.result;
@@ -24,4 +32,23 @@ module.exports = function (app) {
         else
             res.status(500).send({error: ""});
     });
+
+    //To store the custom widgets
+    app.post('/api/v1/create/customwidgets', widgetsList.saveCustomWidgets, function (req, res) {
+        var customWidgets = req.app.result;
+        if (customWidgets)
+            res.json({widgetsList: customWidgets});
+        else
+            res.status(500).send({error: ""});
+    });
+
+    //To delete the widgets
+    app.post('/api/v1/delete/widgets/:widgetId', widgetsList.deleteWidgets, function (req, res) {
+        var widgets = req.app.result;
+        if (widgets)
+            res.json({widgetsList: widgets});
+        else
+            res.status(500).send({error: ""});
+    });
+
 };

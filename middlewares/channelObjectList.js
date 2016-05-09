@@ -1,173 +1,375 @@
-var channels = require('../models/channels');
+var async = require("async");
+var Channel = require('../models/channels');
 var exports = module.exports = {};
-var FB = require('fb');//Importing the fb module
-var googleapis = require('googleapis');//To use google api's
-var graph = require('fbgraph');//Importing the fbgraph module
-var profile = require('../models/profiles');//To load up the user model
-var metrics = require('../models/metrics');//To load the metrics model
-var dataCollection = require('../models/data');//To load the data model
-var objectCollection = require('../models/objects');//To load the data model
-var objectTypeCollection = require('../models/objectTypes');//To load the data model
-var userCollection = require('../models/user');
-var OAuth2 = googleapis.auth.OAuth2;//Set OAuth
-var configAuth = require('../config/auth');//Load the auth file
-var oauth2Client = new OAuth2(configAuth.googleAuth.clientID, configAuth.googleAuth.clientSecret, configAuth.googleAuth.callbackURL);//set credentials in OAuth2
-var analytics = googleapis.analytics({version: 'v3', auth: oauth2Client});// set auth as a global default
 
-/**
- * middleware to get the account details based on user account
+//Importing the fb module
+var FB = require('fb');
 
- */
+//To use google api's
+var googleapis = require('googleapis');
+
+//To load up the user model
+var Profile = require('../models/profiles');
+
+//To load the data model
+var Object = require('../models/objects');
+
+//To load the data model
+var ObjectType = require('../models/objectTypes');
+
+//Set OAuth
+var OAuth2 = googleapis.auth.OAuth2;
+
+//Load the auth file
+var configAuth = require('../config/auth');
+
+//set credentials in OAuth2
+var oauth2Client = new OAuth2(configAuth.googleAuth.clientID, configAuth.googleAuth.clientSecret, configAuth.googleAuth.callbackURL);
+
+//set credentials in OAuth2
+var oauth2AdsClient = new OAuth2(configAuth.googleAdwordsAuth.clientID, configAuth.googleAdwordsAuth.clientSecret, configAuth.googleAdwordsAuth.callbackURL);
+
+//set googleadword node library
+var AdWords = require('googleads-node-lib');
+
+// set auth as a global default
+var analytics = googleapis.analytics({version: 'v3', auth: oauth2Client});
+
+
 exports.listAccounts = function (req, res, next) {
 
-    //Array to hold web property list
-    var accountWebpropertList = [];
-
-    //Array to hold view list
-    var webPropertyViewIdList = [];
-
-    //array to hold google data
-    req.app.webPropertyViewIdList = [];
-
-    //Query to find channel
-    profile.findOne({'_id': req.params.profileId}, {
-        accessToken: 1,
-        refreshToken: 1,
-        channelId: 1,
-        userId: 1
-    }, function (err, profileInfo) {
-        console.log('profile', profileInfo);
-        if (err)
-            req.app.result = {error: err, message: 'Database error'};
-        else if (!profileInfo)
-            req.app.result = {status: 302, message: 'No record found'};
-        else {
-            channels.findOne({'_id': profileInfo.channelId}, {code: 1}, function (err, channelDetails) {
-                req.app.result = profileInfo;
-
-                //To check the channel
-                switch (channelDetails.code) {
-                    case 'googleanalytics':
-                        console.log('googleanalytics');
-                        selectGAObjectType(profileInfo, channelDetails);
-                        break;
-                    case 'facebook':
-                        console.log('facebook');
-                        selectFbObjectType(profileInfo, channelDetails);
-                        break;
-                }
-            })
+    //Using async's auto method for handling asynchronous functions
+    async.auto({
+        get_objectType: getObjectType,
+        get_profile: getProfile,
+        get_channel: ['get_objectType', 'get_profile', getChannel],
+        get_channel_objects_remote: ['get_channel', getChannelObjectsRemote],
+        store_channel_objects: ['get_channel_objects_remote', storeChannelObjects],
+        get_channel_objects_db: ['store_channel_objects', getChannelObjectsDB]
+    }, function (err, results) {
+        console.log('err = ', err);
+        console.log('results = ', results);
+        if (err) {
+            return res.status(500).json({});
         }
-    })
 
-    function selectGAObjectType(profileInfo, channelDetails) {
-console.log('page',req.query);
+        //Final result will be set here
+        req.app.result = results.get_channel_objects_db;
+        next();
+    });
 
-        //To select which object type
+    //Handling the database callback
+    function checkNullObject(callback) {
+        return function (err, object) {
+            if (err)
+                callback('Database error: ' + err, null);
+            else if (!object)
+                callback('No record found', null);
+            else
+                callback(null, object);
+        }
+    }
+
+    //To get the object type details from db
+    function getObjectType(callback) {
+        ObjectType.findOne({type: req.query.objectType}, checkNullObject(callback));
+    }
+
+    //To get the profile details from db
+    function getProfile(callback) {
+        Profile.findOne({'_id': req.params.profileId}, {
+            accessToken: 1,
+            refreshToken: 1,
+            channelId: 1,
+            userId: 1,
+            name:1,
+            email: 1
+        }, checkNullObject(callback));
+    }
+
+    //To get the channel details from db
+    function getChannel(results, callback) {
+        Channel.findOne({'_id': results.get_profile.channelId}, {code: 1}, checkNullObject(callback));
+    }
+
+    //To select the channel type
+    function getChannelObjectsRemote(results, callback) {
+        var channel = results.get_channel;
+        switch (channel.code) {
+            case configAuth.channels.googleAnalytics:
+                console.log('googleanalytics');
+                getGAChannelObjects(results, callback);
+                break;
+            case configAuth.channels.facebook:
+                console.log('facebook');
+                selectFbObjectType(results.get_profile, channel);
+                break;
+            case configAuth.channels.facebookAds:
+                console.log('facebookAds');
+                selectFbadsObjectType(results.get_profile, channel);
+                break;
+            case configAuth.channels.twitter:
+                console.log('tweeter');
+                selectTweetObjectType(results.get_profile, channel);
+                break;
+            case configAuth.channels.googleAdwords:
+                selectgoogleAdwords(results.get_profile, channel);
+                break;
+            default:
+                callback('Bad Channel Code', null);
+        }
+
+    }
+
+    //Call the function based on object type
+    function getGAChannelObjects(results, callback) {
+        initializeGa(results);
         switch (req.query.objectType) {
-            case 'page':
-                console.log('channel');
-                getGAPageList(profileInfo, channelDetails);
-                break;
-            case 'post':
-                console.log('google');
-                getFBPageList(profileInfo, channelDetails);
+            case configAuth.objectType.googleView:
+                getAccountsPropsAndViews(results, callback);
                 break;
         }
     }
 
-    //function to get the list of ga pages
-    function getGAPageList(profileInfo, channelDetails) {
-        console.log('user details', profileInfo);
-        oauth2Client.setCredentials({
-            access_token: profileInfo.accessToken,
-            refresh_token: profileInfo.refreshToken
+    //To get analytic accounts,properties & views
+    function getAccountsPropsAndViews(initialResults, callback) {
+        async.auto({
+            refresh_token: refreshAccessToken,
+            get_accounts: ['refresh_token', getAccounts],
+            get_properties: ['get_accounts', getPropertiesForAllAccounts],
+            get_views: ['get_properties', getViews],
+        }, function (err, results) {
+            console.log('err = ', err);
+            console.log('results = ', results);
+            if (err) {
+                return callback(err, null);
+            }
+            callback(null, results.get_views);
         });
-        getMetricResults(profileInfo, channelDetails, next);
 
-    }
+        //To refresh the access token
+        function refreshAccessToken(callback) {
+            console.log('refreshAccessToken');
 
-    //Function to referesh the access token
-    function refreshingAccessToken(profileInfo) {
-        oauth2Client.refreshAccessToken(function (err, tokens) {
+            oauth2Client.refreshAccessToken(function (err, tokens) {
+                callback(err, tokens);
 
-            // your access_token is now refreshed and stored in oauth2Client
-            // store these new tokens in a safe place (e.g. database)
-            var userDetails = {};
-            profileInfo.token = tokens.access_token;
-            getMetricResults(profileInfo, next);
-            profile.update({'email': profileInfo.email}, {$set: {"accessToken": tokens.access_token}}, {upsert: true}, function (err, updateResult) {
-                if (err || !updateResult)console.log('failure');
-                else console.log('Update success');
-            })
-        });
-    }
-
-    //function to get the account list
-    function getMetricResults(profileInfo, channelDetails, next) {
-        length = 0;
-        analytics.management.accounts.list({
-            access_token: profileInfo.accessToken,
-            auth: oauth2Client
-        }, function (err, result) {
-            if (!err) {
-                for (var i = 0; i < result.items.length; i++) {
-
-                    getWebProperty(i, result,profileInfo);
+                if (err) {
+                    return;
                 }
-            }
-            else {
-                console.log('else refresh token', profileInfo);
-                refreshingAccessToken(profileInfo);
-            }
-        })
 
-    }
+                // your access_token is now refreshed and stored in oauth2Client
+                // store these new tokens in a safe place (e.g. database)
 
-    //function to get property list
-    function getWebProperty(i, result,profileInfo) {
-        analytics.management.webproperties.list({
-            'accountId': result.items[i].id,
-        }, function (err, response) {
-            for (var j = 0; j < response.items.length; j++) {
-                accountWebpropertList.push({'accountId': result.items[i].id, webPropertyId: response.items[j].id});
-                if (!err) {
-                    getWebPropertView(i, j, response, result,profileInfo, next);
+                var profile = initialResults.get_profile;
+                profile.token = tokens.access_token;
+                var updated = new Date();
+
+                Profile.update({
+                    'email': profile.email,
+                    channelId: profile.channelId
+                }, {$set: {"accessToken": tokens.access_token, updated: updated}}, function (err, updateResult) {
+                    if (err || !updateResult) {
+
+                        console.log('failure');
+                    }
+                    else console.log('Access token Update success');
+                })
+            });
+        }
+
+        //To get the account list of a user
+        function getAccounts(results, callback) {
+            analytics.management.accounts.list({
+                access_token: initialResults.get_profile.accessToken,
+                auth: oauth2Client
+            }, function (err, response) {
+                if (err)
+                    return callback(err, '');
+                callback(null, response.items);
+
+            });
+        }
+
+        //To get the web properties
+        function getPropertiesForAllAccounts(results, callback) {
+
+            /**
+             * Applies each account in getPropertiesForOneAccount function
+             @param results.get_accounts - array to iterate over
+             @param getPropertiesForOneAccount -function to apply to each item in results.get_accounts
+             @param callback - second param is passed then it will be called
+             */
+            async.concat(results.get_accounts, getPropertiesForOneAccount, callback);
+        }
+
+        //To get the properties for an account one by one
+        function getPropertiesForOneAccount(account, callback) {
+            analytics.management.webproperties.list({
+                'accountId': account.id,
+            }, function (err, response) {
+                if (err)
+                    return callback(err, null);
+                for (var i = 0; i < response.items.length; i++) {
+                    response.items[i].account = account;
                 }
-            }
-        })
-    }
+                callback(null, response.items);
+            });
+        }
 
-    //function to get the views list
-    function getWebPropertView(i, j, response, result,profileInfo, next) {
-        analytics.management.profiles.list({
-            'accountId': result.items[i].id,
-            'webPropertyId': response.items[j].id
-        }, function (err, getProperty) {
-            for (var k = 0; k < getProperty.items.length; k++) {
-                if (!err) {
-                    req.app.viewSelected = false;
-                    webPropertyViewIdList.push({
-                        'accountId': result.items[i].id,
-                        'webProperty': response.items[j].id,
-                        'webPropertyName': response.items[j].name,
-                        'viewId': getProperty.items[k].id,
-                        'viewName': getProperty.items[k].name
+        //To get views
+        function getViews(results, callback) {
+            async.concat(results.get_properties, getViewsForOneProperty, callback);
+        }
+
+        //To get the views one by one
+        function getViewsForOneProperty(property, callback) {
+            analytics.management.profiles.list({
+                'accountId': property.account.id,
+                'webPropertyId': property.id
+            }, function (err, views) {
+                if (err)
+                    return callback(err, null);
+                var dbViews = [];
+                for (var i = 0; i < views.items.length; i++) {
+                    dbViews.push({
+                        'channelObjectId': views.items[i].id,
+                        objectTypeId: initialResults.get_objectType._id,
+                        'viewName': views.items[i].name,
+                        meta: {webPropertyName: property.name, webPropertyId: property.id}
                     });
                 }
-            }
-            length = length + getProperty.items.length;
-            if (result.items.length - 1 == i) {
-                console.log('webPropertyViewIdList', webPropertyViewIdList, result.items.length - 1);
-                var storeObjectLists = objectCollection();
-                console.log('profile',profileInfo);
+                callback(null, dbViews);
+            });
+        }
 
 
+    }
 
-                req.app.result = webPropertyViewIdList;
-                next();
+    //Set tokens
+    function initializeGa(results) {
+        oauth2Client.setCredentials({
+            access_token: results.get_profile.accessToken,
+            refresh_token: results.get_profile.refreshToken
+        });
+    }
+
+    //To store the channel objects in db
+    function storeChannelObjects(results, callback) {
+        //get_channel_objects
+        var views = results.get_channel_objects_remote;
+        var bulk = Object.collection.initializeOrderedBulkOp();
+        var now = new Date();
+
+        //set the update parameters for query
+        for (var i = 0; i < views.length; i++) {
+
+            //set query condition
+            var query = {
+                profileId: results.get_profile._id,
+                channelObjectId: views[i].channelObjectId
+            };
+
+            //set the values
+            var update = {
+                $setOnInsert: {created: now},
+                $set: {
+                    name: views[i].viewName,
+                    objectTypeId: results.get_objectType._id,
+                    meta: {
+                        webPropertyName: views[i].meta.webPropertyName,
+                        webPropertyId: views[i].meta.webPropertyId
+                    },
+                    updated: now
+                }
+            };
+
+            //form the query
+            bulk.find(query).upsert().update(update);
+        }
+
+        //Doing the bulk update
+        bulk.execute(function (err) {
+            callback(err, 'success');
+        });
+    }
+
+    //To get the objects from db
+    function getChannelObjectsDB(results, callback) {
+        console.log('getChannelObjectsDB');
+        var query = {
+            profileId: results.get_profile._id,
+            objectTypeId: results.get_objectType._id
+        };
+        Object.find(query, callback);
+    }
+
+    function getFbAdAccountList(profile, channel, query) {
+        var channelObjectDetails = [];
+        //To get the object type id from database
+        ObjectType.findOne({
+            'type': req.query.objectType,
+            'channelId': profile.channelId
+        }, function (err, res) {
+            if (!err) {
+                FB.setAccessToken(profile.accessToken);
+                FB.api(query,
+                    function (adAccount) {
+                        console.log(adAccount);
+                        var adslength = adAccount.data.length;
+                        console.log(adslength);
+                        req.app.result = adAccount;
+                        for (var i = 0; i < adslength; i++) {
+                            var objectsResult = new Object();
+                            var profileId = profile._id;
+                            var objectTypeId = res._id;
+                            var channelObjectId = adAccount.data[i].id;
+                            var name = adAccount.data[i].name;
+                            var created = new Date();
+                            var updated = new Date();
+                            console.log('profileInfo._id', profile._id)
+                            console.log('channelObjectId', channelObjectId)
+                            //To store once
+                            Object.update({
+                                profileId: profile._id,
+                                channelObjectId: adAccount.data[i].id
+                            }, {
+                                $setOnInsert: {created: created},
+                                $set: {name: name, objectTypeId: objectTypeId, updated: updated}
+                            }, {upsert: true}, function (err, res) {
+                                console.log(err)
+                                console.log(res);
+                                if (!err) {
+                                    Object.find({'profileId': profile._id}, function (err, objectList) {
+                                        channelObjectDetails.push({
+                                            'result': objectList
+                                        })
+                                        if (adAccount.data.length == channelObjectDetails.length) {
+                                            req.app.result = objectList;
+                                            console.log('er');
+                                            next();
+                                        }
+                                    })
+                                }
+                            })
+                        }
+                    }
+                );
             }
         })
+    }
+
+    // This function to get adaccounts who login user
+    function selectFbadsObjectType(profile, channel) {
+        console.log('insight fbadaccount', req.query.objectType);
+        //To select which object type
+        switch (req.query.objectType) {
+            case configAuth.objectType.facebookAds:
+                console.log('fbadaccount');
+                var query = "v2.5/" + profile.userId + "/adaccounts?fields=name";
+                getFbAdAccountList(profile, channel, query);
+                break;
+        }
     }
 
     /**
@@ -176,81 +378,218 @@ console.log('page',req.query);
      2.res have the query response
      @event pageList is used to send & receive the list of pages result
      */
-    function selectFbObjectType(profileInfo, channelDetails) {
-
-
+    function selectFbObjectType(profile, channel) {
         //To select which object type
         switch (req.query.objectType) {
-            case 'page':
-                console.log('channel');
-                var query = "/" + profileInfo.userId + "/accounts";
-                getFbPageList(profileInfo, channelDetails, query);
+            case configAuth.objectType.facebookPage:
+                var query = "/" + profile.userId + "/accounts";
+                getFbPageList(profile, channel, query);
                 break;
-            case 'post':
-                console.log('facebook');
-                getFBPageList(profileInfo, channelDetails);
-                break;
+
         }
     }
 
-    function getFbPageList(profileInfo, channelDetails, query) {
+    function getFbPageList(profile, channel, query) {
         var channelObjectDetails = [];
 
         //To get the object type id from database
-        objectTypeCollection.findOne({
-                'type': req.query.objectType,
-                'channelId': profileInfo.channelId
-            }, function (err, res) {
-                if (!err) {
-                    objectCollection.find({'profileId': profileInfo._id}).sort({updated: -1}).exec(function (err, objectList) {
+        ObjectType.findOne({
+            'type': req.query.objectType,
+            'channelId': profile.channelId
+        }, function (err, res) {
+            if (!err) {
+                Object.find({'profileId': profile._id}).sort({updated: -1}).exec(function (err, objectList) {
                         if (err)
                             req.app.result = {error: err, message: 'Database error'};
                         else {
                             //Set access token
-                            FB.setAccessToken(profileInfo.accessToken);
+                            FB.setAccessToken(profile.accessToken);
                             FB.api(
                                 query,
                                 function (pageList) {
                                     var length = pageList.data.length;
                                     req.app.result = pageList;
                                     for (var i = 0; i < length; i++) {
-                                        var objectsResult = new objectCollection();
-                                        var profileId = profileInfo._id;
+                                        var objectsResult = new Object();
+                                        var profileId = profile._id;
                                         var objectTypeId = res._id;
                                         var channelObjectId = pageList.data[i].id;
                                         var name = pageList.data[i].name;
                                         var created = new Date();
                                         var updated = new Date();
                                         //To store once
-                                        objectCollection.update({
-                                            profileId: profileInfo._id,
+                                        Object.update({
+                                            profileId: profile._id,
                                             channelObjectId: pageList.data[i].id
                                         }, {
-                                            $setOnInsert: {created: created}, $set: {name: name, objectTypeId:objectTypeId,updated: updated}
+                                            $setOnInsert: {created: created},
+                                            $set: {name: name, objectTypeId: objectTypeId, updated: updated}
                                         }, {upsert: true}, function (err) {
                                             if (!err) {
-                                                objectCollection.find({'profileId': profileInfo._id}, function (err, objectList) {
+                                                Object.find({'profileId': profile._id}, function (err, objectList) {
                                                     channelObjectDetails.push({
                                                         'result': objectList
-                                                    })
+                                                    });
                                                     if (pageList.data.length == channelObjectDetails.length) {
                                                         req.app.result = objectList;
                                                         console.log('er');
                                                         next();
                                                     }
                                                 })
-
                                             }
                                         })
                                     }
-                                })
+                                }
+                            )
                         }
-                    });
-                }
+                    }
+                );
             }
-        );
+        })
     }
 
 
+
+//This function to create the Object
+function getTweet(profile , channel){
+    var channelObjectDetails = [];
+    ObjectType.findOne({
+        'type': req.query.objectType,
+        'channelId': profile.channelId
+    },function(err, res){
+        console.log(res);
+        console.log(res._id);
+        var objectsResult = new Object();
+        var profileId = profile._id;
+        var objectTypeId = res._id;
+        var created = new Date();
+        var updated = new Date();
+        console.log ('profileInfo._id',profile._id);
+        console.log ('objectTypeId',objectTypeId);
+        //To store once
+        Object.update({
+            profileId: profile._id
+        },{
+            $setOnInsert: {created: created}, $set: { objectTypeId:objectTypeId,updated: updated}
+        },{upsert: true}, function (err, res) {
+            console.log(err)
+            console.log(res);
+            if (!err) {
+                Object.find({'profileId': profile._id}, function (err, objectList) {
+                    channelObjectDetails.push({
+                        'result': objectList
+                    })
+                    if (objectList) {
+                        req.app.result = objectList;
+                        console.log('twitter',objectList);
+                        next();
+                    }
+                })
+            }
+
+        })
+    });
 }
+
+
+    function selectTweetObjectType(profile , channel){
+        //console.log('insight fbadaccount',req.query.objectType);
+        //To select which object type
+        switch (req.query.objectType) {
+            case configAuth.objectType.twitter:
+                console.log('fbadaccount');
+                getTweet(profile, channel);
+                break;
+        }
+    }
+
+    function selectgoogleAdwords(results, callback) {
+        switch (req.query.objectType) {
+            case configAuth.objectType.googleAdword:
+                getAdwordsCustomerId(results, callback);
+                break;
+        }
+    }
+
+    //Get clientCustomerId from managerservices
+
+    function getAdwordsCustomerId(results, callback){
+        //To get the object type id from database
+        ObjectType.findOne({
+            'type': req.query.objectType,
+            'channelId': results.channelId
+        }, function (err, objectTypeId) {
+            if (!err) {
+                var service = new AdWords.ManagedCustomerService({
+                    ADWORDS_CLIENT_ID: configAuth.googleAdwordsAuth.clientID,
+                    ADWORDS_CLIENT_CUSTOMER_ID: configAuth.googleAdwordsAuth.managerClientId,
+                    ADWORDS_DEVELOPER_TOKEN: configAuth.googleAdwordsAuth.developerToken,
+                    ADWORDS_REFRESH_TOKEN: results.refreshToken,
+                    ADWORDS_SECRET: configAuth.googleAdwordsAuth.clientSecret,
+                    ADWORDS_USER_AGENT: configAuth.googleAdwordsAuth.userAgent
+                });
+                var clientCustomerId = configAuth.googleAdwordsAuth.managerClientId;
+                var selector = new AdWords.Selector.model({
+                    fields: service.selectable,
+                    ordering: [{field: 'Name', sortOrder: 'ASCENDING'}],
+                    paging: {startIndex: 0, numberResults: 100},
+                    predicates: []
+                });
+
+                service.get(clientCustomerId, selector, function(err, response) {
+                    if (err)
+                        console.log(err);
+                    else {
+                        queryExec(objectTypeId,results,callback,response);
+                    }
+                });
+            }
+        });
+    }
+    function  queryExec(objectTypeId,results,callback,response){
+        var model = response.entries.models;
+        var lengthOfModel = 0;
+        for(var i=0;i<model.length;i++){
+            if(model[i].attributes.canManageClients != true)
+                lengthOfModel++;
+        }
+        for (var i = 0; i < model.length; i++) {
+            var modelResult = model[i].attributes.canManageClients;
+            if (modelResult !== true) {
+                var accountName = model[i].attributes.name;
+                var customerId = model[i].attributes.customerId;
+                var channelObjectDetails =[];
+                var objectsResult = new Object();
+                var profileId = results._id;
+                var objectTypeId = objectTypeId._id;
+                var channelObjectId = customerId;
+                var name = accountName;
+                var created = new Date();
+                var updated = new Date();
+                //To store once
+                Object.update({
+                    profileId: results._id,
+                    channelObjectId: customerId
+                }, {
+                    $setOnInsert: {created: created},
+                    $set: {name: name, objectTypeId: objectTypeId, updated: updated}
+                }, {upsert: true}, function (err, res) {
+                    if (!err) {
+                        Object.find({'profileId': results._id}, function (err, objectList) {
+                            channelObjectDetails.push({
+                                'result': objectList
+                            });
+                            if (lengthOfModel == channelObjectDetails.length) {
+                                req.app.result = objectList;
+                                console.log('Adwords',objectList);
+                                next();
+                            }
+                        })
+                    }
+                });
+            }
+        }
+
+    }
+};
 

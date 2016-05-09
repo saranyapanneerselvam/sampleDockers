@@ -10,6 +10,7 @@ var profilesList = require('../models/profiles');
 exports.profiles = function (req, res, next) {
     req.showMetric = {};
     profilesList.find({channelId: req.params.channelId}, function (err, profiles) {
+        console.log('profile',req.params)
         req.showMetric.profiles = profiles;
         next();
     })

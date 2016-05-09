@@ -22,7 +22,7 @@ exports.getDashboards = function (req, res, next) {
         })
     }
 
-}
+};
 
 /**
  * To get the dashboard details based on dashboard id
@@ -43,7 +43,7 @@ exports.getDashboardDetails = function (req, res, next) {
 
     })
 
-}
+};
 
 /**
  * To store the dashboard details in database
@@ -82,16 +82,16 @@ exports.storeDashboards = function (req, res, next) {
 
             // set all of the user data that we need
             var name = req.body.name == undefined ? ' ' : req.body.name;
-            var dashboardId = req.body.dashboardId == undefined ? '' : req.body.dashboardId;
-            var orgId = req.user.orgId;
+           // var dashboardId = req.body.dashboardId == undefined ? '' : req.body.dashboardId;
+            //var orgId = req.user.orgId;
             var order = req.body.type == undefined ? ' ' : req.body.order;
             var type = req.body.type == undefined ? ' ' : req.body.type;
             var updated = new Date();
-            var _id = new mongoose.Schema.ObjectId(dashboardId).path;
+            var _id = new mongoose.Schema.ObjectId(req.body.dashboardId).path;
 
             // update the dashboard data
             dashboardList.update({_id: _id}, {
-                $set: {'name': name, orgId: orgId, order: order, type: type, updated: updated}
+                $set: {'name': name,  order: order, type: type, updated: updated}
             }, {upsert: true}, function (err) {
                 if (!err) {
                     req.app.result = {'status': '200', 'dashboardId': _id};
@@ -104,6 +104,6 @@ exports.storeDashboards = function (req, res, next) {
             });
         }
     }
-}
+};
 
 

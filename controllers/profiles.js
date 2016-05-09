@@ -1,4 +1,5 @@
 var profilesList = require('../middlewares/getProfiles');
+var profiles = require('../middlewares/removeProfile');
 
 /**
  * This is the middleware to get the list of profiles based on channels
@@ -13,5 +14,9 @@ module.exports = function (app) {
             res.json({profileList: profiles});
         else
             res.status(500).send({error: ""});
+    });
+
+    app.post('/api/v1/post/removeProfiles/:profileId', profiles.removeProfile, function (req, res) {
+        res.json(req.app.result);
     });
 };

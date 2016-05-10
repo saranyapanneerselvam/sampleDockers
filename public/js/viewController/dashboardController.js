@@ -87,7 +87,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         $scope.skSpinner=false;
     };
 
- 
+
 
     $rootScope.$on("CallPopulateDashboardWidgets", function(){
         $rootScope.populateDashboardWidgets();
@@ -122,6 +122,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
             $q.all(widgets).then(function successCallback(widgets){
                 var finalChartData,widgetIndex;
+
                 for(getWidgets in widgets){
                     finalChartData = createWidgets.dataLoader(widgets[getWidgets]);
 

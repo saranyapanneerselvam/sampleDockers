@@ -146,7 +146,7 @@ showMetricApp.service('createWidgets',function($http,$q){
             for(i=0;i<widget.charts.length;i++){
                 var formattedChartData = [];
                 var valuesArr = new Array();
-                if(widget.charts[i].chartType == 'line' || 'bar'){
+                if(widget.charts[i].chartType == 'line'){
                     if(typeof(widget.charts[i].chartData[0].total) === 'object') {
                         var endpoint;
                         for(j=0;j<widget.charts[i].metricDetails.objectTypes.length;j++){
@@ -196,8 +196,69 @@ showMetricApp.service('createWidgets',function($http,$q){
                         changedWidget.charts[i].chartData = formattedChartData;
                     }
                 }
-                else {
-                    console.log('In the else condition. Needs to be addressed as chart type is different');
+                else if(widget.charts[i].chartType == 'bar'){
+                    var setCustomDataArr = new Array();
+
+                    for(j=0;j<widget.charts[i].chartData.length;j++){
+                        if(widget.charts[i].chartData[j].name==undefined){
+                            formattedChartData.push({x: moment(widget.charts[i].chartData[j].date), y:widget.charts[i].chartData[j].total});
+                        }
+                        else{
+                            var IsAlreadyExist = 0;
+                            for(getData in formattedChartData){
+
+                                if(formattedChartData[getData].key==widget.charts[i].chartData[j].name){
+                                    valuesArr = formattedChartData[getData].values;
+                                    var dataValues = {
+                                        'label': moment(widget.charts[i].chartData[j].date).format('MM/DD/YY'),
+                                        'value': widget.charts[i].chartData[j].total
+                                    };
+                                    valuesArr.push(dataValues);
+                                    formattedChartData[getData].values=valuesArr;
+                                    IsAlreadyExist = 1;
+                                }
+                            }
+
+                            if (IsAlreadyExist != 1) {
+                                valuesArr = [];
+                                var dataValues = {
+                                    'label': moment(widget.charts[i].chartData[j].date).format('MM/DD/YY'),
+                                    'value': widget.charts[i].chartData[j].total
+                                };
+                                valuesArr.push(dataValues);
+                                formattedChartData.push({values:valuesArr,key: widget.charts[i].chartData[j].name, color:null});
+                            }
+
+                        }
+                    }
+                    changedWidget.charts[i].chartData = formattedChartData;
+                }
+                else if(widget.charts[i].chartType == 'pie'){
+                    var setCustomDataArr = new Array();
+
+                    for(j=0;j<widget.charts[i].chartData.length;j++){
+                        if(widget.charts[i].chartData[j].name==undefined){
+                            formattedChartData.push({x: moment(widget.charts[i].chartData[j].date), y:widget.charts[i].chartData[j].total});
+                        }
+                        else{
+                            var IsAlreadyExist = 0;
+                            for(getData in formattedChartData){
+                                var yValue = 0;
+                                if(formattedChartData[getData].key==widget.charts[i].chartData[j].name){
+                                    yValue = parseInt(formattedChartData[getData].y);
+                                    formattedChartData[getData].y=parseInt(yValue)+parseInt(widget.charts[i].chartData[j].total);
+                                    IsAlreadyExist = 1;
+                                }
+                            }
+
+                            if (IsAlreadyExist != 1) {
+
+                                formattedChartData.push({y:parseInt(widget.charts[i].chartData[j].total),key: widget.charts[i].chartData[j].name, color:null});
+                            }
+
+                        }
+                    }
+                    changedWidget.charts[i].chartData = formattedChartData;
                 }
             }
             formattedWidget.resolve(changedWidget);
@@ -212,7 +273,7 @@ showMetricApp.service('createWidgets',function($http,$q){
         var graphData = [];
         graphData.lineData = []; graphData.barData = [];
         graphData.lineDataOptions = []; graphData.barDataOptions = [];
-
+        graphData.pieData = []; graphData.pieDataOptions = [];
 
         for(var i=0;i<widgetData.charts.length;i++){
             if(widgetData.charts[i].chartType == 'line'){
@@ -233,7 +294,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                     }
                 }
 
-            } else if (widgetData.charts[i].chartType == 'bar'){
+            }
+            else if (widgetData.charts[i].chartType == 'bar'){
                 if(widgetData.charts[i].metricDetails!=undefined){
                     graphData.barData.push({
                         values: widgetData.charts[i].chartData,      //values - represents the array of {x,y} data points
@@ -251,7 +313,28 @@ showMetricApp.service('createWidgets',function($http,$q){
                     }
                 }
             }
+            else if(widgetData.charts[i].chartType == 'pie'){
+                if(widgetData.charts[i].metricDetails!=undefined){
+                    graphData.pieData.push({
+                        y: parseInt(widgetData.charts[i].chartData[customData].y),
+                        key: widgetData.charts[i].metricDetails.name, //key  - the name of the series.
+                        color: '#7E57C2'  //color - optional: choose your own line color.
+                    });
+                }
+                else{
+                    for(customData in widgetData.charts[i].chartData){
+                        graphData.pieData.push({
+                            y: parseInt(widgetData.charts[i].chartData[customData].y),
+                            key: widgetData.charts[i].chartData[customData].key, //key  - the name of the series.
+                            color: widgetData.charts[i].chartData[customData].color  //color - optional: choose your own line color.
+                        });
+                    }
+                }
+            }
+
         }
+
+        var tempChart = {};
 
         if(graphData.lineData != null){
             graphData.lineDataOptions = {
@@ -272,35 +355,79 @@ showMetricApp.service('createWidgets',function($http,$q){
                     axisLabelDistance: -10
                 }
             }
+            tempChart = {
+                'options': graphData.lineDataOptions,
+                'data': graphData.lineData,
+                'api': {}
+            };
         }
 
         if(graphData.barData != null){
             graphData.barDataOptions = {
                 chart: {
                     type: 'discreteBarChart',
-                    margin : {top: 20, right: 20, bottom: 40, left: 55},
-                    x: function(d){ return d.x; },
-                    y: function(d){ return d.y; },
-                    useInteractiveGuideline: true,
+                    height: 450,
+                    margin : {
+                        top: 20,
+                        right: 20,
+                        bottom: 50,
+                        left: 55
+                    },
+                    x: function(d){return d.label;},
+                    y: function(d){return d.value + (1e-10);},
+                    showValues: true,
+                    valueFormat: function(d){
+                        return d3.format(',.4f')(d);
+                    },
+                    duration: 500,
                     xAxis: {
-                        axisLabel: 'Bar Chart xaxis',
-                        tickFormat: function(d) {
-                            return d3.time.format('%m/%d/%y')(new Date(d))}
+                        axisLabel: 'Date'
                     },
                     yAxis: {
-                        axisLabel: 'Bar Chart yaxis'
-                    },
-                    axisLabelDistance: -10
+                        axisLabel: 'Value',
+                        axisLabelDistance: -10
+                    }
                 }
             }
+
+            // tempChart = {
+            //     'options': graphData.barDataOptions,
+            //     'data': graphData.barData,
+            //     'api': {}
+            // };
         }
 
 
-        var tempChart = {
-            'options': graphData.lineDataOptions,
-            'data': graphData.lineData,
-            'api': {}
-        };
+        if(graphData.pieData != null){
+            graphData.pieDataOptions = {
+                chart: {
+                    type: 'pieChart',
+                    height: 500,
+                    x: function(d){return d.key;},
+                    y: function(d){return d.y;},
+                    showLabels: true,
+                    duration: 500,
+                    labelThreshold: 0.01,
+                    labelSunbeamLayout: true,
+                    legend: {
+                        margin: {
+                            top: 5,
+                            right: 35,
+                            bottom: 5,
+                            left: 0
+                        }
+                    }
+                }
+            }
+
+            // tempChart = {
+            //     'options': graphData.pieDataOptions,
+            //     'data': graphData.pieData,
+            //     'api': {}
+            // };
+        }
+
+        console.log(tempChart);
         return(tempChart);
     };
 });

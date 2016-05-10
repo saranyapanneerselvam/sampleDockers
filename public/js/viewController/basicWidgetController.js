@@ -158,7 +158,7 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
     $scope.createAndFetchBasicWidget =function() {
         if(getChannelName=="CustomData"){
             // final function after custom api url creation goes here
-            $rootScope.$emit('populateDashboardWidgets',getCustomWidgetId);
+            $rootScope.$emit("CallPopulateDashboardWidgets", {});
         }
         else{
             // function for saving other widgets goes here

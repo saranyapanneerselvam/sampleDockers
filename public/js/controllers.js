@@ -149,10 +149,28 @@ showMetricApp.service('createWidgets',function($http,$q){
         function formatDataPoints(widget) {
             var formattedWidget = $q.defer();
             var splitDate, newDate, inputDate;
+            var getTimeStamp = "";
             var changedWidget = widget;
             for(i=0;i<widget.charts.length;i++){
                 var formattedChartData = [];
-                if(widget.charts[i].chartType == 'line' || 'bar'){
+                console.log(widget.charts[i].chartType);
+                debugger;
+                if(widget.charts[i].chartType=="cumulativeLine"){
+                    console.log('In the else condition. Needs to be addressed as chart type is cumulativeLine');
+                    console.log(widget.charts);
+
+                    for(j=0;j<widget.charts[i].chartData.length;j++){
+
+                        getTimeStamp = new Date(widget.charts[i].chartData[j].date).getTime();
+
+                        console.log(widget.charts[i].chartData[j].name+" --- "+parseInt(widget.charts[i].chartData[j].total)+"  "+widget.charts[i].chartData[j].date+" --- "+getTimeStamp);
+
+                        formattedChartData.push({key: widget.charts[i].chartData[j].name, values: [ [ getTimeStamp, parseInt(widget.charts[i].chartData[j].total) ]] });
+                    }
+                    changedWidget.charts[i].chartData = formattedChartData;
+
+                }
+                else if(widget.charts[i].chartType == 'line' || 'bar'){
                     if(typeof(widget.charts[i].chartData[0].total) === 'object') {
                         var endpoint;
                         for(j=0;j<widget.charts[i].metricDetails.objectTypes.length;j++){
@@ -187,6 +205,8 @@ showMetricApp.service('createWidgets',function($http,$q){
         var graphData = [];
         graphData.lineData = []; graphData.barData = [];
         graphData.lineDataOptions = []; graphData.barDataOptions = [];
+        graphData.cumulativeData = [];
+        graphData.cumulativeDataOptions = [];
 
         for(var i=0;i<widgetData.charts.length;i++){
             var keyValue;
@@ -207,6 +227,15 @@ showMetricApp.service('createWidgets',function($http,$q){
                     values: widgetData.charts[i].chartData,      //values - represents the array of {x,y} data points
                     key: keyValue, //key  - the name of the series.
                     color: '#7E57C2'  //color - optional: choose your own line color.
+                });
+            }
+
+            else if (widgetData.charts[i].chartType == 'cumulativeLine'){
+                console.log(widgetData.charts[i].chartData);
+                graphData.cumulativeData.push({
+                    values: widgetData.charts[i].chartData,      //values - represents the array of {x,y} data points
+                    key: keyValue, //key  - the name of the series.
+
                 });
             }
         }
@@ -248,6 +277,45 @@ showMetricApp.service('createWidgets',function($http,$q){
                         axisLabel: 'Bar Chart yaxis'
                     },
                     axisLabelDistance: -10
+                }
+            }
+        }
+        if(graphData.cumulativeData != null){
+            graphData.cumulativeDataOptions = {
+                chart: {
+                    type: 'cumulativeLineChart',
+                    height: 450,
+                    margin : {
+                        top: 20,
+                        right: 20,
+                        bottom: 60,
+                        left: 65
+                    },
+                    x: function(d){ return d[0]; },
+                    y: function(d){ return d[1]/100; },
+                    average: function(d) { return d.mean/100; },
+
+                    color: d3.scale.category10().range(),
+                    duration: 300,
+                    useInteractiveGuideline: true,
+                    clipVoronoi: false,
+
+                    xAxis: {
+                        axisLabel: 'X Axis',
+                        tickFormat: function(d) {
+                            return d3.time.format('%m/%d/%y')(new Date(d))
+                        },
+                        showMaxMin: false,
+                        staggerLabels: true
+                    },
+
+                    yAxis: {
+                        axisLabel: 'Y Axis',
+                        tickFormat: function(d){
+                            return d3.format(',.1%')(d);
+                        },
+                        axisLabelDistance: 20
+                    }
                 }
             }
         }

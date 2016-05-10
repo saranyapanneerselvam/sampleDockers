@@ -846,16 +846,16 @@ console.log('eachdataall',groupAllChannelData[allQueryResult.channel._id])
                             console.log('hello', dataFromDb[j].data);
                             if (dataFromDb[j].data != null) {
                                 if (dataFromRemote[j].metricId == dataFromDb[j].metricId) {
-                                    console.log('nullOfDataFromDB', dataFromDb[j].data);
+                                    console.log('nullOfDataFromDB', dataFromDb[j].data.data);
                                     //merge the old data with new one and update it in db
-                                    for (var key = 0; key < dataFromDb[j].data.length; key++) {
-                                        finalData.push(dataFromDb[j].data[key]);
+                                    for (var key = 0; key < dataFromDb[j].data.data.length; key++) {
+                                        finalData.push(dataFromDb[j].data.data[key]);
                                     }
                                     var metricId = metric._id;
                                 }
 
                             }
-                            console.log('widget[j].metrics[0].objectId',metric[j]._id,widget[j].metrics[0].objectId)
+                            console.log('widget[j].metrics[0].objectId',finalData.length)
                             var now = new Date();
 
                             //Updating the old data with new one
@@ -1401,7 +1401,7 @@ console.log('queryfbads',query)
                         var newEndDate = startDate.replace(/-/g, "");
                         startDate = newEndDate;
                         var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
-                        if (updated < currentDate) {
+                        if (calculateDate(data[j].data.updated) < currentDate) {
                             var query = 'Date,' + initialResults.metric[0].objectTypes[0].meta.gAdsMetricName;
                             allObjects = {
                                 profile: initialResults.get_profile[j],
@@ -1410,7 +1410,7 @@ console.log('queryfbads',query)
                                 dataResult: data[j].data,
                                 startDate: updated,
                                 objects: object[j].channelObjectId,
-                                endDate: currentDate,
+                                endDate: startDate,
                                 metricId: metric[j]._id,
                                 metricCode: metric[j].code
                             }

@@ -1,3 +1,5 @@
+//"use strict";
+var _ = require('lodash');
 var async = require("async");
 var channels = require('../models/channels');
 var FB = require('fb');
@@ -137,11 +139,6 @@ exports.getChannelData = function (req, res, next) {
         });
     }
 
-    //Function to get all  reference ids
-    function getAllRefidgetId(results, callback) {
-
-        refWidget.findById(results.refWidgetId, checkNullObject(callback))
-    }
 
     //Function to get the data in metric collection
     function getMetric(results, callback) {
@@ -206,30 +203,7 @@ exports.getChannelData = function (req, res, next) {
 
     //Get the unique channel list
     function getUniqueChannel(channel, uniqueChannelArray) {
-        channel.forEach(function (item, index) {
-            if (uniqueChannelArray.length === 0) {
-                uniqueChannelArray.push({
-                    _id: channel[index]._id,
-                    code: channel[index].code
-                });
-                console.log('uniqueChannelArray38', uniqueChannelArray, channel.length)
-            }
-            else {
-                uniqueChannelArray.forEach(function (item, key) {
-                    if (uniqueChannelArray[key].code != channel[index].code) {
-                        uniqueChannelArray.push({
-                            _id: channel[index]._id,
-                            code: channel[index].code
-                        });
-
-                    }
-
-                })
-            }
-
-
-        })
-        console.log('uniqueChannelArray3238', uniqueChannelArray, channel.length)
+        uniqueChannelArray = _.uniqBy(channel,'code');
         return uniqueChannelArray;
     }
 
@@ -252,7 +226,7 @@ exports.getChannelData = function (req, res, next) {
                 var channel = initialResults.get_channel;
                 //  console.log('channel', channel, uniqueChannelArray);
                 var uniqueChannel = getUniqueChannel(channel, uniqueChannelArray);
-                // console.log('uunique',uniqueChannel)
+                 console.log('uunique',uniqueChannel)
                 async.concatSeries(uniqueChannel, dataForEachChannel, callback);
             }
             else {
@@ -296,7 +270,6 @@ exports.getChannelData = function (req, res, next) {
                     break;
                 case configAuth.channels.googleAdwords:
                     setDataBasedChannelCode(results, function (err, result) {
-                        console.log('inside googleAdwords')
                         selectAdwordsObjectType(result, callback);
                     });
                     break;
@@ -365,7 +338,7 @@ exports.getChannelData = function (req, res, next) {
                 var objects = initialResults.object;
                 //   console.log('resultss', objects.length,results,results.group_profile[0]._id,typeof results.group_profile[0]._id,objects[1].profileId,typeof objects[0].profileId);
                 for (var i = 0; i < objects.length; i++) {
-                    console.log('obj', objects.length, results.group_profile[0]._id, typeof results.group_profile[0]._id, objects[i].profileId, typeof objects[i].profileId)
+                    //console.log('obj', objects.length, results.group_profile[0]._id, typeof results.group_profile[0]._id, objects[i].profileId, typeof objects[i].profileId)
                     if (String(results.group_profile[0]._id) === String(objects[i].profileId)) {
                         channelObjects.push(objects[i]);
 
@@ -411,12 +384,12 @@ exports.getChannelData = function (req, res, next) {
 
             //function to group charts inside widgets based on channel id
             function groupCharts(data, callback) {
-                console.log('data', data);
+                //console.log('data', data);
                 var chartsArray = [];
                 var widgetArray = [];
                 var charts = initialResults.widget.charts;
                 for (var i = 0; i < charts.length; i++) {
-                    console.log('charts', typeof results._id, typeof charts[0].channelId)
+                 //   console.log('charts', typeof results._id, typeof charts[0].channelId)
                     if (String(results._id) === String(charts[i].channelId)) {
                         chartsArray.push(charts[i]);
 
@@ -427,7 +400,7 @@ exports.getChannelData = function (req, res, next) {
                     widgetType: initialResults.widget.widgetType,
                     charts: chartsArray
                 })
-                console.log('chartsArray', widgetArray)
+                //console.log('chartsArray', widgetArray)
                 callback(null, widgetArray)
             }
         }
@@ -523,13 +496,13 @@ exports.getChannelData = function (req, res, next) {
 
         //To pass the query to graph api
         function passQueryToGraphApi(results, callback) {
-            console.log('results.get_start_end_dates', results.get_start_end_dates)
+           // console.log('results.get_start_end_dates', results.get_start_end_dates)
             async.concatSeries(results.get_start_end_dates, getDataForEachQuery, callback);
         }
 
         //To get facebook data
         function getDataForEachQuery(query, callback) {
-            console.log('geteachdata query', query)
+           // console.log('geteachdata query', query)
             if (typeof query.query == 'string')
                 async.map([query], getDataForAllQuery, callback);
             else
@@ -550,7 +523,6 @@ exports.getChannelData = function (req, res, next) {
             }
 
             else {
-                console.log('Query for FB', query);
                 graph.get(query.query, function (err, res) {
                     queryResponse = {
                         res: res,
@@ -558,7 +530,7 @@ exports.getChannelData = function (req, res, next) {
                         queryResults: initialResults,
                         channelId: initialResults.metric[0].channelId
                     }
-                    console.log('res', res)
+
                     callback('', queryResponse);
                 })
             }
@@ -571,68 +543,42 @@ exports.getChannelData = function (req, res, next) {
     //To store the final result in db
     function storeFinalData(results, callback) {
         var uniqueChannelArray = [];
-        var unique = [];
+        var uniqueChannelDetails = [];
         var channelWithCode = [];
-        var allQueryResult = [];
+        var groupAllChannelData;
         var allChannels = results.get_channel;
         var wholeQueryResult = results.get_channel_data_remote.get_each_channel_data;
         var uniqueChannelFromDb = getUniqueChannel(allChannels, uniqueChannelArray);
-        console.log('wholeQueryResultwholeQueryResult',  wholeQueryResult, uniqueChannelFromDb)
+        console.log('wholeQueryResultwholeQueryResult',  wholeQueryResult, 'uniqueChannelFromDb',uniqueChannelFromDb)
+        console.log('pairs',_.groupBy(wholeQueryResult, 'channelId'));
+        groupAllChannelData = _.groupBy(wholeQueryResult, 'channelId');
         if (results.widget.widgetType == 'fusion') {
-            wholeQueryResult.forEach(function (item, index) {
-                console.log('uniqueChannelArray22', unique);
-                //  console.log('first', uniqueChannel, 'uniqueChannelFromDb',uniqueChannelFromDb.length,uniqueChannel.length);
-                var channelId = wholeQueryResult[index].channelId;
-                if (unique.length == 0) {
-                    console.log('channelId:channelId', channelId, 'f', wholeQueryResult[index].queryResults)
-                    unique.push({channelId: channelId, allResults: wholeQueryResult[index].queryResults});
+            uniqueChannelDetails= _.uniqBy(wholeQueryResult,'channelId');
+
+            uniqueChannelDetails.forEach(function(value,index){
+                console.log('lodash38',uniqueChannelDetails[index].channelId,'channelId',uniqueChannelFromDb[index]._id,typeof uniqueChannelDetails[index].channelId,'fromdb',uniqueChannelFromDb[index]._id,typeof uniqueChannelFromDb[index]._id,uniqueChannelDetails);
+                if(String(uniqueChannelFromDb[index]._id)===String(uniqueChannelDetails[index].channelId) ){
+                    channelWithCode.push({channel:uniqueChannelFromDb[index],allData: uniqueChannelDetails[index].queryResults});
                 }
-                else {
-                    for (var k = 0; k < unique.length; k++) {
-                        console.log('item', 'uniqueChannel[k].channelId', unique[k].channelId, channelId)
-                        if (unique[k].channelId != channelId) {
-                            unique.push({
-                                channelId: channelId,
-                                allResults: wholeQueryResult[index].queryResults
-                            });
-
-                        }
-                    }
-                }
-
-
             })
+            console.log('lodashunique',channelWithCode)
+
         }
         else{
-            unique.push({channelId:uniqueChannelFromDb[0]._id,code:uniqueChannelFromDb[0].code,allResults: wholeQueryResult[0].queryResults});
+            channelWithCode.push({channel:uniqueChannelFromDb[0],allData: wholeQueryResult[0].queryResults});
         }
 
-        console.log('storefinaldataunique', unique, unique.length);
-        for (var a = 0; a < unique.length; a++) {
-            //for(var b=0;b<uniqueChannelFromDb.length;b++){
-            console.log('allChannels[key]', uniqueChannelFromDb)
-            if (String(unique[a].channelId) === String(uniqueChannelFromDb[a]._id)) {
-                // channelWithCode.push(uniqueChannelFromDb[a]);
-                allQueryResult.push({channel: uniqueChannelFromDb[a], allData: unique[a].allResults})
-            }
+        console.log('storefinaldataunique', channelWithCode, channelWithCode.length);
 
-console.log('allQueryResult38',allQueryResult)
-            // }
-        }
 
-        async.concatSeries(allQueryResult, storeEachChannelData, callback);
+        async.concatSeries(channelWithCode, storeEachChannelData, callback);
         function storeEachChannelData(allQueryResult, callback) {
-            console.log('results.get_channel', allQueryResult, allQueryResult.allData.widget)
+console.log('eachdataall',groupAllChannelData[allQueryResult.channel._id])
+            console.log('results.ga', groupAllChannelData[allQueryResult.channel.id],allQueryResult, allQueryResult.allData.widget)
             if (allQueryResult.channel.code == configAuth.channels.googleAnalytics) {
-                for (var index = 0; index < results.get_channel_data_remote.get_each_channel_data.length; index++) {
-                    console.log('results.get_channel_dat', results.get_channel_data_remote.get_each_channel_data[index].channelId, allQueryResult.channel._id)
-                    if (results.get_channel_data_remote.get_each_channel_data[index].channelId == allQueryResult.channel._id) {
-                        storeDataForGA(results.get_channel_data_remote.get_each_channel_data[index].results.call_get_analytic_data, allQueryResult.allData.data, allQueryResult.allData.widget[0].charts, callback);
-                    }
-                }
-
                 function storeDataForGA(dataFromRemote, dataFromDb, widget, done) {
-                    console.log('dataFromRemote38', dataFromRemote)
+                    console.log('widget',widget);
+                    console.log('dataFromRemote38GA', dataFromDb,dataFromRemote)
                     async.times(dataFromDb.length, function (j, next) {
                         console.log('dataFromRemote', dataFromRemote[j])
                         if (dataFromRemote[j].data === 'DataFromDb')
@@ -713,7 +659,7 @@ console.log('allQueryResult38',allQueryResult)
 
 
                              }*/
-                            console.log('updatequery', wholeResponse, 'storeGoogleData', storeGoogleData)
+
                             var now = new Date();
 
                             //Updating the old data with new one
@@ -726,6 +672,7 @@ console.log('allQueryResult38',allQueryResult)
                             }, {upsert: true}, function (err) {
                                 if (err) console.log("User not saved");
                                 else {
+                                    console.log('updatequery',widget[j].metrics[0].objectId,  'storeGoogleData', typeof storeGoogleData,storeGoogleData.length)
                                     next(null, 'success')
                                 }
                             })
@@ -734,26 +681,27 @@ console.log('allQueryResult38',allQueryResult)
 
                     }, done);
                 }
+                storeDataForGA(groupAllChannelData[allQueryResult.channel._id][0].results.call_get_analytic_data, allQueryResult.allData.data, allQueryResult.allData.widget[0].charts, callback);
+
 
             }
 
             else if (allQueryResult.channel.code == configAuth.channels.facebook) {
                 console.log('res1', results.data.length, results.widget.charts.length, 'widgetdata', results.get_channel_data_remote.get_each_channel_data.length, 'data1', results.get_channel_data_remote.get_each_channel_data[0])
-                storeDataForFB(results.get_channel_data_remote.get_each_channel_data, allQueryResult.allData.data, allQueryResult.allData.widget[0].charts, allQueryResult.allData.metric, callback);
+                storeDataForFB(groupAllChannelData[allQueryResult.channel._id], allQueryResult.allData.data, allQueryResult.allData.widget[0].charts, allQueryResult.allData.metric, callback);
                 function storeDataForFB(dataFromRemote, dataFromDb, widget, metric, done) {
-
-
-                    console.log('works', widget)
+                    console.log('worksfb', widget,metric)
                     async.times(Math.min(widget.length, dataFromDb.length), function (j, next) {
                         console.log('dataFromRemote[j]', j, dataFromRemote.length, dataFromRemote)
-                        // console.log('data from server', dataFromRemote[j])
+
                         //Array to hold the final result
                         var finalData = [];
                         for (var key in dataFromRemote) {
-                            if (dataFromRemote[key].channelId == metric[0].channelId) {
-                                //  console.log('dataFromRemote[key]', dataFromRemote[key])
-                                if (dataFromRemote[key].res === 'DataFromDb')
-                                    finalData.push();
+                            if (String(dataFromRemote[key].channelId) === String(metric[0].channelId)) {
+                                  console.log('fbdatafromremote', dataFromRemote[key].channelId)
+                                if (dataFromRemote[key].res === 'DataFromDb'){
+                                    console.log('fbdatafromdb')
+                                }
                                 else {
                                     console.log('elllse', dataFromRemote[key].res)
                                     for (var index in dataFromRemote[key].res.data[0].values) {
@@ -777,7 +725,7 @@ console.log('allQueryResult38',allQueryResult)
 
                         }
 
-                        //console.log(finalData, 'datadb')
+                        console.log(finalData.length, 'fbdatadb')
                         if (dataFromRemote[j].res != 'DataFromDb') {
                             if (dataFromDb[j].data != null) {
                                 if (metric[j]._id == dataFromRemote[j].metricId) {
@@ -793,18 +741,7 @@ console.log('allQueryResult38',allQueryResult)
                             }
                             //  console.log('finalDatafinalData', metricId)
                             var now = new Date();
-
-                            /* for (var metricIndex in dataFromDb) {
-                             //    console.log('ifremote',metric[metricIndex]._id, dataFromRemote[j].data[0].name, dataFromDb[metricIndex].metricId)
-                             // console.log('dbmetric',widget[metricIndex].metrics[0].metricId,'remotemetric',dataFromRemote[j].metricId,'index',metricIndex)
-                             if(metric[j]._id == dataFromRemote[j].metricId ){
-
-                             var metricId = metric[j]._id;
-                             console.log('metric id',metricId,)
-                             }
-
-                             }*/
-                            console.log('widget', widget)
+                            console.log('widget', widget[j].metrics[0].objectId)
 
                             //Updating the old data with new one
                             Data.update({
@@ -828,41 +765,26 @@ console.log('allQueryResult38',allQueryResult)
 
             }
             else if (allQueryResult.channel.code == configAuth.channels.facebookAds) {
-                console.log('fbads results', results)
-                storeDataForFBAds(results.get_channel_data_remote.get_each_channel_data, results.data, results.widget.charts, results.metric, callback);
+                console.log('fbads results', results);
+
+                storeDataForFBAds(groupAllChannelData[allQueryResult.channel._id], allQueryResult.allData.data,allQueryResult.allData.widget[0].charts, allQueryResult.allData.metric, callback);
                 function storeDataForFBAds(dataFromRemote, dataFromDb, widget, metric, done) {
                     async.timesSeries(dataFromDb.length, function (j, next) {
                         var finalData = [];
-                        console.log('dataFromRemote', dataFromRemote, dataFromRemote.length)
+                        console.log('dataFromRemotefbads', dataFromRemote, dataFromRemote.length)
 
                         for (var index = 0; index < dataFromRemote.length; index++) {
-                            if (dataFromRemote[index].data === 'DataFromDb')
-                                finalData.push();
+                            if (dataFromRemote[index].data === 'DataFromDb'){}
                             else {
                                 console.log('else datad', metric[j]._id, dataFromRemote[index].metricId)
-                                //if (dataFromDb[j].data != null) {
-
-
                                 for (var data in dataFromRemote[index].data) {
                                     if (metric[j]._id == dataFromRemote[index].metricId)
                                         finalData.push(dataFromRemote[index].data[data]);
-
-                                    /*if (metric[j].objectTypes[0].meta.fbAdsMetricName == dataFromRemote[j].metricId)
-                                     finalData.push(dataFromRemote[j].data[data]);*/
-                                    /* if (dataFromRemote[j].metricId == dataFromDb[j].metricId)
-                                     finalData.push(dataFromRemote[j].data[data]);*/
                                 }
-
-
                             }
                         }
                         console.log('finalData', finalData.length)
 
-                        /* else {
-                         for (data in dataFromRemote[j].data)
-                         finalData.push(dataFromRemote[j].data[data]);
-
-                         }*/
                         if (dataFromRemote[index] != 'DataFromDb') {
                             if (dataFromDb[j].data != null) {
                                 for (var r = 0; r < dataFromDb[j].data.data.length; r++) {
@@ -896,32 +818,30 @@ console.log('allQueryResult38',allQueryResult)
                 }
             }
             else if (allQueryResult.channel.code == configAuth.channels.googleAdwords) {
-                storeDataForAdwords(results.get_channel_data_remote.get_each_channel_data, results.data, results.widget.charts, results.metric, callback);
+
+               storeDataForAdwords(groupAllChannelData[allQueryResult.channel._id], allQueryResult.allData.data,allQueryResult.allData.widget[0].charts, allQueryResult.allData.metric, callback);
                 function storeDataForAdwords(dataFromRemote, dataFromDb, widget, metric, done) {
                     console.log('works', widget, 'dataFromDb', dataFromDb, metric.length);
                     async.times(metric.length, function (j, next) {
                         var finalData = [];
-                        console.log('dataFromRemote[j]', metric[j],dataFromRemote.length, dataFromRemote);
-                        //Array to hold the final result
+                        console.log('dataFromRemote[jk]', metric,dataFromRemote.length, dataFromRemote);
+
                         //Array to hold the final result
                         for (var key in dataFromRemote) {
-                           // for (var i = 0; i < dataFromRemote[key].apiResponse.length; i++) {
-
                                 if (dataFromRemote[key].apiResponse === 'DataFromDb') {
                                    // console.log('place ofDB', dataFromRemote[key].get_google_adsword_data_from_remote[i]);
-                                    finalData.push();
+                                    //finalData.push();
                                 }
                                 else {
-                                    console.log('dataFromRemote[key]',  dataFromRemote[key].apiResponse.length)
+                                    console.log('dataFromRemote[key]',  dataFromRemote[key])
                                     //console.log('remote metric check', metric[j]._id, dataFromRemote[key].metricId)
                                     if (String(metric[j]._id) == String(dataFromRemote[key].metricId)) {
                                         console.log('remote metric check', typeof metric[j]._id,metric[j]._id,typeof dataFromRemote[key].metricId,dataFromRemote[key].metricId,dataFromRemote[key].apiResponse)
                                         finalData = dataFromRemote[key].apiResponse;
                                     }
                                 }
-                            //}
                         }
-                        console.log('dbDataLength', finalData.length, 'metricId', metricId);
+                        console.log('dbDataLength', finalData.length,'j',j, 'metricId', metricId);
                         if (dataFromRemote[j].apiResponse != 'DataFromDb') {
                             console.log('hello', dataFromDb[j].data);
                             if (dataFromDb[j].data != null) {
@@ -962,10 +882,7 @@ console.log('allQueryResult38',allQueryResult)
 
             }
         }
-
-
     }
-
 
     //Get the data from db
     function getChannelDataDB(results, callback) {
@@ -1306,7 +1223,7 @@ console.log('allQueryResult38',allQueryResult)
                                 endDate: currentDate,
                                 metricId: metric[j]._id
                             }
-                            next(null, allObjects);
+                            next(null, [allObjects]);
                             //fetchFBadsData(initialResults.get_profile[0], query, initialResults, initialResults.data, updated, currentDate);
                         }
                         else
@@ -1316,7 +1233,7 @@ console.log('allQueryResult38',allQueryResult)
                         //setStartEndDate(365);
                         var d = new Date();
                         async.map([93, 93, 93, 86], setStartEndDate, function (err, query) {
-
+console.log('queryfbads',query)
                             next(null, query);
                         });
                     }
@@ -1476,7 +1393,9 @@ console.log('allQueryResult38',allQueryResult)
                         var updated = calculateDate(data[j].data.updated);
                         var newStartDate = updated.replace(/-/g, "");
                         updated = newStartDate;
+
                         var currentDate = calculateDate(new Date());
+                        console.log('adstart',updated,currentDate)
                         d.setDate(d.getDate() + 1);
                         var startDate = calculateDate(d);
                         var newEndDate = startDate.replace(/-/g, "");
@@ -1924,7 +1843,7 @@ console.log('allQueryResult38',allQueryResult)
     }
 
     //To get user timeline,tweets based on date range
-    function callTweetApi(query, profile, count, wholetweetData, widget, metric, data, results, until, tweets, tempCount, metricType, tempCount, i) {
+    function callTweetApi(query, profile, count, wholetweetData, widget, metric, data, results, until, tweets, tempCount, metricType, i) {
         console.log('dataquery1', tweets[0])
         if (data != undefined && data != 'No data') {
 

@@ -270,6 +270,8 @@ showMetricApp.service('createWidgets',function($http,$q){
     //To load the data available for graphs into the widget
     this.dataLoader = function(widgetData){
         var widgetIndex;
+        var tempChart = [];
+
         var graphData = [];
         graphData.lineData = []; graphData.barData = [];
         graphData.lineDataOptions = []; graphData.barDataOptions = [];
@@ -293,7 +295,28 @@ showMetricApp.service('createWidgets',function($http,$q){
                         });
                     }
                 }
-
+                graphData.lineDataOptions = {
+                    chart: {
+                        type: 'lineChart',
+                        margin : {top: 20, right: 20, bottom: 40, left: 55},
+                        x: function(d){ return d.x; },
+                        y: function(d){ return d.y; },
+                        useInteractiveGuideline: true,
+                        xAxis: {
+                            axisLabel: 'Date',
+                            tickFormat: function(d) {
+                                return d3.time.format('%m/%d/%y')(new Date(d))}
+                        },
+                        yAxis: {
+                            axisLabel: 'Value'
+                        },
+                        axisLabelDistance: -10
+                    }
+                };
+                tempChart.push({
+                    'options': graphData.lineDataOptions,
+                    'data': graphData.lineData
+                });
             }
             else if (widgetData.charts[i].chartType == 'bar'){
                 if(widgetData.charts[i].metricDetails!=undefined){
@@ -312,6 +335,28 @@ showMetricApp.service('createWidgets',function($http,$q){
                         });
                     }
                 }
+                graphData.barDataOptions = {
+                    chart: {
+                        type: 'multiBarChart',
+                        margin : {top: 20, right: 20, bottom: 40, left: 65},
+                        x: function(d){ return d.x; },
+                        y: function(d){ return d.y; },
+                        useInteractiveGuideline: true,
+                        xAxis: {
+                            axisLabel: 'Date',
+                            tickFormat: function(d) {
+                                return d3.time.format('%m/%d/%y')(new Date(d))}
+                        },
+                        yAxis: {
+                            axisLabel: 'Value',
+                            axisLabelDistance: -10
+                        }
+                    }
+                };
+                tempChart.push({
+                    'options': graphData.barDataOptions,
+                    'data': graphData.barData
+                });
             }
             else if(widgetData.charts[i].chartType == 'pie'){
                 if(widgetData.charts[i].metricDetails!=undefined){
@@ -330,12 +375,35 @@ showMetricApp.service('createWidgets',function($http,$q){
                         });
                     }
                 }
+                graphData.pieDataOptions.push = {
+                    chart: {
+                        type: 'pieChart',
+                        height: 500,
+                        x: function(d){return d.key;},
+                        y: function(d){return d.y;},
+                        showLabels: true,
+                        duration: 500,
+                        labelThreshold: 0.01,
+                        labelSunbeamLayout: true,
+                        legend: {
+                            margin: {
+                                top: 5,
+                                right: 35,
+                                bottom: 5,
+                                left: 0
+                            }
+                        }
+                    }
+                };
+                tempChart.push({
+                    'options': graphData.pieDataOptions,
+                    'data': graphData.pieData
+                });
             }
-
         }
 
-        var tempChart = {};
 
+/*
         if(graphData.lineData != null){
             graphData.lineDataOptions = {
                 chart: {
@@ -426,6 +494,7 @@ showMetricApp.service('createWidgets',function($http,$q){
             //     'api': {}
             // };
         }
+*/
 
         console.log(tempChart);
         return(tempChart);

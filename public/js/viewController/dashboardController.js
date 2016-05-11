@@ -28,8 +28,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             $http({
                 method: 'GET', url: '/api/v1/get/dashboards/'+ $state.params.id
             }).then(function successCallback(response) {
-                console.log(response);
-                console.log('successfully retrieved dashboard details',response.data.data.name);
                 $scope.dashboard.dashboardName =  response.data.data.name;
             }, function errorCallback(error) {
                 console.log('Error in getting dashboard details',error);
@@ -40,8 +38,10 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
         //Function to change the name of the dashboard to user entered value
         $scope.changeDashboardName = function () {
-            console.log('This is working',$scope.dashboard.dashboardName);
-            var jsonData = {dashboardId: $state.params.id, name: $scope.dashboard.dashboardName};
+            var jsonData = {
+                dashboardId: $state.params.id,
+                name: $scope.dashboard.dashboardName
+            };
             $http({
                 method: 'POST',
                 url: '/api/v1/create/dashboards',
@@ -55,23 +55,53 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
         //Setting up grid configuration for widgets
         $scope.gridsterOptions = {
-            margins: [10, 10], columns: 8, defaultSizeX: 2, defaultSizeY: 2, minSizeX: 2, minSizeY: 2,
-            draggable: {enabled: true, handle: 'box-header'},
+            margins: [10, 10],
+            columns: 6,
+            defaultSizeX: 2,
+            defaultSizeY: 2,
+            minSizeX: 1,
+            minSizeY: 1,
+            draggable: {
+                enabled: true,
+                handle: 'box-header'
+            },
             outerMargin: true, // whether margins apply to outer edges of the grid
             mobileBreakPoint: 600,
             mobileModeEnabled: true, // whether or not to toggle mobile mode when screen width is less than mobileBreakPoint
             /*
              isMobile: false, // stacks the grid items if true
              */
-            resizable: {enabled: true,handles: ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'],
+            resizable: {
+                enabled: true,
+                handles: ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'],
                 start: function (event, $element, widget) {}, // optional callback fired when resize is started
-                resize: function (event, $element, widget) {if (widget.chart.api) widget.chart.api.update();}, // optional callback fired when item is resized,
-                stop: function (event, $element, widget) {$timeout(function () {if (widget.chart.api) widget.chart.api.update();}, 400)} // optional callback fired when item is finished resizing
+                resize: function (event, $element, widget) {
+/*
+                    if (widget.chart.api){
+                        widget.chart.api.update();
+                        console.log('API triggered');
+                    }
+*/
+                    for(i=0;i<widget.chart.length;i++){
+                        if (widget.chart[i].api){
+                            widget.chart[i].api.update();
+                            console.log('API triggered');
+                        }
+                    }
+                }, // optional callback fired when item is resized,
+                stop: function (event, $element, widget) {
+                    $timeout(function () {
+                        if (widget.chart.api)
+                            widget.chart.api.update();}, 400)
+                } // optional callback fired when item is finished resizing
             }
         };
 
         //subscribe widget on window resize event and sidebar resize event
-        new ResizeSensor(document.getElementById('dashboardLayout'), function() {$scope.$broadcast('resize');});
+        new ResizeSensor(document.getElementById('dashboardLayout'), function() {
+            console.log('Resize event triggered');
+            $scope.$broadcast('resize');
+        });
         angular.element($window).on('resize', function (e) {$scope.$broadcast('resize');});
         $scope.$on('resize',function(e){
             for(var i=0;i<$scope.dashboard.widgets.length;i++){$timeout(resizeWidget(i), 100);}
@@ -117,7 +147,15 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 );
 
                 //To temporarily create an empty widget with same id as the widgetId till all the data required for the widget is fetched by the called service
-                $scope.dashboard.widgets.push({sizeY: 3, sizeX: 3, id: dashboardWidgetList[getWidgetInfo]._id, chart: {api: {}},visibility: false});
+                $scope.dashboard.widgets.push({
+                    sizeY: 3,
+                    sizeX: 3,
+                    id: dashboardWidgetList[getWidgetInfo]._id,
+                    chart: {
+                        api: {}
+                    },
+                    visibility: false
+                });
             }
 
             $q.all(widgets).then(function successCallback(widgets){
@@ -131,10 +169,14 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     }).indexOf(widgets[getWidgets]._id);
 
                     $scope.dashboard.widgets[widgetIndex] = {
-                        sizeY: 3, sizeX: 3, name: 'chart', visibility: true,
+                        sizeY: 3,
+                        sizeX: 6,
+                        name: 'chart',
+                        visibility: true,
                         id: widgets[getWidgets]._id,
                         chart: finalChartData
                     };
+                    $timeout($window.dispatchEvent(new Event('resize')),400);
                 }
 /*
                 var widgetIndex;

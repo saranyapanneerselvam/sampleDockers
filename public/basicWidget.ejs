@@ -1,6 +1,6 @@
 <div class="modal-dialog modal-lg"  ng-init="open()">
     <script type="text/ng-template" id="modal.ejs">
-        <div class="modal-content" ng-controller="BasicWidgetController" ng-init="changeViewsInBasicWidget('step_one')">
+        <div class="modal-content" ng-controller="BasicWidgetController" ng-init="changeViewsInBasicWidget('step_one')" ng-cloak>
             <div class="modal-header">
                 <button type="button" class="close" ng-model="currentModalView" ng-click="closeBasicWidgetModal(currentModalView)"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
                 <h4 class="modal-title">Add a Basic Widget</h4>
@@ -8,7 +8,7 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-lg-12">
-                        <div class="row" ng-show="currentView === 'step_one'">
+                        <div class="row" ng-if="currentView === 'step_one'" ng-cloak>
                             <div class="col-lg-12">
                                 <div class="wizard clearfix">
                                     <div class="steps clearfix">
@@ -120,7 +120,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row" ng-show="currentView === 'step_two'">
+                        <div class="row" ng-if="currentView === 'step_two'"  ng-cloak>
                             <div class="col-lg-12">
                                 <div class="wizard clearfix">
                                     <div class="steps clearfix">
@@ -232,7 +232,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row" ng-show="currentView === 'step_three'">
+                        <div class="row" ng-if="currentView === 'step_three'"  ng-cloak>
                             <div class="col-lg-12">
                                 <div class="wizard clearfix">
                                     <div class="steps clearfix">
@@ -347,7 +347,7 @@
                 </div>
                 <div class="wrapper wrapper-content">
                     <div class="scrollbar" id="scroller">
-                        <div class="row" ng-show="currentView === 'step_one'">
+                        <div class="row" ng-if="currentView === 'step_one'"  ng-cloak>
                             <h5 class="model-title">Step1.Choose a Channel</h5>
                             <div class="col-lg-12">
                                 <div ng-repeat="data in channelList" name="{{data._id}}" class="col-lg-2 widget-icons" ng-click="storeChannel();changeViewsInBasicWidget('step_two')">
@@ -355,7 +355,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row" ng-show="currentView === 'step_two'">
+                        <div class="row" ng-if="currentView === 'step_two'"  ng-cloak>
                             <h5 class="model-title selectCustomLinkHead">Step2.Choose a Metric</h5>
                             <div class="col-lg-12">
                                 <div ng-repeat="referenceWidgets in referenceWidgetsList" name="{{referenceWidgets.name}}" class="col-lg-2 widget-icons showReferenceWidgets" ng-click="storeReferenceWidget();changeViewsInBasicWidget('step_three');">
@@ -375,7 +375,7 @@
 
                             </div>
                         </div>
-                        <div class="row" ng-show="currentView === 'step_three'">
+                        <div class="row" ng-if="currentView === 'step_three'"  ng-cloak>
                             <h5 class="model-title">Step3.Choose an Account</h5>
                             <div class="col-lg-12" style="background-color: #f3f3f4">
                                 <div class="row" style="margin: 30px 5px 5px 5px ;">
@@ -395,7 +395,7 @@
                                                         </div>
                                                         <div class="col-lg-12" style="margin: 0px;padding: 0px">
                                                             <div class="col-lg-6 add-profile" >
-                                                                <a href="#" ng-click="addNewProfile()" class="link-img">
+                                                                <a ng-click="addNewProfile()" class="link-img">
                                                                     <svg width="15px" height="15px" viewBox="0 0 10 11" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                                                                         <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
                                                                         <desc>Created with Sketch.</desc>
@@ -404,7 +404,7 @@
                                                                     </svg> <span class="link-span">Link account</span></a>
                                                             </div>
                                                             <div class="col-lg-6 remove-profile" style="">
-                                                                <a href="#" class="link-img" ng-click="removeExistingProfile()">
+                                                                <a class="link-img" ng-click="removeExistingProfile()">
                                                                     <svg width="18px" height="18px" viewBox="0 0 11 11" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                                                                         <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
                                                                         <desc>Created with Sketch.</desc>

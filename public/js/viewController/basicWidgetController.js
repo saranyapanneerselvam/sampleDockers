@@ -21,7 +21,6 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
             $scope.clearReferenceWidget();
         } else if($scope.currentView === 'step_two'){
             document.getElementById('basicWidgetBackButton1').disabled=false;
-            console.log("Chennal : "+getChannelName);
             if(getChannelName=="CustomData"){
                 $scope.storeCustomData();
                 $(".showCustomUrlLink" ).show();

@@ -210,8 +210,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                                 if(formattedChartData[getData].key==widget.charts[i].chartData[j].name){
                                     valuesArr = formattedChartData[getData].values;
                                     var dataValues = {
-                                        'label': moment(widget.charts[i].chartData[j].date).format('MM/DD/YY'),
-                                        'value': widget.charts[i].chartData[j].total
+                                        'x': moment(widget.charts[i].chartData[j].date).format('MM/DD/YY'),
+                                        'y': widget.charts[i].chartData[j].total
                                     };
                                     valuesArr.push(dataValues);
                                     formattedChartData[getData].values=valuesArr;
@@ -222,8 +222,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                             if (IsAlreadyExist != 1) {
                                 valuesArr = [];
                                 var dataValues = {
-                                    'label': moment(widget.charts[i].chartData[j].date).format('MM/DD/YY'),
-                                    'value': widget.charts[i].chartData[j].total
+                                    'x': moment(widget.charts[i].chartData[j].date).format('MM/DD/YY'),
+                                    'y': widget.charts[i].chartData[j].total
                                 };
                                 valuesArr.push(dataValues);
                                 formattedChartData.push({values:valuesArr,key: widget.charts[i].chartData[j].name, color:null});
@@ -375,12 +375,16 @@ showMetricApp.service('createWidgets',function($http,$q){
                         });
                     }
                 }
-                graphData.pieDataOptions.push = {
+                graphData.pieDataOptions = {
                     chart: {
                         type: 'pieChart',
                         height: 500,
-                        x: function(d){return d.key;},
-                        y: function(d){return d.y;},
+                        x: function (d) {
+                            return d.key;
+                        },
+                        y: function (d) {
+                            return d.y;
+                        },
                         showLabels: true,
                         duration: 500,
                         labelThreshold: 0.01,
@@ -401,100 +405,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                 });
             }
         }
-
-
-/*
-        if(graphData.lineData != null){
-            graphData.lineDataOptions = {
-                chart: {
-                    type: 'lineChart',
-                    margin : {top: 20, right: 20, bottom: 40, left: 55},
-                    x: function(d){ return d.x; },
-                    y: function(d){ return d.y; },
-                    useInteractiveGuideline: true,
-                    xAxis: {
-                        axisLabel: 'Date',
-                        tickFormat: function(d) {
-                            return d3.time.format('%m/%d/%y')(new Date(d))}
-                    },
-                    yAxis: {
-                        axisLabel: 'Value'
-                    },
-                    axisLabelDistance: -10
-                }
-            }
-            tempChart = {
-                'options': graphData.lineDataOptions,
-                'data': graphData.lineData,
-                'api': {}
-            };
-        }
-
-        if(graphData.barData != null){
-            graphData.barDataOptions = {
-                chart: {
-                    type: 'discreteBarChart',
-                    height: 450,
-                    margin : {
-                        top: 20,
-                        right: 20,
-                        bottom: 50,
-                        left: 55
-                    },
-                    x: function(d){return d.label;},
-                    y: function(d){return d.value + (1e-10);},
-                    showValues: true,
-                    valueFormat: function(d){
-                        return d3.format(',.4f')(d);
-                    },
-                    duration: 500,
-                    xAxis: {
-                        axisLabel: 'Date'
-                    },
-                    yAxis: {
-                        axisLabel: 'Value',
-                        axisLabelDistance: -10
-                    }
-                }
-            }
-
-            // tempChart = {
-            //     'options': graphData.barDataOptions,
-            //     'data': graphData.barData,
-            //     'api': {}
-            // };
-        }
-
-
-        if(graphData.pieData != null){
-            graphData.pieDataOptions = {
-                chart: {
-                    type: 'pieChart',
-                    height: 500,
-                    x: function(d){return d.key;},
-                    y: function(d){return d.y;},
-                    showLabels: true,
-                    duration: 500,
-                    labelThreshold: 0.01,
-                    labelSunbeamLayout: true,
-                    legend: {
-                        margin: {
-                            top: 5,
-                            right: 35,
-                            bottom: 5,
-                            left: 0
-                        }
-                    }
-                }
-            }
-
-            // tempChart = {
-            //     'options': graphData.pieDataOptions,
-            //     'data': graphData.pieData,
-            //     'api': {}
-            // };
-        }
-*/
 
         console.log(tempChart);
         return(tempChart);

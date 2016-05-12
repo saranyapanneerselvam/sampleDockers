@@ -70,6 +70,8 @@ exports.saveWidgets = function (req, res, next) {
             if (req.body.widgetId == undefined) {
                 createWidget.dashboardId = req.body.dashboardId;
                 createWidget.widgetType = req.body.widgetType;
+                createWidget.name = req.body.name;
+                createWidget.description = req.body.description;
                 createWidget.charts = req.body.charts;
                 createWidget.referenceWidgetId = req.body.referenceWidgetId;
                 createWidget.order = req.body.order;
@@ -95,6 +97,7 @@ exports.saveWidgets = function (req, res, next) {
 
                 // set all of the user data that we need
                 var name = req.body.name == undefined ? '' : req.body.name;
+                var description = req.body.description == undefined ? '' : req.body.description;
                 var widgetId = req.body.widgetId;
                 var widgetType = req.body.widgetType == undefined ? '' : req.body.widgetType;
                 var metrics = req.body.metrics == undefined ? '' : req.body.metrics;
@@ -111,6 +114,7 @@ exports.saveWidgets = function (req, res, next) {
                 widgetsList.update({_id: widgetId}, {
                     $set: {
                         name: name,
+                        description: description,
                         widgetType: widgetType,
                         order: order,
                         metrics: metrics,

@@ -1,7 +1,7 @@
 var showMetricApp = angular.module('inspinia');
 
 showMetricApp.service('createWidgets',function($http,$q){
-    //To fetch data for a widget for given date range; format the same so that it can be loaded into nvd3 directive
+    //To fetch data for a widget for given date range; format the same
     this.widgetDataFetchHandler = function(widget,chosenDateRange){
 
         var deferredWidget = $q.defer();
@@ -12,7 +12,7 @@ showMetricApp.service('createWidgets',function($http,$q){
 
         getCharts.then(function successCallback(charts){
             unformattedWidget = widget;
-
+            console.log(unformattedWidget);
             if(unformattedWidget.widgetType=="custom"){
 
                 unformattedWidget.charts = charts;
@@ -267,15 +267,12 @@ showMetricApp.service('createWidgets',function($http,$q){
 
     };
 
-    //To load the data available for graphs into the widget
+    //To load the data available for graphs into nvd3 format as per the chart type and to group the graphs by chart type
     this.dataLoader = function(widgetData){
-        var widgetIndex;
         var tempChart = [];
-
         var graphData = [];
-        graphData.lineData = []; graphData.barData = [];
-        graphData.lineDataOptions = []; graphData.barDataOptions = [];
-        graphData.pieData = []; graphData.pieDataOptions = [];
+        graphData.lineData = []; graphData.barData = []; graphData.pieData = [];
+        graphData.lineDataOptions = null; graphData.barDataOptions = null; graphData.pieDataOptions = null;
 
         for(var i=0;i<widgetData.charts.length;i++){
             if(widgetData.charts[i].chartType == 'line'){
@@ -313,10 +310,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                         axisLabelDistance: -10
                     }
                 };
-                tempChart.push({
-                    'options': graphData.lineDataOptions,
-                    'data': graphData.lineData
-                });
             }
             else if (widgetData.charts[i].chartType == 'bar'){
                 if(widgetData.charts[i].metricDetails!=undefined){
@@ -353,10 +346,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                         }
                     }
                 };
-                tempChart.push({
-                    'options': graphData.barDataOptions,
-                    'data': graphData.barData
-                });
             }
             else if(widgetData.charts[i].chartType == 'pie'){
                 if(widgetData.charts[i].metricDetails!=undefined){
@@ -399,14 +388,61 @@ showMetricApp.service('createWidgets',function($http,$q){
                         }
                     }
                 };
-                tempChart.push({
-                    'options': graphData.pieDataOptions,
-                    'data': graphData.pieData
-                });
             }
         }
 
+        if(graphData.lineDataOptions !== null)
+            tempChart.push({
+            'options': graphData.lineDataOptions,
+            'data': graphData.lineData
+        });
+        if(graphData.barDataOptions !== null)
+            tempChart.push({
+            'options': graphData.barDataOptions,
+            'data': graphData.barData
+        });
+        if(graphData.pieDataOptions !== null)
+            tempChart.push({
+            'options': graphData.pieDataOptions,
+            'data': graphData.pieData
+        });
+
         console.log(tempChart);
         return(tempChart);
+    };
+
+    //To load the fetched data into the placeholder widget
+    this.replacePlaceHolderWidget = function(widget,finalChartData,widgetLayoutOptions){
+        var finalWidget = $q.defer();
+        var sizeY,sizeX,chartsCount,individualGraphWidthDivider,individualGraphHeightDivider;
+        var setLayoutOptions = function() {
+            sizeY = widget.size.h? widget.size.h : 3;
+            sizeX = widget.size.w? widget.size.w : 3;
+            var chartsCount = finalChartData.length;
+            for(var i=0;i<widgetLayoutOptions.length;i++){
+                if(widgetLayoutOptions[i].W == sizeX && widgetLayoutOptions[i].H == sizeY && widgetLayoutOptions[i].N == chartsCount){
+                    individualGraphWidthDivider = widgetLayoutOptions[i].c;
+                    individualGraphHeightDivider = widgetLayoutOptions[i].r;
+                }
+            }
+        };
+        setLayoutOptions();
+        console.log('Dividers',individualGraphWidthDivider,individualGraphHeightDivider);
+
+        finalWidget = {
+            'sizeY': (widget.size.h? widget.size.h : 3),
+            'sizeX': (widget.size.w? widget.size.w : 3),
+            'minSizeY': (widget.minSize.h? widget.minSize.h : 3),
+            'minSizeX': (widget.minSize.w? widget.minSize.w : 3),
+            'maxSizeY': (widget.maxSize.h? widget.maxSize.h : 3),
+            'maxSizeX': (widget.maxSize.w? widget.maxSize.w : 3),
+            'name': (widget.name? widget.name : ''),
+            'visibility': true,
+            'id': widget._id,
+            'chart': finalChartData,
+            'layoutOptionsX': individualGraphWidthDivider,
+            'layoutOptionsY': individualGraphHeightDivider
+        };
+        return(finalWidget);
     };
 });

@@ -10,7 +10,9 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
     $scope.widgetType = $stateParams.widgetType;
     var getChannelName = "";
     var getCustomWidgetId = "";
+
     console.log('widgetType',$scope.widgetType);
+
     $scope.changeViewsInBasicWidget = function (obj) {
         $scope.currentView = obj;
         $rootScope.currentModalView = obj;
@@ -176,6 +178,8 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
             var jsonData = {
                 "dashboardId": $state.params.id,
                 "widgetType": $scope.widgetType,
+                "name": $scope.storedReferenceWidget.name,
+                "description": $scope.storedReferenceWidget.description,
                 "charts": $scope.storedReferenceWidget.charts,
                 "order": $scope.storedReferenceWidget.order,
                 "offset": $scope.storedReferenceWidget.offset,
@@ -214,9 +218,7 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
         else
             document.getElementById('basicWidgetNextButton').disabled=true;
     };
-    //$scope.listChannels();
-    //$scope.storeMetric = function(){$scope.storedMetricId = this.MetricName._id;};
-    //$scope.clearMetric = function(){$scope.storedMetricId = null;};
+
     $scope.errorMessage=true;
     $scope.storeCustomData = function () {
         $(".selectCustomLinkHead").text("Step2.Select the Link");

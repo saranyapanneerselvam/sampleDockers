@@ -258,14 +258,16 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope){
         }
         console.log('storedReferenceCharts',$scope.storedReferenceWidget);
           var jsonData = {
-         "dashboardId": $state.params.id,
-         "widgetType": $scope.widgetType,
-         "charts": $scope.storedReferenceWidget.charts,
-         "order": $scope.storedReferenceWidget.order,
-         "offset": $scope.storedReferenceWidget.offset,
-         "size": $scope.storedReferenceWidget.size,
-         "minSize": $scope.storedReferenceWidget.minSize,
-         "maxSize": $scope.storedReferenceWidget.maxSize
+              "dashboardId": $state.params.id,
+              "widgetType": $scope.widgetType,
+              "name": $scope.storedReferenceWidget.name,
+              "description": $scope.storedReferenceWidget.description,
+              "charts": $scope.storedReferenceWidget.charts,
+              "order": $scope.storedReferenceWidget.order,
+              "offset": $scope.storedReferenceWidget.offset,
+              "size": $scope.storedReferenceWidget.size,
+              "minSize": $scope.storedReferenceWidget.minSize,
+              "maxSize": $scope.storedReferenceWidget.maxSize
          };
          console.log('json data',jsonData);
          $http({

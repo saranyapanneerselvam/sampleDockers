@@ -2,6 +2,170 @@ showMetricApp.controller('DashboardController',DashboardController)
 
 function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$stateParams,createWidgets,$q) {
 
+    $scope.widgetLayoutOptions = [
+        {W:1,H:1,N:1,r:1,c:1},
+        {W:1,H:1,N:2,r:2,c:1},
+        {W:1,H:1,N:3,r:3,c:1},
+        {W:1,H:1,N:4,r:4,c:1},
+        {W:1,H:1,N:5,r:5,c:1},
+        {W:1,H:1,N:6,r:6,c:1},
+        {W:1,H:1,N:7,r:7,c:1},
+        {W:1,H:1,N:8,r:8,c:1},
+
+        {W:2,H:1,N:1,r:1,c:1},
+        {W:2,H:1,N:2,r:1,c:2},
+        {W:2,H:1,N:3,r:2,c:1},
+        {W:2,H:1,N:4,r:2,c:2},
+        {W:2,H:1,N:5,r:2,c:3},
+        {W:2,H:1,N:6,r:2,c:3},
+        {W:2,H:1,N:7,r:3,c:3},
+        {W:2,H:1,N:8,r:3,c:3},
+
+        {W:3,H:1,N:1,r:1,c:1},
+        {W:3,H:1,N:2,r:1,c:2},
+        {W:3,H:1,N:3,r:1,c:3},
+        {W:3,H:1,N:4,r:2,c:2},
+        {W:3,H:1,N:5,r:2,c:3},
+        {W:3,H:1,N:6,r:2,c:3},
+        {W:3,H:1,N:7,r:3,c:3},
+        {W:3,H:1,N:8,r:3,c:3},
+
+        {W:4,H:1,N:1,r:1,c:1},
+        {W:4,H:1,N:2,r:1,c:2},
+        {W:4,H:1,N:3,r:1,c:3},
+        {W:4,H:1,N:4,r:1,c:4},
+        {W:4,H:1,N:5,r:2,c:3},
+        {W:4,H:1,N:6,r:2,c:3},
+        {W:4,H:1,N:7,r:3,c:3},
+        {W:4,H:1,N:8,r:3,c:3},
+
+        {W:5,H:1,N:1,r:1,c:1},
+        {W:5,H:1,N:2,r:1,c:2},
+        {W:5,H:1,N:3,r:1,c:3},
+        {W:5,H:1,N:4,r:1,c:4},
+        {W:5,H:1,N:5,r:1,c:5},
+        {W:5,H:1,N:6,r:2,c:3},
+        {W:5,H:1,N:7,r:2,c:4},
+        {W:5,H:1,N:8,r:2,c:4},
+
+        {W:6,H:1,N:1,r:1,c:1},
+        {W:6,H:1,N:2,r:1,c:2},
+        {W:6,H:1,N:3,r:1,c:3},
+        {W:6,H:1,N:4,r:1,c:4},
+        {W:6,H:1,N:5,r:1,c:5},
+        {W:6,H:1,N:6,r:2,c:3},
+        {W:6,H:1,N:7,r:2,c:4},
+        {W:6,H:1,N:8,r:2,c:4},
+
+        {W:1,H:2,N:1,r:1,c:1},
+        {W:1,H:2,N:2,r:2,c:1},
+        {W:1,H:2,N:3,r:3,c:1},
+        {W:1,H:2,N:4,r:4,c:1},
+        {W:1,H:2,N:5,r:5,c:1},
+        {W:1,H:2,N:6,r:6,c:1},
+        {W:1,H:2,N:7,r:7,c:1},
+        {W:1,H:2,N:8,r:8,c:1},
+
+        {W:2,H:2,N:1,r:1,c:1},
+        {W:2,H:2,N:2,r:1,c:2},
+        {W:2,H:2,N:3,r:2,c:2},
+        {W:2,H:2,N:4,r:2,c:2},
+        {W:2,H:2,N:5,r:3,c:2},
+        {W:2,H:2,N:6,r:3,c:2},
+        {W:2,H:2,N:7,r:4,c:2},
+        {W:2,H:2,N:8,r:4,c:2},
+
+        {W:3,H:2,N:1,r:1,c:1},
+        {W:3,H:2,N:2,r:1,c:2},
+        {W:3,H:2,N:3,r:2,c:2},
+        {W:3,H:2,N:4,r:2,c:2},
+        {W:3,H:2,N:5,r:2,c:3},
+        {W:3,H:2,N:6,r:2,c:3},
+        {W:3,H:2,N:7,r:2,c:4},
+        {W:3,H:2,N:8,r:2,c:4},
+
+        {W:4,H:2,N:1,r:1,c:1},
+        {W:4,H:2,N:2,r:1,c:2},
+        {W:4,H:2,N:3,r:1,c:3},
+        {W:4,H:2,N:4,r:2,c:2},
+        {W:4,H:2,N:5,r:2,c:3},
+        {W:4,H:2,N:6,r:2,c:3},
+        {W:4,H:2,N:7,r:2,c:4},
+        {W:4,H:2,N:8,r:2,c:4},
+
+        {W:5,H:2,N:1,r:1,c:1},
+        {W:5,H:2,N:2,r:1,c:2},
+        {W:5,H:2,N:3,r:1,c:3},
+        {W:5,H:2,N:4,r:2,c:2},
+        {W:5,H:2,N:5,r:2,c:3},
+        {W:5,H:2,N:6,r:2,c:3},
+        {W:5,H:2,N:7,r:2,c:4},
+        {W:5,H:2,N:8,r:2,c:4},
+
+        {W:6,H:2,N:1,r:1,c:1},
+        {W:6,H:2,N:2,r:1,c:2},
+        {W:6,H:2,N:3,r:1,c:3},
+        {W:6,H:2,N:4,r:2,c:2},
+        {W:6,H:2,N:5,r:2,c:3},
+        {W:6,H:2,N:6,r:2,c:3},
+        {W:6,H:2,N:7,r:2,c:4},
+        {W:6,H:2,N:8,r:2,c:4},
+
+        {W:1,H:3,N:1,r:1,c:1},
+        {W:1,H:3,N:2,r:2,c:1},
+        {W:1,H:3,N:3,r:3,c:1},
+        {W:1,H:3,N:4,r:4,c:1},
+        {W:1,H:3,N:5,r:5,c:1},
+        {W:1,H:3,N:6,r:6,c:1},
+        {W:1,H:3,N:7,r:7,c:1},
+        {W:1,H:3,N:8,r:8,c:1},
+
+        {W:2,H:3,N:1,r:1,c:1},
+        {W:2,H:3,N:2,r:2,c:1},
+        {W:2,H:3,N:3,r:3,c:1},
+        {W:2,H:3,N:4,r:2,c:2},
+        {W:2,H:3,N:5,r:3,c:2},
+        {W:2,H:3,N:6,r:3,c:2},
+        {W:2,H:3,N:7,r:4,c:2},
+        {W:2,H:3,N:8,r:4,c:2},
+
+        {W:3,H:3,N:1,r:1,c:1},
+        {W:3,H:3,N:2,r:1,c:2},
+        {W:3,H:3,N:3,r:2,c:2},
+        {W:3,H:3,N:4,r:2,c:2},
+        {W:3,H:3,N:5,r:2,c:3},
+        {W:3,H:3,N:6,r:2,c:3},
+        {W:3,H:3,N:7,r:2,c:4},
+        {W:3,H:3,N:8,r:2,c:4},
+
+        {W:4,H:3,N:1,r:1,c:1},
+        {W:4,H:3,N:2,r:1,c:2},
+        {W:4,H:3,N:3,r:1,c:3},
+        {W:4,H:3,N:4,r:2,c:2},
+        {W:4,H:3,N:5,r:2,c:3},
+        {W:4,H:3,N:6,r:2,c:3},
+        {W:4,H:3,N:7,r:2,c:4},
+        {W:4,H:3,N:8,r:2,c:4},
+
+        {W:5,H:3,N:1,r:1,c:1},
+        {W:5,H:3,N:2,r:1,c:2},
+        {W:5,H:3,N:3,r:1,c:3},
+        {W:5,H:3,N:4,r:2,c:2},
+        {W:5,H:3,N:5,r:2,c:3},
+        {W:5,H:3,N:6,r:2,c:3},
+        {W:5,H:3,N:7,r:2,c:4},
+        {W:5,H:3,N:8,r:2,c:4},
+
+        {W:6,H:3,N:1,r:1,c:1},
+        {W:6,H:3,N:2,r:1,c:2},
+        {W:6,H:3,N:3,r:1,c:3},
+        {W:6,H:3,N:4,r:2,c:2},
+        {W:6,H:3,N:5,r:2,c:3},
+        {W:6,H:3,N:6,r:2,c:3},
+        {W:6,H:3,N:7,r:2,c:4},
+        {W:6,H:3,N:8,r:2,c:4}
+    ];
+
     //Sets up all the required parameters for the dashboard to function properly when it is initially loaded. This is called in the ng-init function of the dashboard template
     $scope.dashboardConfiguration = function () {
         $scope.dashboardCalendar = new Calendar({
@@ -117,8 +281,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         $scope.skSpinner=false;
     };
 
-
-
     $rootScope.$on("CallPopulateDashboardWidgets", function(){
         $rootScope.populateDashboardWidgets();
     });
@@ -148,13 +310,18 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
                 //To temporarily create an empty widget with same id as the widgetId till all the data required for the widget is fetched by the called service
                 $scope.dashboard.widgets.push({
-                    sizeY: 3,
-                    sizeX: 3,
-                    id: dashboardWidgetList[getWidgetInfo]._id,
-                    chart: {
-                        api: {}
+                    'sizeY': (dashboardWidgetList[getWidgetInfo].size.h? dashboardWidgetList[getWidgetInfo].size.h : 3),
+                    'sizeX': (dashboardWidgetList[getWidgetInfo].size.w? dashboardWidgetList[getWidgetInfo].size.w : 3),
+                    'minSizeY': (dashboardWidgetList[getWidgetInfo].minSize.h? dashboardWidgetList[getWidgetInfo].minSize.h : 3),
+                    'minSizeX': (dashboardWidgetList[getWidgetInfo].minSize.w? dashboardWidgetList[getWidgetInfo].minSize.w : 3),
+                    'maxSizeY': (dashboardWidgetList[getWidgetInfo].maxSize.h? dashboardWidgetList[getWidgetInfo].maxSize.h : 3),
+                    'maxSizeX': (dashboardWidgetList[getWidgetInfo].maxSize.w? dashboardWidgetList[getWidgetInfo].maxSize.w : 3),
+                    'name': (dashboardWidgetList[getWidgetInfo].name? dashboardWidgetList[getWidgetInfo].name : ''),
+                    'id': dashboardWidgetList[getWidgetInfo]._id,
+                    'chart': {
+                        'api': {}
                     },
-                    visibility: false
+                    'visibility': false
                 });
             }
 
@@ -163,110 +330,43 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
                 for(getWidgets in widgets){
                     finalChartData = createWidgets.dataLoader(widgets[getWidgets]);
+                    widgetIndex = $scope.dashboard.widgets.map(function(el) {return el.id;}).indexOf(widgets[getWidgets]._id);
+                    //$scope.dashboard.widgets[widgetIndex] = createWidgets.replacePlaceHolderWidget(dashboardWidgetList[getWidgetInfo],finalChartData,$scope.widgetLayoutOptions);
 
-                    widgetIndex = $scope.dashboard.widgets.map(function(el) {
-                        return el.id;
-                    }).indexOf(widgets[getWidgets]._id);
+                    var sizeY,sizeX,chartsCount,individualGraphWidthDivider,individualGraphHeightDivider;
+                    var setLayoutOptions = function() {
+                        sizeY = dashboardWidgetList[getWidgetInfo].size.h? dashboardWidgetList[getWidgetInfo].size.h : 3;
+                        sizeX = dashboardWidgetList[getWidgetInfo].size.w? dashboardWidgetList[getWidgetInfo].size.w : 3;
+                        var chartsCount = finalChartData.length;
+                        for(var i=0;i<$scope.widgetLayoutOptions.length;i++){
+                            //console.log($scope.widgetLayoutOptions[i].W, $scope.widgetLayoutOptions[i].H, $scope.widgetLayoutOptions[i].N);
+                            //console.log(sizeX, sizeY, chartsCount);
+                            if($scope.widgetLayoutOptions[i].W == sizeX && $scope.widgetLayoutOptions[i].H == sizeY && $scope.widgetLayoutOptions[i].N == chartsCount){
+                                //console.log('Matching layout found');
+                                individualGraphWidthDivider = $scope.widgetLayoutOptions[i].c;
+                                individualGraphHeightDivider = $scope.widgetLayoutOptions[i].r;
+                            }
+                        }
+                    };
+                    setLayoutOptions();
+                    console.log('Dividers',individualGraphWidthDivider,individualGraphHeightDivider);
 
                     $scope.dashboard.widgets[widgetIndex] = {
-                        sizeY: 3,
-                        sizeX: 6,
-                        name: 'chart',
-                        visibility: true,
-                        id: widgets[getWidgets]._id,
-                        chart: finalChartData
+                        'sizeY': (dashboardWidgetList[getWidgetInfo].size.h? dashboardWidgetList[getWidgetInfo].size.h : 3),
+                        'sizeX': (dashboardWidgetList[getWidgetInfo].size.w? dashboardWidgetList[getWidgetInfo].size.w : 3),
+                        'minSizeY': (dashboardWidgetList[getWidgetInfo].minSize.h? dashboardWidgetList[getWidgetInfo].minSize.h : 3),
+                        'minSizeX': (dashboardWidgetList[getWidgetInfo].minSize.w? dashboardWidgetList[getWidgetInfo].minSize.w : 3),
+                        'maxSizeY': (dashboardWidgetList[getWidgetInfo].maxSize.h? dashboardWidgetList[getWidgetInfo].maxSize.h : 3),
+                        'maxSizeX': (dashboardWidgetList[getWidgetInfo].maxSize.w? dashboardWidgetList[getWidgetInfo].maxSize.w : 3),
+                        'name': (dashboardWidgetList[getWidgetInfo].name? dashboardWidgetList[getWidgetInfo].name : ''),
+                        'visibility': true,
+                        'id': widgets[getWidgets]._id,
+                        'chart': finalChartData,
+                        'layoutOptionsX': individualGraphWidthDivider,
+                        'layoutOptionsY': individualGraphHeightDivider
                     };
                     $timeout($window.dispatchEvent(new Event('resize')),400);
                 }
-/*
-                var widgetIndex;
-                var graphData = [];
-                var charts = [];
-                graphData.lineData = [];
-                graphData.barData = [];
-                graphData.lineDataOptions = [];
-                graphData.barDataOptions = [];
-                for(var i=0;i<widgets.length;i++){
-                    console.log('Widget after formatting',widgets[i]);
-                    for(var j=0;j<widgets[i].charts.length;j++){
-                        if(widgets[i].charts[j].chartType == 'line'){
-                            graphData.lineData.push({
-                                values: widgets[i].charts[j].chartData,      //values - represents the array of {x,y} data points
-                                key: widgets[i].charts[j].metricDetails.name, //key  - the name of the series.
-                                color: '#7E57C2'  //color - optional: choose your own line color.
-                            });
-                        } else if (widgets[i].charts[j].chartType == 'bar'){
-                            graphData.barData.push({
-                                values: widgets[i].charts[j].chartData,      //values - represents the array of {x,y} data points
-                                key: widgets[i].charts[j].metricDetails.name, //key  - the name of the series.
-                                color: '#7E57C2'  //color - optional: choose your own line color.
-                            });
-                        }
-                    }
-                    console.log(graphData);
-                    if(graphData.lineData != null){
-                        graphData.lineDataOptions = {
-                            chart: {
-                                type: 'cumulativeLineChart',
-                                margin : {top: 20, right: 20, bottom: 40, left: 55},
-                                x: function(d){ return d.x; },
-                                y: function(d){ return d.y; },
-                                useInteractiveGuideline: true,
-                                xAxis: {
-                                    axisLabel: 'Line Chart xaxis',
-                                    tickFormat: function(d) {
-                                        return d3.time.format('%m/%d/%y')(new Date(d))}
-                                },
-                                yAxis: {
-                                    axisLabel: 'Line Chart yaxis'
-                                },
-                                axisLabelDistance: -10
-                            }
-                        }
-                    }
-                    if(graphData.barData != null){
-                        graphData.barDataOptions = {
-                            chart: {
-                                type: 'discreteBarChart',
-                                margin : {top: 20, right: 20, bottom: 40, left: 55},
-                                x: function(d){ return d.x; },
-                                y: function(d){ return d.y; },
-                                useInteractiveGuideline: true,
-                                xAxis: {
-                                    axisLabel: 'Bar Chart xaxis',
-                                    tickFormat: function(d) {
-                                        return d3.time.format('%m/%d/%y')(new Date(d))}
-                                },
-                                yAxis: {
-                                    axisLabel: 'Bar Chart yaxis'
-                                },
-                                axisLabelDistance: -10
-                            }
-                        }
-                    }
-                    widgetIndex = $scope.dashboard.widgets.map(function(el) {
-                        return el.id;
-                    }).indexOf(widgets[i]._id);
-                    var tempChart = {
-                        'options': graphData.lineDataOptions,
-                        'data': graphData.lineData,
-                        'api': {}
-                    };
-                    /!*,
-                     {
-                     'options': graphData.barDataOptions,
-                     'data': graphData.barData,
-                     'api': {}
-                     }*!/
-
-                     $scope.dashboard.widgets[widgetIndex] = {
-                     sizeY: 3, sizeX: 3, name: 'chart', visibility: true,
-                     id: widgets[i]._id,
-                     chart: tempChart
-                     };
-                     console.log($scope.dashboard.widgets[widgetIndex]);
-
-*/
             },function errorCallback(error){
                 console.log(error);
             });
@@ -284,7 +384,20 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         }));
 
         //To temporarily create an empty widget with same id as the widgetId till all the data required for the widget is fetched by the called service
-        $scope.dashboard.widgets.push({sizeY: 3, sizeX: 3, id: widget._id, chart: {api: {}},visibility: false});
+        $scope.dashboard.widgets.push({
+            'sizeY': (widget.size.h? widget.size.h : 3),
+            'sizeX': (widget.size.w? widget.size.w : 3),
+            'minSizeY': (widget.minSize.h? widget.minSize.h : 3),
+            'minSizeX': (widget.minSize.w? widget.minSize.w : 3),
+            'maxSizeY': (widget.maxSize.h? widget.maxSize.h : 3),
+            'maxSizeX': (widget.maxSize.w? widget.maxSize.w : 3),
+            'name': (widget.name? widget.name : ''),
+            id: widget._id,
+            chart: {
+                api: {}
+            },
+            visibility: false
+        });
 
         $q.all(inputWidget).then(
             function successCallback(inputWidget){
@@ -296,10 +409,38 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     return el.id;
                 }).indexOf(inputWidget[0]._id);
 
+                var sizeY,sizeX,chartsCount,individualGraphWidthDivider,individualGraphHeightDivider;
+                var setLayoutOptions = function() {
+                    sizeY = inputWidget[0].size.h? inputWidget[0].size.h : 3;
+                    sizeX = inputWidget[0].size.w? inputWidget[0].size.w : 3;
+                    var chartsCount = finalChartData.length;
+                    for(var i=0;i<$scope.widgetLayoutOptions.length;i++){
+                        //console.log($scope.widgetLayoutOptions[i].W, $scope.widgetLayoutOptions[i].H, $scope.widgetLayoutOptions[i].N);
+                        //console.log(sizeX, sizeY, chartsCount);
+                        if($scope.widgetLayoutOptions[i].W == sizeX && $scope.widgetLayoutOptions[i].H == sizeY && $scope.widgetLayoutOptions[i].N == chartsCount){
+                            //console.log('Matching layout found');
+                            individualGraphWidthDivider = $scope.widgetLayoutOptions[i].c;
+                            individualGraphHeightDivider = $scope.widgetLayoutOptions[i].r;
+                        }
+                    }
+                };
+                setLayoutOptions();
+                console.log('Dividers',individualGraphWidthDivider,individualGraphHeightDivider);
+
+
                 $scope.dashboard.widgets[widgetIndex] = {
-                    sizeY: 3, sizeX: 3, name: 'chart', visibility: true,
-                    id: inputWidget[0]._id,
-                    chart: finalChartData
+                    'sizeY': (inputWidget[0].size.h? inputWidget[0].size.h : 3),
+                    'sizeX': (inputWidget[0].size.w? inputWidget[0].size.w : 3),
+                    'minSizeY': (inputWidget[0].minSize.h? inputWidget[0].minSize.h : 3),
+                    'minSizeX': (inputWidget[0].minSize.w? inputWidget[0].minSize.w : 3),
+                    'maxSizeY': (inputWidget[0].maxSize.h? inputWidget[0].maxSize.h : 3),
+                    'maxSizeX': (inputWidget[0].maxSize.w? inputWidget[0].maxSize.w : 3),
+                    'name': (inputWidget[0].name? inputWidget[0].name : ''),
+                    'visibility': true,
+                    'id': inputWidget[0]._id,
+                    'chart': finalChartData,
+                    'layoutOptionsX': individualGraphWidthDivider,
+                    'layoutOptionsY': individualGraphHeightDivider
                 };
                 console.log($scope.dashboard.widgets[widgetIndex]);
             },

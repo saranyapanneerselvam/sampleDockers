@@ -4,7 +4,6 @@ var async = require("async");
 var channels = require('../models/channels');
 var FB = require('fb');
 var exports = module.exports = {};
-var refWidget = require('../models/referenceWidgets');
 
 //To use google api's
 var googleapis = require('googleapis');
@@ -60,7 +59,6 @@ exports.getChannelData = function (req, res, next) {
 
     //Function to format the date
     function formatDate(d) {
-        console.log('ddate', d)
         month = '' + (d.getMonth() + 1),
             day = '' + d.getDate(),
             year = d.getFullYear();
@@ -425,14 +423,12 @@ exports.getChannelData = function (req, res, next) {
 
     }
 
-
     //Function to get facebook data
     function getFBPageData(initialResults, callback) {
         graph.setAccessToken(initialResults.get_profile[0].accessToken);
         async.auto({
             get_start_end_dates: getDates,
             get_object_list: ['get_start_end_dates', passQueryToGraphApi]
-
         }, function (err, results) {
             // console.log('err = ', err);
             // console.log('result in switch = ', results);
@@ -441,7 +437,6 @@ exports.getChannelData = function (req, res, next) {
             }
             callback(null, results.get_object_list);
         });
-
 
         //Function to format the date to yyyy-mm-dd
         function formatDate(d) {
@@ -456,9 +451,8 @@ exports.getChannelData = function (req, res, next) {
 
         //To get the start date ,end date required for query
         function getDates(callback) {
-            console.log('getdates')
-            work(initialResults.data, initialResults.metric, callback);
-            function work(data, metric, done) {
+            loopGetDates(initialResults.data, initialResults.metric, callback);
+            function loopGetDates(data, metric, done) {
                 async.times(Math.min(data.length, metric.length), function (j, next) {
                     var d = new Date();
                     var queryObject = {};
@@ -493,7 +487,6 @@ exports.getChannelData = function (req, res, next) {
 
                     }
 
-
                     //To form query based on start end date for getting one year data
                     function setStartEndDate(n, callback) {
                         d.setDate(d.getDate());
@@ -511,7 +504,6 @@ exports.getChannelData = function (req, res, next) {
             //async.concat(initialResults.data, getDatesForAllMetrics, callback);
         }
 
-
         //To pass the query to graph api
         function passQueryToGraphApi(results, callback) {
             // console.log('results.get_start_end_dates', results.get_start_end_dates)
@@ -520,14 +512,13 @@ exports.getChannelData = function (req, res, next) {
 
         //To get facebook data
         function getDataForEachQuery(query, callback) {
-            // console.log('geteachdata query', query)
             if (typeof query.query == 'string')
                 async.map([query], getDataForAllQuery, callback);
             else
                 async.map(query, getDataForAllQuery, callback);
-
         }
 
+        //Get final data for all queries
         function getDataForAllQuery(query, callback) {
             var queryResponse = {};
             if (query.query == 'DataFromDb') {
@@ -539,7 +530,6 @@ exports.getChannelData = function (req, res, next) {
                 }
                 callback(null, queryResponse);
             }
-
             else {
                 graph.get(query.query, function (err, res) {
                     queryResponse = {
@@ -548,14 +538,10 @@ exports.getChannelData = function (req, res, next) {
                         queryResults: initialResults,
                         channelId: initialResults.metric[0].channelId
                     }
-
                     callback('', queryResponse);
                 })
             }
-
         }
-
-
     }
 
     //To store the final result in db
@@ -567,8 +553,6 @@ exports.getChannelData = function (req, res, next) {
         var allChannels = results.get_channel;
         var wholeQueryResult = results.get_channel_data_remote.get_each_channel_data;
         var uniqueChannelFromDb = getUniqueChannel(allChannels, uniqueChannelArray);
-        console.log('wholeQueryResultwholeQueryResult', wholeQueryResult, 'uniqueChannelFromDb', uniqueChannelFromDb)
-        console.log('pairs', _.groupBy(wholeQueryResult, 'channelId'));
         groupAllChannelData = _.groupBy(wholeQueryResult, 'channelId');
         if (results.widget.widgetType == 'fusion') {
             uniqueChannelDetails = _.uniqBy(wholeQueryResult, 'channelId');
@@ -585,17 +569,10 @@ exports.getChannelData = function (req, res, next) {
             console.log('lodashunique', channelWithCode)
 
         }
-        else {
+        else
             channelWithCode.push({channel: uniqueChannelFromDb[0], allData: wholeQueryResult[0].queryResults});
-        }
-
-        console.log('storefinaldataunique', channelWithCode, channelWithCode.length);
-
-
         async.concatSeries(channelWithCode, storeEachChannelData, callback);
         function storeEachChannelData(allQueryResult, callback) {
-            console.log('eachdataall', groupAllChannelData[allQueryResult.channel._id])
-            console.log('results.ga', groupAllChannelData[allQueryResult.channel.id], allQueryResult, allQueryResult.allData.widget)
             if (allQueryResult.channel.code == configAuth.channels.googleAnalytics) {
                 function storeDataForGA(dataFromRemote, dataFromDb, widget, done) {
                     console.log('widget', widget);
@@ -707,7 +684,6 @@ exports.getChannelData = function (req, res, next) {
 
 
             }
-
             else if (allQueryResult.channel.code == configAuth.channels.facebook) {
                 console.log('res1', results.data.length, results.widget.charts.length, 'widgetdata', results.get_channel_data_remote.get_each_channel_data.length, 'data1', results.get_channel_data_remote.get_each_channel_data[0])
                 storeDataForFB(groupAllChannelData[allQueryResult.channel._id], allQueryResult.allData.data, allQueryResult.allData.widget[0].charts, allQueryResult.allData.metric, callback);
@@ -907,11 +883,10 @@ exports.getChannelData = function (req, res, next) {
             else if (allQueryResult.channel.code == configAuth.channels.twitter) {
                 storeDataForTwitter(groupAllChannelData[allQueryResult.channel._id], allQueryResult.allData.data, allQueryResult.allData.widget[0].charts, allQueryResult.allData.metric, callback);
                 function storeDataForTwitter(dataFromRemote, dataFromDb, widget, metric, done) {
-                    console.log('worksfb', dataFromRemote, widget, metric)
+                    //console.log('worksfb', dataFromRemote.length, widget, metric)
                     async.times(Math.min(widget.length, dataFromDb.length), function (j, next) {
-                        console.log('send final data', dataFromDb)
+                        console.log('send final data', dataFromRemote[j].metricId, dataFromRemote[j].data[0].created_at, dataFromDb.length)
                         var param = [];
-                        var finaldataArray = [];
                         var finalTweetResult;
                         var storeTweetDetails = [];
                         var wholeTweetResponseFromDb = [];
@@ -920,7 +895,6 @@ exports.getChannelData = function (req, res, next) {
                             param.push('statuses_count');
 
                         if (dataFromRemote[j].data.length != 0) {
-                            var finalData = [];
 
                             //To format twitter date
                             var createdAt = formatDate(new Date(Date.parse(dataFromRemote[j].data[0].created_at.replace(/( +)/, ' UTC$1'))));
@@ -931,10 +905,10 @@ exports.getChannelData = function (req, res, next) {
                                     //finalData.push();
                                 }
                                 else {
-                                    console.log('dataFromRemote[key]',metric[j]._id,dataFromRemote[key].metricId, createdAt, dataFromRemote[key])
+                                    //console.log('dataFromRemote[key]',metric[j]._id,dataFromRemote[key].metricId, createdAt)
                                     //console.log('remote metric check', metric[j]._id, dataFromRemote[key].metricId)
                                     if (String(metric[j]._id) == String(dataFromRemote[key].metricId)) {
-                                        console.log('remote metric check', typeof metric[j]._id, metric[j]._id, typeof dataFromRemote[key].metricId, dataFromRemote[key].metricId, dataFromRemote[key].apiResponse)
+                                        //console.log('remote metric check', typeof metric[j]._id, metric[j]._id, typeof dataFromRemote[key].metricId, dataFromRemote[key].metricId)
                                         wholeTweetResponse.push({
                                             date: createdAt,
                                             total: dataFromRemote[key].data[0].user
@@ -944,41 +918,53 @@ exports.getChannelData = function (req, res, next) {
                             }
                             var currentDate = formatDate(new Date());
                             if (dataFromDb[j].data != null) {
-                                dataFromDb[j].data.data.forEach(function (value) {
-                                    if (String(metric[j]._id) == String(dataFromRemote[key].metricId)) {
-                                        console.log('remote metric check', typeof metric[j]._id, metric[j]._id, typeof dataFromRemote[key].metricId, dataFromRemote[key].metricId, dataFromRemote[key].apiResponse)
+                                console.log('dataFromDb[j].data.data', metric[j]._id, dataFromRemote[j].metricId, dataFromDb[j].data.data.length)
+                                dataFromDb[j].data.data.forEach(function (value, index) {
+                                    if (String(metric[j]._id) == String(dataFromRemote[j].metricId)) {
+                                        console.log('remote metric check', value, index, typeof metric[j]._id, metric[j]._id, typeof dataFromRemote[key].metricId, dataFromRemote[key].metricId)
                                         wholeTweetResponseFromDb.push(value);
                                     }
 
                                 })
-                                console.log('creatd', createdAt)
+                                console.log('creatd', createdAt, 'current date', currentDate)
                                 if (currentDate != formatDate(new Date(createdAt))) {
-                                    console.log('not eqaul', wholeTweetResponse)
+                                    console.log('not eqaul', wholeTweetResponse.length)
                                     //store last data in current date
-                                    wholeTweetResponse.push({date: currentDate, total: dataFromRemote[j].data[0].user})
+                                    wholeTweetResponseFromDb.push({
+                                        date: currentDate,
+                                        total: dataFromRemote[j].data[0].user
+                                    })
+                                    finalTweetResult = wholeTweetResponseFromDb;
+                                    console.log('wholetweetfinal', wholeTweetResponseFromDb.length, finalTweetResult.length)
                                 }
                                 else {
-                                    console.log('equal else', wholeTweetResponse)
+                                    console.log('equal else', wholeTweetResponseFromDb.length, wholeTweetResponse.length);
+
                                     wholeTweetResponseFromDb.forEach(function (value, index) {
-                                        console.log('foreach', value.length, index);
-                                        var updatedDate = formatDate(new Date(value.created_at));
+                                        console.log('foreach', value.date, index);
+                                        var updatedDate = value.date;
                                         var twitterDate = new Date(Date.parse(dataFromRemote[j].data[0].created_at.replace(/( +)/, ' UTC$1')));
                                         var createdAt = formatDate(twitterDate);
+                                        console.log('createdat', createdAt, updatedDate, 'index', index)
                                         if (createdAt === updatedDate) {
+                                            console.log('ifwhole')
                                             wholeTweetResponseFromDb[index] = {
                                                 date: createdAt,
                                                 total: dataFromRemote[j].data[0].user
                                             };
                                         }
-
+                                        else {
+                                            if(wholeTweetResponseFromDb.length===1){
+                                                wholeTweetResponse.forEach(function (value) {
+                                                    wholeTweetResponseFromDb.push(value);
+                                                })
+                                            }
+                                        }
 
                                     })
+                                    
+                                    console.log('wholle', wholeTweetResponseFromDb.length)
                                     finalTweetResult = wholeTweetResponseFromDb;
-                                    /* wholeTweetResponseFromDb.forEach(function(result,key){
-                                     wholeTweetResponse.push(result);
-                                     })*/
-
-
                                 }
 
                                 console.log('wholeresponse6', wholeTweetResponse.length)
@@ -988,7 +974,7 @@ exports.getChannelData = function (req, res, next) {
                             else
                                 finalTweetResult = wholeTweetResponse;
 
-                            console.log('finalTweetResult',finalTweetResult.length)
+                            console.log('finalTweetResult', finalTweetResult.length, wholeTweetResponse.length)
                             var now = new Date();
                             Data.update({
                                 'objectId': widget[j].metrics[0].objectId,
@@ -1002,7 +988,7 @@ exports.getChannelData = function (req, res, next) {
                                     next(null, 'success')
                             });
 
-                            console.log('wholeresponse666', wholeTweetResponse)
+                            console.log('wholeresponse666', wholeTweetResponse.length)
 
                         }
                         else {
@@ -1019,16 +1005,7 @@ exports.getChannelData = function (req, res, next) {
 
     //Get the data from db
     function getChannelDataDB(results, callback) {
-        // work(results.widget.charts, callback);
-        console.log('results.widget.charts', results.widget.charts.length)
         async.concatSeries(results.widget.charts, getEachDataFromDb, callback);
-        /*function work(widget, done) {
-         async.times(widget.length, function (j, next) {
-         console.log('work', widget[j].metrics[0].objectId,'metricid',widget[j].metrics[0].metricId)
-
-
-         }, done);
-         }*/
     }
 
     //Get data from db
@@ -1555,6 +1532,7 @@ exports.getChannelData = function (req, res, next) {
                     }
                     else {
                         console.log('elsedd', metric[j]._id)
+
                         //call google api
                         d.setDate(d.getDate() - 365);
                         var startDate = formatDate(d);
@@ -1564,7 +1542,6 @@ exports.getChannelData = function (req, res, next) {
                         var newEndDate = endDate.replace(/-/g, "");
                         var endDate = newEndDate;
                         var query = 'Date,' + initialResults.metric[0].objectTypes[0].meta.gAdsMetricName;
-                        // async.concat(results.metric, setEachMetric, callback);
                         allObjects = {
                             profile: initialResults.get_profile[j],
                             query: query,
@@ -1603,7 +1580,6 @@ exports.getChannelData = function (req, res, next) {
                     }
                     callback(null, actualFinalApiData);
                 }
-
                 else {
                     console.log('async starts ', result);
                     getAdwordsDataForEachMetric(result, callback);
@@ -1638,6 +1614,7 @@ exports.getChannelData = function (req, res, next) {
                     callback(error, null);
 
                 });
+
             //To store the final result in db
             function storeAdwordsFinalData(results, data) {
                 var actualFinalApiData = {};
@@ -1645,6 +1622,7 @@ exports.getChannelData = function (req, res, next) {
                     console.log('error')
                 }
                 console.log('storeAdwordsFinalData', results.metricCode);
+
                 //Array to hold the final result
                 var param = [];
                 if (results.metricCode === configAuth.googleAdwordsMetric.clicks) {
@@ -1687,6 +1665,7 @@ exports.getChannelData = function (req, res, next) {
                 }
 
                 if (results.dataResult != null) {
+
                     //merge the old data with new one and update it in db
                     for (var key = 0; key < results.dataResult.length; key++) {
                         finalData.push(results.dataResult[key]);
@@ -1697,6 +1676,7 @@ exports.getChannelData = function (req, res, next) {
                         queryResults: initialResults,
                         channelId: initialResults.metric[0].channelId
                     }
+
                     //actualFinalApiData = {apiResponse : finalData , metricId : results.metricId}
                     console.log('finalData', finalData);
                     callback(null, actualFinalApiData);
@@ -1718,36 +1698,12 @@ exports.getChannelData = function (req, res, next) {
 
         }
     }
-
-
-    function selectTweetObjectType(intialResults) {
-        //select object type
-
-        if (err)
-            req.app.result = {error: err, message: 'Database error'};
-        else if (!profile)
-            req.app.result = {status: 302, message: 'No record found'};
-        else {
-
-            //To select which object type
-            switch (objectType.type) {
-                case configAuth.objectType.twitter:
-                    getTweetData(profile, channelDetails, widget, object, results);
-                    break;
-
-            }
-        }
-
-    }
-
-    function getTweetData(results, callback) {
+        function getTweetData(results, callback) {
         async.auto({
             get_tweet_queries: getTweetQueries,
             get_tweet_data_from_remote: ['get_tweet_queries', getTweetDataFromRemote]
 
         }, function (err, results) {
-            // console.log('err = ', err);
-            console.log('get twitter data = ', results);
             if (err) {
                 return callback(err, null);
             }
@@ -1755,7 +1711,6 @@ exports.getChannelData = function (req, res, next) {
         });
 
         function getTweetQueries(callback) {
-            console.log('gettweetqueries', results)
             var queries = {};
             formTweetQuery(results.metric, results.data, results.get_profile, callback);
             function formTweetQuery(metric, data, profile, callback) {
@@ -1780,11 +1735,9 @@ exports.getChannelData = function (req, res, next) {
 
         //To get tweet data from tweet api
         function getTweetDataFromRemote(queries, callback) {
-            console.log('queriess', queries.get_tweet_queries, typeof queries)
             async.timesSeries(queries.get_tweet_queries.length, function (j, next) {
                 var finalTwitterResponse = {};
                 client.get(queries.get_tweet_queries[j].query, queries.get_tweet_queries[j].inputs, function (error, tweets, response) {
-                    console.log('tweets', tweets, error, response)
                     if (error)
                         return res.status(500).json({});
                     else {
@@ -1799,40 +1752,7 @@ exports.getChannelData = function (req, res, next) {
                 })
 
             }, callback)
-            console.log('queries twitter', queries)
         }
-    }
-
-
-    //Fetch twitter data based on metrics
-    function fetchTweetData(profile, metricType, query, widget, dataResult, metric, results) {
-        // console.log('fetchdata', results)
-        var wholetweetData = [];
-        var dataResult = results.data[0].data;
-        if (dataResult != null) {
-
-            var createdAt = new Date(Date.parse(dataResult.data[dataResult.data.length - 1].created_at.replace(/( +)/, ' UTC$1')));
-            console.log('createdat', createdAt, new Date(req.body.startDate));
-            var totalCount = getDaysDifference(calculateDate(createdAt), calculateDate(new Date(req.body.startDate)));
-            var startDateFromClient = new Date(req.body.startDate);
-            console.log('if caltweetapi result', totalCount, createdAt, new Date(req.body.startDate));
-            if (startDateFromClient > createdAt) {
-                console.log('total', totalCount)
-                callTweetApi(query, profile, totalCount, wholetweetData, widget, metric, dataResult, results, '', '', '', metricType, '', '');
-            }
-
-            else
-                sendFinalData(dataResult, metric)
-            //callTweetApi(query, profile, totalCount, wholetweetData, widget, metric, dataResult, results, metricType);
-        }
-        else {
-            var initialCount = 200;
-            //console.log('else data', results)
-            callTweetApi(query, profile, initialCount, wholetweetData, widget, metric, dataResult, results, '', '', '', metricType, '', '');
-        }
-
-        updated = new Date();
-
     }
 
     //Updating the old data with new one
@@ -1992,7 +1912,6 @@ exports.getChannelData = function (req, res, next) {
 
     //To get user timeline,tweets based on date range
     function callTweetApi(query, profile, count, wholetweetData, widget, metric, data, results, until, tweets, tempCount, metricType, i) {
-        console.log('dataquery1', tweets[0])
         if (data != undefined && data != null) {
 
             // console.log('data reslt', data)
@@ -2069,11 +1988,8 @@ exports.getChannelData = function (req, res, next) {
 
 
         }
-        else {
-            // console.log('dataquery elsee', results)
-            //var createdAt = new Date(Date.parse(tweets[tweets.length - 1].created_at.replace(/( +)/, ' UTC$1')));
+        else
             callTweetApiBasedCondition(query, profile, 200, wholetweetData, widget, metric, data, results, until, tweets, '', inputs)
-        }
 
     }
 
@@ -2081,17 +1997,12 @@ exports.getChannelData = function (req, res, next) {
         console.log('query', query, 'inputs', inputs)
         client.get(query, inputs, function (error, tweets, response) {
             console.log('total tweets for high ', query, tweets)
-
-
             if (error)
                 return res.status(500).json({});
             else if (tweets.length == 0) {
                 console.log('tweets', tweets.length, 'else if')
                 storeTweetData(wholetweetData, results, metric, 1);
             }
-
-
-            // return res.status(500).json({});
             else {
                 if (data == null) {
                     if (metric[0].name == configAuth.twitterMetric.Keywordmentions) {
@@ -2234,29 +2145,5 @@ exports.getChannelData = function (req, res, next) {
             next();
         }
 
-    }
-
-    //To get tweet counts
-    function getTotalTweetsPerDay(storeTweetDetails, response) {
-        var result = {};
-        var finalTweetCount = [];
-        var finalTweetData = [];
-
-        //To find the number of tweets
-        for (var i = 0; i < storeTweetDetails.length; ++i) {
-            if (!result[storeTweetDetails[i].date])
-                result[storeTweetDetails[i].date] = 0;
-            ++result[storeTweetDetails[i].date];
-        }
-
-        //Push the final tweet details in array
-        for (var key in result) {
-            var date = key;
-            var total = result[key];
-            finalTweetCount.push({date: date, total: total})
-        }
-        finalTweetData.push({metricId: response.metricId, objectId: response.objectId, data: finalTweetCount})
-        req.app.result = finalTweetData;
-        next();
     }
 };

@@ -183,19 +183,20 @@
         <div class="text-center">
             <form id="nl-form" class="nl-form" name='contactform' action="/getinvite" method="post">
                 Hi Datapoolt! My name is
-                <input type="text" name="name"/>.
+                <input type="text" name="name" required/>.
                 <br /> I am from a
-                <select name="typeofcustomer">
-                    <option value="marketingagency" selected>marketing agency</option>
+                <select name="typeofcustomer" required>
+                    <option value="" selected></option>
+                    <option value="marketingagency" >marketing agency</option>
                     <option value="startup">startup</option>
                     <option value="freelancer">freelance marketer</option>
                     <option value="others">other type of firm</option>
                 </select>
                 and would like an invite to your beta.
                 <br /> My phone number is
-                <input type="text" name="phonenumber" />
+                <input type="text" name="phonenumber" required />
                 and my email ID is
-                <input type="email" name="email" />
+                <input type="email" name="email" required />
                 <br /> Please send me an invite to your product!
                 <div class="nl-submit-wrap">
                     <button class="nl-submit" type="submit">Send us your details</button>

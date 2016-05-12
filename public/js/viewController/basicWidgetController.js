@@ -237,7 +237,15 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
             document.getElementById('basicWidgetBackButton2').disabled=false;
             getCustomWidgetId = response.data.widgetsList.id._id;
             $rootScope.customWidgetId=response.data.widgetsList.id._id;
-            $(".customApiLink").html('http://localhost:8080/api/v1/create/customdata/'+response.data.widgetsList.id._id);
+            var domainUrl = "";
+            console.log(window.location.hostname);
+            if(window.location.hostname=="localhost"){
+                domainUrl = "http://localhost:8080";
+            }
+            else{
+                domainUrl = "http://showmetric";
+            }
+            $(".customApiLink").html(domainUrl+'/api/v1/create/customdata/'+response.data.widgetsList.id._id);
         }, function errorCallback (error){
             console.log('Error in getting customwidgets',error);
             document.getElementById('basicWidgetBackButton2').disabled=true;

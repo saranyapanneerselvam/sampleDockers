@@ -1,6 +1,7 @@
 var showMetricApp = angular.module('inspinia');
 
 showMetricApp.service('createWidgets',function($http,$q){
+
     //To fetch data for a widget for given date range; format the same
     this.widgetDataFetchHandler = function(widget,chosenDateRange){
 
@@ -393,18 +394,21 @@ showMetricApp.service('createWidgets',function($http,$q){
 
         if(graphData.lineDataOptions !== null)
             tempChart.push({
-            'options': graphData.lineDataOptions,
-            'data': graphData.lineData
+                'options': graphData.lineDataOptions,
+                'data': graphData.lineData,
+                'api': {}
         });
         if(graphData.barDataOptions !== null)
             tempChart.push({
-            'options': graphData.barDataOptions,
-            'data': graphData.barData
+                'options': graphData.barDataOptions,
+                'data': graphData.barData,
+                'api': {}
         });
         if(graphData.pieDataOptions !== null)
             tempChart.push({
-            'options': graphData.pieDataOptions,
-            'data': graphData.pieData
+                'options': graphData.pieDataOptions,
+                'data': graphData.pieData,
+                'api': {}
         });
 
         console.log(tempChart);

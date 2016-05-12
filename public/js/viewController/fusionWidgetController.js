@@ -196,9 +196,9 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope){
             }
         }
         if(chosenObjectCount == $scope.uniquechannelList.length){
-            document.getElementById('basicWidgetNextButton').disabled = false;
+            document.getElementById('basicWidgetFinishButton').disabled = false;
         } else {
-            document.getElementById('basicWidgetNextButton').disabled = true;
+            document.getElementById('basicWidgetFinishButton').disabled = true;
         }
 
         console.log('UserStore', $scope.storedUserChosenValues);

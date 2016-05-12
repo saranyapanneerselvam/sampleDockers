@@ -338,8 +338,8 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
                     var sizeY,sizeX,chartsCount,individualGraphWidthDivider,individualGraphHeightDivider;
                     var setLayoutOptions = function() {
-                        sizeY = typeof dashboardWidgetList[getWidgetInfo].size != 'undefined'? dashboardWidgetList[getWidgetInfo].size.h : 3;
-                        sizeX = typeof dashboardWidgetList[getWidgetInfo].size != 'undefined'? dashboardWidgetList[getWidgetInfo].size.w : 3;
+                        sizeY = typeof dashboardWidgetList[getWidgets].size != 'undefined'? dashboardWidgetList[getWidgets].size.h : 3;
+                        sizeX = typeof dashboardWidgetList[getWidgets].size != 'undefined'? dashboardWidgetList[getWidgets].size.w : 3;
                         var chartsCount = finalChartData.length;
                         for(var i=0;i<$scope.widgetLayoutOptions.length;i++){
                             //console.log($scope.widgetLayoutOptions[i].W, $scope.widgetLayoutOptions[i].H, $scope.widgetLayoutOptions[i].N);
@@ -355,13 +355,13 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     console.log('Dividers',individualGraphWidthDivider,individualGraphHeightDivider);
 
                     $scope.dashboard.widgets[widgetIndex] = {
-                        'sizeY': (typeof dashboardWidgetList[getWidgetInfo].size != 'undefined'? dashboardWidgetList[getWidgetInfo].size.h : 3),
-                        'sizeX': (typeof dashboardWidgetList[getWidgetInfo].size != 'undefined'? dashboardWidgetList[getWidgetInfo].size.w : 3),
-                        'minSizeY': (typeof dashboardWidgetList[getWidgetInfo].minSize != 'undefined'? dashboardWidgetList[getWidgetInfo].minSize.h : 3),
-                        'minSizeX': (typeof dashboardWidgetList[getWidgetInfo].minSize != 'undefined'? dashboardWidgetList[getWidgetInfo].minSize.w : 3),
-                        'maxSizeY': (typeof dashboardWidgetList[getWidgetInfo].maxSize != 'undefined'? dashboardWidgetList[getWidgetInfo].maxSize.h : 3),
-                        'maxSizeX': (typeof dashboardWidgetList[getWidgetInfo].maxSize != 'undefined'? dashboardWidgetList[getWidgetInfo].maxSize.w : 3),
-                        'name': (typeof dashboardWidgetList[getWidgetInfo].name != 'undefined'? dashboardWidgetList[getWidgetInfo].name : ''),
+                        'sizeY': (typeof dashboardWidgetList[getWidgets].size != 'undefined'? dashboardWidgetList[getWidgets].size.h : 3),
+                        'sizeX': (typeof dashboardWidgetList[getWidgets].size != 'undefined'? dashboardWidgetList[getWidgets].size.w : 3),
+                        'minSizeY': (typeof dashboardWidgetList[getWidgets].minSize != 'undefined'? dashboardWidgetList[getWidgets].minSize.h : 3),
+                        'minSizeX': (typeof dashboardWidgetList[getWidgets].minSize != 'undefined'? dashboardWidgetList[getWidgets].minSize.w : 3),
+                        'maxSizeY': (typeof dashboardWidgetList[getWidgets].maxSize != 'undefined'? dashboardWidgetList[getWidgets].maxSize.h : 3),
+                        'maxSizeX': (typeof dashboardWidgetList[getWidgets].maxSize != 'undefined'? dashboardWidgetList[getWidgets].maxSize.w : 3),
+                        'name': (typeof dashboardWidgetList[getWidgets].name != 'undefined'? dashboardWidgetList[getWidgets].name : ''),
                         'visibility': true,
                         'id': widgets[getWidgets]._id,
                         'chart': finalChartData,

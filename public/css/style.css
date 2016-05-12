@@ -8,16 +8,18 @@
 /*@import url("https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&lang=en");*/
 /*@import url("https://fonts.googleapis.com/css?family=Roboto:400,300,500,700");*/
 
-.dashboardTemplate-items{margin-top:17px;}
+.dashboardTemplate-items{margin-top:11px;}
 .editable-controls > input{
     border-radius: 5px ;
     border: 1px solid #e8e8e8;
-    width: 95% !important;
-    height: 35px;
+    width: 300px !important;
+    height: 43px;
 }
+.menus-img a{margin-top: 13px;}
 .wizard > .steps .current a, .wizard > .steps{
     background-color:#fff !important;
 }
+.dashboardTitleIcons{padding-right: 0px;}
 .editable-buttons {
     vertical-align: middle !important;}
 .editable-click, a.editable-click { background-color:#fff !important}
@@ -28,28 +30,48 @@
     color: #fff;}
 .model-title {
     text-align:center !important;
-    font-size: 15px;
+    font-size: 20px;
+    font-family: Brandon Grotesque-bold;
+    color:#7E57C2;
 }
+.daterange{width: 300px;
+    float: left;}
+.button-mode:disabled{
+    background: #F0F0F0 !important;
+    border: 1px solid #4538B4;
+    border-radius: 5px!important;
+    color: #000 !important;}
+
+.metricNames{font-family:Brandon Grotesque-bold; font-size:20px;}
+.metricDescription{font-family: Brandon Grotesque-regular;font-size: 11px;text-align:justify;}
+.nav-label{font-size: 18px;font-family: Brandon Grotesque}
+.logout{height: 11px;color:#fff}
+.nav .nav-tabs li:active{background: #000 url('data:image/svg+xml;utf8,<svg width="7px" height="5px" viewBox="102 51 7 5" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><desc>Created with Sketch.</desc><defs></defs></svg>')  no-repeat;}
 .choose-text{border-radius: 5px}
 .ibox-title span{padding-left: 10px; vertical-align: sub; }
-@font-face { font-family: Brandon Grotesque; src: url('../fonts/Brandon Grotesque/Brandon_light.otf'); }
-
-@font-face { font-family: Brandon Grotesque; font-weight: bold; src: url('../fonts/Brandon Grotesque/Brandon_bld.otf');}
+@font-face { font-family: Brandon Grotesque; src: url('../fonts/Brandon Grotesque/Brandon_med.otf'); }
+@font-face { font-family: Brandon Grotesque-medium; font-weight: bold; src: url('../fonts/Brandon Grotesque/Brandon_med.otf');}
+@font-face { font-family: Brandon Grotesque-regular; font-weight: bold; src: url('../fonts/Brandon Grotesque/Brandon_reg.otf');}
+@font-face { font-family: Brandon Grotesque-bold; font-weight: bold; src: url('../fonts/Brandon Grotesque/Brandon_bld.otf');}
 .add-profile{float: left;margin: 0px ; text-align: left;!important}
+.fa-3x{font-size: 28px!important;color:#fff;padding-left: 5px;}
 .remove-profile{float: right;margin: 0px ;text-align: right;}
+.refresh{margin-left: -10px;}
 .infont{
     padding: 6px 14px 0px 12px !important;
     margin-bottom: 15px !important;
     margin-left: 4px;}
 .link-img{vertical-align: super;
-    font-size: 15px;
+    font-size: 8px;
+    font-family: Brandon Grotesque-regular;
     color: #000;
     white-space: nowrap;}
-.link-span{vertical-align: top;}
+.link-span{vertical-align: top;font-size: 8px;
+    font-family: Brandon Grotesque-regular;}
 .button-mode{border: 1px solid #f5f5f5;
     width: 10%;
     background-color: #7E57C2 !important;
-    border-radius: 10px !important;
+    border-radius: 5px !important;
     color:#fff !important;}
 .profile-picture{text-align:center;}
 .daterange .dr-selections .dr-calendar .dr-range-switcher{background-color: #7E57C2 !important;}
@@ -77,20 +99,24 @@
 .dashboardName pre{
     background-color: #fff !important;
     border-radius: 5px !important;
-    font-size: 15px !important;
-    font-family: Brandon Grotesque !important ;
+    font-size: 18px !important;
+    font-family: Brandon Grotesque-medium !important ;
+    font-style: normal !important;
+    padding: 6.5px !important;
+    border:none;
 }
+.dashboardName{width:315px }
 .daterange .dr-selections .dr-list-item .dr-item-aside{color: #000 !important;
-    font-size: 10px !important;}
-.main-content{margin-top: 35px;
+    font-size: 12px !important; font-family: Brandon Grotesque-medium !important ;}
+.main-content{margin-top: 35px;    margin-left: 20px;
     box-shadow:0px 0px 10px 1px #C9C9C9;
     -webkit-box-shadow:0px 0px 10px 1px #C9C9C9;
     -moz-box-shadow:0px 0px 10px 1px #C9C9C9;}
 .box-header{background-color: #fff !important;border-bottom: 1px solid #e8e8e8 !important;}
 .graph-icon{float: right; margin-top: 10px;margin-right: -21px;}
 .wizard > .steps > ul > li{width:auto !important;	position: relative !important;}
-.svg-line1{margin-top: 25px; margin-left: 40px;}
-.svg-line2{margin-top: 25px;margin-left: 40px;}
+.svg-line1{margin-top: 25px; margin-left: 43px;}
+.svg-line2{margin-top: 25px;margin-left: 43px;}
 .wizard > .steps > ul > li{float: left;
     position: relative;}
 .steps  ul  li:after{
@@ -105,6 +131,7 @@
     font-size: 15px;
     color: #797676;}
 .fusion-tab{padding-left: 166px !important;}
+.fusion-boxContent{height: 165px;}
 .ibox-fusion{padding: 7px 100px 0px !important;}
 .daterange .dr-input .dr-dates{ padding: 0 1.5rem 0 1.75rem !important; cursor: pointer !important;}
 .daterange .dr-selections .dr-calendar .dr-range-switcher .dr-switcher i:after, .daterange .dr-selections .dr-calendar .dr-range-switcher .dr-switcher i:before{background-color: #fff !important;}
@@ -348,8 +375,9 @@ body{font-family: Brandon Grotesque; }
 .nav-second-level li a {
     padding: 7px 10px 7px 10px;
     padding-left: 52px;
+    font-family: Brandon Grotesque-regular;
     background: #FFFFFF;
-    font-size: 15px;
+    font-size: 12px;
     font-weight: 500;
 }
 .nav-third-level li a {
@@ -590,7 +618,7 @@ body.canvas-menu.mini-navbar nav.navbar-static-side {
 }
 .white-bg .navbar-fixed-top,
 .white-bg .navbar-static-top {
-    background: #7E57C2;
+    background-image: radial-gradient(32% 50%, #6639B6  32%, #512DA8  100%);
 }
 .top-navigation .navbar {
     margin-bottom: 0;
@@ -1936,7 +1964,8 @@ a.DTTT_button:hover:not(.DTTT_disabled) {
     padding: 6px 12px;
     transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
     width: 100%;
-    font-size: 14px;
+    font-size: 12px;
+    font-family: Brandon Grotesque-regular;
 }
 .form-control:focus,
 .single-line:focus {
@@ -2955,6 +2984,7 @@ a.forum-item-title:hover {
     border: 1px solid #efefef;
     border-bottom-color: transparent;
 }
+
 .tabs-container .nav-tabs {
     /* border-bottom: 1px solid #e7eaec;*/
 }
@@ -3354,7 +3384,6 @@ a.forum-item-title:hover {
 body {
     background-color: #FFFFFF;
     font-size: 12px;
-    color: #7E57C2;
     overflow-x: hidden;
 }
 html,
@@ -3468,8 +3497,8 @@ video {
     width:850px !important;
 }
 .modal-body {
-    padding: 15px 25px 25px 25px;
-    height:500px;
+    padding: 0px 0px 10px 10px;
+    height:420px;
 }
 .inmodal .modal-body {
     background: #f8fafb;
@@ -3493,6 +3522,7 @@ video {
 }
 .modal-footer {
     margin-top: 0;
+    border:none !important;
 }
 /* WRAPPERS */
 #wrapper {
@@ -3660,9 +3690,10 @@ body.body-small .footer.fixed {
     border: none;
 }
 .nav-tabs > li > a {
+    font-family: Brandon Grotesque-medium;
     color: #FFFFFF;
-    font-weight: 600;
-    padding: 10px 20px 10px 25px;
+    font-size: 18px;
+    padding: 10px 20px 21px 25px;
 }
 .nav-tabs > li > a:hover,
 .nav-tabs > li > a:focus {
@@ -3820,7 +3851,7 @@ code {
     border-image: none;
     border-style: solid solid none;
     border-width: 1px 0px;
-    height: 165px;
+
 }
 .ibox-footer {
     color: inherit;
@@ -5279,12 +5310,14 @@ del {
 
 /* Basic widget */
 .widget-icons {
-    padding: 10px;
-    margin: 15px;
+    padding: 5px;
+    margin: 10px;
     text-align: center;
     border: 2px solid #e7eaec;
-    width: 20%;
+    width: 22%;
+    height:100px;
     float: left;
+    cursor: pointer;
 }
 .widget-icons:hover,
 .widget-icons.active {
@@ -5328,7 +5361,7 @@ del {
 .title-icons {
     float: right;
     min-width: 75px;
-    font-family: 'Open Sans', helvetica, arial, sans-serif;
+    font-family:Brandon Grotesque-medium !important;
     color: #676a6c;
 
 }
@@ -8426,6 +8459,9 @@ body.md-skin {
     .minimalize-styl-2{margin: 5px 4px 5px 15px; !important}
     .remove-profile{float: none !important;}
 
+}
+@media only screen and (min-width:1300px){
+    .link-span{font-size: 11px;}
 }
 @media(max-width : 320px){ .daterange {width: 180px !important;margin-left:0px !important;}.remove-profile{float: left !important;}
     .tabs-container .nav-tabs > li > a{ width: 29px !important; }

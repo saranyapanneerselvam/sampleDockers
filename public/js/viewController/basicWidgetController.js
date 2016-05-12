@@ -156,7 +156,7 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
         }
     };
 
-    $scope.createAndFetchBasicWidget = function(objectPassed) {
+    $scope.createAndFetchBasicWidget =function() {
         if(getChannelName=="CustomData"){
             // final function after custom api url creation goes here
             $rootScope.$emit("CallPopulateDashboardWidgets", {});
@@ -214,9 +214,9 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
     $scope.objectForWidgetChosen = function() {
         $scope.storedObject = this.objectOptionsModel;
         if(this.objectOptionsModel != null)
-            document.getElementById('basicWidgetNextButton').disabled=false;
+            document.getElementById('basicWidgetFinishButton').disabled=false;
         else
-            document.getElementById('basicWidgetNextButton').disabled=true;
+            document.getElementById('basicWidgetFinishButton').disabled=true;
     };
 
     $scope.errorMessage=true;

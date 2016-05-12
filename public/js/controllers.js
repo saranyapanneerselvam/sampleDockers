@@ -275,122 +275,162 @@ showMetricApp.service('createWidgets',function($http,$q){
         graphData.lineData = []; graphData.barData = []; graphData.pieData = [];
         graphData.lineDataOptions = null; graphData.barDataOptions = null; graphData.pieDataOptions = null;
 
-        for(var i=0;i<widgetData.charts.length;i++){
-            if(widgetData.charts[i].chartType == 'line'){
-                if(widgetData.charts[i].metricDetails!=undefined){
-                    graphData.lineData.push({
-                        values: widgetData.charts[i].chartData,      //values - represents the array of {x,y} data points
-                        key: widgetData.charts[i].metricDetails.name, //key  - the name of the series.
-                        color: '#7E57C2'  //color - optional: choose your own line color.
-                    });
+
+        if(widgetData.charts==[] || widgetData.charts==""){
+            var customDataUrl = "";
+            if(widgetData.widgetType=="custom"){
+                if(window.location.hostname=="localhost"){
+                    customDataUrl = "Use this URL for posting data in this chart - http://localhost:8080/api/v1/create/customdata/"+widgetData._id;
                 }
                 else{
-                    for(customData in widgetData.charts[i].chartData){
-                        graphData.lineData.push({
-                            values: widgetData.charts[i].chartData[customData].values,      //values - represents the array of {x,y} data points
-                            key: widgetData.charts[i].chartData[customData].key, //key  - the name of the series.
-                            color: widgetData.charts[i].chartData[customData].color  //color - optional: choose your own line color.
-                        });
-                    }
+                    customDataUrl = "Use this URL for posting data in this chart - http://showmetric/api/v1/create/customdata/"+widgetData._id;
                 }
-                graphData.lineDataOptions = {
-                    chart: {
-                        type: 'lineChart',
-                        margin : {top: 20, right: 20, bottom: 40, left: 55},
-                        x: function(d){ return d.x; },
-                        y: function(d){ return d.y; },
-                        useInteractiveGuideline: true,
-                        xAxis: {
-                            axisLabel: 'Date',
-                            tickFormat: function(d) {
-                                return d3.time.format('%m/%d/%y')(new Date(d))}
-                        },
-                        yAxis: {
-                            axisLabel: 'Value'
-                        },
-                        axisLabelDistance: -10
-                    }
-                };
             }
-            else if (widgetData.charts[i].chartType == 'bar'){
-                if(widgetData.charts[i].metricDetails!=undefined){
-                    graphData.barData.push({
-                        values: widgetData.charts[i].chartData,      //values - represents the array of {x,y} data points
-                        key: widgetData.charts[i].metricDetails.name, //key  - the name of the series.
-                        color: '#7E57C2'  //color - optional: choose your own line color.
-                    });
-                }
-                else{
-                    for(customData in widgetData.charts[i].chartData){
-                        graphData.barData.push({
-                            values: widgetData.charts[i].chartData[customData].values,      //values - represents the array of {x,y} data points
-                            key: widgetData.charts[i].chartData[customData].key, //key  - the name of the series.
-                            color: widgetData.charts[i].chartData[customData].color  //color - optional: choose your own line color.
-                        });
+            else{
+                // For other widgetType
+            }
+            graphData.lineDataOptions = {
+                chart: {
+                    type: 'lineChart',
+                    noData: 'No Data Available',
+                    xAxis: {
+                        showMaxMin: false,
+                        tickFormat: function(d) {
+                            return d3.time.format('%d/%m %H:%M')(new Date(d));
+                        }
                     }
                 }
-                graphData.barDataOptions = {
-                    chart: {
-                        type: 'multiBarChart',
-                        margin : {top: 20, right: 20, bottom: 40, left: 65},
-                        x: function(d){ return d.x; },
-                        y: function(d){ return d.y; },
-                        useInteractiveGuideline: true,
-                        xAxis: {
-                            axisLabel: 'Date',
-                            tickFormat: function(d) {
-                                return d3.time.format('%m/%d/%y')(new Date(d))}
-                        },
-                        yAxis: {
-                            axisLabel: 'Value',
+            };
+            graphData.lineData.push({
+                values: [],
+                key: "noData",
+                color: '#7E57C2'
+            });
+            tempChart.push({
+                'options': graphData.lineDataOptions,
+                'data': graphData.lineData
+            });
+        }
+        else {
+            for(var i=0;i<widgetData.charts.length;i++){
+                if(widgetData.charts[i].chartType == 'line'){
+                    if(widgetData.charts[i].metricDetails!=undefined){
+                        graphData.lineData.push({
+                            values: widgetData.charts[i].chartData,      //values - represents the array of {x,y} data points
+                            key: widgetData.charts[i].metricDetails.name, //key  - the name of the series.
+                            color: '#7E57C2'  //color - optional: choose your own line color.
+                        });
+                    }
+                    else{
+                        for(customData in widgetData.charts[i].chartData){
+                            graphData.lineData.push({
+                                values: widgetData.charts[i].chartData[customData].values,      //values - represents the array of {x,y} data points
+                                key: widgetData.charts[i].chartData[customData].key, //key  - the name of the series.
+                                color: widgetData.charts[i].chartData[customData].color  //color - optional: choose your own line color.
+                            });
+                        }
+                    }
+                    graphData.lineDataOptions = {
+                        chart: {
+                            type: 'lineChart',
+                            margin : {top: 20, right: 20, bottom: 40, left: 55},
+                            x: function(d){ return d.x; },
+                            y: function(d){ return d.y; },
+                            useInteractiveGuideline: true,
+                            xAxis: {
+                                axisLabel: 'Date',
+                                tickFormat: function(d) {
+                                    return d3.time.format('%m/%d/%y')(new Date(d))}
+                            },
+                            yAxis: {
+                                axisLabel: 'Value'
+                            },
                             axisLabelDistance: -10
                         }
-                    }
-                };
-            }
-            else if(widgetData.charts[i].chartType == 'pie'){
-                if(widgetData.charts[i].metricDetails!=undefined){
-                    graphData.pieData.push({
-                        y: parseInt(widgetData.charts[i].chartData[customData].y),
-                        key: widgetData.charts[i].metricDetails.name, //key  - the name of the series.
-                        color: '#7E57C2'  //color - optional: choose your own line color.
-                    });
+                    };
                 }
-                else{
-                    for(customData in widgetData.charts[i].chartData){
-                        graphData.pieData.push({
-                            y: parseInt(widgetData.charts[i].chartData[customData].y),
-                            key: widgetData.charts[i].chartData[customData].key, //key  - the name of the series.
-                            color: widgetData.charts[i].chartData[customData].color  //color - optional: choose your own line color.
+                else if (widgetData.charts[i].chartType == 'bar'){
+                    if(widgetData.charts[i].metricDetails!=undefined){
+                        graphData.barData.push({
+                            values: widgetData.charts[i].chartData,      //values - represents the array of {x,y} data points
+                            key: widgetData.charts[i].metricDetails.name, //key  - the name of the series.
+                            color: '#7E57C2'  //color - optional: choose your own line color.
                         });
                     }
-                }
-                graphData.pieDataOptions = {
-                    chart: {
-                        type: 'pieChart',
-                        height: 500,
-                        x: function (d) {
-                            return d.key;
-                        },
-                        y: function (d) {
-                            return d.y;
-                        },
-                        showLabels: true,
-                        duration: 500,
-                        labelThreshold: 0.01,
-                        labelSunbeamLayout: true,
-                        legend: {
-                            margin: {
-                                top: 5,
-                                right: 35,
-                                bottom: 5,
-                                left: 0
-                            }
+                    else{
+                        for(customData in widgetData.charts[i].chartData){
+                            graphData.barData.push({
+                                values: widgetData.charts[i].chartData[customData].values,      //values - represents the array of {x,y} data points
+                                key: widgetData.charts[i].chartData[customData].key, //key  - the name of the series.
+                                color: widgetData.charts[i].chartData[customData].color  //color - optional: choose your own line color.
+                            });
                         }
                     }
-                };
+                    graphData.barDataOptions = {
+                        chart: {
+                            type: 'multiBarChart',
+                            margin : {top: 20, right: 20, bottom: 40, left: 65},
+                            x: function(d){ return d.x; },
+                            y: function(d){ return d.y; },
+                            useInteractiveGuideline: true,
+                            xAxis: {
+                                axisLabel: 'Date',
+                                tickFormat: function(d) {
+                                    return d3.time.format('%m/%d/%y')(new Date(d))}
+                            },
+                            yAxis: {
+                                axisLabel: 'Value',
+                                axisLabelDistance: -10
+                            }
+                        }
+                    };
+                }
+                else if(widgetData.charts[i].chartType == 'pie'){
+                    if(widgetData.charts[i].metricDetails!=undefined){
+                        graphData.pieData.push({
+                            y: parseInt(widgetData.charts[i].chartData[customData].y),
+                            key: widgetData.charts[i].metricDetails.name, //key  - the name of the series.
+                            color: '#7E57C2'  //color - optional: choose your own line color.
+                        });
+                    }
+                    else{
+                        for(customData in widgetData.charts[i].chartData){
+                            graphData.pieData.push({
+                                y: parseInt(widgetData.charts[i].chartData[customData].y),
+                                key: widgetData.charts[i].chartData[customData].key, //key  - the name of the series.
+                                color: widgetData.charts[i].chartData[customData].color  //color - optional: choose your own line color.
+                            });
+                        }
+                    }
+                    graphData.pieDataOptions = {
+                        chart: {
+                            type: 'pieChart',
+                            height: 500,
+                            x: function (d) {
+                                return d.key;
+                            },
+                            y: function (d) {
+                                return d.y;
+                            },
+                            showLabels: true,
+                            duration: 500,
+                            labelThreshold: 0.01,
+                            labelSunbeamLayout: true,
+                            legend: {
+                                margin: {
+                                    top: 5,
+                                    right: 35,
+                                    bottom: 5,
+                                    left: 0
+                                }
+                            }
+                        }
+                    };
+                }
             }
         }
+
+
 
         if(graphData.lineDataOptions !== null)
             tempChart.push({

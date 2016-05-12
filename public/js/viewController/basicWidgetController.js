@@ -6,7 +6,7 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
     $scope.metricList = {};
     $scope.referenceWidgetsList = [];
     $scope.profileList = {};
-    $scope.storedObjects = {};
+    $scope.storedObject = {};
     $scope.widgetType = $stateParams.widgetType;
     var getChannelName = "";
     var getCustomWidgetId = "";
@@ -86,7 +86,7 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
     $scope.getObjectsForChosenProfile = function(){
         $http({
             method: 'GET',
-            url: '/api/v1/get/objects/'+ $scope.profileOptionsModel._id
+            url: '/api/v1/get/objects/'+ this.profileOptionsModel._id
         }).then(function successCallback(response) {
             $scope.objectList=response.data.objectList;
             console.log(response.data.objectList);
@@ -96,7 +96,7 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
     };
 
     $scope.refreshObjectsForChosenProfile = function () {
-        if($scope.profileOptionsModel._id) {
+        if(this.profileOptionsModel._id) {
             switch ($scope.storedChannelName) {
                 case 'Facebook':            $scope.objectType = 'page';         break;
                 case 'Google Analytics':    $scope.objectType = 'view';         break;
@@ -104,7 +104,7 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
             }
             $http({
                 method: 'GET',
-                url: '/api/v1/channel/profiles/objectsList/'+ $scope.profileOptionsModel._id +'?objectType='+ $scope.objectType
+                url: '/api/v1/channel/profiles/objectsList/'+ this.profileOptionsModel._id +'?objectType='+ $scope.objectType
             }).then(function successCallback(response) {
                 $scope.objectList = response.data;
             }, function errorCallback(error) {
@@ -142,10 +142,10 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
     };
 
     $scope.removeExistingProfile = function () {
-        if($scope.profileOptionsModel) {
+        if(this.profileOptionsModel) {
             $http({
                 method: 'POST',
-                url: '/api/v1/post/removeProfiles/'+$scope.profileOptionsModel._id
+                url: '/api/v1/post/removeProfiles/'+this.profileOptionsModel._id
             }).then(function successCallback(response){
                 $scope.getProfilesForDropdown();
             },function errorCallback(error){
@@ -154,7 +154,7 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
         }
     };
 
-    $scope.createAndFetchBasicWidget =function() {
+    $scope.createAndFetchBasicWidget = function(objectPassed) {
         if(getChannelName=="CustomData"){
             // final function after custom api url creation goes here
             $rootScope.$emit("CallPopulateDashboardWidgets", {});
@@ -165,9 +165,9 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
             for(var i=0;i<$scope.storedReferenceWidget.charts.length;i++) {
                 matchingMetric = [];
                 for(var j=0;j<$scope.storedReferenceWidget.charts[i].metrics.length;j++) {
-                    if($scope.storedReferenceWidget.charts[i].metrics[j].objectTypeId === this.objectOptionsModel.objectTypeId) {
+                    if($scope.storedReferenceWidget.charts[i].metrics[j].objectTypeId === $scope.storedObject.objectTypeId) {
                         matchingMetric.push($scope.storedReferenceWidget.charts[i].metrics[j]);
-                        matchingMetric[0].objectId = this.objectOptionsModel._id;
+                        matchingMetric[0].objectId = $scope.storedObject._id;
                     }
                 }
                 $scope.storedReferenceWidget.charts[i].metrics = matchingMetric;
@@ -208,6 +208,7 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
         $scope.referenceWidgetsList= [];
     };
     $scope.objectForWidgetChosen = function() {
+        $scope.storedObject = this.objectOptionsModel;
         if(this.objectOptionsModel != null)
             document.getElementById('basicWidgetNextButton').disabled=false;
         else

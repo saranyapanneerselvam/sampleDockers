@@ -280,10 +280,10 @@ showMetricApp.service('createWidgets',function($http,$q){
             var customDataUrl = "";
             if(widgetData.widgetType=="custom"){
                 if(window.location.hostname=="localhost"){
-                    customDataUrl = "Use this URL for posting data in this chart - http://localhost:8080/api/v1/create/customdata/"+widgetData._id;
+                    customDataUrl = "http://localhost:8080/api/v1/create/customdata/"+widgetData._id;
                 }
                 else{
-                    customDataUrl = "Use this URL for posting data in this chart - http://showmetric/api/v1/create/customdata/"+widgetData._id;
+                    customDataUrl = "http://showmetric/api/v1/create/customdata/"+widgetData._id;
                 }
             }
             else{
@@ -292,7 +292,7 @@ showMetricApp.service('createWidgets',function($http,$q){
             graphData.lineDataOptions = {
                 chart: {
                     type: 'lineChart',
-                    noData: 'No Data Available',
+                    noData: customDataUrl,
                     xAxis: {
                         showMaxMin: false,
                         tickFormat: function(d) {
@@ -306,10 +306,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                 key: "noData",
                 color: '#7E57C2'
             });
-            tempChart.push({
-                'options': graphData.lineDataOptions,
-                'data': graphData.lineData
-            });
+
         }
         else {
             for(var i=0;i<widgetData.charts.length;i++){

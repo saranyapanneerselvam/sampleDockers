@@ -330,22 +330,20 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
             $q.all(widgets).then(function successCallback(widgets){
                 var finalChartData,widgetIndex;
+                var sizeY,sizeX,chartsCount,individualGraphWidthDivider,individualGraphHeightDivider;
 
                 for(getWidgets in widgets){
+                    //To format and group the charts within a widget by chart type
                     finalChartData = createWidgets.dataLoader(widgets[getWidgets]);
                     widgetIndex = $scope.dashboard.widgets.map(function(el) {return el.id;}).indexOf(widgets[getWidgets]._id);
                     //$scope.dashboard.widgets[widgetIndex] = createWidgets.replacePlaceHolderWidget(dashboardWidgetList[getWidgetInfo],finalChartData,$scope.widgetLayoutOptions);
 
-                    var sizeY,sizeX,chartsCount,individualGraphWidthDivider,individualGraphHeightDivider;
                     var setLayoutOptions = function() {
                         sizeY = typeof dashboardWidgetList[getWidgets].size != 'undefined'? dashboardWidgetList[getWidgets].size.h : 3;
                         sizeX = typeof dashboardWidgetList[getWidgets].size != 'undefined'? dashboardWidgetList[getWidgets].size.w : 3;
                         var chartsCount = finalChartData.length;
                         for(var i=0;i<$scope.widgetLayoutOptions.length;i++){
-                            //console.log($scope.widgetLayoutOptions[i].W, $scope.widgetLayoutOptions[i].H, $scope.widgetLayoutOptions[i].N);
-                            //console.log(sizeX, sizeY, chartsCount);
                             if($scope.widgetLayoutOptions[i].W == sizeX && $scope.widgetLayoutOptions[i].H == sizeY && $scope.widgetLayoutOptions[i].N == chartsCount){
-                                //console.log('Matching layout found');
                                 individualGraphWidthDivider = $scope.widgetLayoutOptions[i].c;
                                 individualGraphHeightDivider = $scope.widgetLayoutOptions[i].r;
                             }
@@ -394,16 +392,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             'maxSizeY': (typeof widget.maxSize != 'undefined'? widget.maxSize.h : 3),
             'maxSizeX': (typeof widget.maxSize != 'undefined'? widget.maxSize.w : 3),
             'name': (typeof widget.name != 'undefined'? widget.name : ''),
-
-/*
-            'sizeY': (widget.size.h? widget.size.h : 3),
-            'sizeX': (widget.size.w? widget.size.w : 3),
-            'minSizeY': (widget.minSize.h? widget.minSize.h : 3),
-            'minSizeX': (widget.minSize.w? widget.minSize.w : 3),
-            'maxSizeY': (widget.maxSize.h? widget.maxSize.h : 3),
-            'maxSizeX': (widget.maxSize.w? widget.maxSize.w : 3),
-            'name': (widget.name? widget.name : ''),
-*/
             id: widget._id,
             chart: {
                 api: {}
@@ -411,34 +399,32 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             visibility: false
         });
 
+        //Fetching the promise that contains all the data for all the widgets in the dashboard
         $q.all(inputWidget).then(
             function successCallback(inputWidget){
-                console.log(inputWidget);
                 var finalChartData,widgetIndex;
+                var sizeY,sizeX,chartsCount,individualGraphWidthDivider,individualGraphHeightDivider;
+
                 finalChartData = createWidgets.dataLoader(inputWidget[0]);
 
-                widgetIndex = $scope.dashboard.widgets.map(function(el) {
-                    return el.id;
-                }).indexOf(inputWidget[0]._id);
-
-                var sizeY,sizeX,chartsCount,individualGraphWidthDivider,individualGraphHeightDivider;
+                //Based on the layout size of the widget, the charts inside the widget will be allocated space accordingly
                 var setLayoutOptions = function() {
                     sizeY = typeof inputWidget[0].size != 'undefined'? inputWidget[0].size.h : 3;
                     sizeX = typeof inputWidget[0].size != 'undefined'? inputWidget[0].size.w : 3;
                     var chartsCount = finalChartData.length;
                     for(var i=0;i<$scope.widgetLayoutOptions.length;i++){
-                        //console.log($scope.widgetLayoutOptions[i].W, $scope.widgetLayoutOptions[i].H, $scope.widgetLayoutOptions[i].N);
-                        //console.log(sizeX, sizeY, chartsCount);
                         if($scope.widgetLayoutOptions[i].W == sizeX && $scope.widgetLayoutOptions[i].H == sizeY && $scope.widgetLayoutOptions[i].N == chartsCount){
-                            //console.log('Matching layout found');
                             individualGraphWidthDivider = $scope.widgetLayoutOptions[i].c;
                             individualGraphHeightDivider = $scope.widgetLayoutOptions[i].r;
                         }
                     }
                 };
                 setLayoutOptions();
-                console.log('Dividers',individualGraphWidthDivider,individualGraphHeightDivider);
 
+                //To identify each empty widget and feed the data returned from the service call into it
+                widgetIndex = $scope.dashboard.widgets.map(function(el) {
+                    return el.id;
+                }).indexOf(inputWidget[0]._id);
 
                 $scope.dashboard.widgets[widgetIndex] = {
                     'sizeY': (typeof inputWidget[0].size != 'undefined'? inputWidget[0].size.h : 3),
@@ -448,16 +434,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     'maxSizeY': (typeof inputWidget[0].maxSize != 'undefined'? inputWidget[0].maxSize.h : 3),
                     'maxSizeX': (typeof inputWidget[0].maxSize != 'undefined'? inputWidget[0].maxSize.w : 3),
                     'name': (typeof inputWidget[0].name != 'undefined'? inputWidget[0].name : ''),
-
-/*
-                    'sizeY': (inputWidget[0].size.h? inputWidget[0].size.h : 3),
-                    'sizeX': (inputWidget[0].size.w? inputWidget[0].size.w : 3),
-                    'minSizeY': (inputWidget[0].minSize.h? inputWidget[0].minSize.h : 3),
-                    'minSizeX': (inputWidget[0].minSize.w? inputWidget[0].minSize.w : 3),
-                    'maxSizeY': (inputWidget[0].maxSize.h? inputWidget[0].maxSize.h : 3),
-                    'maxSizeX': (inputWidget[0].maxSize.w? inputWidget[0].maxSize.w : 3),
-                    'name': (inputWidget[0].name? inputWidget[0].name : ''),
-*/
                     'visibility': true,
                     'id': inputWidget[0]._id,
                     'chart': finalChartData,

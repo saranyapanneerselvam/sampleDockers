@@ -64,10 +64,15 @@ module.exports = {
     },
 
     'twitterMetric':{
-        Keywordmentions : 'Keyword mentions',
-        Mentions : 'Mentions',
-        HighEngagementtweets :'High Engagement tweets',
-        tweets: 'tweets'
+        keywordMentions : 'keyword_mentions',
+        mentions : 'mentions',
+        highEngagementTweets :'high_engagement_tweets',
+        tweets: 'tweets',
+        following:'following',
+        followers:'followers',
+        favourites:'favourites',
+        listed:'listed',
+        retweets_of_your_tweets:'retweets_of_your_tweets'
     },
 
     'googleAdwordsMetric' :{

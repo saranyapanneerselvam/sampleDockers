@@ -9,8 +9,10 @@ showMetricApp.service('createWidgets',function($http,$q){
         var unformattedWidget = [];
         var finalWidget = [];
         var countCustomData = 0;
+        //Calling function to fetch data for all charts within a widget
         var getCharts = getDataForChosenDates(widget,chosenDateRange);
 
+        //Acquiring data for all the charts within the widget through promise and then fetching metric details for all charts within the widget
         getCharts.then(function successCallback(charts){
             unformattedWidget = widget;
             console.log(unformattedWidget);
@@ -52,8 +54,10 @@ showMetricApp.service('createWidgets',function($http,$q){
         },function errorCallback(error){
             deferredWidget.reject(error);
         });
+        //Returning the charts(along with associated metrics) to the calling function
         return deferredWidget.promise;
 
+        //Function to fetch data for the input date range
         function getDataForChosenDates(widget,chosenDateRange) {
             var deferred = $q.defer();
             console.log("Widget Type : "+widget.widgetType);
@@ -121,6 +125,7 @@ showMetricApp.service('createWidgets',function($http,$q){
             }
         }
 
+        //Function to fetch metrics for all charts inside a widget
         function fetchMetricDetailsForCharts(chart) {
             var deferred = $q.defer();
             if(chart.chartMetricId==undefined){
@@ -140,6 +145,7 @@ showMetricApp.service('createWidgets',function($http,$q){
             return deferred.promise;
         }
 
+        //Function to format the data in all the charts inside a widget
         function formatDataPoints(widget) {
             var formattedWidget = $q.defer();
             var splitDate, newDate, inputDate;

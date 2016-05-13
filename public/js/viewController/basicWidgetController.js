@@ -25,15 +25,11 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
             document.getElementById('basicWidgetBackButton1').disabled=false;
             if(getChannelName=="CustomData"){
                 $scope.storeCustomData();
-                $(".showCustomUrlLink" ).show();
-                $(".showReferenceWidgets" ).html('');
             }
             else{
                 $scope.clearReferenceWidget();
                 $scope.getReferenceWidgetsForChosenChannel();
                 $scope.getProfilesForDropdown();
-                $(".showReferenceWidgets" ).show();
-                $(".showCustomUrlLink").html('');
             }
         } else if ($scope.currentView === 'step_three'){
             document.getElementById('basicWidgetBackButton1').disabled=false;
@@ -222,6 +218,16 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
         $scope.storedChannelId = this.data._id;
         $scope.storedChannelName = this.data.name;
         getChannelName = this.data.name;
+        if(getChannelName=="CustomData"){
+           $scope.metricContent=true;
+           $scope.showCustomContent=false;
+           $scope.selectCustomLinkHead="Step 2:Custom Data URL";
+        }
+        else{
+            $scope.metricContent=false;
+            $scope.showCustomContent=true;
+            $scope.selectCustomLinkHead="Step 2:Choose a Metric";
+        }
     };
 
     $scope.storeReferenceWidget = function(){$scope.storedReferenceWidget = this.referenceWidgets;};
@@ -240,8 +246,6 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
 
     $scope.errorMessage=true;
     $scope.storeCustomData = function () {
-        $(".selectCustomLinkHead").text("Step2.Select the Link");
-
         var jsonData = {
             "dashboardId": $state.params.id,
             "widgetType": "custom",
@@ -253,7 +257,10 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
         }).then(function successCallback(response){
             console.log(response.data);
             $scope.errorMessage=true;
+            $scope.customMessage=false;
+            $scope.customDocLinkMessage=false;
             document.getElementById('basicWidgetBackButton2').disabled=false;
+            document.getElementById('basicWidgetNextButton').disabled=false;
             getCustomWidgetId = response.data.widgetsList.id._id;
             $rootScope.customWidgetId=response.data.widgetsList.id._id;
             var domainUrl = "";
@@ -262,22 +269,17 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
                 domainUrl = "http://localhost:8080";
             }
             else{
-                domainUrl = "http://showmetric";
+                domainUrl = window.location.hostname;
             }
             $(".customApiLink").html(domainUrl+'/api/v1/create/customdata/'+response.data.widgetsList.id._id);
         }, function errorCallback (error){
             console.log('Error in getting customwidgets',error);
-            document.getElementById('basicWidgetBackButton2').disabled=true;
-            document.getElementById('basicWidgetNextButton').disabled=true;
+            $scope.customMessage=true;
             $scope.errorMessage=false;
+            $scope.customDocLinkMessage=true;
         });
     };
 
-    $scope.selectCustomAPILink = function () {
-        var getCustomLink = $(".customApiLink").text();
-        console.log(getCustomLink);
-        $(".isChecked").show();
-        document.getElementById('basicWidgetNextButton').disabled=false;
-    };
+
 
 }

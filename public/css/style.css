@@ -5783,6 +5783,14 @@ body.body-small .vote-icon {
 .small-chat-box .form-chat {
     padding: 10px 10px;
 }
+
+.findOutHow{
+    color:black !important;
+}
+
+a.customApiLink{
+    color:black !important;
+}
 /*
  * metismenu - v2.0.2
  * A jQuery menu plugin

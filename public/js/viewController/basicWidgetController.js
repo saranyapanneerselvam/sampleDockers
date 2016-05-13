@@ -86,15 +86,27 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
     };
 
     $scope.getObjectsForChosenProfile = function(){
-        $http({
-            method: 'GET',
-            url: '/api/v1/get/objects/'+ this.profileOptionsModel._id
-        }).then(function successCallback(response) {
-            $scope.objectList=response.data.objectList;
-            console.log(response.data.objectList);
-        }, function errorCallback(error) {
-            console.log(error);
-        });
+        if(!this.profileOptionsModel){
+            $scope.objectList = null;
+            if($scope.storedChannelName==='Twitter'){
+                $scope.objectForWidgetChosen( $scope.objectList);
+            }
+        }
+        else {
+            $http({
+                method: 'GET',
+                url: '/api/v1/get/objects/' + this.profileOptionsModel._id
+            }).then(function successCallback(response) {
+                $scope.objectList = response.data.objectList;
+                console.log(response.data.objectList);
+                if ($scope.storedChannelName === 'Twitter') {
+                    console.log('TwitterCondition', response.data.objectList);
+                    $scope.objectForWidgetChosen($scope.objectList[0]);
+                }
+            }, function errorCallback(error) {
+                console.log(error);
+            });
+        }
     };
 
     $scope.refreshObjectsForChosenProfile = function () {
@@ -103,6 +115,7 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
                 case 'Facebook':            $scope.objectType = 'page';         break;
                 case 'Google Analytics':    $scope.objectType = 'view';         break;
                 case 'FacebookAds':        $scope.objectType = 'fbadaccount';  break;
+                case 'Twitter':             $scope.objectType = 'tweet';  break;
             }
             $http({
                 method: 'GET',
@@ -129,6 +142,10 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
                     break;
                 case 'FacebookAds':
                     url = '/api/auth/facebookads';
+                    title = $scope.storedChannelName;
+                    break;
+                case 'Twitter':
+                    url = '/api/auth/twitter';
                     title = $scope.storedChannelName;
                     break;
             }
@@ -211,9 +228,11 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
     $scope.clearReferenceWidget = function(){
         $scope.referenceWidgetsList= [];
     };
-    $scope.objectForWidgetChosen = function() {
-        $scope.storedObject = this.objectOptionsModel;
-        if(this.objectOptionsModel != null)
+    $scope.objectForWidgetChosen = function(objectOptionsModel) {
+        console.log('objectForWidgetChosen',objectOptionsModel);
+        $scope.storedObject = objectOptionsModel;
+        console.log('storedObject', $scope.storedObject);
+        if($scope.storedObject != null)
             document.getElementById('basicWidgetFinishButton').disabled=false;
         else
             document.getElementById('basicWidgetFinishButton').disabled=true;

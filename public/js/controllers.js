@@ -492,4 +492,14 @@ showMetricApp.service('createWidgets',function($http,$q){
         };
         return(finalWidget);
     };
+
 });
+
+
+showMetricApp.service('chartColours',function(){
+
+    //To provide a random colour to the generated chart
+
+
+});
+

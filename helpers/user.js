@@ -38,8 +38,11 @@ exports.storeProfiles = function (req, done) {
                 }
             }, {upsert: true}, function (err, updateResult) {
                 if (!err) {
-                    req.showMetric.status = 302;
-                    done(null, {status: 302});
+                    profile.findOne({'userId': req.userId,'channelId': req.channelId}, function(err,profileDetail){
+                        if(!err){
+                            done(null, profileDetail);
+                        }
+                    });
                 }
                 else {
                     done(null, {status: 302});
@@ -76,7 +79,12 @@ exports.storeProfiles = function (req, done) {
                     if (err)
                         done(err);
                     else {
-                        done(null, {userDetails: user, status: 200});
+                        profile.findOne({'userId': user.userId,'channelId': user.channelId}, function(err,profileDetail){
+                            if(!err){
+                                console.log('profile',profileDetail)
+                                done(null, profileDetail);
+                            }
+                        });
                     }
                 }
             );

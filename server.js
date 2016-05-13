@@ -108,7 +108,7 @@ require('./controllers/customIdentity')(app);
 require('./controllers/customChannelData')(app);
 
 router.use(function (req, res, next) {
-    req.showMetric = {};
+    req.app = {};
     next();
 });
 

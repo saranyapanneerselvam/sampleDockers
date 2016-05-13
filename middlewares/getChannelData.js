@@ -88,7 +88,7 @@ exports.getChannelData = function (req, res, next) {
         store_final_data: ['get_channel_data_remote', storeFinalData],
         get_channel_objects_db: ['store_final_data', 'get_channel_data_remote', getChannelDataDB]
     }, function (err, results) {
-        console.log('final results', results.get_channel_objects_db.length)
+        console.log('final results', results.get_channel_objects_db)
         if (err) {
             return res.status(500).json({});
         }
@@ -229,7 +229,7 @@ exports.getChannelData = function (req, res, next) {
                 async.concatSeries(uniqueChannel, dataForEachChannel, callback);
             }
             else {
-                console.log('Inside ELSE statement of geteachchanneldata');
+                console.log('Inside ELSE statement of geteachchanneldata', initialResults, uniqueChannel);
                 var newChannelArray = [];
                 newChannelArray.push(initialResults.get_channel[0]);
                 async.concatSeries(newChannelArray, dataForEachChannel, callback);
@@ -576,9 +576,9 @@ exports.getChannelData = function (req, res, next) {
             if (allQueryResult.channel.code == configAuth.channels.googleAnalytics) {
                 function storeDataForGA(dataFromRemote, dataFromDb, widget, done) {
                     console.log('widget', widget);
-                    console.log('dataFromRemote38GA', dataFromDb, dataFromRemote)
+                    // console.log('dataFromRemote38GA', dataFromDb, dataFromRemote)
                     async.times(dataFromDb.length, function (j, next) {
-                        console.log('dataFromRemote', dataFromRemote[j])
+                        console.log('dataFromRemote', dataFromRemote[j].metricId)
                         if (dataFromRemote[j].data === 'DataFromDb')
                             next(null, 'DataFromDb');
                         else {
@@ -930,15 +930,15 @@ exports.getChannelData = function (req, res, next) {
                                         }
                                         else {
                                             finalTweetResult = response;
-                                            console.log('finalresult length',finalTweetResult.length)
+                                            console.log('finalresult length', finalTweetResult.length)
                                             updateTweetData(finalTweetResult, next);
                                         }
                                     });
                                     console.log('creatd', createdAt, 'current date', currentDate)
-                                    console.log('wholeresponse6', wholeTweetResponse.length)
+                                    console.log('wholeresponse6', wholeTweetResponseFromDb.length, wholeTweetResponse.length)
                                 }
                                 else {
-                                    console.log('no data else',createdAt,currentDate)
+                                    console.log('no data else', createdAt, currentDate)
                                     dataAlreadyExist(wholeTweetResponse, function (err, response) {
                                         if (err) {
                                             console.log('error', err)
@@ -958,7 +958,7 @@ exports.getChannelData = function (req, res, next) {
                                         var createdAt = formatDate(twitterDate);
                                         console.log('createdat', createdAt, updatedDate, 'index', index)
                                         if (createdAt === updatedDate) {
-                                            console.log('ifwhole', wholeTweetResponseFromDb,index)
+                                            console.log('ifwhole', wholeTweetResponseFromDb, index)
                                             wholeTweetResponseFromDb[index] = {
                                                 date: createdAt,
                                                 total: dataFromRemote[j].data[0].user
@@ -973,21 +973,33 @@ exports.getChannelData = function (req, res, next) {
                                             }
                                         }
                                     })
-                                    console.log('lengthwholeTweetResponseFromDb',wholeTweetResponseFromDb.length)
+                                    console.log('lengthwholeTweetResponseFromDb', wholeTweetResponseFromDb.length)
                                     callback(null, wholeTweetResponseFromDb);
                                 }
 
                                 function dataAlreadyExist(wholeTweetResponse, callback) {
+                                    var findDateAlreadyExist = _.findIndex(wholeTweetResponseFromDb, function (o) {
+                                        return o.date == createdAt;
+                                    });
+                                    console.log('findDateAlreadyExist', findDateAlreadyExist)
+                                    if (findDateAlreadyExist === -1) {
+                                        wholeTweetResponseFromDb.push({
+                                            date: createdAt,
+                                            total: dataFromRemote[j].data[0].user
+                                        });
+                                    }
+
                                     if (currentDate != formatDate(new Date(createdAt))) {
                                         console.log('not eqaul', wholeTweetResponse.length)
-                                        if(dataFromDb[j].data.length===0){
+                                        if (dataFromDb[j].data.length === 0) {
                                             //store last data in current date
                                             wholeTweetResponseFromDb.push({
                                                 date: currentDate,
                                                 total: dataFromRemote[j].data[0].user
                                             });
                                         }
-                                        else{
+                                        else {
+                                            console.log('else db')
                                             wholeTweetResponseFromDb = wholeTweetResponse;
                                         }
 
@@ -1007,6 +1019,19 @@ exports.getChannelData = function (req, res, next) {
                                     }
                                     else {
                                         console.log('equal else', wholeTweetResponseFromDb.length, wholeTweetResponse.length);
+                                        if (wholeTweetResponseFromDb.length === 0)
+                                            wholeTweetResponseFromDb = wholeTweetResponse;
+                                        var findDateAlreadyExist = _.findIndex(wholeTweetResponseFromDb, function (o) {
+                                            return o.date == createdAt;
+                                        });
+                                        console.log('findDateAlreadyExist', findDateAlreadyExist)
+                                        if (findDateAlreadyExist === -1) {
+                                            wholeTweetResponseFromDb.push({
+                                                date: createdAt,
+                                                total: dataFromRemote[j].data[0].user
+                                            });
+                                        }
+
                                         replaceOrPushData(wholeTweetResponseFromDb, function (err, response) {
                                             if (err) {
 
@@ -1105,7 +1130,10 @@ exports.getChannelData = function (req, res, next) {
                             }]
                         , function (err, response) {
                             console.log('err', err, 'resposne', response);
-                            next(null, response[0])
+                            if (response.length != 0)
+                                next(null, response[0])
+                            else
+                                next(null, response)
                         })
                 }
             }, done)
@@ -1845,6 +1873,8 @@ exports.getChannelData = function (req, res, next) {
             client.get(query, inputs, function (error, tweets, response) {
                 console.log('tweeeets', tweets.length)
                 if (error)
+                    return res.status(500).json({});
+                else if (tweets.length===0)
                     return res.status(500).json({});
                 else {
                     if (queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.tweets || queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.followers || queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.following || queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.favourites || queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.listed || queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.retweets_of_your_tweets) {

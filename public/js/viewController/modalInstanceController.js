@@ -13,16 +13,17 @@ function ModalInstanceController($scope, $rootScope, $http, $uibModalInstance) {
         console.log("closeBasicWidgetModal called : "+currentModalView);
         if(currentModalView=="step_two"){
             var lastWidgetId = $rootScope.customWidgetId;
-            console.log("lastWidgetId : "+lastWidgetId);
-            $http({
-                method: 'POST',
-                url: '/api/v1/delete/widgets/'+lastWidgetId
-            }).then(function successCallback(response){
-               console.log(response);
-            },function errorCallback(error){
-                console.log('Error in deleting profile',error)
-            });
-
+            if(lastWidgetId!=undefined){
+                console.log("lastWidgetId : "+lastWidgetId);
+                $http({
+                    method: 'POST',
+                    url: '/api/v1/delete/widgets/'+lastWidgetId
+                }).then(function successCallback(response){
+                    console.log(response);
+                },function errorCallback(error){
+                    console.log('Error in deleting profile',error)
+                });
+            }
         }
         $uibModalInstance.dismiss('cancel');
     };

@@ -385,10 +385,12 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
     //To catch a request for a new widget creation and create the dashboard in the frontend
     $scope.$on('populateWidget', function(e,widget,dataDateRange){
         var inputWidget = [];
+        var chartName;
         inputWidget.push(createWidgets.widgetDataFetchHandler(widget,{
             'startDate': moment($scope.dashboardCalendar.start_date).format('YYYY-MM-DD'),
             'endDate': moment($scope.dashboardCalendar.end_date).format('YYYY-MM-DD')
         }));
+
 
         //To temporarily create an empty widget with same id as the widgetId till all the data required for the widget is fetched by the called service
         $scope.dashboard.widgets.push({
@@ -433,6 +435,14 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     return el.id;
                 }).indexOf(inputWidget[0]._id);
 
+                if(inputWidget[0].charts==[] || inputWidget[0].charts==""){
+                    chartName = "No Data Found";
+                }
+                else{
+                    chartName = (typeof inputWidget[0].name != 'undefined'? inputWidget[0].name : '');
+                }
+
+
                 $scope.dashboard.widgets[widgetIndex] = {
                     'sizeY': (typeof inputWidget[0].size != 'undefined'? inputWidget[0].size.h : 3),
                     'sizeX': (typeof inputWidget[0].size != 'undefined'? inputWidget[0].size.w : 3),
@@ -440,7 +450,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     'minSizeX': (typeof inputWidget[0].minSize != 'undefined'? inputWidget[0].minSize.w : 3),
                     'maxSizeY': (typeof inputWidget[0].maxSize != 'undefined'? inputWidget[0].maxSize.h : 3),
                     'maxSizeX': (typeof inputWidget[0].maxSize != 'undefined'? inputWidget[0].maxSize.w : 3),
-                    'name': (typeof inputWidget[0].name != 'undefined'? inputWidget[0].name : ''),
+                    'name': chartName,
                     'visibility': true,
                     'id': inputWidget[0]._id,
                     'chart': finalChartData,

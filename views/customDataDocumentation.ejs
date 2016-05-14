@@ -48,26 +48,38 @@
             <p class="customDataTerm">intervalType - either continous/interval</p>
             <p class="customDataTerm">data - list of data with name, date and total count</p>
             <br/>
+            <h3>Sample Custom Data:</h3>
+
+            <p class="sampleCustomDataTerm">
+                {
+                "metricsCount":"3",
+                "chartType":"bar",
+                "intervalType":"continuous",
+                "data" : "[{'name':'Samsung Galaxy S6','date':'01/05/2016','total':'27'},{'name':'iPhone 6S','date':'01/05/2016','total':'15'},{'name':'OnePlus Two','date':'01/05/2016','total':'13'},{'name':'Samsung Galaxy S6','date':'03/05/2016','total':'26'},{'name':'iPhone 6S','date':'03/05/2016','total':'19'},{'name':'OnePlus Two','date':'03/05/2016','total':'15'},{'name':'Samsung Galaxy S6','date':'04/05/2016','total':'38'},{'name':'iPhone 6S','date':'04/05/2016','total':'27'},{'name':'OnePlus Two','date':'04/05/2016','total':'16'},{'name':'Samsung Galaxy S6','date':'05/05/2016','total':'28'},{'name':'iPhone 6S','date':'05/05/2016', 'total':'17'},{'name':'OnePlus Two','date':'05/05/2016','total':'12'},{ 'name':'Samsung Galaxy S6','date':'06/05/2016','total':'38'},{'name':'iPhone 6S','date':'06/05/2016','total':'27'},{'name':'OnePlus Two','date':'06/05/2016','total':'22'}]"
+                }
+            </p>
+
+            <br/>
             <p class="customDoc">9. Check for the previous steps if anything is missed in between.</p>
             <br/>
             <p class="customDoc">10. Finally, Click the Send blue button on top right side corner to post the data.</p>
             <br/>
             <p class="customDoc">11. If the data has been posted successfully, then message will be displayed in the response section as : </p>
-            <p class="customDataTerm">{
+            <p class="sampleCustomDataTerm">{
                 "status": "200",
                 "message": "New custom data created"
                 }
             </p>
             <br/>
             <p class="customDoc">12. If incorrect data has been send, error message will be displayed in the response section as : </p>
-            <p class="customDataTerm">{
+            <p class="sampleCustomDataTerm">{
                 "status": "Error",
                 "message": "Incorrect Input Data provided. Kindly refer to the documentation for the correct data."
                 }
             </p>
             <br/>
             <p class="customDoc">13. Allowed date format is MM/DD/YYYY or DD/MM/YYYY. If incorrect date format is being submitted, an error message will be displayed in the response section as : </p>
-            <p class="customDataTerm">{
+            <p class="sampleCustomDataTerm">{
                 "status": "Error",
                 "message": "Input Date format is incorrect. Allowed Date Format is DD/MM/YYYY or MM/DD/YYYY"
                 }

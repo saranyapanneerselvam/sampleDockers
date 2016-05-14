@@ -457,7 +457,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                 'api': {}
         });
 
-        console.log(tempChart);
+        //console.log(tempChart);
         return(tempChart);
     };
 

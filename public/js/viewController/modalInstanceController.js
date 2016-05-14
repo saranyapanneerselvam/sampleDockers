@@ -14,7 +14,6 @@ function ModalInstanceController($scope, $rootScope, $http, $uibModalInstance) {
         if(currentModalView=="step_two"){
             var lastWidgetId = $rootScope.customWidgetId;
             console.log("lastWidgetId : "+lastWidgetId);
-            // Need to check this delete api which is already written. Because there is delay in response. But the last custom widget created is being deleted in this api call
             $http({
                 method: 'POST',
                 url: '/api/v1/delete/widgets/'+lastWidgetId

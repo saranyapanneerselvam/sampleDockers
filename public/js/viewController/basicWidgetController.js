@@ -233,7 +233,20 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
     $scope.storeReferenceWidget = function(){$scope.storedReferenceWidget = this.referenceWidgets;};
     $scope.clearReferenceWidget = function(){
         $scope.referenceWidgetsList= [];
+        var lastWidgetId = $rootScope.customWidgetId;
+        if(lastWidgetId!=undefined){
+            console.log("lastWidgetId : "+lastWidgetId);
+            $http({
+                method: 'POST',
+                url: '/api/v1/delete/widgets/'+lastWidgetId
+            }).then(function successCallback(response){
+                console.log(response);
+            },function errorCallback(error){
+                console.log('Error in deleting profile',error)
+            });
+        }
     };
+    
     $scope.objectForWidgetChosen = function(objectOptionsModel) {
         console.log('objectForWidgetChosen',objectOptionsModel);
         $scope.storedObject = objectOptionsModel;

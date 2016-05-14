@@ -5800,6 +5800,11 @@ a.customApiLink{
 .customDataTerm{
     font-size:15px;
 }
+
+.sampleCustomDataTerm{
+    font-size:15px;
+    color: #7E57C2;
+}
 /*
  * metismenu - v2.0.2
  * A jQuery menu plugin

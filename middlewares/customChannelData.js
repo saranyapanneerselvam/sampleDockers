@@ -120,16 +120,6 @@ exports.saveCustomChannelData = function (req, res, next) {
 };
 
 exports.getCustomChannelWidgetData = function (req, res, next) {
-    console.log("Custom StartDate : "+req.body.startDate+" || Custom EndDate : "+req.body.endDate);
-    // customData.find({'widgetId':req.params.widgetId}, function (err, result) {
-    //     if(err)
-    //         req.app.result = {'error': err};
-    //     else if (result.length)
-    //         req.app.result = result;
-    //     else
-    //         req.app.result = {'status': '301', 'message':'No Records Found'};
-    //     next();
-    // });
 
     customData.aggregate([
             // Unwind the array to denormalize

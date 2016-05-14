@@ -9,6 +9,7 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
     $scope.storedObject = {};
     $scope.widgetType = $stateParams.widgetType;
     var getChannelName = "";
+    var getCustomWidgetObj = {};
     var getCustomWidgetId = "";
 
     console.log('widgetType',$scope.widgetType);
@@ -171,8 +172,12 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
 
     $scope.createAndFetchBasicWidget =function() {
         if(getChannelName=="CustomData"){
+            getCustomWidgetObj = {
+                '_id':getCustomWidgetId,
+                'widgetType':'custom'
+            };
             // final function after custom api url creation goes here
-            $rootScope.$emit("CallPopulateDashboardWidgets", {});
+            $rootScope.$broadcast('populateWidget',getCustomWidgetObj);
         }
         else{
             // function for saving other widgets goes here
@@ -246,7 +251,7 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
             });
         }
     };
-    
+
     $scope.objectForWidgetChosen = function(objectOptionsModel) {
         console.log('objectForWidgetChosen',objectOptionsModel);
         $scope.storedObject = objectOptionsModel;

@@ -120,14 +120,47 @@ exports.saveCustomChannelData = function (req, res, next) {
 };
 
 exports.getCustomChannelWidgetData = function (req, res, next) {
+    console.log("Custom StartDate : "+req.body.startDate+" || Custom EndDate : "+req.body.endDate);
+    // customData.find({'widgetId':req.params.widgetId}, function (err, result) {
+    //     if(err)
+    //         req.app.result = {'error': err};
+    //     else if (result.length)
+    //         req.app.result = result;
+    //     else
+    //         req.app.result = {'status': '301', 'message':'No Records Found'};
+    //     next();
+    // });
 
-    customData.find({'widgetId':req.params.widgetId}, function (err, result) {
-        if(err)
-            req.app.result = {'error': err};
-        else if (result.length)
-            req.app.result = result;
-        else
-            req.app.result = {'status': '301', 'message':'No Records Found'};
-        next();
-    });
+    customData.aggregate([
+            // Unwind the array to denormalize
+            {"$unwind": "$data"},
+            // Match specific array elements
+            {
+                "$match": {
+                    $and: [{"data.date": {$gte: req.body.startDate}}, {"data.date": {$lte: req.body.endDate}},{"widgetId": req.params.widgetId}]
+                }
+            },
+            // Group back to array form
+            {
+                "$group": {
+                    "_id": "$_id",
+                    "data": {"$push": "$data"},
+                    "chartType": {"$first": "$chartType"},
+                    "updated": {"$first": "$updated"},
+                    "created": {"$first": "$created"},
+                    "intervalType": {"$first": "$intervalType"},
+                    "metricsCount": {"$first": "$metricsCount"},
+                    "widgetId": {"$first": "$widgetId"},
+                }
+            }]
+        , function (err, result) {
+            console.log('err', err, 'resposne', result);
+            if(err)
+                req.app.result = {'error': err};
+            else if (result.length)
+                req.app.result = result;
+            else
+                req.app.result = {'status': '301', 'message':'No Records Found'};
+            next();
+        })
 };

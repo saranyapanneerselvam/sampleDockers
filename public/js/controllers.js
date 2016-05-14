@@ -15,7 +15,6 @@ showMetricApp.service('createWidgets',function($http,$q){
         //Acquiring data for all the charts within the widget through promise and then fetching metric details for all charts within the widget
         getCharts.then(function successCallback(charts){
             unformattedWidget = widget;
-            console.log(unformattedWidget);
             if(unformattedWidget.widgetType=="custom"){
 
                 unformattedWidget.charts = charts;
@@ -60,7 +59,6 @@ showMetricApp.service('createWidgets',function($http,$q){
         //Function to fetch data for the input date range
         function getDataForChosenDates(widget,chosenDateRange) {
             var deferred = $q.defer();
-            console.log("Widget Type : "+widget.widgetType);
             if(widget.widgetType=="custom"){
                 $http({
                     method: 'POST',
@@ -70,7 +68,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                         "endDate": chosenDateRange.endDate
                     }
                 }).then(function successCallback(response) {
-                    //console.log(response);
                     var formattedCharts = [];
                     countCustomData++;
                     for(getData in response.data){
@@ -457,7 +454,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                 'api': {}
         });
 
-        //console.log(tempChart);
         return(tempChart);
     };
 
@@ -477,7 +473,6 @@ showMetricApp.service('createWidgets',function($http,$q){
             }
         };
         setLayoutOptions();
-        console.log('Dividers',individualGraphWidthDivider,individualGraphHeightDivider);
 
         finalWidget = {
             'sizeY': (widget.size.h? widget.size.h : 3),

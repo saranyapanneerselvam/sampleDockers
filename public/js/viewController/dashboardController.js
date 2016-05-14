@@ -188,7 +188,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
         //To fetch the name of the dashboard from database and display it when the dashboard is loaded
         $scope.fetchDashboardName = function () {
-            console.log($state.params,$stateParams);
             $http({
                 method: 'GET', url: '/api/v1/get/dashboards/'+ $state.params.id
             }).then(function successCallback(response) {
@@ -246,10 +245,9 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                         console.log('API triggered');
                     }
 */
-                    for(i=0;i<widget.chart.length;i++){
+                    for(var i=0;i<widget.chart.length;i++){
                         if (widget.chart[i].api){
                             widget.chart[i].api.update();
-                            console.log('API triggered');
                         }
                     }
                 }, // optional callback fired when item is resized,
@@ -263,14 +261,23 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
         //subscribe widget on window resize event and sidebar resize event
         new ResizeSensor(document.getElementById('dashboardLayout'), function() {
-            console.log('Resize event triggered');
             $scope.$broadcast('resize');
         });
-        angular.element($window).on('resize', function (e) {$scope.$broadcast('resize');});
+        angular.element($window).on('resize', function (e) {
+            $scope.$broadcast('resize');
+        });
         $scope.$on('resize',function(e){
-            for(var i=0;i<$scope.dashboard.widgets.length;i++){$timeout(resizeWidget(i), 100);}
+            for(var i=0;i<$scope.dashboard.widgets.length;i++){
+                $timeout(resizeWidget(i), 100);
+            }
             function resizeWidget(i) {
-                return function() {if ($scope.dashboard.widgets[i].chart.api){$scope.dashboard.widgets[i].chart.api.update();}};
+                return function() {
+                    for(j=0;j<$scope.dashboard.widgets[i].chart.length;j++){
+                        if ($scope.dashboard.widgets[i].chart[j].api){
+                            $scope.dashboard.widgets[i].chart[j].api.update();
+                        }
+                    }
+                };
             }
         });
 
@@ -295,8 +302,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             var dashboardWidgetList = response.data.widgetsList;
             var widgets = [];
 
-            console.log("populate Dashboard Widgets", response.data.widgetsList);
-
             for(getWidgetInfo in dashboardWidgetList){
                 widgets.push(
                     createWidgets.widgetDataFetchHandler(
@@ -308,9 +313,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     )
                 );
 
-                if(typeof dashboardWidgetList[getWidgetInfo].size != 'undefined'){
-                    console.log('Bug fix working');
-                }
                 //To temporarily create an empty widget with same id as the widgetId till all the data required for the widget is fetched by the called service
                 $scope.dashboard.widgets.push({
                     'sizeY': (typeof dashboardWidgetList[getWidgetInfo].size != 'undefined'? dashboardWidgetList[getWidgetInfo].size.h : 3),
@@ -357,7 +359,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                         }
                     };
                     setLayoutOptions();
-                    console.log('Dividers',individualGraphWidthDivider,individualGraphHeightDivider);
 
                     $scope.dashboard.widgets[widgetIndex] = {
                         'sizeY': (typeof dashboardWidgetList[getWidgets].size != 'undefined'? dashboardWidgetList[getWidgets].size.h : 3),
@@ -447,7 +448,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     'layoutOptionsX': individualGraphWidthDivider,
                     'layoutOptionsY': individualGraphHeightDivider
                 };
-                console.log($scope.dashboard.widgets[widgetIndex]);
             },
             function errorCallback(error){
                 console.log(error);
@@ -461,7 +461,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             var widgetIndex = $scope.dashboard.widgets.map(function(el) {
                 return el.id;
             }).indexOf(widgetId);
-            console.log(widgetIndex);
             $scope.dashboard.widgets[widgetIndex] = {
                 sizeY: 3,
                 sizeX: 3,
@@ -491,7 +490,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     api: {}
                 }
             }
-            console.log($scope.dashboard.widgets[widgetIndex]);
         } else {
             $scope.dashboard.widgets.push({
                 sizeY: 3,

@@ -56,7 +56,7 @@ exports.saveCustomChannelData = function (req, res, next) {
 
             for(getChcekValue in data){
                 if(pattern.test(data[getChcekValue].date)==false){
-                    isSendPost=0;
+                    isSendPost="Incorrect Date";
                 }
 
                 if(data[getChcekValue].name==undefined || data[getChcekValue].date==undefined || data[getChcekValue].total==undefined || data[getChcekValue].name=='' || data[getChcekValue].date=='' || data[getChcekValue].total==''){
@@ -109,7 +109,7 @@ exports.saveCustomChannelData = function (req, res, next) {
         if(json!="" && isSendPost==0 || json=="" && isSendPost==""){
             sendMessage = "Incorrect Input Data provided. Kindly refer to the documentation for the correct data.";
         }
-        else if(isSendPost==0){
+        else if(json!="" && isSendPost=="Incorrect Date"){
             sendMessage = "Input Date format is incorrect. Allowed Date Format is DD/MM/YYYY or MM/DD/YYYY";
         }
         isSendPost="";

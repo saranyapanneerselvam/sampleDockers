@@ -5786,10 +5786,19 @@ body.body-small .vote-icon {
 
 .findOutHow{
     color:black !important;
+    text-decoration: underline;
 }
 
 a.customApiLink{
     color:black !important;
+}
+
+.customDoc{
+    font-size:18px;
+}
+
+.customDataTerm{
+    font-size:15px;
 }
 /*
  * metismenu - v2.0.2

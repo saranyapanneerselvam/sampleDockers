@@ -73,4 +73,7 @@ module.exports = function (app, passport) {
         res.json(result);
     });
 
+    app.get('/customDataDocumentation', function (req, res) {
+        res.render('customDataDocumentation.ejs'); // load the index.ejs file
+    });
 };

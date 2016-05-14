@@ -1,0 +1,83 @@
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/font-awesome/css/font-awesome.css" rel="stylesheet">
+
+    <link href="/css/animate.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+
+
+
+
+</head>
+
+<body class="gray-bg">
+
+<div class="loginColumns animated fadeInDown">
+    <div class="row">
+
+        <div class="col-md-12">
+            <h1 class="font-bold">Custom Data Documentation</h1>
+            <br/>
+            <p class="customDoc">1. To send data, you need to use the API application called Postman.</p>
+            <br/>
+            <p class="customDoc">2. The custom POST method API unique URL which is generated at the time of clicking Custom Data chennal from the Basic Widget Modal is being used for sending data.</p>
+            <br/>
+            <p class="customDoc">3. The custom data which you are sending through the custom API url is in the format called JSON.</p>
+            <br/>
+            <p class="customDoc">4. So the data to be send in that required format for successful post.</p>
+            <br/>
+            <p class="customDoc">5. Open the Postman application and select POST method from the drop down list and paste the custom API unique url in the text box(Enter request URL)</p>
+            <br/>
+            <p><img src="image/custom1.png" style="width: 100%;" /></p>
+            <br/>
+            <p class="customDoc">6. Then select the body from the tag option. Under the body tag, select the raw radio button and change the Text drop down to JSON(application/json).</p>
+            <br/>
+            <p><img src="image/custom2.png" style="width: 100%;" /></p>
+            <p class="customDoc">7. In the textarea, fill the JSON formatted custom data.</p>
+            <br/>
+            <p><img src="image/custom3.png" style="width: 100%;" /></p>
+            <br/>
+            <p class="customDoc">8. Required feilds are as followed :</p>
+            <p class="customDataTerm">metricsCount - number of data sent</p>
+            <p class="customDataTerm">chartType - either line/bar/pie chart</p>
+            <p class="customDataTerm">intervalType - either continous/interval</p>
+            <p class="customDataTerm">data - list of data with name, date and total count</p>
+            <br/>
+            <p class="customDoc">9. Check for the previous steps if anything is missed in between.</p>
+            <br/>
+            <p class="customDoc">10. Finally, Click the Send blue button on top right side corner to post the data.</p>
+            <br/>
+            <p class="customDoc">11. If the data has been posted successfully, then message will be displayed in the response section as : </p>
+            <p class="customDataTerm">{
+                "status": "200",
+                "message": "New custom data created"
+                }
+            </p>
+            <br/>
+            <p class="customDoc">12. If incorrect data has been send, error message will be displayed in the response section as : </p>
+            <p class="customDataTerm">{
+                "status": "Error",
+                "message": "Incorrect Input Data provided. Kindly refer to the documentation for the correct data."
+                }
+            </p>
+            <br/>
+            <p class="customDoc">13. Allowed date format is MM/DD/YYYY or DD/MM/YYYY. If incorrect date format is being submitted, an error message will be displayed in the response section as : </p>
+            <p class="customDataTerm">{
+                "status": "Error",
+                "message": "Input Date format is incorrect. Allowed Date Format is DD/MM/YYYY or MM/DD/YYYY"
+                }
+            </p>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

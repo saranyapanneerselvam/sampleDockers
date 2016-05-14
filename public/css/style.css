@@ -4541,6 +4541,11 @@ body.mini-navbar.fixed-sidebar .logo-element {
     margin: 0 auto;
     padding: 100px 20px 20px 20px;
 }
+.customDocColumns{
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 50px 0px 0px 0px;
+}
 .passwordBox {
     max-width: 460px;
     margin: 0 auto;

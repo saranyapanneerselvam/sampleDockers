@@ -1,6 +1,6 @@
 showMetricApp.controller('BasicWidgetController',BasicWidgetController)
 
-function BasicWidgetController($scope,$http,$state,$rootScope,$window,$stateParams) {
+function BasicWidgetController($scope,$http,$state,$rootScope,$window,$stateParams,generateChartColours) {
     $scope.currentView = 'step_one';
     $scope.objectList = {};
     $scope.metricList = {};
@@ -171,6 +171,9 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
     };
 
     $scope.createAndFetchBasicWidget =function() {
+        var colourChart = ['#EF5350','#EC407A','#9C27B0','#42A5F5','#26A69A','#FFCA28','#FF7043','#8D6E63'];
+        var tempChartColour;
+
         if(getChannelName=="CustomData"){
             getCustomWidgetObj = {
                 '_id':getCustomWidgetId,
@@ -181,9 +184,12 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
         }
         else{
             // function for saving other widgets goes here
-            var matchingMetric = [];
+            var matchingMetric = []; var storedColours = [];
             for(var i=0;i<$scope.storedReferenceWidget.charts.length;i++) {
                 matchingMetric = [];
+                //storedColours = generateChartColours.getRandomColour($scope.storedReferenceWidget.charts.length);
+                //console.log('Stored colours',storedColours);
+                tempChartColour = colourChart[Math.ceil(Math.random()*(colourChart.length-1))];
                 for(var j=0;j<$scope.storedReferenceWidget.charts[i].metrics.length;j++) {
                     if($scope.storedReferenceWidget.charts[i].metrics[j].objectTypeId === $scope.storedObject.objectTypeId) {
                         matchingMetric.push($scope.storedReferenceWidget.charts[i].metrics[j]);
@@ -191,6 +197,7 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
                     }
                 }
                 $scope.storedReferenceWidget.charts[i].metrics = matchingMetric;
+                $scope.storedReferenceWidget.charts[i].colour = tempChartColour;
                 //console.log('Displaying metrics',$scope.storedReferenceWidget.charts[i].metrics);
             }
             var jsonData = {

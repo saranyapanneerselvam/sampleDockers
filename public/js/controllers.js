@@ -112,7 +112,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                                     chartObjectTypeId: widget.charts[i].metrics[0].objectTypeId,
                                     chartData: response.data[j].data,
                                     chartMetricId: response.data[j].metricId,
-                                    chartObjectId: response.data[j].objectId
+                                    chartObjectId: response.data[j].objectId,
+                                    chartColour: widget.charts[i].colour
                                 });
                             }
                         }
@@ -321,7 +322,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                         graphData.lineData.push({
                             values: widgetData.charts[i].chartData,      //values - represents the array of {x,y} data points
                             key: widgetData.charts[i].metricDetails.name, //key  - the name of the series.
-                            color: '#7E57C2'  //color - optional: choose your own line color.
+                            color: widgetData.charts[i].colour,  //color - optional: choose your own line color.
+                            area: true
                         });
                     }
                     else{
@@ -329,24 +331,25 @@ showMetricApp.service('createWidgets',function($http,$q){
                             graphData.lineData.push({
                                 values: widgetData.charts[i].chartData[customData].values,      //values - represents the array of {x,y} data points
                                 key: widgetData.charts[i].chartData[customData].key, //key  - the name of the series.
-                                color: widgetData.charts[i].chartData[customData].color  //color - optional: choose your own line color.
+                                color: widgetData.charts[i].chartData[customData].color,  //color - optional: choose your own line color.
+                                area: true
                             });
                         }
                     }
                     graphData.lineDataOptions = {
                         chart: {
                             type: 'lineChart',
-                            margin : {top: 20, right: 20, bottom: 40, left: 55},
+                            margin : {top: 20, right: 25, bottom: 30, left: 35},
                             x: function(d){ return d.x; },
                             y: function(d){ return d.y; },
                             useInteractiveGuideline: true,
                             xAxis: {
-                                axisLabel: 'Date',
+                                //axisLabel: 'Date',
                                 tickFormat: function(d) {
-                                    return d3.time.format('%m/%d/%y')(new Date(d))}
+                                    return d3.time.format('%d/%m/%y')(new Date(d))}
                             },
                             yAxis: {
-                                axisLabel: 'Value'
+                                //axisLabel: 'Value'
                             },
                             axisLabelDistance: -10
                         }
@@ -357,7 +360,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                         graphData.barData.push({
                             values: widgetData.charts[i].chartData,      //values - represents the array of {x,y} data points
                             key: widgetData.charts[i].metricDetails.name, //key  - the name of the series.
-                            color: '#7E57C2'  //color - optional: choose your own line color.
+                            color: widgetData.charts[i].colour  //color - optional: choose your own line color.
                         });
                     }
                     else{
@@ -372,19 +375,19 @@ showMetricApp.service('createWidgets',function($http,$q){
                     graphData.barDataOptions = {
                         chart: {
                             type: 'multiBarChart',
-                            margin : {top: 20, right: 20, bottom: 40, left: 65},
+                            margin : {top: 20, right: 25, bottom: 30, left: 35},
                             x: function(d){ return d.x; },
                             y: function(d){ return d.y; },
                             useInteractiveGuideline: true,
                             xAxis: {
-                                axisLabel: 'Date',
+                                //axisLabel: 'Date',
                                 tickFormat: function(d) {
-                                    return d3.time.format('%m/%d/%y')(new Date(d))}
+                                    return d3.time.format('%d/%m/%y')(new Date(d))}
                             },
                             yAxis: {
-                                axisLabel: 'Value',
-                                axisLabelDistance: -10
-                            }
+                                //axisLabel: 'Value',
+                            },
+                            axisLabelDistance: -10
                         }
                     };
                 }
@@ -393,7 +396,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                         graphData.pieData.push({
                             y: parseInt(widgetData.charts[i].chartData[customData].y),
                             key: widgetData.charts[i].metricDetails.name, //key  - the name of the series.
-                            color: '#7E57C2'  //color - optional: choose your own line color.
+                            color: widgetData.charts[i].colour  //color - optional: choose your own line color.
                         });
                     }
                     else{
@@ -496,10 +499,22 @@ showMetricApp.service('createWidgets',function($http,$q){
 });
 
 
-showMetricApp.service('chartColours',function(){
+showMetricApp.service('generateChartColours',function(){
 
     //To provide a random colour to the generated chart
+    this.getRandomColour = function(charts){
+        var colourChart = ['#EF5350','#EC407A','#9C27B0','#42A5F5','#26A69A','#FFCA28','#FF7043','#8D6E63'];
+        var chartColours = [];
+        var tempChartColour;
 
-
+        for(i=0;i<charts.length;i++){
+            tempChartColour = colourChart[Math.ceil(Math.random()*(colourChart.length-1))];
+            chartColours.push({
+                colour: tempChartColour,
+                chartType: charts[i].chartType
+            });
+        }
+        return(chartColours);
+    };
 });
 

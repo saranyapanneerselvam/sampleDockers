@@ -240,11 +240,14 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope){
     };
 
     $scope.createAndFetchBasicWidget =function() {
+        var colourChart = ['#EF5350','#EC407A','#9C27B0','#42A5F5','#26A69A','#FFCA28','#FF7043','#8D6E63'];
+        var tempChartColour;
         var matchingMetric = [];
         for(var i=0;i< $scope.storedReferenceCharts.length;i++) {
             for(var j=0; j<  $scope.storedUserChosenValues.length ; j++){
                 if($scope.storedReferenceCharts[i].channelId === $scope.storedUserChosenValues[j].profile.channelId){
                     matchingMetric = [];
+                    tempChartColour = colourChart[Math.ceil(Math.random()*(colourChart.length-1))];
                     for(var k=0; k<$scope.storedReferenceCharts[i].metrics.length;k++){
                         if($scope.storedReferenceCharts[i].metrics[k].objectTypeId === $scope.storedUserChosenValues[j].object.objectTypeId ){
                             matchingMetric.push($scope.storedReferenceCharts[i].metrics[k]);
@@ -255,6 +258,7 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope){
                 }
             }
             $scope.storedReferenceWidget.charts[i].metrics = matchingMetric;
+            $scope.storedReferenceWidget.charts[i].colour = tempChartColour;
         }
         console.log('storedReferenceCharts',$scope.storedReferenceWidget);
           var jsonData = {

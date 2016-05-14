@@ -167,6 +167,7 @@ exports.getChannelData = function (req, res, next) {
 
     //Function to get each object details
     function getEachObject(results, callback) {
+        console.log('objects',results.metrics[0].objectId)
         Object.find({'_id': results.metrics[0].objectId}, {
             profileId: 1,
             channelObjectId: 1,
@@ -578,7 +579,7 @@ exports.getChannelData = function (req, res, next) {
                     console.log('widget', widget);
                     // console.log('dataFromRemote38GA', dataFromDb, dataFromRemote)
                     async.times(dataFromDb.length, function (j, next) {
-                        console.log('dataFromRemote', dataFromRemote[j].metricId)
+                        console.log('dataFromRemoteganalytics', dataFromRemote[j])
                         if (dataFromRemote[j].data === 'DataFromDb')
                             next(null, 'DataFromDb');
                         else {
@@ -1438,8 +1439,20 @@ exports.getChannelData = function (req, res, next) {
                             next(null, [allObjects]);
                             //fetchFBadsData(initialResults.get_profile[0], query, initialResults, initialResults.data, updated, currentDate);
                         }
-                        else
-                            next(null, 'DataFromDb');
+                        else{
+                            allObjects = {
+                                profile: initialResults.get_profile[j],
+                                query: query,
+                                widget: metric[j],
+                                dataResult: 'DataFromDb',
+                                startDate: updated,
+                                endDate: currentDate,
+                                metricId: metric[j]._id,
+                                channelId:metric[j].channelId
+                            }
+                            next(null, allObjects);
+                        }
+
                     }
                     else {
                         //setStartEndDate(365);
@@ -1456,8 +1469,21 @@ exports.getChannelData = function (req, res, next) {
 
 // This Function executed to get insights data like(impression,clicks)
         function fetchFBadsData(allObjects, callback) {
-            if (allObjects.call_fb_ads_data === 'DataFromDb')
-                callback(null, 'DataFromDb');
+           var entireObjects={};
+            if (allObjects.call_fb_ads_data.dataResult === 'DataFromDb'){
+                entireObjects = {
+                    profile: initialResults.get_profile[j],
+                    query: query,
+                    widget: metric[j],
+                    dataResult: 'DataFromDb',
+                    startDate: updated,
+                    endDate: currentDate,
+                    metricId: allObjects.call_fb_ads_data.metricId,
+                    channelId:allObjects.call_fb_ads_data.channelId
+                }
+                callback(null, entireObjects);
+            }
+
             else {
                 console.log('async starts ', allObjects.call_fb_ads_data)
                 async.concatSeries(allObjects.call_fb_ads_data, getFbAdsForAllMetrics, callback);
@@ -1467,8 +1493,17 @@ exports.getChannelData = function (req, res, next) {
 
         function getFbAdsForAllMetrics(results, callback) {
             console.log('all metrics', results);
-            if (results === 'DataFromDb')
-                callback(null, 'DataFromDb');
+            var queryResponse={};
+            if (results.dataResult === 'DataFromDb'){
+                queryResponse = {
+                    data: 'DataFromDb',
+                    metricId: results.metricId,
+                    queryResults: initialResults,
+                    channelId: initialResults.metric[0].channelId
+                }
+                callback(null,queryResponse );
+            }
+
             else {
                 async.concatSeries(results, getFbAdsForEachMetric, callback);
             }
@@ -1498,7 +1533,7 @@ exports.getChannelData = function (req, res, next) {
                         var storeMetricName = results.widget.objectTypes[0].meta.fbAdsMetricName;
                         var storeStartDate = new Date(results.startDate);
                         var storeEndDate = new Date(results.endDate);
-                        console.log('startdate', storeStartDate)
+                        console.log('startdatedate', storeStartDate)
                         var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
                         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
                         //controlled pagination Data
@@ -1551,13 +1586,16 @@ exports.getChannelData = function (req, res, next) {
                             }
                         }
                         else {
+                            console.log('no fbdata')
                             for (var i = 0; i < diffDays; i++) {
                                 var finalDate = calculateDate(storeStartDate);
                                 //console.log('finaldate',finalDate,storeStartDate)
                                 storeDefaultValues.push({date: finalDate, total: 0});
                                 storeStartDate.setDate(storeStartDate.getDate() + 1);
                             }
+                            console.log('fbdatano',storeDefaultValues)
                         }
+                        console.log('check fbads data',storeDefaultValues)
 
                     }
                     finalData = {

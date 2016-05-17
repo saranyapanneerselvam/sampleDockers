@@ -5822,6 +5822,10 @@ a.customApiLink{
 .nv-noData{
     font-size:14px !important;
 }
+
+svg.nvd3-svg {
+    -webkit-user-select: inherit !important;
+}
 /*
  * metismenu - v2.0.2
  * A jQuery menu plugin

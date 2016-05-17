@@ -364,8 +364,12 @@
 
 
                                 <div class="col-lg-11 showCustomUrlLink well" ng-hide="showCustomContent">
+
                                     <h4 ng-hide="customMessage">
-                                        Please send data through API to this URL - <a class="customApiLink" ng-model="customWidgetId"> </a>
+                                        Please send data through API to this URL - <a class="customApiLink"  ng-model="customWidgetId"> </a>
+                                        <button class="btn" id="btnCopyLink" data-clipboard-text={{customLink}} ng-click="copyToClipboard()">
+                                            <img src="image/clippy.svg" width="13" alt="Copy to clipboard">
+                                        </button>
                                     </h4>
 
                                     <br/>

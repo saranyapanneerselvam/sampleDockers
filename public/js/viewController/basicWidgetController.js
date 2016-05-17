@@ -297,14 +297,20 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
                 domainUrl = window.location.hostname;
             }
             $(".customApiLink").html(domainUrl+'/api/v1/create/customdata/'+response.data.widgetsList.id._id);
+            $scope.customLink=domainUrl+'/api/v1/create/customdata/'+response.data.widgetsList.id._id;
+
         }, function errorCallback (error){
             console.log('Error in getting customwidgets',error);
             $scope.customMessage=true;
             $scope.errorMessage=false;
             $scope.customDocLinkMessage=true;
         });
+        new Clipboard('#btnCopyLink');
     };
 
 
+    $scope.copyToClipboard = function () {
+        alert("Copied to clipboard");
+    };
 
 }

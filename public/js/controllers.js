@@ -178,7 +178,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                         valuesArr = formattedChartData[getData].values;
                                         var dataValues = {
                                             'x': moment(widget.charts[i].chartData[j].date),
-                                            'y': widget.charts[i].chartData[j].total
+                                            'y': widget.charts[i].chartData[j].values
                                         };
                                         valuesArr.push(dataValues);
                                         formattedChartData[getData].values=valuesArr;
@@ -190,7 +190,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                     valuesArr = [];
                                     var dataValues = {
                                         'x': moment(widget.charts[i].chartData[j].date),
-                                        'y': widget.charts[i].chartData[j].total
+                                        'y': widget.charts[i].chartData[j].values
                                     };
                                     valuesArr.push(dataValues);
                                     formattedChartData.push({values:valuesArr,key: widget.charts[i].chartData[j].name, color:null});
@@ -216,7 +216,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                     valuesArr = formattedChartData[getData].values;
                                     var dataValues = {
                                         'x': moment(widget.charts[i].chartData[j].date).format('MM/DD/YY'),
-                                        'y': widget.charts[i].chartData[j].total
+                                        'y': widget.charts[i].chartData[j].values
                                     };
                                     valuesArr.push(dataValues);
                                     formattedChartData[getData].values=valuesArr;
@@ -228,7 +228,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                 valuesArr = [];
                                 var dataValues = {
                                     'x': moment(widget.charts[i].chartData[j].date).format('MM/DD/YY'),
-                                    'y': widget.charts[i].chartData[j].total
+                                    'y': widget.charts[i].chartData[j].values
                                 };
                                 valuesArr.push(dataValues);
                                 formattedChartData.push({values:valuesArr,key: widget.charts[i].chartData[j].name, color:null});
@@ -251,14 +251,14 @@ showMetricApp.service('createWidgets',function($http,$q){
                                 var yValue = 0;
                                 if(formattedChartData[getData].key==widget.charts[i].chartData[j].name){
                                     yValue = parseInt(formattedChartData[getData].y);
-                                    formattedChartData[getData].y=parseInt(yValue)+parseInt(widget.charts[i].chartData[j].total);
+                                    formattedChartData[getData].y=parseInt(yValue)+parseInt(widget.charts[i].chartData[j].values);
                                     IsAlreadyExist = 1;
                                 }
                             }
 
                             if (IsAlreadyExist != 1) {
 
-                                formattedChartData.push({y:parseInt(widget.charts[i].chartData[j].total),key: widget.charts[i].chartData[j].name, color:null});
+                                formattedChartData.push({y:parseInt(widget.charts[i].chartData[j].values),key: widget.charts[i].chartData[j].name, color:null});
                             }
 
                         }
@@ -287,7 +287,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                     customDataUrl = "http://localhost:8080/api/v1/create/customdata/"+widgetData._id;
                 }
                 else{
-                    customDataUrl = "http://showmetric/api/v1/create/customdata/"+widgetData._id;
+                    customDataUrl = window.location.hostname+"/api/v1/create/customdata/"+widgetData._id;
                 }
             }
             else{

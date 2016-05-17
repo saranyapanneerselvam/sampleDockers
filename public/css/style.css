@@ -5818,6 +5818,10 @@ a.customApiLink{
     font-size:15px;
     color: #7E57C2;
 }
+
+.nv-noData{
+    font-size:14px !important;
+}
 /*
  * metismenu - v2.0.2
  * A jQuery menu plugin

@@ -335,13 +335,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 var sizeY,sizeX,chartsCount,individualGraphWidthDivider,individualGraphHeightDivider;
                 var chartName;
                 for(getWidgets in widgets){
-                    console.log(widgets[getWidgets].charts);
-                    if(widgets[getWidgets].charts==[] || widgets[getWidgets].charts==""){
-                        chartName = "No Data Found";
-                    }
-                    else{
-                        chartName = (typeof dashboardWidgetList[getWidgets].name != 'undefined'? dashboardWidgetList[getWidgets].name : '');
-                    }
+
                     //To format and group the charts within a widget by chart type
                     finalChartData = createWidgets.dataLoader(widgets[getWidgets]);
                     widgetIndex = $scope.dashboard.widgets.map(function(el) {return el.id;}).indexOf(widgets[getWidgets]._id);
@@ -367,7 +361,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                         'minSizeX': (typeof dashboardWidgetList[getWidgets].minSize != 'undefined'? dashboardWidgetList[getWidgets].minSize.w : 3),
                         'maxSizeY': (typeof dashboardWidgetList[getWidgets].maxSize != 'undefined'? dashboardWidgetList[getWidgets].maxSize.h : 3),
                         'maxSizeX': (typeof dashboardWidgetList[getWidgets].maxSize != 'undefined'? dashboardWidgetList[getWidgets].maxSize.w : 3),
-                        'name': chartName,
+                        'name': (typeof dashboardWidgetList[getWidgets].name != 'undefined'? dashboardWidgetList[getWidgets].name : ''),
                         'visibility': true,
                         'id': widgets[getWidgets]._id,
                         'chart': finalChartData,
@@ -436,13 +430,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     return el.id;
                 }).indexOf(inputWidget[0]._id);
 
-                if(inputWidget[0].charts==[] || inputWidget[0].charts==""){
-                    chartName = "No Data Found";
-                }
-                else{
-                    chartName = (typeof inputWidget[0].name != 'undefined'? inputWidget[0].name : '');
-                }
-
 
                 $scope.dashboard.widgets[widgetIndex] = {
                     'sizeY': (typeof inputWidget[0].size != 'undefined'? inputWidget[0].size.h : 3),
@@ -451,7 +438,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     'minSizeX': (typeof inputWidget[0].minSize != 'undefined'? inputWidget[0].minSize.w : 3),
                     'maxSizeY': (typeof inputWidget[0].maxSize != 'undefined'? inputWidget[0].maxSize.h : 3),
                     'maxSizeX': (typeof inputWidget[0].maxSize != 'undefined'? inputWidget[0].maxSize.w : 3),
-                    'name': chartName,
+                    'name': (typeof inputWidget[0].name != 'undefined'? inputWidget[0].name : ''),
                     'visibility': true,
                     'id': inputWidget[0]._id,
                     'chart': finalChartData,

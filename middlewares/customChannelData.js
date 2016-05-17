@@ -59,7 +59,7 @@ exports.saveCustomChannelData = function (req, res, next) {
                     isSendPost="Incorrect Date";
                 }
 
-                if(data[getChcekValue].name==undefined || data[getChcekValue].date==undefined || data[getChcekValue].total==undefined || data[getChcekValue].name=='' || data[getChcekValue].date=='' || data[getChcekValue].total==''){
+                if(data[getChcekValue].name==undefined || data[getChcekValue].date==undefined || data[getChcekValue].values==undefined || data[getChcekValue].name=='' || data[getChcekValue].date=='' || data[getChcekValue].values==''){
                     isSendPost=0;
                 }
 
@@ -81,8 +81,8 @@ exports.saveCustomChannelData = function (req, res, next) {
                     isSendPost=0;
                 }
 
-                var inTotal = parseInt(data[getChcekValue].total);
-                data[getChcekValue].total = inTotal;
+                var inTotal = parseInt(data[getChcekValue].values);
+                data[getChcekValue].values = inTotal;
 
 
             }

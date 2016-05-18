@@ -6,117 +6,134 @@ var customData = require('../models/data');
 
 
 exports.saveCustomChannelData = function (req, res, next) {
-    console.log(req.body);
-    var isSendPost = 1;
-    var sendMessage = "";
-    var createCustomData = new customData();
-    //To store the customData
-    createCustomData.widgetId = req.params.widgetId;
-    createCustomData.metricsCount= req.body.metricsCount;
-    createCustomData.chartType= req.body.chartType;
-    createCustomData.intervalType= req.body.intervalType;
-    createCustomData.data= req.body.data;
-    var json="";
-    if(createCustomData.metricsCount==undefined || createCustomData.chartType==undefined || createCustomData.intervalType==undefined || createCustomData.data==undefined){
-        isSendPost=0;
-    }
-    else{
-        json = req.body.data;
-        console.log(req.body.data);
-    }
-
-    if(json==""){
-        isSendPost="";
-    }
-    else{
-
-        function IsJsonString(str) {
-            try {
-                JSON.parse(str);
-            } catch (e) {
-                return false;
-            }
-            return true;
-        }
-
-        if(IsJsonString(json)){
-            isSendPost="";
+    var existcustomDataID = 0;
+    customData.find({widgetId: req.params.widgetId}, function (err, result) {
+        console.log(result);
+        if(result=="" || result=="[]"){
+            console.log("No Custom Data");
         }
         else{
-            isSendPost=1;
-            var newJson = json.replace(/([a-zA-Z0-9]+?):/g, '"$1":');
-            newJson = newJson.replace(/'/g, '"');
-            var data = JSON.parse(newJson);
+            existcustomDataID = result[0]._id;
+        }
 
-            var pattern =/^([0-9]{2})\/([0-9]{2})\/([0-9]{4})$/; // DD/MM/YYYY or MM/DD/YYYY
-            var convertDateMMDDYYYY = function(usDate) {
-                var dateParts = usDate.split(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-                return dateParts[3] + "-" + dateParts[2] + "-" + dateParts[1];
+        if(existcustomDataID==0){
+            console.log(req.body);
+            var isSendPost = 1;
+            var sendMessage = "";
+            var createCustomData = new customData();
+            //To store the customData
+            createCustomData.widgetId = req.params.widgetId;
+            createCustomData.metricsCount= req.body.metricsCount;
+            createCustomData.chartType= req.body.chartType;
+            createCustomData.intervalType= req.body.intervalType;
+            createCustomData.data= req.body.data;
+            var json="";
+            if(createCustomData.metricsCount==undefined || createCustomData.chartType==undefined || createCustomData.intervalType==undefined || createCustomData.data==undefined){
+                isSendPost=0;
+            }
+            else{
+                json = req.body.data;
+                console.log(req.body.data);
             }
 
-            for(getChcekValue in data){
-                if(pattern.test(data[getChcekValue].date)==false){
-                    isSendPost="Incorrect Date";
+            if(json==""){
+                isSendPost="";
+            }
+            else{
+
+                function IsJsonString(str) {
+                    try {
+                        JSON.parse(str);
+                    } catch (e) {
+                        return false;
+                    }
+                    return true;
                 }
 
-                if(data[getChcekValue].name==undefined || data[getChcekValue].date==undefined || data[getChcekValue].values==undefined || data[getChcekValue].name=='' || data[getChcekValue].date=='' || data[getChcekValue].values==''){
-                    isSendPost=0;
-                }
-
-
-                var inDate = data[getChcekValue].date;
-                var outDateMMDDYYYY = convertDateMMDDYYYY(inDate);
-                var date = data[getChcekValue].date;
-                var checkMonthDate = date.split("/");
-                var outDateDDMMYYYY = date.split("/").reverse().join("-");
-
-                if(checkMonthDate[0] > 12){
-                    data[getChcekValue].date = outDateDDMMYYYY;
+                if(IsJsonString(json)){
+                    isSendPost="";
                 }
                 else{
-                    data[getChcekValue].date = outDateMMDDYYYY;
+                    isSendPost=1;
+                    var newJson = json.replace(/([a-zA-Z0-9]+?):/g, '"$1":');
+                    newJson = newJson.replace(/'/g, '"');
+                    var data = JSON.parse(newJson);
+
+                    var pattern =/^([0-9]{2})\/([0-9]{2})\/([0-9]{4})$/; // DD/MM/YYYY or MM/DD/YYYY
+                    var convertDateMMDDYYYY = function(usDate) {
+                        var dateParts = usDate.split(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+                        return dateParts[3] + "-" + dateParts[2] + "-" + dateParts[1];
+                    }
+
+                    for(getChcekValue in data){
+                        if(pattern.test(data[getChcekValue].date)==false){
+                            isSendPost="Incorrect Date";
+                        }
+
+                        if(data[getChcekValue].name==undefined || data[getChcekValue].date==undefined || data[getChcekValue].values==undefined || data[getChcekValue].name=='' || data[getChcekValue].date=='' || data[getChcekValue].values==''){
+                            isSendPost=0;
+                        }
+
+
+                        var inDate = data[getChcekValue].date;
+                        var outDateMMDDYYYY = convertDateMMDDYYYY(inDate);
+                        var date = data[getChcekValue].date;
+                        var checkMonthDate = date.split("/");
+                        var outDateDDMMYYYY = date.split("/").reverse().join("-");
+
+                        if(checkMonthDate[0] > 12){
+                            data[getChcekValue].date = outDateDDMMYYYY;
+                        }
+                        else{
+                            data[getChcekValue].date = outDateMMDDYYYY;
+                        }
+
+                        if(checkMonthDate[0] > 31 && checkMonthDate[1] > 31){
+                            isSendPost=0;
+                        }
+
+                        var inTotal = parseInt(data[getChcekValue].values);
+                        data[getChcekValue].values = inTotal;
+
+
+                    }
                 }
+            }
 
-                if(checkMonthDate[0] > 31 && checkMonthDate[1] > 31){
-                    isSendPost=0;
+
+            console.log("Is Send Post : "+isSendPost);
+
+            createCustomData.data= data;
+            createCustomData.created = new Date();
+            createCustomData.updated = new Date();
+            if(isSendPost==1){
+                createCustomData.save(function (err, dataResponse) {
+                    if (!err)
+                        req.app.result = {'status': '200', 'message': 'New custom data created'};
+                    else
+                        req.app.result = {'status': '302'};
+                    next();
+                });
+                isSendPost="";
+            }
+            else{
+                if(json!="" && isSendPost==0 || json=="" && isSendPost==""){
+                    sendMessage = "Incorrect Input Data provided. Kindly refer to the documentation for the correct data.";
                 }
-
-                var inTotal = parseInt(data[getChcekValue].values);
-                data[getChcekValue].values = inTotal;
-
-
+                else if(json!="" && isSendPost=="Incorrect Date"){
+                    sendMessage = "Input Date format is incorrect. Allowed Date Format is DD/MM/YYYY or MM/DD/YYYY";
+                }
+                isSendPost="";
+                req.app.result = {'status': 'Error', 'message':sendMessage};
+                next();
             }
         }
-    }
-
-
-    console.log("Is Send Post : "+isSendPost);
-
-    createCustomData.data= data;
-    createCustomData.created = new Date();
-    createCustomData.updated = new Date();
-    if(isSendPost==1){
-        createCustomData.save(function (err, dataResponse) {
-            if (!err)
-                req.app.result = {'status': '200', 'message': 'New custom data created'};
-            else
-                req.app.result = {'status': '302'};
+        else{
+            sendMessage = "Data exist already. Use PUT method to update the data.";
+            req.app.result = {'status': 'Error', 'message':sendMessage};
             next();
-        });
-        isSendPost="";
-    }
-    else{
-        if(json!="" && isSendPost==0 || json=="" && isSendPost==""){
-            sendMessage = "Incorrect Input Data provided. Kindly refer to the documentation for the correct data.";
         }
-        else if(json!="" && isSendPost=="Incorrect Date"){
-            sendMessage = "Input Date format is incorrect. Allowed Date Format is DD/MM/YYYY or MM/DD/YYYY";
-        }
-        isSendPost="";
-        req.app.result = {'status': 'Error', 'message':sendMessage};
-        next();
-    }
-
+    })
 };
 
 

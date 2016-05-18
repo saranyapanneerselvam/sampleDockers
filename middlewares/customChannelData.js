@@ -102,7 +102,7 @@ exports.saveCustomChannelData = function (req, res, next) {
             if(isSendPost==1){
                 createCustomData.save(function (err, dataResponse) {
                     if (!err)
-                        req.app.result = {'status': '200', 'message': 'New custom data created'};
+                        req.app.result = {'status': '200', 'message': 'New custom data created successfully'};
                     else
                         req.app.result = {'status': '302'};
                     next();

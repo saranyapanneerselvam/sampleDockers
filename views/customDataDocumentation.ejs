@@ -64,21 +64,42 @@
             <br/>
             <p class="customDoc">10. Finally, Click the Send blue button on top right side corner to post the data.</p>
             <br/>
-            <p class="customDoc">11. If the data has been posted successfully, then message will be displayed in the response section as : </p>
-            <p class="sampleCustomDataTerm">{
+            <p class="customDoc">11. For POST method :</p>
+            <p class="customDoc">If the data has been posted successfully using POST method, then message will be displayed in the response section as : </p>
+            <p class="customDoc">For New Custom Data :</p>
+            <p class="sampleCustomDataTerm">
+                {
                 "status": "200",
-                "message": "New custom data created"
+                "message": "New custom data created successfully"
+                }
+            </p>
+            <p class="customDoc">For Existing Custom Data :</p>
+            <p class="sampleCustomDataTerm">
+                {
+                "status": "200",
+                "message": "Custom Data Updated successfully"
                 }
             </p>
             <br/>
-            <p class="customDoc">12. If incorrect data has been send, error message will be displayed in the response section as : </p>
+            <p class="customDoc">12.For PUT method :</p>
+            <p class="customDoc"> If PUT method is used, then the existing custom data will be replaced with the new data whatever it is being sent. The message displayed in the response section as : </p>
+            <p class="sampleCustomDataTerm">
+                {
+                "status": "200",
+                "message": "Custom Data Updated successfully"
+                }
+            </p>
+            <br/>
+            <p><img src="image/custom4.png" style="width: 100%;" /></p>
+            <br/>
+            <p class="customDoc">13. If incorrect data has been send, error message will be displayed in the response section as : </p>
             <p class="sampleCustomDataTerm">{
                 "status": "Error",
                 "message": "Incorrect Input Data provided. Kindly refer to the documentation for the correct data."
                 }
             </p>
             <br/>
-            <p class="customDoc">13. Allowed date format is MM/DD/YYYY or DD/MM/YYYY. If incorrect date format is being submitted, an error message will be displayed in the response section as : </p>
+            <p class="customDoc">14. Allowed date format is MM/DD/YYYY or DD/MM/YYYY. If incorrect date format is being submitted, an error message will be displayed in the response section as : </p>
             <p class="sampleCustomDataTerm">{
                 "status": "Error",
                 "message": "Input Date format is incorrect. Allowed Date Format is DD/MM/YYYY or MM/DD/YYYY"

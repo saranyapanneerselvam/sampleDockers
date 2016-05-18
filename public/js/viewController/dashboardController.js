@@ -353,7 +353,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                         }
                     };
                     setLayoutOptions();
-                    console.log(dashboardWidgetList[getWidgets]);
+
                     if(dashboardWidgetList[getWidgets].widgetType=="custom"){
                         dashboardWidgetList[getWidgets].name = "Custom Data";
                     }
@@ -389,7 +389,9 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             'endDate': moment($scope.dashboardCalendar.end_date).format('YYYY-MM-DD')
         }));
 
-
+        if(widget.widgetType=="custom"){
+            widget.name = "Custom Data";
+        }
         //To temporarily create an empty widget with same id as the widgetId till all the data required for the widget is fetched by the called service
         $scope.dashboard.widgets.push({
             'sizeY': (typeof widget.size != 'undefined'? widget.size.h : 3),

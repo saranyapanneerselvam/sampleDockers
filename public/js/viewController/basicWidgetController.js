@@ -198,7 +198,8 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
                 }
                 $scope.storedReferenceWidget.charts[i].metrics = matchingMetric;
                 $scope.storedReferenceWidget.charts[i].colour = tempChartColour;
-                //console.log('Displaying metrics',$scope.storedReferenceWidget.charts[i].metrics);
+                $scope.storedReferenceWidget.charts[i].objectName = $scope.storedObject.name;
+                console.log($scope.storedReferenceWidget.charts[i]);
             }
             var jsonData = {
                 "dashboardId": $state.params.id,
@@ -242,7 +243,10 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
         }
     };
 
-    $scope.storeReferenceWidget = function(){$scope.storedReferenceWidget = this.referenceWidgets;};
+    $scope.storeReferenceWidget = function(){
+        $scope.storedReferenceWidget = this.referenceWidgets;
+    };
+
     $scope.clearReferenceWidget = function(){
         $scope.referenceWidgetsList= [];
         var lastWidgetId = $rootScope.customWidgetId;
@@ -307,7 +311,6 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
         });
         new Clipboard('#btnCopyLink');
     };
-
 
     $scope.copyToClipboard = function () {
         alert("Copied to clipboard");

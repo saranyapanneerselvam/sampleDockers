@@ -254,7 +254,7 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope){
                             matchingMetric[0].objectId = $scope.storedUserChosenValues[j].object._id;
                         }
                     }
-
+                    $scope.storedReferenceWidget.charts[i].objectName = $scope.storedUserChosenValues[j].object.name;
                 }
             }
             $scope.storedReferenceWidget.charts[i].metrics = matchingMetric;

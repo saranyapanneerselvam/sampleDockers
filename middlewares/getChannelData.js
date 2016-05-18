@@ -1,5 +1,4 @@
 //"use strict";
-var winston = require('winston');
 var _ = require('lodash');
 var async = require("async");
 var channels = require('../models/channels');

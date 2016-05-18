@@ -39,12 +39,15 @@ showMetricApp.service('createWidgets',function($http,$q){
                         unformattedWidget.charts[i].metricDetails = metricDetailsArray[i];
                     }
                     finalWidget = formatDataPoints(unformattedWidget);
-                    finalWidget.then(function successCallback(finalWidget){
-                        deferredWidget.resolve(finalWidget);
-                    },function errorCallback(error){
-                        console.log(error);
-                        deferredWidget.reject(error);
-                    });
+                    finalWidget.then(
+                        function successCallback(finalWidget){
+                            deferredWidget.resolve(finalWidget);
+                        },
+                        function errorCallback(error){
+                            console.log(error);
+                            deferredWidget.reject(error);
+                        }
+                    );
                 },function errorCallback(error){
                     console.log(error);
                     deferredWidget.reject(error);
@@ -110,7 +113,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                                     chartData: response.data[j].data,
                                     chartMetricId: response.data[j].metricId,
                                     chartObjectId: response.data[j].objectId,
-                                    chartColour: widget.charts[i].colour
+                                    chartColour: widget.charts[i].colour,
+                                    chartObjectName: widget.charts[i].objectName
                                 });
                             }
                         }
@@ -212,18 +216,48 @@ showMetricApp.service('createWidgets',function($http,$q){
                     }
                 }
                 else if(widget.charts[i].chartType == 'bar'){
-                    var setCustomDataArr = new Array();
 
-                    for(j=0;j<widget.charts[i].chartData.length;j++){
-                        if(widget.charts[i].chartData[j].name==undefined){
-                            formattedChartData.push({x: moment(widget.charts[i].chartData[j].date), y:widget.charts[i].chartData[j].total});
+                    if(typeof(widget.charts[i].chartData[0].total) === 'object') {
+                        var endpoint;
+                        for(j=0;j<widget.charts[i].metricDetails.objectTypes.length;j++){
+                            if(widget.charts[i].metricDetails.objectTypes[j].objectTypeId == widget.charts[i].chartObjectTypeId){
+                                endpoint = widget.charts[i].metricDetails.objectTypes[j].meta.endpoint;
+                            }
                         }
-                        else{
-                            var IsAlreadyExist = 0;
-                            for(getData in formattedChartData){
+                        for(j=0;j<widget.charts[i].chartData.length;j++){
+                            formattedChartData.push({x: moment(widget.charts[i].chartData[j].date), y:widget.charts[i].chartData[j].total[endpoint]});
+                        }
+                        changedWidget.charts[i].chartData = formattedChartData;
+                    } else {
+                        var setCustomDataArr = new Array();
 
-                                if(formattedChartData[getData].key==widget.charts[i].chartData[j].name){
-                                    valuesArr = formattedChartData[getData].values;
+                        for(j=0;j<widget.charts[i].chartData.length;j++){
+                            if(widget.charts[i].chartData[j].name==undefined){
+                                formattedChartData.push({x: moment(widget.charts[i].chartData[j].date), y:widget.charts[i].chartData[j].total});
+                            }
+                            else{
+                                var IsAlreadyExist = 0;
+                                for(getData in formattedChartData){
+
+                                    if(formattedChartData[getData].key==widget.charts[i].chartData[j].name){
+                                        valuesArr = formattedChartData[getData].values;
+                                        var dataValues = {
+                                            'x': moment(widget.charts[i].chartData[j].date).format('MM/DD/YY'),
+                                            'y': widget.charts[i].chartData[j].values
+                                        };
+                                        valuesArr.push(dataValues);
+                                        valuesArr.sort(function(a,b){
+                                            var c = new Date(a.x);
+                                            var d = new Date(b.x);
+                                            return c-d;
+                                        });
+                                        formattedChartData[getData].values=valuesArr;
+                                        IsAlreadyExist = 1;
+                                    }
+                                }
+
+                                if (IsAlreadyExist != 1) {
+                                    valuesArr = [];
                                     var dataValues = {
                                         'x': moment(widget.charts[i].chartData[j].date).format('MM/DD/YY'),
                                         'y': widget.charts[i].chartData[j].values
@@ -234,26 +268,10 @@ showMetricApp.service('createWidgets',function($http,$q){
                                         var d = new Date(b.x);
                                         return c-d;
                                     });
-                                    formattedChartData[getData].values=valuesArr;
-                                    IsAlreadyExist = 1;
+                                    formattedChartData.push({values:valuesArr,key: widget.charts[i].chartData[j].name, color:null});
                                 }
-                            }
 
-                            if (IsAlreadyExist != 1) {
-                                valuesArr = [];
-                                var dataValues = {
-                                    'x': moment(widget.charts[i].chartData[j].date).format('MM/DD/YY'),
-                                    'y': widget.charts[i].chartData[j].values
-                                };
-                                valuesArr.push(dataValues);
-                                valuesArr.sort(function(a,b){
-                                    var c = new Date(a.x);
-                                    var d = new Date(b.x);
-                                    return c-d;
-                                });
-                                formattedChartData.push({values:valuesArr,key: widget.charts[i].chartData[j].name, color:null});
                             }
-
                         }
                     }
                     changedWidget.charts[i].chartData = formattedChartData;
@@ -367,6 +385,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                             },
                             yAxis: {
                                 //axisLabel: 'Value'
+                                tickFormat: function(d) {
+                                    return d3.format('f')(d);}
                             },
                             axisLabelDistance: -10
                         }
@@ -403,6 +423,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                             },
                             yAxis: {
                                 //axisLabel: 'Value',
+                                tickFormat: function(d) {
+                                    return d3.format('f')(d);}
                             },
                             axisLabelDistance: -10
                         }
@@ -478,13 +500,178 @@ showMetricApp.service('createWidgets',function($http,$q){
     };
 
     //To load the fetched data into the placeholder widget
-    this.replacePlaceHolderWidget = function(widget,finalChartData,widgetLayoutOptions){
+    this.replacePlaceHolderWidget = function(widget,finalChartData){
         var finalWidget = $q.defer();
-        var sizeY,sizeX,chartsCount,individualGraphWidthDivider,individualGraphHeightDivider;
+        var sizeY,sizeX,chartsCount,individualGraphWidthDivider,individualGraphHeightDivider,chartName;
+        var widgetLayoutOptions = [
+            {W:1,H:1,N:1,r:1,c:1},
+            {W:1,H:1,N:2,r:2,c:1},
+            {W:1,H:1,N:3,r:3,c:1},
+            {W:1,H:1,N:4,r:4,c:1},
+            {W:1,H:1,N:5,r:5,c:1},
+            {W:1,H:1,N:6,r:6,c:1},
+            {W:1,H:1,N:7,r:7,c:1},
+            {W:1,H:1,N:8,r:8,c:1},
+
+            {W:2,H:1,N:1,r:1,c:1},
+            {W:2,H:1,N:2,r:1,c:2},
+            {W:2,H:1,N:3,r:2,c:1},
+            {W:2,H:1,N:4,r:2,c:2},
+            {W:2,H:1,N:5,r:2,c:3},
+            {W:2,H:1,N:6,r:2,c:3},
+            {W:2,H:1,N:7,r:3,c:3},
+            {W:2,H:1,N:8,r:3,c:3},
+
+            {W:3,H:1,N:1,r:1,c:1},
+            {W:3,H:1,N:2,r:1,c:2},
+            {W:3,H:1,N:3,r:1,c:3},
+            {W:3,H:1,N:4,r:2,c:2},
+            {W:3,H:1,N:5,r:2,c:3},
+            {W:3,H:1,N:6,r:2,c:3},
+            {W:3,H:1,N:7,r:3,c:3},
+            {W:3,H:1,N:8,r:3,c:3},
+
+            {W:4,H:1,N:1,r:1,c:1},
+            {W:4,H:1,N:2,r:1,c:2},
+            {W:4,H:1,N:3,r:1,c:3},
+            {W:4,H:1,N:4,r:1,c:4},
+            {W:4,H:1,N:5,r:2,c:3},
+            {W:4,H:1,N:6,r:2,c:3},
+            {W:4,H:1,N:7,r:3,c:3},
+            {W:4,H:1,N:8,r:3,c:3},
+
+            {W:5,H:1,N:1,r:1,c:1},
+            {W:5,H:1,N:2,r:1,c:2},
+            {W:5,H:1,N:3,r:1,c:3},
+            {W:5,H:1,N:4,r:1,c:4},
+            {W:5,H:1,N:5,r:1,c:5},
+            {W:5,H:1,N:6,r:2,c:3},
+            {W:5,H:1,N:7,r:2,c:4},
+            {W:5,H:1,N:8,r:2,c:4},
+
+            {W:6,H:1,N:1,r:1,c:1},
+            {W:6,H:1,N:2,r:1,c:2},
+            {W:6,H:1,N:3,r:1,c:3},
+            {W:6,H:1,N:4,r:1,c:4},
+            {W:6,H:1,N:5,r:1,c:5},
+            {W:6,H:1,N:6,r:2,c:3},
+            {W:6,H:1,N:7,r:2,c:4},
+            {W:6,H:1,N:8,r:2,c:4},
+
+            {W:1,H:2,N:1,r:1,c:1},
+            {W:1,H:2,N:2,r:2,c:1},
+            {W:1,H:2,N:3,r:3,c:1},
+            {W:1,H:2,N:4,r:4,c:1},
+            {W:1,H:2,N:5,r:5,c:1},
+            {W:1,H:2,N:6,r:6,c:1},
+            {W:1,H:2,N:7,r:7,c:1},
+            {W:1,H:2,N:8,r:8,c:1},
+
+            {W:2,H:2,N:1,r:1,c:1},
+            {W:2,H:2,N:2,r:1,c:2},
+            {W:2,H:2,N:3,r:2,c:2},
+            {W:2,H:2,N:4,r:2,c:2},
+            {W:2,H:2,N:5,r:3,c:2},
+            {W:2,H:2,N:6,r:3,c:2},
+            {W:2,H:2,N:7,r:4,c:2},
+            {W:2,H:2,N:8,r:4,c:2},
+
+            {W:3,H:2,N:1,r:1,c:1},
+            {W:3,H:2,N:2,r:1,c:2},
+            {W:3,H:2,N:3,r:2,c:2},
+            {W:3,H:2,N:4,r:2,c:2},
+            {W:3,H:2,N:5,r:2,c:3},
+            {W:3,H:2,N:6,r:2,c:3},
+            {W:3,H:2,N:7,r:2,c:4},
+            {W:3,H:2,N:8,r:2,c:4},
+
+            {W:4,H:2,N:1,r:1,c:1},
+            {W:4,H:2,N:2,r:1,c:2},
+            {W:4,H:2,N:3,r:1,c:3},
+            {W:4,H:2,N:4,r:2,c:2},
+            {W:4,H:2,N:5,r:2,c:3},
+            {W:4,H:2,N:6,r:2,c:3},
+            {W:4,H:2,N:7,r:2,c:4},
+            {W:4,H:2,N:8,r:2,c:4},
+
+            {W:5,H:2,N:1,r:1,c:1},
+            {W:5,H:2,N:2,r:1,c:2},
+            {W:5,H:2,N:3,r:1,c:3},
+            {W:5,H:2,N:4,r:2,c:2},
+            {W:5,H:2,N:5,r:2,c:3},
+            {W:5,H:2,N:6,r:2,c:3},
+            {W:5,H:2,N:7,r:2,c:4},
+            {W:5,H:2,N:8,r:2,c:4},
+
+            {W:6,H:2,N:1,r:1,c:1},
+            {W:6,H:2,N:2,r:1,c:2},
+            {W:6,H:2,N:3,r:1,c:3},
+            {W:6,H:2,N:4,r:2,c:2},
+            {W:6,H:2,N:5,r:2,c:3},
+            {W:6,H:2,N:6,r:2,c:3},
+            {W:6,H:2,N:7,r:2,c:4},
+            {W:6,H:2,N:8,r:2,c:4},
+
+            {W:1,H:3,N:1,r:1,c:1},
+            {W:1,H:3,N:2,r:2,c:1},
+            {W:1,H:3,N:3,r:3,c:1},
+            {W:1,H:3,N:4,r:4,c:1},
+            {W:1,H:3,N:5,r:5,c:1},
+            {W:1,H:3,N:6,r:6,c:1},
+            {W:1,H:3,N:7,r:7,c:1},
+            {W:1,H:3,N:8,r:8,c:1},
+
+            {W:2,H:3,N:1,r:1,c:1},
+            {W:2,H:3,N:2,r:2,c:1},
+            {W:2,H:3,N:3,r:3,c:1},
+            {W:2,H:3,N:4,r:2,c:2},
+            {W:2,H:3,N:5,r:3,c:2},
+            {W:2,H:3,N:6,r:3,c:2},
+            {W:2,H:3,N:7,r:4,c:2},
+            {W:2,H:3,N:8,r:4,c:2},
+
+            {W:3,H:3,N:1,r:1,c:1},
+            {W:3,H:3,N:2,r:1,c:2},
+            {W:3,H:3,N:3,r:2,c:2},
+            {W:3,H:3,N:4,r:2,c:2},
+            {W:3,H:3,N:5,r:2,c:3},
+            {W:3,H:3,N:6,r:2,c:3},
+            {W:3,H:3,N:7,r:2,c:4},
+            {W:3,H:3,N:8,r:2,c:4},
+
+            {W:4,H:3,N:1,r:1,c:1},
+            {W:4,H:3,N:2,r:1,c:2},
+            {W:4,H:3,N:3,r:1,c:3},
+            {W:4,H:3,N:4,r:2,c:2},
+            {W:4,H:3,N:5,r:2,c:3},
+            {W:4,H:3,N:6,r:2,c:3},
+            {W:4,H:3,N:7,r:2,c:4},
+            {W:4,H:3,N:8,r:2,c:4},
+
+            {W:5,H:3,N:1,r:1,c:1},
+            {W:5,H:3,N:2,r:1,c:2},
+            {W:5,H:3,N:3,r:1,c:3},
+            {W:5,H:3,N:4,r:2,c:2},
+            {W:5,H:3,N:5,r:2,c:3},
+            {W:5,H:3,N:6,r:2,c:3},
+            {W:5,H:3,N:7,r:2,c:4},
+            {W:5,H:3,N:8,r:2,c:4},
+
+            {W:6,H:3,N:1,r:1,c:1},
+            {W:6,H:3,N:2,r:1,c:2},
+            {W:6,H:3,N:3,r:1,c:3},
+            {W:6,H:3,N:4,r:2,c:2},
+            {W:6,H:3,N:5,r:2,c:3},
+            {W:6,H:3,N:6,r:2,c:3},
+            {W:6,H:3,N:7,r:2,c:4},
+            {W:6,H:3,N:8,r:2,c:4}
+        ];
+
+        console.log(widget,finalChartData);
         var setLayoutOptions = function() {
-            sizeY = widget.size.h? widget.size.h : 3;
-            sizeX = widget.size.w? widget.size.w : 3;
-            var chartsCount = finalChartData.length;
+            sizeY = typeof widget.size != 'undefined'? widget.size.h : 3;
+            sizeX = typeof widget.size != 'undefined'? widget.size.w : 3;
+            chartsCount = finalChartData.length;
             for(var i=0;i<widgetLayoutOptions.length;i++){
                 if(widgetLayoutOptions[i].W == sizeX && widgetLayoutOptions[i].H == sizeY && widgetLayoutOptions[i].N == chartsCount){
                     individualGraphWidthDivider = widgetLayoutOptions[i].c;
@@ -494,21 +681,39 @@ showMetricApp.service('createWidgets',function($http,$q){
         };
         setLayoutOptions();
 
-        finalWidget = {
-            'sizeY': (widget.size.h? widget.size.h : 3),
-            'sizeX': (widget.size.w? widget.size.w : 3),
-            'minSizeY': (widget.minSize.h? widget.minSize.h : 3),
-            'minSizeX': (widget.minSize.w? widget.minSize.w : 3),
-            'maxSizeY': (widget.maxSize.h? widget.maxSize.h : 3),
-            'maxSizeX': (widget.maxSize.w? widget.maxSize.w : 3),
-            'name': (widget.name? widget.name : ''),
+        if(widget.charts==[] || widget.charts==""){
+            chartName = "No Data Found";
+        }
+        else {
+            chartName = (typeof widget.name != 'undefined'? widget.name + ' - ' : '');
+            var objectNames = [],uniqueNames = [];
+            for(i=0;i<widget.charts.length;i++){
+                objectNames.push(widget.charts[i].chartObjectName);
+            }
+            $.each(objectNames, function(i ,el){
+                if($.inArray(el, uniqueNames) === -1){
+                    uniqueNames.push(el);
+                }
+            });
+            chartName = chartName.concat(uniqueNames);
+        }
+
+        var modifiedWidget = {
+            'sizeY': (typeof widget.size != 'undefined'? widget.size.h : 2),
+            'sizeX': (typeof widget.size != 'undefined'? widget.size.w : 2),
+            'minSizeY': (typeof widget.minSize != 'undefined'? widget.minSize.h : 1),
+            'minSizeX': (typeof widget.minSize != 'undefined'? widget.minSize.w : 1),
+            'maxSizeY': (typeof widget.maxSize != 'undefined'? widget.maxSize.h : 3),
+            'maxSizeX': (typeof widget.maxSize != 'undefined'? widget.maxSize.w : 3),
+            'name': chartName,
             'visibility': true,
             'id': widget._id,
             'chart': finalChartData,
             'layoutOptionsX': individualGraphWidthDivider,
             'layoutOptionsY': individualGraphHeightDivider
         };
-        return(finalWidget);
+        finalWidget.resolve(modifiedWidget);
+        return finalWidget.promise;
     };
 
 });

@@ -353,7 +353,10 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                         }
                     };
                     setLayoutOptions();
-
+                    console.log(dashboardWidgetList[getWidgets]);
+                    if(dashboardWidgetList[getWidgets].widgetType=="custom"){
+                        dashboardWidgetList[getWidgets].name = "Custom Data";
+                    }
                     $scope.dashboard.widgets[widgetIndex] = {
                         'sizeY': (typeof dashboardWidgetList[getWidgets].size != 'undefined'? dashboardWidgetList[getWidgets].size.h : 3),
                         'sizeX': (typeof dashboardWidgetList[getWidgets].size != 'undefined'? dashboardWidgetList[getWidgets].size.w : 3),

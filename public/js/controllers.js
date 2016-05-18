@@ -181,6 +181,11 @@ showMetricApp.service('createWidgets',function($http,$q){
                                             'y': widget.charts[i].chartData[j].values
                                         };
                                         valuesArr.push(dataValues);
+                                        valuesArr.sort(function(a,b){
+                                            var c = new Date(a.x);
+                                            var d = new Date(b.x);
+                                            return c-d;
+                                        });
                                         formattedChartData[getData].values=valuesArr;
                                         IsAlreadyExist = 1;
                                     }
@@ -193,6 +198,11 @@ showMetricApp.service('createWidgets',function($http,$q){
                                         'y': widget.charts[i].chartData[j].values
                                     };
                                     valuesArr.push(dataValues);
+                                    valuesArr.sort(function(a,b){
+                                        var c = new Date(a.x);
+                                        var d = new Date(b.x);
+                                        return c-d;
+                                    });
                                     formattedChartData.push({values:valuesArr,key: widget.charts[i].chartData[j].name, color:null});
                                 }
 
@@ -219,6 +229,11 @@ showMetricApp.service('createWidgets',function($http,$q){
                                         'y': widget.charts[i].chartData[j].values
                                     };
                                     valuesArr.push(dataValues);
+                                    valuesArr.sort(function(a,b){
+                                        var c = new Date(a.x);
+                                        var d = new Date(b.x);
+                                        return c-d;
+                                    });
                                     formattedChartData[getData].values=valuesArr;
                                     IsAlreadyExist = 1;
                                 }
@@ -231,6 +246,11 @@ showMetricApp.service('createWidgets',function($http,$q){
                                     'y': widget.charts[i].chartData[j].values
                                 };
                                 valuesArr.push(dataValues);
+                                valuesArr.sort(function(a,b){
+                                    var c = new Date(a.x);
+                                    var d = new Date(b.x);
+                                    return c-d;
+                                });
                                 formattedChartData.push({values:valuesArr,key: widget.charts[i].chartData[j].name, color:null});
                             }
 
@@ -296,7 +316,7 @@ showMetricApp.service('createWidgets',function($http,$q){
             graphData.lineDataOptions = {
                 chart: {
                     type: 'lineChart',
-                    noData: customDataUrl,
+                    noData: "No Data Found - "+customDataUrl,
                     xAxis: {
                         showMaxMin: false,
                         tickFormat: function(d) {

@@ -10,7 +10,7 @@
 
 body {
   color: #676a6c;
-  font-family: 'Open Sans', helvetica, arial, sans-serif;
+  font-family: 'Brandon Grotesque', helvetica, arial, sans-serif;
 }
 
 
@@ -59,7 +59,7 @@ h1 {
 }
 body.landing-page {
     color: #676a6c;
-    font-family: 'Open Sans', helvetica, arial, sans-serif;
+    font-family: 'Brandon Grotesque', helvetica, arial, sans-serif;
     background-color: #fff;
 }
 /* CUSTOMIZE THE NAVBAR
@@ -92,7 +92,7 @@ body.landing-page {
 }
 .navbar-default .nav li a {
   color: #FBC02D;
-  font-family: 'Open Sans', helvetica, arial, sans-serif;
+  font-family: 'Brandon Grotesque', helvetica, arial, sans-serif;
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -175,6 +175,10 @@ body.landing-page {
 }
 .header-back.two {
   background: url('../image/Header_1.jpeg') no-repeat fixed center;
+  z-index:5;
+}
+.header-back.three {
+  background: url('../image/Header_3.jpeg') no-repeat fixed center;
   z-index:5;
 }
 
@@ -517,7 +521,7 @@ input:focus::-ms-input-placeholder {
   text-align: left;
 }
 .carousel-caption.blank {
-  top: 140px;
+  top: 200px;
 }
 .carousel-image {
   position: absolute;
@@ -530,13 +534,13 @@ input:focus::-ms-input-placeholder {
 .carousel-caption h1 {
   font-weight: 600;
   font-size: 37px;
-  text-transform: uppercase;
+  text-transform: none;
   text-shadow: none;
   letter-spacing: -1.5px;
 }
 .carousel-caption p {
   font-weight: 700;
-  text-transform: uppercase;
+  text-transform: none;
   text-shadow: none;
 }
 .caption-link {

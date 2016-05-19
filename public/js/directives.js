@@ -483,6 +483,31 @@ function channelDiv(){
 
     }
 }
+
+function sizeWatcher ($timeout){
+    return {
+        scope: {
+            sizeWatcherHeight: '=',
+            sizeWatcherWidth: '='
+        },
+        link: function( scope, elem, attrs ){
+            function initsize(){
+                scope.sizeWatcherHeight = elem.prop('offsetHeight');
+                scope.sizeWatcherWidth = elem.prop('clientWidth');
+            }
+            scope.$watch( function() {
+                initsize();
+            } );
+            function checkSize(){
+                initsize();
+                $timeout( checkSize, 1000 );
+            }
+            checkSize();
+        }
+    };
+}
+
+
 /**
  *
  * Pass all functions into module
@@ -508,4 +533,5 @@ angular
     .directive('fitHeight', fitHeight)
     .directive('iboxToolsFullScreen', iboxToolsFullScreen)
     .directive('slimScroll', slimScroll)
-    .directive('channelDiv',channelDiv);
+    .directive('channelDiv',channelDiv)
+    .directive('sizeWatcher',sizeWatcher);

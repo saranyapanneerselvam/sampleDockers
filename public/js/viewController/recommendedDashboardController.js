@@ -12,6 +12,7 @@ function RecommendedDashboardController($scope, $http, $window, $q,  $state, $ro
     $scope.referencechannelList =[];
     $scope.storedUserChosenValues = [];
     $scope.profileOptionsModel = [];
+    $scope.dashboard={};
     $scope.changeViewsInBasicWidget = function (obj) {
         $scope.currentView = obj;
         if($scope.currentView === 'step_one'){
@@ -216,8 +217,6 @@ function RecommendedDashboardController($scope, $http, $window, $q,  $state, $ro
         $http({
             method: 'POST', url: '/api/v1/create/dashboards'
         }).then(function successCallback(response) {
-            //console.log('createDashboard', response);
-            //console.log('fullOfDashboard', $scope.fullOfDashboard);
             for (var widget = 0; widget < $scope.referenceWidgetsList.length; widget++) {
                 for (var chart = 0; chart < $scope.referenceWidgetsList[widget].charts.length; chart++) {
                     for (var j = 0; j < $scope.storedUserChosenValues.length; j++) {
@@ -249,31 +248,34 @@ function RecommendedDashboardController($scope, $http, $window, $q,  $state, $ro
                     "minSize": $scope.referenceWidgetsList[widget].minSize,
                     "maxSize": $scope.referenceWidgetsList[widget].maxSize
                 };
-                //console.log('json data', jsonData);
                 $http({
                     method: 'POST',
                     url: '/api/v1/widgets',
                     data: jsonData
                 }).then(function successCallback(response) {
                    // console.log('Response after creating widget', response);
-                    //$rootScope.$broadcast('populateWidget', response.data.widgetsList.id);
                 }, function errorCallback(error) {
                     console.log('Error in getting widget id', error);
                 });
             }
            // console.log('matchingMetric', $scope.referenceWidgetsList);
-
-
-            /* $http({
-             method: 'POST',
-             url: '/api/v1/widgets',
-             data: jsonData
-             }).then(function successCallback(response){
-             console.log('Response after creating widget', response);
-             $rootScope.$broadcast('populateWidget',response.data.widgetsList.id);
-             }, function errorCallback (error){
-             console.log('Error in getting widget id',error);
-             });*/
+            $scope.dashboard.dashboardName =  $scope.fullOfDashboard.dashboard.name;
+            $scope.changeDashboardName = function () {
+                var jsonData = {
+                    dashboardId: response.data.id,
+                    name: $scope.dashboard.dashboardName
+                };
+                $http({
+                    method: 'POST',
+                    url: '/api/v1/create/dashboards',
+                    data: jsonData
+                }).then(function successCallback(response) {
+                    console.log('Dashboard Name updated successfully',response);
+                }, function errorCallback(error) {
+                    console.log('Error in updating dashboard name',error);
+                });
+            };
+            $scope.changeDashboardName();
             $state.transitionTo('app.reporting.dashboard', {id: response.data.id});
         }, function errorCallback(error) {
             console.log('Error in creating new Dashboard', error);

@@ -353,11 +353,16 @@ showMetricApp.service('createWidgets',function($http,$q){
         else {
             for(var i=0;i<widgetData.charts.length;i++){
                 if(widgetData.charts[i].chartType == 'line'){
+                    var displaySummaryLineData = 0;
                     if(widgetData.charts[i].metricDetails!=undefined){
+                        for(j=0;j<widgetData.charts[i].chartData.length;j++){
+                            displaySummaryLineData = displaySummaryLineData + parseInt(widgetData.charts[i].chartData[j].y);
+                        }
                         graphData.lineData.push({
                             values: widgetData.charts[i].chartData,      //values - represents the array of {x,y} data points
                             key: widgetData.charts[i].metricDetails.name, //key  - the name of the series.
-                            color: widgetData.charts[i].colour,  //color - optional: choose your own line color.
+                            color: widgetData.charts[i].chartColour,  //color - optional: choose your own line color.
+                            summaryDisplay: displaySummaryLineData,
                             area: true
                         });
                     }
@@ -393,11 +398,16 @@ showMetricApp.service('createWidgets',function($http,$q){
                     };
                 }
                 else if (widgetData.charts[i].chartType == 'bar'){
+                    var displaySummaryBarData = 0;
                     if(widgetData.charts[i].metricDetails!=undefined){
+                        for(j=0;j<widgetData.charts[i].chartData.length;j++){
+                            displaySummaryBarData = displaySummaryBarData + parseInt(widgetData.charts[i].chartData[j].y);
+                        }
                         graphData.barData.push({
                             values: widgetData.charts[i].chartData,      //values - represents the array of {x,y} data points
                             key: widgetData.charts[i].metricDetails.name, //key  - the name of the series.
-                            color: widgetData.charts[i].colour  //color - optional: choose your own line color.
+                            color: widgetData.charts[i].chartColour,  //color - optional: choose your own line color.
+                            summaryDisplay: displaySummaryBarData
                         });
                     }
                     else{
@@ -435,7 +445,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                         graphData.pieData.push({
                             y: parseInt(widgetData.charts[i].chartData[customData].y),
                             key: widgetData.charts[i].metricDetails.name, //key  - the name of the series.
-                            color: widgetData.charts[i].colour  //color - optional: choose your own line color.
+                            color: widgetData.charts[i].chartColour  //color - optional: choose your own line color.
                         });
                     }
                     else{
@@ -503,6 +513,7 @@ showMetricApp.service('createWidgets',function($http,$q){
     this.replacePlaceHolderWidget = function(widget,finalChartData){
         var finalWidget = $q.defer();
         var sizeY,sizeX,chartsCount,individualGraphWidthDivider,individualGraphHeightDivider,chartName;
+        var displayData = [];
         var widgetLayoutOptions = [
             {W:1,H:1,N:1,r:1,c:1},
             {W:1,H:1,N:2,r:2,c:1},
@@ -668,6 +679,21 @@ showMetricApp.service('createWidgets',function($http,$q){
         ];
 
         console.log(widget,finalChartData);
+
+/*
+        for(i=0;i<finalChartData.length;i++){
+            displayData[i] = [];
+            for(j=0;j<finalChartData[i].data.length;j++){
+                var temp = 0;
+                for(k=0;k<finalChartData[i].data[j].values.length;k++){
+                    temp = temp + parseInt(finalChartData[i].data[j].values[k].y);
+                }
+                displayData[i].push(temp);
+            }
+        }
+        console.log(displayData);
+*/
+
         var setLayoutOptions = function() {
             sizeY = typeof widget.size != 'undefined'? widget.size.h : 3;
             sizeX = typeof widget.size != 'undefined'? widget.size.w : 3;
@@ -709,6 +735,7 @@ showMetricApp.service('createWidgets',function($http,$q){
             'visibility': true,
             'id': widget._id,
             'chart': finalChartData,
+            //'display': displayData,
             'layoutOptionsX': individualGraphWidthDivider,
             'layoutOptionsY': individualGraphHeightDivider
         };

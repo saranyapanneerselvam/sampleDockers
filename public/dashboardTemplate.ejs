@@ -98,16 +98,19 @@
                                     <div class="sk-rect5"></div>
                                 </div>
                             </div>
-<!--
-                            <ul class="col-lg-12" style="height: 100%">
-                                <li ng-repeat="chart in widget.chart" style="float: left;" ng-style="{'height': (100/widget.layoutOptionsY)+'%', 'width': (100/widget.layoutOptionsX)+'%'}">
-                                    <nvd3 options="chart.options" data="chart.data" api="chart.api" config="config" events="events" ng-switch-when="true"></nvd3>
-                                </li>
-                            </ul>
--->
-                            <div class="row" style="height: 100%">
-                                <div ng-repeat="chart in widget.chart" style="float: left;" ng-style="{'height': (100/widget.layoutOptionsY)+'%', 'width': (100/widget.layoutOptionsX)+'%'}">
-                                    <nvd3 options="chart.options" data="chart.data" api="chart.api" config="config" events="events" ng-switch-when="true"></nvd3>
+                            <div class="row" style="height: 100%;margin:0px;">
+                                <div ng-repeat="chart in widget.chart" size-watcher size-watcher-height="chart.myheight" size-watcher-width="chart.mywidth" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/widget.layoutOptionsY)+'%', 'width': (100/widget.layoutOptionsX)+'%'}">
+                                    <div class="row" style="margin: 0px;height: 20%">
+                                       <!-- height:{{chart.myheight}} , width:{{chart.mywidth}}-->
+                                        <ul>
+                                            <li ng-class="'col-sm-'+(12/chart.data.length)" style="text-align: center;padding-top: 1%;padding-left:0px;padding-right: 2px;font-size: 14px;min-height: 100%" ng-repeat="data in chart.data">
+                                                <div ng-style="{'background-color': data.color}" style="margin: 0px;">{{data.key}}: {{data.summaryDisplay}}</div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="row" style="margin: 0px;height: 80%" ng-show="chart.myheight>180">
+                                        <nvd3 options="chart.options" data="chart.data" api="chart.api" config="config" events="events" ng-switch-when="true"></nvd3>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -119,3 +122,52 @@
     <div ui-view="lightbox"></div>
     <script src="js/datePicker/Calendar.js"></script>
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--<div ng-repeat="chart in widget.chart" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/widget.layoutOptionsY)+'%'}" ng-class="'col-md-'+(12/widget.layoutOptionsX)">-->
+
+<!--
+                                        <div ng-class="'col-sm-'+(12/chart.data.length)" style="text-align: center;padding-top: 1%;font-size: 14px;" ng-repeat="data in chart.data">
+                                            <p ng-style="{'background-color': data.color}" style="margin: 0px;">{{data.key}}: {{data.summaryDisplay}}</p>
+                                        </div>
+-->
+
+<!--
+                            <ul class="col-lg-12" style="height: 100%">
+                                <li ng-repeat="chart in widget.chart" style="float: left;" ng-style="{'height': (100/widget.layoutOptionsY)+'%', 'width': (100/widget.layoutOptionsX)+'%'}">
+                                    <nvd3 options="chart.options" data="chart.data" api="chart.api" config="config" events="events" ng-switch-when="true"></nvd3>
+                                </li>
+                            </ul>
+-->
+

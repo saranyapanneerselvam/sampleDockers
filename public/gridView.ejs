@@ -1,8 +1,13 @@
-<div ng-init="fetchAllDashboards()" class="wrapper wrapper-content">
+<div ng-init="fetchAllDashboards()" class="wrapper wrapper-content gridAlign">
     <p>GridView</p>
     <div class="row">
-        <div class="col col-lg-4" ng-repeat="dashboard in dashboardList">
-            <a ui-sref="app.reporting.dashboard({id: dashboard._id})">{{dashboard._id}}</a>
+        <div class="col col-lg-2  gird-text" ng-repeat="dashboard in dashboardList" >
+            <div ng-if="(dashboard.name == null || dashboard.name==' ')">
+                <a ui-sref="app.reporting.dashboard({id: dashboard._id})" style="color:#9A9A9A">Unnamed Dashboard</a>
+            </div>
+            <div ng-if="dashboard.name != null">
+                <a ui-sref="app.reporting.dashboard({id: dashboard._id})" style="color:#000">{{dashboard.name}}</a>
+            </div>
         </div>
     </div>
 </div>

@@ -2,170 +2,6 @@ showMetricApp.controller('DashboardController',DashboardController)
 
 function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$stateParams,createWidgets,$q) {
 
-    $scope.widgetLayoutOptions = [
-        {W:1,H:1,N:1,r:1,c:1},
-        {W:1,H:1,N:2,r:2,c:1},
-        {W:1,H:1,N:3,r:3,c:1},
-        {W:1,H:1,N:4,r:4,c:1},
-        {W:1,H:1,N:5,r:5,c:1},
-        {W:1,H:1,N:6,r:6,c:1},
-        {W:1,H:1,N:7,r:7,c:1},
-        {W:1,H:1,N:8,r:8,c:1},
-
-        {W:2,H:1,N:1,r:1,c:1},
-        {W:2,H:1,N:2,r:1,c:2},
-        {W:2,H:1,N:3,r:2,c:1},
-        {W:2,H:1,N:4,r:2,c:2},
-        {W:2,H:1,N:5,r:2,c:3},
-        {W:2,H:1,N:6,r:2,c:3},
-        {W:2,H:1,N:7,r:3,c:3},
-        {W:2,H:1,N:8,r:3,c:3},
-
-        {W:3,H:1,N:1,r:1,c:1},
-        {W:3,H:1,N:2,r:1,c:2},
-        {W:3,H:1,N:3,r:1,c:3},
-        {W:3,H:1,N:4,r:2,c:2},
-        {W:3,H:1,N:5,r:2,c:3},
-        {W:3,H:1,N:6,r:2,c:3},
-        {W:3,H:1,N:7,r:3,c:3},
-        {W:3,H:1,N:8,r:3,c:3},
-
-        {W:4,H:1,N:1,r:1,c:1},
-        {W:4,H:1,N:2,r:1,c:2},
-        {W:4,H:1,N:3,r:1,c:3},
-        {W:4,H:1,N:4,r:1,c:4},
-        {W:4,H:1,N:5,r:2,c:3},
-        {W:4,H:1,N:6,r:2,c:3},
-        {W:4,H:1,N:7,r:3,c:3},
-        {W:4,H:1,N:8,r:3,c:3},
-
-        {W:5,H:1,N:1,r:1,c:1},
-        {W:5,H:1,N:2,r:1,c:2},
-        {W:5,H:1,N:3,r:1,c:3},
-        {W:5,H:1,N:4,r:1,c:4},
-        {W:5,H:1,N:5,r:1,c:5},
-        {W:5,H:1,N:6,r:2,c:3},
-        {W:5,H:1,N:7,r:2,c:4},
-        {W:5,H:1,N:8,r:2,c:4},
-
-        {W:6,H:1,N:1,r:1,c:1},
-        {W:6,H:1,N:2,r:1,c:2},
-        {W:6,H:1,N:3,r:1,c:3},
-        {W:6,H:1,N:4,r:1,c:4},
-        {W:6,H:1,N:5,r:1,c:5},
-        {W:6,H:1,N:6,r:2,c:3},
-        {W:6,H:1,N:7,r:2,c:4},
-        {W:6,H:1,N:8,r:2,c:4},
-
-        {W:1,H:2,N:1,r:1,c:1},
-        {W:1,H:2,N:2,r:2,c:1},
-        {W:1,H:2,N:3,r:3,c:1},
-        {W:1,H:2,N:4,r:4,c:1},
-        {W:1,H:2,N:5,r:5,c:1},
-        {W:1,H:2,N:6,r:6,c:1},
-        {W:1,H:2,N:7,r:7,c:1},
-        {W:1,H:2,N:8,r:8,c:1},
-
-        {W:2,H:2,N:1,r:1,c:1},
-        {W:2,H:2,N:2,r:1,c:2},
-        {W:2,H:2,N:3,r:2,c:2},
-        {W:2,H:2,N:4,r:2,c:2},
-        {W:2,H:2,N:5,r:3,c:2},
-        {W:2,H:2,N:6,r:3,c:2},
-        {W:2,H:2,N:7,r:4,c:2},
-        {W:2,H:2,N:8,r:4,c:2},
-
-        {W:3,H:2,N:1,r:1,c:1},
-        {W:3,H:2,N:2,r:1,c:2},
-        {W:3,H:2,N:3,r:2,c:2},
-        {W:3,H:2,N:4,r:2,c:2},
-        {W:3,H:2,N:5,r:2,c:3},
-        {W:3,H:2,N:6,r:2,c:3},
-        {W:3,H:2,N:7,r:2,c:4},
-        {W:3,H:2,N:8,r:2,c:4},
-
-        {W:4,H:2,N:1,r:1,c:1},
-        {W:4,H:2,N:2,r:1,c:2},
-        {W:4,H:2,N:3,r:1,c:3},
-        {W:4,H:2,N:4,r:2,c:2},
-        {W:4,H:2,N:5,r:2,c:3},
-        {W:4,H:2,N:6,r:2,c:3},
-        {W:4,H:2,N:7,r:2,c:4},
-        {W:4,H:2,N:8,r:2,c:4},
-
-        {W:5,H:2,N:1,r:1,c:1},
-        {W:5,H:2,N:2,r:1,c:2},
-        {W:5,H:2,N:3,r:1,c:3},
-        {W:5,H:2,N:4,r:2,c:2},
-        {W:5,H:2,N:5,r:2,c:3},
-        {W:5,H:2,N:6,r:2,c:3},
-        {W:5,H:2,N:7,r:2,c:4},
-        {W:5,H:2,N:8,r:2,c:4},
-
-        {W:6,H:2,N:1,r:1,c:1},
-        {W:6,H:2,N:2,r:1,c:2},
-        {W:6,H:2,N:3,r:1,c:3},
-        {W:6,H:2,N:4,r:2,c:2},
-        {W:6,H:2,N:5,r:2,c:3},
-        {W:6,H:2,N:6,r:2,c:3},
-        {W:6,H:2,N:7,r:2,c:4},
-        {W:6,H:2,N:8,r:2,c:4},
-
-        {W:1,H:3,N:1,r:1,c:1},
-        {W:1,H:3,N:2,r:2,c:1},
-        {W:1,H:3,N:3,r:3,c:1},
-        {W:1,H:3,N:4,r:4,c:1},
-        {W:1,H:3,N:5,r:5,c:1},
-        {W:1,H:3,N:6,r:6,c:1},
-        {W:1,H:3,N:7,r:7,c:1},
-        {W:1,H:3,N:8,r:8,c:1},
-
-        {W:2,H:3,N:1,r:1,c:1},
-        {W:2,H:3,N:2,r:2,c:1},
-        {W:2,H:3,N:3,r:3,c:1},
-        {W:2,H:3,N:4,r:2,c:2},
-        {W:2,H:3,N:5,r:3,c:2},
-        {W:2,H:3,N:6,r:3,c:2},
-        {W:2,H:3,N:7,r:4,c:2},
-        {W:2,H:3,N:8,r:4,c:2},
-
-        {W:3,H:3,N:1,r:1,c:1},
-        {W:3,H:3,N:2,r:1,c:2},
-        {W:3,H:3,N:3,r:2,c:2},
-        {W:3,H:3,N:4,r:2,c:2},
-        {W:3,H:3,N:5,r:2,c:3},
-        {W:3,H:3,N:6,r:2,c:3},
-        {W:3,H:3,N:7,r:2,c:4},
-        {W:3,H:3,N:8,r:2,c:4},
-
-        {W:4,H:3,N:1,r:1,c:1},
-        {W:4,H:3,N:2,r:1,c:2},
-        {W:4,H:3,N:3,r:1,c:3},
-        {W:4,H:3,N:4,r:2,c:2},
-        {W:4,H:3,N:5,r:2,c:3},
-        {W:4,H:3,N:6,r:2,c:3},
-        {W:4,H:3,N:7,r:2,c:4},
-        {W:4,H:3,N:8,r:2,c:4},
-
-        {W:5,H:3,N:1,r:1,c:1},
-        {W:5,H:3,N:2,r:1,c:2},
-        {W:5,H:3,N:3,r:1,c:3},
-        {W:5,H:3,N:4,r:2,c:2},
-        {W:5,H:3,N:5,r:2,c:3},
-        {W:5,H:3,N:6,r:2,c:3},
-        {W:5,H:3,N:7,r:2,c:4},
-        {W:5,H:3,N:8,r:2,c:4},
-
-        {W:6,H:3,N:1,r:1,c:1},
-        {W:6,H:3,N:2,r:1,c:2},
-        {W:6,H:3,N:3,r:1,c:3},
-        {W:6,H:3,N:4,r:2,c:2},
-        {W:6,H:3,N:5,r:2,c:3},
-        {W:6,H:3,N:6,r:2,c:3},
-        {W:6,H:3,N:7,r:2,c:4},
-        {W:6,H:3,N:8,r:2,c:4}
-    ];
-
     //Sets up all the required parameters for the dashboard to function properly when it is initially loaded. This is called in the ng-init function of the dashboard template
     $scope.dashboardConfiguration = function () {
         $scope.dashboardCalendar = new Calendar({
@@ -229,7 +65,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 handle: 'box-header'
             },
             outerMargin: true, // whether margins apply to outer edges of the grid
-            mobileBreakPoint: 600,
+            mobileBreakPoint: 700,
             mobileModeEnabled: true, // whether or not to toggle mobile mode when screen width is less than mobileBreakPoint
             /*
              isMobile: false, // stacks the grid items if true
@@ -291,7 +127,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
     };
 
     //To populate all the widgets in a dashboard when the dashboard is refreshed or opened or calendar date range in the dashboard header is changed
-    $rootScope.populateDashboardWidgets = function(){
+    $rootScope.populateDashboardWidgets = function() {
         $scope.dashboard.widgets = [];
         $http({
             method: 'GET',

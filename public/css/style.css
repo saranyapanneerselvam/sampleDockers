@@ -5826,6 +5826,19 @@ a.customApiLink{
 svg.nvd3-svg {
     -webkit-user-select: inherit !important;
 }
+
+.exportModal{
+    height: 50px !important;
+}
+
+.center{
+    text-align: center;
+}
+
+#submitExportButton{
+    cursor: pointer;
+}
+
 /*
  * metismenu - v2.0.2
  * A jQuery menu plugin

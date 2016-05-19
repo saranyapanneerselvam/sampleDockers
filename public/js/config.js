@@ -129,6 +129,7 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
 
 
 
+
         .state('app.reporting.dashboard.exportModal', {
             url: "",
             views: {
@@ -148,6 +149,26 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
             }
         })
 
+        .state('app.reporting.dashboard.recommendedDashboard', {
+            url: "",
+            views: {
+                'lightbox@app.reporting.dashboard': {
+                    templateUrl: "recommendedDashboard.ejs",
+                    controller: 'LightBoxController'
+                }
+            },
+            resolve: {
+                loadPlugin: function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        {
+                            files: ['css/plugins/steps/jquery.steps.css']
+                        }
+                    ]);
+                }
+            }
+        })
+
+
         .state('app.reporting.dashboards', {
             url: "/gridView",
             views: {
@@ -157,6 +178,7 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                 }
             }
         });
+
 }
 angular
     .module('inspinia')

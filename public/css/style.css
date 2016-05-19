@@ -49,7 +49,7 @@
     border: 1px solid #4538B4;
     border-radius: 5px!important;
     color: #000 !important;}
-
+.modal-header .close{margin-top: -17px !important; margin-right: -12px !important;}
 .metricNames{font-family:Brandon Grotesque-bold; font-size:20px;}
 .metricDescription{font-family: Brandon Grotesque-regular;font-size: 11px;text-align:justify;}
 .nav-label{font-size: 18px;font-family: Brandon Grotesque}

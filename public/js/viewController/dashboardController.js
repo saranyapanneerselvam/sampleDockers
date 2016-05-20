@@ -27,10 +27,16 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             $http({
                 method: 'GET', url: '/api/v1/get/dashboards/'+ $state.params.id
             }).then(function successCallback(response) {
-                $scope.dashboard.dashboardName =  response.data.data.name;
+                if(response.status == '200')
+                    $scope.dashboard.dashboardName =  response.data.name;
+                else
+                    $scope.dashboard.dashboardName =  null;
             }, function errorCallback(error) {
-                console.log('Error in getting dashboard details',error);
-                $scope.dashboard.dashboardName =   null;
+                console.log('Error in fetching dashboard name',error);
+                if(error.status != '500')
+                    $scope.fetchDashboardName();
+                else
+                    $scope.dashboard.dashboardName =  null;
             });
         };
         $scope.fetchDashboardName();
@@ -46,9 +52,12 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 url: '/api/v1/create/dashboards',
                 data: jsonData
             }).then(function successCallback(response) {
-                console.log('Dashboard Name updated successfully',response);
+                if(response.status == '200')
+                    console.log('Dashboard Name updated successfully',response);
             }, function errorCallback(error) {
                 console.log('Error in updating dashboard name',error);
+                if(error.status != '500')
+                    $scope.changeDashboardName();
             });
         };
 

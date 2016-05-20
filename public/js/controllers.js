@@ -242,7 +242,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                     if(formattedChartData[getData].key==widget.charts[i].chartData[j].name){
                                         valuesArr = formattedChartData[getData].values;
                                         var dataValues = {
-                                            'x': moment(widget.charts[i].chartData[j].date).format('MM/DD/YY'),
+                                            'x': moment(widget.charts[i].chartData[j].date),
                                             'y': widget.charts[i].chartData[j].values
                                         };
                                         valuesArr.push(dataValues);
@@ -259,7 +259,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                 if (IsAlreadyExist != 1) {
                                     valuesArr = [];
                                     var dataValues = {
-                                        'x': moment(widget.charts[i].chartData[j].date).format('MM/DD/YY'),
+                                        'x': moment(widget.charts[i].chartData[j].date),
                                         'y': widget.charts[i].chartData[j].values
                                     };
                                     valuesArr.push(dataValues);
@@ -334,7 +334,7 @@ showMetricApp.service('createWidgets',function($http,$q){
             graphData.lineDataOptions = {
                 chart: {
                     type: 'lineChart',
-                    noData: "No Data Found - "+customDataUrl,
+                    noData: customDataUrl,
                     xAxis: {
                         showMaxMin: false,
                         tickFormat: function(d) {
@@ -368,10 +368,14 @@ showMetricApp.service('createWidgets',function($http,$q){
                     }
                     else{
                         for(customData in widgetData.charts[i].chartData){
+                            for(getTotal in widgetData.charts[i].chartData[customData].values){
+                                displaySummaryLineData = displaySummaryLineData + parseInt(widgetData.charts[i].chartData[customData].values[getTotal].y);
+                            }
                             graphData.lineData.push({
                                 values: widgetData.charts[i].chartData[customData].values,      //values - represents the array of {x,y} data points
                                 key: widgetData.charts[i].chartData[customData].key, //key  - the name of the series.
                                 color: widgetData.charts[i].chartData[customData].color,  //color - optional: choose your own line color.
+                                summaryDisplay: displaySummaryLineData,
                                 area: true
                             });
                         }
@@ -412,10 +416,14 @@ showMetricApp.service('createWidgets',function($http,$q){
                     }
                     else{
                         for(customData in widgetData.charts[i].chartData){
+                            for(getTotal in widgetData.charts[i].chartData[customData].values){
+                                displaySummaryBarData = displaySummaryBarData + parseInt(widgetData.charts[i].chartData[customData].values[getTotal].y);
+                            }
                             graphData.barData.push({
                                 values: widgetData.charts[i].chartData[customData].values,      //values - represents the array of {x,y} data points
                                 key: widgetData.charts[i].chartData[customData].key, //key  - the name of the series.
-                                color: widgetData.charts[i].chartData[customData].color  //color - optional: choose your own line color.
+                                color: widgetData.charts[i].chartData[customData].color,  //color - optional: choose your own line color.
+                                summaryDisplay: displaySummaryBarData
                             });
                         }
                     }
@@ -441,6 +449,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                     };
                 }
                 else if(widgetData.charts[i].chartType == 'pie'){
+                    var displaySummaryPieData =0;
                     if(widgetData.charts[i].metricDetails!=undefined){
                         graphData.pieData.push({
                             y: parseInt(widgetData.charts[i].chartData[customData].y),
@@ -450,10 +459,13 @@ showMetricApp.service('createWidgets',function($http,$q){
                     }
                     else{
                         for(customData in widgetData.charts[i].chartData){
+                            displaySummaryPieData = displaySummaryPieData + parseInt(widgetData.charts[i].chartData[customData].y);
+
                             graphData.pieData.push({
                                 y: parseInt(widgetData.charts[i].chartData[customData].y),
                                 key: widgetData.charts[i].chartData[customData].key, //key  - the name of the series.
-                                color: widgetData.charts[i].chartData[customData].color  //color - optional: choose your own line color.
+                                color: widgetData.charts[i].chartData[customData].color,  //color - optional: choose your own line color.
+                                summaryDisplay: displaySummaryPieData
                             });
                         }
                     }

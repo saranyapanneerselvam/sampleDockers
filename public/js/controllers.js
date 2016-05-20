@@ -378,6 +378,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                 summaryDisplay: displaySummaryLineData,
                                 area: true
                             });
+                            displaySummaryLineData=0;
                         }
                     }
                     graphData.lineDataOptions = {
@@ -425,6 +426,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                 color: widgetData.charts[i].chartData[customData].color,  //color - optional: choose your own line color.
                                 summaryDisplay: displaySummaryBarData
                             });
+                            displaySummaryBarData = 0;
                         }
                     }
                     graphData.barDataOptions = {
@@ -458,15 +460,16 @@ showMetricApp.service('createWidgets',function($http,$q){
                         });
                     }
                     else{
+
                         for(customData in widgetData.charts[i].chartData){
                             displaySummaryPieData = displaySummaryPieData + parseInt(widgetData.charts[i].chartData[customData].y);
-
                             graphData.pieData.push({
                                 y: parseInt(widgetData.charts[i].chartData[customData].y),
                                 key: widgetData.charts[i].chartData[customData].key, //key  - the name of the series.
                                 color: widgetData.charts[i].chartData[customData].color,  //color - optional: choose your own line color.
                                 summaryDisplay: displaySummaryPieData
                             });
+                            displaySummaryPieData =0;
                         }
                     }
                     graphData.pieDataOptions = {

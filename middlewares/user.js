@@ -29,7 +29,6 @@ exports.getUserDetails = function (req, res, next) {
 };
 
 exports.updateLastDashboardId = function (req,res,next) {
-    console.log(req.params.id);
     user.update({'_id': req.user._id}, {$set: {"lastDashboardId": req.params.id, updated: new Date()}},{upsert: true},  function (err) {
         if (!err) {
             req.app.result = {'status': '200', 'dashboardId': req.params.id};
@@ -41,4 +40,3 @@ exports.updateLastDashboardId = function (req,res,next) {
         }
     });
 };
-

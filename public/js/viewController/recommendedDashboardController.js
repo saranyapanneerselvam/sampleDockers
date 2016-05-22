@@ -281,5 +281,4 @@ function RecommendedDashboardController($scope, $http, $window, $q,  $state, $ro
             console.log('Error in creating new Dashboard', error);
         })
     };
-
 }

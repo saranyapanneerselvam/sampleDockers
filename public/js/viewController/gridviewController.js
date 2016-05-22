@@ -13,6 +13,7 @@ function GridviewController($scope,$http) {
                 $scope.dashboardList = null;
         },function errorCallback(error){
             console.log('Error in creating new Dashboard',error);
+            $scope.dashboardList = null;
         })
     };
 }

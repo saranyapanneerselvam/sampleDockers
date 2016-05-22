@@ -1,15 +1,11 @@
 var userDetails = require('../middlewares/user');
 
 module.exports = function (app, passport) {
-    // =====================================
-    // HOME PAGE (with login links) ========
-    // =====================================
+
+    // HOME PAGE (with login links)
     app.get('/', function (req, res) {
         res.render('index.ejs'); // load the index.ejs file
     });
-
-
-    // LOGIN ===============================
 
     // show the login form
     app.get('/api/v1/login', function (req, res) {
@@ -18,9 +14,7 @@ module.exports = function (app, passport) {
         res.render('login', {message: req.flash('loginMessage')});
     });
 
-    // process the login form
-    // app.post('/login', do all our passport stuff here);
-
+    // process the login form - app.post('/login', do all our passport stuff here);
     app.post('/api/v1/login', passport.authenticate('local-login', {
         successRedirect: '/profile', // redirect to the secure profile section
         failureRedirect: '/api/v1/login', // redirect back to the signup page if there is an error
@@ -34,8 +28,7 @@ module.exports = function (app, passport) {
         res.render('signup.ejs', {message: req.flash('signupMessage')});
     });
 
-    // process the signup form
-    // app.post('/signup', do all our passport stuff here);
+    // process the signup form - app.post('/signup', do all our passport stuff here);
     app.post('/api/v1/signup', passport.authenticate('local-signup', {
         successRedirect: '/profile', // redirect to the secure profile section
         failureRedirect: '/api/v1/signup', // redirect back to the signup page if there is an error
@@ -60,6 +53,7 @@ module.exports = function (app, passport) {
             res.redirect('/api/v1/login');
             //res.status(401).json({error:'Authentication required to perform this action'})
     });
+
     app.get('/api/v1/signout', function (req, res) {
         req.logout();
         res.render('index.ejs');

@@ -15,7 +15,7 @@ module.exports = function (app, passport) {
     app.get('/api/v1/login', function (req, res) {
         console.log(req.flash);
         // render the page and pass in any flash data if it exists
-        res.render('login',{message: req.flash('loginMessage')});
+        res.render('login', {message: req.flash('loginMessage')});
     });
 
     // process the login form
@@ -27,14 +27,11 @@ module.exports = function (app, passport) {
         failureFlash: true // allow flash messages
     }));
 
-    // =====================================
-    // SIGNUP ==============================
-    // =====================================
-    // show the signup form
+    // SIGNUP - show the signup form
     app.get('/api/v1/signup', function (req, res) {
 
         // render the page and pass in any flash data if it exists
-        res.render('signup.ejs',{message:req.flash('signupMessage')});
+        res.render('signup.ejs', {message: req.flash('signupMessage')});
     });
 
     // process the signup form
@@ -44,14 +41,10 @@ module.exports = function (app, passport) {
         failureRedirect: '/api/v1/signup', // redirect back to the signup page if there is an error
         failureFlash: true // allow flash messages
     }));
+
     //Get the details of logged in user
-    app.get('/api/v1/me', userDetails.getDetails, function (req, res) {
-        console.log('user details', req.showMetric.userDetails);
-        if (req)
-            res.json({userDetails: req.showMetric.userDetails});
-        else
-            res.status(500).send({error: ""});        // res.render({text:'hello'});
-        //res.json({ id: req.user.id, username: req.user.username });
+    app.get('/api/v1/me', userDetails.getUserDetails, function (req, res) {
+            res.json({userDetails: req.app.result});
     });
 
     // =====================================
@@ -61,15 +54,19 @@ module.exports = function (app, passport) {
     // we will use route middleware to verify this (the isLoggedIn function)
     app.get('/profile', function (req, res) {
         console.log('user', req.user);
-        res.render('profile.ejs');
+        if (req.user)
+            res.render('profile.ejs');
+        else
+            res.redirect('/api/v1/login');
+            //res.status(401).json({error:'Authentication required to perform this action'})
     });
-    app.get('/api/v1/signout', function (req,res) {
+    app.get('/api/v1/signout', function (req, res) {
         req.logout();
-        res.render('login.ejs');
+        res.render('index.ejs');
     });
 
-    app.post('/api/v1/updateLastDashboardId/:id',userDetails.updateLastDashboardId, function (req, res) {
-        var result  = req.app.result;
+    app.post('/api/v1/updateLastDashboardId/:id', userDetails.updateLastDashboardId, function (req, res) {
+        var result = req.app.result;
         res.json(result);
     });
 

@@ -22,11 +22,7 @@ var userSchema = mongoose.Schema({
         used: Boolean
     },
     roleId: Object,
-    dashboards: {
-        dashboardId: Object,
-        view: Boolean,
-        edit: Boolean
-    },
+    dashboards: Array,
     lastLoggedIn: Date,
     lastDashboardId: Object,
     active: Boolean,

@@ -39,9 +39,7 @@ exports.getDashboardDetails = function (req, res, next) {
     console.log('cookies', req.user, req.session);
     var dashboardId = req.params.dashboardId;
     if (req.user) {
-        console.log('if condition')
         dashboardList.findOne({'_id': dashboardId}, function (err, dashboardDetails) {
-            console.log('app', req.app, dashboardDetails);
             if (err)
                 return res.status(500).json({error: 'Internal server error'});
             else if (!dashboardDetails)
@@ -86,20 +84,18 @@ exports.storeDashboards = function (req, res, next) {
                         else if (!user)
                             return res.status(204).json({error: 'No records found'});
                         else {
-                            console.log('user details', req.user, user);
-                            if (user.dashboards != null)
+                            if (user.dashboards.length){
                                 getDashboards = user.dashboards;
-                            if (getDashboards) {
                                 getDashboards.forEach(function (item) {
                                     storeAllDashboards.push(item);
-                                })
+                                });
                             }
 
                             dashboardObjects = {
                                 dashboardId: dashboard.id,
                                 view: true,
                                 edit: true
-                            }
+                            };
                             storeAllDashboards.push(dashboardObjects);
                             var now = new Date();
                             User.update({_id: req.user._id},
@@ -112,9 +108,9 @@ exports.storeDashboards = function (req, res, next) {
                                 , function (err, response) {
                                     console.log('err', err, response);
                                     if (err)
-                                        return res.status(500).json({error: 'Internal server error'})
+                                        return res.status(500).json({error: 'Internal server error'});
                                     else if (response == 0)
-                                        return res.status(501).json({error: 'Not implemented'})
+                                        return res.status(501).json({error: 'Not implemented'});
                                     else{
                                         req.app.result =  dashboard._id;
                                         next();

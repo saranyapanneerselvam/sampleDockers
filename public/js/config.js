@@ -78,9 +78,11 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                     ]);
                 }
             },
-            onEnter: function ($stateParams,$http) {
+            onEnter: function ($stateParams,$http,$state) {
+                var dashboardId = $stateParams.id? $stateParams.id : $state.params.id;
                 $http({
-                    method:'POST', url:'/api/v1/updateLastDashboardId/' + $stateParams.id
+                    method:'POST',
+                    url:'/api/v1/updateLastDashboardId/' + dashboardId
                 }).then(function successCallback(response){
                     console.log('successfully updated last dashboard id',response)
                 },function errorCallback (error){
@@ -127,9 +129,6 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
             }
         })
 
-
-
-
         .state('app.reporting.dashboard.exportModal', {
             url: "",
             views: {
@@ -168,7 +167,6 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
             }
         })
 
-
         .state('app.reporting.dashboards', {
             url: "/gridView",
             views: {
@@ -178,7 +176,6 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                 }
             }
         });
-
 }
 angular
     .module('inspinia')

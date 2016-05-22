@@ -9,21 +9,30 @@ var exports = module.exports = {};
  @event pageList is used to send & receive the list of pages result
  */
 
-exports.getDetails = function (req, res, next) {
-    console.log('req',req);
-    req.showMetric = {};
-    user.find({_id: req.user._id}, function (err, response) {
-        req.showMetric.userDetails = response;
-        next();
-    });
+exports.getUserDetails = function (req, res, next) {
+
+    //To check user is logged in or not
+    if(req.user){
+        user.find({_id: req.user._id}, function (err, user) {
+            if (err)
+                return res.status(500).json({error: 'Internal server error'});
+            else if (!user)
+                return res.status(204).json({error: 'No records found'});
+            else{
+                req.app.result = user;
+                next();
+            }
+        });
+    }
+    else
+        res.status(401).json({error:'Authentication required to perform this action'})
 };
 
 exports.updateLastDashboardId = function (req,res,next) {
     console.log(req.params.id);
-    console.log(req.user._id);
     user.update({'_id': req.user._id}, {$set: {"lastDashboardId": req.params.id, updated: new Date()}},{upsert: true},  function (err) {
         if (!err) {
-            req.app.result = {'status': '200', 'dashboardId': req.user._id};
+            req.app.result = {'status': '200', 'dashboardId': req.params.id};
             next();
         }
         else {

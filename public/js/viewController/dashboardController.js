@@ -27,16 +27,15 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             $http({
                 method: 'GET', url: '/api/v1/get/dashboards/'+ $state.params.id
             }).then(function successCallback(response) {
-                if(response.status == '200')
+                if(response.status == '200'){
                     $scope.dashboard.dashboardName =  response.data.name;
+                    $rootScope.populateDashboardWidgets();
+                }
                 else
                     $scope.dashboard.dashboardName =  null;
             }, function errorCallback(error) {
                 console.log('Error in fetching dashboard name',error);
-                if(error.status != '500')
-                    $scope.fetchDashboardName();
-                else
-                    $scope.dashboard.dashboardName =  null;
+                $scope.dashboard.dashboardName =  null;
             });
         };
         $scope.fetchDashboardName();
@@ -56,7 +55,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     console.log('Dashboard Name updated successfully',response);
             }, function errorCallback(error) {
                 console.log('Error in updating dashboard name',error);
-                if(error.status != '500')
+                if(error.status == '500')
                     $scope.changeDashboardName();
             });
         };
@@ -131,7 +130,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         //make chart visible after grid have been created
         $scope.config = {visible: false};
         $timeout(function () {$scope.config.visible = true;}, 100);
-        $rootScope.populateDashboardWidgets();
         $scope.skSpinner=false;
     };
 

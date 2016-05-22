@@ -6,7 +6,7 @@ function AppController($http,$state,$scope) {
             method: 'POST', url: '/api/v1/create/dashboards'
         }).then(function successCallback(response){
             console.log(response);
-            $state.transitionTo('app.reporting.dashboard',{id:response.data.id});
+            $state.go('app.reporting.dashboard',{id:response.data});
         },function errorCallback(error){
             console.log('Error in creating new Dashboard',error);
         })

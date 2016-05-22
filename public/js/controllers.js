@@ -9,6 +9,7 @@ showMetricApp.service('createWidgets',function($http,$q){
         var unformattedWidget = [];
         var finalWidget = [];
         var countCustomData = 0;
+
         //Calling function to fetch data for all charts within a widget
         var getCharts = getDataForChosenDates(widget,chosenDateRange);
 

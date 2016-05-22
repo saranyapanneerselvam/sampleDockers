@@ -25,7 +25,7 @@ var sessionConfig = {
 var nodemailer = require('nodemailer');
 // configuration ===============================================================
 mongoose.connect(configDB.url); // connect to our database
-mongoose.set('debug',true);
+mongoose.set('debug',false);
 
 require('./helpers/passport')(passport); // pass passport for configuration
 

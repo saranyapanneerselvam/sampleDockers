@@ -220,7 +220,7 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
                 data: jsonData
             }).then(function successCallback(response){
                 console.log('Response after creating widget', response);
-                $rootScope.$broadcast('populateWidget',response.data.widgetsList.id);
+                $rootScope.$broadcast('populateWidget',response.data.widgetsList);
             }, function errorCallback (error){
                 console.log('Error in getting widget id',error);
             });

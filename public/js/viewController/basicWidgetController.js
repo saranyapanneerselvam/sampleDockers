@@ -112,7 +112,8 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
                 case 'Facebook':            $scope.objectType = 'page';         break;
                 case 'Google Analytics':    $scope.objectType = 'view';         break;
                 case 'FacebookAds':        $scope.objectType = 'fbadaccount';  break;
-                case 'Twitter':             $scope.objectType = 'tweet';  break;
+                case 'Twitter':             $scope.objectType = 'tweet';        break;
+                case 'Instagram' :          $scope.objectType = 'instagram';    break;
             }
             $http({
                 method: 'GET',
@@ -143,6 +144,10 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
                     break;
                 case 'Twitter':
                     url = '/api/auth/twitter';
+                    title = $scope.storedChannelName;
+                    break;
+                case 'Instagram':
+                    url ='/api/auth/instagram';
                     title = $scope.storedChannelName;
                     break;
             }
@@ -234,12 +239,12 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
         if(getChannelName=="CustomData"){
            $scope.metricContent=true;
            $scope.showCustomContent=false;
-           $scope.selectCustomLinkHead="Step 2:Custom Data URL";
+           $scope.selectCustomLinkHead="Step 2 : Custom Data URL";
         }
         else{
             $scope.metricContent=false;
             $scope.showCustomContent=true;
-            $scope.selectCustomLinkHead="Step 2:Choose a Metric";
+            $scope.selectCustomLinkHead="Step 2 : Choose a Metric";
         }
     };
 
@@ -313,7 +318,7 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
     };
 
     $scope.copyToClipboard = function () {
-        alert("Copied to clipboard");
+        swal("Copied", "", "success");
     };
 
 }

@@ -18,11 +18,11 @@
 .gridAlign{padding: 27px 50px 40px !important;}
 .gird-text{padding: 5px;
     margin: 10px;
-    /* text-align: center; */
     border: 2px solid #e7eaec;
-    height: auto;
+    height: 45px;
     float: left;
-    cursor: pointer;}
+    cursor: pointer;
+    word-wrap: break-word;}
 .gird-text:hover, .gird-text.active {
     border: 2px solid #7E57C2;}
 .dashboardTemplate-items{margin-top:11px;}
@@ -31,7 +31,16 @@
     border: 1px solid #e8e8e8;
     width: 300px !important;
     height: 43px;
+    font-size: 18px;
 }
+.box-header h3{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 90%;
+}
+.widget-body{padding-top: 25px !important;}
+.favigon-img{padding-right: 5px;}
 .menus-img a{margin-top: 13px;}
 .wizard > .steps .current a, .wizard > .steps{
     background-color:#fff !important;
@@ -59,8 +68,8 @@
     border-radius: 5px!important;
     color: #000 !important;}
 .modal-header .close{margin-top: -17px !important; margin-right: -12px !important;}
-.metricNames{font-family:Brandon Grotesque-bold; font-size:20px;}
-.metricDescription{font-family: Brandon Grotesque-regular;font-size: 11px;text-align:justify;}
+.metricNames{font-family:Brandon Grotesque-bold; font-size:20px;word-wrap: break-word;line-height: 1;}
+.metricDescription{font-family: Brandon Grotesque-regular;font-size: 11px;line-height: 1.3;}
 .nav-label{font-size: 18px;font-family: Brandon Grotesque}
 .logout{height: 11px;color:#fff}
 .nav .nav-tabs li:active{background: #000 url('data:image/svg+xml;utf8,<svg width="7px" height="5px" viewBox="102 51 7 5" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><desc>Created with Sketch.</desc><defs></defs></svg>')  no-repeat;}
@@ -122,7 +131,7 @@
     padding: 6.5px !important;
     border:none;
 }
-.dashboardName{width:315px }
+.dashboardName{width:325px }
 .daterange .dr-selections .dr-list-item .dr-item-aside{color: #000 !important;
     font-size: 12px !important; font-family: Brandon Grotesque-medium !important ;}
 .main-content{margin-top: 35px;    margin-left: 20px;
@@ -4163,7 +4172,7 @@ a.close-canvas-menu:hover {
 }
 .spiner-example {
     height: 200px;
-    padding-top: 70px;
+    padding-top: 125px;
 }
 /* MARGINS & PADDINGS */
 .p-xxs {
@@ -5329,7 +5338,9 @@ ins {
 del {
     background-color: #ffc6c6;
 }
-
+.showReferenceWidgets{
+    padding: 12px 11px 11px 11px !important;
+}
 /* Basic widget */
 .widget-icons {
     padding: 5px;

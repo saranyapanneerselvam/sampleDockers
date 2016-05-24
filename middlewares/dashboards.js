@@ -76,6 +76,7 @@ exports.storeDashboards = function (req, res, next) {
             createDashboard.created = new Date();
             createDashboard.updated = new Date();
             createDashboard.orgId = req.user.orgId;
+            createDashboard.name = req.body.name;
             createDashboard.save(function (err, dashboard) {
                 if (!err) {
                     User.findOne({_id: req.user._id}, function (err, user) {

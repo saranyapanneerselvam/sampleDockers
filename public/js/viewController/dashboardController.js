@@ -68,48 +68,104 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             defaultSizeY: 2,
             minSizeX: 1,
             minSizeY: 1,
+            width: 'auto',
+            colWidth:'auto',
             draggable: {
                 enabled: true,
-                handle: 'box-header'
+                handle: '.box-header'
             },
             outerMargin: true, // whether margins apply to outer edges of the grid
             mobileBreakPoint: 700,
             mobileModeEnabled: true, // whether or not to toggle mobile mode when screen width is less than mobileBreakPoint
-            /*
-             isMobile: false, // stacks the grid items if true
-             */
+            /*isMobile: false, // stacks the grid items if true*/
             resizable: {
                 enabled: true,
-                handles: ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'],
+                handles: ['se'],
+                //handles: ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'],
                 start: function (event, $element, widget) {}, // optional callback fired when resize is started
                 resize: function (event, $element, widget) {
-/*
-                    if (widget.chart.api){
-                        widget.chart.api.update();
-                        console.log('API triggered');
-                    }
-*/
                     for(var i=0;i<widget.chart.length;i++){
                         if (widget.chart[i].api){
-                            widget.chart[i].api.update();
+                            console.log('in here during resize');
+                            widget.chart[i].api.update()
                         }
                     }
                 }, // optional callback fired when item is resized,
                 stop: function (event, $element, widget) {
-                    $timeout(function () {
-                        if (widget.chart.api)
-                            widget.chart.api.update();}, 400)
+                    function updateCharts(widget){
+                        return function(){
+                            for(var i=0;i<widget.chart.length;i++){
+                                if (widget.chart[i].api){
+                                    console.log('in here after stop');
+                                    widget.chart[i].api.update();
+                                }
+                            }
+                        }
+                    }
+                    $timeout(updateCharts(widget),400);
+
                 } // optional callback fired when item is finished resizing
             }
         };
 
+        $scope.$on('gridster-resized', function(sizes, gridster) {
+            console.log('Gridster resized');
+            for(var i=0;i<$scope.dashboard.widgets.length;i++){
+                $timeout(resizeWidget(i), 100);
+            }
+            function resizeWidget(i) {
+                return function() {
+                    if(typeof $scope.dashboard.widgets[i].chart != 'undefined'){
+                        for(j=0;j<$scope.dashboard.widgets[i].chart.length;j++){
+                            if ($scope.dashboard.widgets[i].chart[j].api){
+                                console.log('out there')
+                                $scope.dashboard.widgets[i].chart[j].api.update();
+                            }
+                        }
+                    }
+                };
+            }
+        });
+
+        $scope.$on('gridster-resizable-changed', function(widget) {
+            console.log('Gridster resizable changed');
+        });
+
+        $scope.$on('gridster-draggable-changed', function(widget) {
+            console.log('Gridster draggable changed');
+        });
+
+        $scope.$on('my-gridster-item-transition-end', function(e,item) {
+            console.log('Gridster item transition end. item=',item);
+
+            for(var i=0;i<$scope.dashboard.widgets.length;i++){
+                $timeout(resizeWidget(i), 100);
+            }
+            function resizeWidget(i) {
+                return function() {
+                    if(typeof $scope.dashboard.widgets[i].chart != 'undefined'){
+                        for(j=0;j<$scope.dashboard.widgets[i].chart.length;j++){
+                            if ($scope.dashboard.widgets[i].chart[j].api){
+                                console.log('out there')
+                                $scope.dashboard.widgets[i].chart[j].api.update();
+                            }
+                        }
+                    }
+                };
+            }
+        });
+
+/*
         //subscribe widget on window resize event and sidebar resize event
         new ResizeSensor(document.getElementById('dashboardLayout'), function() {
             $scope.$broadcast('resize');
         });
+*/
+
         angular.element($window).on('resize', function (e) {
             $scope.$broadcast('resize');
         });
+
         $scope.$on('resize',function(e){
             for(var i=0;i<$scope.dashboard.widgets.length;i++){
                 $timeout(resizeWidget(i), 100);
@@ -119,6 +175,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     if(typeof $scope.dashboard.widgets[i].chart != 'undefined'){
                         for(j=0;j<$scope.dashboard.widgets[i].chart.length;j++){
                             if ($scope.dashboard.widgets[i].chart[j].api){
+                                console.log('out there')
                                 $scope.dashboard.widgets[i].chart[j].api.update();
                             }
                         }

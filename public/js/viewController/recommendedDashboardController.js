@@ -48,7 +48,7 @@ function RecommendedDashboardController($scope, $http, $window, $q,  $state, $ro
         },function errorCallback(error){
             console.log('Error in finding dashboard');
         });
-    }
+    };
 
     $scope.getProfileForChosenChannel =function(dashboards){
         $scope.fullOfDashboard=dashboards;
@@ -65,7 +65,7 @@ function RecommendedDashboardController($scope, $http, $window, $q,  $state, $ro
         }, function errorCallback(err){
             console.log('Error in fetching profiles',err);
         });
-    }
+    };
 
     $scope.correspondingProfile=function(profileId,index){
         console.log('profileId',profileId);
@@ -83,7 +83,7 @@ function RecommendedDashboardController($scope, $http, $window, $q,  $state, $ro
             deferred.reject(error);
         });
         return deferred.promise;
-    }
+    };
 
     $scope.getObjectsForChosenProfile = function(profileObj, index){
         //console.log('channelName',$scope.getChannelList[index].name,$scope.getChannelList.length);
@@ -214,20 +214,21 @@ function RecommendedDashboardController($scope, $http, $window, $q,  $state, $ro
 
     $scope.createRecommendedDashboard = function () {
         var matchingMetric = [];
+        var jsonData = {
+            name: $scope.fullOfDashboard.dashboard.name
+        };
         $http({
-            method: 'POST', url: '/api/v1/create/dashboards'
+            method: 'POST',
+            url: '/api/v1/create/dashboards',
+            data: jsonData
         }).then(function successCallback(response) {
             for (var widget = 0; widget < $scope.referenceWidgetsList.length; widget++) {
                 for (var chart = 0; chart < $scope.referenceWidgetsList[widget].charts.length; chart++) {
                     for (var j = 0; j < $scope.storedUserChosenValues.length; j++) {
-                        console.log("SameAsChannels", widget, chart, j, $scope.referenceWidgetsList[widget].charts[chart].channelId, $scope.storedUserChosenValues[j].profile.channelId);
                         if ($scope.referenceWidgetsList[widget].charts[chart].channelId === $scope.storedUserChosenValues[j].profile.channelId) {
-                            console.log('insideLoop', widget, chart, j);
                             matchingMetric = [];
                             for (var m = 0; m < $scope.referenceWidgetsList[widget].charts[chart].metrics.length; m++) {
-                                console.log("SameAsObject", widget, chart, j, $scope.referenceWidgetsList[widget].charts[chart].metrics[m].objectTypeId, $scope.storedUserChosenValues[j].object.objectTypeId);
                                 if ($scope.referenceWidgetsList[widget].charts[chart].metrics[m].objectTypeId === $scope.storedUserChosenValues[j].object.objectTypeId) {
-                                    console.log('insideMetricLoop', $scope.storedUserChosenValues[j].object.objectTypeId);
                                     matchingMetric.push($scope.referenceWidgetsList[widget].charts[chart].metrics[m]);
                                     matchingMetric[0].objectId = $scope.storedUserChosenValues[j].object._id;
                                 }
@@ -237,7 +238,7 @@ function RecommendedDashboardController($scope, $http, $window, $q,  $state, $ro
                     $scope.referenceWidgetsList[widget].charts[chart].metrics = matchingMetric;
                 }
                 var jsonData = {
-                    "dashboardId": response.data.id,
+                    "dashboardId": response.data,
                     "widgetType": $scope.referenceWidgetsList[widget].widgetType,
                     "name": $scope.referenceWidgetsList[widget].name,
                     "description": $scope.referenceWidgetsList[widget].description,
@@ -258,25 +259,7 @@ function RecommendedDashboardController($scope, $http, $window, $q,  $state, $ro
                     console.log('Error in getting widget id', error);
                 });
             }
-           // console.log('matchingMetric', $scope.referenceWidgetsList);
-            $scope.dashboard.dashboardName =  $scope.fullOfDashboard.dashboard.name;
-            $scope.changeDashboardName = function () {
-                var jsonData = {
-                    dashboardId: response.data.id,
-                    name: $scope.dashboard.dashboardName
-                };
-                $http({
-                    method: 'POST',
-                    url: '/api/v1/create/dashboards',
-                    data: jsonData
-                }).then(function successCallback(response) {
-                    console.log('Dashboard Name updated successfully',response);
-                }, function errorCallback(error) {
-                    console.log('Error in updating dashboard name',error);
-                });
-            };
-            $scope.changeDashboardName();
-            $state.transitionTo('app.reporting.dashboard', {id: response.data.id});
+            $state.transitionTo('app.reporting.dashboard', {id: response.data});
         }, function errorCallback(error) {
             console.log('Error in creating new Dashboard', error);
         })

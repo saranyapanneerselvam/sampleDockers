@@ -148,6 +148,26 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
             }
         })
 
+
+        .state('app.reporting.dashboard.exportMessageModal', {
+            url: "",
+            views: {
+                'lightbox@app.reporting.dashboard': {
+                    templateUrl: "exportMessage.ejs",
+                    controller: 'LightBoxController'
+                }
+            },
+            resolve: {
+                loadPlugin: function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        {
+                            files: ['css/plugins/steps/jquery.steps.css']
+                        }
+                    ]);
+                }
+            }
+        })
+
         .state('app.reporting.dashboard.recommendedDashboard', {
             url: "",
             views: {

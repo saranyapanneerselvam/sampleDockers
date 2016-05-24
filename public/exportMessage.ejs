@@ -2,19 +2,14 @@
     <script type="text/ng-template" id="modal.ejs">
         <div class="modal-content" ng-controller="ExportController">
             <div class="modal-header">
-                <h5 class="model-title">Select the option to export</h5>
+                <h5 class="model-title">{{fileType}} file Download - Started</h5>
             </div>
             <div class="modal-body exportModal">
                 <div class="wrapper wrapper-content">
                     <div class="row">
                         <div class="col-md-12">
                             <div class="center">
-                                <label class="btn btn-default">
-                                    <input type="radio" id="exportOptionJpeg" name="exportOption" value="JPEG"/> JPEG
-                                </label>
-                                <label class="btn btn-default">
-                                    <input type="radio" id="exportOptionPDF" name="exportOption" value="PDF"/> PDF
-                                </label>
+                               <h2>Please wait while the {{fileType}} file is being downloading.</h2>
                             </div>
                         </div>
 
@@ -24,7 +19,7 @@
             <div class="modal-footer">
                 <div class="row">
                     <div class="col-lg-12 text-right">
-                        <button class="btn btn-primary button-mode" id="submitExportButton" ng-click="submitExport();closeExport();" ui-sref="app.reporting.dashboard.exportMessageModal">Export
+                        <button class="btn btn-primary button-mode" ng-click="closeExport();">OK
                         </button>
                     </div>
                 </div>

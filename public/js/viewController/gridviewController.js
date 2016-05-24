@@ -14,6 +14,7 @@ function GridviewController($scope,$http) {
         },function errorCallback(error){
             console.log('Error in creating new Dashboard',error);
             $scope.dashboardList = null;
+            swal({  title: "", text: "<span style='sweetAlertFont'>Please try again! Something is missing</span> .",   html: true });
         })
     };
 }

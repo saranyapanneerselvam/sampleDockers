@@ -262,6 +262,11 @@ function RecommendedDashboardController($scope, $http, $window, $q,  $state, $ro
             $state.transitionTo('app.reporting.dashboard', {id: response.data});
         }, function errorCallback(error) {
             console.log('Error in creating new Dashboard', error);
+            swal({
+                title: "",
+                text: "<span style='sweetAlertFont'>Please try again! Something is missing</span> .",
+                html: true
+            });
         })
     };
 }

@@ -54,11 +54,12 @@ module.exports = function (app, passport) {
             //res.status(401).json({error:'Authentication required to perform this action'})
     });
 
-    app.get('/api/v1/signout', function (req, res) {
+    app.get('/signout', function (req, res) {
         req.logout();
-        res.render('index.ejs');
-    });
+        res.redirect('/');
 
+    });
+    
     app.post('/api/v1/updateLastDashboardId/:id', userDetails.updateLastDashboardId, function (req, res) {
         var result = req.app.result;
         res.json(result);

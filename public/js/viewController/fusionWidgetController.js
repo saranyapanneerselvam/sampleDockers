@@ -283,6 +283,11 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope){
              $rootScope.$broadcast('populateWidget',response.data.widgetsList);
          }, function errorCallback (error){
              console.log('Error in getting widget id',error);
+             swal({
+                 title: "",
+                 text: "<span style='sweetAlertFont'>Please try again! Something is missing</span> .",
+                 html: true
+             });
          });
     };
 }

@@ -34,8 +34,13 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 else
                     $scope.dashboard.dashboardName =  null;
             }, function errorCallback(error) {
-                console.log('Error in fetching dashboard name',error);
-                $scope.dashboard.dashboardName =  null;
+                console.log('Error in fetching dashboard name', error);
+                $scope.dashboard.dashboardName = null;
+                swal({
+                    title: "",
+                    text: "<span style='sweetAlertFont'>Please try again! Something is missing</span> .",
+                    html: true
+                });
             });
         };
         $scope.fetchDashboardName();
@@ -54,9 +59,12 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 if(response.status == '200')
                     console.log('Dashboard Name updated successfully',response);
             }, function errorCallback(error) {
-                console.log('Error in updating dashboard name',error);
-                if(error.status == '500')
-                    $scope.changeDashboardName();
+                console.log('Error in updating dashboard name', error);
+                swal({
+                    title: "",
+                    text: "<span style='sweetAlertFont'>Please try again! Something is missing</span> .",
+                    html: true
+                });
             });
         };
 
@@ -241,7 +249,12 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     });
             }
         }, function errorCallback(error) {
-            console.log('Error in finding widgets in the dashboard',error);
+            console.log('Error in finding widgets in the dashboard', error);
+            swal({
+                title: "",
+                text: "<span style='sweetAlertFont'>Please try again! Something is missing</span> .",
+                html: true
+            });
         });
     };
 
@@ -279,12 +292,17 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 widgetToBeLoaded.then(
                     function successCallback(widgetToBeLoaded){
                         $scope.dashboard.widgets[widgetIndex] = widgetToBeLoaded;
-                },
-                    function errorCallback(error){
-                    console.log(error);
-                });
-/*
-                var finalChartData,widgetIndex,sizeY,sizeX,chartsCount,individualGraphWidthDivider,individualGraphHeightDivider;
+                    },
+                    function errorCallback(error) {
+                        console.log(error);
+                        swal({
+                            title: "",
+                            text: "<span style='sweetAlertFont'>Please try again! Something is missing</span> .",
+                            html: true
+                        });
+                    });
+                /*
+                 var finalChartData,widgetIndex,sizeY,sizeX,chartsCount,individualGraphWidthDivider,individualGraphHeightDivider;
 
                 finalChartData = createWidgets.dataLoader(inputWidget[0]);
 

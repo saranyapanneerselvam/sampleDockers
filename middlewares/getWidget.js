@@ -113,8 +113,8 @@ exports.saveWidgets = function (req, res, next) {
                     createWidget.description = req.body.description;
                     createWidget.charts = req.body.charts;
                     createWidget.referenceWidgetId = req.body.referenceWidgetId;
-                    createWidget.order = req.body.order;
-                    createWidget.offset = req.body.offset;
+                    createWidget.row = req.body.row;
+                    createWidget.col = req.body.col;
                     createWidget.size = req.body.size;
                     createWidget.minSize = req.body.minSize;
                     createWidget.maxSize = req.body.maxSize;
@@ -140,16 +140,15 @@ exports.saveWidgets = function (req, res, next) {
 
                     // set all of the user data that we need
                     var name = req.body.name == undefined ? '' : req.body.name;
-                    var description = req.body.description == undefined ? '' : req.body.description;
+                    //var description = req.body.description == undefined ? '' : req.body.description;
                     var widgetId = req.body.widgetId;
-                    var widgetType = req.body.widgetType == undefined ? '' : req.body.widgetType;
-                    var metrics = req.body.metrics == undefined ? '' : req.body.metrics;
-                    var order = req.body.order == undefined ? '' : req.body.order;
-                    var offset = req.body.offset == undefined ? '' : req.body.offset;
-                    var size = req.body.metrics == undefined ? '' : req.body.size;
-                    var minSize = req.body.metrics == undefined ? '' : req.body.minSize;
-                    var maxSize = req.body.metrics == undefined ? '' : req.body.maxSize;
-                    var chartType = req.body.chartType == undefined ? '' : req.body.chartType;
+                    //var widgetType = req.body.widgetType == undefined ? '' : req.body.widgetType;
+                    //var metrics = req.body.metrics == undefined ? '' : req.body.metrics;
+                    var row = req.body.row == undefined ? '' : req.body.row;
+                    var col = req.body.col == undefined ? '' : req.body.col;
+                    var size = req.body.size == undefined ? '' : req.body.size;
+                    var minSize = req.body.minSize == undefined ? '' : req.body.minSize;
+                    var maxSize = req.body.maxSize == undefined ? '' : req.body.maxSize;
                     var updated = new Date();
 
 
@@ -157,15 +156,15 @@ exports.saveWidgets = function (req, res, next) {
                     widgetsList.update({_id: widgetId}, {
                         $set: {
                             name: name,
-                            description: description,
-                            widgetType: widgetType,
-                            order: order,
-                            metrics: metrics,
-                            offset: offset,
+                            //description: description,
+                            //widgetType: widgetType,
+                            row: row,
+                            //metrics: metrics,
+                            col: col,
                             size: size,
                             minSize: minSize,
                             maxSize: maxSize,
-                            chartType: chartType,
+                            //charts: charts,
                             updated: updated
                         }
                     }, {upsert: true}, function (err, widget) {

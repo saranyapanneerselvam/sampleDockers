@@ -13,6 +13,7 @@ var graph = require('fbgraph');
 
 //To load up the user model
 var profile = require('../models/profiles');
+var User = require('../models/user');
 
 //To load the metrics model
 var Metric = require('../models/metrics');
@@ -76,32 +77,66 @@ exports.getChannelData = function (req, res, next) {
         return diffDays;
     }
 
-    //async's one of the method to run tasks ,one task may or may not depend on the other
-    async.auto({
-        widget: getWidget,
-        data: ['widget', getData],
-        metric: ['widget', 'data', getMetric],
-        object: ['widget', 'metric', getObject],
-        get_profile: ['object', getProfile],
-        get_channel: ['get_profile', 'metric', getChannel],
-        get_channel_data_remote: ['get_channel', getChannelDataRemote],
-        store_final_data: ['get_channel_data_remote', storeFinalData],
-        get_channel_objects_db: ['store_final_data', 'get_channel_data_remote', getChannelDataDB]
-    }, function (err, results) {
-        if (err) {
-            return res.status(500).json({});
+    //To check whether the user has required permission to get the widget data
+    Widget.findOne({_id: req.params.widgetId}, {dashboardId: 1, charts: 1, widgetType: 1}, function (err, response) {
+        var dashboardId = response.dashboardId;
+        if (req.user) {
+            User.findOne({
+                _id: req.user._id,
+                dashboards: {$elemMatch: {dashboardId: dashboardId}}
+            }, function (err, user) {
+                console.log('user details', user);
+                if (err)
+                    return res.status(500).json({error: 'Internal Server Error'})
+                else if (!user) {
+                    console.log('permission error');
+                    return res.status(401).json({success: true})
+                }
+
+                else {
+                    console.log('success')
+                    callEntireDataFunction();
+                }
+
+            })
         }
-        req.app.result = results.get_channel_objects_db;
-        next();
+        else {
+            console.log('dashboard match');
+            return res.status(401).json({error: 'User must be logged in'})
+        }
+
+
     });
+
+    function callEntireDataFunction() {
+        //async's one of the method to run tasks ,one task may or may not depend on the other
+        async.auto({
+            widget: getWidget,
+            data: ['widget', getData],
+            metric: ['widget', 'data', getMetric],
+            object: ['widget', 'metric', getObject],
+            get_profile: ['object', getProfile],
+            get_channel: ['get_profile', 'metric', getChannel],
+            get_channel_data_remote: ['get_channel', getChannelDataRemote],
+            store_final_data: ['get_channel_data_remote', storeFinalData],
+            get_channel_objects_db: ['store_final_data', 'get_channel_data_remote', getChannelDataDB]
+        }, function (err, results) {
+            if (err) {
+                return res.status(500).json({});
+            }
+            req.app.result = results.get_channel_objects_db;
+            next();
+        });
+    }
+
 
     //Function to handle all queries result here
     function checkNullObject(callback) {
         return function (err, object) {
-
+            console.log('check empty data', object)
             if (err)
                 callback('Database error: ' + err, null);
-            else if (!object)
+            else if (!object || object.length === 0)
                 callback('No record found', '');
             else
                 callback(null, object);
@@ -111,7 +146,6 @@ exports.getChannelData = function (req, res, next) {
     //Function to handle the data query results
     function checkNullData(callback) {
         return function (err, object) {
-
             if (err)
                 callback('Database error: ' + err, null);
             else if (!object)
@@ -123,7 +157,6 @@ exports.getChannelData = function (req, res, next) {
 
     //Function to get the data in data collection
     function getData(results, callback) {
-
         async.concatSeries(results.widget.charts, getEachData, callback);
     }
 
@@ -226,6 +259,7 @@ exports.getChannelData = function (req, res, next) {
             }
             else {
                 var newChannelArray = [];
+                console.log('initialResults.get_channel', initialResults.get_channel);
                 newChannelArray.push(initialResults.get_channel[0]);
                 async.concatSeries(newChannelArray, dataForEachChannel, callback);
 
@@ -234,6 +268,7 @@ exports.getChannelData = function (req, res, next) {
         }
 
         function dataForEachChannel(results, callback) {
+            console.log('query results', results);
 
             //To check the channel
             switch (results.code) {
@@ -404,17 +439,6 @@ exports.getChannelData = function (req, res, next) {
             callback(null, results.get_object_list);
         });
 
-        //Function to format the date to yyyy-mm-dd
-        function formatDate(d) {
-            month = '' + (d.getMonth() + 1),
-                day = '' + d.getDate(),
-                year = d.getFullYear();
-            if (month.length < 2) month = '0' + month;
-            if (day.length < 2) day = '0' + day;
-            var startDate = [year, month, day].join('-');
-            return startDate;
-        }
-
         //To get the start date ,end date required for query
         function getDates(callback) {
             loopGetDates(initialResults.data, initialResults.metric, callback);
@@ -496,15 +520,29 @@ exports.getChannelData = function (req, res, next) {
                 callback(null, queryResponse);
             }
             else {
-                graph.get(query.query, function (err, res) {
-                    queryResponse = {
-                        res: res,
-                        metricId: query.metricId,
-                        queryResults: initialResults,
-                        channelId: initialResults.metric[0].channelId
+                graph.get(query.query, function (err, fbQueryRes) {
+                    console.log('fb error', err)
+                    if (err) {
+                        if (err.code === 190)
+                            return res.status(401).json({error: 'Authentication required to perform this action'})
+                        else if (err.code === 4)
+                            return res.status(4).json({error: 'Forbidden Error'})
+                        else
+                            return res.status(500).json({error: 'Internal server error'})
                     }
-                    callback('', queryResponse);
+
+                    else {
+                        console.log('fb query', err)
+                        queryResponse = {
+                            res: fbQueryRes,
+                            metricId: query.metricId,
+                            queryResults: initialResults,
+                            channelId: initialResults.metric[0].channelId
+                        }
+                        callback('', queryResponse);
+                    }
                 })
+
             }
         }
     }
@@ -850,9 +888,9 @@ exports.getChannelData = function (req, res, next) {
                                     var findCurrentDateAlreadyExist = _.findIndex(wholeTweetResponseFromDb, function (o) {
                                         return o.date == currentDate;
                                     });
-                                    if(findCurrentDateAlreadyExist===-1){
+                                    if (findCurrentDateAlreadyExist === -1) {
                                         wholeTweetResponseFromDb.push({
-                                            date:currentDate,
+                                            date: currentDate,
                                             total: dataFromRemote[key].data[0].user
                                         });
                                     }
@@ -995,9 +1033,11 @@ exports.getChannelData = function (req, res, next) {
                                 }
                             },
                             // Sort in ascending order
-                            { $sort: {
-                                'data.date': 1
-                            }},
+                            {
+                                $sort: {
+                                    'data.date': 1
+                                }
+                            },
                             // Group back to array form
                             {
                                 "$group": {
@@ -1025,6 +1065,7 @@ exports.getChannelData = function (req, res, next) {
 
     //set oauth credentials and get object type details
     function initializeGa(results, callback) {
+        console.log('results', results);
         oauth2Client.setCredentials({
             access_token: results.get_profile[0].accessToken,
             refresh_token: results.get_profile[0].refreshToken
@@ -1059,7 +1100,6 @@ exports.getChannelData = function (req, res, next) {
             var dimensionList = [];
 
             //Array to hold the final google data
-            var storeGoogleData = [];
             if (req.body.dimensionList != undefined) {
                 dimensionList = req.body.dimensionList;
 
@@ -1091,21 +1131,58 @@ exports.getChannelData = function (req, res, next) {
             var object = results.object;
             var widget = results.widget.charts;
             oauth2Client.refreshAccessToken(function (err, tokens) {
-                profile.token = tokens.access_token;
-                oauth2Client.setCredentials({
-                    access_token: tokens.access_token,
-                    refresh_token: tokens.refresh_token
-                });
-                work(data, metric, object, widget, callback);
-                function work(data, metric, object, widget, done) {
-                    var allObjects = {};
-                    async.times(metric.length, function (i, next) {
-                        var d = new Date();
+                console.log('refresh token error', err);
+                if (err) {
+                    if (err.code === 400)
+                        return res.status(401).json({error: 'Authentication required to perform this action'})
+                    else if (err.code === 403)
+                        return res.status(403).json({error: 'Forbidden Error'})
+                    else
+                        return res.status(500).json({error: 'Internal server error'})
+                }
+                else {
+                    profile.token = tokens.access_token;
+                    oauth2Client.setCredentials({
+                        access_token: tokens.access_token,
+                        refresh_token: tokens.refresh_token
+                    });
+                    work(data, metric, object, widget, callback);
+                    function work(data, metric, object, widget, done) {
+                        var allObjects = {};
+                        async.times(metric.length, function (i, next) {
+                            var d = new Date();
 
-                        if (data[i].data != null) {
-                            var startDate = formatDate(data[i].data.updated);
-                            var endDate = formatDate(d);
-                            if (startDate < endDate) {
+                            if (data[i].data != null) {
+                                var startDate = formatDate(data[i].data.updated);
+                                var endDate = formatDate(d);
+                                if (startDate < endDate) {
+                                    allObjects = {
+                                        oauth2Client: oauth2Client,
+                                        object: object[i],
+                                        dimension: dimension,
+                                        metricName: metric[i].objectTypes[0].meta.gaMetricName,
+                                        startDate: startDate,
+                                        endDate: endDate,
+                                        response: results.response,
+                                        data: results.data,
+                                        results: results,
+                                        metricId: data[i].metricId
+                                    };
+                                    //var dataResultDetails = analyticData(oauth2Client, results.object, dimension.get_dimension, metric.objectTypes[0].meta.gaMetricName, startDate, endDate, results.response, results.data, results);
+                                    next(null, allObjects);
+                                }
+                                else {
+                                    allObjects = {metricId: data[i].metricId, data: 'DataFromDb'}
+                                    next(null, allObjects);
+                                }
+
+                            }
+                            else {
+
+                                //call google api
+                                d.setDate(d.getDate() - 365);
+                                var startDate = formatDate(d);
+                                var endDate = formatDate(new Date());
                                 allObjects = {
                                     oauth2Client: oauth2Client,
                                     object: object[i],
@@ -1114,42 +1191,17 @@ exports.getChannelData = function (req, res, next) {
                                     startDate: startDate,
                                     endDate: endDate,
                                     response: results.response,
-                                    data: results.data,
+                                    data: data[i],
                                     results: results,
                                     metricId: data[i].metricId
                                 };
-                                //var dataResultDetails = analyticData(oauth2Client, results.object, dimension.get_dimension, metric.objectTypes[0].meta.gaMetricName, startDate, endDate, results.response, results.data, results);
                                 next(null, allObjects);
+
                             }
-                            else {
-                                allObjects = {metricId: data[i].metricId, data: 'DataFromDb'}
-                                next(null, allObjects);
-                            }
-
-                        }
-                        else {
-
-                            //call google api
-                            d.setDate(d.getDate() - 365);
-                            var startDate = formatDate(d);
-                            var endDate = formatDate(new Date());
-                            allObjects = {
-                                oauth2Client: oauth2Client,
-                                object: object[i],
-                                dimension: dimension,
-                                metricName: metric[i].objectTypes[0].meta.gaMetricName,
-                                startDate: startDate,
-                                endDate: endDate,
-                                response: results.response,
-                                data: data[i],
-                                results: results,
-                                metricId: data[i].metricId
-                            };
-                            next(null, allObjects);
-
-                        }
-                    }, done);
+                        }, done);
+                    }
                 }
+
             });
 
         }
@@ -1196,8 +1248,13 @@ exports.getChannelData = function (req, res, next) {
                         'metrics': allObjects.metricName,
                         prettyPrint: true
                     }, function (err, result) {
+                        console.log('google analytics error', err)
                         if (err) {
-                            googleDataEntireFunction(allObjects.results, callback);
+                            if (err.code === 400)
+                                return res.status(401).json({error: 'Authentication required to perform this action'})
+                            else
+                                return res.status(500).json({error: 'Internal server error'})
+                            //googleDataEntireFunction(allObjects.results, callback);
 
                         }
                         else {
@@ -1264,7 +1321,7 @@ exports.getChannelData = function (req, res, next) {
                             startDate: startDate,
                             endDate: endDate,
                             metricId: metric[j]._id,
-                            metricName:initialResults.metric[j].objectTypes[0].meta.fbAdsMetricName
+                            metricName: initialResults.metric[j].objectTypes[0].meta.fbAdsMetricName
                         }
                         callback(null, allObjects);
                         //fetchFBadsData(initialResults.get_profile[0], query, initialResults, initialResults.data, startDate, endDate);
@@ -1287,7 +1344,7 @@ exports.getChannelData = function (req, res, next) {
                                 startDate: updated,
                                 endDate: currentDate,
                                 metricId: metric[j]._id,
-                                metricName:initialResults.metric[j].objectTypes[0].meta.fbAdsMetricName
+                                metricName: initialResults.metric[j].objectTypes[0].meta.fbAdsMetricName
                             }
                             next(null, [allObjects]);
                             //fetchFBadsData(initialResults.get_profile[0], query, initialResults, initialResults.data, updated, currentDate);
@@ -1302,7 +1359,7 @@ exports.getChannelData = function (req, res, next) {
                                 endDate: currentDate,
                                 metricId: metric[j]._id,
                                 channelId: metric[j].channelId,
-                                metricName:initialResults.metric[j].objectTypes[0].meta.fbAdsMetricName
+                                metricName: initialResults.metric[j].objectTypes[0].meta.fbAdsMetricName
                             }
                             next(null, allObjects);
                         }
@@ -1369,11 +1426,18 @@ exports.getChannelData = function (req, res, next) {
             function Adsinsights(query) {
                 var metricId = results.metricId;
                 FB.api(query, function (apiResult) {
-                    if (apiResult.error)
-                       return res.status(500).json({Error: 'Error'});
+                    console.log('api error', apiResult);
+                    if (apiResult.error) {
+                        if (apiResult.error.code === 190)
+                            return res.status(401).json({error: 'Authentication required to perform this action'})
+                        else if (err.code === 4)
+                            return res.status(4).json({error: 'Forbidden Error'})
+                        else
+                            return res.status(500).json({error: 'Internal server error'})
+
+                    }
                     else {
                         var wholeData = [];
-
                         var storeMetricName = results.metricName;
                         var storeStartDate = new Date(results.startDate);
                         var storeEndDate = new Date(results.endDate);
@@ -1445,6 +1509,7 @@ exports.getChannelData = function (req, res, next) {
                     callback(null, queryResponse);
 
                 })
+
             }
         }
     }

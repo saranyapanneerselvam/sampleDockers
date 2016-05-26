@@ -399,7 +399,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                                 tickFormat: function(d) {
                                     return d3.format('f')(d);}
                             },
-                            axisLabelDistance: -10
+                            axisLabelDistance: -10,
+                            showLegend: false
                         }
                     };
                 }
@@ -447,7 +448,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                                 tickFormat: function(d) {
                                     return d3.format('f')(d);}
                             },
-                            axisLabelDistance: -10
+                            axisLabelDistance: -10,
+                            showLegend: false
                         }
                     };
                 }
@@ -483,7 +485,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                             y: function (d) {
                                 return d.y;
                             },
-                            showLabels: true,
+                            showLabels: false,
                             duration: 500,
                             labelThreshold: 0.01,
                             labelSunbeamLayout: true,
@@ -694,8 +696,6 @@ showMetricApp.service('createWidgets',function($http,$q){
             {W:6,H:3,N:8,r:2,c:4}
         ];
 
-        console.log(widget,finalChartData);
-
 /*
         for(i=0;i<finalChartData.length;i++){
             displayData[i] = [];
@@ -741,12 +741,16 @@ showMetricApp.service('createWidgets',function($http,$q){
         }
 
         var modifiedWidget = {
+/*
+            'row': 0,
+            'col': 0,
             'sizeY': (typeof widget.size != 'undefined'? widget.size.h : 2),
             'sizeX': (typeof widget.size != 'undefined'? widget.size.w : 2),
             'minSizeY': (typeof widget.minSize != 'undefined'? widget.minSize.h : 1),
             'minSizeX': (typeof widget.minSize != 'undefined'? widget.minSize.w : 1),
             'maxSizeY': (typeof widget.maxSize != 'undefined'? widget.maxSize.h : 3),
             'maxSizeX': (typeof widget.maxSize != 'undefined'? widget.maxSize.w : 3),
+*/
             'name': chartName,
             'visibility': true,
             'id': widget._id,
@@ -755,6 +759,7 @@ showMetricApp.service('createWidgets',function($http,$q){
             'layoutOptionsX': individualGraphWidthDivider,
             'layoutOptionsY': individualGraphHeightDivider
         };
+        //console.log(modifiedWidget);
         finalWidget.resolve(modifiedWidget);
         return finalWidget.promise;
     };

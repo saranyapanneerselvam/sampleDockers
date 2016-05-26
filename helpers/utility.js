@@ -31,7 +31,7 @@ checkUserAccess :function (req,res,done) {
         }
 
         else
-            done(null,'success')
+            done(null,user);
 
     })
 }}

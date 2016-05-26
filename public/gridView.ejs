@@ -1,14 +1,22 @@
+<div class="modal-header">
+    <p class="gird-header">GridView</p>
+</div>
 <div ng-init="fetchAllDashboards()" class="wrapper wrapper-content gridAlign">
-    <p>GridView</p>
     <div class="row" ng-show="dashboardList != null">
-        <div class="col col-lg-2  gird-text" ng-repeat="dashboard in dashboardList">
-            <div ng-if="(dashboard.name == null || dashboard.name==' ')">
-                <a ui-sref="app.reporting.dashboard({id: dashboard._id})" style="color:#9A9A9A">Unnamed Dashboard</a>
-            </div>
-            <div ng-if="dashboard.name != null">
-                <a ui-sref="app.reporting.dashboard({id: dashboard._id})" style="color:#000">{{dashboard.name}}</a>
+        <div class="col col-lg-2  gird-text"  ng-repeat="dashboard in dashboardList" >
+            <div style="height: 10px; cursor: pointer;" ng-click="deleteDashboard(dashboard)" class="col-lg-1 pull-right"><i class="fa fa-times" aria-hidden="true"></i></div>
+            <div style="height: 40px" class="contentName">
+                <div class="dashboards col-lg-2"  ng-if="(dashboard.name == null || dashboard.name==' ')">
+                    <a ui-sref="app.reporting.dashboard({id: dashboard._id})" style="color:#9A9A9A">Unnamed Dashboard</a>
+                </div>
+
+                <div class="dashboards col-lg-2" ng-if="dashboard.name != null">
+                    <a ui-sref="app.reporting.dashboard({id: dashboard._id})" style="color:#000">{{dashboard.name}}</a>
+                </div>
             </div>
         </div>
+        <div ng-if="dashboardList.length===0"><p>No Dashboard Available</p></div>
+
     </div>
     <div class="row" ng-show="!dashboardList">
         <p>You don't have access to any dashboards yet</p>

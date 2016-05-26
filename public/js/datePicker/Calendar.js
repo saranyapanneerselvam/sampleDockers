@@ -228,35 +228,80 @@
   }
 
 
+  //Calendar.prototype.presetCreate = function() {
+  //  var self = this;
+  //  var ul_presets = $('<ul class="dr-preset-list" style="display: none;"></ul>');
+  //  var presets = typeof self.settings.presets == 'object' ? self.settings.presets :
+  //  [{
+  //    label: 'Last 30 days',
+  //    start: moment(this.latest_date).subtract(29, 'days'),
+  //    end: this.latest_date
+  //  },{
+  //    label: 'Last month',
+  //    start: moment(this.latest_date).subtract(1, 'month').startOf('month'),
+  //    end: moment(this.latest_date).subtract(1, 'month').endOf('month')
+  //  },{
+  //    label: 'Last 3 months',
+  //    start: moment(this.latest_date).subtract(3, 'month').startOf('month'),
+  //    end: moment(this.latest_date).subtract(1, 'month').endOf('month')
+  //  },{
+  //    label: 'Last 6 months',
+  //    start: moment(this.latest_date).subtract(6, 'month').startOf('month'),
+  //    end: moment(this.latest_date).subtract(1, 'month').endOf('month')
+  //  },{
+  //    label: 'Last year',
+  //    start: moment(this.latest_date).subtract(12, 'month').startOf('month'),
+  //    end: moment(this.latest_date).subtract(1, 'month').endOf('month')
+  //  },{
+  //    label: 'All time',
+  //    start: this.earliest_date,
+  //    end: this.latest_date
+  //  }];
   Calendar.prototype.presetCreate = function() {
     var self = this;
     var ul_presets = $('<ul class="dr-preset-list" style="display: none;"></ul>');
-    var presets = typeof self.settings.presets == 'object' ? self.settings.presets : 
-    [{
-      label: 'Last 30 days',
-      start: moment(this.latest_date).subtract(29, 'days'),
-      end: this.latest_date
-    },{
-      label: 'Last month',
-      start: moment(this.latest_date).subtract(1, 'month').startOf('month'),
-      end: moment(this.latest_date).subtract(1, 'month').endOf('month')
-    },{
-      label: 'Last 3 months',
-      start: moment(this.latest_date).subtract(3, 'month').startOf('month'),
-      end: moment(this.latest_date).subtract(1, 'month').endOf('month')
-    },{
-      label: 'Last 6 months',
-      start: moment(this.latest_date).subtract(6, 'month').startOf('month'),
-      end: moment(this.latest_date).subtract(1, 'month').endOf('month')
-    },{
-      label: 'Last year',
-      start: moment(this.latest_date).subtract(12, 'month').startOf('month'),
-      end: moment(this.latest_date).subtract(1, 'month').endOf('month')
-    },{
-      label: 'All time',
-      start: this.earliest_date,
-      end: this.latest_date
-    }];
+    var presets = typeof self.settings.presets == 'object' ? self.settings.presets :
+        [
+          {
+            label: 'Last 7 days',
+            start: moment(this.latest_date).subtract(6, 'days' ).startOf('days'),
+            end: this.latest_date
+          },
+          {
+            label: 'Last 30 days',
+            start: moment(this.latest_date).subtract(29, 'days'),
+            end: this.latest_date
+          },{
+          label: 'Last calender month',
+          start: moment(this.latest_date).subtract(1, 'month').startOf('month'),
+          end: moment(this.latest_date).subtract(1, 'month').endOf('month')
+        },{
+          label: 'Last 3 months',
+          //start: moment(this.latest_date).subtract(3, 'month').startOf('month'),
+          //end: moment(this.latest_date).subtract(1, 'month').endOf('month')
+          start: moment(this.latest_date).subtract(89, 'days').startOf('days'),
+          end: moment(this.latest_date).subtract(0, 'days').endOf('days')
+        },{
+          label: 'Last 6  months',
+          //start: moment(this.latest_date).subtract(6, 'month').startOf('month'),
+          //end: moment(this.latest_date).subtract(1, 'month').endOf('month')
+          start: moment(this.latest_date).subtract(180, 'days').startOf('days'),
+          end: moment(this.latest_date).subtract(0, 'days').endOf('days')
+        },{
+          label: 'Last year',
+          //start: moment(this.latest_date).subtract(12, 'month').startOf('month'),
+          //end: moment(this.latest_date).subtract(1, 'month').endOf('month')
+          start: moment(this.latest_date).subtract(365, 'days').startOf('days'),
+          end: moment(this.latest_date).subtract(0, 'days').endOf('days')
+        }
+
+          //  ,{
+          //  label: 'All time',
+          //  start: this.earliest_date,
+          //  end: this.latest_date
+          //}
+
+        ];
 
     $.each(presets, function(i, d) {
       if (moment(d.start).isBefore(self.earliest_date)) {

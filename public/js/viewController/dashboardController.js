@@ -1,7 +1,7 @@
 showMetricApp.controller('DashboardController',DashboardController)
 
 function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$stateParams,createWidgets,$q) {
-
+    $scope.loading=false;
     //Sets up all the required parameters for the dashboard to function properly when it is initially loaded. This is called in the ng-init function of the dashboard template
     $scope.dashboardConfiguration = function () {
         $scope.dashboardCalendar = new Calendar({
@@ -19,7 +19,10 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         });
 
         //Defining configuration parameters for dashboard layout
-        $scope.dashboard = {widgets: []};
+        $scope.dashboard = {
+            widgets: [],
+            datas: []
+        };
         $scope.dashboard.dashboardName = '';
 
         //To fetch the name of the dashboard from database and display it when the dashboard is loaded
@@ -92,20 +95,20 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 //handles: ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'],
                 start: function (event, $element, widget) {}, // optional callback fired when resize is started
                 resize: function (event, $element, widget) {
-                    for(var i=0;i<widget.chart.length;i++){
-                        if (widget.chart[i].api){
-                            console.log('in here during resize');
-                            widget.chart[i].api.update()
+                    var ind = $scope.dashboard.widgets.indexOf(widget);
+                    for(var i=0;i<$scope.dashboard.datas[ind].chart.length;i++){
+                        if ($scope.dashboard.datas[ind].chart[i].api){
+                            $scope.dashboard.datas[ind].chart[i].api.update()
                         }
                     }
                 }, // optional callback fired when item is resized,
                 stop: function (event, $element, widget) {
                     function updateCharts(widget){
                         return function(){
-                            for(var i=0;i<widget.chart.length;i++){
-                                if (widget.chart[i].api){
-                                    console.log('in here after stop');
-                                    widget.chart[i].api.update();
+                            var ind = $scope.dashboard.widgets.indexOf(widget);
+                            for(var i=0;i<$scope.dashboard.datas[ind].chart.length;i++){
+                                if ($scope.dashboard.datas[ind].chart[i].api){
+                                    $scope.dashboard.datas[ind].chart[i].api.update()
                                 }
                             }
                         }
@@ -123,11 +126,10 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             }
             function resizeWidget(i) {
                 return function() {
-                    if(typeof $scope.dashboard.widgets[i].chart != 'undefined'){
-                        for(j=0;j<$scope.dashboard.widgets[i].chart.length;j++){
-                            if ($scope.dashboard.widgets[i].chart[j].api){
-                                console.log('out there')
-                                $scope.dashboard.widgets[i].chart[j].api.update();
+                    if(typeof $scope.dashboard.datas[i].chart != 'undefined'){
+                        for(j=0;j<$scope.dashboard.datas[i].chart.length;j++){
+                            if ($scope.dashboard.datas[i].chart[j].api){
+                                $scope.dashboard.datas[i].chart[j].api.update();
                             }
                         }
                     }
@@ -135,17 +137,9 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             }
         });
 
-        $scope.$on('gridster-resizable-changed', function(widget) {
-            console.log('Gridster resizable changed');
-        });
-
-        $scope.$on('gridster-draggable-changed', function(widget) {
-            console.log('Gridster draggable changed');
-        });
-
-        $scope.$on('my-gridster-item-transition-end', function(e,item) {
-            console.log('Gridster item transition end. item=',item);
-
+        $scope.$on('my-gridster-item-resized', function(e,item) {
+            //console.log('my-gridster-item-resized',item);
+/*
             for(var i=0;i<$scope.dashboard.widgets.length;i++){
                 $timeout(resizeWidget(i), 100);
             }
@@ -154,21 +148,151 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     if(typeof $scope.dashboard.widgets[i].chart != 'undefined'){
                         for(j=0;j<$scope.dashboard.widgets[i].chart.length;j++){
                             if ($scope.dashboard.widgets[i].chart[j].api){
-                                console.log('out there')
                                 $scope.dashboard.widgets[i].chart[j].api.update();
                             }
                         }
                     }
                 };
             }
+*/
         });
 
+        $scope.$watch('dashboard.widgets',function(newVal,oldVal){
+            console.log('Inside watch oldLen=',oldVal.length," newLen=",newVal.length);
+            if($scope.dashboard.widgets.length !=0){
+                for(getWidgetInfo in $scope.dashboard.widgets){
+                    var jsonData = {
+                        dashboardId: $state.params.id,
+                        widgetId: $scope.dashboard.widgets[getWidgetInfo].id,
+                        name: $scope.dashboard.widgets[getWidgetInfo].name,
+                        row: $scope.dashboard.widgets[getWidgetInfo].row,
+                        col: $scope.dashboard.widgets[getWidgetInfo].col,
+                        size: {
+                            h: $scope.dashboard.widgets[getWidgetInfo].sizeY,
+                            w: $scope.dashboard.widgets[getWidgetInfo].sizeX
+                        },
+                        minSize: {
+                            h: $scope.dashboard.widgets[getWidgetInfo].minSizeY,
+                            w: $scope.dashboard.widgets[getWidgetInfo].minSizeX
+                        },
+                        maxSize: {
+                            h: $scope.dashboard.widgets[getWidgetInfo].maxSizeY,
+                            w: $scope.dashboard.widgets[getWidgetInfo].maxSizeX
+                        }
+                    }
+                    $http({
+                        method: 'POST',
+                        url: '/api/v1/widgets',
+                        data: jsonData
+                    }).then(function successCallback(response){
+                        //console.log('Response after updating widget', response);
+                    }, function errorCallback (error){
+                        console.log('Error in getting widget id',error);
+                        swal({  title: "", text: "<span style='sweetAlertFont'>Please try again! Something is missing</span> .",   html: true });
+                    });
+                }
+            }
+        },true);
+
+        $scope.$on('my-gridster-item-transition-end', function(e,item) {
+            console.log('my-gridster-item-transition-end');
+
+            for(var i=0;i<$scope.dashboard.widgets.length;i++){
+                $timeout(resizeWidget(i), 100);
+            }
+            function resizeWidget(i) {
+                return function() {
+                    if(typeof $scope.dashboard.datas[i].chart != 'undefined'){
+                        //var chartCount = $scope.dashboard.widgets[i].chart.length;
+                        //var graphCountInCharts = [];
+                        for(j=0;j<$scope.dashboard.datas[i].chart.length;j++){
+                            //graphCountInCharts[j] = $scope.dashboard.widgets[i].chart[j].length;
+                            if ($scope.dashboard.datas[i].chart[j].api){
+                                $scope.dashboard.datas[i].chart[j].api.update();
+                            }
 /*
-        //subscribe widget on window resize event and sidebar resize event
-        new ResizeSensor(document.getElementById('dashboardLayout'), function() {
-            $scope.$broadcast('resize');
-        });
+                            var summaryDiv = document.getElementById($scope.dashboard.widgets[i].id+'_summaryDataDiv_'+j);
+                            var graphDiv = document.getElementById($scope.dashboard.widgets[i].id+'_graphDataDiv_'+j);
+                            var boxDiv = document.getElementById($scope.dashboard.widgets[i].id);
+                            console.log('Widget:',$scope.dashboard.widgets[i].name,' Box:',boxDiv.scrollHeight,boxDiv.offsetHeight,boxDiv.clientHeight);
+                            console.log('Summary:',summaryDiv.scrollHeight,summaryDiv.offsetHeight,summaryDiv.clientHeight);
+                            console.log('Graph:',graphDiv.scrollHeight,graphDiv.offsetHeight,graphDiv.clientHeight);
+                            console.log('Chart count:',chartCount);
 */
+/*
+                            console.log('displaying div',summaryDiv, 'Box dimension',boxDiv.clientHeight,boxDiv.clientWidth,boxDiv.scrollHeight,boxDiv.scrollWidth);
+                            console.log('Displaying heights',summaryDiv.getBoundingClientRect(),summaryDiv.scrollHeight,summaryDiv.clientHeight,summaryDiv.offsetHeight,summaryDiv.scrollWidth,summaryDiv.clientWidth);
+                            if(summaryDiv.scrollHeight>summaryDiv.clientHeight || summaryDiv.scrollWidth>summaryDiv.clientWidth){
+                                graphDiv.style.visibility = 'hidden';
+                                console.log('Hiding the graph');
+                            } else {
+                                graphDiv.style.visibility='visible';
+                                console.log('Showing the graph');
+                            }
+                            detectCollision(summaryDivId,graphDivId);
+                            console.log('scroll height',document.getElementById(summaryDivId).scrollHeight);
+                            console.log('client height',document.getElementById(summaryDivId).clientHeight);
+                            if(document.getElementById(summaryDivId).scrollHeight > document.getElementById(summaryDivId).clientHeight || document.getElementById(summaryDivId).scrollWidth > document.getElementById(summaryDivId).clientWidth){
+                                document.getElementById(graphDivId).style.visibility='hidden'
+                            } else {
+                                document.getElementById(graphDivId).style.visibility='visible'
+                            }
+                            collision($scope.dashboard.widgets[i].name,$('#'+summaryDivId),$('#'+graphDivId));
+*/
+                        }
+                    }
+                };
+            }
+
+/*
+            function detectCollision(summaryDivName,graphDivName){
+                var summaryDiv = document.getElementById(summaryDivName);
+                var graphDiv = document.getElementById(graphDivName);
+
+                var x1 = summaryDiv.offsetLeft;
+                var y1 = summaryDiv.offsetTop;
+                var h1 = summaryDiv.scrollHeight;
+                var w1 = summaryDiv.scrollWidth;
+                var x2 = graphDiv.offsetLeft;
+                var y2 = graphDiv.offsetTop;
+                var h2 = graphDiv.offsetHeight;
+                var w2 = graphDiv.offsetWidth;
+                var b1 = y1 + h1;
+                var r1 = x1 + w1;
+                var b2 = y2 + h2;
+                var r2 = x2 + w2;
+                if (b1 < y2 || y1 > b2 || r1 < x2 || x1 > r2) {
+                    console.log(false, summaryDiv, graphDiv);
+                    graphDiv.style.visibility = 'visible';
+                }
+                else {
+                    console.log(true, summaryDiv, graphDiv);
+                    graphDiv.style.visibility = 'hidden';
+                }
+            }
+            function collision(name,$div1, $div2) {
+                var x1 = $div1.offset().left;
+                var y1 = $div1.offset().top;
+                var h1 = $div1.outerHeight(true);
+                var w1 = $div1.outerWidth(true);
+                var b1 = y1 + h1;
+                var r1 = x1 + w1;
+                var x2 = $div2.offset().left;
+                var y2 = $div2.offset().top;
+                var h2 = $div2.outerHeight(true);
+                var w2 = $div2.outerWidth(true);
+                var b2 = y2 + h2;
+                var r2 = x2 + w2;
+
+                console.log(name);
+                console.log(x1,y1,h1,w1,x2,y2,h2,w2,b1,r1,b2,r2);
+                if (b1 < y2 || y1 > b2 || r1 < x2 || x1 > r2)
+                    console.log(false, $div1, $div2);
+                else
+                    console.log(true, $div1, $div2);
+            }
+*/
+        });
 
         angular.element($window).on('resize', function (e) {
             $scope.$broadcast('resize');
@@ -180,17 +304,27 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             }
             function resizeWidget(i) {
                 return function() {
-                    if(typeof $scope.dashboard.widgets[i].chart != 'undefined'){
-                        for(j=0;j<$scope.dashboard.widgets[i].chart.length;j++){
-                            if ($scope.dashboard.widgets[i].chart[j].api){
-                                console.log('out there')
-                                $scope.dashboard.widgets[i].chart[j].api.update();
+                    if(typeof $scope.dashboard.datas[i].chart != 'undefined'){
+                        for(j=0;j<$scope.dashboard.datas[i].chart.length;j++){
+                            if ($scope.dashboard.datas[i].chart[j].api){
+                                $scope.dashboard.datas[i].chart[j].api.update();
                             }
                         }
                     }
                 };
             }
         });
+
+        $scope.calculateColumnWidth = function(x) {
+            var y = Math.round(12/x);
+            if(y<6) {
+                //return ('col-lg-'+6);
+                return ('col-sm-'+6+' col-md-'+6+' col-lg-'+6);
+            } else {
+                //return ('col-lg-'+y);
+                return ('col-sm-'+y+' col-md-'+y+' col-lg-'+y);
+            }
+        }
 
         //make chart visible after grid have been created
         $scope.config = {visible: false};
@@ -216,6 +350,8 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
                 //To temporarily create an empty widget with same id as the widgetId till all the data required for the widget is fetched by the called service
                 $scope.dashboard.widgets.push({
+                    'row': (typeof dashboardWidgetList[getWidgetInfo].row != 'undefined'? dashboardWidgetList[getWidgetInfo].row : 0),
+                    'col': (typeof dashboardWidgetList[getWidgetInfo].col != 'undefined'? dashboardWidgetList[getWidgetInfo].col : 0),
                     'sizeY': (typeof dashboardWidgetList[getWidgetInfo].size != 'undefined'? dashboardWidgetList[getWidgetInfo].size.h : 2),
                     'sizeX': (typeof dashboardWidgetList[getWidgetInfo].size != 'undefined'? dashboardWidgetList[getWidgetInfo].size.w : 2),
                     'minSizeY': (typeof dashboardWidgetList[getWidgetInfo].minSize != 'undefined'? dashboardWidgetList[getWidgetInfo].minSize.h : 1),
@@ -224,10 +360,15 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     'maxSizeX': (typeof dashboardWidgetList[getWidgetInfo].maxSize != 'undefined'? dashboardWidgetList[getWidgetInfo].maxSize.w : 3),
                     'name': (typeof dashboardWidgetList[getWidgetInfo].name != 'undefined'? dashboardWidgetList[getWidgetInfo].name : ''),
                     'id': dashboardWidgetList[getWidgetInfo]._id,
-                    'chart': {
-                        'api': {}
-                    },
+                    //'chart': {'api': {}},
                     'visibility': false
+                });
+
+                $scope.dashboard.datas.push({
+                    'id':  dashboardWidgetList[getWidgetInfo]._id,
+                    'chart': [],
+                    'visibility': false,
+                    'name': (typeof dashboardWidgetList[getWidgetInfo].name != 'undefined'? dashboardWidgetList[getWidgetInfo].name : '')
                 });
 
                 //Fetching the promise that contains all the data for the particular widget in the dashboard
@@ -238,7 +379,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                         var widgetToBeLoaded = createWidgets.replacePlaceHolderWidget(widget,finalChartData);
                         widgetToBeLoaded.then(
                             function successCallback(widgetToBeLoaded){
-                                $scope.dashboard.widgets[widgetIndex] = widgetToBeLoaded;
+                                $scope.dashboard.datas[widgetIndex] = widgetToBeLoaded;
                         },
                             function errorCallback(error){
                             console.log(error);
@@ -269,6 +410,8 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
         //To temporarily create an empty widget with same id as the widgetId till all the data required for the widget is fetched by the called service
         $scope.dashboard.widgets.push({
+            'row': (typeof widget.row != 'undefined'? widget.row : 0),
+            'col': (typeof widget.col != 'undefined'? widget.col : 0),
             'sizeY': (typeof widget.size != 'undefined'? widget.size.h : 2),
             'sizeX': (typeof widget.size != 'undefined'? widget.size.w : 2),
             'minSizeY': (typeof widget.minSize != 'undefined'? widget.minSize.h : 1),
@@ -276,12 +419,17 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             'maxSizeY': (typeof widget.maxSize != 'undefined'? widget.maxSize.h : 3),
             'maxSizeX': (typeof widget.maxSize != 'undefined'? widget.maxSize.w : 3),
             'name': (typeof widget.name != 'undefined'? widget.name : ''),
-            id: widget._id,
-            chart: {
-                api: {}
-            },
-            visibility: false
+            'id': widget._id,
+            //'chart': {'api': {}},
+            'visibility': false
         });
+        $scope.dashboard.datas.push({
+            'id':  widget._id,
+            'chart': [],
+            'visibility': false,
+            'name': (typeof widget.name != 'undefined'? widget.name : '')
+        });
+
 
         //Fetching the promise that contains all the data for all the widgets in the dashboard
         $q.all(inputWidget).then(
@@ -291,7 +439,8 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 var widgetToBeLoaded = createWidgets.replacePlaceHolderWidget(inputWidget[0],finalChartData);
                 widgetToBeLoaded.then(
                     function successCallback(widgetToBeLoaded){
-                        $scope.dashboard.widgets[widgetIndex] = widgetToBeLoaded;
+                        //$scope.dashboard.widgets[widgetIndex] = widgetToBeLoaded;
+                        $scope.dashboard.datas[widgetIndex] = widgetToBeLoaded;
                     },
                     function errorCallback(error) {
                         console.log(error);
@@ -377,5 +526,19 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         });
 
     };
+
+    //To delete the dashboard
+    $scope.deleteDashboard = function(){
+        $http({
+            method:'POST', url:'/api/v1/delete/userDashboards/' + $state.params.id
+        }).then(function successCallback(response){
+            console.log('dashboardDeleted',response);
+            $state.go('app.reporting.dashboards');
+        },function errorCallback(error){
+            swal({  title: "", text: "<span style='sweetAlertFont'>Unable to delete dashboard.Please try again</span> .",   html: true });
+            console.log('Error in deleting the widget',error);
+        });
+
+    }
 
 }

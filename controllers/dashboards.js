@@ -22,4 +22,9 @@ module.exports = function (app) {
         res.json(result);
 
     });
+
+    //To delete the dashboard
+    app.post('/api/v1/delete/userDashboards/:dashboardId', getDashboards.removeDashboardFromUser, function (req, res) {
+        res.json(req.app.result);
+    });
 };

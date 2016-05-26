@@ -3,7 +3,9 @@ var dashboardList = require('../models/dashboards');
 var exports = module.exports = {};
 var dashboards = require('../models/profiles');
 var User = require('../models/user');
-
+var Widget = require('../models/widgets');
+var userPermission = require('../helpers/utility');
+var Q = require("q");
 /**
  Function to get the profiles's details such as name,access token,refresh token..
  @params 1.req contains the app user details i.e. username,email,orgId etc
@@ -17,18 +19,40 @@ exports.getDashboardList = function (req, res, next) {
         return res.status(401).json({error: 'Authentication required to perform this action'})
     }
     else {
-        dashboardList.find({orgId: req.user.orgId}, function (err, dashboard) {
-            if (err)
-                return res.status(500).json({error: 'Internal server error'});
-            else if (dashboard.length == 0)
-                return res.status(204).json({error: 'No records found'});
-            else {
-                req.app.result = dashboard;
-                next();
+        var userDashboard=[];
+        User.findOne({_id: req.user._id}, function (err, UserCollection) {
+            console.log('userCollect', UserCollection.dashboards,UserCollection.dashboards.length);
+            for (var i = 0; i < UserCollection.dashboards.length; i++) {
+                userDashboard.push(getDashboard(UserCollection.dashboards[i].dashboardId));
             }
-        })
-    }
+            Q.all(userDashboard).then(function successCallback(userDashboard){
+                if(!userDashboard){return res.status(501).json({error: 'Not implemented'})}
+                else {
+                    //console.log('getDashboardData',userDashboard)
+                    req.app.result = userDashboard;
+                    next();
+                }
+            }, function errorCallback(err){
+                return res.status(500).json({error: 'Internal server error'});
+            });
 
+
+        })
+        function getDashboard(UserCollection){
+            var deferred = Q.defer();
+            dashboardList.findOne({_id:UserCollection}, function (err, dashboard) {
+                //console.log('dashboardCollect', dashboard);
+                if(err){
+                    deferred.reject(new Error(err));
+                }                
+                else {
+                    deferred.resolve(dashboard);
+                }
+            })
+            return deferred.promise;
+        }
+
+    }
 };
 
 /**
@@ -151,4 +175,85 @@ exports.storeDashboards = function (req, res, next) {
             });
         }
     }
+
+};
+exports.removeDashboardFromUser = function (req, res, next) {
+    req.dashboardId= req.params.dashboardId;
+    var tempDashboardId=[];
+    if (req.user) {
+        userPermission.checkUserAccess(req, res, function (err, response) {
+            if (err)
+                return res.status(500).json({error: 'Internal server error'});
+            else {
+                //console.log('indideOfElse');
+                for (var i = 0; i < response.dashboards.length; i++) {
+                    if (response.dashboards[i].dashboardId != req.params.dashboardId) {
+                        tempDashboardId.push(response.dashboards[i]);
+                    }
+                }
+                console.log('tempDashboardId',tempDashboardId);
+                if (response.lastDashboardId === req.params.dashboardId) {
+                    console.log('hiiiiii');
+                    if (tempDashboardId.length===0) {
+                        User.update({'_id': req.user._id}, {
+                            $set: {
+                                'lastDashboardId': '',
+                                'dashboards': tempDashboardId
+                            }
+                        }, function (err, updateDashboard) {
+                            //console.log('updateDashboard',updateDashboard);
+                            if (!err)
+                                removeWidget();
+                            removeDashboard();
+                        })
+                    }
+                    else{
+                        User.update({'_id': req.user._id}, {
+                            $set: {
+                                'lastDashboardId': tempDashboardId[0].dashboardId,
+                                'dashboards': tempDashboardId
+                            }
+                        }, function (err, updateDashboard) {
+                            //console.log('updateDashboard',updateDashboard);
+                            if (!err)
+                                removeWidget();
+                            removeDashboard();
+                        })
+                }
+                }
+                else {
+                    console.log('helloooooo');
+                    User.update({'_id': req.user._id}, {$set: {'dashboards': tempDashboardId}}, function (err, updateDashboard) {
+                        //console.log('updateDashboard',updateDashboard);
+                        if (!err)
+                            removeWidget();
+                        removeDashboard();
+
+                    })
+                }
+            }
+
+        })
+        function removeWidget(){
+            Widget.remove({'dashboardId':req.params.dashboardId},function(err,widget){
+                //console.log('widget',widget);
+            })
+        }
+        function removeDashboard(){
+            dashboardList.remove({'_id':req.params.dashboardId},function(err,dashboard){
+                //console.log('widget',dashboard);
+                if (err)
+                    return res.status(500).json({error: 'Internal server error'});
+                else if (dashboard!=1)
+                    return res.status(501).json({error: 'Not implemented'});
+                else {
+                    req.app.result = req.params.dashboardId;
+                    next();
+                }
+            })
+        }
+
+    }
+
+
 };

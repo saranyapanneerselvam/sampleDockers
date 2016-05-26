@@ -62,7 +62,8 @@
     "gulp-sass": "*",
     "gulp-uglify": "*",
     "nodemailer": "^2.3.2",
-    "html5-to-pdf":"*"
+    "html5-to-pdf":"*",
+    "q": "*"
   },
   "devDependencies": {
     "adwords-auth": "0.0.10",

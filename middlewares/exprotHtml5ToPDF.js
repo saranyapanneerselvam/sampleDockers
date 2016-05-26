@@ -12,7 +12,7 @@ exports.createHtml5ToPdf = function (req, res, next) {
         next();
     }
     else{
-        html5pdf().from.string(html).to(outputPath, function () {
+        html5pdf({paperFormat:'Legal'}).from.string(html).to(outputPath, function () {
             req.app.result = {'status': '200', 'Response': 'PDF created successfully'};
             next();
         })

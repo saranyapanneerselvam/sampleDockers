@@ -32,14 +32,8 @@ require('./helpers/passport')(passport); // pass passport for configuration
 // set up our express application
 app.use(morgan('dev')); // log every request to the console
 app.use(cookieParser()); // read cookies (needed for auth)
-app.use(bodyParser()); // get information from html forms
-
-app.use(bodyParser.json({limit: '50mb'}) );
-app.use(bodyParser.urlencoded({
-    limit: '50mb',
-    extended: true,
-    parameterLimit:50000
-}));
+app.use(bodyParser({limit: "50mb"})); // get information from html forms
+ 
 app.set('view engine', 'ejs'); // set up ejs for templating
 app.set('views', path.join(__dirname, 'views/'));
 // required for passport

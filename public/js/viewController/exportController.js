@@ -5,13 +5,19 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
     $scope.submitExport = function(){
         var setJPEGOption = $("#exportOptionJpeg").prop("checked");
         var setPDFOption = $("#exportOptionPDF").prop("checked");
+        document.getElementById('dashboardTitleIcons').style.visibility = "hidden";
+
+
         var dashboardLayout = document.getElementById('dashboardLayout');
+        console.log(dashboardLayout);
+
         if(setJPEGOption==true){
             swal("Please wait while the JPEG file is being downloading.", "", "success");
             console.log("to export JPEG");
-            domtoimage.toBlob(document.getElementById('dashboardLayout'))
+            domtoimage.toBlob(dashboardLayout)
                 .then(function (blob) {
                     window.saveAs(blob, 'dashboardWidgets.jpeg');
+                    document.getElementById('dashboardTitleIcons').style.visibility = "visible";
                 });
         }
 
@@ -21,14 +27,15 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
                 domtoimage.toPng(dashboardLayout)
                     .then(function (dataUrl) {
                         var jsonData = {
-                            "dashboardLayout": dataUrl
+                            "dashboardLayout": dataUrl,
+                            "dashboardId": $state.params.id
                         };
                         console.log('json data', jsonData);
                         $http({
                             method: 'POST', url: '/api/v1/createHtml5ToPdf/dashboard', data: jsonData
                         }).then(function successCallback(response){
                             console.log(response);
-
+                            document.getElementById('dashboardTitleIcons').style.visibility = "visible";
                         }, function errorCallback (error){
                             console.log('Error in creating PDF dashboard widgets',error);
 

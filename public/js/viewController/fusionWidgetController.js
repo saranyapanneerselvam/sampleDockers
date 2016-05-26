@@ -281,13 +281,15 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope) 
 
     $scope.createAndFetchBasicWidget = function () {
         var colourChart = ['#EF5350', '#EC407A', '#9C27B0', '#42A5F5', '#26A69A', '#FFCA28', '#FF7043', '#8D6E63'];
-        var tempChartColour;
+        var colourRepeatChecker = [];
+        var chartCount = $scope.storedReferenceWidget.charts.length;
+        colourFetcher(chartCount);
         var matchingMetric = [];
+
         for (var i = 0; i < $scope.storedReferenceCharts.length; i++) {
             for (var j = 0; j < $scope.storedUserChosenValues.length; j++) {
                 if ($scope.storedReferenceCharts[i].channelId === $scope.storedUserChosenValues[j].profile.channelId) {
                     matchingMetric = [];
-                    tempChartColour = colourChart[Math.ceil(Math.random() * (colourChart.length - 1))];
                     for (var k = 0; k < $scope.storedReferenceCharts[i].metrics.length; k++) {
                         if ($scope.storedReferenceCharts[i].metrics[k].objectTypeId === $scope.storedUserChosenValues[j].object.objectTypeId) {
                             matchingMetric.push($scope.storedReferenceCharts[i].metrics[k]);
@@ -298,9 +300,8 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope) 
                 }
             }
             $scope.storedReferenceWidget.charts[i].metrics = matchingMetric;
-            $scope.storedReferenceWidget.charts[i].colour = tempChartColour;
+            $scope.storedReferenceWidget.charts[i].colour = colourRepeatChecker[i];
         }
-        console.log('storedReferenceCharts', $scope.storedReferenceWidget);
         var jsonData = {
             "dashboardId": $state.params.id,
             "widgetType": $scope.widgetType,
@@ -313,13 +314,11 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope) 
             "minSize": $scope.storedReferenceWidget.minSize,
             "maxSize": $scope.storedReferenceWidget.maxSize
         };
-        console.log('json data', jsonData);
         $http({
             method: 'POST',
             url: '/api/v1/widgets',
             data: jsonData
         }).then(function successCallback(response) {
-            console.log('Response after creating widget', response);
             $rootScope.$broadcast('populateWidget', response.data.widgetsList);
         }, function errorCallback(error) {
             console.log('Error in getting widget id', error);
@@ -329,6 +328,21 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope) 
                 html: true
             });
         });
+
+        function colourFetcher(iterator) {
+            var randomColour;
+
+            while(colourRepeatChecker.length<iterator) {
+                randomColour = colourChart[Math.floor(Math.random() * (colourChart.length - 1))+1];
+                if(colourRepeatChecker.indexOf(randomColour) == -1) {
+                    colourRepeatChecker.push(randomColour);
+                } else if(colourRepeatChecker.length>colourChart.length){
+                    if(colourRepeatChecker.indexOf(randomColour,(colourChart.length-1)) == -1)
+                        colourRepeatChecker.push(randomColour);
+                }
+            }
+        }
+
     };
 }
 

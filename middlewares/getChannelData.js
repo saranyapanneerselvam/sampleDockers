@@ -129,7 +129,6 @@ exports.getChannelData = function (req, res, next) {
         });
     }
 
-
     //Function to handle all queries result here
     function checkNullObject(callback) {
         return function (err, object) {
@@ -171,7 +170,6 @@ exports.getChannelData = function (req, res, next) {
         });
     }
 
-
     //Function to get the data in metric collection
     function getMetric(results, callback) {
         async.concatSeries(results.widget.charts, findEachMetrics, callback);
@@ -185,7 +183,6 @@ exports.getChannelData = function (req, res, next) {
             objectTypes: {$elemMatch: {objectTypeId: results.metrics[0].objectTypeId}}
         }, checkNullObject(callback))
     }
-
 
     //Function to get the data in widget collection
     function getWidget(callback) {
@@ -1062,7 +1059,6 @@ exports.getChannelData = function (req, res, next) {
         }
     }
 
-
     //set oauth credentials and get object type details
     function initializeGa(results, callback) {
         console.log('results', results);
@@ -1430,7 +1426,7 @@ exports.getChannelData = function (req, res, next) {
                     if (apiResult.error) {
                         if (apiResult.error.code === 190)
                             return res.status(401).json({error: 'Authentication required to perform this action'})
-                        else if (err.code === 4)
+                        else if (apiResult.error.code === 4)
                             return res.status(4).json({error: 'Forbidden Error'})
                         else
                             return res.status(500).json({error: 'Internal server error'})

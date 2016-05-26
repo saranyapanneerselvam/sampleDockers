@@ -219,7 +219,7 @@ console.log('$scope.tokenExpired',$scope.tokenExpired);
 
     $scope.createAndFetchBasicWidget = function () {
         var colourChart = ['#EF5350', '#EC407A', '#9C27B0', '#42A5F5', '#26A69A', '#FFCA28', '#FF7043', '#8D6E63'];
-        var tempChartColour;
+        var colourRepeatChecker = [];
 
         if (getChannelName == "CustomData") {
             getCustomWidgetObj = {
@@ -232,12 +232,11 @@ console.log('$scope.tokenExpired',$scope.tokenExpired);
         else {
             // function for saving other widgets goes here
             var matchingMetric = [];
-            var storedColours = [];
+            var chartCount = $scope.storedReferenceWidget.charts.length;
+            colourFetcher(chartCount);
+
             for (var i = 0; i < $scope.storedReferenceWidget.charts.length; i++) {
                 matchingMetric = [];
-                //storedColours = generateChartColours.getRandomColour($scope.storedReferenceWidget.charts.length);
-                //console.log('Stored colours',storedColours);
-                tempChartColour = colourChart[Math.ceil(Math.random() * (colourChart.length - 1))];
                 for (var j = 0; j < $scope.storedReferenceWidget.charts[i].metrics.length; j++) {
                     if ($scope.storedReferenceWidget.charts[i].metrics[j].objectTypeId === $scope.storedObject.objectTypeId) {
                         matchingMetric.push($scope.storedReferenceWidget.charts[i].metrics[j]);
@@ -245,7 +244,7 @@ console.log('$scope.tokenExpired',$scope.tokenExpired);
                     }
                 }
                 $scope.storedReferenceWidget.charts[i].metrics = matchingMetric;
-                $scope.storedReferenceWidget.charts[i].colour = tempChartColour;
+                $scope.storedReferenceWidget.charts[i].colour = colourRepeatChecker[i];
                 $scope.storedReferenceWidget.charts[i].objectName = $scope.storedObject.name;
                 console.log($scope.storedReferenceWidget.charts[i]);
             }
@@ -261,13 +260,11 @@ console.log('$scope.tokenExpired',$scope.tokenExpired);
                 "minSize": $scope.storedReferenceWidget.minSize,
                 "maxSize": $scope.storedReferenceWidget.maxSize
             };
-            console.log('json data', jsonData);
             $http({
                 method: 'POST',
                 url: '/api/v1/widgets',
                 data: jsonData
             }).then(function successCallback(response) {
-                console.log('Response after creating widget', response);
                 $rootScope.$broadcast('populateWidget', response.data.widgetsList);
             }, function errorCallback(error) {
                 console.log('Error in getting widget id', error);
@@ -277,6 +274,20 @@ console.log('$scope.tokenExpired',$scope.tokenExpired);
                     html: true
                 });
             });
+        }
+        
+        function colourFetcher(iterator) {
+            var randomColour;
+
+            while(colourRepeatChecker.length<iterator) {
+                randomColour = colourChart[Math.floor(Math.random() * (colourChart.length - 1))+1];
+                if(colourRepeatChecker.indexOf(randomColour) == -1) {
+                    colourRepeatChecker.push(randomColour);
+                } else if(colourRepeatChecker.length>colourChart.length){
+                    if(colourRepeatChecker.indexOf(randomColour,(colourChart.length-1)) == -1)
+                        colourRepeatChecker.push(randomColour);
+                }
+            }
         }
     };
 

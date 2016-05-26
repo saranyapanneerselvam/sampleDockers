@@ -118,6 +118,7 @@ exports.saveWidgets = function (req, res, next) {
                     createWidget.size = req.body.size;
                     createWidget.minSize = req.body.minSize;
                     createWidget.maxSize = req.body.maxSize;
+                    createWidget.color = req.body.color;
                     createWidget.created = new Date();
                     createWidget.updated = new Date();
                     console.log('created', createWidget.created);

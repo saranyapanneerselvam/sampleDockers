@@ -363,12 +363,12 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     //'chart': {'api': {}},
                     'visibility': false
                 });
-
                 $scope.dashboard.datas.push({
                     'id':  dashboardWidgetList[getWidgetInfo]._id,
                     'chart': [],
                     'visibility': false,
-                    'name': (typeof dashboardWidgetList[getWidgetInfo].name != 'undefined'? dashboardWidgetList[getWidgetInfo].name : '')
+                    'name': (typeof dashboardWidgetList[getWidgetInfo].name != 'undefined'? dashboardWidgetList[getWidgetInfo].name : ''),
+                    'color': (typeof dashboardWidgetList[getWidgetInfo].color != 'undefined'? dashboardWidgetList[getWidgetInfo].color : '')
                 });
 
                 //Fetching the promise that contains all the data for the particular widget in the dashboard
@@ -380,6 +380,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                         widgetToBeLoaded.then(
                             function successCallback(widgetToBeLoaded){
                                 $scope.dashboard.datas[widgetIndex] = widgetToBeLoaded;
+                                console.log('datas:',$scope.dashboard.datas[widgetIndex]);
                         },
                             function errorCallback(error){
                             console.log(error);
@@ -427,9 +428,10 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             'id':  widget._id,
             'chart': [],
             'visibility': false,
-            'name': (typeof widget.name != 'undefined'? widget.name : '')
+            'name': (typeof widget.name != 'undefined'? widget.name : ''),
+            'color': (typeof widget.color != 'undefined'? widget.color : '')
         });
-
+        console.log($scope.dashboard.datas);
 
         //Fetching the promise that contains all the data for all the widgets in the dashboard
         $q.all(inputWidget).then(
@@ -540,5 +542,4 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         });
 
     }
-
 }

@@ -218,8 +218,7 @@ console.log('$scope.tokenExpired',$scope.tokenExpired);
     };
 
     $scope.createAndFetchBasicWidget = function () {
-        var colourChart = ['#EF5350', '#EC407A', '#9C27B0', '#42A5F5', '#26A69A', '#FFCA28', '#FF7043', '#8D6E63'];
-        var colourRepeatChecker = [];
+        var chartColors = [];
 
         if (getChannelName == "CustomData") {
             getCustomWidgetObj = {
@@ -233,7 +232,8 @@ console.log('$scope.tokenExpired',$scope.tokenExpired);
             // function for saving other widgets goes here
             var matchingMetric = [];
             var chartCount = $scope.storedReferenceWidget.charts.length;
-            colourFetcher(chartCount);
+            var chartColors = generateChartColours.fetchRandomColors(chartCount);
+            var widgetColor = generateChartColours.fetchWidgetColor($scope.storedChannelName);
 
             for (var i = 0; i < $scope.storedReferenceWidget.charts.length; i++) {
                 matchingMetric = [];
@@ -244,7 +244,7 @@ console.log('$scope.tokenExpired',$scope.tokenExpired);
                     }
                 }
                 $scope.storedReferenceWidget.charts[i].metrics = matchingMetric;
-                $scope.storedReferenceWidget.charts[i].colour = colourRepeatChecker[i];
+                $scope.storedReferenceWidget.charts[i].colour = chartColors[i];
                 $scope.storedReferenceWidget.charts[i].objectName = $scope.storedObject.name;
                 console.log($scope.storedReferenceWidget.charts[i]);
             }
@@ -258,7 +258,8 @@ console.log('$scope.tokenExpired',$scope.tokenExpired);
                 "offset": $scope.storedReferenceWidget.offset,
                 "size": $scope.storedReferenceWidget.size,
                 "minSize": $scope.storedReferenceWidget.minSize,
-                "maxSize": $scope.storedReferenceWidget.maxSize
+                "maxSize": $scope.storedReferenceWidget.maxSize,
+                "color": widgetColor
             };
             $http({
                 method: 'POST',
@@ -274,20 +275,6 @@ console.log('$scope.tokenExpired',$scope.tokenExpired);
                     html: true
                 });
             });
-        }
-        
-        function colourFetcher(iterator) {
-            var randomColour;
-
-            while(colourRepeatChecker.length<iterator) {
-                randomColour = colourChart[Math.floor(Math.random() * (colourChart.length - 1))+1];
-                if(colourRepeatChecker.indexOf(randomColour) == -1) {
-                    colourRepeatChecker.push(randomColour);
-                } else if(colourRepeatChecker.length>colourChart.length){
-                    if(colourRepeatChecker.indexOf(randomColour,(colourChart.length-1)) == -1)
-                        colourRepeatChecker.push(randomColour);
-                }
-            }
         }
     };
 

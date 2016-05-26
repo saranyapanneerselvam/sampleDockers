@@ -17,6 +17,7 @@ var widgetsSchema = mongoose.Schema({
     referenceWidgetId:String,
     widgetType: String,
     charts: Array,
+    color: String,
     created: Date,
     updated: Date,
     deleted: Date

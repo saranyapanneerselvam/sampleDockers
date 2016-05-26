@@ -1,6 +1,6 @@
 showMetricApp.controller('FusionWidgetController', FusionWidgetController)
 
-function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope) {
+function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, generateChartColours) {
     $scope.currentView = 'step_one';
     $scope.objectList = [];
     $scope.metricList = {};
@@ -280,10 +280,9 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope) 
     };
 
     $scope.createAndFetchBasicWidget = function () {
-        var colourChart = ['#EF5350', '#EC407A', '#9C27B0', '#42A5F5', '#26A69A', '#FFCA28', '#FF7043', '#8D6E63'];
         var colourRepeatChecker = [];
         var chartCount = $scope.storedReferenceWidget.charts.length;
-        colourFetcher(chartCount);
+        colourRepeatChecker = generateChartColours.fetchRandomColors(chartCount);
         var matchingMetric = [];
 
         for (var i = 0; i < $scope.storedReferenceCharts.length; i++) {
@@ -328,21 +327,6 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope) 
                 html: true
             });
         });
-
-        function colourFetcher(iterator) {
-            var randomColour;
-
-            while(colourRepeatChecker.length<iterator) {
-                randomColour = colourChart[Math.floor(Math.random() * (colourChart.length - 1))+1];
-                if(colourRepeatChecker.indexOf(randomColour) == -1) {
-                    colourRepeatChecker.push(randomColour);
-                } else if(colourRepeatChecker.length>colourChart.length){
-                    if(colourRepeatChecker.indexOf(randomColour,(colourChart.length-1)) == -1)
-                        colourRepeatChecker.push(randomColour);
-                }
-            }
-        }
-
     };
 }
 

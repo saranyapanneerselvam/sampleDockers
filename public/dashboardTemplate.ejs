@@ -78,11 +78,10 @@
             <ul >
                 <li gridster-item="widget" ng-repeat="(widgetIndex,widget) in dashboard.widgets">
                     <div class="box" ng-controller="CustomWidgetController" id="{{widget.id}}">
-                        <div class="box-header">
+                        <div class="box-header" ng-style="{'background-color': dashboard.datas[widgetIndex].color}">
                             <h3>{{dashboard.datas[widgetIndex].name}}</h3>
                             <div class="graph-icon">
-                            <a title="settings" ng-click="openSettings(widget)"><i class="fa fa-cog"></i></a>
-                           <!--<a title="Remove widget" ng-click="remove(widget);deleteWidget(widget)"><i class="fa fa-minus-square"></i></a>-->
+                                <a title="settings" ng-click="openSettings(widget)"><i class="fa fa-cog"></i></a>
                             </div>
                         </div>
                         <div class="box-content" style="vertical-align: middle">
@@ -106,14 +105,13 @@
                                      style="float: left;padding-left: 2px;padding-right: 2px;"
                                      ng-style="{'height': (100/dashboard.datas[widgetIndex].layoutOptionsY)+'%', 'width': (100/dashboard.datas[widgetIndex].layoutOptionsX)+'%'}">
                                     <div class="row" style="margin: 0px;height: 25%">
-
                                         <ul>
                                             <!--<li ng-class="'col-sm-'+(calculateColumnWidth(chart.data.length))+' col-md-'+(calculateColumnWidth(chart.data.length))+' col-lg-'+(calculateColumnWidth(chart.data.length))" style="text-align: center;padding-top: 1%;padding-left:0px;padding-right: 2px;font-size: 14px;min-height: 100%" ng-repeat="data in chart.data">-->
                                             <li ng-class="calculateColumnWidth(chart.data.length)"
                                                 style="text-align: center;padding-top: 1%;padding-left:0px;padding-right: 2px;font-size: 14px;min-height: 100%"
                                                 ng-repeat="data in chart.data">
                                                 <div ng-style="{'background-color': data.color}"
-                                                     style="margin: 0px;min-height: inherit;overflow: hidden;white-space: nowrap">
+                                                     style="margin: 0px;min-height: inherit;overflow: hidden;white-space: nowrap;color: #ffffff">
                                                     {{data.key}}: {{data.summaryDisplay}}
                                                 </div>
                                             </li>

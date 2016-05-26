@@ -695,7 +695,7 @@ showMetricApp.service('createWidgets',function($http,$q){
             {W:6,H:3,N:7,r:2,c:4},
             {W:6,H:3,N:8,r:2,c:4}
         ];
-
+        
 /*
         for(i=0;i<finalChartData.length;i++){
             displayData[i] = [];
@@ -754,6 +754,7 @@ showMetricApp.service('createWidgets',function($http,$q){
             'name': chartName,
             'visibility': true,
             'id': widget._id,
+            'color': widget.color,
             'chart': finalChartData,
             //'display': displayData,
             'layoutOptionsX': individualGraphWidthDivider,
@@ -768,6 +769,58 @@ showMetricApp.service('createWidgets',function($http,$q){
 
 
 showMetricApp.service('generateChartColours',function(){
+
+    //To fetch colours for all the charts in a widget
+    this.fetchRandomColors = function (iterator) {
+        var colourChart = ['#EF5350', '#EC407A', '#9C27B0', '#42A5F5', '#26A69A', '#FFCA28', '#FF7043', '#8D6E63'];
+        var colourRepeatChecker = [];
+
+        var randomColour;
+
+        while(colourRepeatChecker.length<iterator) {
+            randomColour = colourChart[Math.floor(Math.random() * (colourChart.length - 1))+1];
+            if(colourRepeatChecker.indexOf(randomColour) == -1) {
+                colourRepeatChecker.push(randomColour);
+            } else if(colourRepeatChecker.length>colourChart.length){
+                if(colourRepeatChecker.indexOf(randomColour,(colourChart.length-1)) == -1)
+                    colourRepeatChecker.push(randomColour);
+            }
+        }
+        return colourRepeatChecker;
+    };
+
+    //To fetch colours for the widget header
+    this.fetchWidgetColor = function (channelName) {
+        var colourChart = ['#EF5350','#EC407A','#9C27B0','#42A5F5','#26A69A','#FFCA28','#FF7043','#8D6E63'];
+        var widgetColor;
+        switch (channelName){
+            case 'Facebook':
+                widgetColor = '#EF5350';
+                break;
+            case 'Google Analytics':
+                widgetColor = '#EC407A';
+                break;
+            case 'Twitter':
+                widgetColor = '#9C27B0';
+                break;
+            case 'FacebookAds':
+                widgetColor = '#42A5F5';
+                break;
+            case 'GoogleAdwords':
+                widgetColor = '#26A69A';
+                break;
+            case 'Instagram':
+                widgetColor = '#FFCA28';
+                break;
+            default:
+                widgetColor = '#FF7043';
+                break;
+        }
+
+        return widgetColor;
+    };
+
+
 
     //To provide a random colour to the generated chart
     this.getRandomColour = function(charts){

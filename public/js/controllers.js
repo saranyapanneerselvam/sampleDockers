@@ -819,23 +819,5 @@ showMetricApp.service('generateChartColours',function(){
 
         return widgetColor;
     };
-
-
-
-    //To provide a random colour to the generated chart
-    this.getRandomColour = function(charts){
-        var colourChart = ['#EF5350','#EC407A','#9C27B0','#42A5F5','#26A69A','#FFCA28','#FF7043','#8D6E63'];
-        var chartColours = [];
-        var tempChartColour;
-
-        for(i=0;i<charts.length;i++){
-            tempChartColour = colourChart[Math.ceil(Math.random()*(colourChart.length-1))];
-            chartColours.push({
-                colour: tempChartColour,
-                chartType: charts[i].chartType
-            });
-        }
-        return(chartColours);
-    };
 });
 

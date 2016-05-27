@@ -1539,7 +1539,7 @@ exports.getChannelData = function (req, res, next) {
                         startDate = newEndDate;
                         var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
                         if (calculateDate(data[j].data.updated) < currentDate) {
-                            var query = 'Date,' + initialResults.metric[0].objectTypes[0].meta.gAdsMetricName;
+                            var query = 'Date,' + metric[j].objectTypes[0].meta.gAdsMetricName;
                             allObjects = {
                                 profile: initialResults.get_profile[j],
                                 query: query,
@@ -1567,7 +1567,7 @@ exports.getChannelData = function (req, res, next) {
                         var endDate = formatDate(new Date());
                         var newEndDate = endDate.replace(/-/g, "");
                         var endDate = newEndDate;
-                        var query = 'Date,' + initialResults.metric[0].objectTypes[0].meta.gAdsMetricName;
+                        var query = 'Date,' + metric[j].objectTypes[0].meta.gAdsMetricName;
                         allObjects = {
                             profile: initialResults.get_profile[j],
                             query: query,
@@ -1589,12 +1589,9 @@ exports.getChannelData = function (req, res, next) {
 
         // This Function executed to get insights data like(impression,clicks)
         function fetchGoogleAdwordsData(allObjects, callback) {
-            var count = 0;
             var actualFinalApiData = {};
             async.concatSeries(allObjects.call_adword_data, checkDbData, callback);
             function checkDbData(result, callback) {
-                count++;
-
                 if (result == 'DataFromDb') {
                     actualFinalApiData = {
                         apiResponse: 'DataFromDb',

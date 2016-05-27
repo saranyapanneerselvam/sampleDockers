@@ -22,7 +22,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         //Defining configuration parameters for dashboard layout
         $scope.dashboard = {
             widgets: [],
-            datas: []
+            widgetData: []
         };
         $scope.dashboard.dashboardName = '';
         $scope.widgetsPresent = false;
@@ -98,9 +98,9 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 start: function (event, $element, widget) {}, // optional callback fired when resize is started
                 resize: function (event, $element, widget) {
                     var ind = $scope.dashboard.widgets.indexOf(widget);
-                    for(var i=0;i<$scope.dashboard.datas[ind].chart.length;i++){
-                        if ($scope.dashboard.datas[ind].chart[i].api){
-                            $scope.dashboard.datas[ind].chart[i].api.update()
+                    for(var i=0;i<$scope.dashboard.widgetData[ind].chart.length;i++){
+                        if ($scope.dashboard.widgetData[ind].chart[i].api){
+                            $scope.dashboard.widgetData[ind].chart[i].api.update()
                         }
                     }
                 }, // optional callback fired when item is resized,
@@ -108,9 +108,9 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     function updateCharts(widget){
                         return function(){
                             var ind = $scope.dashboard.widgets.indexOf(widget);
-                            for(var i=0;i<$scope.dashboard.datas[ind].chart.length;i++){
-                                if ($scope.dashboard.datas[ind].chart[i].api){
-                                    $scope.dashboard.datas[ind].chart[i].api.update()
+                            for(var i=0;i<$scope.dashboard.widgetData[ind].chart.length;i++){
+                                if ($scope.dashboard.widgetData[ind].chart[i].api){
+                                    $scope.dashboard.widgetData[ind].chart[i].api.update()
                                 }
                             }
                         }
@@ -128,10 +128,10 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             }
             function resizeWidget(i) {
                 return function() {
-                    if(typeof $scope.dashboard.datas[i].chart != 'undefined'){
-                        for(j=0;j<$scope.dashboard.datas[i].chart.length;j++){
-                            if ($scope.dashboard.datas[i].chart[j].api){
-                                $scope.dashboard.datas[i].chart[j].api.update();
+                    if(typeof $scope.dashboard.widgetData[i].chart != 'undefined'){
+                        for(j=0;j<$scope.dashboard.widgetData[i].chart.length;j++){
+                            if ($scope.dashboard.widgetData[i].chart[j].api){
+                                $scope.dashboard.widgetData[i].chart[j].api.update();
                             }
                         }
                     }
@@ -204,13 +204,13 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             }
             function resizeWidget(i) {
                 return function() {
-                    if(typeof $scope.dashboard.datas[i].chart != 'undefined'){
+                    if(typeof $scope.dashboard.widgetData[i].chart != 'undefined'){
                         //var chartCount = $scope.dashboard.widgets[i].chart.length;
                         //var graphCountInCharts = [];
-                        for(j=0;j<$scope.dashboard.datas[i].chart.length;j++){
+                        for(j=0;j<$scope.dashboard.widgetData[i].chart.length;j++){
                             //graphCountInCharts[j] = $scope.dashboard.widgets[i].chart[j].length;
-                            if ($scope.dashboard.datas[i].chart[j].api){
-                                $scope.dashboard.datas[i].chart[j].api.update();
+                            if ($scope.dashboard.widgetData[i].chart[j].api){
+                                $scope.dashboard.widgetData[i].chart[j].api.update();
                             }
 /*
                             var summaryDiv = document.getElementById($scope.dashboard.widgets[i].id+'_summaryDataDiv_'+j);
@@ -305,10 +305,10 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             }
             function resizeWidget(i) {
                 return function() {
-                    if(typeof $scope.dashboard.datas[i].chart != 'undefined'){
-                        for(j=0;j<$scope.dashboard.datas[i].chart.length;j++){
-                            if ($scope.dashboard.datas[i].chart[j].api){
-                                $scope.dashboard.datas[i].chart[j].api.update();
+                    if(typeof $scope.dashboard.widgetData[i].chart != 'undefined'){
+                        for(j=0;j<$scope.dashboard.widgetData[i].chart.length;j++){
+                            if ($scope.dashboard.widgetData[i].chart[j].api){
+                                $scope.dashboard.widgetData[i].chart[j].api.update();
                             }
                         }
                     }
@@ -369,7 +369,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     //'chart': {'api': {}},
                     'visibility': false
                 });
-                $scope.dashboard.datas.push({
+                $scope.dashboard.widgetData.push({
                     'id':  dashboardWidgetList[getWidgetInfo]._id,
                     'chart': [],
                     'visibility': false,
@@ -385,8 +385,9 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                         var widgetToBeLoaded = createWidgets.replacePlaceHolderWidget(widget,finalChartData);
                         widgetToBeLoaded.then(
                             function successCallback(widgetToBeLoaded){
-                                $scope.dashboard.datas[widgetIndex] = widgetToBeLoaded;
-                                console.log('datas:',$scope.dashboard.datas[widgetIndex]);
+                                $scope.dashboard.widgetData[widgetIndex] = widgetToBeLoaded;
+                                $scope.dashboard.widgetData[widgetIndex] = widgetToBeLoaded;
+                                console.log('widgetData:',$scope.dashboard.widgetData[widgetIndex]);
                                 isExportOptionSet=1;
                         },
                             function errorCallback(error){
@@ -435,14 +436,14 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             //'chart': {'api': {}},
             'visibility': false
         });
-        $scope.dashboard.datas.push({
+        $scope.dashboard.widgetData.push({
             'id':  widget._id,
             'chart': [],
             'visibility': false,
             'name': (typeof widget.name != 'undefined'? widget.name : ''),
             'color': (typeof widget.color != 'undefined'? widget.color : '')
         });
-        console.log($scope.dashboard.datas);
+        console.log($scope.dashboard.widgetData);
 
         //Fetching the promise that contains all the data for all the widgets in the dashboard
         $q.all(inputWidget).then(
@@ -453,7 +454,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 widgetToBeLoaded.then(
                     function successCallback(widgetToBeLoaded){
                         //$scope.dashboard.widgets[widgetIndex] = widgetToBeLoaded;
-                        $scope.dashboard.datas[widgetIndex] = widgetToBeLoaded;
+                        $scope.dashboard.widgetData[widgetIndex] = widgetToBeLoaded;
                     },
                     function errorCallback(error) {
                         console.log(error);

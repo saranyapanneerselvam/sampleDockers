@@ -246,7 +246,6 @@ console.log('$scope.tokenExpired',$scope.tokenExpired);
                 $scope.storedReferenceWidget.charts[i].metrics = matchingMetric;
                 $scope.storedReferenceWidget.charts[i].colour = chartColors[i];
                 $scope.storedReferenceWidget.charts[i].objectName = $scope.storedObject.name;
-                console.log($scope.storedReferenceWidget.charts[i]);
             }
             var jsonData = {
                 "dashboardId": $state.params.id,

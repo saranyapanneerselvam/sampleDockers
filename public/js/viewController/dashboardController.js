@@ -24,6 +24,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             datas: []
         };
         $scope.dashboard.dashboardName = '';
+        $scope.widgetsPresent = false;
 
         //To fetch the name of the dashboard from database and display it when the dashboard is loaded
         $scope.fetchDashboardName = function () {
@@ -243,7 +244,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     }
                 };
             }
-
 /*
             function detectCollision(summaryDivName,graphDivName){
                 var summaryDiv = document.getElementById(summaryDivName);
@@ -327,9 +327,8 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         }
 
         //make chart visible after grid have been created
-        $scope.config = {visible: false};
-        $timeout(function () {$scope.config.visible = true;}, 100);
-        $scope.skSpinner=false;
+        //$scope.config = {widgetsPresent: false};
+        //$timeout(function () {$scope.config.visible = true;}, 100);
     };
 
     //To populate all the widgets in a dashboard when the dashboard is refreshed or opened or calendar date range in the dashboard header is changed
@@ -339,8 +338,14 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             method: 'GET',
             url: '/api/v1/dashboards/widgets/'+ $state.params.id
         }).then(function successCallback(response) {
-            var dashboardWidgetList = response.data.widgetsList;
             var widgets = [];
+            var dashboardWidgetList = response.data.widgetsList;
+            if(dashboardWidgetList) {
+                $scope.widgetsPresent = true;
+            } else {
+                $scope.widgetsPresent = false;
+            }
+
 
             for(getWidgetInfo in dashboardWidgetList){
                 widgets.push(createWidgets.widgetDataFetchHandler(dashboardWidgetList[getWidgetInfo],{
@@ -408,6 +413,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             'startDate': moment($scope.dashboardCalendar.start_date).format('YYYY-MM-DD'),
             'endDate': moment($scope.dashboardCalendar.end_date).format('YYYY-MM-DD')
         }));
+        $scope.widgetsPresent = true;
 
         //To temporarily create an empty widget with same id as the widgetId till all the data required for the widget is fetched by the called service
         $scope.dashboard.widgets.push({
@@ -510,7 +516,8 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         $http({
             method:'POST', url:'/api/v1/delete/widgets/' + widget.id
         }).then(function successCallback(response){
-            console.log(response);
+            if($scope.dashboard.widgets.length == 0)
+                $scope.widgetsPresent = false;
         },function errorCallback(error){
             console.log('Error in deleting the widget',error);
         });

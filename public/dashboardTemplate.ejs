@@ -55,10 +55,11 @@
             </div>
         </div>
     </div>
-    <div class="parallel-dashboard" ng-show="dashboard.widgets.length == 0">
-        <div class="empty-dashboard"><span>Add your first widget</span></div>
+    <div class="parallel-dashboard" ng-if="widgetsPresent == false">
+        <a ui-sref="app.reporting.dashboard.basicWidget({widgetType:'basic'})"><div class="empty-dashboard"><span>Add your first widget</span></div></a>
     </div>
-    <div ng-switch="config.visible" class="white-bg dashboardContent">
+    <div class="white-bg dashboardContent">
+        <!--
         <div ng-switch-default>
             <div class="spiner-example">
                 <div class="sk-spinner sk-spinner-cube-grid">
@@ -74,7 +75,8 @@
                 </div>
             </div>
         </div>
-        <div gridster="gridsterOptions" class="row" style="border: 1px solid #efefef;min-height: 500px" ng-switch-when="true" id="gridsterItems">
+        -->
+        <div gridster="gridsterOptions" class="row" style="border: 1px solid #efefef;min-height: 500px" id="gridsterItems"><!--ng-switch-when="true"-->
             <ul >
                 <li gridster-item="widget" ng-repeat="(widgetIndex,widget) in dashboard.widgets">
                     <div class="box" ng-controller="CustomWidgetController" id="{{widget.id}}">

@@ -1,5 +1,5 @@
 {
-  "name": "ShowMetricDev",
+  "name": "datapoolt",
   "description": "ShowMetric Development version phase 1",
   "main": "server.js",
   "authors": [

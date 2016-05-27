@@ -2,6 +2,7 @@ showMetricApp.controller('DashboardController',DashboardController)
 
 function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$stateParams,createWidgets,$q) {
     $scope.loading=false;
+    var isExportOptionSet = "";
     //Sets up all the required parameters for the dashboard to function properly when it is initially loaded. This is called in the ng-init function of the dashboard template
     $scope.dashboardConfiguration = function () {
         $scope.dashboardCalendar = new Calendar({
@@ -386,13 +387,16 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                             function successCallback(widgetToBeLoaded){
                                 $scope.dashboard.datas[widgetIndex] = widgetToBeLoaded;
                                 console.log('datas:',$scope.dashboard.datas[widgetIndex]);
+                                isExportOptionSet=1;
                         },
                             function errorCallback(error){
                             console.log(error);
+                            isExportOptionSet=0;
                         });
                     },
                     function errorCallback(error){
                         console.log(error);
+                        isExportOptionSet=0;
                     });
             }
         }, function errorCallback(error) {
@@ -402,6 +406,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 text: "<span style='sweetAlertFont'>Please try again! Something is missing</span> .",
                 html: true
             });
+            isExportOptionSet=0;
         });
     };
 
@@ -509,6 +514,20 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             }
         );
     });
+
+
+    $scope.exportModal = function(value){
+        if(isExportOptionSet==1){
+            $state.go(value);
+        }
+        else{
+            swal({
+                title: "",
+                text: "<span style='sweetAlertFont'>Something went wrong! Can't export at this moment</span> .",
+                html: true
+            });
+        }
+    };
 
     //To delete a widget from the dashboard
     $scope.deleteWidget = function(widget){

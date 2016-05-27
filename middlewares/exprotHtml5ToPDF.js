@@ -1,9 +1,6 @@
 var html5pdf = require("html5-to-pdf");
 var exports = module.exports = {};
 
-var http = require('http'),
-    fs = require('fs');
-
 exports.createHtml5ToPdf = function (req, res, next) {
     //console.log("Html : "+req.body.dashboardLayout);
     var html = "<img src='"+req.body.dashboardLayout+"' />";

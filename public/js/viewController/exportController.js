@@ -22,6 +22,7 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
         var setJPEGOption = $("#exportOptionJpeg").prop("checked");
         var setPDFOption = $("#exportOptionPDF").prop("checked");
         var dashboardLayout = document.getElementById('dashboardLayout');
+        console.log(dashboardLayout);
 
         if(setJPEGOption==true){
             swal("Please wait while the JPEG file is being downloading.", "", "warning");

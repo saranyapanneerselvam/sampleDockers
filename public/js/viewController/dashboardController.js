@@ -1,7 +1,8 @@
 showMetricApp.controller('DashboardController',DashboardController)
 
-function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$stateParams,createWidgets,$q) {
+function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$stateParams,createWidgets,$q,$window) {
     $scope.loading=false;
+    $scope.$window = $window;
     var isExportOptionSet = "";
     //Sets up all the required parameters for the dashboard to function properly when it is initially loaded. This is called in the ng-init function of the dashboard template
     $scope.dashboardConfiguration = function () {
@@ -138,7 +139,10 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 };
             }
         });
-
+        $scope.$on('gridster-mobile-changed', function( e,gridster) {
+            console.log('gridster-mobile-changed',gridster);
+            $scope.isMobile = gridster.isMobile;
+        });
         $scope.$on('my-gridster-item-resized', function(e,item) {
             //console.log('my-gridster-item-resized',item);
 /*
@@ -325,6 +329,19 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 //return ('col-lg-'+y);
                 return ('col-sm-'+y+' col-md-'+y+' col-lg-'+y);
             }
+        }
+        //{'height':((100/(Math.ceil(chart.data.length/2)))+'%')}
+        $scope.calculateRowHeight = function(availableHeight,noOfItems) {
+            var cols = $window.innerWidth>=768 ? 2 : 1;
+            var rows = Math.ceil(noOfItems/cols);
+            var heightPercent = 100/rows;
+            var fontSizeEm = availableHeight/100*4.5;
+            var minSize = 0.8, maxSize=1.5;
+            if(fontSizeEm<minSize)
+                fontSizeEm=minSize;
+            if(fontSizeEm>maxSize)
+                fontSizeEm=maxSize;
+            return {'height':(heightPercent+'%'),'font-size':(fontSizeEm+'em')};
         }
 
         //make chart visible after grid have been created

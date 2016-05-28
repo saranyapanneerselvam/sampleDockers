@@ -61,12 +61,12 @@
                 <li gridster-item="widget" ng-repeat="(widgetIndex,widget) in dashboard.widgets">
                     <div class="box" ng-controller="CustomWidgetController" id="{{widget.id}}">
                         <div class="box-header" ng-style="{'background-color': dashboard.widgetData[widgetIndex].color}">
-                            <h3>{{dashboard.widgetData[widgetIndex].name}}</h3>
+                            <h3 style="color: #ffffff;">{{dashboard.widgetData[widgetIndex].name}}</h3>
                             <div class="graph-icon">
                                 <a title="settings" ng-click="openSettings(widget)"><i class="fa fa-cog"></i></a>
                             </div>
                         </div>
-                        <div class="box-content" style="vertical-align: middle">
+                        <div class="box-content" style="vertical-align: middle" ng-style="{position:(isMobile?'static':'absolute')}">
                             <div ng-if="dashboard.widgetData[widgetIndex].visibility == false">
                                 <div class="spiner-example">
                                     <div class="sk-spinner sk-spinner-cube-grid">
@@ -83,13 +83,11 @@
                                 </div>
                             </div>
                             <div class="row" style="height: 100%;margin:0px;" ng-if="dashboard.widgetData[widgetIndex].visibility == true">
-                                <div ng-repeat="chart in dashboard.widgetData[widgetIndex].chart" size-watcher size-watcher-height="chart.myheight" size-watcher-width="chart.mywidth"
-                                     style="float: left;padding-left: 2px;padding-right: 2px;"
-                                     ng-style="{'height': (100/dashboard.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/dashboard.widgetData[widgetIndex].layoutOptionsX)+'%'}">
+                                <div ng-repeat="chart in dashboard.widgetData[widgetIndex].chart" size-watcher size-watcher-height="chart.myheight" size-watcher-width="chart.mywidth" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/dashboard.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/dashboard.widgetData[widgetIndex].layoutOptionsX)+'%'}">
                                     <div class="row" style="margin: 0px;height: 25%">
-                                        <ul>
-                                            <li  ng-repeat="data in chart.data" ng-class="calculateColumnWidth(chart.data.length)" style="text-align: center;padding-top: 1%;padding-left:0px;padding-right: 2px;font-size: 14px;min-height: 100%">
-                                                <div ng-style="{'background-color': data.color}" style="margin: 0px;min-height: inherit;overflow: hidden;white-space: nowrap;color: #ffffff">
+                                        <ul style="height:100%;font-size:14px;">
+                                            <li  ng-repeat="data in chart.data" size-watcher size-watcher-height="data.myheight" size-watcher-width="data.mywidth" ng-class="calculateColumnWidth(chart.data.length)" ng-style="calculateRowHeight(data.myheight,chart.data.length)" style="text-align: center;padding-top: 1px;padding-left:0px;padding-right: 2px;">
+                                                <div ng-style="{'background-color': data.color}" style="margin: 0px;height: 100%;overflow: hidden;white-space: nowrap;color: #ffffff" >
                                                     {{data.key}}: {{data.summaryDisplay}}
                                                 </div>
                                             </li>

@@ -1244,7 +1244,7 @@ exports.getChannelData = function (req, res, next) {
                         'metrics': allObjects.metricName,
                         prettyPrint: true
                     }, function (err, result) {
-                        console.log('google analytics error', err)
+                        console.log('google analytics error', err, result)
                         if (err) {
                             if (err.code === 400)
                                 return res.status(401).json({error: 'Authentication required to perform this action'})

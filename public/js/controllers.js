@@ -478,7 +478,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                     graphData.pieDataOptions = {
                         chart: {
                             type: 'pieChart',
-                            height: 500,
+                            margin : {top: 0, right: 15, bottom: 15, left: 15},
                             x: function (d) {
                                 return d.key;
                             },
@@ -491,9 +491,9 @@ showMetricApp.service('createWidgets',function($http,$q){
                             labelSunbeamLayout: true,
                             legend: {
                                 margin: {
-                                    top: 5,
-                                    right: 35,
-                                    bottom: 5,
+                                    top: 0,
+                                    right: 0,
+                                    bottom: 0,
                                     left: 0
                                 }
                             }

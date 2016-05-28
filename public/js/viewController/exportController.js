@@ -21,6 +21,7 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
     $scope.submitExport = function(){
         var setJPEGOption = $("#exportOptionJpeg").prop("checked");
         var setPDFOption = $("#exportOptionPDF").prop("checked");
+        document.getElementById('dashboardTitleIcons').style.visibility = "hidden";
         var dashboardLayout = document.getElementById('dashboardLayout');
         console.log(dashboardLayout);
 
@@ -28,6 +29,7 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
             swal("Please wait while the JPEG file is being downloading.", "", "warning");
             domtoimage.toBlob(dashboardLayout)
                 .then(function (blob) {
+                    document.getElementById('dashboardTitleIcons').style.visibility = "visible";
                     var timestamp = Number(new Date());
                     window.saveAs(blob, dashboardName+"_"+timestamp+".jpeg");
                 });
@@ -46,6 +48,7 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
                             method: 'POST', url: '/api/v1/createHtml5ToPdf/dashboard', data: jsonData
                         }).then(function successCallback(response){
                             console.log(response);
+                            document.getElementById('dashboardTitleIcons').style.visibility = "visible";
                             var domainUrl = "";
                             if (window.location.hostname == "localhost") {
                                 domainUrl = "http://localhost:8080";

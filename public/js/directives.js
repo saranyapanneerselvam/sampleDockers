@@ -181,6 +181,9 @@ function minimalizaSidebar($timeout) {
                     setTimeout(
                         function () {
                             $('#side-menu').fadeIn(500);
+                            if (!$('body').hasClass('mini-navbar') && !$('body').hasClass('body-small')){
+                                document.getElementById('topnavbar-header').setAttribute('style','padding-left: 221px;')
+                            }
                         }, 100);
                 } else if ($('body').hasClass('fixed-sidebar')){
                     $('#side-menu').hide();
@@ -191,6 +194,9 @@ function minimalizaSidebar($timeout) {
                 } else {
                     // Remove all inline style from jquery fadeIn function to reset menu state
                     $('#side-menu').removeAttr('style');
+                    if ($('body').hasClass('mini-navbar')){
+                        document.getElementById('topnavbar-header').setAttribute('style','padding-left: 71px;')
+                    }
                 }
             }
         }

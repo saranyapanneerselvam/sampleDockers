@@ -85,5 +85,9 @@ module.exports = {
         conversions : 'conversions',
         costperclick:'costperclick',
         costperthousandImpressions:'costperthousandImpressions'
+    },
+    googleApiTypes:{
+        mcfApi:'mcf',
+        gaApi:'ga'
     }
 };

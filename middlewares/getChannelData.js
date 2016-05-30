@@ -571,7 +571,7 @@ exports.getChannelData = function (req, res, next) {
         async.concatSeries(channelWithCode, storeEachChannelData, callback);
         function storeEachChannelData(allQueryResult, callback) {
             if (allQueryResult.channel.code == configAuth.channels.googleAnalytics) {
-                function storeDataForGA(dataFromRemote, dataFromDb, widget, done) {
+                function storeDataForGA(dataFromRemote, dataFromDb, widget, metric, done) {
                     async.times(dataFromDb.length, function (j, next) {
                         if (dataFromRemote[j].data === 'DataFromDb')
                             next(null, 'DataFromDb');
@@ -587,6 +587,9 @@ exports.getChannelData = function (req, res, next) {
                                 dimensionList.push({'name': 'ga:date'});
                                 dimension = results.get_channel_data_remote.get_each_channel_data.get_dimension;
                             }
+                            console.log('metric type in mcf', metric[j]);
+                            var dimensionArray = [];
+                            var dimensionList = metric[j].objectTypes[0].meta.dimension;
 
                             //google analytics
                             //calculating the result length
@@ -602,18 +605,32 @@ exports.getChannelData = function (req, res, next) {
                                     if (m == 0) {
 
                                         //date value is coming in the format of 20160301 so splitting like yyyy-mm--dd format
-                                        var year = dataFromRemote[j].data.rows[i][0].substring(0, 4);
-                                        var month = dataFromRemote[j].data.rows[i][0].substring(4, 6);
-                                        var date = dataFromRemote[j].data.rows[i][0].substring(6, 8);
-                                        obj[dimensionList[m].name.substr(3)] = [year, month, date].join('-');
                                         //obj['metricName'] = metricName;
-                                        obj['total'] = dataFromRemote[j].data.rows[i][resultCount];
+                                        if (metric[j].objectTypes[0].meta.api === configAuth.googleApiTypes.mcfApi){
+                                            var year = dataFromRemote[j].data.rows[i][0].primitiveValue.substring(0, 4);
+                                            var month = dataFromRemote[j].data.rows[i][0].primitiveValue.substring(4, 6);
+                                            var date = dataFromRemote[j].data.rows[i][0].primitiveValue.substring(6, 8);
+                                            obj[dimensionList[m].storageName] = [year, month, date].join('-');
+                                            obj['total'] = dataFromRemote[j].data.rows[i][resultCount].primitiveValue;
+                                        }
+
+                                        else{
+                                            var year = dataFromRemote[j].data.rows[i][0].substring(0, 4);
+                                            var month = dataFromRemote[j].data.rows[i][0].substring(4, 6);
+                                            var date = dataFromRemote[j].data.rows[i][0].substring(6, 8);
+                                            obj[dimensionList[m].name.substr(3)] = [year, month, date].join('-');
+                                            obj['total'] = dataFromRemote[j].data.rows[i][resultCount];
+                                        }
+
                                     }
                                     else {
                                         obj[dimensionList[m].name.substr(3)] = dataFromRemote[j].data.rows[i][m];
-                                        //obj['metricName'] = metricName;
-                                        obj['total'] = dataFromRemote[j].data.rows[i][resultCount];
+                                        if (metric[j].objectTypes[0].meta.api === configAuth.googleApiTypes.mcfApi)
+                                            obj['total'] = dataFromRemote[j].data.rows[i][resultCount].primitiveValue;
+                                        else
+                                            obj['total'] = dataFromRemote[j].data.rows[i][resultCount];
                                     }
+                                    console.log('finalobj data',obj);
                                 }
                                 storeGoogleData.push(obj);
 
@@ -656,7 +673,7 @@ exports.getChannelData = function (req, res, next) {
                     }, done);
                 }
 
-                storeDataForGA(groupAllChannelData[allQueryResult.channel._id][0].results.call_get_analytic_data, allQueryResult.allData.data, allQueryResult.allData.widget[0].charts, callback);
+                storeDataForGA(groupAllChannelData[allQueryResult.channel._id][0].results.call_get_analytic_data, allQueryResult.allData.data, allQueryResult.allData.widget[0].charts, allQueryResult.allData.metric, callback);
 
 
             }
@@ -1147,7 +1164,27 @@ exports.getChannelData = function (req, res, next) {
                         var allObjects = {};
                         async.times(metric.length, function (i, next) {
                             var d = new Date();
-
+                            var dimensionArray = [];
+                            var dimensionList = metric[i].objectTypes[0].meta.dimension;
+                            console.log('list', dimensionList, metric[i].objectTypes[0].meta.dimension);
+                            var getDimension = dimensionList[0].name;
+                            var dimensionListLength = dimensionList.length;
+                            if (dimensionList.length === 1)
+                                dimensionArray.push({'dimension': getDimension});
+                            else {
+                                //Dynamically form the dimension object like {ga:}
+                                for (var k = 1; k < dimensionListLength; k++) {
+                                    getDimension = getDimension + ',' + dimensionList[k].name;
+                                    dimensionArray.push({'dimension': getDimension});
+                                }
+                            }
+                            console.log('dimensionArray', dimensionArray);
+                            dimension = dimensionArray[dimensionArray.length - 1].dimension;
+                            console.log('dimension from db', dimension);
+                            if (metric[i].objectTypes[0].meta.api === configAuth.googleApiTypes.mcfApi)
+                                var metricName = metric[i].objectTypes[0].meta.gMcfMetricName;
+                            else
+                                var metricName = metric[i].objectTypes[0].meta.gaMetricName;
                             if (data[i].data != null) {
                                 var startDate = formatDate(data[i].data.updated);
                                 var endDate = formatDate(d);
@@ -1156,13 +1193,14 @@ exports.getChannelData = function (req, res, next) {
                                         oauth2Client: oauth2Client,
                                         object: object[i],
                                         dimension: dimension,
-                                        metricName: metric[i].objectTypes[0].meta.gaMetricName,
+                                        metricName: metricName,
                                         startDate: startDate,
                                         endDate: endDate,
                                         response: results.response,
                                         data: results.data,
                                         results: results,
-                                        metricId: data[i].metricId
+                                        metricId: data[i].metricId,
+                                        api :metric[i].objectTypes[0].meta.api
                                     };
                                     //var dataResultDetails = analyticData(oauth2Client, results.object, dimension.get_dimension, metric.objectTypes[0].meta.gaMetricName, startDate, endDate, results.response, results.data, results);
                                     next(null, allObjects);
@@ -1183,13 +1221,14 @@ exports.getChannelData = function (req, res, next) {
                                     oauth2Client: oauth2Client,
                                     object: object[i],
                                     dimension: dimension,
-                                    metricName: metric[i].objectTypes[0].meta.gaMetricName,
+                                    metricName: metricName,
                                     startDate: startDate,
                                     endDate: endDate,
                                     response: results.response,
                                     data: data[i],
                                     results: results,
-                                    metricId: data[i].metricId
+                                    metricId: data[i].metricId,
+                                    api :metric[i].objectTypes[0].meta.api
                                 };
                                 next(null, allObjects);
 
@@ -1231,19 +1270,27 @@ exports.getChannelData = function (req, res, next) {
                     dimensionList = allObjects.dimension;
                     dimension = 'ga:date';
                 }
+                //get dimension from db
+                //check whether to ga or mcf
+                //
 
-                /**Method to call the google api
-                 * @param oauth2Client - set credentials
-                 */
-                analytics.data.ga.get({
-                        'auth': allObjects.oauth2Client,
+                var apiCallingMethod;
+                var apiQuery = {}
+                if (allObjects.api === 'mcf') {
+                    apiCallingMethod = 'analytics.data.mcf.get';
+                    apiQuery = {
+                        'key': configAuth.googleAuth.clientSecret,
                         'ids': 'ga:' + allObjects.object.channelObjectId,
                         'start-date': allObjects.startDate,
                         'end-date': allObjects.endDate,
-                        'dimensions': dimension,
+                        'dimensions': allObjects.dimension,
                         'metrics': allObjects.metricName,
                         prettyPrint: true
-                    }, function (err, result) {
+                    }
+                    /**Method to call the google api
+                     * @param oauth2Client - set credentials
+                     */
+                    analytics.data.mcf.get(apiQuery, function (err, result) {
                         console.log('google analytics error', err, result)
                         if (err) {
                             if (err.code === 400)
@@ -1263,11 +1310,47 @@ exports.getChannelData = function (req, res, next) {
                             };
                             callback(null, finalData);
                         }
+                    });
+                }
+
+                else {
+                    var apiCallingMethod = 'analytics.data.ga.get';
+                    apiQuery = {
+                        'auth': allObjects.oauth2Client,
+                        'ids': 'ga:' + allObjects.object.channelObjectId,
+                        'start-date': allObjects.startDate,
+                        'end-date': allObjects.endDate,
+                        'dimensions': dimension,
+                        'metrics': allObjects.metricName,
+                        prettyPrint: true
                     }
-                );
+                    /**Method to call the google api
+                     * @param oauth2Client - set credentials
+                     */
+                    analytics.data.ga.get(apiQuery, function (err, result) {
+                        console.log('google analytics error', err, result.row)
+                        if (err) {
+                            if (err.code === 400)
+                                return res.status(401).json({error: 'Authentication required to perform this action'})
+                            else
+                                return res.status(500).json({error: 'Internal server error'})
+                            //googleDataEntireFunction(allObjects.results, callback);
+
+                        }
+                        else {
+
+                            finalData = {
+                                metricId: allObjects.metricId,
+                                data: result,
+                                queryResults: results,
+                                channelId: results.metric[0].channelId
+                            };
+                            callback(null, finalData);
+                        }
+                    });
+                }
             }
         }
-
     }
 
     //Function to format the date
@@ -1539,7 +1622,7 @@ exports.getChannelData = function (req, res, next) {
                         startDate = newEndDate;
                         var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
                         if (calculateDate(data[j].data.updated) < currentDate) {
-                            var query = 'Date,' + metric[j].objectTypes[0].meta.gAdsMetricName;
+                            var query = 'Date,' + initialResults.metric[0].objectTypes[0].meta.gAdsMetricName;
                             allObjects = {
                                 profile: initialResults.get_profile[j],
                                 query: query,
@@ -1567,7 +1650,7 @@ exports.getChannelData = function (req, res, next) {
                         var endDate = formatDate(new Date());
                         var newEndDate = endDate.replace(/-/g, "");
                         var endDate = newEndDate;
-                        var query = 'Date,' + metric[j].objectTypes[0].meta.gAdsMetricName;
+                        var query = 'Date,' + initialResults.metric[0].objectTypes[0].meta.gAdsMetricName;
                         allObjects = {
                             profile: initialResults.get_profile[j],
                             query: query,
@@ -1589,9 +1672,12 @@ exports.getChannelData = function (req, res, next) {
 
         // This Function executed to get insights data like(impression,clicks)
         function fetchGoogleAdwordsData(allObjects, callback) {
+            var count = 0;
             var actualFinalApiData = {};
             async.concatSeries(allObjects.call_adword_data, checkDbData, callback);
             function checkDbData(result, callback) {
+                count++;
+
                 if (result == 'DataFromDb') {
                     actualFinalApiData = {
                         apiResponse: 'DataFromDb',

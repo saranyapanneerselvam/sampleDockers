@@ -156,6 +156,7 @@ showMetricApp.service('createWidgets',function($http,$q){
             for(i=0;i<widget.charts.length;i++){
                 var formattedChartData = [];
                 var valuesArr = new Array();
+                console.log(widget.charts[i].chartData[0].total);
                 if(widget.charts[i].chartType == 'line'){
                     if(typeof(widget.charts[i].chartData[0].total) === 'object') {
                         var endpoint;
@@ -166,6 +167,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                         }
                         for(j=0;j<widget.charts[i].chartData.length;j++){
                             formattedChartData.push({x: moment(widget.charts[i].chartData[j].date), y:widget.charts[i].chartData[j].total[endpoint]});
+                            console.log('Data fetched from endpoint',formattedChartData);
                         }
                         changedWidget.charts[i].chartData = formattedChartData;
                     } else {
@@ -377,7 +379,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                 key: widgetData.charts[i].chartData[customData].key, //key  - the name of the series.
                                 color: widgetData.charts[i].chartData[customData].color,  //color - optional: choose your own line color.
                                 summaryDisplay: displaySummaryLineData,
-                                area: true
+                                //area: true
                             });
                             displaySummaryLineData=0;
                         }
@@ -400,7 +402,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                     return d3.format('f')(d);}
                             },
                             axisLabelDistance: -10,
-                            showLegend: false
+                            showLegend: true
                         }
                     };
                 }

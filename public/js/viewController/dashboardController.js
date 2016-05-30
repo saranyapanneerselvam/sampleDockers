@@ -145,8 +145,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         });
         $scope.$on('my-gridster-item-resized', function(e,item) {
             //console.log('my-gridster-item-resized',item);
-/*
-            for(var i=0;i<$scope.dashboard.widgets.length;i++){
+            /*for(var i=0;i<$scope.dashboard.widgets.length;i++){
                 $timeout(resizeWidget(i), 100);
             }
             function resizeWidget(i) {
@@ -159,12 +158,12 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                         }
                     }
                 };
-            }
-*/
+            }*/
         });
 
         $scope.$watch('dashboard.widgets',function(newVal,oldVal){
             console.log('Inside watch oldLen=',oldVal.length," newLen=",newVal.length);
+            var inputParams = [];
             if($scope.dashboard.widgets.length !=0){
                 for(getWidgetInfo in $scope.dashboard.widgets){
                     var jsonData = {
@@ -185,118 +184,38 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                             h: $scope.dashboard.widgets[getWidgetInfo].maxSizeY,
                             w: $scope.dashboard.widgets[getWidgetInfo].maxSizeX
                         }
-                    }
-                    $http({
-                        method: 'POST',
-                        url: '/api/v1/widgets',
-                        data: jsonData
-                    }).then(function successCallback(response){
-                        //console.log('Response after updating widget', response);
-                    }, function errorCallback (error){
-                        console.log('Error in getting widget id',error);
-                        swal({  title: "", text: "<span style='sweetAlertFont'>Please try again! Something is missing</span> .",   html: true });
-                    });
+                    };
+                    inputParams.push(jsonData);
                 }
+                $http({
+                    method: 'POST',
+                    url: '/api/v1/widgets',
+                    data: inputParams
+                }).then(function successCallback(response){
+                    //console.log('Response after updating widget', response);
+                }, function errorCallback (error){
+                    console.log('Error in getting widget id',error);
+                    swal({  title: "", text: "<span style='sweetAlertFont'>Please try again! Something is missing</span> .",   html: true });
+                });
             }
         },true);
 
         $scope.$on('my-gridster-item-transition-end', function(e,item) {
             console.log('my-gridster-item-transition-end');
-
             for(var i=0;i<$scope.dashboard.widgets.length;i++){
                 $timeout(resizeWidget(i), 100);
             }
             function resizeWidget(i) {
                 return function() {
                     if(typeof $scope.dashboard.widgetData[i].chart != 'undefined'){
-                        //var chartCount = $scope.dashboard.widgets[i].chart.length;
-                        //var graphCountInCharts = [];
                         for(j=0;j<$scope.dashboard.widgetData[i].chart.length;j++){
-                            //graphCountInCharts[j] = $scope.dashboard.widgets[i].chart[j].length;
                             if ($scope.dashboard.widgetData[i].chart[j].api){
                                 $scope.dashboard.widgetData[i].chart[j].api.update();
                             }
-/*
-                            var summaryDiv = document.getElementById($scope.dashboard.widgets[i].id+'_summaryDataDiv_'+j);
-                            var graphDiv = document.getElementById($scope.dashboard.widgets[i].id+'_graphDataDiv_'+j);
-                            var boxDiv = document.getElementById($scope.dashboard.widgets[i].id);
-                            console.log('Widget:',$scope.dashboard.widgets[i].name,' Box:',boxDiv.scrollHeight,boxDiv.offsetHeight,boxDiv.clientHeight);
-                            console.log('Summary:',summaryDiv.scrollHeight,summaryDiv.offsetHeight,summaryDiv.clientHeight);
-                            console.log('Graph:',graphDiv.scrollHeight,graphDiv.offsetHeight,graphDiv.clientHeight);
-                            console.log('Chart count:',chartCount);
-*/
-/*
-                            console.log('displaying div',summaryDiv, 'Box dimension',boxDiv.clientHeight,boxDiv.clientWidth,boxDiv.scrollHeight,boxDiv.scrollWidth);
-                            console.log('Displaying heights',summaryDiv.getBoundingClientRect(),summaryDiv.scrollHeight,summaryDiv.clientHeight,summaryDiv.offsetHeight,summaryDiv.scrollWidth,summaryDiv.clientWidth);
-                            if(summaryDiv.scrollHeight>summaryDiv.clientHeight || summaryDiv.scrollWidth>summaryDiv.clientWidth){
-                                graphDiv.style.visibility = 'hidden';
-                                console.log('Hiding the graph');
-                            } else {
-                                graphDiv.style.visibility='visible';
-                                console.log('Showing the graph');
-                            }
-                            detectCollision(summaryDivId,graphDivId);
-                            console.log('scroll height',document.getElementById(summaryDivId).scrollHeight);
-                            console.log('client height',document.getElementById(summaryDivId).clientHeight);
-                            if(document.getElementById(summaryDivId).scrollHeight > document.getElementById(summaryDivId).clientHeight || document.getElementById(summaryDivId).scrollWidth > document.getElementById(summaryDivId).clientWidth){
-                                document.getElementById(graphDivId).style.visibility='hidden'
-                            } else {
-                                document.getElementById(graphDivId).style.visibility='visible'
-                            }
-                            collision($scope.dashboard.widgets[i].name,$('#'+summaryDivId),$('#'+graphDivId));
-*/
                         }
                     }
                 };
             }
-/*
-            function detectCollision(summaryDivName,graphDivName){
-                var summaryDiv = document.getElementById(summaryDivName);
-                var graphDiv = document.getElementById(graphDivName);
-
-                var x1 = summaryDiv.offsetLeft;
-                var y1 = summaryDiv.offsetTop;
-                var h1 = summaryDiv.scrollHeight;
-                var w1 = summaryDiv.scrollWidth;
-                var x2 = graphDiv.offsetLeft;
-                var y2 = graphDiv.offsetTop;
-                var h2 = graphDiv.offsetHeight;
-                var w2 = graphDiv.offsetWidth;
-                var b1 = y1 + h1;
-                var r1 = x1 + w1;
-                var b2 = y2 + h2;
-                var r2 = x2 + w2;
-                if (b1 < y2 || y1 > b2 || r1 < x2 || x1 > r2) {
-                    console.log(false, summaryDiv, graphDiv);
-                    graphDiv.style.visibility = 'visible';
-                }
-                else {
-                    console.log(true, summaryDiv, graphDiv);
-                    graphDiv.style.visibility = 'hidden';
-                }
-            }
-            function collision(name,$div1, $div2) {
-                var x1 = $div1.offset().left;
-                var y1 = $div1.offset().top;
-                var h1 = $div1.outerHeight(true);
-                var w1 = $div1.outerWidth(true);
-                var b1 = y1 + h1;
-                var r1 = x1 + w1;
-                var x2 = $div2.offset().left;
-                var y2 = $div2.offset().top;
-                var h2 = $div2.outerHeight(true);
-                var w2 = $div2.outerWidth(true);
-                var b2 = y2 + h2;
-                var r2 = x2 + w2;
-
-                console.log(name);
-                console.log(x1,y1,h1,w1,x2,y2,h2,w2,b1,r1,b2,r2);
-                if (b1 < y2 || y1 > b2 || r1 < x2 || x1 > r2)
-                    console.log(false, $div1, $div2);
-                else
-                    console.log(true, $div1, $div2);
-            }
-*/
         });
 
         angular.element($window).on('resize', function (e) {
@@ -329,8 +248,8 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 //return ('col-lg-'+y);
                 return ('col-sm-'+y+' col-md-'+y+' col-lg-'+y);
             }
-        }
-        //{'height':((100/(Math.ceil(chart.data.length/2)))+'%')}
+        };
+
         $scope.calculateRowHeight = function(availableHeight,noOfItems) {
             var cols = $window.innerWidth>=768 ? 2 : 1;
             var rows = Math.ceil(noOfItems/cols);
@@ -342,11 +261,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             if(fontSizeEm>maxSize)
                 fontSizeEm=maxSize;
             return {'height':(heightPercent+'%'),'font-size':(fontSizeEm+'em')};
-        }
-
-        //make chart visible after grid have been created
-        //$scope.config = {widgetsPresent: false};
-        //$timeout(function () {$scope.config.visible = true;}, 100);
+        };
     };
 
     //To populate all the widgets in a dashboard when the dashboard is refreshed or opened or calendar date range in the dashboard header is changed
@@ -402,7 +317,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                         var widgetToBeLoaded = createWidgets.replacePlaceHolderWidget(widget,finalChartData);
                         widgetToBeLoaded.then(
                             function successCallback(widgetToBeLoaded){
-                                $scope.dashboard.widgetData[widgetIndex] = widgetToBeLoaded;
                                 $scope.dashboard.widgetData[widgetIndex] = widgetToBeLoaded;
                                 console.log('widgetData:',$scope.dashboard.widgetData[widgetIndex]);
                                 isExportOptionSet=1;
@@ -481,51 +395,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                             html: true
                         });
                     });
-                /*
-                 var finalChartData,widgetIndex,sizeY,sizeX,chartsCount,individualGraphWidthDivider,individualGraphHeightDivider;
-
-                finalChartData = createWidgets.dataLoader(inputWidget[0]);
-
-                //Based on the layout size of the widget, the charts inside the widget will be allocated space accordingly
-                var setLayoutOptions = function() {
-                    sizeY = typeof inputWidget[0].size != 'undefined'? inputWidget[0].size.h : 3;
-                    sizeX = typeof inputWidget[0].size != 'undefined'? inputWidget[0].size.w : 3;
-                    chartsCount = finalChartData.length;
-                    for(var i=0;i<$scope.widgetLayoutOptions.length;i++){
-                        if($scope.widgetLayoutOptions[i].W == sizeX && $scope.widgetLayoutOptions[i].H == sizeY && $scope.widgetLayoutOptions[i].N == chartsCount){
-                            individualGraphWidthDivider = $scope.widgetLayoutOptions[i].c;
-                            individualGraphHeightDivider = $scope.widgetLayoutOptions[i].r;
-                        }
-                    }
-                };
-                setLayoutOptions();
-
-                //To identify each empty widget and feed the data returned from the service call into it
-                widgetIndex = $scope.dashboard.widgets.map(function(el) {
-                    return el.id;
-                }).indexOf(inputWidget[0]._id);
-
-                if(inputWidget[0].charts==[] || inputWidget[0].charts==""){
-                    chartName = "No Data Found";
-                } else{
-                    chartName = (typeof inputWidget[0].name != 'undefined'? inputWidget[0].name : '');
-                }
-
-                $scope.dashboard.widgets[widgetIndex] = {
-                    'sizeY': (typeof inputWidget[0].size != 'undefined'? inputWidget[0].size.h : 3),
-                    'sizeX': (typeof inputWidget[0].size != 'undefined'? inputWidget[0].size.w : 3),
-                    'minSizeY': (typeof inputWidget[0].minSize != 'undefined'? inputWidget[0].minSize.h : 3),
-                    'minSizeX': (typeof inputWidget[0].minSize != 'undefined'? inputWidget[0].minSize.w : 3),
-                    'maxSizeY': (typeof inputWidget[0].maxSize != 'undefined'? inputWidget[0].maxSize.h : 3),
-                    'maxSizeX': (typeof inputWidget[0].maxSize != 'undefined'? inputWidget[0].maxSize.w : 3),
-                    'name': chartName,
-                    'visibility': true,
-                    'id': inputWidget[0]._id,
-                    'chart': finalChartData,
-                    'layoutOptionsX': individualGraphWidthDivider,
-                    'layoutOptionsY': individualGraphHeightDivider
-                };
-*/
             },
             function errorCallback(error){
                 console.log(error);
@@ -533,7 +402,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         );
     });
 
-
+    //To download a pdf/jpeg version of the dashboard
     $scope.exportModal = function(value){
         if(isExportOptionSet==1){
             $state.go(value);

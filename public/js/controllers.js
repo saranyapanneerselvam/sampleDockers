@@ -171,8 +171,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                         }
                         changedWidget.charts[i].chartData = formattedChartData;
                     } else {
-                        var setCustomDataArr = new Array();
-
                         for(j=0;j<widget.charts[i].chartData.length;j++){
                             if(widget.charts[i].chartData[j].name==undefined){
                                 formattedChartData.push({x: moment(widget.charts[i].chartData[j].date), y:widget.charts[i].chartData[j].total});
@@ -219,7 +217,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                     }
                 }
                 else if(widget.charts[i].chartType == 'bar'){
-
                     if(typeof(widget.charts[i].chartData[0].total) === 'object') {
                         var endpoint;
                         for(j=0;j<widget.charts[i].metricDetails.objectTypes.length;j++){
@@ -232,8 +229,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                         }
                         changedWidget.charts[i].chartData = formattedChartData;
                     } else {
-                        var setCustomDataArr = new Array();
-
                         for(j=0;j<widget.charts[i].chartData.length;j++){
                             if(widget.charts[i].chartData[j].name==undefined){
                                 formattedChartData.push({x: moment(widget.charts[i].chartData[j].date), y:widget.charts[i].chartData[j].total});
@@ -280,8 +275,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                     changedWidget.charts[i].chartData = formattedChartData;
                 }
                 else if(widget.charts[i].chartType == 'pie'){
-                    var setCustomDataArr = new Array();
-
                     for(j=0;j<widget.charts[i].chartData.length;j++){
                         if(widget.charts[i].chartData[j].name==undefined){
                             formattedChartData.push({x: moment(widget.charts[i].chartData[j].date), y:widget.charts[i].chartData[j].total});
@@ -310,7 +303,6 @@ showMetricApp.service('createWidgets',function($http,$q){
             formattedWidget.resolve(changedWidget);
             return formattedWidget.promise;
         }
-
     };
 
     //To load the data available for graphs into nvd3 format as per the chart type and to group the graphs by chart type
@@ -697,20 +689,6 @@ showMetricApp.service('createWidgets',function($http,$q){
             {W:6,H:3,N:7,r:2,c:4},
             {W:6,H:3,N:8,r:2,c:4}
         ];
-        
-/*
-        for(i=0;i<finalChartData.length;i++){
-            displayData[i] = [];
-            for(j=0;j<finalChartData[i].data.length;j++){
-                var temp = 0;
-                for(k=0;k<finalChartData[i].data[j].values.length;k++){
-                    temp = temp + parseInt(finalChartData[i].data[j].values[k].y);
-                }
-                displayData[i].push(temp);
-            }
-        }
-        console.log(displayData);
-*/
 
         var setLayoutOptions = function() {
             sizeY = typeof widget.size != 'undefined'? widget.size.h : 3;
@@ -743,32 +721,19 @@ showMetricApp.service('createWidgets',function($http,$q){
         }
 
         var modifiedWidget = {
-/*
-            'row': 0,
-            'col': 0,
-            'sizeY': (typeof widget.size != 'undefined'? widget.size.h : 2),
-            'sizeX': (typeof widget.size != 'undefined'? widget.size.w : 2),
-            'minSizeY': (typeof widget.minSize != 'undefined'? widget.minSize.h : 1),
-            'minSizeX': (typeof widget.minSize != 'undefined'? widget.minSize.w : 1),
-            'maxSizeY': (typeof widget.maxSize != 'undefined'? widget.maxSize.h : 3),
-            'maxSizeX': (typeof widget.maxSize != 'undefined'? widget.maxSize.w : 3),
-*/
             'name': chartName,
             'visibility': true,
             'id': widget._id,
             'color': widget.color,
             'chart': finalChartData,
-            //'display': displayData,
             'layoutOptionsX': individualGraphWidthDivider,
             'layoutOptionsY': individualGraphHeightDivider
         };
-        //console.log(modifiedWidget);
         finalWidget.resolve(modifiedWidget);
         return finalWidget.promise;
     };
 
 });
-
 
 showMetricApp.service('generateChartColours',function(){
 

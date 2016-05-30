@@ -231,6 +231,7 @@ console.log('$scope.tokenExpired',$scope.tokenExpired);
         else {
             // function for saving other widgets goes here
             var matchingMetric = [];
+            var inputParams = [];
             var chartCount = $scope.storedReferenceWidget.charts.length;
             var chartColors = generateChartColours.fetchRandomColors(chartCount);
             var widgetColor = generateChartColours.fetchWidgetColor($scope.storedChannelName);
@@ -260,12 +261,15 @@ console.log('$scope.tokenExpired',$scope.tokenExpired);
                 "maxSize": $scope.storedReferenceWidget.maxSize,
                 "color": widgetColor
             };
+            inputParams.push(jsonData);
             $http({
                 method: 'POST',
                 url: '/api/v1/widgets',
-                data: jsonData
+                data: inputParams
             }).then(function successCallback(response) {
-                $rootScope.$broadcast('populateWidget', response.data.widgetsList);
+                for(widgetObjects in response.data.widgetsList) {
+                    $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
+                }
             }, function errorCallback(error) {
                 console.log('Error in getting widget id', error);
                 swal({

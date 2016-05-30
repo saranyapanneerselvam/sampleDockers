@@ -1,6 +1,8 @@
+var async = require("async");
 var exports = module.exports = {};
-var widgetsList = require('../models/widgets');
 var userPermission = require('../helpers/utility');
+var widgetsList = require('../models/widgets');
+
 /**
  Function to get the widgets's details such as channel id,name,desciption ..
  @params 1.req contains the  user details i.e. username,token,email etc
@@ -19,7 +21,6 @@ exports.widgets = function (req, res, next) {
     if (req.user) {
         req.dashboardId = req.params.dashboardId;
         userPermission.checkUserAccess(req, res, function (err, response) {
-            console.log('utility response', response)
             widgetsList.find({dashboardId: req.params.dashboardId}, function (err, widget) {
                 if (err)
                     return res.status(500).json({error: 'Internal server error'});
@@ -49,9 +50,9 @@ exports.widgetDetails = function (req, res, next) {
      */
     if (req.user) {
         userPermission.checkUserPermission(req, res, function (err) {
-            if(err)
+            if (err)
                 return res.status(500).json({error: 'Internal server error'});
-            else{
+            else {
                 widgetsList.find({_id: req.params.widgetId}, function (err, widget) {
                     if (err)
                         return res.status(500).json({error: 'Internal server error'});
@@ -96,100 +97,137 @@ exports.deleteWidgets = function (req, res, next) {
 
 exports.saveWidgets = function (req, res, next) {
     if (req.user) {
-        req.dashboardId = req.body.dashboardId;
-        userPermission.checkUserAccess(req, res, function (err, response) {
-            console.log('utility response', response)
-            if (err)
-                return res.status(500).json({error: 'Internal server error'});
-            else {
-                var createWidget = new widgetsList();
-
-                //To store the widget
-                //To check whether new dashboard or not
-                if (req.body.widgetId === undefined) {
-                    createWidget.dashboardId = req.body.dashboardId;
-                    createWidget.widgetType = req.body.widgetType;
-                    createWidget.name = req.body.name;
-                    createWidget.description = req.body.description;
-                    createWidget.charts = req.body.charts;
-                    createWidget.referenceWidgetId = req.body.referenceWidgetId;
-                    createWidget.row = req.body.row;
-                    createWidget.col = req.body.col;
-                    createWidget.size = req.body.size;
-                    createWidget.minSize = req.body.minSize;
-                    createWidget.maxSize = req.body.maxSize;
-                    createWidget.color = req.body.color;
-                    createWidget.created = new Date();
-                    createWidget.updated = new Date();
-                    console.log('created', createWidget.created);
-
-                    createWidget.save(function (err, widgetDetail) {
-                        console.log('widget details',widgetDetail)
-                        if (err)
-                            return res.status(500).json({error: 'Internal server error'});
-                        else if (!widgetDetail)
-                            return res.status(501).json({error: 'Not implemented'})
-                        else {
-                            req.app.result = widgetDetail;
-                            next();
-                        }
-                    });
+        async.auto({storeAllWidgets: processAllWidgets},
+            function (err, result) {
+                if (err)
+                    return res.status(500).json({error: 'Internal server error'});
+                else{
+                    req.app.result = result.storeAllWidgets;
+                    next();
                 }
+            })
+        function processAllWidgets(callback) {
+            var charts;
+            var colCount;
+            var dashboardId;
+            var description;
+            var referenceWidgetId;
+            var rowCount;
+            var widgetColor;
+            var widgetMaxSize;
+            var widgetMinSize;
+            var widgetSize;
+            var widgetType;
+            var widgetName;
+            var widgets = req.body;
 
-                //To update already existing database
-                else {
+            async.concatSeries(widgets, saveAllWidgets, callback);
 
-                    // set all of the user data that we need
-                    var name = req.body.name == undefined ? '' : req.body.name;
-                    //var description = req.body.description == undefined ? '' : req.body.description;
-                    var widgetId = req.body.widgetId;
-                    //var widgetType = req.body.widgetType == undefined ? '' : req.body.widgetType;
-                    //var metrics = req.body.metrics == undefined ? '' : req.body.metrics;
-                    var row = req.body.row == undefined ? '' : req.body.row;
-                    var col = req.body.col == undefined ? '' : req.body.col;
-                    var size = req.body.size == undefined ? '' : req.body.size;
-                    var minSize = req.body.minSize == undefined ? '' : req.body.minSize;
-                    var maxSize = req.body.maxSize == undefined ? '' : req.body.maxSize;
-                    var updated = new Date();
+            function saveAllWidgets(result,callback) {
+                req.dashboardId = result.dashboardId;
+                charts = result.charts;
+                colCount = result.col;
+                dashboardId = result.dashboardId;
+                description = result.description;
+                referenceWidgetId = result.referenceWidgetId;
+                rowCount = result.row;
+                widgetColor = result.color;
+                widgetMaxSize = result.maxSize;
+                widgetMinSize = result.minSize;
+                widgetSize = result.size;
+                widgetName = result.name;
+                widgetType = result.widgetType;
+                userPermission.checkUserAccess(req, res, function (err, response) {
+                    if (err)
+                        return res.status(500).json({error: 'Internal server error'});
+                    else {
+                        var createWidget = new widgetsList();
 
-
-                    // update the dashboard data
-                    widgetsList.update({_id: widgetId}, {
-                        $set: {
-                            name: name,
-                            //description: description,
-                            //widgetType: widgetType,
-                            row: row,
-                            //metrics: metrics,
-                            col: col,
-                            size: size,
-                            minSize: minSize,
-                            maxSize: maxSize,
-                            //charts: charts,
-                            updated: updated
-                        }
-                    }, {upsert: true}, function (err, widget) {
-                        if (err)
-                            return res.status(500).json({error: 'Internal server error'});
-                        else if (widget === 0)
-                            return res.status(501).json({error: 'Not implemented'});
-                        else {
-                            widgetsList.findOne({_id: widgetId}, function (err, widgetDetails) {
+                        //To store the widget
+                        //To check whether new dashboard or not
+                        if (result.widgetId === undefined) {
+                            createWidget.dashboardId = dashboardId;
+                            createWidget.widgetType = widgetType;
+                            createWidget.name = widgetName;
+                            createWidget.description = description;
+                            createWidget.charts = charts;
+                            createWidget.referenceWidgetId = referenceWidgetId;
+                            createWidget.row = rowCount;
+                            createWidget.col = colCount;
+                            createWidget.size = widgetSize;
+                            createWidget.minSize = widgetMinSize;
+                            createWidget.maxSize = widgetMaxSize;
+                            createWidget.color = widgetColor;
+                            createWidget.created = new Date();
+                            createWidget.updated = new Date();
+                            createWidget.save(function (err, widgetDetail) {
                                 if (err)
                                     return res.status(500).json({error: 'Internal server error'});
-                                else if (widgetDetails)
-                                    return res.status(204).json({error: 'No records found'});
+                                else if (!widgetDetail)
+                                    return res.status(501).json({error: 'Not implemented'})
                                 else {
-                                    req.app.result = widgetId;
-                                    next();
+                                    req.app.result = widgetDetail;
+                                    callback(null, widgetDetail);
                                 }
-                            })
+                            });
                         }
-                    });
-                }
-            }
-        })
 
+                        //To update already existing database
+                        else {
+                            var widgetId = result.widgetId;
+
+                            // set all of the user data that we need
+                            var name = req.body.name == undefined ? '' : widgetName;
+                            //var description = req.body.description == undefined ? '' : req.body.description;
+                            var widgetId = widgetId;
+                            //var widgetType = req.body.widgetType == undefined ? '' : req.body.widgetType;
+                            //var metrics = req.body.metrics == undefined ? '' : req.body.metrics;
+                            var row = rowCount == undefined ? '' : rowCount;
+                            var col = colCount == undefined ? '' : colCount;
+                            var size = widgetSize == undefined ? '' : widgetSize;
+                            var minSize = widgetMinSize == undefined ? '' : widgetMinSize;
+                            var maxSize = widgetMaxSize == undefined ? '' : widgetMaxSize;
+                            var updated = new Date();
+
+
+                            // update the dashboard data
+                            widgetsList.update({_id: widgetId}, {
+                                $set: {
+                                    name: name,
+                                    //description: description,
+                                    //widgetType: widgetType,
+                                    row: row,
+                                    //metrics: metrics,
+                                    col: col,
+                                    size: size,
+                                    minSize: minSize,
+                                    maxSize: maxSize,
+                                    //charts: charts,
+                                    updated: updated
+                                }
+                            }, {upsert: true}, function (err, widget) {
+                                if (err)
+                                    return res.status(500).json({error: 'Internal server error'});
+                                else if (widget === 0)
+                                    return res.status(501).json({error: 'Not implemented'});
+                                else {
+                                    widgetsList.findOne({_id: widgetId}, function (err, widgetDetails) {
+                                        if (err)
+                                            return res.status(500).json({error: 'Internal server error'});
+                                        else if (!widgetDetails)
+                                            return res.status(204).json({error: 'No records found'});
+                                        else {
+                                            req.app.result = widgetId;
+                                            callback(null, widgetDetails);
+                                        }
+                                    })
+                                }
+                            });
+                        }
+                    }
+                })
+            }
+        }
     }
     else
         res.status(401).json({error: 'Authentication required to perform this action'})

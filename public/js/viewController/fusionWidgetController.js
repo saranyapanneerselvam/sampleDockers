@@ -284,6 +284,7 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
         var chartCount = $scope.storedReferenceWidget.charts.length;
         colourRepeatChecker = generateChartColours.fetchRandomColors(chartCount);
         var matchingMetric = [];
+        var inputParams = [];
 
         for (var i = 0; i < $scope.storedReferenceCharts.length; i++) {
             for (var j = 0; j < $scope.storedUserChosenValues.length; j++) {
@@ -313,12 +314,15 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
             "minSize": $scope.storedReferenceWidget.minSize,
             "maxSize": $scope.storedReferenceWidget.maxSize
         };
+        inputParams.push(jsonData);
         $http({
             method: 'POST',
             url: '/api/v1/widgets',
-            data: jsonData
+            data: inputParams
         }).then(function successCallback(response) {
-            $rootScope.$broadcast('populateWidget', response.data.widgetsList);
+            for(widgetObjects in response.data.widgetsList) {
+                $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
+            }
         }, function errorCallback(error) {
             console.log('Error in getting widget id', error);
             swal({

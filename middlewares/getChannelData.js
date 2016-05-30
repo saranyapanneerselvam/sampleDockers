@@ -1923,7 +1923,7 @@ exports.getChannelData = function (req, res, next) {
                             }
                             //find sum
                             storeDefaultValues.forEach(function (value, index) {
-                                var count = value.total.favorite_count + value.total.favorite_count;
+                                var count = value.total.retweet_count + value.total.favorite_count;
                                 highEngagedTweetsCount.push({count: count, date: value.date, total: value.total})
                             })
                             sortedTweetsArray = _.sortBy(highEngagedTweetsCount, ['count']);

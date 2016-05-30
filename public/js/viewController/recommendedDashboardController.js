@@ -222,6 +222,7 @@ function RecommendedDashboardController($scope, $http, $window, $q,  $state, $ro
             url: '/api/v1/create/dashboards',
             data: jsonData
         }).then(function successCallback(response) {
+            var inputParams = [];
             for (var widget = 0; widget < $scope.referenceWidgetsList.length; widget++) {
                 for (var chart = 0; chart < $scope.referenceWidgetsList[widget].charts.length; chart++) {
                     for (var j = 0; j < $scope.storedUserChosenValues.length; j++) {
@@ -249,16 +250,17 @@ function RecommendedDashboardController($scope, $http, $window, $q,  $state, $ro
                     "minSize": $scope.referenceWidgetsList[widget].minSize,
                     "maxSize": $scope.referenceWidgetsList[widget].maxSize
                 };
-                $http({
-                    method: 'POST',
-                    url: '/api/v1/widgets',
-                    data: jsonData
-                }).then(function successCallback(response) {
-                   // console.log('Response after creating widget', response);
-                }, function errorCallback(error) {
-                    console.log('Error in getting widget id', error);
-                });
+                inputParams.push(jsonData);
             }
+            $http({
+                method: 'POST',
+                url: '/api/v1/widgets',
+                data: inputParams
+            }).then(function successCallback(response) {
+                // console.log('Response after creating widget', response);
+            }, function errorCallback(error) {
+                console.log('Error in getting widget id', error);
+            });
             $state.transitionTo('app.reporting.dashboard', {id: response.data});
         }, function errorCallback(error) {
             console.log('Error in creating new Dashboard', error);

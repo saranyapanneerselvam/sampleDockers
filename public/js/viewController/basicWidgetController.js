@@ -133,7 +133,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     $scope.objectType = 'page';
                     break;
                 case 'Google Analytics':
-                    $scope.objectType = 'view';
+                    $scope.objectType = 'gaview';
                     break;
                 case 'FacebookAds':
                     $scope.objectType = 'fbadaccount';
@@ -307,10 +307,20 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     };
 
     $scope.objectForWidgetChosen = function (objectOptionsModel) {
-        console.log('objectForWidgetChosen', objectOptionsModel);
-        $scope.storedObject = objectOptionsModel;
-        console.log('storedObject', $scope.storedObject,$scope.checkExpiresIn,$scope.storedObject != null && (  $scope.checkExpiresIn ===null || $scope.checkExpiresIn >= new Date()));
-        if ($scope.storedObject != null && (  $scope.checkExpiresIn ===null || $scope.checkExpiresIn >= new Date()))
+        if ($scope.storedChannelName === 'Google Analytics' && objectOptionsModel)
+            objectOptionsModel = JSON.parse(objectOptionsModel);
+
+        if(objectOptionsModel != undefined && objectOptionsModel[1] != undefined) {
+            $scope.storedObject = {
+                name: objectOptionsModel[0],
+                _id: objectOptionsModel[1],
+                objectTypeId: objectOptionsModel[2]
+            };
+        } else {
+            $scope.storedObject = null;
+        }
+
+        if ($scope.storedObject != null && (  $scope.checkExpiresIn === null || $scope.checkExpiresIn >= new Date()))
             document.getElementById('basicWidgetFinishButton').disabled = false;
         else
             document.getElementById('basicWidgetFinishButton').disabled = true;

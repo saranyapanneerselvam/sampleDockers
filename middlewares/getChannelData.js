@@ -63,11 +63,12 @@ exports.getChannelData = function (req, res, next) {
         var storeDefaultValues = []
         var storeStartDate = new Date(startDate);
         var storeEndDate = new Date(endDate);
-        console.log('enddate',storeEndDate)
+        console.log('enddate',storeStartDate)
         var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
         console.log('diffDays',diffDays)
         for (var i = 0; i < diffDays; i++) {
+            console.log('startdatee',storeStartDate,i)
             var finalDate = calculateDate(storeStartDate);
             storeDefaultValues.push({date: finalDate, total: 0});
             storeStartDate.setDate(storeStartDate.getDate() + 1);
@@ -139,6 +140,7 @@ exports.getChannelData = function (req, res, next) {
             store_final_data: ['get_channel_data_remote', storeFinalData],
             get_channel_objects_db: ['store_final_data', 'get_channel_data_remote', getChannelDataDB]
         }, function (err, results) {
+            console.log('final data',results.get_channel_objects_db)
             if (err) {
                 return res.status(500).json({});
             }
@@ -958,10 +960,10 @@ exports.getChannelData = function (req, res, next) {
                                             storeTweetDetails.push(value);
 
                                     })
-                                    var updated = formatDate(data[j].data.updated);
+                                    var updated = formatDate(dataFromDb[j].data.updated);
                                     if (updated < currentDate) {
-                                        var startDate = updated;
-                                        var daysDifference =populateDefaultData(startDate, currentDate);
+                                        updated.setDate(updated.getDate() + 1);
+                                        var daysDifference =populateDefaultData(updated, currentDate);
                                         //storeTweetDetails = daysDifference;
                                     }
 
@@ -977,7 +979,7 @@ exports.getChannelData = function (req, res, next) {
                                 }
                                 function populateDefaultData(startDate, currentDate) {
                                     var daysDifference = findDaysDifference(startDate, currentDate);
-                                    console.log('daysdiff', daysDifference,storeTweetDetails);
+                                    console.log('daysdiff', daysDifference,startDate, currentDate);
                                     var defaultArrayLength = daysDifference.length;
                                     var tweetsLength = storeTweetDetails.length;
                                     for (var i = 0; i < defaultArrayLength; i++) {
@@ -1050,6 +1052,7 @@ exports.getChannelData = function (req, res, next) {
         function getGraphDataFromDb(widget, metric, done) {
             async.times(widget.length, function (k, next) {
                 if (metric[k].code === configAuth.twitterMetric.highEngagementTweets) {
+                    console.log('data in db function',results.store_final_data[0].data)
                     next(null, results.store_final_data[0].data)
                 }
                 else {
@@ -1295,7 +1298,6 @@ exports.getChannelData = function (req, res, next) {
                 var apiCallingMethod;
                 var apiQuery = {}
                 if (allObjects.api === 'mcf') {
-                    apiCallingMethod = 'analytics.data.mcf.get';
                     apiQuery = {
                         'key': configAuth.googleAuth.clientSecret,
                         'ids': 'ga:' + allObjects.object.channelObjectId,
@@ -1305,34 +1307,11 @@ exports.getChannelData = function (req, res, next) {
                         'metrics': allObjects.metricName,
                         prettyPrint: true
                     }
-                    /**Method to call the google api
-                     * @param oauth2Client - set credentials
-                     */
-                    analytics.data.mcf.get(apiQuery, function (err, result) {
-                        console.log('google analytics error', err, result)
-                        if (err) {
-                            if (err.code === 400)
-                                return res.status(401).json({error: 'Authentication required to perform this action'})
-                            else
-                                return res.status(500).json({error: 'Internal server error'})
-                            //googleDataEntireFunction(allObjects.results, callback);
+                    var analytics = googleapis.analytics({version: 'v3', auth: oauth2Client}).data.mcf.get;
 
-                        }
-                        else {
-
-                            finalData = {
-                                metricId: allObjects.metricId,
-                                data: result,
-                                queryResults: results,
-                                channelId: results.metric[0].channelId
-                            };
-                            callback(null, finalData);
-                        }
-                    });
                 }
 
                 else {
-                    var apiCallingMethod = 'analytics.data.ga.get';
                     apiQuery = {
                         'auth': allObjects.oauth2Client,
                         'ids': 'ga:' + allObjects.object.channelObjectId,
@@ -1342,31 +1321,33 @@ exports.getChannelData = function (req, res, next) {
                         'metrics': allObjects.metricName,
                         prettyPrint: true
                     }
-                    /**Method to call the google api
-                     * @param oauth2Client - set credentials
-                     */
-                    analytics.data.ga.get(apiQuery, function (err, result) {
-                        console.log('google analytics error', err, result.row)
-                        if (err) {
-                            if (err.code === 400)
-                                return res.status(401).json({error: 'Authentication required to perform this action'})
-                            else
-                                return res.status(500).json({error: 'Internal server error'})
-                            //googleDataEntireFunction(allObjects.results, callback);
+                    var analytics = googleapis.analytics({version: 'v3', auth: oauth2Client}).data.ga.get;
 
-                        }
-                        else {
-
-                            finalData = {
-                                metricId: allObjects.metricId,
-                                data: result,
-                                queryResults: results,
-                                channelId: results.metric[0].channelId
-                            };
-                            callback(null, finalData);
-                        }
-                    });
                 }
+                /**Method to call the google api
+                 * @param oauth2Client - set credentials
+                 */
+
+                analytics(apiQuery, function (err, result) {
+                    console.log('google analytics error', err, result)
+                    if (err) {
+                        if (err.code === 400)
+                            return res.status(401).json({error: 'Authentication required to perform this action'})
+                        else
+                            return res.status(500).json({error: 'Internal server error'})
+                        //googleDataEntireFunction(allObjects.results, callback);
+
+                    }
+                    else {
+                        finalData = {
+                            metricId: allObjects.metricId,
+                            data: result,
+                            queryResults: results,
+                            channelId: results.metric[0].channelId
+                        };
+                        callback(null, finalData);
+                    }
+                });
             }
         }
     }
@@ -1814,6 +1795,7 @@ exports.getChannelData = function (req, res, next) {
     }
 
     function getTweetData(results, callback) {
+        console.log('getTweetData')
         async.auto({
             get_tweet_queries: getTweetQueries,
             get_tweet_data_from_remote: ['get_tweet_queries', getTweetDataFromRemote]
@@ -1826,11 +1808,13 @@ exports.getChannelData = function (req, res, next) {
         });
 
         function getTweetQueries(callback) {
+            console.log('getTweetQueries')
             var queries = {};
             formTweetQuery(results.metric, results.data, results.get_profile, callback);
             function formTweetQuery(metric, data, profile, callback) {
                 async.timesSeries(metric.length, function (j, next) {
-
+                    var query = metric[j].objectTypes[0].meta.TweetMetricName;
+                    var metricType = metric[j].code;
                     if(data[j].data!=null){
                         var updated = formatDate(data[j].data.updated);
                         if (updated > req.body.endDate) {
@@ -1843,27 +1827,30 @@ exports.getChannelData = function (req, res, next) {
                             };
                             next(null, queries);
                         }
-                        else {
-                            var query = metric[j].objectTypes[0].meta.TweetMetricName;
-                            var metricType = metric[j].code;
-                            if (metricType === configAuth.twitterMetric.keywordMentions)
-                                var inputs = {q: '%23' + profile[j].name, count: count};
+                        else
+                            setTweetQuery();
 
-                            else if (metricType === configAuth.twitterMetric.mentions)
-                                var inputs = {screen_name: profile[j].name, count: 200};
-                            else
-                                var inputs = {screen_name: profile[j].name, count: 200};
+                    }
+                    else
+                        setTweetQuery();
+                    function setTweetQuery() {
 
-                            queries = {
-                                inputs: inputs,
-                                query: query,
-                                metricId: metric[j]._id,
-                                channelId: metric[j].channelId,
-                                metricCode: metricType
-                            };
-                            next(null, queries);
+                        if (metricType === configAuth.twitterMetric.keywordMentions)
+                            var inputs = {q: '%23' + profile[j].name, count: count};
 
-                        }
+                        else if (metricType === configAuth.twitterMetric.mentions)
+                            var inputs = {screen_name: profile[j].name, count: 200};
+                        else
+                            var inputs = {screen_name: profile[j].name, count: 200};
+
+                        queries = {
+                            inputs: inputs,
+                            query: query,
+                            metricId: metric[j]._id,
+                            channelId: metric[j].channelId,
+                            metricCode: metricType
+                        };
+                        next(null, queries);
                     }
 
 
@@ -1874,11 +1861,13 @@ exports.getChannelData = function (req, res, next) {
 
         //To get tweet data from tweet api
         function getTweetDataFromRemote(queries, callback) {
+            console.log('getTweetDataFromRemote',queries.inputs)
             var wholeTweetObjects = [];
             async.timesSeries(queries.get_tweet_queries.length, function (j, next) {
                 if (queries.inputs === 'DataFromDb')
                     next(null, 'DataFromDb');
                 callTwitterApi(queries, j, wholeTweetObjects, function (err, response) {
+                    console.log('apierror',err)
                     if (err)
                         return res.status(500).json({});
                     else {

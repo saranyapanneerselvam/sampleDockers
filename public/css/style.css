@@ -21,10 +21,10 @@ svg:hover #Calendar-Icon { fill: #8560c5 ; }
     align-items: center;
     justify-content: center;}
 .dashboards{width: 83%;line-height: 15px;white-space: nowrap;text-overflow: ellipsis;overflow: hidden;}
-.gird-header{font-size: 20px;}
+.grid-header{font-size: 20px;}
 .dashboards a:hover{text-decoration: underline;}
 .gridAlign{padding: 27px 50px 40px !important;}
-.gird-text{padding: 5px;
+.grid-text{padding: 5px;
     width: 23%;
     margin: 10px;
     border: 2px solid #e7eaec;
@@ -34,7 +34,7 @@ svg:hover #Calendar-Icon { fill: #8560c5 ; }
     font-size: 14px;
     word-wrap: break-word;
     background-color: #ffffff;}
-.gird-text:hover, .gird-text.active {
+.grid-text:hover, .grid-text.active {
     border: 2px solid #04509B;}
 .dashboardTemplate-items{margin-top:11px;}
 .editable-controls > input{
@@ -8572,7 +8572,7 @@ body.md-skin {
 @media(max-width: 667px)and (min-width:  568px){.svg-line1{width:160px }.svg-line2{width:160px } .fusion-tab{padding-left: 100px !important;} .ibox-title{padding: 7px 200px 0px !important} }
 @media(max-width : 736px) and (min-width : 600px) {.svg-line1{width: 180px;}  .svg-line2{width: 180px;}  .fusion-tab{padding-left:75px !important;} .fusion-svgLine1{width: 310px} .ibox-title{padding: 7px 200px 0px !important}}
 @media(max-width : 1040px) and (min-width : 768px){.daterange {width: 300px !important; margin-left: 0px !important;} .fusion-tab{padding-left: 166px !important;} .ibox-title{padding: 7px 280px 0px !important}}
-@media(max-width:920px) and (min-width: 650px){.gird-text{width:35%}.dashboards{width: 100%;}}
-@media(max-width:645px) and (min-width: 480px){.gird-text{width:85%}.dashboards{width: 100%;}}
-@media(max-width:482px) and (min-width: 320px){.gird-text{width:100%}.dashboards{width: 100%;}}
-@media(max-width:1200px) and (min-width: 480px){.dashboards{width: 100%;}.gird-text{margin-left: 7%}}
+@media(max-width:920px) and (min-width: 650px){.grid-text{width:35%}.dashboards{width: 100%;}}
+@media(max-width:645px) and (min-width: 480px){.grid-text{width:85%}.dashboards{width: 100%;}}
+@media(max-width:482px) and (min-width: 320px){.grid-text{width:100%}.dashboards{width: 100%;}}
+@media(max-width:1200px) and (min-width: 480px){.dashboards{width: 100%;}.grid-text{margin-left: 7%}}

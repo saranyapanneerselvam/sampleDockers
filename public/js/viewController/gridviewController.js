@@ -19,7 +19,6 @@ function GridviewController($scope,$http) {
     };
 
     $scope.deleteDashboard = function(dashboard){
-       // console.log('girdDashboard',index,dashboard._id);
         $http({
             method:'POST', url:'/api/v1/delete/userDashboards/' + dashboard._id
         }).then(function successCallback(response){

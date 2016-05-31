@@ -185,15 +185,12 @@ exports.removeDashboardFromUser = function (req, res, next) {
             if (err)
                 return res.status(500).json({error: 'Internal server error'});
             else {
-                //console.log('indideOfElse');
                 for (var i = 0; i < response.dashboards.length; i++) {
                     if (response.dashboards[i].dashboardId != req.params.dashboardId) {
                         tempDashboardId.push(response.dashboards[i]);
                     }
                 }
-                console.log('tempDashboardId',tempDashboardId);
                 if (response.lastDashboardId === req.params.dashboardId) {
-                    console.log('hiiiiii');
                     if (tempDashboardId.length===0) {
                         User.update({'_id': req.user._id}, {
                             $set: {
@@ -201,47 +198,42 @@ exports.removeDashboardFromUser = function (req, res, next) {
                                 'dashboards': tempDashboardId
                             }
                         }, function (err, updateDashboard) {
-                            //console.log('updateDashboard',updateDashboard);
                             if (!err)
                                 removeWidget();
-                            removeDashboard();
                         })
                     }
-                    else{
+                    else {
                         User.update({'_id': req.user._id}, {
                             $set: {
                                 'lastDashboardId': tempDashboardId[0].dashboardId,
                                 'dashboards': tempDashboardId
                             }
                         }, function (err, updateDashboard) {
-                            //console.log('updateDashboard',updateDashboard);
                             if (!err)
                                 removeWidget();
-                            removeDashboard();
                         })
-                }
+                    }
                 }
                 else {
-                    console.log('helloooooo');
                     User.update({'_id': req.user._id}, {$set: {'dashboards': tempDashboardId}}, function (err, updateDashboard) {
-                        //console.log('updateDashboard',updateDashboard);
                         if (!err)
                             removeWidget();
-                        removeDashboard();
-
                     })
                 }
             }
+        });
 
-        })
         function removeWidget(){
             Widget.remove({'dashboardId':req.params.dashboardId},function(err,widget){
-                //console.log('widget',widget);
+                if(err)
+                    return res.status(500).json({error: 'Internal server error'});
+                else
+                    removeDashboard();
             })
         }
+
         function removeDashboard(){
             dashboardList.remove({'_id':req.params.dashboardId},function(err,dashboard){
-                //console.log('widget',dashboard);
                 if (err)
                     return res.status(500).json({error: 'Internal server error'});
                 else if (dashboard!=1)
@@ -252,8 +244,5 @@ exports.removeDashboardFromUser = function (req, res, next) {
                 }
             })
         }
-
     }
-
-
 };

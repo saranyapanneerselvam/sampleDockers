@@ -58,6 +58,24 @@ var client = new Twitter({
 //To get the channel data
 exports.getChannelData = function (req, res, next) {
 
+    //Function to find days difference
+    function findDaysDifference(startDate, endDate) {
+        var storeDefaultValues = []
+        var storeStartDate = new Date(startDate);
+        var storeEndDate = new Date(endDate);
+        console.log('enddate',storeEndDate)
+        var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
+        var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+        console.log('diffDays',diffDays)
+        for (var i = 0; i < diffDays; i++) {
+            var finalDate = calculateDate(storeStartDate);
+            storeDefaultValues.push({date: finalDate, total: 0});
+            storeStartDate.setDate(storeStartDate.getDate() + 1);
+        }
+        console.log('storeDefaultValues',storeDefaultValues);
+        return storeDefaultValues;
+    }
+
     //Function to format the date
     function formatDate(d) {
         month = '' + (d.getMonth() + 1),
@@ -606,7 +624,7 @@ exports.getChannelData = function (req, res, next) {
 
                                         //date value is coming in the format of 20160301 so splitting like yyyy-mm--dd format
                                         //obj['metricName'] = metricName;
-                                        if (metric[j].objectTypes[0].meta.api === configAuth.googleApiTypes.mcfApi){
+                                        if (metric[j].objectTypes[0].meta.api === configAuth.googleApiTypes.mcfApi) {
                                             var year = dataFromRemote[j].data.rows[i][0].primitiveValue.substring(0, 4);
                                             var month = dataFromRemote[j].data.rows[i][0].primitiveValue.substring(4, 6);
                                             var date = dataFromRemote[j].data.rows[i][0].primitiveValue.substring(6, 8);
@@ -614,7 +632,7 @@ exports.getChannelData = function (req, res, next) {
                                             obj['total'] = dataFromRemote[j].data.rows[i][resultCount].primitiveValue;
                                         }
 
-                                        else{
+                                        else {
                                             var year = dataFromRemote[j].data.rows[i][0].substring(0, 4);
                                             var month = dataFromRemote[j].data.rows[i][0].substring(4, 6);
                                             var date = dataFromRemote[j].data.rows[i][0].substring(6, 8);
@@ -630,7 +648,7 @@ exports.getChannelData = function (req, res, next) {
                                         else
                                             obj['total'] = dataFromRemote[j].data.rows[i][resultCount];
                                     }
-                                    console.log('finalobj data',obj);
+                                    console.log('finalobj data', obj);
                                 }
                                 storeGoogleData.push(obj);
 
@@ -845,6 +863,9 @@ exports.getChannelData = function (req, res, next) {
                 storeDataForTwitter(groupAllChannelData[allQueryResult.channel._id], allQueryResult.allData.data, allQueryResult.allData.widget[0].charts, allQueryResult.allData.metric, callback);
                 function storeDataForTwitter(dataFromRemote, dataFromDb, widget, metric, done) {
                     async.times(Math.min(widget.length, dataFromDb.length), function (j, next) {
+                        console.log('tweet data from remote', dataFromRemote[j].data[0])
+                        var currentDate = formatDate(new Date());
+                        var param = [];
                         var finalTweetResult;
                         var storeTweetDetails = [];
                         var wholeTweetResponseFromDb = [];
@@ -854,7 +875,8 @@ exports.getChannelData = function (req, res, next) {
 
                                 //To format twitter date
                                 var createdAt = formatDate(new Date(Date.parse(dataFromRemote[j].data[0].created_at.replace(/( +)/, ' UTC$1'))));
-                                storeTweetDetails.push({date: createdAt, total: dataFromRemote[j].data[0].user});
+                                console.log('createdat', createdAt)
+                                // storeTweetDetails.push({date: createdAt, total: dataFromRemote[j].data[0].user});
                                 for (var key in dataFromRemote) {
                                     if (dataFromRemote[key].data === 'DataFromDb') {
 
@@ -862,135 +884,131 @@ exports.getChannelData = function (req, res, next) {
                                     else {
                                         if (String(metric[j]._id) == String(dataFromRemote[key].metricId)) {
                                             wholeTweetResponse.push({
-                                                date: createdAt,
-                                                total: dataFromRemote[key].data[0].user
+                                                date: currentDate,
+                                                total: dataFromRemote[key].data[0]
                                             });
                                         }
                                     }
                                 }
-                                var currentDate = formatDate(new Date());
+                                if (metric[0].code == configAuth.twitterMetric.tweets)
+                                    param.push('statuses_count');
+                                else if (metric[0].name == 'Following')
+                                    param.push('friends_count');
+                                else if (metric[0].name == 'Listed')
+                                    param.push('listed_count');
+                                else if (metric[0].name == 'Followers')
+                                    param.push('followers_count');
+                                else if (metric[0].name == 'Favourites')
+                                    param.push('favourites_count');
+                                else if (metric[0].name == 'Retweets of your tweets')
+                                    param.push('retweet_count');
+                                else if (metric[0].name == 'Mentions' || 'Keyword mentions')
+                                    param.push('retweet_count', 'favorite_count');
+                                else
+                                    param.push('retweet_count', 'favorite_count');
+                                var dataFromRemoteLength = dataFromRemote[j].data.length;
+                                if (dataFromRemoteLength != 0) {
+
+                                    //for (var key = 0; key < dataFromRemoteLength; key++) {
+                                    var totalArray = [];
+                                    console.log('datafromremotelen', createdAt, param)
+                                    //  var date = formatDate(createdAt);
+
+                                    for (var index = 0; index < param.length; index++) {
+                                        if (param.length > 1) {
+
+                                            var total = dataFromRemote[j].data[0][param[index]];
+                                            var text = dataFromRemote[j].data[0].text;
+                                            totalArray.push(total);
+
+                                            if (totalArray.length > 1) {
+                                                var title = param[index];
+                                                storeTweetDetails.push({
+                                                    date: currentDate,
+                                                    text: text,
+                                                    retweet_count: totalArray[0],
+                                                    favourite_count: totalArray[1]
+                                                });
+                                            }
+                                        }
+                                        else {
+                                            console.log(' dataFromRemote[j].data[0].user[param[index]]', dataFromRemote[j].data[0].user[param[index]])
+                                            var total = dataFromRemote[j].data[0].user[param[index]];
+                                            totalArray.push({total: total, date: currentDate});
+                                            console.log('total array', totalArray)
+
+                                            //Get the required data based on date range
+                                            storeTweetDetails.push({
+                                                    total: total,
+                                                    date: currentDate
+                                                }
+                                            );
+                                        }
+                                    }
+                                    //}
+                                }
+                                else {
+                                    req.app.result = {Error: '500'};
+                                    next();
+                                }
+                                console.log('storeTweetDetails', storeTweetDetails);
                                 if (dataFromDb[j].data != null) {
                                     dataFromDb[j].data.data.forEach(function (value, index) {
                                         if (String(metric[j]._id) == String(dataFromRemote[j].metricId))
-                                            wholeTweetResponseFromDb.push(value);
+                                            storeTweetDetails.push(value);
 
                                     })
-                                    dataAlreadyExist(wholeTweetResponseFromDb, function (err, response) {
-                                        if (err) {
-                                            console.log('error', err)
-                                        }
-                                        else {
-                                            finalTweetResult = response;
-                                            updateTweetData(finalTweetResult, next);
-                                        }
-                                    });
+                                    var updated = formatDate(data[j].data.updated);
+                                    if (updated < currentDate) {
+                                        var startDate = updated;
+                                        var daysDifference =populateDefaultData(startDate, currentDate);
+                                        //storeTweetDetails = daysDifference;
+                                    }
+
                                 }
                                 else {
-                                    dataAlreadyExist(wholeTweetResponse, function (err, response) {
-                                        if (err) {
-                                            console.log('error', err)
-                                        }
-                                        else {
-                                            finalTweetResult = response;
-                                            updateTweetData(finalTweetResult, next);
-                                        }
-                                    });
+
+                                    var d = new Date();
+                                    d.setDate(d.getDate() - 365);
+                                    var startDate = formatDate(d);
+                                   var daysDifference =populateDefaultData(startDate, currentDate);
+
 
                                 }
-                                function replaceOrPushData(wholeTweetResponseFromDb, callback) {
-                                    var currentDate = formatDate(new Date());
-                                    var findCurrentDateAlreadyExist = _.findIndex(wholeTweetResponseFromDb, function (o) {
-                                        return o.date == currentDate;
-                                    });
-                                    if (findCurrentDateAlreadyExist === -1) {
-                                        wholeTweetResponseFromDb.push({
-                                            date: currentDate,
-                                            total: dataFromRemote[key].data[0].user
-                                        });
-                                    }
-                                    wholeTweetResponseFromDb.forEach(function (value, index) {
-                                        var updatedDate = value.date;
-                                        var twitterDate = new Date(Date.parse(dataFromRemote[j].data[0].created_at.replace(/( +)/, ' UTC$1')));
-                                        var createdAt = formatDate(twitterDate);
-                                        if (createdAt === updatedDate) {
-                                            wholeTweetResponseFromDb[index] = {
-                                                date: createdAt,
-                                                total: dataFromRemote[j].data[0].user
-                                            };
-                                        }
-                                        else {
-                                            if (wholeTweetResponseFromDb.length === 1) {
-                                                wholeTweetResponse.forEach(function (value) {
-                                                    wholeTweetResponseFromDb.push(value);
-                                                })
+                                function populateDefaultData(startDate, currentDate) {
+                                    var daysDifference = findDaysDifference(startDate, currentDate);
+                                    console.log('daysdiff', daysDifference,storeTweetDetails);
+                                    var defaultArrayLength = daysDifference.length;
+                                    var tweetsLength = storeTweetDetails.length;
+                                    for (var i = 0; i < defaultArrayLength; i++) {
+                                        for (var k = 0; k < tweetsLength; k++) {
+                                            if (daysDifference[i].date === storeTweetDetails[j].date) {
+                                                console.log('inif');
+                                                daysDifference[i] = storeTweetDetails[k]
                                             }
                                         }
-                                    })
-                                    callback(null, wholeTweetResponseFromDb);
+                                    }
+                                    storeTweetDetails = daysDifference;
+                                    //return daysDifference;
+
                                 }
 
-                                function dataAlreadyExist(wholeTweetResponse, callback) {
-                                    var findDateAlreadyExist = _.findIndex(wholeTweetResponseFromDb, function (o) {
-                                        return o.date == createdAt;
-                                    });
-                                    if (findDateAlreadyExist === -1) {
-                                        wholeTweetResponseFromDb.push({
-                                            date: createdAt,
-                                            total: dataFromRemote[j].data[0].user
-                                        });
-                                    }
-
-                                    if (currentDate != formatDate(new Date(createdAt))) {
-                                        if (dataFromDb[j].data === null) {
-                                            //store last data in current date
-                                            wholeTweetResponseFromDb.push({
-                                                date: currentDate,
-                                                total: dataFromRemote[j].data[0].user
-                                            });
-                                        }
+                                console.log('alldata', storeTweetDetails);
+                                if (dataFromRemote[key].data != 'DataFromDb') {
+                                    console.log('data from remote', widget)
+                                    var now = new Date();
+                                    Data.update({
+                                        'objectId': widget[j].metrics[0].objectId,
+                                        'metricId': dataFromRemote[j].metricId
+                                    }, {
+                                        $setOnInsert: {created: now},
+                                        $set: {data: storeTweetDetails, updated: now}
+                                    }, {upsert: true}, function (err) {
+                                        if (err) console.log("User not saved", err);
                                         else
-                                            wholeTweetResponseFromDb = wholeTweetResponse;
-
-                                        replaceOrPushData(wholeTweetResponseFromDb, function (err, response) {
-                                            if (err) {
-
-                                            }
-                                            else {
-                                                finalTweetResult = response;
-
-                                            }
-                                            callback(null, finalTweetResult)
-                                        });
-                                    }
-                                    else {
-                                        if (wholeTweetResponseFromDb.length === 0)
-                                            wholeTweetResponseFromDb = wholeTweetResponse;
-                                        var findDateAlreadyExist = _.findIndex(wholeTweetResponseFromDb, function (o) {
-                                            return o.date == createdAt;
-                                        });
-                                        if (findDateAlreadyExist === -1) {
-                                            wholeTweetResponseFromDb.push({
-                                                date: createdAt,
-                                                total: dataFromRemote[j].data[0].user
-                                            });
-                                        }
-
-                                        replaceOrPushData(wholeTweetResponseFromDb, function (err, response) {
-                                            if (err) {
-
-                                            }
-                                            else {
-                                                finalTweetResult = response;
-
-
-                                            }
-                                            callback(null, finalTweetResult)
-                                        });
-
-
-                                    }
+                                            callback(null, 'success')
+                                    });
                                 }
-
                                 function updateTweetData(finalTweetResult, callback) {
                                     var now = new Date();
                                     Data.update({
@@ -1200,7 +1218,7 @@ exports.getChannelData = function (req, res, next) {
                                         data: results.data,
                                         results: results,
                                         metricId: data[i].metricId,
-                                        api :metric[i].objectTypes[0].meta.api
+                                        api: metric[i].objectTypes[0].meta.api
                                     };
                                     //var dataResultDetails = analyticData(oauth2Client, results.object, dimension.get_dimension, metric.objectTypes[0].meta.gaMetricName, startDate, endDate, results.response, results.data, results);
                                     next(null, allObjects);
@@ -1228,7 +1246,7 @@ exports.getChannelData = function (req, res, next) {
                                     data: data[i],
                                     results: results,
                                     metricId: data[i].metricId,
-                                    api :metric[i].objectTypes[0].meta.api
+                                    api: metric[i].objectTypes[0].meta.api
                                 };
                                 next(null, allObjects);
 
@@ -1812,24 +1830,42 @@ exports.getChannelData = function (req, res, next) {
             formTweetQuery(results.metric, results.data, results.get_profile, callback);
             function formTweetQuery(metric, data, profile, callback) {
                 async.timesSeries(metric.length, function (j, next) {
-                    var query = metric[j].objectTypes[0].meta.TweetMetricName;
-                    var metricType = metric[j].code;
-                    if (metricType === configAuth.twitterMetric.keywordMentions)
-                        var inputs = {q: '%23' + profile[j].name, count: count};
 
-                    else if (metricType === configAuth.twitterMetric.mentions)
-                        var inputs = {screen_name: profile[j].name, count: 200};
-                    else
-                        var inputs = {screen_name: profile[j].name, count: 200};
+                    if(data[j].data!=null){
+                        var updated = formatDate(data[j].data.updated);
+                        if (updated > req.body.endDate) {
+                            queries = {
+                                inputs: 'DataFromDb',
+                                query: '',
+                                metricId: metric[j]._id,
+                                channelId: metric[j].channelId,
+                                metricCode: metricType
+                            };
+                            next(null, queries);
+                        }
+                        else {
+                            var query = metric[j].objectTypes[0].meta.TweetMetricName;
+                            var metricType = metric[j].code;
+                            if (metricType === configAuth.twitterMetric.keywordMentions)
+                                var inputs = {q: '%23' + profile[j].name, count: count};
 
-                    queries = {
-                        inputs: inputs,
-                        query: query,
-                        metricId: metric[j]._id,
-                        channelId: metric[j].channelId,
-                        metricCode: metricType
-                    };
-                    next(null, queries);
+                            else if (metricType === configAuth.twitterMetric.mentions)
+                                var inputs = {screen_name: profile[j].name, count: 200};
+                            else
+                                var inputs = {screen_name: profile[j].name, count: 200};
+
+                            queries = {
+                                inputs: inputs,
+                                query: query,
+                                metricId: metric[j]._id,
+                                channelId: metric[j].channelId,
+                                metricCode: metricType
+                            };
+                            next(null, queries);
+
+                        }
+                    }
+
 
                 }, callback)
             }
@@ -1840,6 +1876,8 @@ exports.getChannelData = function (req, res, next) {
         function getTweetDataFromRemote(queries, callback) {
             var wholeTweetObjects = [];
             async.timesSeries(queries.get_tweet_queries.length, function (j, next) {
+                if (queries.inputs === 'DataFromDb')
+                    next(null, 'DataFromDb');
                 callTwitterApi(queries, j, wholeTweetObjects, function (err, response) {
                     if (err)
                         return res.status(500).json({});

@@ -739,6 +739,7 @@ showMetricApp.service('generateChartColours',function(){
 
     //To fetch colours for all the charts in a widget
     this.fetchRandomColors = function (iterator) {
+        console.log('Problem here');
         var colourChart = ['#EF5350', '#EC407A', '#9C27B0', '#42A5F5', '#26A69A', '#FFCA28', '#FF7043', '#8D6E63'];
         var colourRepeatChecker = [];
 
@@ -758,6 +759,7 @@ showMetricApp.service('generateChartColours',function(){
 
     //To fetch colours for the widget header
     this.fetchWidgetColor = function (channelName) {
+        console.log('Problem there');
         var colourChart = ['#EF5350','#EC407A','#9C27B0','#42A5F5','#26A69A','#FFCA28','#FF7043','#8D6E63'];
         var widgetColor;
         switch (channelName){

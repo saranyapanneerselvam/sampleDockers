@@ -87,7 +87,6 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     };
 
     $scope.getObjectsForChosenProfile = function () {
-        console.log(this.profileOptionsModel);
         $scope.checkExpiresIn = null;
         if (!this.profileOptionsModel) {
             $scope.objectList = null;
@@ -96,20 +95,14 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             }
         }
         else {
-
-            console.log('this.profileOptionsModel.expiresIn',this.profileOptionsModel.expiresIn);
             if(this.profileOptionsModel.expiresIn!= undefined)
                 $scope.checkExpiresIn = new Date(this.profileOptionsModel.expiresIn);
-            console.log($scope.checkExpiresIn);
             $scope.tokenExpired = false;
             var profileId = this.profileOptionsModel._id;
             var expiresIn = this.profileOptionsModel.expiresIn;
             var currentDate = new Date();
-            var newexpiresIn = new Date(expiresIn)
-            console.log('expiresin', newexpiresIn, currentDate, this.profileOptionsModel)
+            var newexpiresIn = new Date(expiresIn);
             if (currentDate <= newexpiresIn) {
-                console.log('if');
-
                 //token is valid
                 $scope.tokenExpired = false;
             }
@@ -119,15 +112,12 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 console.log('else');
                 $scope.tokenExpired = true;
             }
-console.log('$scope.tokenExpired',$scope.tokenExpired);
             $http({
                 method: 'GET',
                 url: '/api/v1/get/objects/' + profileId
             }).then(function successCallback(response) {
                 $scope.objectList = response.data.objectList;
-                console.log(response.data.objectList);
                 if ($scope.storedChannelName === 'Twitter') {
-                    console.log('TwitterCondition', response.data.objectList);
                     $scope.objectForWidgetChosen($scope.objectList[0]);
                 }
             }, function errorCallback(error) {
@@ -196,7 +186,6 @@ console.log('$scope.tokenExpired',$scope.tokenExpired);
             var top = (screen.height / 2) - (h / 2);
             return window.open(url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
         }
-
         popupwindow(url, title, 1000, 500);
     };
 
@@ -233,9 +222,8 @@ console.log('$scope.tokenExpired',$scope.tokenExpired);
             var matchingMetric = [];
             var inputParams = [];
             var chartCount = $scope.storedReferenceWidget.charts.length;
-            var chartColors = generateChartColours.fetchRandomColors(chartCount);
+            //var chartColors = generateChartColours.fetchRandomColors(chartCount);
             var widgetColor = generateChartColours.fetchWidgetColor($scope.storedChannelName);
-
             for (var i = 0; i < $scope.storedReferenceWidget.charts.length; i++) {
                 matchingMetric = [];
                 for (var j = 0; j < $scope.storedReferenceWidget.charts[i].metrics.length; j++) {
@@ -245,7 +233,7 @@ console.log('$scope.tokenExpired',$scope.tokenExpired);
                     }
                 }
                 $scope.storedReferenceWidget.charts[i].metrics = matchingMetric;
-                $scope.storedReferenceWidget.charts[i].colour = chartColors[i];
+                //$scope.storedReferenceWidget.charts[i].colour = chartColors[i];
                 $scope.storedReferenceWidget.charts[i].objectName = $scope.storedObject.name;
             }
             var jsonData = {

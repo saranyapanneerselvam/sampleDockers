@@ -267,79 +267,89 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
     //To populate all the widgets in a dashboard when the dashboard is refreshed or opened or calendar date range in the dashboard header is changed
     $rootScope.populateDashboardWidgets = function() {
         $scope.dashboard.widgets = [];
+        $scope.dashboard.widgetData = [];
         $http({
             method: 'GET',
             url: '/api/v1/dashboards/widgets/'+ $state.params.id
-        }).then(function successCallback(response) {
-            var widgets = [];
-            var dashboardWidgetList = response.data.widgetsList;
-            if(dashboardWidgetList) {
-                $scope.widgetsPresent = true;
-            } else {
-                $scope.widgetsPresent = false;
-            }
+        }).then(
+            function successCallback(response) {
+                var widgets = [];
+                var dashboardWidgetList = response.data.widgetsList;
+                if(dashboardWidgetList) {
+                    $scope.widgetsPresent = true;
+                } else {
+                    $scope.widgetsPresent = false;
+                }
 
+                for(getWidgetInfo in dashboardWidgetList){
+                    widgets.push(createWidgets.widgetDataFetchHandler(dashboardWidgetList[getWidgetInfo],{
+                        'startDate': moment($scope.dashboardCalendar.start_date).format('YYYY-MM-DD'),
+                        'endDate': moment($scope.dashboardCalendar.end_date).format('YYYY-MM-DD')
+                    }));
 
-            for(getWidgetInfo in dashboardWidgetList){
-                widgets.push(createWidgets.widgetDataFetchHandler(dashboardWidgetList[getWidgetInfo],{
-                    'startDate': moment($scope.dashboardCalendar.start_date).format('YYYY-MM-DD'),
-                    'endDate': moment($scope.dashboardCalendar.end_date).format('YYYY-MM-DD')
-                }));
+                    //To temporarily create an empty widget with same id as the widgetId till all the data required for the widget is fetched by the called service
+                    $scope.dashboard.widgets.push({
+                        'row': (typeof dashboardWidgetList[getWidgetInfo].row != 'undefined'? dashboardWidgetList[getWidgetInfo].row : 0),
+                        'col': (typeof dashboardWidgetList[getWidgetInfo].col != 'undefined'? dashboardWidgetList[getWidgetInfo].col : 0),
+                        'sizeY': (typeof dashboardWidgetList[getWidgetInfo].size != 'undefined'? dashboardWidgetList[getWidgetInfo].size.h : 2),
+                        'sizeX': (typeof dashboardWidgetList[getWidgetInfo].size != 'undefined'? dashboardWidgetList[getWidgetInfo].size.w : 2),
+                        'minSizeY': (typeof dashboardWidgetList[getWidgetInfo].minSize != 'undefined'? dashboardWidgetList[getWidgetInfo].minSize.h : 1),
+                        'minSizeX': (typeof dashboardWidgetList[getWidgetInfo].minSize != 'undefined'? dashboardWidgetList[getWidgetInfo].minSize.w : 1),
+                        'maxSizeY': (typeof dashboardWidgetList[getWidgetInfo].maxSize != 'undefined'? dashboardWidgetList[getWidgetInfo].maxSize.h : 3),
+                        'maxSizeX': (typeof dashboardWidgetList[getWidgetInfo].maxSize != 'undefined'? dashboardWidgetList[getWidgetInfo].maxSize.w : 3),
+                        'name': (typeof dashboardWidgetList[getWidgetInfo].name != 'undefined'? dashboardWidgetList[getWidgetInfo].name : ''),
+                        'id': dashboardWidgetList[getWidgetInfo]._id,
+                        //'chart': {'api': {}},
+                        'visibility': false
+                    });
+                    $scope.dashboard.widgetData.push({
+                        'id':  dashboardWidgetList[getWidgetInfo]._id,
+                        'chart': [],
+                        'visibility': false,
+                        'name': (typeof dashboardWidgetList[getWidgetInfo].name != 'undefined'? dashboardWidgetList[getWidgetInfo].name : ''),
+                        'color': (typeof dashboardWidgetList[getWidgetInfo].color != 'undefined'? dashboardWidgetList[getWidgetInfo].color : '')
+                    });
 
-                //To temporarily create an empty widget with same id as the widgetId till all the data required for the widget is fetched by the called service
-                $scope.dashboard.widgets.push({
-                    'row': (typeof dashboardWidgetList[getWidgetInfo].row != 'undefined'? dashboardWidgetList[getWidgetInfo].row : 0),
-                    'col': (typeof dashboardWidgetList[getWidgetInfo].col != 'undefined'? dashboardWidgetList[getWidgetInfo].col : 0),
-                    'sizeY': (typeof dashboardWidgetList[getWidgetInfo].size != 'undefined'? dashboardWidgetList[getWidgetInfo].size.h : 2),
-                    'sizeX': (typeof dashboardWidgetList[getWidgetInfo].size != 'undefined'? dashboardWidgetList[getWidgetInfo].size.w : 2),
-                    'minSizeY': (typeof dashboardWidgetList[getWidgetInfo].minSize != 'undefined'? dashboardWidgetList[getWidgetInfo].minSize.h : 1),
-                    'minSizeX': (typeof dashboardWidgetList[getWidgetInfo].minSize != 'undefined'? dashboardWidgetList[getWidgetInfo].minSize.w : 1),
-                    'maxSizeY': (typeof dashboardWidgetList[getWidgetInfo].maxSize != 'undefined'? dashboardWidgetList[getWidgetInfo].maxSize.h : 3),
-                    'maxSizeX': (typeof dashboardWidgetList[getWidgetInfo].maxSize != 'undefined'? dashboardWidgetList[getWidgetInfo].maxSize.w : 3),
-                    'name': (typeof dashboardWidgetList[getWidgetInfo].name != 'undefined'? dashboardWidgetList[getWidgetInfo].name : ''),
-                    'id': dashboardWidgetList[getWidgetInfo]._id,
-                    //'chart': {'api': {}},
-                    'visibility': false
-                });
-                $scope.dashboard.widgetData.push({
-                    'id':  dashboardWidgetList[getWidgetInfo]._id,
-                    'chart': [],
-                    'visibility': false,
-                    'name': (typeof dashboardWidgetList[getWidgetInfo].name != 'undefined'? dashboardWidgetList[getWidgetInfo].name : ''),
-                    'color': (typeof dashboardWidgetList[getWidgetInfo].color != 'undefined'? dashboardWidgetList[getWidgetInfo].color : '')
-                });
-
-                //Fetching the promise that contains all the data for the particular widget in the dashboard
-                widgets[getWidgetInfo].then(
-                    function successCallback(widget){
-                        var widgetIndex = $scope.dashboard.widgets.map(function(el) {return el.id;}).indexOf(widget._id);
-                        var finalChartData = createWidgets.dataLoader(widget);
-                        var widgetToBeLoaded = createWidgets.replacePlaceHolderWidget(widget,finalChartData);
-                        widgetToBeLoaded.then(
-                            function successCallback(widgetToBeLoaded){
-                                $scope.dashboard.widgetData[widgetIndex] = widgetToBeLoaded;
-                                console.log('widgetData:',$scope.dashboard.widgetData[widgetIndex]);
-                                isExportOptionSet=1;
+                    //Fetching the promise that contains all the data for the particular widget in the dashboard
+                    widgets[getWidgetInfo].then(
+                        function successCallback(widget){
+                            var widgetIndex = $scope.dashboard.widgets.map(function(el) {return el.id;}).indexOf(widget._id);
+                            var finalChartData = createWidgets.dataLoader(widget);
+                            var widgetToBeLoaded = createWidgets.replacePlaceHolderWidget(widget,finalChartData);
+                            widgetToBeLoaded.then(
+                                function successCallback(widgetToBeLoaded){
+                                    $scope.dashboard.widgetData[widgetIndex] = widgetToBeLoaded;
+                                    console.log('widgetData:',$scope.dashboard.widgetData[widgetIndex]);
+                                    isExportOptionSet=1;
+                                },
+                                function errorCallback(error){
+                                    console.log(error);
+                                    isExportOptionSet=0;
+                                    swal({
+                                        title: "",
+                                        text: "<span style='sweetAlertFont'>There has been an error in populating the widgets! Please refresh the dashboard again</span> .",
+                                        html: true
+                                    });
+                                }
+                            );
                         },
-                            function errorCallback(error){
+                        function errorCallback(error){
                             console.log(error);
                             isExportOptionSet=0;
-                        });
-                    },
-                    function errorCallback(error){
-                        console.log(error);
-                        isExportOptionSet=0;
-                    });
+                        }
+                    );
+                }
+            },
+            function errorCallback(error) {
+                console.log('Error in finding widgets in the dashboard', error);
+                swal({
+                    title: "",
+                    text: "<span style='sweetAlertFont'>There has been an error in populating the widgets! Please refresh the dashboard again</span> .",
+                    html: true
+                });
+                isExportOptionSet=0;
             }
-        }, function errorCallback(error) {
-            console.log('Error in finding widgets in the dashboard', error);
-            swal({
-                title: "",
-                text: "<span style='sweetAlertFont'>Please try again! Something is missing</span> .",
-                html: true
-            });
-            isExportOptionSet=0;
-        });
+        );
     };
 
     //To catch a request for a new widget creation and create the dashboard in the frontend
@@ -384,17 +394,17 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 var widgetToBeLoaded = createWidgets.replacePlaceHolderWidget(inputWidget[0],finalChartData);
                 widgetToBeLoaded.then(
                     function successCallback(widgetToBeLoaded){
-                        //$scope.dashboard.widgets[widgetIndex] = widgetToBeLoaded;
                         $scope.dashboard.widgetData[widgetIndex] = widgetToBeLoaded;
                     },
                     function errorCallback(error) {
                         console.log(error);
                         swal({
                             title: "",
-                            text: "<span style='sweetAlertFont'>Please try again! Something is missing</span> .",
+                            text: "<span style='sweetAlertFont'>There has been an error in creating the widget! Please try again</span> .",
                             html: true
                         });
-                    });
+                    }
+                );
             },
             function errorCallback(error){
                 console.log(error);
@@ -418,15 +428,23 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
     //To delete a widget from the dashboard
     $scope.deleteWidget = function(widget){
-        console.log(widget);
+        var widgetId = widget.id;
         $http({
-            method:'POST', url:'/api/v1/delete/widgets/' + widget.id
-        }).then(function successCallback(response){
-            if($scope.dashboard.widgets.length == 0)
-                $scope.widgetsPresent = false;
-        },function errorCallback(error){
-            console.log('Error in deleting the widget',error);
-        });
+            method:'POST',
+            url:'/api/v1/delete/widgets/' + widget.id
+        }).then(
+            function successCallback(response){
+                for(items in $scope.dashboard.widgetData){
+                    if($scope.dashboard.widgetData[items].id == widgetId)
+                        $scope.dashboard.widgetData.splice(items,1);
+                }
+                if($scope.dashboard.widgets.length == 0)
+                    $scope.widgetsPresent = false;
+            },
+            function errorCallback(error){
+                console.log('Error in deleting the widget',error);
+            }
+        );
     };
 
     //To export the dashboard into PDF format
@@ -445,14 +463,17 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
     //To delete the dashboard
     $scope.deleteDashboard = function(){
         $http({
-            method:'POST', url:'/api/v1/delete/userDashboards/' + $state.params.id
-        }).then(function successCallback(response){
-            console.log('dashboardDeleted',response);
-            $state.go('app.reporting.dashboards');
-        },function errorCallback(error){
-            swal({  title: "", text: "<span style='sweetAlertFont'>Unable to delete dashboard.Please try again</span> .",   html: true });
-            console.log('Error in deleting the widget',error);
-        });
+            method:'POST',
+            url:'/api/v1/delete/userDashboards/' + $state.params.id
+        }).then(
+            function successCallback(response){
+                $state.go('app.reporting.dashboards');
+            },
+            function errorCallback(error){
+                swal({  title: "", text: "<span style='sweetAlertFont'>Unable to delete dashboard.Please try again</span> .",   html: true });
+                console.log('Error in deleting dashboard',error);
+            }
+        );
 
-    }
+    };
 }

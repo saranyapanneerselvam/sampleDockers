@@ -44,9 +44,9 @@
     display: none;
     z-index: 1;
     position: absolute;
-    background-color: #ddd;
+    background-color: #AEC7E8;
     border-color: #fff;
-    opacity: 0.2;
+    opacity: 0.8;
     -webkit-transition: width .2s, height .3s;
     -moz-transition: width .2s, height .3s;
     -o-transition: width .2s, height .3s;

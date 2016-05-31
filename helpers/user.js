@@ -1,3 +1,4 @@
+var moment = require('moment');
 var profile = require('../models/profiles');
 var exports = module.exports = {};
 
@@ -7,7 +8,7 @@ var exports = module.exports = {};
  2.res have the query response
  */
 exports.storeProfiles = function (req, done) {
-    req.showMetric = {};
+
     var tokens = req.tokens;
     profile.findOne({'userId': req.userId, 'channelId': req.channelId}, function (err, profileDetails) {
 
@@ -34,7 +35,8 @@ exports.storeProfiles = function (req, done) {
                 $set: {
                     "accessToken": newAccessToken,
                     "refreshToken": newRefreshToken,
-                    'updated': updated
+                    'updated': updated,
+                    "expiresIn" : req.expiresIn
                 }
             }, {upsert: true}, function (err, updateResult) {
                 if (!err) {
@@ -73,6 +75,8 @@ exports.storeProfiles = function (req, done) {
             newProfile.userId = req.userId;
             newProfile.created = new Date();
             newProfile.updated = new Date();
+            newProfile.expiresIn = req.expiresIn;
+
 
             // save the user
             newProfile.save(function (err, user) {

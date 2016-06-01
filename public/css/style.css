@@ -140,6 +140,7 @@ svg:hover #Calendar-Icon { fill: #8560c5 ; }
     background-color: #fff !important;
     border-radius: 5px !important;
     font-size: 18px !important;
+    color: #ccc;
     font-family: Brandon Grotesque-medium !important ;
     font-style: normal !important;
     padding: 6.5px !important;
@@ -450,6 +451,10 @@ body.mini-navbar .navbar-default .nav > li > .nav-second-level li a {
     border-radius: 0px !important;
     color: #ffffff  !important;
 }
+.mini-navbar .nav-second-level li a:hover {
+    background-color:#04509B;
+}
+
 .mini-navbar .nav-second-level {
     position: absolute;
     left: 70px;
@@ -8534,7 +8539,7 @@ body.md-skin {
     .ibox-title span{display:none !important;}
     .modal-body{height: auto !important;}
     .button-mode{width: 25% !important;}
-    .daterange{width: 100% !important;margin-left:0px !important;}
+    .daterange{width: 100% !important;margin-left:0px !important;padding-bottom: 7px;}
     .svg-line1{width:280px }.svg-line2{width:280px ;}
 
 
@@ -8571,7 +8576,7 @@ body.md-skin {
 @media(max-width : 560px) and (min-width : 384px) {.svg-line1{width: 80px;}  .svg-line2{width: 80px;} .fusion-svgLine1{width: 215px} .fusion-tab{padding-left: 0px !important;}}
 @media(max-width: 667px)and (min-width:  568px){.svg-line1{width:160px }.svg-line2{width:160px } .fusion-tab{padding-left: 100px !important;} .ibox-title{padding: 7px 200px 0px !important} }
 @media(max-width : 736px) and (min-width : 600px) {.svg-line1{width: 180px;}  .svg-line2{width: 180px;}  .fusion-tab{padding-left:75px !important;} .fusion-svgLine1{width: 310px} .ibox-title{padding: 7px 200px 0px !important}}
-@media(max-width : 1040px) and (min-width : 768px){.daterange {width: 300px !important; margin-left: 0px !important;} .fusion-tab{padding-left: 166px !important;} .ibox-title{padding: 7px 280px 0px !important}}
+@media(max-width : 1040px) and (min-width : 768px){.daterange {width: 300px !important; margin-left: 0px !important;padding-bottom: 7px;} .fusion-tab{padding-left: 166px !important;} .ibox-title{padding: 7px 280px 0px !important}}
 @media(max-width:920px) and (min-width: 650px){.grid-text{width:35%}.dashboards{width: 100%;}}
 @media(max-width:645px) and (min-width: 480px){.grid-text{width:85%}.dashboards{width: 100%;}}
 @media(max-width:482px) and (min-width: 320px){.grid-text{width:100%}.dashboards{width: 100%;}}

@@ -34,6 +34,10 @@ var OAuth2 = googleapis.auth.OAuth2;
 //set Twitter module
 var Twitter = require('twitter');
 
+//Importing instagram node module - dev
+var ig = require('instagram-node').instagram();
+
+
 //Load the auth file
 var configAuth = require('../config/auth');
 
@@ -144,6 +148,7 @@ exports.getChannelData = function (req, res, next) {
             if (err) {
                 return res.status(500).json({});
             }
+            console.log('FrontEndResult',results.get_channel_objects_db);
             req.app.result = results.get_channel_objects_db;
             next();
         });
@@ -329,6 +334,14 @@ exports.getChannelData = function (req, res, next) {
                             return res.status(500).json({});
                         else
                             selectAdwordsObjectType(result, callback);
+                    });
+                    break;
+                case configAuth.channels.instagram:
+                    setDataBasedChannelCode(results, function (err, result) {
+                        if (err)
+                            return res.status(500).json({});
+                        else
+                            selectInstagram(result, callback);
                     });
                     break;
                 default:
@@ -861,6 +874,69 @@ exports.getChannelData = function (req, res, next) {
                 }
 
             }
+            else if (allQueryResult.channel.code == configAuth.channels.instagram) {
+                storeDataForInstagram(groupAllChannelData[allQueryResult.channel._id], allQueryResult.allData.data, allQueryResult.allData.widget[0].charts, allQueryResult.allData.metric, callback);
+                function storeDataForInstagram(dataFromRemote, dataFromDb, widget, metric, done) {
+                    console.log('storingProcess',dataFromRemote);
+                    async.times(metric.length, function (j, next) {
+                        var finalData = [];
+                        if(metric[j].objectTypes[0].meta.endpoint==='user_media_recent'){
+                            console.log('insideofuser_media_recent')
+                            callback(null,dataFromRemote[j])
+
+                        }
+                        else{
+                            //Array to hold the final result
+                            for (var key in dataFromRemote) {
+                                if (dataFromRemote[key].apiResponse === 'DataFromDb') {
+                                }
+                                else {
+                                    if (String(metric[j]._id) == String(dataFromRemote[key].metricId)) {
+                                        console.log('satisfied metric conditions');
+                                        finalData = dataFromRemote[key].apiResponse;
+                                    }
+                                }
+                            }
+
+                        if (dataFromRemote[j].apiResponse != 'DataFromDb') {
+                            if (dataFromDb[j].data != null) {
+                                if (dataFromRemote[j].metricId == dataFromDb[j].metricId) {
+                                    console.log('satisfied data conditions');
+                                    //merge the old data with new one and update it in db
+                                    for (var key = 0; key < dataFromDb[j].data.data.length; key++) {
+                                        finalData.push(dataFromDb[j].data.data[key]);
+                                    }
+                                    var metricId = metric._id;
+                                }
+
+                            }
+                            console.log('storingFinalData',finalData)
+                            var now = new Date();
+
+                            //Updating the old data with new one
+                            Data.update({
+                                'objectId': widget[j].metrics[0].objectId,
+                                'metricId': metric[j]._id
+                            }, {
+                                $setOnInsert: {created: now},
+                                $set: {data: finalData, updated: now}
+                            }, {upsert: true}, function (err) {
+                                if (err) console.log("User not saved");
+                                else
+                                    next(null, 'success')
+                            });
+                        }
+
+                        else
+                            next(null, 'success')
+                        }
+
+                    }, done);
+
+
+                }
+
+            }
             else if (allQueryResult.channel.code == configAuth.channels.twitter) {
                 storeDataForTwitter(groupAllChannelData[allQueryResult.channel._id], allQueryResult.allData.data, allQueryResult.allData.widget[0].charts, allQueryResult.allData.metric, callback);
                 function storeDataForTwitter(dataFromRemote, dataFromDb, widget, metric, done) {
@@ -1054,6 +1130,9 @@ exports.getChannelData = function (req, res, next) {
                 if (metric[k].code === configAuth.twitterMetric.highEngagementTweets) {
                     console.log('data in db function',results.store_final_data[0].data)
                     next(null, results.store_final_data[0].data)
+                }
+                 else if(metric[k].objectTypes[0].meta.endpoint === 'user_media_recent'){
+                     next(null, results.store_final_data[0].apiResponse);
                 }
                 else {
                     Data.aggregate([
@@ -2310,5 +2389,203 @@ exports.getChannelData = function (req, res, next) {
             next();
         }
 
+    }
+
+    function selectInstagram(initialResults, callback){
+        async.auto({
+            get_instagram_queries: getInstagramQueries,
+            get_instagram_data_from_remote: ['get_instagram_queries', getInstagramDataFromRemote]
+
+        }, function (err, results) {
+            if (err) {
+                return callback(err, null);
+            }
+            callback(null, results.get_instagram_data_from_remote);
+        });
+
+        function getInstagramQueries(callback){
+            work(initialResults.data, initialResults.object, initialResults.metric, callback);
+            function work(data, object, metric, done) {
+                console.log('asyncMetric',metric.length,metric);
+                async.timesSeries(metric.length, function (j, next) {
+                    console.log('Metricloop',metric[j]);
+                    var adAccountId = initialResults.object[j].channelObjectId;
+                    d = new Date();
+                    var allObjects = {};
+                    if (data[j].data != null) {
+                        var updated = calculateDate(data[j].data.updated);
+                        var currentDate = calculateDate(new Date());
+                        d.setDate(d.getDate() + 1);
+                        var startDate = calculateDate(d);
+                        var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+                        if (calculateDate(data[j].data.updated) < currentDate) {
+                            var query = metric[j].objectTypes[0].meta.igMetricName;
+                            allObjects = {
+                                profile: initialResults.get_profile[j],
+                                query: query,
+                                widget: metric[j],
+                                dataResult: data[j].data,
+                                startDate: updated,
+                                endDate: startDate,
+                                metricId: metric[j]._id,
+                                endPoint: metric[j].objectTypes[0].meta.endpoint
+                            }
+                            console.log('DataIfAllobject',allObjects);
+                            next(null, allObjects);
+                        }
+                        else
+                            next(null, 'DataFromDb');
+                    }
+                    else {
+
+                        //call google api
+                        d.setDate(d.getDate() - 365);
+                        var startDate = formatDate(d);
+                        var endDate = formatDate(new Date());
+                        var query =  metric[j].objectTypes[0].meta.igMetricName;
+                        allObjects = {
+                            profile: initialResults.get_profile[j],
+                            query: query,
+                            widget: metric[j],
+                            dataResult: data[j].data,
+                            startDate: startDate,
+                            endDate: endDate,
+                            metricId: metric[j]._id,
+                            metricCode:metric[j].code,
+                            endPoint: metric[j].objectTypes[0].meta.endpoint
+                        };
+                        console.log('NonDataIfAllobject',allObjects);
+                        next(null, allObjects);
+
+                    }
+
+                }, done)
+            }
+
+        }
+
+        function getInstagramDataFromRemote(allObjects,callback){
+           var actualFinalApiData = {};
+            async.concatSeries(allObjects.get_instagram_queries, checkDbData, callback);
+            function checkDbData(result, callback) {
+                if (result == 'DataFromDb') {
+                    actualFinalApiData = {
+                        apiResponse: 'DataFromDb',
+                        queryResults: initialResults,
+                        channelId: initialResults.metric[0].channelId
+                    }
+                    callback(null, actualFinalApiData);
+                }
+                else {
+                    console.log('wantsResult',result);
+                    callInstagramApiForMetrics(result, callback);
+
+                }
+            }
+        }
+
+        function callInstagramApiForMetrics(result, callback){
+            //Set access token for hitting api access - dev
+            var storeMetric;
+            var tot_metric=[];
+            var sorteMediasArray=[];
+            var actualFinalApiData=[];
+            var userMediaRecent=[];
+            var recentMedia=[];
+            console.log('callbackResults',result.profile.accessToken,result.profile.userId,result.query)
+            ig.use({access_token: result.profile.accessToken});
+            if(result.query==='user') {
+                ig.user(result.profile.userId, function (err, results, remaining, limit) {
+                    if (err) {
+                        console.log('Media Error : ', err);
+                    }
+                    else {
+                        var endPointMetric = {}
+                        endPointMetric = {items: result.endPoint};
+                        console.log('InstagramResponseData', results)
+                        var storeStartDate = new Date(result.startDate);
+                        console.log('startDate', storeStartDate)
+                        var storeEndDate = new Date(result.endDate);
+                        console.log('startDate', storeEndDate)
+                        var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
+                        var diffDays = (Math.ceil(timeDiff / (1000 * 3600 * 24))) + 1; //adding plus one so that today also included
+                        console.log('InstagramResponse', result, diffDays);
+                        if (endPointMetric.items.indexOf("/") > -1) {
+                            endPointMetric = endPointMetric.items.split("/");
+                        }
+                        console.log("endPointMetric", endPointMetric);
+                        var count = endPointMetric[0];
+                        var item = endPointMetric[1];
+                        var temp = results[count];
+                        storeMetric = temp[item];
+                        console.log('storeMetric', storeMetric);
+                        for (var i = 0; i <= diffDays; i++) {
+                            var finalDate = formatDate(storeStartDate);
+                            // console.log('storeStartDate',finalDate,i,diffDays)
+                            tot_metric.push({date: finalDate, total: 0});
+                            storeStartDate.setDate(storeStartDate.getDate() + 1);
+
+                            if (result.endDate === tot_metric[i].date) {
+                                //console.log('willreplaceMetric',tot_metric[i]);
+                                tot_metric[i] = {
+                                    total: storeMetric,
+                                    date: result.endDate
+                                };
+                                // console.log('replacedMetric',tot_metric[i]);
+                            }
+
+                        }
+                        //console.log('finalData',tot_metric);
+                        actualFinalApiData = {
+                            apiResponse: tot_metric,
+                            metricId: result.metricId,
+                            queryResults: initialResults,
+                            channelId: initialResults.metric[0].channelId
+                        }
+                        //console.log('actualFinalApiData',actualFinalApiData);
+                        callback(null, actualFinalApiData);
+                    }
+                });
+            }
+            else{
+                var callApi = function (err, medias, pagination, remaining, limit) {
+                    console.log('user_media_recent', medias)
+                    console.log('pagination', pagination)
+                    console.log('medias', medias)
+                    for (var key in medias) {
+                        userMediaRecent.push(medias[key])
+                    }
+                    for (var i = 0; i < userMediaRecent.length; i++) {
+                        console.log('dateString12', userMediaRecent[i].created_time)
+                        var storeDate = userMediaRecent[i].created_time;
+                        var dateString = moment.unix(storeDate).format("YYYY/MM/DD");
+                        console.log('dateString', dateString);
+                        actualFinalApiData.push({date: dateString, total:userMediaRecent[i] })
+                    }
+                    actualFinalApiData.forEach(function (value, index) {
+                        var count = value.total.likes.count + value.total.comments.count;
+                        recentMedia.push({count: count, date: value.date, total: value.total})
+                    })
+                    sorteMediasArray = _.sortBy(recentMedia, ['count']);
+                    console.log('recentMedia', recentMedia,initialResults);
+                    actualFinalApiData = {
+                        apiResponse: sorteMediasArray,
+                        metricId: result.metricId,
+                        queryResults: initialResults,
+                        channelId: initialResults.metric[0].channelId
+                    }
+                    console.log('sorteMediasArray', actualFinalApiData);
+
+                    callback(null,actualFinalApiData);
+                    if (pagination.next) {
+                        pagination.next(callApi); // Will get second page results
+                    }
+                    //console.log('actualFinalApiDataLength', userMediaRecent.length, userMediaRecent);
+
+                };
+                ig.user_media_recent(result.profile.userId, {count: 25}, callApi)
+
+            }
+        }
     }
 };

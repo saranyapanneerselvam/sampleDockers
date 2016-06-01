@@ -63,7 +63,8 @@
     "gulp-uglify": "*",
     "nodemailer": "^2.3.2",
     "html5-to-pdf":"*",
-    "q": "*"
+    "q": "*",
+    "instagram-node": "*"
   },
   "devDependencies": {
     "adwords-auth": "0.0.10",

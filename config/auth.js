@@ -49,7 +49,8 @@ module.exports = {
         facebookAds : 'facebookads',
         googleAnalytics: 'googleanalytics',
         twitter :'twitter',
-        googleAdwords : 'googleAdwords'
+        googleAdwords : 'googleAdwords',
+        instagram: 'instagram'
     },
 
     'objectType':{

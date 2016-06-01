@@ -11,7 +11,7 @@ var configAuth = require('../config/auth');
 
 exports.objects = function (req, res, next) {
 
-    req.showMetric = {};
+    req.app = {};
 
     objectList.find({profileId: req.params.profileID}, function (err, objects) {
         if(objects != null && objects.length > 0){
@@ -29,17 +29,17 @@ exports.objects = function (req, res, next) {
                                 return _.zipObject(["webPropertyName", "metricDetails"], currentItem);
                             })
                             .value();
-                        req.showMetric.objects = result;
+                        req.app.objects = result;
                         next();
                     }
                     else{
-                        req.showMetric.objects = objects;
+                        req.app.objects = objects;
                         next();
                     }
                 }
             })
         } else {
-            req.showMetric.objects = [];
+            req.app.objects = [];
             next();
         }
     })

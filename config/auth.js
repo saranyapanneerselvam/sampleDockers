@@ -32,6 +32,15 @@ module.exports = {
         'developerToken':'R45HDlrLXatt0pMUMDVlUw',
         'userAgent':'ShowmetricDeveloment M:ReportDownloader:V1.0'
     },
+    
+    'instagramAuth': {
+        'clientID': '77bfdc87cb0744f8969746665368a743',
+        'clientSecret': '28c87fe403944737a7abce42f15d8388',
+        'callbackURL': 'http://localhost:8080/auth/instagram/callback',
+        'scope' : ['basic', 'public_content', 'relationships', 'follower_list', 'comments', 'likes'],
+        'authorizationUrl':"https://api.instagram.com/oauth/authorize",
+        'accessTokenUrl':"https://api.instagram.com/oauth/access_token"
+    },
 
     'facebookAdsAuth' : {
         clientID        : '799332023525923',

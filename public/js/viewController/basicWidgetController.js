@@ -118,7 +118,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             }).then(function successCallback(response) {
                 $scope.objectList = response.data.objectList;
                 if ($scope.storedChannelName === 'Twitter') {
-                    $scope.objectForWidgetChosen($scope.objectList[0]);
+                    $scope.objectForWidgetChosen([$scope.objectList[0].name,$scope.objectList[0]._id,$scope.objectList[0].objectTypeId]);
                 }
             }, function errorCallback(error) {
                 console.log(error);

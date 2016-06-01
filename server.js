@@ -91,6 +91,7 @@ require('./controllers/facebookAdsAuth')(app);
 require('./controllers/facebookAuth')(app);
 require('./controllers/googleAuth')(app);
 require('./controllers/twitterAuth')(app);
+require('./controllers/instaAuth')(app);
 require('./controllers/channels')(app);
 require('./controllers/metrics')(app);
 require('./controllers/profiles')(app);

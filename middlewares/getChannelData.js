@@ -71,7 +71,7 @@ exports.getChannelData = function (req, res, next) {
         var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
         console.log('diffDays',diffDays)
-        for (var i = 0; i < diffDays; i++) {
+        for (var i = 0; i <= diffDays; i++) {
             console.log('startdatee',storeStartDate,i)
             var finalDate = calculateDate(storeStartDate);
             storeDefaultValues.push({date: finalDate, total: 0});
@@ -1692,7 +1692,6 @@ exports.getChannelData = function (req, res, next) {
                         var updated = calculateDate(data[j].data.updated);
                         var newStartDate = updated.replace(/-/g, "");
                         updated = newStartDate;
-
                         var currentDate = calculateDate(new Date());
                         d.setDate(d.getDate() + 1);
                         var startDate = calculateDate(d);
@@ -2413,12 +2412,16 @@ exports.getChannelData = function (req, res, next) {
                     d = new Date();
                     var allObjects = {};
                     if (data[j].data != null) {
-                        var updated = calculateDate(data[j].data.updated);
+                        var updatedDb =calculateDate(data[j].data.updated);
+                        console.log('updatedDb',updatedDb);
+                        var updated = data[j].data.updated;
                         var currentDate = calculateDate(new Date());
-                        d.setDate(d.getDate() + 1);
-                        var startDate = calculateDate(d);
+                       // d.setDate(d.getDate() + 1);
                         var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
-                        if (calculateDate(data[j].data.updated) < currentDate) {
+                        updated.setTime(updated.getTime() + oneDay);
+                        var startDate = calculateDate(updated);
+                        console.log('updatedDay',startDate);
+                        if (updatedDb < currentDate) {
                             var query = metric[j].objectTypes[0].meta.igMetricName;
                             allObjects = {
                                 profile: initialResults.get_profile[j],
@@ -2426,7 +2429,7 @@ exports.getChannelData = function (req, res, next) {
                                 widget: metric[j],
                                 dataResult: data[j].data,
                                 startDate: updated,
-                                endDate: startDate,
+                                endDate: currentDate,
                                 metricId: metric[j]._id,
                                 endPoint: metric[j].objectTypes[0].meta.endpoint
                             }
@@ -2508,7 +2511,7 @@ exports.getChannelData = function (req, res, next) {
                         var storeEndDate = new Date(result.endDate);
                         console.log('startDate', storeEndDate)
                         var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
-                        var diffDays = (Math.ceil(timeDiff / (1000 * 3600 * 24))) + 1; //adding plus one so that today also included
+                        var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)) ; //adding plus one so that today also included
                         console.log('InstagramResponse', result, diffDays);
                         if (endPointMetric.items.indexOf("/") > -1) {
                             endPointMetric = endPointMetric.items.split("/");
@@ -2521,7 +2524,7 @@ exports.getChannelData = function (req, res, next) {
                         console.log('storeMetric', storeMetric);
                         for (var i = 0; i <= diffDays; i++) {
                             var finalDate = formatDate(storeStartDate);
-                            // console.log('storeStartDate',finalDate,i,diffDays)
+                            console.log('storeStartDate',finalDate,i,diffDays)
                             tot_metric.push({date: finalDate, total: 0});
                             storeStartDate.setDate(storeStartDate.getDate() + 1);
 
@@ -2566,7 +2569,8 @@ exports.getChannelData = function (req, res, next) {
                         var count = value.total.likes.count + value.total.comments.count;
                         recentMedia.push({count: count, date: value.date, total: value.total})
                     })
-                    sorteMediasArray = _.sortBy(recentMedia, ['count']);
+                    var MediasArray = _.sortBy(recentMedia, ['count']);
+                    sorteMediasArray = MediasArray.reverse();
                     console.log('recentMedia', recentMedia,initialResults);
                     actualFinalApiData = {
                         apiResponse: sorteMediasArray,

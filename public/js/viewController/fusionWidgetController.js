@@ -120,6 +120,10 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
                     url = '/api/auth/twitter';
                     title = $scope.uniquechannelNames[index];
                     break;
+                case 'Instagram' :
+                    url = '/api/auth/twitter';
+                    title = $scope.uniquechannelNames[index];
+                    break;
             }
             var left = (screen.width / 2) - (w / 2);
             var top = (screen.height / 2) - (h / 2);
@@ -207,6 +211,14 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
     };
 
     $scope.objectForWidgetChosen = function (objectList, index) {
+        console.log('chosen object',objectList,typeof objectList,' index:',index,' ',$scope.uniquechannelNames[index]);
+        if(typeof objectList=== 'string' && objectList.length!=0){
+            console.log('if')
+            objectList = JSON.parse(objectList);
+        } else if (typeof objectList === 'string' && objectList.length == 0)
+            objectList = null;
+
+
         if (objectList != null && $scope.currentView == 'step_two') {
             $scope.storedUserChosenValues[index] = {
                 object: objectList,
@@ -264,6 +276,12 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
                     break;
                 case 'FacebookAds':
                     $scope.objectType = 'fbadaccount';
+                    break;
+                case 'Twitter':
+                    $scope.objectType = 'tweet';
+                    break;
+                case 'Instagram' :
+                    $scope.objectType = 'instagram';
                     break;
             }
             console.log('refreshing', $scope.objectType);

@@ -239,8 +239,14 @@
                                                         <div class="form-group">
                                                             <div class="col-lg-12 select-profiles"
                                                                  style="display: flex;">
+                                                                <select class="form-control m-b" ng-show = "uniquechannelNames[$index]=== 'Google Analytics'" ng-model="objectOptionsModel1"   ng-change="objectForWidgetChosen(objectOptionsModel1, $index)">
+                                                                    <option value="">Select an item</option>{{objectList}}
+                                                                    <optgroup style="font-wight:bold"  ng-repeat="header in objectList[$index]" label="{{ header.webPropertyName }}">
+                                                                        <option ng-repeat="item in header.metricDetails" value="{{item}}" >{{ item.name }}</option>
+                                                                    </optgroup>
+                                                                </select>
                                                                 <select class="form-control m-b col-md-6"
-                                                                        ng-model="objectOptionsModel[$index]" ng-hide = "uniquechannelNames[$index]=== 'Twitter'"
+                                                                        ng-model="objectOptionsModel[$index]" ng-hide = "uniquechannelNames[$index]=== 'Twitter'||uniquechannelNames[$index]=== 'Google Analytics'"
                                                                         ng-options="objects as objects.name for objects in objectList[$index]"
                                                                         ng-change="objectForWidgetChosen(objectOptionsModel[$index], $index)" >
                                                                     <option value="" selected="selected">Select an item</option>

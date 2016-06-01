@@ -64,10 +64,11 @@ exports.getChannelData = function (req, res, next) {
 
     //Function to find days difference
     function findDaysDifference(startDate, endDate) {
-        var storeDefaultValues = []
+        var storeDefaultValues = [];
+        //d.setDate(d.getDate() + 1);
         var storeStartDate = new Date(startDate);
         var storeEndDate = new Date(endDate);
-        console.log('enddate',storeStartDate)
+        console.log('enddate',storeStartDate,storeEndDate)
         var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
         console.log('diffDays',diffDays)
@@ -148,7 +149,6 @@ exports.getChannelData = function (req, res, next) {
             if (err) {
                 return res.status(500).json({});
             }
-            console.log('FrontEndResult',results.get_channel_objects_db);
             req.app.result = results.get_channel_objects_db;
             next();
         });
@@ -941,7 +941,7 @@ exports.getChannelData = function (req, res, next) {
                 storeDataForTwitter(groupAllChannelData[allQueryResult.channel._id], allQueryResult.allData.data, allQueryResult.allData.widget[0].charts, allQueryResult.allData.metric, callback);
                 function storeDataForTwitter(dataFromRemote, dataFromDb, widget, metric, done) {
                     async.times(Math.min(widget.length, dataFromDb.length), function (j, next) {
-                        console.log('tweet data from remote', dataFromRemote[j].data[0])
+                        console.log('tweet data from remote', dataFromRemote[j].data)
                         var currentDate = formatDate(new Date());
                         var param = [];
                         var finalTweetResult;
@@ -968,19 +968,19 @@ exports.getChannelData = function (req, res, next) {
                                         }
                                     }
                                 }
-                                if (metric[0].code == configAuth.twitterMetric.tweets)
+                                if (metric[j].code == configAuth.twitterMetric.tweets)
                                     param.push('statuses_count');
-                                else if (metric[0].name == 'Following')
+                                else if (metric[j].code == configAuth.twitterMetric.following)
                                     param.push('friends_count');
-                                else if (metric[0].name == 'Listed')
+                                else if (metric[j].code == configAuth.twitterMetric.listed)
                                     param.push('listed_count');
-                                else if (metric[0].name == 'Followers')
+                                else if (metric[j].code == configAuth.twitterMetric.followers)
                                     param.push('followers_count');
-                                else if (metric[0].name == 'Favourites')
+                                else if (metric[j].code == configAuth.twitterMetric.favourites)
                                     param.push('favourites_count');
-                                else if (metric[0].name == 'Retweets of your tweets')
+                                else if (metric[j].code == configAuth.twitterMetric.retweets_of_your_tweets)
                                     param.push('retweet_count');
-                                else if (metric[0].name == 'Mentions' || 'Keyword mentions')
+                                else if (metric[j].keywordMentions == configAuth.twitterMetric.retweets_of_your_tweets||metric[0].code == configAuth.twitterMetric.mentions)
                                     param.push('retweet_count', 'favorite_count');
                                 else
                                     param.push('retweet_count', 'favorite_count');
@@ -1060,7 +1060,7 @@ exports.getChannelData = function (req, res, next) {
                                     var tweetsLength = storeTweetDetails.length;
                                     for (var i = 0; i < defaultArrayLength; i++) {
                                         for (var k = 0; k < tweetsLength; k++) {
-                                            if (daysDifference[i].date === storeTweetDetails[j].date) {
+                                            if (daysDifference[i].date === storeTweetDetails[k].date) {
                                                 console.log('inif');
                                                 daysDifference[i] = storeTweetDetails[k]
                                             }
@@ -1084,7 +1084,7 @@ exports.getChannelData = function (req, res, next) {
                                     }, {upsert: true}, function (err) {
                                         if (err) console.log("User not saved", err);
                                         else
-                                            callback(null, 'success')
+                                            next(null, 'success')
                                     });
                                 }
                                 function updateTweetData(finalTweetResult, callback) {
@@ -1105,11 +1105,11 @@ exports.getChannelData = function (req, res, next) {
                             }
                             else {
                                 req.app.result = {Error: '500'};
-                                next();
+                                next('error');
                             }
                         }
                         else if (metric[j].code === configAuth.twitterMetric.highEngagementTweets) {
-                            callback(null, dataFromRemote[j]);
+                            next(null, dataFromRemote[j]);
                         }
                         else {
                             console.log('Wrong Metric')
@@ -1130,9 +1130,6 @@ exports.getChannelData = function (req, res, next) {
                 if (metric[k].code === configAuth.twitterMetric.highEngagementTweets) {
                     console.log('data in db function',results.store_final_data[0].data)
                     next(null, results.store_final_data[0].data)
-                }
-                 else if(metric[k].objectTypes[0].meta.endpoint === 'user_media_recent'){
-                     next(null, results.store_final_data[0].apiResponse);
                 }
                 else {
                     Data.aggregate([
@@ -1692,6 +1689,7 @@ exports.getChannelData = function (req, res, next) {
                         var updated = calculateDate(data[j].data.updated);
                         var newStartDate = updated.replace(/-/g, "");
                         updated = newStartDate;
+
                         var currentDate = calculateDate(new Date());
                         d.setDate(d.getDate() + 1);
                         var startDate = calculateDate(d);
@@ -1939,7 +1937,7 @@ exports.getChannelData = function (req, res, next) {
 
         //To get tweet data from tweet api
         function getTweetDataFromRemote(queries, callback) {
-            console.log('getTweetDataFromRemote',queries.inputs)
+            console.log('getTweetDataFromRemote',queries)
             var wholeTweetObjects = [];
             async.timesSeries(queries.get_tweet_queries.length, function (j, next) {
                 if (queries.inputs === 'DataFromDb')

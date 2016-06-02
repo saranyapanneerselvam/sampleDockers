@@ -349,11 +349,17 @@ showMetricApp.service('createWidgets',function($http,$q){
         else {
             for(var i=0;i<widgetData.charts.length;i++){
                 if(widgetData.charts[i].chartType == 'line'){
-                    var displaySummaryLineData = 0;
+                    var displaySummaryLineData = 0, lowestValue = 0, highestValue = 0;
                     if(widgetData.charts[i].metricDetails!=undefined){
                         for(j=0;j<widgetData.charts[i].chartData.length;j++){
                             displaySummaryLineData = displaySummaryLineData + parseInt(widgetData.charts[i].chartData[j].y);
+                            if(parseInt(widgetData.charts[i].chartData[j].y) < lowestValue)
+                                lowestValue = parseInt(widgetData.charts[i].chartData[j].y);
+                            if(parseInt(widgetData.charts[i].chartData[j].y) > highestValue)
+                                highestValue = parseInt(widgetData.charts[i].chartData[j].y);
                         }
+                        if(highestValue == 0)
+                            highestValue = 1;
                         graphData.lineData.push({
                             values: widgetData.charts[i].chartData,      //values - represents the array of {x,y} data points
                             key: widgetData.charts[i].metricDetails.name, //key  - the name of the series.
@@ -395,7 +401,9 @@ showMetricApp.service('createWidgets',function($http,$q){
                                     return d3.format('f')(d);}
                             },
                             axisLabelDistance: -10,
-                            showLegend: true
+                            showLegend: true,
+                            forceY: [lowestValue,highestValue == 0? 10 : highestValue]
+                            //yDomain: [lowestValue,highestValue],
                         }
                     };
                 }

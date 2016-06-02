@@ -201,7 +201,7 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
                 console.log(response.data.objectList);
                 $scope.objectList[index] = response.data.objectList;
                 console.log($scope.objectList);
-                if ($scope.uniquechannelNames[index] === 'Twitter' || $scope.uniquechannelNames[$index] === 'Instagram') {
+                if ($scope.uniquechannelNames[index] === 'Twitter' || $scope.uniquechannelNames[index] === 'Instagram') {
                     $scope.objectForWidgetChosen($scope.objectList[index][0], index);
                 }
             }, function errorCallback(error) {

@@ -36,7 +36,17 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
         }
 
         if(setPDFOption==true){
-            swal("Please wait while the PDF file is being downloading.", "", "warning");
+
+            swal({
+                html:true,
+                type: "warning",
+                title:'',
+                text:'<b> Please wait while the PDF file is being downloading. </b>',
+                allowOutsideClick:false,
+                allowEscapeKey:false,
+                showConfirmButton:false
+            });
+
                 domtoimage.toPng(dashboardLayout)
                     .then(function (dataUrl) {
                         var jsonData = {

@@ -103,6 +103,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                         "endDate": chosenDateRange.endDate
                     }
                 }).then(function successCallback(response) {
+                    console.log('response',response);
                     for(i=0;i<widget.charts.length;i++){
                         for(j=0;j<response.data.length;j++){
                             if(String(widget.charts[i].metrics[0].metricId) === String(response.data[j].metricId)){

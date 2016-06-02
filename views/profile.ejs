@@ -67,8 +67,9 @@
 <script src="/bower_components/angular-bootstrap/ui-bootstrap.min.js"></script>
 <link rel="stylesheet" href="/bower_components/nvd3/build/nv.d3.min.css">
 <link rel="stylesheet" href="/bower_components/angular-bootstrap/ui-bootstrap-csp.css">
-<script src="bower_components/jquery/dist/jquery.min.js"></script>
+<!--<script src="bower_components/jquery/dist/jquery.min.js"></script>-->
 <script src="bower_components/moment/moment.js"></script>
+<script src="js/toolTip.js"></script>
 <!--
 <script src="bower_components/bootstrap-daterangepicker/daterangepicker.js"></script>
 <script src="bower_components/angular-daterangepicker/js/angular-daterangepicker.min.js"></script>
@@ -116,6 +117,11 @@
 <script src="js/FileSaver.js"></script>
 <script src="js/sweetAlert/sweetalert.min.js"></script>
 <script src="js/jspdf.min.js"></script>
+<script>
+    $(function(){
+        $('body').tooltip({selector: '[data-toggle="tooltip"]'});
+    });
+</script>
 
 <!--
  You need to include this script on any page that has a Google Map.

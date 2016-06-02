@@ -246,12 +246,12 @@
                                                                     </optgroup>
                                                                 </select>
                                                                 <select class="form-control m-b col-md-6"
-                                                                        ng-model="objectOptionsModel[$index]" ng-hide = "uniquechannelNames[$index]=== 'Twitter'||uniquechannelNames[$index]=== 'Google Analytics'"
+                                                                        ng-model="objectOptionsModel[$index]" ng-hide = "uniquechannelNames[$index]=== 'Twitter'||uniquechannelNames[$index]=== 'Google Analytics' || uniquechannelNames[$index] === 'Instagram'"
                                                                         ng-options="objects as objects.name for objects in objectList[$index]"
                                                                         ng-change="objectForWidgetChosen(objectOptionsModel[$index], $index)" >
                                                                     <option value="" selected="selected">Select an item</option>
                                                                 </select>
-                                                                <div class="infont col-md-1 col-sm-2" ng-hide = "uniquechannelNames[$index]=== 'Twitter'">
+                                                                <div class="infont col-md-1 col-sm-2" ng-hide = "uniquechannelNames[$index]=== 'Twitter' || uniquechannelNames[$index] === 'Instagram'">
                                                                     <a ng-click="refreshObjectsForChosenProfile($index)"
                                                                        class="link-img">
                                                                         <svg width="7px" height="7px"

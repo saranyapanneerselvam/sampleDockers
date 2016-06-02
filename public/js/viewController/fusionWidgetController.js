@@ -159,7 +159,7 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
         $scope.checkExpiresIn = null;
         if (!profileObj) {
             $scope.objectList[index] = null;
-            if ($scope.uniquechannelNames[index] === 'Twitter') {
+            if ($scope.uniquechannelNames[index] === 'Twitter' || $scope.uniquechannelNames[$index] === 'Instagram') {
                 $scope.objectForWidgetChosen($scope.objectList[index], index);
             }
         } else {
@@ -201,7 +201,7 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
                 console.log(response.data.objectList);
                 $scope.objectList[index] = response.data.objectList;
                 console.log($scope.objectList);
-                if ($scope.uniquechannelNames[index] === 'Twitter') {
+                if ($scope.uniquechannelNames[index] === 'Twitter' || $scope.uniquechannelNames[$index] === 'Instagram') {
                     $scope.objectForWidgetChosen($scope.objectList[index][0], index);
                 }
             }, function errorCallback(error) {

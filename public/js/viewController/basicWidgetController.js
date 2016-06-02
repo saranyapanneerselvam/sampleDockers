@@ -90,7 +90,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         $scope.checkExpiresIn = null;
         if (!this.profileOptionsModel) {
             $scope.objectList = null;
-            if ($scope.storedChannelName === 'Twitter') {
+            if ($scope.storedChannelName === 'Twitter' || $scope.storedChannelName === 'Instagram') {
                 $scope.objectForWidgetChosen($scope.objectList);
             }
         }
@@ -117,8 +117,8 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 url: '/api/v1/get/objects/' + profileId
             }).then(function successCallback(response) {
                 $scope.objectList = response.data.objectList;
-                if ($scope.storedChannelName === 'Twitter') {
-                    $scope.objectForWidgetChosen([$scope.objectList[0].name,$scope.objectList[0]._id,$scope.objectList[0].objectTypeId]);
+                if ($scope.storedChannelName === 'Twitter' || $scope.storedChannelName === 'Instagram') {
+                     $scope.objectForWidgetChosen([$scope.objectList[0].name,$scope.objectList[0]._id,$scope.objectList[0].objectTypeId]);
                 }
             }, function errorCallback(error) {
                 console.log(error);

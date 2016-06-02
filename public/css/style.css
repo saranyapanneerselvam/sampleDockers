@@ -17,6 +17,8 @@ svg:hover #Calendar-Icon { fill: #8560c5 ; }
 .nv-axis.nv-x .tick line {
     display:none;opacity: 0;
 }
+.tooltip{font-family: Brandon Grotesque-regular;}
+.tooltip-inner{background-color:#fff !important;border:1px solid #333 !important;color: #000000 !important}
 .contentName{display: flex;
     align-items: center;
     justify-content: center;}

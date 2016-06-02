@@ -1128,12 +1128,22 @@ exports.getChannelData = function (req, res, next) {
         //Get data from db
         function getGraphDataFromDb(widget, metric, done) {
             async.times(widget.length, function (k, next) {
+                var wholeData = {};
                 if (metric[k].code === configAuth.twitterMetric.highEngagementTweets) {
+                    wholeData = {"data":results.store_final_data[0].data ,
+                        "metricId": results.store_final_data[0].metricId,
+                        "objectId": results.store_final_data[0].queryResults.object[0]._id
+                    }
                     console.log('data in db function',results.store_final_data[0].data)
-                    next(null, results.store_final_data[0].data)
+                    next(null, wholeData)
                 }
                  else if(metric[k].objectTypes[0].meta.endpoint === 'user_media_recent'){
-                     next(null, results.store_final_data[0].apiResponse);
+                        wholeData = {"data":results.store_final_data[0].apiResponse ,
+                            "metricId": results.store_final_data[0].metricId,
+                            "objectId": results.store_final_data[0].queryResults.object[0]._id
+                            }
+                    console.log('InstagramwholeData',wholeData);
+                     next(null, wholeData);
                 }
                 else {
                     Data.aggregate([

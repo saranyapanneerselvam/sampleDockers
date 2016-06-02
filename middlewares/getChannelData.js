@@ -149,6 +149,7 @@ exports.getChannelData = function (req, res, next) {
             if (err) {
                 return res.status(500).json({});
             }
+            console.log('FrontEndResult',results.get_channel_objects_db);
             req.app.result = results.get_channel_objects_db;
             next();
         });
@@ -1130,6 +1131,9 @@ exports.getChannelData = function (req, res, next) {
                 if (metric[k].code === configAuth.twitterMetric.highEngagementTweets) {
                     console.log('data in db function',results.store_final_data[0].data)
                     next(null, results.store_final_data[0].data)
+                }
+                 else if(metric[k].objectTypes[0].meta.endpoint === 'user_media_recent'){
+                     next(null, results.store_final_data[0].apiResponse);
                 }
                 else {
                     Data.aggregate([

@@ -150,7 +150,7 @@ svg:hover #Calendar-Icon { fill: #8560c5 ; }
 .daterange .dr-selections .dr-list-item .dr-item-aside{color: #000 !important;
     font-size: 12px !important; font-family: Brandon Grotesque-medium !important ;}
 .main-content{margin-top: 10px;    margin-left: 0px;
-        box-shadow:0px 10px 10px 2px #C9C9C9;
+        box-shadow:2px 2px 2px 2px #C9C9C9;
         webkit-box-shadow:0px 10px 10px 2px #C9C9C9;
         moz-box-shadow:0px 10px 10px 2px #C9C9C9;
 }
@@ -3447,10 +3447,10 @@ body.full-height-layout #page-wrapper {
     height: 100%;
 }
 #page-wrapper {
-    min-height:auto;
+    /*min-height:auto;*/
 }
 #dashboardLayout {
-    padding: 5px 0px 5px 0px;
+    padding: 0px 0px 0px 0px;
 }
 #dashboardTitle {
     border: 1px solid #efefef;

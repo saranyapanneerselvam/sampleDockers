@@ -54,7 +54,7 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
                                 domainUrl = "http://localhost:8080";
                             }
                             else {
-                                domainUrl = window.location.hostname;
+                                domainUrl = "";
                             }
                             swal({
                                 html:true,
@@ -68,6 +68,7 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
                         }, function errorCallback (error){
                             console.log('Error in creating PDF dashboard widgets',error);
                             swal("Error in creating PDF dashboard widgets", "", "error");
+                            document.getElementById('dashboardTitleIcons').style.visibility = "visible";
                         });
 
                 })

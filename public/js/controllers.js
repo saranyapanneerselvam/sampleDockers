@@ -353,9 +353,63 @@ showMetricApp.service('createWidgets',function($http,$q){
                         changedWidget.charts[i].chartData = formattedChartData;
                     }
 */
+                    changedWidget.charts[i].chartData = [];
+                    if(typeof(widget.charts[i].chartData[0].total) === 'object') {
+                        var endpoint = [];
+                        for(objectTypeObjects in widget.charts[i].metricDetails.objectTypes){
+                            if(widget.charts[i].metricDetails.objectTypes[objectTypeObjects].objectTypeId == widget.charts[i].chartObjectTypeId){
+                                endpoint = widget.charts[i].metricDetails.objectTypes[objectTypeObjects].meta.endpoint;
+                            }
+                        }
+                        for(items in endpoint){
+                            var currentItem = endpoint[items];
+                            formattedChartData = [];
+                            for(dataObjects in widget.charts[i].chartData){
+                                formattedChartData.push(
+                                    {
+                                        x: moment(widget.charts[i].chartData[dataObjects].date),
+                                        y:widget.charts[i].chartData[dataObjects].total[currentItem]
+                                    }
+                                );
+                            }
+                            changedWidget.charts[i].chartData[items] = formattedChartData;
+                        }
+                    }
+                    else {
+                        for(dataObjects in widget.charts[i].chartData){
+                            //To identify regular widgets (basic, adv, fusion)
+                            if(widget.charts[i].chartData[dataObjects].name == undefined){
+                                formattedChartData.push(
+                                    {
+                                        x: moment(widget.charts[i].chartData[dataObjects].date),
+                                        y:widget.charts[i].chartData[dataObjects].total
+                                    }
+                                );
+                            }
 
+                            //To handle custom widgets
+                            else{
+                                var IsAlreadyExist = 0;
+                                for(getData in formattedChartData){
+                                    var yValue = 0;
+                                    if(formattedChartData[getData].key == widget.charts[i].chartData[dataObjects].name){
+                                        yValue = parseInt(formattedChartData[getData].y);
+                                        formattedChartData[getData].y = parseInt(yValue)+parseInt(widget.charts[i].chartData[dataObjects].values);
+                                        IsAlreadyExist = 1;
+                                    }
+                                }
 
+                                if (IsAlreadyExist != 1) {
 
+                                    formattedChartData.push({y:parseInt(widget.charts[i].chartData[j].values),key: widget.charts[i].chartData[j].name, color:null});
+                                }
+
+                            }
+                        }
+                        changedWidget.charts[i].chartData.push(formattedChartData);
+                    }
+
+/*
 
 
                     for(j=0;j<widget.charts[i].chartData.length;j++){
@@ -381,6 +435,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                         }
                     }
                     changedWidget.charts[i].chartData = formattedChartData;
+*/
                 }
             }
             formattedWidget.resolve(changedWidget);
@@ -518,6 +573,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                 //If the chart type is BAR
                 else if (widgetData.charts[i].chartType == 'bar'){
                     var displaySummaryBarData = 0;
+                    console.log(widgetData.charts[i].chartData);
 
                     //To handle chart creation for regular widgets (basic, adv, fusion)
                     if(widgetData.charts[i].metricDetails!=undefined){
@@ -589,7 +645,42 @@ showMetricApp.service('createWidgets',function($http,$q){
 
                 //If the chart type is PIE
                 else if(widgetData.charts[i].chartType == 'pie'){
+
+
                     var displaySummaryPieData =0;
+                    console.log(widgetData.charts[i].chartData);
+                    if(widgetData.charts[i].chartData[0].x){
+                        for(items in widgetData.charts[i].chartData)
+                            displaySummaryPieData = displaySummaryPieData + parseInt(widgetData.charts[i].chartData[items].y);
+                        graphData.pieData.push({
+                            values: widgetData.charts[i].chartData,      //values - represents the array of {x,y} data points
+                            key: widgetData.charts[i].metricDetails.name, //key  - the name of the series.
+                            color: widgetData.charts[i].chartColour,  //color - optional: choose your own line color.
+                            summaryDisplay: parseInt(displaySummaryPieData)
+                        });
+
+                    }
+                    else {
+                        for(items in widgetData.charts[i].chartData) {
+                            displaySummaryPieData = 0;
+                            for(dataItems in widgetData.charts[i].chartData[items])
+                                displaySummaryPieData = displaySummaryPieData + parseInt(widgetData.charts[i].chartData[items][dataItems].y);
+                            graphData.pieData.push({
+                                y: parseInt(displaySummaryPieData),      //values - represents the array of {x,y} data points
+                                key: widgetData.charts[i].metricDetails.objectTypes[0].meta.endpoint[items], //key  - the name of the series.
+                                //color: widgetData.charts[i].chartColour,  //color - optional: choose your own line color.
+                                summaryDisplay: parseInt(displaySummaryPieData)
+                            });
+                        }
+                    }
+
+
+
+
+
+
+
+ /*                   var displaySummaryPieData =0;
                     if(widgetData.charts[i].metricDetails!=undefined){
                         graphData.pieData.push({
                             y: parseInt(widgetData.charts[i].chartData[customData].y),
@@ -609,7 +700,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                             });
                             displaySummaryPieData =0;
                         }
-                    }
+                    }*/
                     graphData.pieDataOptions = {
                         chart: {
                             type: 'pieChart',
@@ -621,7 +712,11 @@ showMetricApp.service('createWidgets',function($http,$q){
                                 return d.y;
                             },
                             showLabels: false,
-                            duration: 500,
+                            showLegend: true,
+                            labelsOutside: false,
+                            tooltips: true,
+                            //tooltipcontent: 'toolTipContentFunction()',
+                            //duration: 50,
                             labelThreshold: 0.01,
                             labelSunbeamLayout: true,
                             legend: {

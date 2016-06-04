@@ -123,7 +123,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         };
 
         $scope.$on('gridster-resized', function(sizes, gridster) {
-            console.log('Gridster resized');
+            //console.log('Gridster resized');
             for(var i=0;i<$scope.dashboard.widgets.length;i++){
                 $timeout(resizeWidget(i), 100);
             }
@@ -140,7 +140,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             }
         });
         $scope.$on('gridster-mobile-changed', function( e,gridster) {
-            console.log('gridster-mobile-changed',gridster);
+            //console.log('gridster-mobile-changed',gridster);
             $scope.isMobile = gridster.isMobile;
         });
         $scope.$on('my-gridster-item-resized', function(e,item) {
@@ -162,7 +162,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         });
 
         $scope.$watch('dashboard.widgets',function(newVal,oldVal){
-            console.log('Inside watch oldLen=',oldVal.length," newLen=",newVal.length);
+            //console.log('Inside watch oldLen=',oldVal.length," newLen=",newVal.length);
             var inputParams = [];
             if($scope.dashboard.widgets.length !=0){
                 for(getWidgetInfo in $scope.dashboard.widgets){
@@ -201,7 +201,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         },true);
 
         $scope.$on('my-gridster-item-transition-end', function(e,item) {
-            console.log('my-gridster-item-transition-end');
+            //console.log('my-gridster-item-transition-end');
             for(var i=0;i<$scope.dashboard.widgets.length;i++){
                 $timeout(resizeWidget(i), 100);
             }
@@ -314,12 +314,12 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     widgets[getWidgetInfo].then(
                         function successCallback(widget){
                             var widgetIndex = $scope.dashboard.widgets.map(function(el) {return el.id;}).indexOf(widget._id);
-                            var finalChartData = createWidgets.dataLoader(widget);
+                            var finalChartData = createWidgets.chartCreator(widget);
                             var widgetToBeLoaded = createWidgets.replacePlaceHolderWidget(widget,finalChartData);
                             widgetToBeLoaded.then(
                                 function successCallback(widgetToBeLoaded){
                                     $scope.dashboard.widgetData[widgetIndex] = widgetToBeLoaded;
-                                    console.log('widgetData:',$scope.dashboard.widgetData[widgetIndex]);
+                                    //console.log('widgetData:',$scope.dashboard.widgetData[widgetIndex]);
                                     isExportOptionSet=1;
                                 },
                                 function errorCallback(error){
@@ -384,13 +384,13 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             'name': (typeof widget.name != 'undefined'? widget.name : ''),
             'color': (typeof widget.color != 'undefined'? widget.color : '')
         });
-        console.log($scope.dashboard.widgetData);
+        //console.log($scope.dashboard.widgetData);
 
         //Fetching the promise that contains all the data for all the widgets in the dashboard
         $q.all(inputWidget).then(
             function successCallback(inputWidget){
                 var widgetIndex = $scope.dashboard.widgets.map(function(el) {return el.id;}).indexOf(inputWidget[0]._id);
-                var finalChartData = createWidgets.dataLoader(inputWidget[0]);
+                var finalChartData = createWidgets.chartCreator(inputWidget[0]);
                 var widgetToBeLoaded = createWidgets.replacePlaceHolderWidget(inputWidget[0],finalChartData);
                 widgetToBeLoaded.then(
                     function successCallback(widgetToBeLoaded){

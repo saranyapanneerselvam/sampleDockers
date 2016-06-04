@@ -2,44 +2,26 @@ var showMetricApp = angular.module('inspinia');
 
 showMetricApp.service('createWidgets',function($http,$q){
 
-    //To fetch data for a widget for given date range; format the same
+    //To fetch data for a widget for given date range; fetching the metric details for all the charts inside the widget
     this.widgetDataFetchHandler = function(widget,chosenDateRange){
 
-        var deferredWidget = $q.defer();
-        var unformattedWidget = [];
-        var finalWidget = [];
-        var countCustomData = 0;
+        var deferredWidget = $q.defer(),
+            finalWidget = [],
+            countCustomData = 0;
 
-        //Calling function to fetch data for all charts within a widget
+        //Calling function to fetch data for all charts within a widget. Widget object and the date range are passed as inputs
         var getCharts = getDataForChosenDates(widget,chosenDateRange);
 
         //Acquiring data for all the charts within the widget through promise and then fetching metric details for all charts within the widget
-        getCharts.then(function successCallback(charts){
-            unformattedWidget = widget;
-            if(unformattedWidget.widgetType=="custom"){
+        getCharts.then(
 
-                unformattedWidget.charts = charts;
+            //On successful data fetching for all the charts within the widget, the metric details for the corresponding charts have to be fetched as well
+            function successCallback(updatedCharts){
 
-                finalWidget = formatDataPoints(unformattedWidget);
-                finalWidget.then(function successCallback(finalWidget){
-                    deferredWidget.resolve(finalWidget);
-                },function errorCallback(error){
-                    console.log(error);
-                    deferredWidget.reject(error);
-                });
-            }
-            else{
-                unformattedWidget.charts = charts;
-                var metricDetailsArray = [];
-
-                for(i=0;i<unformattedWidget.charts.length;i++){
-                    metricDetailsArray.push(fetchMetricDetailsForCharts(unformattedWidget.charts[i]));
-                }
-                $q.all(metricDetailsArray).then(function successCallback(metricDetailsArray){
-                    for(i=0;i<unformattedWidget.charts.length;i++){
-                        unformattedWidget.charts[i].metricDetails = metricDetailsArray[i];
-                    }
-                    finalWidget = formatDataPoints(unformattedWidget);
+                //Different logic for custom and regular widgets implemented as the data structure for custom widgets is different
+                if(widget.widgetType=="custom"){
+                    widget.charts = updatedCharts;
+                    finalWidget = formatDataPoints(widget);
                     finalWidget.then(
                         function successCallback(finalWidget){
                             deferredWidget.resolve(finalWidget);
@@ -49,18 +31,52 @@ showMetricApp.service('createWidgets',function($http,$q){
                             deferredWidget.reject(error);
                         }
                     );
-                },function errorCallback(error){
-                    console.log(error);
-                    deferredWidget.reject(error);
-                });
+                }
+                else if (widget.widgetType=="basic" || "adv" || "fusion"){
+                    widget.charts = updatedCharts;
+                    var metricDetails = [];
+
+                    //Fetching metricDetails for all the charts inside the widget one by one
+                    for(chartObjects in widget.charts)
+                        metricDetails.push(fetchMetricDetailsForAllChartsInWidgets(widget.charts[chartObjects]));
+
+                    //Pushing all the metricDetails fetched into the corresponding charts
+                    $q.all(metricDetails).then(
+                        function successCallback(metricDetails){
+                            for(items in widget.charts){
+                                widget.charts[items].metricDetails = metricDetails[items];
+                            }
+                            finalWidget = formatDataPoints(widget);
+                            finalWidget.then(
+                                function successCallback(finalWidget){
+                                    //Resolving the changed widget with data for all the charts including the metric details for the corresponding charts
+                                    deferredWidget.resolve(finalWidget);
+                                },
+                                function errorCallback(error){
+                                    console.log(error);
+                                    deferredWidget.reject(error);
+                                }
+                            );
+                        },
+                        function errorCallback(error){
+                            console.log(error);
+                            deferredWidget.reject(error);
+                        }
+                    );
+                }
+                else {
+                    deferredWidget.reject("error");
+                }
+            },
+            //If there is any error in fetching the data for any or all of the charts within the widget, then the promise will be rejected and error message will be sent to the calling function
+            function errorCallback(error){
+                deferredWidget.reject(error);
             }
-        },function errorCallback(error){
-            deferredWidget.reject(error);
-        });
+        );
         //Returning the charts(along with associated metrics) to the calling function
         return deferredWidget.promise;
 
-        //Function to fetch data for the input date range
+        //Function to fetch data for the input date range for all the charts defined inside a widget
         function getDataForChosenDates(widget,chosenDateRange) {
             var deferred = $q.defer();
             if(widget.widgetType=="custom"){
@@ -71,30 +87,33 @@ showMetricApp.service('createWidgets',function($http,$q){
                         "startDate": chosenDateRange.startDate,
                         "endDate": chosenDateRange.endDate
                     }
-                }).then(function successCallback(response) {
-                    var formattedCharts = [];
-                    countCustomData++;
-                    for(getData in response.data){
-                        if(response.data[getData].widgetId==widget._id){
-                            formattedCharts.push({
-                                _id: response.data[getData]._id,
-                                chartName: "Custom Data "+countCustomData,
-                                chartType: response.data[getData].chartType,
-                                widgetId: response.data[getData].widgetId,
-                                chartData: response.data[getData].data,
-                                intervalType: response.data[getData].intervalType,
-                                metricsCount: response.data[getData].metricsCount
-                            });
+                }).then(
+                    function successCallback(response) {
+                        var formattedCharts = [];
+                        countCustomData++;
+                        for(getData in response.data){
+                            if(response.data[getData].widgetId==widget._id){
+                                formattedCharts.push({
+                                    _id: response.data[getData]._id,
+                                    chartName: "Custom Data "+countCustomData,
+                                    chartType: response.data[getData].chartType,
+                                    widgetId: response.data[getData].widgetId,
+                                    chartData: response.data[getData].data,
+                                    intervalType: response.data[getData].intervalType,
+                                    metricsCount: response.data[getData].metricsCount
+                                });
+                            }
                         }
+                        deferred.resolve(formattedCharts);
+                    },
+                    function errorCallback(error) {
+                        deferred.reject(error);
                     }
-                    deferred.resolve(formattedCharts);
-                }, function errorCallback(error) {
-                    deferred.reject(error);
-                });
+                );
                 return deferred.promise;
             }
-            else {
-                var formattedCharts = [];
+            else if(widget.widgetType=="basic" || "adv" || "fusion"){
+                var updatedCharts = [];
                 $http({
                     method: 'POST',
                     url: '/api/v1/widgets/data/' + widget._id,
@@ -102,48 +121,59 @@ showMetricApp.service('createWidgets',function($http,$q){
                         "startDate": chosenDateRange.startDate,
                         "endDate": chosenDateRange.endDate
                     }
-                }).then(function successCallback(response) {
-                    console.log('response',response);
-                    for(i=0;i<widget.charts.length;i++){
-                        for(j=0;j<response.data.length;j++){
-                            if(String(widget.charts[i].metrics[0].metricId) === String(response.data[j].metricId)){
-                                formattedCharts.push({
-                                    channelId: widget.charts[i].channelId,
-                                    chartName: widget.charts[i].name,
-                                    chartType: widget.charts[i].metrics[0].chartType,
-                                    chartObjectTypeId: widget.charts[i].metrics[0].objectTypeId,
-                                    chartData: response.data[j].data,
-                                    chartMetricId: response.data[j].metricId,
-                                    chartObjectId: response.data[j].objectId,
-                                    chartColour: widget.charts[i].colour,
-                                    chartObjectName: widget.charts[i].objectName
-                                });
+                }).then(
+                    function successCallback(response) {
+                        for(chartObjects in widget.charts){
+                            for(dataObjects in response.data){
+                                if(String(widget.charts[chartObjects].metrics[0].metricId) === String(response.data[dataObjects].metricId)){
+                                    updatedCharts.push({
+                                        channelId: widget.charts[chartObjects].channelId,
+                                        chartName: widget.charts[chartObjects].name,
+                                        chartType: widget.charts[chartObjects].metrics[0].chartType,
+                                        chartObjectTypeId: widget.charts[chartObjects].metrics[0].objectTypeId,
+                                        chartData: response.data[dataObjects].data,
+                                        chartMetricId: response.data[dataObjects].metricId,
+                                        chartObjectId: response.data[dataObjects].objectId,
+                                        chartColour: widget.charts[chartObjects].colour,
+                                        chartObjectName: widget.charts[chartObjects].objectName
+                                    });
+                                }
                             }
                         }
+                        deferred.resolve(updatedCharts);
+                    },
+                    function errorCallback(error) {
+                        deferred.reject(error);
                     }
-                    deferred.resolve(formattedCharts);
-                }, function errorCallback(error) {
-                    deferred.reject(error);
-                });
+                );
+                return deferred.promise;
+            }
+            else {
+                deferred.reject("error");
                 return deferred.promise;
             }
         }
 
         //Function to fetch metrics for all charts inside a widget
-        function fetchMetricDetailsForCharts(chart) {
-            var deferred = $q.defer();
-            if(chart.chartMetricId==undefined){
+        function fetchMetricDetailsForAllChartsInWidgets(chart) {
 
+            var deferred = $q.defer();
+
+            if(chart.chartMetricId==undefined){
+                deferred.reject("error");
             }
             else{
                 $http({
                     method:'GET',
                     url:'/api/v1/get/metricDetails/' + chart.chartMetricId
-                }).then(function successCallback(response){
-                    deferred.resolve(response.data.metricsList[0]);
-                },function errorCallback(error){
-                    deferred.reject(error);
-                });
+                }).then(
+                    function successCallback(response){
+                        deferred.resolve(response.data.metricsList[0]);
+                    },
+                    function errorCallback(error){
+                        deferred.reject(error);
+                    }
+                );
             }
 
             return deferred.promise;
@@ -153,12 +183,11 @@ showMetricApp.service('createWidgets',function($http,$q){
         function formatDataPoints(widget) {
             var formattedWidget = $q.defer();
             var splitDate, newDate, inputDate;
-            var changedWidget = widget;
+            var changedWidget = JSON.parse(JSON.stringify(widget));
             for(i=0;i<widget.charts.length;i++){
                 var formattedChartData = [];
                 var valuesArr = new Array();
-                console.log(widget.charts[i].chartData[0].total);
-                if(widget.charts[i].chartType == 'line'){
+                if(widget.charts[i].chartType == 'line' || widget.charts[i].chartType == 'area'){
                     if(typeof(widget.charts[i].chartData[0].total) === 'object') {
                         var endpoint;
                         for(j=0;j<widget.charts[i].metricDetails.objectTypes.length;j++){
@@ -168,10 +197,10 @@ showMetricApp.service('createWidgets',function($http,$q){
                         }
                         for(j=0;j<widget.charts[i].chartData.length;j++){
                             formattedChartData.push({x: moment(widget.charts[i].chartData[j].date), y:widget.charts[i].chartData[j].total[endpoint]});
-                            console.log('Data fetched from endpoint',formattedChartData);
                         }
                         changedWidget.charts[i].chartData = formattedChartData;
-                    } else {
+                    }
+                    else {
                         for(j=0;j<widget.charts[i].chartData.length;j++){
                             if(widget.charts[i].chartData[j].name==undefined){
                                 formattedChartData.push({x: moment(widget.charts[i].chartData[j].date), y:widget.charts[i].chartData[j].total});
@@ -218,6 +247,30 @@ showMetricApp.service('createWidgets',function($http,$q){
                     }
                 }
                 else if(widget.charts[i].chartType == 'bar'){
+
+                    changedWidget.charts[i].chartData = [];
+                    if(typeof(widget.charts[i].chartData[0].total) === 'object') {
+                        var endpoint = [];
+                        for(objectTypeObjects in widget.charts[i].metricDetails.objectTypes){
+                            if(widget.charts[i].metricDetails.objectTypes[objectTypeObjects].objectTypeId == widget.charts[i].chartObjectTypeId){
+                                endpoint = widget.charts[i].metricDetails.objectTypes[objectTypeObjects].meta.endpoint;
+                            }
+                        }
+                        for(items in endpoint){
+                            var currentItem = endpoint[items];
+                            formattedChartData = [];
+                            for(dataObjects in widget.charts[i].chartData){
+                                formattedChartData.push(
+                                    {
+                                        x: moment(widget.charts[i].chartData[dataObjects].date),
+                                        y:widget.charts[i].chartData[dataObjects].total[currentItem]
+                                    }
+                                );
+                            }
+                            changedWidget.charts[i].chartData[items] = formattedChartData;
+                        }
+                    }
+/*
                     if(typeof(widget.charts[i].chartData[0].total) === 'object') {
                         var endpoint;
                         for(j=0;j<widget.charts[i].metricDetails.objectTypes.length;j++){
@@ -229,27 +282,38 @@ showMetricApp.service('createWidgets',function($http,$q){
                             formattedChartData.push({x: moment(widget.charts[i].chartData[j].date), y:widget.charts[i].chartData[j].total[endpoint]});
                         }
                         changedWidget.charts[i].chartData = formattedChartData;
-                    } else {
-                        for(j=0;j<widget.charts[i].chartData.length;j++){
-                            if(widget.charts[i].chartData[j].name==undefined){
-                                formattedChartData.push({x: moment(widget.charts[i].chartData[j].date), y:widget.charts[i].chartData[j].total});
+                    }
+*/
+                    else {
+                        for(dataObjects in widget.charts[i].chartData){
+                            //To identify regular widgets (basic, adv, fusion)
+                            if(widget.charts[i].chartData[dataObjects].name == undefined){
+                                formattedChartData.push(
+                                    {
+                                        x: moment(widget.charts[i].chartData[dataObjects].date),
+                                        y:widget.charts[i].chartData[dataObjects].total
+                                    }
+                                );
                             }
-                            else{
+
+                            //To handle custom widgets
+                            else {
                                 var IsAlreadyExist = 0;
                                 for(getData in formattedChartData){
-
-                                    if(formattedChartData[getData].key==widget.charts[i].chartData[j].name){
+                                    if(formattedChartData[getData].key==widget.charts[i].chartData[dataObjects].name){
                                         valuesArr = formattedChartData[getData].values;
                                         var dataValues = {
-                                            'x': moment(widget.charts[i].chartData[j].date),
-                                            'y': widget.charts[i].chartData[j].values
+                                            'x': moment(widget.charts[i].chartData[dataObjects].date),
+                                            'y': widget.charts[i].chartData[dataObjects].values
                                         };
                                         valuesArr.push(dataValues);
-                                        valuesArr.sort(function(a,b){
-                                            var c = new Date(a.x);
-                                            var d = new Date(b.x);
-                                            return c-d;
-                                        });
+                                        valuesArr.sort(
+                                            function(a,b){
+                                                var c = new Date(a.x);
+                                                var d = new Date(b.x);
+                                                return c-d;
+                                            }
+                                        );
                                         formattedChartData[getData].values=valuesArr;
                                         IsAlreadyExist = 1;
                                     }
@@ -258,8 +322,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                                 if (IsAlreadyExist != 1) {
                                     valuesArr = [];
                                     var dataValues = {
-                                        'x': moment(widget.charts[i].chartData[j].date),
-                                        'y': widget.charts[i].chartData[j].values
+                                        'x': moment(widget.charts[i].chartData[dataObjects].date),
+                                        'y': widget.charts[i].chartData[dataObjects].values
                                     };
                                     valuesArr.push(dataValues);
                                     valuesArr.sort(function(a,b){
@@ -267,15 +331,33 @@ showMetricApp.service('createWidgets',function($http,$q){
                                         var d = new Date(b.x);
                                         return c-d;
                                     });
-                                    formattedChartData.push({values:valuesArr,key: widget.charts[i].chartData[j].name, color:null});
+                                    formattedChartData.push({values:valuesArr,key: widget.charts[i].chartData[dataObjects].name, color:null});
                                 }
-
                             }
                         }
+                        changedWidget.charts[i].chartData.push(formattedChartData);
                     }
-                    changedWidget.charts[i].chartData = formattedChartData;
                 }
                 else if(widget.charts[i].chartType == 'pie'){
+/*
+                    if(typeof(widget.charts[i].chartData[0].total) === 'object') {
+                        var endpoint = [];
+                        for(j=0;j<widget.charts[i].metricDetails.objectTypes.length;j++){
+                            if(widget.charts[i].metricDetails.objectTypes[j].objectTypeId == widget.charts[i].chartObjectTypeId){
+                                endpoint = widget.charts[i].metricDetails.objectTypes[j].meta.endpoint;
+                            }
+                        }
+                        for(j=0;j<widget.charts[i].chartData.length;j++){
+                            formattedChartData.push({x: moment(widget.charts[i].chartData[j].date), y:widget.charts[i].chartData[j].total[endpoint]});
+                        }
+                        changedWidget.charts[i].chartData = formattedChartData;
+                    }
+*/
+
+
+
+
+
                     for(j=0;j<widget.charts[i].chartData.length;j++){
                         if(widget.charts[i].chartData[j].name==undefined){
                             formattedChartData.push({x: moment(widget.charts[i].chartData[j].date), y:widget.charts[i].chartData[j].total});
@@ -307,12 +389,11 @@ showMetricApp.service('createWidgets',function($http,$q){
     };
 
     //To load the data available for graphs into nvd3 format as per the chart type and to group the graphs by chart type
-    this.dataLoader = function(widgetData){
-        var tempChart = [];
-        var graphData = [];
+    this.chartCreator = function(widgetData){
+        var modifiedCharts = [],
+            graphData = [];
         graphData.lineData = []; graphData.barData = []; graphData.pieData = [];
         graphData.lineDataOptions = null; graphData.barDataOptions = null; graphData.pieDataOptions = null;
-
 
         if(widgetData.charts==[] || widgetData.charts==""){
             var customDataUrl = "";
@@ -347,42 +428,68 @@ showMetricApp.service('createWidgets',function($http,$q){
 
         }
         else {
+
             for(var i=0;i<widgetData.charts.length;i++){
-                if(widgetData.charts[i].chartType == 'line'){
+                //If the chart type is LINE or AREA
+                if(widgetData.charts[i].chartType == 'line' || widgetData.charts[i].chartType == 'area'){
                     var displaySummaryLineData = 0, lowestValue = 0, highestValue = 0;
+
+                    //To handle chart creation for regular widgets (basic, adv, fusion)
                     if(widgetData.charts[i].metricDetails!=undefined){
-                        for(j=0;j<widgetData.charts[i].chartData.length;j++){
-                            displaySummaryLineData = displaySummaryLineData + parseInt(widgetData.charts[i].chartData[j].y);
-                            if(parseInt(widgetData.charts[i].chartData[j].y) < lowestValue)
-                                lowestValue = parseInt(widgetData.charts[i].chartData[j].y);
-                            if(parseInt(widgetData.charts[i].chartData[j].y) > highestValue)
-                                highestValue = parseInt(widgetData.charts[i].chartData[j].y);
-                        }
-                        if(highestValue == 0)
-                            highestValue = 1;
-                        graphData.lineData.push({
-                            values: widgetData.charts[i].chartData,      //values - represents the array of {x,y} data points
-                            key: widgetData.charts[i].metricDetails.name, //key  - the name of the series.
-                            color: widgetData.charts[i].chartColour,  //color - optional: choose your own line color.
-                            summaryDisplay: displaySummaryLineData,
-                            area: true
-                        });
-                    }
-                    else{
-                        for(customData in widgetData.charts[i].chartData){
-                            for(getTotal in widgetData.charts[i].chartData[customData].values){
-                                displaySummaryLineData = displaySummaryLineData + parseInt(widgetData.charts[i].chartData[customData].values[getTotal].y);
+                        if(widgetData.charts[i].chartData[0].x){
+                            for(var items in widgetData.charts[i].chartData) {
+                                displaySummaryLineData += parseInt(widgetData.charts[i].chartData[items].y);
+                                if(parseInt(widgetData.charts[i].chartData[items].y) < lowestValue)
+                                    lowestValue = parseInt(widgetData.charts[i].chartData[items].y);
+                                if(parseInt(widgetData.charts[i].chartData[items].y) > highestValue)
+                                    highestValue = parseInt(widgetData.charts[i].chartData[items].y);
                             }
+                            graphData.lineData.push({
+                                values: widgetData.charts[i].chartData,      //values - represents the array of {x,y} data points
+                                key: widgetData.charts[i].metricDetails.name, //key  - the name of the series.
+                                color: widgetData.charts[i].chartColour,  //color - optional: choose your own line color.
+                                summaryDisplay: parseInt(displaySummaryLineData),
+                                area: widgetData.charts[i].chartType == 'area'? true : false
+                            });
+                        }
+                        else {
+                            for(items in widgetData.charts[i].chartData) {
+                                displaySummaryLineData = 0;
+                                for(dataItems in widgetData.charts[i].chartData[items]) {
+                                    displaySummaryLineData += parseInt(widgetData.charts[i].chartData[items][dataItems].y);
+                                    if(parseInt(widgetData.charts[i].chartData[items][dataItems].y) < lowestValue)
+                                        lowestValue = parseInt(widgetData.charts[i].chartData[items][dataItems].y);
+                                    if(parseInt(widgetData.charts[i].chartData[items][dataItems].y) > highestValue)
+                                        highestValue = parseInt(widgetData.charts[i].chartData[items][dataItems].y);
+                                }
+                                graphData.lineData.push({
+                                    values: widgetData.charts[i].chartData[items],      //values - represents the array of {x,y} data points
+                                    key: widgetData.charts[i].metricDetails.objectTypes[0].meta.endpoint[items], //key  - the name of the series.
+                                    color: widgetData.charts[i].chartColour,  //color - optional: choose your own line color.
+                                    summaryDisplay: parseInt(displaySummaryLineData),
+                                    area: widgetData.charts[i].chartType == 'area'? true : false
+                                });
+                            }
+                        }
+                    }
+
+                    //To handle chart creation for custom widgets
+                    else{
+                        for(var customData in widgetData.charts[i].chartData){
+                            for(var getTotal in widgetData.charts[i].chartData[customData].values)
+                                displaySummaryLineData += parseInt(widgetData.charts[i].chartData[customData].values[getTotal].y);
                             graphData.lineData.push({
                                 values: widgetData.charts[i].chartData[customData].values,      //values - represents the array of {x,y} data points
                                 key: widgetData.charts[i].chartData[customData].key, //key  - the name of the series.
                                 color: widgetData.charts[i].chartData[customData].color,  //color - optional: choose your own line color.
                                 summaryDisplay: displaySummaryLineData,
-                                //area: true
+                                area: false
                             });
                             displaySummaryLineData=0;
                         }
                     }
+
+                    //Defining the chart options for all line/area charts
                     graphData.lineDataOptions = {
                         chart: {
                             type: 'lineChart',
@@ -407,19 +514,40 @@ showMetricApp.service('createWidgets',function($http,$q){
                         }
                     };
                 }
+
+                //If the chart type is BAR
                 else if (widgetData.charts[i].chartType == 'bar'){
                     var displaySummaryBarData = 0;
+
+                    //To handle chart creation for regular widgets (basic, adv, fusion)
                     if(widgetData.charts[i].metricDetails!=undefined){
-                        for(j=0;j<widgetData.charts[i].chartData.length;j++){
-                            displaySummaryBarData = displaySummaryBarData + parseInt(widgetData.charts[i].chartData[j].y);
+                        if(widgetData.charts[i].chartData[0].x){
+                            for(items in widgetData.charts[i].chartData)
+                                displaySummaryBarData = displaySummaryBarData + parseInt(widgetData.charts[i].chartData[items].y);
+                            graphData.barData.push({
+                                values: widgetData.charts[i].chartData,      //values - represents the array of {x,y} data points
+                                key: widgetData.charts[i].metricDetails.name, //key  - the name of the series.
+                                color: widgetData.charts[i].chartColour,  //color - optional: choose your own line color.
+                                summaryDisplay: parseInt(displaySummaryBarData)
+                            });
+
                         }
-                        graphData.barData.push({
-                            values: widgetData.charts[i].chartData,      //values - represents the array of {x,y} data points
-                            key: widgetData.charts[i].metricDetails.name, //key  - the name of the series.
-                            color: widgetData.charts[i].chartColour,  //color - optional: choose your own line color.
-                            summaryDisplay: displaySummaryBarData
-                        });
+                        else {
+                            for(items in widgetData.charts[i].chartData) {
+                                displaySummaryBarData = 0;
+                                for(dataItems in widgetData.charts[i].chartData[items])
+                                    displaySummaryBarData = displaySummaryBarData + parseInt(widgetData.charts[i].chartData[items][dataItems].y);
+                                graphData.barData.push({
+                                    values: widgetData.charts[i].chartData[items],      //values - represents the array of {x,y} data points
+                                    key: widgetData.charts[i].metricDetails.objectTypes[0].meta.endpoint[items], //key  - the name of the series.
+                                    color: widgetData.charts[i].chartColour,  //color - optional: choose your own line color.
+                                    summaryDisplay: parseInt(displaySummaryBarData)
+                                });
+                            }
+                        }
                     }
+
+                    //To handle chart creation for custom widgets
                     else{
                         for(customData in widgetData.charts[i].chartData){
                             for(getTotal in widgetData.charts[i].chartData[customData].values){
@@ -434,6 +562,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                             displaySummaryBarData = 0;
                         }
                     }
+
+                    //Defining the chart options for all line/area charts
                     graphData.barDataOptions = {
                         chart: {
                             type: 'multiBarChart',
@@ -452,10 +582,12 @@ showMetricApp.service('createWidgets',function($http,$q){
                                     return d3.format('f')(d);}
                             },
                             axisLabelDistance: -10,
-                            showLegend: false
+                            showLegend: true
                         }
                     };
                 }
+
+                //If the chart type is PIE
                 else if(widgetData.charts[i].chartType == 'pie'){
                     var displaySummaryPieData =0;
                     if(widgetData.charts[i].metricDetails!=undefined){
@@ -506,28 +638,26 @@ showMetricApp.service('createWidgets',function($http,$q){
             }
         }
 
-
-
         if(graphData.lineDataOptions !== null)
-            tempChart.push({
+            modifiedCharts.push({
                 'options': graphData.lineDataOptions,
                 'data': graphData.lineData,
                 'api': {}
         });
         if(graphData.barDataOptions !== null)
-            tempChart.push({
+            modifiedCharts.push({
                 'options': graphData.barDataOptions,
                 'data': graphData.barData,
                 'api': {}
         });
         if(graphData.pieDataOptions !== null)
-            tempChart.push({
+            modifiedCharts.push({
                 'options': graphData.pieDataOptions,
                 'data': graphData.pieData,
                 'api': {}
         });
 
-        return(tempChart);
+        return(modifiedCharts);
     };
 
     //To load the fetched data into the placeholder widget
@@ -771,29 +901,29 @@ showMetricApp.service('generateChartColours',function(){
         var widgetColor;
         switch (channelName){
             case 'Facebook':
-                widgetColor = '#EF5350';
+                widgetColor = '#3B5998';
                 break;
             case 'Google Analytics':
-                widgetColor = '#EC407A';
+                widgetColor = '#EA4335';
                 break;
             case 'Twitter':
-                widgetColor = '#9C27B0';
+                widgetColor = '#55ACEE';
                 break;
             case 'FacebookAds':
-                widgetColor = '#42A5F5';
+                widgetColor = '#3B5998';
                 break;
             case 'GoogleAdwords':
-                widgetColor = '#26A69A';
+                widgetColor = '#EA4335';
                 break;
             case 'Instagram':
-                widgetColor = '#FFCA28';
+                widgetColor = '#C13584';
                 break;
             default:
-                widgetColor = '#FF7043';
+                widgetColor = '#04509B';
                 break;
         }
 
         return widgetColor;
     };
-});
 
+});

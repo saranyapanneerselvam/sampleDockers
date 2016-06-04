@@ -39,9 +39,9 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
 
             swal({
                 html:true,
-                type: "warning",
+                imageUrl: '/image/loading.gif',
                 title:'',
-                text:'<b> Please wait while the PDF file is being downloading. </b>',
+                text:'<b> Please wait while the PDF file is being generated. </b>',
                 allowOutsideClick:false,
                 allowEscapeKey:false,
                 showConfirmButton:false

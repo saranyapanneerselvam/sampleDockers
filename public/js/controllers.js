@@ -391,6 +391,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                             else{
                                 var IsAlreadyExist = 0;
                                 for(getData in formattedChartData){
+
                                     var yValue = 0;
                                     if(formattedChartData[getData].key == widget.charts[i].chartData[dataObjects].name){
                                         yValue = parseInt(formattedChartData[getData].y);
@@ -401,7 +402,7 @@ showMetricApp.service('createWidgets',function($http,$q){
 
                                 if (IsAlreadyExist != 1) {
 
-                                    formattedChartData.push({y:parseInt(widget.charts[i].chartData[j].values),key: widget.charts[i].chartData[j].name, color:null});
+                                    formattedChartData.push({y:parseInt(widget.charts[i].chartData[dataObjects].values),key: widget.charts[i].chartData[dataObjects].name, color:null});
                                 }
 
                             }
@@ -573,7 +574,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                 //If the chart type is BAR
                 else if (widgetData.charts[i].chartType == 'bar'){
                     var displaySummaryBarData = 0;
-                    console.log(widgetData.charts[i].chartData);
 
                     //To handle chart creation for regular widgets (basic, adv, fusion)
                     if(widgetData.charts[i].metricDetails!=undefined){
@@ -605,17 +605,21 @@ showMetricApp.service('createWidgets',function($http,$q){
 
                     //To handle chart creation for custom widgets
                     else{
+                        var getDataCount=0;
                         for(customData in widgetData.charts[i].chartData){
-                            for(getTotal in widgetData.charts[i].chartData[customData].values){
-                                displaySummaryBarData = displaySummaryBarData + parseInt(widgetData.charts[i].chartData[customData].values[getTotal].y);
+
+                            for(dataItems in widgetData.charts[i].chartData[customData]){
+                                //console.log(widgetData.charts[i].chartData[customData][dataItems]);
+                                //console.log(widgetData.charts[i].chartData[customData][dataItems].key);
+                                //console.log(widgetData.charts[i].chartData[customData][dataItems].values);
+                                graphData.barData.push({
+                                    values: widgetData.charts[i].chartData[customData][dataItems].values,      //values - represents the array of {x,y} data points
+                                    key: widgetData.charts[i].chartData[customData][dataItems].key, //key  - the name of the series.
+                                    color: widgetData.charts[i].chartData[customData][dataItems].color,  //color - optional: choose your own line color.
+                                    summaryDisplay: displaySummaryBarData
+                                });
+                                displaySummaryBarData = 0;
                             }
-                            graphData.barData.push({
-                                values: widgetData.charts[i].chartData[customData].values,      //values - represents the array of {x,y} data points
-                                key: widgetData.charts[i].chartData[customData].key, //key  - the name of the series.
-                                color: widgetData.charts[i].chartData[customData].color,  //color - optional: choose your own line color.
-                                summaryDisplay: displaySummaryBarData
-                            });
-                            displaySummaryBarData = 0;
                         }
                     }
 
@@ -645,10 +649,7 @@ showMetricApp.service('createWidgets',function($http,$q){
 
                 //If the chart type is PIE
                 else if(widgetData.charts[i].chartType == 'pie'){
-
-
                     var displaySummaryPieData =0;
-                    console.log(widgetData.charts[i].chartData);
                     if(widgetData.charts[i].chartData[0].x){
                         for(items in widgetData.charts[i].chartData)
                             displaySummaryPieData = displaySummaryPieData + parseInt(widgetData.charts[i].chartData[items].y);
@@ -663,14 +664,17 @@ showMetricApp.service('createWidgets',function($http,$q){
                     else {
                         for(items in widgetData.charts[i].chartData) {
                             displaySummaryPieData = 0;
-                            for(dataItems in widgetData.charts[i].chartData[items])
+                            for(dataItems in widgetData.charts[i].chartData[items]){
                                 displaySummaryPieData = displaySummaryPieData + parseInt(widgetData.charts[i].chartData[items][dataItems].y);
-                            graphData.pieData.push({
-                                y: parseInt(displaySummaryPieData),      //values - represents the array of {x,y} data points
-                                key: widgetData.charts[i].metricDetails.objectTypes[0].meta.endpoint[items], //key  - the name of the series.
-                                //color: widgetData.charts[i].chartColour,  //color - optional: choose your own line color.
-                                summaryDisplay: parseInt(displaySummaryPieData)
-                            });
+                                graphData.pieData.push({
+                                    y: parseInt(displaySummaryPieData),      //values - represents the array of {x,y} data points
+                                    key: widgetData.charts[i].chartData[items][dataItems].key, //key  - the name of the series.
+                                    color: widgetData.charts[i].chartData[items][dataItems].color,  //color - optional: choose your own line color.
+                                    summaryDisplay: parseInt(displaySummaryPieData)
+                                });
+                                displaySummaryPieData =0;
+                            }
+
                         }
                     }
 

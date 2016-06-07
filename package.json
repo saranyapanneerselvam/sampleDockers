@@ -64,7 +64,8 @@
     "nodemailer": "^2.3.2",
     "html5-to-pdf":"*",
     "q": "*",
-    "instagram-node": "*"
+    "instagram-node": "*",
+    "agenda": "*"
   },
   "devDependencies": {
     "adwords-auth": "0.0.10",

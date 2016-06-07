@@ -3709,13 +3709,14 @@ ol.unstyled {
 }
 /* FOOTER */
 .footer {
-    background: none repeat scroll 0 0 white;
-    border-top: 1px solid #e7eaec;
+    /*008a00*/
     bottom: 0;
-    left: 0;
-    padding: 10px 20px;
+    /*padding: 10px 20px;*/
     position: absolute;
+    position: fixed;
     right: 0;
+    left: 0;
+    z-index: 1030;
 }
 .footer.fixed_full {
     position: fixed;
@@ -5945,6 +5946,50 @@ a.customApiLink{
 .sampleCustomDataTerm{
     font-size:15px;
     color: #04509B;
+}
+
+.comments{
+    background: rgba(42, 49, 63, 0.68);width: 200px;padding: 5px;
+}
+
+.comments:hover{
+    background: #2a313f;
+}
+
+.customSwitch{
+    height: 15px !important;
+    margin: 10px 5px 5px 5px !important;
+}
+
+.switch.checked small {
+    left: 28px !important;
+}
+
+.switch small {
+    width: 25px !important;
+    height: 25px !important;
+    top: -5px !important;
+}
+
+.commentsContent{
+    color: #ffffff;
+    font-size: 16px;
+    margin: 5px;
+    float: right;
+}
+
+
+#sliderLabel {
+    -webkit-border-radius: 7px;
+    -moz-border-radius: 7px;
+    border-radius: 7px;
+    cursor: pointer;
+    display: block;
+    height: 30px;
+    overflow: hidden;
+    position: relative;
+    width: 80px;
+    float: right;
 }
 
 .nv-noData{

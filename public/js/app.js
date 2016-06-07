@@ -15,7 +15,8 @@
         'gridster',
         'nvd3',
         /*'daterangepicker',*/
-        'xeditable'
+        'xeditable',
+        'uiSwitch'
     ])
 })();
 

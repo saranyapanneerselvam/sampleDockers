@@ -609,9 +609,9 @@ showMetricApp.service('createWidgets',function($http,$q){
                         for(customData in widgetData.charts[i].chartData){
 
                             for(dataItems in widgetData.charts[i].chartData[customData]){
-                                //console.log(widgetData.charts[i].chartData[customData][dataItems]);
-                                //console.log(widgetData.charts[i].chartData[customData][dataItems].key);
-                                //console.log(widgetData.charts[i].chartData[customData][dataItems].values);
+                                for(var dataItemsTotal in widgetData.charts[i].chartData[customData][dataItems].values){
+                                    displaySummaryBarData = displaySummaryBarData + parseInt(widgetData.charts[i].chartData[customData][dataItems].values[dataItemsTotal].y);
+                                }
                                 graphData.barData.push({
                                     values: widgetData.charts[i].chartData[customData][dataItems].values,      //values - represents the array of {x,y} data points
                                     key: widgetData.charts[i].chartData[customData][dataItems].key, //key  - the name of the series.

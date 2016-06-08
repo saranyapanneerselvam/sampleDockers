@@ -111,18 +111,14 @@
 
 </div>
 
-<div ng-init="tempDashboardConfiguration()" id="tempDashboardLayout">
-    <div class="context" ng-hide="tempDashboard">
-        <a>
+<div   id="tempDashboardLayout">
+    <div class="context" ng-hide="tempDashboard" >
+        <a class="commentLink">
             <span>Comment Mode</span>
             <span class="closeCommentMode" ng-click="closeCommentMode()" ng-model="isCloseComment">X</span>
         </a>
 
-        <div class="markers">
-            <div class="viewport center">
-
-            </div>
-        </div>
+        <img src="image/transparent.png" id="transparentImage"  class="annotatable"/>
 
         <!-- Borders. -->
         <div class="border n"></div>
@@ -131,4 +127,14 @@
         <div class="border w"></div>
 
     </div>
+    <!--<script type="application/javascript">-->
+        <!--var getDataPointArr = new Array();-->
+        <!--function blackNote() {-->
+            <!--console.log("blackNote called");-->
+            <!--return $(document.createElement('span')).addClass('black circle note')-->
+
+        <!--}-->
+
+        <!--//$('#viewport').annotatableImage(blackNote);-->
+    <!--</script>-->
 </div>

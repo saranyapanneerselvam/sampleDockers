@@ -5979,16 +5979,14 @@ a.customApiLink{
 }
 
 
+
+
 #sliderLabel {
-    -webkit-border-radius: 7px;
-    -moz-border-radius: 7px;
-    border-radius: 7px;
+
     cursor: pointer;
     display: block;
     height: 30px;
-    overflow: hidden;
-    position: relative;
-    width: 80px;
+
     float: right;
 }
 
@@ -6026,7 +6024,7 @@ div.context div.border.w {
     width: 12px;
 }
 
-div.context a {
+div.context a.commentLink {
     background-color: #F53F72;
     color: #FFF;
     font-size: 12px;
@@ -6056,46 +6054,30 @@ div.context a {
 }
 
 
-div.markers {
-    left: 0;
-    position: absolute;
-    right: 0;
-    top: 0;
-    -webkit-transition: left .5s ease;
-    transition: left .5s ease;
-    z-index: 210;
-}
 
-div.viewport.center {
-    margin-left: auto;
-    margin-right: auto;
-}
-
-div.viewport {
-    background-image: url(../image/transparent.png);
+.annotorious-item{
     cursor: crosshair;
-    overflow: visible;
-    position: relative;
 }
-
 
 .dashboardContent{
     position: relative;
     left: 0px;
     top: 0px;
-    z-index: 1;
+    z-index: 0;
+}
+
+.daterange{
+    position: relative;
+    left: 0px;
+    top: 0px;
+    z-index: 0;
 }
 
 .context{
     position: absolute;
     left: 0px;
     top: 0px;
-    z-index: 2;
-}
-
-.viewport {
-    overflow: hidden;
-    position: relative;
+    z-index: 1;
 }
 
 .nv-noData{

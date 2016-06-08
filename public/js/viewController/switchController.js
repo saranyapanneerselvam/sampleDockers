@@ -6,18 +6,31 @@ function SwitchController($scope,$http,$state,$rootScope,$window,$stateParams,ge
     var contentHeight = "";
     var contentWidth = "";
 
-    $scope.changeCallback = function () {
-        console.log("switch change : "+$scope.enabled);
+
+    $rootScope.$on("CallSwitchChangeFunc", function(getValue){
+        $scope.changeCallback(getValue);
+    });
+
+    $scope.changeCallback = function (getValue) {
         contentHeight = $("#page-wrapper").height();
         contentWidth = $("#page-wrapper").width();
-        $(".viewport").css("width",contentWidth).css("height",contentHeight);
-        if($scope.enabled==false){
+        $("#transparentImage").css("width",contentWidth).css("height",contentHeight);
+        $(".annotorious-item").css("width",contentWidth).css("height",contentHeight);
+
+        if($scope.switchEnabled==false){
             //console.log("if switch change : "+$scope.enabled);
             $rootScope.tempDashboard=true;
         }
         else{
             //console.log("else switch change : "+$scope.enabled);
-            $rootScope.tempDashboard=false;
+            if(getValue==1){
+                $rootScope.tempDashboard=false;
+            }
+            else{
+                $scope.switchEnabled=false;
+                $rootScope.tempDashboard=true;
+            }
+
         }
 
     }

@@ -1,9 +1,9 @@
 <div class="footer">
     <div class="pull-right comments" ng-controller="SwitchController">
         <!--10GB of <strong>250GB</strong> Free.-->
-         <label id="sliderLabel" class="ng-scope">
-             <switch class="customSwitch" name="enabled" ng-model="enabled" ng-change="changeCallback"></switch>
-        </label>
+
+         <switch id="sliderLabel" class="customSwitch" name="enabled" ng-model="switchEnabled" ng-change="changeCallback(1)"></switch>
+
         <label class="commentsContent">
          <span>Comments</span>
         </label>

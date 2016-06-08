@@ -2,7 +2,7 @@
     <div class="pull-right comments" ng-controller="SwitchController">
         <!--10GB of <strong>250GB</strong> Free.-->
 
-         <label id="sliderLabel">
+         <label id="sliderLabel" ng-click="$event.stopPropagation()"  class="ng-scope">
              <switch class="customSwitch" name="enabled" ng-model="enabled" ng-change="changeCallback"></switch>
         </label>
 

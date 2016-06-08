@@ -264,6 +264,18 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         };
     };
 
+
+    $scope.tempDashboardConfiguration = function () {
+        console.log("tempDashboardConfiguration called");
+        $scope.isCloseComment=0;
+        $scope.closeCommentMode = function () {
+            console.log("close comment mode");
+            $rootScope.tempDashboard=true;
+            $scope.enabled=false;
+            $scope.isCloseComment=1;
+        }
+    };
+
     //To populate all the widgets in a dashboard when the dashboard is refreshed or opened or calendar date range in the dashboard header is changed
     $rootScope.populateDashboardWidgets = function() {
         $scope.dashboard.widgets = [];

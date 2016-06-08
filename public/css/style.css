@@ -5992,6 +5992,112 @@ a.customApiLink{
     float: right;
 }
 
+
+div.context div.border {
+    background-color: #F53F72;
+    position: fixed;
+}
+
+div.context div.border.n {
+    height: 8px;
+    left: 0;
+    right: 0;
+    top: 51px;
+}
+
+div.context div.border.e {
+    bottom: 0;
+    right: 0;
+    top: 0;
+    width: 8px;
+}
+
+div.context div.border.s {
+    bottom: 0;
+    height: 8px;
+    left: 0;
+    right: 0;
+}
+
+div.context div.border.w {
+    bottom: 0;
+    left: 0;
+    top: 0;
+    width: 12px;
+}
+
+div.context a {
+    background-color: #F53F72;
+    color: #FFF;
+    font-size: 12px;
+    font-weight: 600;
+    height: 28px;
+    left: 50%;
+    line-height: 26px;
+    margin-left: -66px;
+    position: fixed;
+    text-align: center;
+    text-transform: uppercase;
+    top: 51px;
+    width: 140px;
+    z-index: 231;
+    border-radius: 10px;
+    cursor: default;
+}
+
+.closeCommentMode{
+    font-size: 10px;
+    background: #a94442;
+    height: 10px;
+    padding: 0px 5px 0px 5px;
+    margin: 0px 0px 0px 5px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+
+div.markers {
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    -webkit-transition: left .5s ease;
+    transition: left .5s ease;
+    z-index: 210;
+}
+
+div.viewport.center {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+div.viewport {
+    background-image: url(../image/transparent.png);
+    cursor: crosshair;
+    overflow: visible;
+    position: relative;
+}
+
+
+.dashboardContent{
+    position: relative;
+    left: 0px;
+    top: 0px;
+    z-index: 1;
+}
+
+.context{
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    z-index: 2;
+}
+
+.viewport {
+    overflow: hidden;
+    position: relative;
+}
+
 .nv-noData{
     font-size:14px !important;
 }

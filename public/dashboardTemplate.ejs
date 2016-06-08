@@ -1,4 +1,4 @@
-<div ng-init="dashboardConfiguration()" id="dashboardLayout">
+<div ng-init="dashboardConfiguration()" id="dashboardLayout" class="dashboardLayout">
     <div class="border-bottom dashboardTitle white-bg">
         <div class="row">
             <div class="col col-sm-12">
@@ -106,4 +106,31 @@
     </div>
     <div ui-view="lightbox"></div>
     <script src="js/datePicker/Calendar.js"></script>
+</div>
+
+<div ng-init="tempDashboardConfiguration()" id="tempDashboardLayout">
+
+    <div class="context" ng-hide="tempDashboard">
+
+        <a>
+            <span>Comment Mode</span>
+            <span class="closeCommentMode" ng-click="closeCommentMode()" ng-model="isCloseComment">X</span>
+        </a>
+
+
+        <div class="markers">
+
+            <div class="viewport center" ng-style="{width: ( dashboardLayout.width + 'px' ),height: ( dashboardLayout.height + 'px' )}"   style="width: 1425px;height: 810px;">
+
+            </div>
+
+        </div>
+
+        <!-- Borders. -->
+        <div class="border n"></div>
+        <div class="border e"></div>
+        <div class="border s"></div>
+        <div class="border w"></div>
+
+    </div>
 </div>

@@ -4,6 +4,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
     $scope.loading=false;
     $scope.$window = $window;
     var isExportOptionSet = "";
+
     //Sets up all the required parameters for the dashboard to function properly when it is initially loaded. This is called in the ng-init function of the dashboard template
     $scope.dashboardConfiguration = function () {
         $scope.dashboardCalendar = new Calendar({
@@ -266,13 +267,11 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
 
     $scope.tempDashboardConfiguration = function () {
-        console.log("tempDashboardConfiguration called");
-        $scope.isCloseComment=0;
+        //console.log("tempDashboardConfiguration called");
         $scope.closeCommentMode = function () {
             console.log("close comment mode");
             $rootScope.tempDashboard=true;
             $scope.enabled=false;
-            $scope.isCloseComment=1;
         }
     };
 

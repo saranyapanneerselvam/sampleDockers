@@ -1,17 +1,12 @@
 <div class="footer">
     <div class="pull-right comments" ng-controller="SwitchController">
         <!--10GB of <strong>250GB</strong> Free.-->
-
-         <label id="sliderLabel" ng-click="$event.stopPropagation()"  class="ng-scope">
+         <label id="sliderLabel" class="ng-scope">
              <switch class="customSwitch" name="enabled" ng-model="enabled" ng-change="changeCallback"></switch>
         </label>
-
-
         <label class="commentsContent">
          <span>Comments</span>
         </label>
-
-
     </div>
     <div>
         <!--<strong>Copyright</strong> Example Company &copy; 2014-2015-->

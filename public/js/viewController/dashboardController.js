@@ -264,8 +264,121 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             return {'height':(heightPercent+'%'),'font-size':(fontSizeEm+'em')};
         };
     };
- 
+
+    var count =0;
+    var getCommentArr = new Array();
+    $scope.callThePosition = function (event){
+        var dialog, form;
+        var x = event.x;
+        var y = event.y;
+        var offsetX = event.offsetX;
+        var offsetY = event.offsetY;
+        var color = '#F53F72';
+        var size = '30px';
+        count++;
+        // console.log(event);
+
+        $(".context").append($('<div class="commentPoint" id="commentPoint-'+count+'" style="color: #ffffff;"><span class="countComment">'+count+'</span></div></div>')
+            .css('position', 'absolute')
+            .css('top', offsetY + 'px')
+            .css('left', offsetX + 'px')
+            .css('width', size)
+            .css('height', size)
+            .css('border-radius', '25px')
+            .css('background-color', color)
+        );
+
+        swal({
+            html:true,
+            title:'<i>Leave a Comment - '+count+'</i>',
+            text:'<b><textarea id="inputTextArea" rows="10" cols="40" placeholder="Write your comment here..."></textarea></b>',
+            showCancelButton: true,
+            confirmButtonClass: 'btn-danger',
+            confirmButtonText: 'Send',
+            cancelButtonText: "Cancel",
+            closeOnConfirm: false,
+            closeOnCancel: false
+        }, function (isConfirm) {
+
+            if (isConfirm) {
+                var comment = $("#inputTextArea").val();
+                if (comment === "") {
+                    swal.showInputError("Enter the Comment !!!");
+                    $(".sa-input-error").css("top","10px !important");
+                    return false
+                }
+                if(comment != ""){
+                    addDashBoardComment();
+                }
+            } else {
+                $("#commentPoint-"+count).remove();
+                count--;
+                swal("Cancelled", "Your comment is not posted.", "error");
+            }
+        });
+
+
+        // dialog = $( "#commentForm" ).dialog({
+        //     autoOpen: false,
+        //     height: 300,
+        //     width: 350,
+        //     modal: true,
+        //     buttons: {
+        //         "Send": addDashBoardComment,
+        //         Cancel: function() {
+        //             dialog.dialog( "close" );
+        //             callClose();
+        //         }
+        //     },
+        //     close: function() {
+        //         form[ 0 ].reset();
+        //     }
+        // });
+        //
+        //
+        // function callClose(){
+        //     $("#commentPoint-"+count).remove();
+        //     count--;
+        // }
+        //
+        // form = dialog.find( "form" ).on( "submit", function( event ) {
+        //     event.preventDefault();
+        //     addDashBoardComment();
+        // });
+        // dialog.dialog( "open" );
+        //
+        // $(".ui-dialog-titlebar-close").hide();
+
+        function addDashBoardComment(){
+            var comment = $("#inputTextArea").val();
+            var dashboardId = $state.params.id;
+            var xAxis = offsetX;
+            var yAxis = offsetY;
+            var dataForm = '{"Comment":"'+comment+'","DashboardId":"'+dashboardId+'","xAxis":"'+xAxis+'","yAxis":"'+yAxis+'"}';
+            //console.log("Count : "+count+" || screenX : "+event.screenX+" || screenY : "+event.screenY+" || clientX : "+event.clientX+" || clientY : "+event.clientY+" || offsetX : "+offsetX+" || offsetY : "+offsetY);
+            console.log(dataForm);
+
+            // Send JSON data to the database for CreateComment
+            // $http({
+            //     method: 'POST', url: '/api/v1/create/dashboardComment', data: dataForm
+            // }).then(function successCallback(response){
+            //     console.log(response);
+            //     swal("Submitted!", "Your comment has been posted sucessfully.", "success");
+            // }, function errorCallback (error){
+            //     console.log('Error in creating dashboard comment post',error);
+            //     swal("Error in creating dashboard comment post", "", "error");
+            // });
+
+            swal("Submitted!", "Your comment has been posted sucessfully.", "success");
+        }
+
+
+    };
+
     $scope.closeCommentMode = function () {
+        count=0;
+        $(".commentPoint").html("");
+        $(".context").removeClass("commentPoint");
         $rootScope.tempDashboard=true;
         $rootScope.$emit("CallSwitchChangeFunc", {value:0});
     };

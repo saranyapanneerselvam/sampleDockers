@@ -6053,9 +6053,15 @@ div.context a.commentLink {
     cursor: pointer;
 }
 
-
+.countComment{
+    padding: 12px 12px 12px 8px;font-size: 20px;
+}
 
 .annotorious-item{
+    cursor: crosshair;
+}
+
+#transparentImage{
     cursor: crosshair;
 }
 

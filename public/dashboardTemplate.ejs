@@ -106,27 +106,33 @@
     </div>
     <div ui-view="lightbox"></div>
     <script src="js/datePicker/Calendar.js"></script>
-
-
-
 </div>
 
 <div   id="tempDashboardLayout">
     <div class="context" ng-hide="tempDashboard" >
-        <a class="commentLink">
-            <span>Comment Mode</span>
-            <span class="closeCommentMode" ng-click="closeCommentMode()" ng-model="isCloseComment">X</span>
-        </a>
+        <!--<a class="commentLink">-->
+            <!--<span>Comment Mode</span>-->
+            <!--<span class="closeCommentMode" ng-click="closeCommentMode()" ng-model="isCloseComment">X</span>-->
+        <!--</a>-->
 
-        <img src="image/transparent.png" id="transparentImage"  class="annotatable"/>
+        <img src="image/transparent.png" id="transparentImage" ng-click="callThePosition($event)"/>
 
-        <!-- Borders. -->
-        <div class="border n"></div>
-        <div class="border e"></div>
-        <div class="border s"></div>
-        <div class="border w"></div>
-
+        <!--&lt;!&ndash; Borders. &ndash;&gt;-->
+        <!--<div class="border n"></div>-->
+        <!--<div class="border e"></div>-->
+        <!--<div class="border s"></div>-->
+        <!--<div class="border w"></div>-->
     </div>
+
+    <!--<div id="commentForm" title="Leave a Comment">-->
+        <!--<form>-->
+            <!--<fieldset>-->
+                <!--<textarea type="text" name="comment" id="inputComment" placeholder="Leave a comment" class="text ui-widget-content ui-corner-all" style="width: 100%;height: 180px;"></textarea>-->
+                <!--<input type="submit" tabindex="-1" style="position:absolute; top:-1000px">-->
+            <!--</fieldset>-->
+        <!--</form>-->
+    <!--</div>-->
+
     <!--<script type="application/javascript">-->
         <!--var getDataPointArr = new Array();-->
         <!--function blackNote() {-->

@@ -25,6 +25,7 @@ function SwitchController($scope,$http,$state,$rootScope,$window,$stateParams,ge
             //console.log("else switch change : "+$scope.enabled);
             if(getValue==1){
                 $rootScope.tempDashboard=false;
+                $rootScope.$emit("getDashboardCommentsFunc", {value:0});
             }
             else{
                 $scope.switchEnabled=false;

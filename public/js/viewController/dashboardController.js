@@ -266,15 +266,87 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
     };
 
     var count =0;
-    var getCommentArr = new Array();
+    var color = '#F53F72';
+    var size = '30px';
+
+    $rootScope.$on("getDashboardCommentsFunc", function(getValue){
+        $scope.getDashboardComments(getValue);
+    });
+
+    $scope.getDashboardComments = function(){
+        console.log("get dashboard comments from database");
+
+        /*
+        var getCount = 0;
+        var getCommentArr = '[{"Comment":"test 1","DashboardId":"571f2875c761262c0c0db9c8","xAxis":"277","yAxis":"370"},{"Comment":"test 2","DashboardId":"571f2875c761262c0c0db9c8","xAxis":"1023","yAxis":"256"},{"Comment":"test 3","DashboardId":"571f2875c761262c0c0db9c8","xAxis":"462","yAxis":"390"}]';
+        console.log(JSON.parse(getCommentArr));
+        var jsonData = JSON.parse(getCommentArr);
+
+        for(getData in jsonData){
+            getCount++;
+            $(".context").append($('<div class="commentPoint" id="commentPoint-'+getCount+'" style="color: #ffffff;"><span class="countComment">'+getCount+'</span><input type="hidden" id="hiddenComment-'+getCount+'" value="'+jsonData[getData].Comment+'" /></div></div>')
+                .css('position', 'absolute')
+                .css('top', jsonData[getData].yAxis + 'px')
+                .css('left', jsonData[getData].xAxis + 'px')
+                .css('width', size)
+                .css('height', size)
+                .css('border-radius', '25px')
+                .css('background-color', color)
+            );
+
+        }
+
+        $(".commentPoint").on('click',function () {
+            var countValue = this.id.replace('commentPoint-','');
+            var hiddenComment = $("#hiddenComment-"+countValue).val();
+            console.log(countValue);
+            swal({
+                html:true,
+                title:'<i>Leave a Comment - '+countValue+'</i>',
+                text:'<b><textarea id="inputTextArea" rows="10" cols="40" placeholder="Write your comment here..."></textarea></b>',
+                showCancelButton: true,
+                confirmButtonClass: 'btn-danger',
+                confirmButtonText: 'Update',
+                cancelButtonText: "Delete",
+                closeOnConfirm: false,
+                closeOnCancel: false
+            }, function (isConfirm) {
+
+                if (isConfirm) {
+                    var comment = $("#inputTextArea").val();
+                    if (comment === "") {
+                        swal.showInputError("Enter the Comment !!!");
+                        $(".sa-input-error").css("top","10px !important");
+                        return false
+                    }
+                    if(comment != ""){
+                        updateDashBoardComment();
+                    }
+                } else {
+                    $("#commentPoint-"+countValue).remove();
+                    swal("Deleted", "Your comment deleted and not posted.", "error");
+                }
+            });
+
+            $("#inputTextArea").val(hiddenComment);
+
+            function updateDashBoardComment(){
+                swal("Submitted!", "Your comment has been updated sucessfully.", "success");
+            }
+
+        }); */
+
+    };
+
+
+
     $scope.callThePosition = function (event){
         var dialog, form;
         var x = event.x;
         var y = event.y;
         var offsetX = event.offsetX;
         var offsetY = event.offsetY;
-        var color = '#F53F72';
-        var size = '30px';
+
         count++;
         // console.log(event);
 

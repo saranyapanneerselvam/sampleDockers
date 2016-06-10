@@ -89,12 +89,12 @@ module.exports = {
         clicks: 'clicks',
         cost:'cost',
         impressions:'impressions',
-        clickThroughRate:'clickthroughRate',
-        costperConversion :'costPerConversion',
-        conversionrate : 'conversionRate',
+        clickThroughRate:'clickThroughRate',
+        costPerConversion :'costPerConversion',
+        conversionRate : 'conversionRate',
         conversions : 'conversions',
-        costperclick:'costperclick',
-        costperthousandImpressions:'costperthousandImpressions'
+        costPerClick:'costPerClick',
+        costPerThousandImpressions:'costPerThousandImpressions'
     },
     googleApiTypes:{
         mcfApi:'mcf',

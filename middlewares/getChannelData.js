@@ -145,7 +145,6 @@ exports.getChannelData = function (req, res, next) {
             store_final_data: ['get_channel_data_remote', storeFinalData],
             get_channel_objects_db: ['store_final_data', 'get_channel_data_remote', getChannelDataDB]
         }, function (err, results) {
-            console.log('final data',results.get_channel_objects_db)
             if (err) {
                 return res.status(500).json({});
             }
@@ -725,6 +724,7 @@ exports.getChannelData = function (req, res, next) {
 
                                 }
                                 else {
+                                    console.log('DataFromRemote:', dataFromRemote[key]);
                                     for (var index in dataFromRemote[key].res.data[0].values) {
                                         var value = {};
                                         value = {
@@ -1793,6 +1793,7 @@ exports.getChannelData = function (req, res, next) {
         }
 
         function getAdwordsDataForEachMetric(results, callback) {
+            var errorCount = 0;
             var during = results.startDate + ',' + results.endDate;
             googleAds.use({
                 clientID: configAuth.googleAdwordsAuth.clientID,
@@ -1805,23 +1806,38 @@ exports.getChannelData = function (req, res, next) {
                 refreshToken: results.profile.refreshToken,
                 clientCustomerID: results.objects
             });
+            console.log('AdwordsQuery',results.query);
             googleAds.awql()
                 .select(results.query)
                 .from('ACCOUNT_PERFORMANCE_REPORT')
                 .during(during)
                 .send().then(function (response) {
+                    console.log('AdwordsResponseSuccess',response);
                     storeAdwordsFinalData(results, response.data);
                 })
                 .catch(function (error) {
-                    callback(error, null);
-
+                    console.log('AdwordsResponseFailure',error);
+                    if(error.status == '400') {
+                        errorCount++;
+                        if(errorCount<2){
+                            setTimeout(function(){
+                                getAdwordsDataForEachMetric(results, callback);
+                            },30000);
+                        }
+                        else {
+                            callback(error, null);
+                        }
+                    }
+                    else {
+                        callback(error, null);
+                    }
                 });
 
             //To store the final result in db
             function storeAdwordsFinalData(results, data) {
                 var actualFinalApiData = {};
                 if (data.error) {
-                    console.log('error')
+                    console.log('AdwordsDataError')
                 }
 
                 //Array to hold the final result
@@ -1832,7 +1848,7 @@ exports.getChannelData = function (req, res, next) {
                 else if (results.metricCode === configAuth.googleAdwordsMetric.cost) {
                     param.push('cost');
                 }
-                else if (results.metricCode === configAuth.googleAdwordsMetric.conversionrate) {
+                else if (results.metricCode === configAuth.googleAdwordsMetric.conversionRate) {
                     param.push('conv. rate');
                 }
                 else if (results.metricCode === configAuth.googleAdwordsMetric.conversions) {
@@ -1844,10 +1860,10 @@ exports.getChannelData = function (req, res, next) {
                 else if (results.metricCode === configAuth.googleAdwordsMetric.clickThroughRate) {
                     param.push('ctr')
                 }
-                else if (results.metricCode === configAuth.googleAdwordsMetric.costperclick) {
+                else if (results.metricCode === configAuth.googleAdwordsMetric.costPerClick) {
                     param.push('avg. cpc');
                 }
-                else if (results.metricCode === configAuth.googleAdwordsMetric.costperthousandImpressions) {
+                else if (results.metricCode === configAuth.googleAdwordsMetric.costPerThousandImpressions) {
                     param.push('avg. cpm');
                 }
                 else {
@@ -1860,6 +1876,7 @@ exports.getChannelData = function (req, res, next) {
                         total: parseInt(data[prop][param]),
                         date: data[prop].day
                     };
+                    console.log(value);
                     finalData.push(value);
                 }
 
@@ -1887,9 +1904,7 @@ exports.getChannelData = function (req, res, next) {
                     }
                     callback(null, actualFinalApiData);
                 }
-
             }
-
         }
     }
 

@@ -193,7 +193,7 @@ exports.saveWidgets = function (req, res, next) {
                             // update the dashboard data
                             widgetsList.update({_id: widgetId}, {
                                 $set: {
-                                    name: name,
+                                    //name: name,
                                     //description: description,
                                     //widgetType: widgetType,
                                     row: row,

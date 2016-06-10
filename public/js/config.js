@@ -38,21 +38,31 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
         //Sub-parent state #2
         .state('app.reporting', {
             url: "/reporting",
-            template: '{{loading}}',
+            template: '{{loadingVariable}}',
             controller: function ($http,$state,$scope){
-                $scope.loading = "";
+                $scope.loadingVariable = '';
                 if($state.$current.name == 'app.reporting'){
-                    $scope.loading="loading...";
-                    $http({
-                        method: 'GET', url: '/api/v1/me'
-                    }).then(function successCallback(response) {
-                        var currentDashboardId = response.data.userDetails[0].lastDashboardId;
-                        $state.go('.dashboard',{id: currentDashboardId});
-                        $scope.loading='';
-                    }, function errorCallback(error) {
-                        console.log('Error in finding dashboard Id',error);
-                        return error;
-                    });
+                    $scope.loadingVariable = 'LOADING';
+                    $http(
+                        {
+                            method: 'GET',
+                            url: '/api/v1/me'
+                        }
+                    ).then(
+                        function successCallback(response) {
+                            if(response.data.userDetails[0].lastDashboardId) {
+                                $scope.loadingVariable = '';
+                                $state.go('.dashboard',{id: response.data.userDetails[0].lastDashboardId});
+                            }
+                            else {
+                                $scope.createNewDashboard();
+                            }
+                        },
+                        function errorCallback(error) {
+                            console.log('Error in finding dashboard Id',error);
+                            return error;
+                        }
+                    );
                 }
             }
         })
@@ -80,14 +90,19 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
             },
             onEnter: function ($stateParams,$http,$state) {
                 var dashboardId = $stateParams.id? $stateParams.id : $state.params.id;
-                $http({
-                    method:'POST',
-                    url:'/api/v1/updateLastDashboardId/' + dashboardId
-                }).then(function successCallback(response){
-                    console.log('successfully updated last dashboard id',response)
-                },function errorCallback (error){
-                    console.log('Failure in updating last dashboard id',error)
-                });
+                $http(
+                    {
+                        method:'POST',
+                        url:'/api/v1/updateLastDashboardId/' + dashboardId
+                    }
+                ).then(
+                    function successCallback(response){
+                        console.log('successfully updated last dashboard id',response)
+                    },
+                    function errorCallback (error){
+                        console.log('Failure in updating last dashboard id',error)
+                    }
+                );
             }
         })
 

@@ -47,45 +47,45 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
                 showConfirmButton:false
             });
 
-                domtoimage.toPng(dashboardLayout)
-                    .then(function (dataUrl) {
-                        var jsonData = {
-                            "dashboardLayout": dataUrl,
-                            "dashboardId": $state.params.id,
-                            "dashboardName":dashboardName
-                        };
-                        $http({
-                            method: 'POST', url: '/api/v1/createHtml5ToPdf/dashboard', data: jsonData
-                        }).then(function successCallback(response){
-                            console.log(response);
-                            document.getElementById('dashboardTitleIcons').style.visibility = "visible";
-                            var domainUrl = "";
-                            if (window.location.hostname == "localhost") {
-                                domainUrl = "http://localhost:8080";
-                            }
-                            else {
-                                domainUrl = "";
-                            }
-                            swal({
-                                html:true,
-                                title:'<i>PDF has been generated</i>',
-                                text:'<b><a href="'+domainUrl+response.data.Response+'" download style="color: #1AB394;"> Click here to download the PDF file</a></b>',
-                                allowOutsideClick:false,
-                                allowEscapeKey:false,
-                                confirmButtonText:"Close"
-
-                            });
-                        }, function errorCallback (error){
-                            console.log('Error in creating PDF dashboard widgets',error);
-                            swal("Error in creating PDF dashboard widgets", "", "error");
-                            document.getElementById('dashboardTitleIcons').style.visibility = "visible";
+            domtoimage.toPng(dashboardLayout)
+                .then(function (dataUrl) {
+                    var jsonData = {
+                        "dashboardLayout": dataUrl,
+                        "dashboardId": $state.params.id,
+                        "dashboardName":dashboardName
+                    };
+                    $http({
+                        method: 'POST', url: '/api/v1/createHtml5ToPdf/dashboard', data: jsonData
+                    }).then(function successCallback(response){
+                        console.log(response);
+                        document.getElementById('dashboardTitleIcons').style.visibility = "visible";
+                        var domainUrl = "";
+                        if (window.location.hostname == "localhost") {
+                            domainUrl = "http://localhost:8080";
+                        }
+                        else {
+                            domainUrl = "";
+                        }
+                        swal({
+                            html:true,
+                            title:'<i>PDF has been generated</i>',
+                            text:'<b><a href="'+domainUrl+response.data.Response+'" download style="color: #1AB394;"> Click here to download the PDF file</a></b>',
+                            allowOutsideClick:false,
+                            allowEscapeKey:false,
+                            confirmButtonText:"Close"
+    
                         });
-
-                })
-                .catch(function (error) {
-                    console.error('oops, something went wrong!', error);
-                    swal("oops, something went wrong!", "", "error");
-                });
+                    }, function errorCallback (error){
+                        console.log('Error in creating PDF dashboard widgets',error);
+                        swal("Error in creating PDF dashboard widgets", "", "error");
+                        document.getElementById('dashboardTitleIcons').style.visibility = "visible";
+                    });
+    
+            })
+            .catch(function (error) {
+                console.error('oops, something went wrong!', error);
+                swal("oops, something went wrong!", "", "error");
+            });
         }
     };
 }

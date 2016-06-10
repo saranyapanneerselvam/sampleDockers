@@ -109,11 +109,13 @@ exports.storeDashboards = function (req, res, next) {
                         else if (!user)
                             return res.status(204).json({error: 'No records found'});
                         else {
-                            if (user.dashboards.length){
-                                getDashboards = user.dashboards;
-                                getDashboards.forEach(function (item) {
-                                    storeAllDashboards.push(item);
-                                });
+                            if(user.dashboards) {
+                                if (user.dashboards.length){
+                                    getDashboards = user.dashboards;
+                                    getDashboards.forEach(function (item) {
+                                        storeAllDashboards.push(item);
+                                    });
+                                }
                             }
 
                             dashboardObjects = {

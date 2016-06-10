@@ -7,6 +7,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
     //Sets up all the required parameters for the dashboard to function properly when it is initially loaded. This is called in the ng-init function of the dashboard template
     $scope.dashboardConfiguration = function () {
+
         $scope.dashboardCalendar = new Calendar({
             element: $('.daterange--double'),
             earliest_date: moment(new Date()).subtract(365,'days'),
@@ -140,30 +141,12 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 };
             }
         });
+
         $scope.$on('gridster-mobile-changed', function( e,gridster) {
-            //console.log('gridster-mobile-changed',gridster);
             $scope.isMobile = gridster.isMobile;
-        });
-        $scope.$on('my-gridster-item-resized', function(e,item) {
-            //console.log('my-gridster-item-resized',item);
-            /*for(var i=0;i<$scope.dashboard.widgets.length;i++){
-                $timeout(resizeWidget(i), 100);
-            }
-            function resizeWidget(i) {
-                return function() {
-                    if(typeof $scope.dashboard.widgets[i].chart != 'undefined'){
-                        for(j=0;j<$scope.dashboard.widgets[i].chart.length;j++){
-                            if ($scope.dashboard.widgets[i].chart[j].api){
-                                $scope.dashboard.widgets[i].chart[j].api.update();
-                            }
-                        }
-                    }
-                };
-            }*/
         });
 
         $scope.$watch('dashboard.widgets',function(newVal,oldVal){
-            //console.log('Inside watch oldLen=',oldVal.length," newLen=",newVal.length);
             var inputParams = [];
             if($scope.dashboard.widgets.length !=0){
                 for(getWidgetInfo in $scope.dashboard.widgets){
@@ -201,24 +184,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             }
         },true);
 
-        $scope.$on('my-gridster-item-transition-end', function(e,item) {
-            //console.log('my-gridster-item-transition-end');
-            for(var i=0;i<$scope.dashboard.widgets.length;i++){
-                $timeout(resizeWidget(i), 100);
-            }
-            function resizeWidget(i) {
-                return function() {
-                    if(typeof $scope.dashboard.widgetData[i].chart != 'undefined'){
-                        for(j=0;j<$scope.dashboard.widgetData[i].chart.length;j++){
-                            if ($scope.dashboard.widgetData[i].chart[j].api){
-                                $scope.dashboard.widgetData[i].chart[j].api.update();
-                            }
-                        }
-                    }
-                };
-            }
-        });
-
         angular.element($window).on('resize', function (e) {
             $scope.$broadcast('resize');
         });
@@ -242,13 +207,10 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
         $scope.calculateColumnWidth = function(x) {
             var y = Math.round(12/x);
-            if(y<6) {
-                //return ('col-lg-'+6);
+            if(y<6)
                 return ('col-sm-'+6+' col-md-'+6+' col-lg-'+6);
-            } else {
-                //return ('col-lg-'+y);
+            else
                 return ('col-sm-'+y+' col-md-'+y+' col-lg-'+y);
-            }
         };
 
         $scope.calculateRowHeight = function(availableHeight,noOfItems) {
@@ -575,7 +537,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             'name': (typeof widget.name != 'undefined'? widget.name : ''),
             'color': (typeof widget.color != 'undefined'? widget.color : '')
         });
-        //console.log($scope.dashboard.widgetData);
 
         //Fetching the promise that contains all the data for all the widgets in the dashboard
         $q.all(inputWidget).then(

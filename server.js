@@ -48,20 +48,21 @@ app.use(flash()); // use connect-flash for flash messages stored in session
 app.use(express.static(__dirname + '/public'));
 app.use('/bower_components',  express.static(__dirname + '/bower_components'));
 
+
 app.post('/getinvite', function(req,res){
 
     var transporter = nodemailer.createTransport({
-        service: 'Gmail',
+        service: 'Zoho',
         auth: {
-            user: 'natarajan@asod.in',
-            pass: 'Pr0wl3r14'
+            user: 'invites@datapoolt.co',
+            pass: 'Invites!@#$'
         }
     });
 
-// Email Setup
+    // Email Setup
     var mailOptions = {
-        from: 'Datapoolt Team <natarajan@asod.in>',
-        to: 'natarajan@showmetric.co',
+        from: 'Datapoolt Invites <invites@datapoolt.co>',
+        to: 'natarajan@asod.in',
         subject: 'Beta invite Submission',
         // Plain Text Version
         text: 'You have a submission with the following details... Name: '+req.body.name +'Email: '+req.body.email +'Phone Number: '+req.body.phonenumber + 'Type: '+ req.body.typeofcustomer,
@@ -73,19 +74,35 @@ app.post('/getinvite', function(req,res){
         '<li>Phone Numer: <b>'+req.body.phonenumber+'</b></li>' +
         '<li>Type of customer: <b>'+req.body.typeofcustomer+'</b></li>'
     };
-
-// Send
+    var mailOptionsSubmitter = {
+        from: 'Datapoolt Invites <invites@datapoolt.co>',
+        to: req.body.email,
+        subject: req.body.name + ', we\'ve received your request for an invite' ,
+        // Plain Text Version
+        text: 'Aloha, ' + req.body.name + '\n We have received your request for an invite. Expect it very soon in your inbox. Thanks for trying us out. Cheers!',
+        // HTML Version
+        html: '<p>Aloha,' + req.body.name + '</p>' +
+        '<p> We have received your request for an invite. Expect it very soon in your inbox. </p> <p>Thanks for trying us out. Cheers!</p>'
+    };
+    // Send
     transporter.sendMail(mailOptions, function(error, info){
         if(error){
             console.log(error);
             res.redirect('/');
         }else{
-            console.log('Message sent: ' + info.response);
+            console.log('Invite details message sent: ' + info.response);
             res.redirect('/');
         }
     });
-
+    transporter.sendMail(mailOptionsSubmitter, function(error, info){
+        if(error){
+            console.log(error);
+        }else{
+            console.log('Invite confirmation message sent: ' + info.response);
+        }
+    });
 });
+
 // routes ======================================================================
 require('./controllers/facebookAdsAuth')(app);
 require('./controllers/facebookAuth')(app);

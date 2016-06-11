@@ -26,7 +26,7 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
         console.log(dashboardLayout);
 
         if(setJPEGOption==true){
-            swal("Please wait while the JPEG file is being downloading.", "", "warning");
+            swal("Please wait while the JPEG file is being generated", "", "warning");
             domtoimage.toBlob(dashboardLayout)
                 .then(function (blob) {
                     document.getElementById('dashboardTitleIcons').style.visibility = "visible";
@@ -41,7 +41,7 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
                 html:true,
                 imageUrl: '/image/loading.gif',
                 title:'',
-                text:'<b> Please wait while the PDF file is being generated. </b>',
+                text:'<b> Please wait while the PDF file is being generated </b>',
                 allowOutsideClick:false,
                 allowEscapeKey:false,
                 showConfirmButton:false
@@ -68,8 +68,8 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
                         }
                         swal({
                             html:true,
-                            title:'<i>PDF has been generated</i>',
-                            text:'<b><a href="'+domainUrl+response.data.Response+'" download style="color: #1AB394;"> Click here to download the PDF file</a></b>',
+                            title:'<i>PDF has been generated successfully</i>',
+                            text:'<b><a href="'+domainUrl+response.data.Response+'" download style="color: #1AB394;">Click here to download the PDF</a></b>',
                             allowOutsideClick:false,
                             allowEscapeKey:false,
                             confirmButtonText:"Close"
@@ -77,14 +77,14 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
                         });
                     }, function errorCallback (error){
                         console.log('Error in creating PDF dashboard widgets',error);
-                        swal("Error in creating PDF dashboard widgets", "", "error");
+                        swal("Something went wrong. Please try again", "", "error");
                         document.getElementById('dashboardTitleIcons').style.visibility = "visible";
                     });
     
             })
             .catch(function (error) {
                 console.error('oops, something went wrong!', error);
-                swal("oops, something went wrong!", "", "error");
+                swal("Something went wrong. Please try again", "", "error");
             });
         }
     };

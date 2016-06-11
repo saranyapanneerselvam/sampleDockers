@@ -64,6 +64,7 @@
                             <h3 style="color: #ffffff;">{{dashboard.widgetData[widgetIndex].name}}</h3>
                             <div class="graph-icon">
                                 <a title="settings" ng-click="openSettings(widget)"><i class="fa fa-cog"></i></a>
+                                <a title="alerts" ng-click="alertModal('app.reporting.dashboard.alertModal',widget)"><i class="fa fa-cog"></i></a>
                             </div>
                         </div>
                         <div class="box-content" style="vertical-align: middle" ng-style="{position:(isMobile?'static':'absolute')}">

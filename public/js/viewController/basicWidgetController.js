@@ -369,4 +369,8 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         swal("Copied", "", "success");
     };
 
+    $scope.ComingSoonAlert=function (){
+        swal("Coming Soon!");
+    }
+
 }

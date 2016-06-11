@@ -163,6 +163,31 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
             }
         })
 
+        .state('app.reporting.dashboard.alertModal', {
+            url: "",
+            //params: {selectedWidget: null},
+            views: {
+                'lightbox@app.reporting.dashboard': {
+                    params: {selectedWidget: null},
+                    templateUrl: "alertModal.ejs",
+                    controller: 'LightBoxController',
+                }
+            },
+            onEnter: function ($stateParams,$state) {
+                console.log($state.params,$stateParams);
+            },
+
+            resolve: {
+                loadPlugin: function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        {
+                            files: ['css/plugins/steps/jquery.steps.css']
+                        }
+                    ]);
+                }
+            }
+        })
+
 
         .state('app.reporting.dashboard.exportMessageModal', {
             url: "",

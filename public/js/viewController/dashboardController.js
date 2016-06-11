@@ -599,6 +599,13 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         );
     };
 
+    //To create alerts
+    $scope.alertModal = function(value,widget){
+        console.log('widget',widget);
+        $rootScope.selectedWidget = widget;
+        $state.go(value);
+    };
+
     //To export the dashboard into PDF format
     $scope.printPDF = function () {
         $http({

@@ -221,7 +221,9 @@
                 and my email ID is
                 <input type="email" name="email" required />
                 <br /> Please send me an invite to your product!
-                <div class="g-recaptcha" data-sitekey="6LeeViITAAAAADcrxirAR8OseW3s1qtKEVL8bs-P"></div>
+                <div style="width: 304px;margin: 0 auto;">
+                    <div class="g-recaptcha" data-sitekey="6LeeViITAAAAADcrxirAR8OseW3s1qtKEVL8bs-P"></div>
+                </div>
                 <div class="nl-submit-wrap">
                     <button class="nl-submit" type="submit">Send us your details</button>
                 </div>
@@ -341,26 +343,9 @@
     function validateForm(){
         var captcha_response = grecaptcha.getResponse();
         if(captcha_response.length == 0)
-        {
-            // Captcha is not Passed
             return false;
-        } else {
+        else
             return true;
-/*
-            $.post('/captchaTest',{'response':captcha_response},function(response){
-                console.log('inside response')
-                console.log(response);
-                if(response == 'Success' ){
-                    captchaSuccess = true;
-                    return true;
-                } else {
-                    captchaSuccess = false;
-                    return false;
-                }
-            });
-*/
-        }
-        //grecaptcha.reset();
     }
 </script>
 <script src="js/jquery/jquery-2.1.1.js"></script>

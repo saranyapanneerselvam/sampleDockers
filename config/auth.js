@@ -99,5 +99,18 @@ module.exports = {
     googleApiTypes:{
         mcfApi:'mcf',
         gaApi:'ga'
+    },
+    interval:{
+        setDaily:'daily',
+        setWeekly:'weekly'
+    },
+    dayNames:{
+        Sunday:'Sunday',
+        Monday:'Monday',
+        Tuesday:'Tuesday',
+        Wednesday:'Wednesday',
+        Thursday:'Thursday',
+        Friday:'Friday',
+        Saturday:'Saturday'
     }
 };

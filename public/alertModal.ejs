@@ -1,0 +1,65 @@
+<div class="modal-dialog modal-lg" ng-init="open()">
+    <script type="text/ng-template" id="modal.ejs">
+        <div class="modal-content" ng-controller="AlertController">
+            <div class="modal-header">
+                <h5 class="model-title">Configure alert</h5>
+            </div>
+            <div class="modal-body">
+                <div class="wrapper wrapper-content">
+                    <form name="alertForm">
+                        <div class="row">
+                            <!--<div class="col-lg-12">-->
+                            <div class="col-sm-9">
+                                    <input class="form-control m-b choose-text" placeholder="Enter a name" type="text"
+                                           name="input" ng-model="name" required/>
+                            </div>
+                            <div class="col-sm-9">
+                                    <select class="form-control m-b choose-text" ng-model="metric"
+                                            id="metricOptions">
+                                        <!--ng-options="metrics as metrics.name for metrics in metricDetails[0].metrics" required >-->
+                                        <option value="">Select a Metric</option>
+                                        <option ng-repeat="metrics in storeFinalMetric | orderBy:'$index':true"
+                                                value="{{[metrics._id,metrics.endPoints]}}">{{metrics.name}}
+                                        </option>
+                                    </select>
+                            </div>
+                            <div class="col-sm-9">
+                                <select class="form-control m-b choose-text" ng-model="operation" required>
+                                    <option value="">Select an operation</option>
+                                    <option value="gt">Greater than</option>
+                                    <option value="lt">Less than</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-9">
+                                <input class="form-control m-b choose-text" placeholder="Enter a threshold value"
+                                       type="number" name="input" ng-model="threshold" ng-pattern="/^[0-9]{1,7}$/" required/>
+                            </div>
+                            <div class="col-sm-9">
+                                <select class="form-control m-b choose-text" ng-model="interval" required>
+                                    <option value="">Select an interval</option>
+                                    <option value="daily">Daily</option>
+                                    <option value="weekly">Weekly</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-9">
+                                <input class="form-control m-b choose-text" placeholder="Enter a email" type="email"
+                                       name="input" ng-model="email" required/>
+                                <span class="text-error" data-ng-show="alertForm.email.$error.required">Email is required</span>
+                            </div>
+                            <!--</div>-->
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-lg-12 text-right">
+                        <button class="btn btn-primary button-mode" id="submitExportButton"
+                                ng-click="saveAlert();closeExport();" ng-disabled="alertForm.$invalid">Submit
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </script>
+</div>

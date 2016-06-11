@@ -89,7 +89,8 @@
 
 
 
-
+.fontClass{color:#999;}
+.unfontClass{color:#000;}
 
 
 svg:hover #Calendar-Icon { fill: #8560c5 ; }
@@ -221,7 +222,6 @@ svg:hover #Calendar-Icon { fill: #8560c5 ; }
     background-color: #fff !important;
     border-radius: 5px !important;
     font-size: 18px !important;
-    color: #ccc;
     font-family: Brandon Grotesque-medium !important ;
     font-style: normal !important;
     padding: 6.5px !important;

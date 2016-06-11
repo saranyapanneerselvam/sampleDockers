@@ -1351,3 +1351,6 @@ section.comments {
     visibility: hidden;
   }
 }
+@media(max-width : 385px) and (min-width : 360px){.invite{font-size: 18px}}
+@media(max-width:435px) and (min-width: 365px){.invite{font-size:20px}}
+@media(max-width:350px)and (min-width: 320px) {.invite{font-size:15px}}

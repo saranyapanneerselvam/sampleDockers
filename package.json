@@ -65,7 +65,8 @@
     "html5-to-pdf":"*",
     "q": "*",
     "instagram-node": "*",
-    "agenda": "*"
+    "agenda": "*",
+    "https": "*"
   },
   "devDependencies": {
     "adwords-auth": "0.0.10",

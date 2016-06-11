@@ -204,7 +204,7 @@
             </div>
         </div>
         <div class="text-center">
-            <form id="nl-form" class="nl-form" name='contactform' action="/getinvite" method="post">
+            <form id="nl-form" class="nl-form" name='contactform' action="/getinvite" method="post" onsubmit="return validateForm();">
                 Hi Datapoolt! My name is
                 <input type="text" name="name" required/>.
                 <br /> I am from a
@@ -221,6 +221,7 @@
                 and my email ID is
                 <input type="email" name="email" required />
                 <br /> Please send me an invite to your product!
+                <div class="g-recaptcha" data-sitekey="6LeeViITAAAAADcrxirAR8OseW3s1qtKEVL8bs-P"></div>
                 <div class="nl-submit-wrap">
                     <button class="nl-submit" type="submit">Send us your details</button>
                 </div>
@@ -335,7 +336,33 @@
 		
     </div>
   </div>
-
+<script type="text/javascript" language="javascript">
+    var captchaSuccess;
+    function validateForm(){
+        var captcha_response = grecaptcha.getResponse();
+        if(captcha_response.length == 0)
+        {
+            // Captcha is not Passed
+            return false;
+        } else {
+            return true;
+/*
+            $.post('/captchaTest',{'response':captcha_response},function(response){
+                console.log('inside response')
+                console.log(response);
+                if(response == 'Success' ){
+                    captchaSuccess = true;
+                    return true;
+                } else {
+                    captchaSuccess = false;
+                    return false;
+                }
+            });
+*/
+        }
+        //grecaptcha.reset();
+    }
+</script>
 <script src="js/jquery/jquery-2.1.1.js"></script>
 <script src="js/pace.min.js"></script>
 <script src="js/bootstrap/bootstrap.min.js"></script>

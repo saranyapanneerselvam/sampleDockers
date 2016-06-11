@@ -723,7 +723,7 @@ exports.getChannelData = function (req, res, next) {
                                     fetchPeriod: metric[j].fetchPeriod
                                 }
                             }, {upsert: true}, function (err) {
-                                if (err) console.log("User not saved");
+                                if (err) console.log("User not saved",err);
                                 else {
                                     next(null, 'success')
                                 }
@@ -782,6 +782,16 @@ exports.getChannelData = function (req, res, next) {
                             }
                             var now = new Date();
 
+
+                            if(typeof finalData[0].total == 'object') {
+                                for(data in finalData){
+                                    var jsonObj = {}, tempKey;
+                                    for(items in finalData[data].total)
+                                        jsonObj[items.replace(/[$.]/g,'_')] = finalData[data].total[items];
+                                    finalData[data].total = jsonObj;
+                                }
+                            }
+
                             //Updating the old data with new one
                             Data.update({
                                 'objectId': widget[j].metrics[0].objectId,
@@ -795,7 +805,7 @@ exports.getChannelData = function (req, res, next) {
                                     fetchPeriod: metric[j].fetchPeriod
                                 }
                             }, {upsert: true}, function (err) {
-                                if (err) console.log("User not saved");
+                                if (err) console.log("User not saved",err);
                                 else
                                     next(null, 'success')
                             });

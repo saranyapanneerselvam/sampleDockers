@@ -224,6 +224,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             var chartCount = $scope.storedReferenceWidget.charts.length;
             //var chartColors = generateChartColours.fetchRandomColors(chartCount);
             var widgetColor = generateChartColours.fetchWidgetColor($scope.storedChannelName);
+
             for (var i = 0; i < $scope.storedReferenceWidget.charts.length; i++) {
                 matchingMetric = [];
                 for (var j = 0; j < $scope.storedReferenceWidget.charts[i].metrics.length; j++) {
@@ -236,6 +237,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 //$scope.storedReferenceWidget.charts[i].colour = chartColors[i];
                 $scope.storedReferenceWidget.charts[i].objectName = $scope.storedObject.name;
             }
+
             var jsonData = {
                 "dashboardId": $state.params.id,
                 "widgetType": $scope.widgetType,
@@ -250,6 +252,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 "color": widgetColor
             };
             inputParams.push(jsonData);
+
             $http({
                 method: 'POST',
                 url: '/api/v1/widgets',

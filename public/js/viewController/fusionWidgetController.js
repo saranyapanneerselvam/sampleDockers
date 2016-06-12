@@ -30,20 +30,20 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
         $http({
             method: 'GET',
             url: '/api/v1/get/referenceWidgets/' + $scope.widgetType
-        }).then(function successCallback(response) {
-            for (i = 0; i < response.data.referenceWidgets.length; i++) {
-                $scope.referenceWidgetsList.push(response.data.referenceWidgets[i]);
+        }).then(
+            function successCallback(response) {
+                for (i = 0; i < response.data.referenceWidgets.length; i++)
+                    $scope.referenceWidgetsList.push(response.data.referenceWidgets[i]);
+            },
+            function errorCallback(error) {
+                console.log('Error in finding reference widgets', error);
             }
-        }, function errorCallback(error) {
-            console.log('Error in finding reference widgets', error);
-        });
+        );
     };
 
     $scope.storeReferenceWidget = function () {
         $scope.storedReferenceWidget = this.referenceWidgets;
         $scope.storedReferenceCharts = this.referenceWidgets.charts;
-        console.log(' finding reference widgets', $scope.storedReferenceCharts, $scope.storedReferenceWidget._id);
-
     };
 
     $scope.clearReferenceWidget = function () {
@@ -52,7 +52,6 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
         $scope.objectList = [];
         $scope.profileList = [];
         $scope.storedUserChosenValues = [];
-        console.log('Cleared all data');
     };
 
     $scope.getProfilesForDropdown = function () {
@@ -99,9 +98,7 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
     };
 
     $scope.addNewProfile = function (index) {
-        console.log(index);
         var url, title;
-
         function popupwindow(url, title, w, h) {
             switch ($scope.uniquechannelNames[index]) {
                 case 'Facebook':
@@ -143,15 +140,18 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
         $http({
             method: 'GET',
             url: '/api/v1/get/profiles/' + channel
-        }).then(function successCallback(response) {
-            deferred.resolve({
-                index: index,
-                profiles: response.data.profileList
-            });
-            $scope.objectList = [];
-        }, function errorCallback(error) {
-            deferred.reject(error);
-        });
+        }).then(
+            function successCallback(response) {
+                deferred.resolve({
+                    index: index,
+                    profiles: response.data.profileList
+                });
+                $scope.objectList = [];
+            },
+            function errorCallback(error) {
+                deferred.reject(error);
+            }
+        );
         return deferred.promise;
     };
 
@@ -164,56 +164,50 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
             }
         } else {
 
-            console.log('$scope.uniquechannelNames[index]', $scope.uniquechannelNames[index])
+            //console.log('$scope.uniquechannelNames[index]', $scope.uniquechannelNames[index])
             if ($scope.uniquechannelNames[index] == 'Facebook' || $scope.uniquechannelNames[index] =='FacebookAds') {
                 $scope.expiredRefreshButton = $scope.uniquechannelNames[index];
                 
-                console.log('this.profileOptionsModel.expiresIn', profileObj.expiresIn);
+                //console.log('this.profileOptionsModel.expiresIn', profileObj.expiresIn);
 
                 if (profileObj.expiresIn != undefined)
                     $scope.checkExpiresIn = new Date(profileObj.expiresIn);
-                console.log($scope.checkExpiresIn);
+                //console.log($scope.checkExpiresIn);
                 $scope.tokenExpired = false;
                 //var profileId = this.profileOptionsModel._id;
                 var expiresIn = profileObj.expiresIn;
                 var currentDate = new Date();
                 var newexpiresIn = new Date(expiresIn)
-                console.log('expiresin', newexpiresIn, currentDate, profileObj)
-                if (currentDate <= newexpiresIn) {
-                    console.log('if');
-
-                    //token is valid
+                //console.log('expiresin', newexpiresIn, currentDate, profileObj)
+                if (currentDate <= newexpiresIn)
                     $scope.tokenExpired = false;
-                }
                 else if (expiresIn === undefined)
                     $scope.tokenExpired = false;
-                else {
-                    console.log('else');
+                else
                     $scope.tokenExpired = true;
-                }
             }
 
-            console.log('$scope.tokenExpired', $scope.tokenExpired);
+            //console.log('$scope.tokenExpired', $scope.tokenExpired);
             $http({
                 method: 'GET',
                 url: '/api/v1/get/objects/' + profileObj._id
-            }).then(function successCallback(response) {
-                console.log(response.data.objectList);
-                $scope.objectList[index] = response.data.objectList;
-                console.log($scope.objectList);
-                if ($scope.uniquechannelNames[index] === 'Twitter' || $scope.uniquechannelNames[index] === 'Instagram') {
-                    $scope.objectForWidgetChosen($scope.objectList[index][0], index);
+            }).then(
+                function successCallback(response) {
+                    $scope.objectList[index] = response.data.objectList;
+                    if ($scope.uniquechannelNames[index] === 'Twitter' || $scope.uniquechannelNames[index] === 'Instagram') {
+                        $scope.objectForWidgetChosen($scope.objectList[index][0], index);
+                    }
+                },
+                function errorCallback(error) {
+                    console.log(error);
                 }
-            }, function errorCallback(error) {
-                console.log(error);
-            });
+            );
         }
     };
 
     $scope.objectForWidgetChosen = function (objectList, index) {
-        console.log('chosen object',objectList,typeof objectList,' index:',index,' ',$scope.uniquechannelNames[index]);
+        //console.log('chosen object',objectList,typeof objectList,' index:',index,' ',$scope.uniquechannelNames[index]);
         if(typeof objectList=== 'string' && objectList.length!=0){
-            console.log('if')
             objectList = JSON.parse(objectList);
         } else if (typeof objectList === 'string' && objectList.length == 0)
             objectList = null;
@@ -232,7 +226,7 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
         } else if (objectList != null && $scope.currentView == 'step_one') {
             $scope.storedUserChosenValues = null;
         }
-        console.log('length of stored user chosen values', $scope.storedUserChosenValues.length);
+        //console.log('length of stored user chosen values', $scope.storedUserChosenValues.length);
         var chosenObjectCount = 0;
         for (var i = 0; i < $scope.storedUserChosenValues.length; i++) {
             if ($scope.storedUserChosenValues[i] != null) {
@@ -241,27 +235,27 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
                 }
             }
         }
-        if (chosenObjectCount == $scope.uniquechannelList.length && (  $scope.checkExpiresIn ===null || $scope.checkExpiresIn >= new Date())) {
+        if (chosenObjectCount == $scope.uniquechannelList.length && (  $scope.checkExpiresIn ===null || $scope.checkExpiresIn >= new Date()))
             document.getElementById('basicWidgetFinishButton').disabled = false;
-        } else {
+        else
             document.getElementById('basicWidgetFinishButton').disabled = true;
-        }
-
-        console.log('UserStore', $scope.storedUserChosenValues);
+        //console.log('UserStore', $scope.storedUserChosenValues);
     };
 
     $scope.removeExistingProfile = function (index) {
-        console.log('DeletingProfile', this.profileOptionsModel[index]._id, this.profileOptionsModel[index].name);
+        //console.log('DeletingProfile', this.profileOptionsModel[index]._id, this.profileOptionsModel[index].name);
         if (this.profileOptionsModel) {
             $http({
                 method: 'POST',
                 url: '/api/v1/post/removeProfiles/' + this.profileOptionsModel[index]._id
-            }).then(function successCallback(response) {
-                console.log('AfterdeleteQuery', response);
-                $scope.getProfilesForDropdown();
-            }, function errorCallback(error) {
-                console.log('Error in deleting profile', error)
-            });
+            }).then(
+                function successCallback(response) {
+                    $scope.getProfilesForDropdown();
+                },
+                function errorCallback(error) {
+                    console.log('Error in deleting profile', error)
+                }
+            );
         }
     };
 
@@ -284,16 +278,17 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
                     $scope.objectType = 'instagram';
                     break;
             }
-            console.log('refreshing', $scope.objectType);
             $http({
                 method: 'GET',
                 url: '/api/v1/channel/profiles/objectsList/' + this.profileOptionsModel[index]._id + '?objectType=' + $scope.objectType
-            }).then(function successCallback(response) {
-                $scope.objectList[index] = response.data;
-                console.log('refreshingResponse', $scope.objectList[index]);
-            }, function errorCallback(error) {
-                console.log(error);
-            });
+            }).then(
+                function successCallback(response) {
+                    $scope.objectList[index] = response.data;
+                },
+                function errorCallback(error) {
+                    console.log(error);
+                }
+            );
         }
     };
 
@@ -337,18 +332,20 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
             method: 'POST',
             url: '/api/v1/widgets',
             data: inputParams
-        }).then(function successCallback(response) {
-            for(widgetObjects in response.data.widgetsList) {
-                $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
+        }).then(
+            function successCallback(response) {
+                for(widgetObjects in response.data.widgetsList)
+                    $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
+            },
+            function errorCallback(error) {
+                console.log('Error in getting widget id', error);
+                swal({
+                    title: "",
+                    text: "<span style='sweetAlertFont'>Please try again! Something is missing</span> .",
+                    html: true
+                });
             }
-        }, function errorCallback(error) {
-            console.log('Error in getting widget id', error);
-            swal({
-                title: "",
-                text: "<span style='sweetAlertFont'>Please try again! Something is missing</span> .",
-                html: true
-            });
-        });
+        );
     };
 }
 

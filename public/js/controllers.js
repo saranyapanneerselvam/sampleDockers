@@ -967,6 +967,8 @@ showMetricApp.service('createWidgets',function($http,$q){
             {W:6,H:3,N:8,r:2,c:4}
         ];
 
+        console.log(widget);
+
         var setLayoutOptions = function() {
             sizeY = typeof widget.size != 'undefined'? widget.size.h : 3;
             sizeX = typeof widget.size != 'undefined'? widget.size.w : 3;
@@ -980,21 +982,25 @@ showMetricApp.service('createWidgets',function($http,$q){
         };
         setLayoutOptions();
 
-        if(widget.charts==[] || widget.charts==""){
-            chartName = "No Data Found";
+        if(widget.widgetType == 'custom') {
+            chartName = "Custom Data";
         }
         else {
-            chartName = (typeof widget.name != 'undefined'? widget.name + ' - ' : '');
-            var objectNames = [],uniqueNames = [];
-            for(i=0;i<widget.charts.length;i++){
-                objectNames.push(widget.charts[i].chartObjectName);
+            if(widget.charts==[] || widget.charts==""){
+                chartName = "";
             }
-            $.each(objectNames, function(i ,el){
-                if($.inArray(el, uniqueNames) === -1){
-                    uniqueNames.push(el);
-                }
-            });
-            chartName = chartName.concat(uniqueNames);
+            else {
+                chartName = (typeof widget.name != 'undefined'? widget.name + ' - ' : '');
+                var objectNames = [],uniqueNames = [];
+                for(i=0;i<widget.charts.length;i++)
+                    objectNames.push(widget.charts[i].chartObjectName);
+                $.each(objectNames, function(i ,el){
+                    if($.inArray(el, uniqueNames) === -1){
+                        uniqueNames.push(el);
+                    }
+                });
+                chartName = chartName.concat(uniqueNames);
+            }
         }
 
         var modifiedWidget = {

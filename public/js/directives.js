@@ -181,21 +181,26 @@ function minimalizaSidebar($timeout) {
                     setTimeout(
                         function () {
                             $('#side-menu').fadeIn(500);
-                            if (!$('body').hasClass('mini-navbar') && !$('body').hasClass('body-small')){
-                                document.getElementById('topnavbar-header').setAttribute('style','padding-left: 221px;')
+                            if (!$('body').hasClass('body-small')){
+                                    document.getElementById('tabs-container-desk-view').setAttribute('style','padding-left: 221px;');
+                                    document.getElementById('tabs-container-response-view').setAttribute('style','padding-left: 221px;');
                             }
                         }, 100);
                 } else if ($('body').hasClass('fixed-sidebar')){
                     $('#side-menu').hide();
                     setTimeout(
                         function () {
+                            console.log('Inside else if');
                             $('#side-menu').fadeIn(500);
                         }, 300);
                 } else {
                     // Remove all inline style from jquery fadeIn function to reset menu state
                     $('#side-menu').removeAttr('style');
+                    console.log('Inside else');
                     if ($('body').hasClass('mini-navbar')){
-                        document.getElementById('topnavbar-header').setAttribute('style','padding-left: 71px;')
+                        //document.getElementById('topNavbarList').setAttribute('style','padding-left: 71px;');
+                            document.getElementById('tabs-container-desk-view').setAttribute('style','padding-left: 71px;');
+                            document.getElementById('tabs-container-response-view').setAttribute('style','padding-left: 71px;');
                     }
                 }
             }

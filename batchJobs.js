@@ -10,6 +10,18 @@ var Agenda = require('agenda');
 var googleAds = require('./lib/googleAdwords');
 var spec = {host: 'https://adwords.google.com/api/adwords/reportdownload/v201601'};
 googleAds.GoogleAdwords(spec);
+//To use google api's
+var googleapis = require('googleapis');
+
+//Load the auth file
+var configAuth = require('./config/auth');
+//Set OAuth
+var OAuth2 = googleapis.auth.OAuth2;
+
+//set credentials in OAuth2
+var oauth2Client = new OAuth2(configAuth.googleAuth.clientID, configAuth.googleAuth.clientSecret, configAuth.googleAuth.callbackURL);
+
+
 //load async module
 var async = require("async");
 var mongoConnectionString = "mongodb://showmetric:showmetric@ds013918.mlab.com:13918/showmetric";
@@ -17,10 +29,6 @@ var FB = require('fb');
 //db connection for storing agenda jobs
 var agenda = new Agenda({db: {address: mongoConnectionString}});
 var Channels = require('./models/channels');
-
-
-//Load the auth file
-var configAuth = require('./config/auth');
 
 //Importing the fbgraph module
 var graph = require('fbgraph');
@@ -73,7 +81,7 @@ agenda.define('Update channel data', function (job, done) {
             get_channel: ['get_profile', 'metric', getChannel],
             get_channel_data_remote: ['get_channel', getChannelDataRemote],
             merge_all_final_data: ['get_channel_data_remote', 'get_channel', mergeAllFinalData],
-            store_final_data: ['merge_all_final_data','get_channel_data_remote', storeFinalData]
+            store_final_data: ['merge_all_final_data', 'get_channel_data_remote', storeFinalData]
 
         }, function (err, results) {
             //console.log('final data', results.store_final_data,err)
@@ -179,9 +187,12 @@ agenda.define('Update channel data', function (job, done) {
                         case configAuth.channels.facebookAds:
                             getFBadsinsightsData(allResultData, next);
                             break;
-                        case configAuth.channels.googleAdwords:
-                            selectAdwordsObjectType(allResultData, next);
+                        case configAuth.channels.googleAnalytics:
+                            initializeGa(allResultData, next);
                             break;
+                        /*case configAuth.channels.googleAdwords:
+                         selectAdwordsObjectType(allResultData, next);
+                         break;*/
                         default:
                             console.log('No channel selected')
                     }
@@ -816,19 +827,251 @@ agenda.define('Update channel data', function (job, done) {
 
         }
 
+        //set oauth credentials and get object type details
+        function initializeGa(results, callback) {
+            oauth2Client.setCredentials({
+                access_token: results.profile.accessToken,
+                refresh_token: results.profile.refreshToken
+            });
+
+            googleDataEntireFunction(results, callback);
+        }
+
+        //to get google analtic data
+        function googleDataEntireFunction(results, callback) {
+
+            var allDataObject = {};
+            async.auto({
+                get_dimension: getDimension,
+                check_data_exist: ['get_dimension', checkDataExist],
+                call_get_analytic_data: ['check_data_exist', analyticData]
+            }, function (err, results) {
+                console.log('call_get_analytic_data')
+                if (err) {
+                    return callback(err, null);
+                }
+                allDataObject = {
+                    data:results.call_get_analytic_data,
+                    results: results,
+                    queryResults: results.call_get_analytic_data.queryResults,
+                    channelId: results.call_get_analytic_data.channelId
+                }
+                callback(null, allDataObject);
+            });
+
+            function getDimension(callback) {
+                var dimension;
+                var dimensionArray = [];
+                var dimensionList = [];
+                dimensionList.push({'name': 'ga:date'});
+                dimension = 'ga:date';
+                callback(null, dimension);
+            }
+
+            function checkDataExist(dimension, callback) {
+                var data = results.data;
+                var metric = results.metric;
+                var object = results.object;
+                var profile = results.profile;
+                //var widget = results.widget.charts;
+                oauth2Client.refreshAccessToken(function (err, tokens) {
+                    console.log('refresh token error', err);
+                    if (err) {
+                        if (err.code === 400)
+                            return res.status(401).json({error: 'Authentication required to perform this action'})
+                        else if (err.code === 403)
+                            return res.status(403).json({error: 'Forbidden Error'})
+                        else
+                            return res.status(500).json({error: 'Internal server error'})
+                    }
+                    else {
+                        profile.token = tokens.access_token;
+                        oauth2Client.setCredentials({
+                            access_token: tokens.access_token,
+                            refresh_token: tokens.refresh_token
+                        });
+                        //work(data, metric, object, widget, callback);
+                        //function work(data, metric, object, widget, done) {
+                        var allObjects = {};
+                        //async.times(metric.length, function (i, next) {
+                        var d = new Date();
+                        var dimensionArray = [];
+                        var dimensionList = metric.objectTypes[0].meta.dimension;
+                        //console.log('list', dimensionList, metric[i].objectTypes[0].meta.dimension);
+                        var getDimension = dimensionList[0].name;
+                        var dimensionListLength = dimensionList.length;
+                        if (dimensionList.length === 1)
+                            dimensionArray.push({'dimension': getDimension});
+                        else {
+                            //Dynamically form the dimension object like {ga:}
+                            for (var k = 1; k < dimensionListLength; k++) {
+                                getDimension = getDimension + ',' + dimensionList[k].name;
+                                dimensionArray.push({'dimension': getDimension});
+                            }
+                        }
+                        dimension = dimensionArray[dimensionArray.length - 1].dimension;
+                        if (metric.objectTypes[0].meta.api === configAuth.googleApiTypes.mcfApi)
+                            var metricName = metric.objectTypes[0].meta.gMcfMetricName;
+                        else
+                            var metricName = metric.objectTypes[0].meta.gaMetricName;
+                        if (data.data != null) {
+
+                            var startDate = moment(data.updated).format('YYYY-MM-DD');
+                            var endDate = moment(new Date()).format('YYYY-MM-DD');
+                            if (data.updated < new Date()) {
+                                allObjects = {
+                                    oauth2Client: oauth2Client,
+                                    object: object,
+                                    dimension: dimension,
+                                    metricName: metricName,
+                                    startDate: startDate,
+                                    endDate: endDate,
+                                    response: results.response,
+                                    data: results.data,
+                                    results: results,
+                                    metricId: data.metricId,
+                                    api: metric.objectTypes[0].meta.api
+                                };
+                                //var dataResultDetails = analyticData(oauth2Client, results.object, dimension.get_dimension, metric.objectTypes[0].meta.gaMetricName, startDate, endDate, results.response, results.data, results);
+                                callback(null, allObjects);
+                            }
+                            else {
+                                allObjects = {metricId: data.metricId, data: 'DataFromDb'}
+                                callback(null, allObjects);
+                            }
+
+                        }
+                    }
+
+                });
+
+            }
+
+            //to get the final google analytic data
+            function analyticData(allObjects, callback) {
+
+                allObjects = allObjects.check_data_exist;
+                var finalData = {};
+                if (allObjects.data === 'DataFromDb') {
+                    finalData = {
+                        metricId: allObjects.metricId,
+                        data: 'DataFromDb',
+                        queryResults: results,
+                        channelId: results.metric.channelId
+                    };
+                    callback(null, finalData);
+                }
+
+                else {
+                    var dimensionList;
+                    var dimension;
+
+                    var apiCallingMethod;
+                    var apiQuery = {}
+                    if (allObjects.api === 'mcf') {
+                        apiQuery = {
+                            'key': configAuth.googleAuth.clientSecret,
+                            'ids': 'ga:' + allObjects.object.channelObjectId,
+                            'start-date': allObjects.startDate,
+                            'end-date': allObjects.endDate,
+                            'dimensions': allObjects.dimension,
+                            'metrics': allObjects.metricName,
+                            prettyPrint: true,
+                            //'max-results': 2000
+                        }
+                        var analytics = googleapis.analytics({version: 'v3', auth: oauth2Client}).data.mcf.get;
+                        callGoogleApi(analytics);
+                    }
+
+                    else {
+                        apiQuery = {
+                            'auth': allObjects.oauth2Client,
+                            'ids': 'ga:' + allObjects.object.channelObjectId,
+                            'start-date': allObjects.startDate,
+                            'end-date': allObjects.endDate,
+                            'dimensions': allObjects.dimension,
+                            'metrics': allObjects.metricName,
+                            prettyPrint: true
+                        }
+                        var analytics = googleapis.analytics({version: 'v3', auth: oauth2Client}).data.ga.get;
+                        callGoogleApi(apiQuery);
+
+                    }
+                    /**Method to call the google api
+                     * @param oauth2Client - set credentials
+                     */
+                    var googleResult = [];
+
+                    function callGoogleApi(apiQuery) {
+                        analytics(apiQuery, function (err, result) {
+                        console.log('google analytics error', err, allObjects.startDate, allObjects.endDate,result)
+                            if (err) {
+                                if (err.code === 400)
+                                    return res.status(401).json({error: 'Authentication required to perform this action'})
+                                else
+                                    return res.status(500).json({error: 'Internal server error'})
+                                //googleDataEntireFunction(allObjects.results, callback);
+
+                            }
+                            else {
+                                for(var i=0;i<result.rows.length;i++){
+                                    googleResult.push(result.rows[i]);
+                                }
+
+                                if (result.nextLink != undefined) {
+                                    var splitRequiredQueryData = result.nextLink.split('&');
+                                    apiQuery = {
+                                        'auth': allObjects.oauth2Client,
+                                        'ids': 'ga:' + allObjects.object.channelObjectId,
+                                        'start-date': splitRequiredQueryData[3].substr(splitRequiredQueryData[3].indexOf('=') + 1),
+                                        'end-date': splitRequiredQueryData[4].substr(splitRequiredQueryData[4].indexOf('=') + 1),
+                                        'start-index': splitRequiredQueryData[5].substr(splitRequiredQueryData[5].indexOf('=') + 1),
+                                        'dimensions': allObjects.dimension,
+                                        'metrics': allObjects.metricName,
+                                        prettyPrint: true
+                                    }
+
+                                    //console.log('googleResult32',result.rows)
+                                    callGoogleApi(apiQuery);
+                                }
+                                else {
+                                    //googleResult.push({rows: result.rows});
+                                    finalData = {
+                                        metricId: allObjects.metricId,
+                                        data: googleResult,
+                                        queryResults: results,
+                                        channelId: results.metric.channelId,
+                                        startDate: allObjects.startDate,
+                                        endDate: allObjects.endDate,
+                                    };
+                                    callback(null, finalData);
+
+                                }
+
+                            }
+                        });
+                    }
+
+                }
+
+            }
+
+
+        }
+
         function selectAdwordsObjectType(initialResults, callback) {
             async.auto({
                 call_adword_data: fetchAdwordsQuery,
                 get_google_adsword_data_from_remote: ['call_adword_data', fetchGoogleAdwordsData]
             }, function (err, results) {
-                console.log('errrr',err)
+                console.log('errrr', err)
                 if (err) {
                     return callback(err, null);
                 }
                 callback(null, results.get_google_adsword_data_from_remote);
             });
             function fetchAdwordsQuery(callback) {
-                console.log('metric',initialResults.metric)
+                console.log('metric')
                 var adAccountId = initialResults.object.channelObjectId;
                 d = new Date();
                 var allObjects = {};
@@ -872,27 +1115,27 @@ agenda.define('Update channel data', function (job, done) {
                 var actualFinalApiData = {};
                 //console.log('wantsObject',allObjects.call_adword_data);
                 //async.concatSeries(allObjects.call_adword_data, checkDbData, callback);
-               // function checkDbData(result, callback) {
-                    count++;
+                // function checkDbData(result, callback) {
+                count++;
 
-                    if (allObjects.call_adword_data == 'DataFromDb') {
-                        actualFinalApiData = {
-                            apiResponse: 'DataFromDb',
-                            // metricId: results.metricId,
-                            queryResults: initialResults,
-                            channelId: initialResults.metric.channelId
-                        }
-                        callback(null, actualFinalApiData);
+                if (allObjects.call_adword_data == 'DataFromDb') {
+                    actualFinalApiData = {
+                        apiResponse: 'DataFromDb',
+                        // metricId: results.metricId,
+                        queryResults: initialResults,
+                        channelId: initialResults.metric.channelId
                     }
-                    else {
-                        getAdwordsDataForEachMetric(allObjects.call_adword_data, callback);
+                    callback(null, actualFinalApiData);
+                }
+                else {
+                    getAdwordsDataForEachMetric(allObjects.call_adword_data, callback);
 
-                    }
+                }
                 //}
             }
 
             function getAdwordsDataForEachMetric(results, callback) {
-                console.log('ads',results.objects);
+                console.log('ads');
                 var during = results.startDate + ',' + results.endDate;
                 googleAds.use({
                     clientID: configAuth.googleAdwordsAuth.clientID,
@@ -910,11 +1153,11 @@ agenda.define('Update channel data', function (job, done) {
                     .from('ACCOUNT_PERFORMANCE_REPORT')
                     .during(during)
                     .send().then(function (response) {
-                    console.log('ApiResponse',response);
+                        console.log('ApiResponse');
                         storeAdwordsFinalData(results, response.data);
                     })
                     .catch(function (error) {
-                        console.log('apiError',error);
+                        console.log('apiError', error);
                         callback(error, null);
 
                     });
@@ -998,7 +1241,7 @@ agenda.define('Update channel data', function (job, done) {
 
 
         function mergeAllFinalData(results, callback) {
-            console.log('mergerdata',results)
+            console.log('mergerdata')
             var loopCount = results.data.length;
             iterateEachChannelData(results.get_channel, results.get_channel_data_remote, results.metric, results.data, callback);
             function iterateEachChannelData(channel, dataFromRemote, metric, dataFromDb, callback) {
@@ -1266,6 +1509,145 @@ agenda.define('Update channel data', function (job, done) {
                         else {
                             next(null, 'DataFromDb')
                         }
+                    }
+                    else if (channel[j].code === configAuth.channels.googleAnalytics) {
+                        //function storeDataForGA(dataFromRemote, dataFromDb, widget, metric, done) {
+                        // async.times(dataFromDb.length, function (j, next) {
+                        console.log('datafrom remote',dataFromRemote[j].data)
+                        if (dataFromRemote[j].data.data != 'DataFromDb') {
+
+                            var storeGoogleData = [];
+                            var dimensionList = [];
+                            var dimension;
+                            var dimensionArray = [];
+                            var dimensionList = metric[j].objectTypes[0].meta.dimension;
+
+                            //google analytics
+                            //calculating the result length
+                            var resultLength = dataFromRemote[j].data.data.length;
+                            var resultCount = dataFromRemote[j].data.data.length - 1;
+console.log('resultLength',resultLength,resultCount,dataFromRemote[j])
+                            //loop to store the entire result into an array
+                            for (var i = 0; i < resultLength; i++) {
+                                var obj = {};
+
+                                console.log('dimension length',dimensionList.length)
+                                //loop generate array dynamically based on given dimension list
+                                for (var m = 0; m < dimensionList.length; m++) {
+
+                                    if (m == 0) {
+
+                                        //date value is coming in the format of 20160301 so splitting like yyyy-mm--dd format
+                                        //obj['metricName'] = metricName;
+                                        if (metric[j].objectTypes[0].meta.api === configAuth.googleApiTypes.mcfApi) {
+                                            var year = dataFromRemote[j].data.data[i][0].primitiveValue.substring(0, 4);
+                                            var month = dataFromRemote[j].data.data[i][0].primitiveValue.substring(4, 6);
+                                            var date = dataFromRemote[j].data.data[i][0].primitiveValue.substring(6, 8);
+                                            obj[dimensionList[m].storageName] = [year, month, date].join('-');
+                                            obj['total'] = dataFromRemote[j].data.data[i][resultCount].primitiveValue;
+                                        }
+
+                                        else {
+                                            var year = dataFromRemote[j].data.data[i][0].substring(0, 4);
+                                            var month = dataFromRemote[j].data.data[i][0].substring(4, 6);
+                                            var date = dataFromRemote[j].data.data[i][0].substring(6, 8);
+                                            obj[dimensionList[m].name.substr(3)] = [year, month, date].join('-');
+                                            obj['total'] = dataFromRemote[j].data.data[i][resultCount];
+                                        }
+
+                                    }
+                                    else {
+                                        obj[dimensionList[m].name.substr(3)] = dataFromRemote[j].data.data[i][m];
+                                        if (metric[j].objectTypes[0].meta.api === configAuth.googleApiTypes.mcfApi)
+                                            obj['total'] = dataFromRemote[j].data.data[i][resultCount].primitiveValue;
+                                        else
+                                            obj['total'] = dataFromRemote[j].data.data[i][resultCount];
+                                    }
+
+                                }
+                                storeGoogleData.push(obj);
+                                //console.log('storeGoogleData',storeGoogleData);
+
+                            }
+                            if (dimensionList.length > 1) {
+                                var result = _.chain(storeGoogleData)
+                                    .groupBy("date")
+                                    .toPairs()
+                                    .map(function (currentItem) {
+                                        return _.zipObject(["date", "data"], currentItem);
+                                    })
+                                    .value();
+                                var storeFinalData = [];
+                                var groupedData = result;
+                                var objToStoreFinalData = {};
+                                var initD;
+                                for (var i = 0; i < groupedData.length; i++) {
+                                    if (dimensionList.length === 2)
+                                        initD = 1;
+                                    else
+                                        initD = 2;
+                                    for (var d = initD; d < dimensionList.length; d++) {
+                                        for (var g = 0; g < groupedData[i].data.length; g++) {
+                                            var dimensionData = groupedData[i].data[g][dimensionList[1].name.substr(3)]
+                                            if (initD === 1)
+                                                var finalDimensionData = dimensionData;
+
+                                            else
+                                                var finalDimensionData = dimensionData + '/' + groupedData[i].data[g][dimensionList[d].name.substr(3)];
+
+
+                                            var replacedValue = finalDimensionData.split('.').join('002E');
+                                            objToStoreFinalData[replacedValue] = groupedData[i].data[g].total;
+                                        }
+                                        storeFinalData.push({
+                                            total: objToStoreFinalData,
+                                            date: groupedData[i].date
+                                        })
+
+                                    }
+                                    var objToStoreFinalData = {};
+
+                                }
+                                storeGoogleData = storeFinalData;
+
+                            }
+
+                            var findCurrentDate = _.findIndex(storeGoogleData, function (o) {
+                                return o.date == moment(new Date).format('YYYY-MM-DD');
+                            });
+                            var metricId = dataFromRemote[j].metricId;
+                            if (dataFromDb[j].data != null) {
+
+                                    //merge the old data with new one and update it in db
+                                    for (var key = 0; key < dataFromDb[j].data.length; key++) {
+                                        if (dataFromDb[j].data[key].date === moment(new Date).format('YYYY-MM-DD')) {
+                                            if (findCurrentDate != -1) {
+                                                storeGoogleData[findCurrentDate] = dataFromDb[j].data[key];
+                                            }
+                                            else {
+                                                storeGoogleData.push(dataFromDb[j].data[key]);
+                                            }
+                                        }
+                                        else {
+                                            //console.log('else data',dataFromDb[j].data[key])
+                                            storeGoogleData.push(dataFromDb[j].data[key]);
+                                        }
+
+                                    }
+                                    var metricId = metric._id;
+
+                            }
+                            //console.log('storeFinalDatastoreFinalData',storeGoogleData);
+                            next(null, storeGoogleData)
+                        }
+                        else {
+                            next(null, 'DataFromDb')
+                        }
+
+
+
+                        //}, done);
+                        // }
                     }
                     else if (channel[j].code === configAuth.channels.googleAdwords) {
                         var finalData = [];

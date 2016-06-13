@@ -308,14 +308,30 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         var y = event.y;
         var offsetX = event.offsetX;
         var offsetY = event.offsetY;
-
+        var contentWidth = $("#page-wrapper").width();
+        //console.log("Count : "+count+" || screenX : "+event.screenX+" || screenY : "+event.screenY+" || clientX : "+event.clientX+" || clientY : "+event.clientY+" || offsetX : "+offsetX+" || offsetY : "+offsetY);
         count++;
-        // console.log(event);
+
+        var $this = $("#transparentImage"), offset = $this.offset(),
+            width = $this.innerWidth(), height = $this.innerHeight();
+        var parentOffset = $this.offset();
+        var posX = $("#transparentImage").offset().left, posY = $("#transparentImage").offset().top;
+        //console.log((event.pageX - posX)+ ' , ' + (event.pageY - posY));
+
+        var x = event.pageX-posX;
+        x = parseInt(x/width*100,10);
+        x = x<0?0:x;
+        x = x>100?100:x;
+        var y = event.pageY-posY;
+        y = parseInt(y/height*100,10);
+        y = y<0?0:y;
+        y = y>100?100:y;
+        console.log(x+'% '+y+'%');
 
         $(".context").append($('<div class="commentPoint" id="commentPoint-'+count+'" style="color: #ffffff;"><span class="countComment">'+count+'</span></div></div>')
             .css('position', 'absolute')
-            .css('top', offsetY + 'px')
-            .css('left', offsetX + 'px')
+            .css('top', y + '%')
+            .css('left', x + '%')
             .css('width', size)
             .css('height', size)
             .css('border-radius', '25px')
@@ -336,9 +352,9 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
             if (isConfirm) {
                 var comment = $("#inputTextArea").val();
-                if (comment === "") {
+                if (comment == "") {
                     swal.showInputError("Enter the Comment !!!");
-                    $(".sa-input-error").css("top","10px !important");
+                    $(".sa-input-error").css("top","10px");
                     return false
                 }
                 if(comment != ""){
@@ -352,43 +368,12 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         });
 
 
-        // dialog = $( "#commentForm" ).dialog({
-        //     autoOpen: false,
-        //     height: 300,
-        //     width: 350,
-        //     modal: true,
-        //     buttons: {
-        //         "Send": addDashBoardComment,
-        //         Cancel: function() {
-        //             dialog.dialog( "close" );
-        //             callClose();
-        //         }
-        //     },
-        //     close: function() {
-        //         form[ 0 ].reset();
-        //     }
-        // });
-        //
-        //
-        // function callClose(){
-        //     $("#commentPoint-"+count).remove();
-        //     count--;
-        // }
-        //
-        // form = dialog.find( "form" ).on( "submit", function( event ) {
-        //     event.preventDefault();
-        //     addDashBoardComment();
-        // });
-        // dialog.dialog( "open" );
-        //
-        // $(".ui-dialog-titlebar-close").hide();
-
         function addDashBoardComment(){
             var comment = $("#inputTextArea").val();
             var dashboardId = $state.params.id;
             var xAxis = offsetX;
             var yAxis = offsetY;
-            var dataForm = '{"Comment":"'+comment+'","DashboardId":"'+dashboardId+'","xAxis":"'+xAxis+'","yAxis":"'+yAxis+'"}';
+            var dataForm = '{"Comment":"'+comment+'","DashboardId":"'+dashboardId+'","xAxis":"'+x+'%","yAxis":"'+y+'%"}';
             //console.log("Count : "+count+" || screenX : "+event.screenX+" || screenY : "+event.screenY+" || clientX : "+event.clientX+" || clientY : "+event.clientY+" || offsetX : "+offsetX+" || offsetY : "+offsetY);
             console.log(dataForm);
 

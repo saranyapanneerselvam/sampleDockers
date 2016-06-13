@@ -15,7 +15,6 @@ function SwitchController($scope,$http,$state,$rootScope,$window,$stateParams,ge
         contentHeight = $("#page-wrapper").height();
         contentWidth = $("#page-wrapper").width();
         $("#transparentImage").css("width",contentWidth).css("height",contentHeight);
-        $(".annotorious-item").css("width",contentWidth).css("height",contentHeight);
 
         if($scope.switchEnabled==false){
             //console.log("if switch change : "+$scope.enabled);
@@ -25,7 +24,7 @@ function SwitchController($scope,$http,$state,$rootScope,$window,$stateParams,ge
             //console.log("else switch change : "+$scope.enabled);
             if(getValue==1){
                 $rootScope.tempDashboard=false;
-                $rootScope.$emit("getDashboardCommentsFunc", {value:0});
+                //$rootScope.$emit("getDashboardCommentsFunc", {value:0});   // Get dashboard comments from the Database
             }
             else{
                 $scope.switchEnabled=false;

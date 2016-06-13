@@ -245,10 +245,18 @@ showMetricApp.service('createWidgets',function($http,$q){
                             var currentItem = endpoint[items];
                             formattedChartData = [];
                             for(dataObjects in widget.charts[i].chartData){
+                                var yValue = 0;
+                                if(widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )) {
+                                    console.log(widget.charts[i].chartData[dataObjects].total);
+                                    if(typeof widget.charts[i].chartData[dataObjects].total[currentItem] != 'undefined') {
+                                        yValue = widget.charts[i].chartData[dataObjects].total[currentItem];
+                                    }
+                                }
                                 formattedChartData.push(
                                     {
                                         x: moment(widget.charts[i].chartData[dataObjects].date),
-                                        y: (widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )? (typeof widget.charts[i].chartData[dataObjects].total[currentItem] != 'undefined' ? widget.charts[i].chartData[dataObjects].total[currentItem] : 0) : 0)
+                                        //y: (widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )? (typeof widget.charts[i].chartData[dataObjects].total[currentItem] != 'undefined' ? widget.charts[i].chartData[dataObjects].total[currentItem] : 0) : 0)
+                                        y: yValue
                                     }
                                 );
                             }
@@ -435,10 +443,18 @@ showMetricApp.service('createWidgets',function($http,$q){
                                 var currentItem = endpoint[items];
                                 formattedChartData = [];
                                 for(dataObjects in widget.charts[i].chartData){
+                                    var yValue = 0;
+                                    if(widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )) {
+                                        console.log(widget.charts[i].chartData[dataObjects].total);
+                                        if(typeof widget.charts[i].chartData[dataObjects].total[currentItem] != 'undefined') {
+                                            yValue = widget.charts[i].chartData[dataObjects].total[currentItem];
+                                        }
+                                    }
                                     formattedChartData.push(
                                         {
                                             x: moment(widget.charts[i].chartData[dataObjects].date),
-                                            y:widget.charts[i].chartData[dataObjects].total[currentItem]
+                                            //y: (widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )? (typeof widget.charts[i].chartData[dataObjects].total[currentItem] != 'undefined' ? widget.charts[i].chartData[dataObjects].total[currentItem] : 0) : 0)
+                                            y: yValue
                                         }
                                     );
                                 }

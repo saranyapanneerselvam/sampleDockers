@@ -24,7 +24,7 @@ var oauth2Client = new OAuth2(configAuth.googleAuth.clientID, configAuth.googleA
 
 //load async module
 var async = require("async");
-var mongoConnectionString = "mongodb://showmetric:showmetric@ds013918.mlab.com:13918/showmetric";
+var mongoConnectionString = "mongodb://admin:admin@localhost:27017/datapoolt_02062016";
 var FB = require('fb');
 //db connection for storing agenda jobs
 var agenda = new Agenda({db: {address: mongoConnectionString}});
@@ -93,7 +93,9 @@ agenda.define('Update channel data', function (job, done) {
 
         //Function to handle all queries result here
         function checkNullObject(callback) {
+
             return function (err, object) {
+
                 if (err)
                     callback('Database error: ' + err, null);
                 else if (!object || object.length === 0)
@@ -104,12 +106,14 @@ agenda.define('Update channel data', function (job, done) {
         }
 
         function getData(callback) {
+            console.log('inside data');
             Data.find({
                 bgFetch: true
             }, checkNullObject(callback));
         }
 
         function getMetric(results, callback) {
+            console.log('object',results.data[0].metricId)
             async.concatSeries(results.data, findEachMetrics, callback);
         }
 
@@ -595,11 +599,13 @@ agenda.define('Update channel data', function (job, done) {
                     d.setDate(d.getDate() + 1);
                     var now = moment(d).format('YYYY-MM-DD');
                     if (initialResults.data.updated < new Date()) {
+                        console.log('Inside FB IF condition', initialResults.data.updated, new Date());
                         var query = initialResults.object.channelObjectId + "/insights/" + initialResults.metric.objectTypes[0].meta.fbMetricName + "?since=" + updated + "&until=" + now;
                         queryObject = {query: query, metricId: initialResults.metric._id};
                         callback(null, queryObject);
                     }
                     else {
+                        console.log('Inside FB ELSE condition', initialResults.data.updated, new Date());
                         queryObject = {query: 'DataFromDb', metricId: initialResults.metric._id};
                         callback(null, queryObject);
                     }
@@ -1246,6 +1252,7 @@ agenda.define('Update channel data', function (job, done) {
             iterateEachChannelData(results.get_channel, results.get_channel_data_remote, results.metric, results.data, callback);
             function iterateEachChannelData(channel, dataFromRemote, metric, dataFromDb, callback) {
                 async.timesSeries(loopCount, function (j, next) {
+
                     if (channel[j].code === configAuth.channels.twitter) {
                         var currentDate = moment(new Date()).format('YYYY-MM-DD');
                         var param = [];
@@ -1435,6 +1442,7 @@ agenda.define('Update channel data', function (job, done) {
                     else if (channel[j].code === configAuth.channels.facebook) {
                         var finalData = [];
                         if (dataFromRemote[j].res != 'DataFromDb') {
+                            console.log('data from remote',dataFromRemote[j].res)
 
                             //Array to hold the final result
                             for (var index in dataFromRemote[j].res.data[0].values) {
@@ -1447,11 +1455,13 @@ agenda.define('Update channel data', function (job, done) {
                                     finalData.push(value);
                                     var metricId = dataFromRemote[j].metricId;
                                 }
+                                console.log('finalData',finalData)
 
                             }
                             var findCurrentDate = _.findIndex(finalData, function (o) {
                                 return o.date == moment(new Date).format('YYYY-MM-DD');
                             });
+                            console.log('findCurrentDate',findCurrentDate)
                             if (dataFromDb[j].data != null) {
 
                                 //merge the old data with new one and update it in db
@@ -1463,6 +1473,7 @@ agenda.define('Update channel data', function (job, done) {
                                 }
 
                             }
+                          console.log('finalData',finalData)
                             next(null, finalData)
                         }
                         else {

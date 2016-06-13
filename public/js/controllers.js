@@ -473,8 +473,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                 }
 
                                 if (IsAlreadyExist != 1) {
-
-                                    formattedChartData.push({y:parseInt(widget.charts[i].chartData[j].values),key: widget.charts[i].chartData[j].name, color:null});
+                                    formattedChartData.push({y:parseInt(widget.charts[i].chartData[dataObjects].values),key: widget.charts[i].chartData[dataObjects].name, color:null});
                                 }
 
                             }
@@ -732,14 +731,18 @@ showMetricApp.service('createWidgets',function($http,$q){
                     //To handle chart creation for custom widgets
                     else {
                         for(customData in widgetData.charts[i].chartData){
-                            displaySummaryPieData = displaySummaryPieData + parseInt(widgetData.charts[i].chartData[customData].y);
-                            graphData.pieData.push({
-                                y: parseInt(widgetData.charts[i].chartData[customData].y),
-                                key: widgetData.charts[i].chartData[customData].key, //key  - the name of the series.
-                                color: widgetData.charts[i].chartData[customData].color,  //color - optional: choose your own line color.
-                                summaryDisplay: displaySummaryPieData
-                            });
-                            displaySummaryPieData =0;
+
+                            for(var getPieData in widgetData.charts[i].chartData[customData]){
+                                displaySummaryPieData = displaySummaryPieData + parseInt(widgetData.charts[i].chartData[customData][getPieData].y);
+                                graphData.pieData.push({
+                                    y: parseInt(widgetData.charts[i].chartData[customData][getPieData].y),
+                                    key: widgetData.charts[i].chartData[customData][getPieData].key, //key  - the name of the series.
+                                    color: widgetData.charts[i].chartData[customData][getPieData].color,  //color - optional: choose your own line color.
+                                    summaryDisplay: displaySummaryPieData
+                                });
+                                displaySummaryPieData =0;
+                            }
+
                         }
                     }
 

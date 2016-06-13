@@ -622,7 +622,7 @@ exports.getChannelData = function (req, res, next) {
                             //calculating the result length
                             var resultLength = dataFromRemote[j].data.length;
                             var resultCount = dataFromRemote[j].data[0].length - 1;
-                            console.log('resuuu',dataFromRemote[j].data)
+                            //console.log('resuuu',dataFromRemote[j].data)
 
                             //loop to store the entire result into an array
                             for (var i = 0; i < resultLength; i++) {
@@ -661,8 +661,8 @@ exports.getChannelData = function (req, res, next) {
 
                                 }
                                 storeGoogleData.push(obj);
-
                             }
+
                             if (dimensionList.length > 1) {
                                 var result = _.chain(storeGoogleData)
                                     .groupBy("date")
@@ -724,12 +724,12 @@ exports.getChannelData = function (req, res, next) {
                             else{
                                 var daysDifference = findDaysDifference(dataFromRemote[j].startDate, dataFromRemote[j].endDate);
                                 var defaultArrayLength = daysDifference.length;
-                                var googleDataLength = storeFinalData.length;
+                                var googleDataLength = storeGoogleData.length;
                                 for (var i = 0; i < defaultArrayLength; i++) {
                                     for (var k = 0; k < googleDataLength; k++) {
-                                        if (daysDifference[i].date === storeFinalData[k].date) {
+                                        if (daysDifference[i].date === storeGoogleData[k].date) {
                                             console.log('inif');
-                                            daysDifference[i] = storeFinalData[k]
+                                            daysDifference[i] = storeGoogleData[k]
                                         }
                                     }
                                 }
@@ -2182,9 +2182,6 @@ exports.getChannelData = function (req, res, next) {
                 else if (tweets.length === 0)
                     return res.status(500).json({});
                 else {
-                    for(var i=0;i<tweets.length;i++){
-                        console.log('apiResponse',tweets[i].entities.user_mentions,tweets[i].created_at);
-                    }
                     if (queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.tweets || queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.followers || queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.following || queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.favourites || queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.listed || queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.retweets_of_your_tweets) {
 
                         finalTwitterResponse = {

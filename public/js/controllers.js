@@ -247,7 +247,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                             for(dataObjects in widget.charts[i].chartData){
                                 var yValue = 0;
                                 if(widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )) {
-                                    console.log(widget.charts[i].chartData[dataObjects].total);
+                                    //console.log(widget.charts[i].chartData[dataObjects].total);
                                     if(typeof widget.charts[i].chartData[dataObjects].total[currentItem] != 'undefined') {
                                         yValue = widget.charts[i].chartData[dataObjects].total[currentItem];
                                     }

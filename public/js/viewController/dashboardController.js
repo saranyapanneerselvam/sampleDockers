@@ -227,181 +227,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         };
     };
 
-    var count =0;
-    var color = '#F53F72';
-    var size = '30px';
-
-    $rootScope.$on("getDashboardCommentsFunc", function(getValue){
-        $scope.getDashboardComments(getValue);
-    });
-
-    $scope.getDashboardComments = function(){
-        console.log("get dashboard comments from database");
-
-        /*
-        var getCount = 0;
-        var getCommentArr = '[{"Comment":"test 1","DashboardId":"571f2875c761262c0c0db9c8","xAxis":"277","yAxis":"370"},{"Comment":"test 2","DashboardId":"571f2875c761262c0c0db9c8","xAxis":"1023","yAxis":"256"},{"Comment":"test 3","DashboardId":"571f2875c761262c0c0db9c8","xAxis":"462","yAxis":"390"}]';
-        console.log(JSON.parse(getCommentArr));
-        var jsonData = JSON.parse(getCommentArr);
-
-        for(getData in jsonData){
-            getCount++;
-            $(".context").append($('<div class="commentPoint" id="commentPoint-'+getCount+'" style="color: #ffffff;"><span class="countComment">'+getCount+'</span><input type="hidden" id="hiddenComment-'+getCount+'" value="'+jsonData[getData].Comment+'" /></div></div>')
-                .css('position', 'absolute')
-                .css('top', jsonData[getData].yAxis + 'px')
-                .css('left', jsonData[getData].xAxis + 'px')
-                .css('width', size)
-                .css('height', size)
-                .css('border-radius', '25px')
-                .css('background-color', color)
-            );
-
-        }
-
-        $(".commentPoint").on('click',function () {
-            var countValue = this.id.replace('commentPoint-','');
-            var hiddenComment = $("#hiddenComment-"+countValue).val();
-            console.log(countValue);
-            swal({
-                html:true,
-                title:'<i>Leave a Comment - '+countValue+'</i>',
-                text:'<b><textarea id="inputTextArea" rows="10" cols="40" placeholder="Write your comment here..."></textarea></b>',
-                showCancelButton: true,
-                confirmButtonClass: 'btn-danger',
-                confirmButtonText: 'Update',
-                cancelButtonText: "Delete",
-                closeOnConfirm: false,
-                closeOnCancel: false
-            }, function (isConfirm) {
-
-                if (isConfirm) {
-                    var comment = $("#inputTextArea").val();
-                    if (comment === "") {
-                        swal.showInputError("Enter the Comment !!!");
-                        $(".sa-input-error").css("top","10px !important");
-                        return false
-                    }
-                    if(comment != ""){
-                        updateDashBoardComment();
-                    }
-                } else {
-                    $("#commentPoint-"+countValue).remove();
-                    swal("Deleted", "Your comment deleted and not posted.", "error");
-                }
-            });
-
-            $("#inputTextArea").val(hiddenComment);
-
-            function updateDashBoardComment(){
-                swal("Submitted!", "Your comment has been updated sucessfully.", "success");
-            }
-
-        }); */
-
-    };
-
-
-
-    $scope.callThePosition = function (event){
-        var dialog, form;
-        var x = event.x;
-        var y = event.y;
-        var offsetX = event.offsetX;
-        var offsetY = event.offsetY;
-        var contentWidth = $("#page-wrapper").width();
-        //console.log("Count : "+count+" || screenX : "+event.screenX+" || screenY : "+event.screenY+" || clientX : "+event.clientX+" || clientY : "+event.clientY+" || offsetX : "+offsetX+" || offsetY : "+offsetY);
-        count++;
-
-        var $this = $("#transparentImage"), offset = $this.offset(),
-            width = $this.innerWidth(), height = $this.innerHeight();
-        var parentOffset = $this.offset();
-        var posX = $("#transparentImage").offset().left, posY = $("#transparentImage").offset().top;
-        //console.log((event.pageX - posX)+ ' , ' + (event.pageY - posY));
-
-        var x = event.pageX-posX;
-        x = parseInt(x/width*100,10);
-        x = x<0?0:x;
-        x = x>100?100:x;
-        var y = event.pageY-posY;
-        y = parseInt(y/height*100,10);
-        y = y<0?0:y;
-        y = y>100?100:y;
-        console.log(x+'% '+y+'%');
-
-        $(".context").append($('<div class="commentPoint" id="commentPoint-'+count+'" style="color: #ffffff;"><span class="countComment">'+count+'</span></div></div>')
-            .css('position', 'absolute')
-            .css('top', y + '%')
-            .css('left', x + '%')
-            .css('width', size)
-            .css('height', size)
-            .css('border-radius', '25px')
-            .css('background-color', color)
-        );
-
-        swal({
-            html:true,
-            title:'<i>Leave a Comment - '+count+'</i>',
-            text:'<b><textarea id="inputTextArea" rows="10" cols="40" placeholder="Write your comment here..."></textarea></b>',
-            showCancelButton: true,
-            confirmButtonClass: 'btn-danger',
-            confirmButtonText: 'Send',
-            cancelButtonText: "Cancel",
-            closeOnConfirm: false,
-            closeOnCancel: false
-        }, function (isConfirm) {
-
-            if (isConfirm) {
-                var comment = $("#inputTextArea").val();
-                if (comment == "") {
-                    swal.showInputError("Enter the Comment !!!");
-                    $(".sa-input-error").css("top","10px");
-                    return false
-                }
-                if(comment != ""){
-                    addDashBoardComment();
-                }
-            } else {
-                $("#commentPoint-"+count).remove();
-                count--;
-                swal("Cancelled", "Your comment is not posted.", "error");
-            }
-        });
-
-
-        function addDashBoardComment(){
-            var comment = $("#inputTextArea").val();
-            var dashboardId = $state.params.id;
-            var xAxis = offsetX;
-            var yAxis = offsetY;
-            var dataForm = '{"Comment":"'+comment+'","DashboardId":"'+dashboardId+'","xAxis":"'+x+'%","yAxis":"'+y+'%"}';
-            //console.log("Count : "+count+" || screenX : "+event.screenX+" || screenY : "+event.screenY+" || clientX : "+event.clientX+" || clientY : "+event.clientY+" || offsetX : "+offsetX+" || offsetY : "+offsetY);
-            console.log(dataForm);
-
-            // Send JSON data to the database for CreateComment
-            // $http({
-            //     method: 'POST', url: '/api/v1/create/dashboardComment', data: dataForm
-            // }).then(function successCallback(response){
-            //     console.log(response);
-            //     swal("Submitted!", "Your comment has been posted sucessfully.", "success");
-            // }, function errorCallback (error){
-            //     console.log('Error in creating dashboard comment post',error);
-            //     swal("Error in creating dashboard comment post", "", "error");
-            // });
-
-            swal("Submitted!", "Your comment has been posted sucessfully.", "success");
-        }
-
-
-    };
-
-    $scope.closeCommentMode = function () {
-        count=0;
-        $(".commentPoint").html("");
-        $(".context").removeClass("commentPoint");
-        $rootScope.tempDashboard=true;
-        $rootScope.$emit("CallSwitchChangeFunc", {value:0});
-    };
-
     //To populate all the widgets in a dashboard when the dashboard is refreshed or opened or calendar date range in the dashboard header is changed
     $rootScope.populateDashboardWidgets = function() {
         $scope.dashboard.widgets = [];
@@ -620,4 +445,178 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         );
 
     };
+
+    var count =0;
+    var color = '#F53F72';
+    var size = '30px';
+
+    $rootScope.$on("getDashboardCommentsFunc", function(getValue){
+        $scope.getDashboardComments(getValue);
+    });
+
+    $scope.getDashboardComments = function(){
+        console.log("get dashboard comments from database");
+
+        /*
+         var getCount = 0;
+         var getCommentArr = '[{"Comment":"test 1","DashboardId":"571f2875c761262c0c0db9c8","xAxis":"277","yAxis":"370"},{"Comment":"test 2","DashboardId":"571f2875c761262c0c0db9c8","xAxis":"1023","yAxis":"256"},{"Comment":"test 3","DashboardId":"571f2875c761262c0c0db9c8","xAxis":"462","yAxis":"390"}]';
+         console.log(JSON.parse(getCommentArr));
+         var jsonData = JSON.parse(getCommentArr);
+
+         for(getData in jsonData){
+         getCount++;
+         $(".context").append($('<div class="commentPoint" id="commentPoint-'+getCount+'" style="color: #ffffff;"><span class="countComment">'+getCount+'</span><input type="hidden" id="hiddenComment-'+getCount+'" value="'+jsonData[getData].Comment+'" /></div></div>')
+         .css('position', 'absolute')
+         .css('top', jsonData[getData].yAxis + 'px')
+         .css('left', jsonData[getData].xAxis + 'px')
+         .css('width', size)
+         .css('height', size)
+         .css('border-radius', '25px')
+         .css('background-color', color)
+         );
+
+         }
+
+         $(".commentPoint").on('click',function () {
+         var countValue = this.id.replace('commentPoint-','');
+         var hiddenComment = $("#hiddenComment-"+countValue).val();
+         console.log(countValue);
+         swal({
+         html:true,
+         title:'<i>Leave a Comment - '+countValue+'</i>',
+         text:'<b><textarea id="inputTextArea" rows="10" cols="40" placeholder="Write your comment here..."></textarea></b>',
+         showCancelButton: true,
+         confirmButtonClass: 'btn-danger',
+         confirmButtonText: 'Update',
+         cancelButtonText: "Delete",
+         closeOnConfirm: false,
+         closeOnCancel: false
+         }, function (isConfirm) {
+
+         if (isConfirm) {
+         var comment = $("#inputTextArea").val();
+         if (comment === "") {
+         swal.showInputError("Enter the Comment !!!");
+         $(".sa-input-error").css("top","10px !important");
+         return false
+         }
+         if(comment != ""){
+         updateDashBoardComment();
+         }
+         } else {
+         $("#commentPoint-"+countValue).remove();
+         swal("Deleted", "Your comment deleted and not posted.", "error");
+         }
+         });
+
+         $("#inputTextArea").val(hiddenComment);
+
+         function updateDashBoardComment(){
+         swal("Submitted!", "Your comment has been updated sucessfully.", "success");
+         }
+
+         }); */
+
+    };
+
+    $scope.callThePosition = function (event){
+        var dialog, form;
+        var x = event.x;
+        var y = event.y;
+        var offsetX = event.offsetX;
+        var offsetY = event.offsetY;
+        var contentWidth = $("#page-wrapper").width();
+        //console.log("Count : "+count+" || screenX : "+event.screenX+" || screenY : "+event.screenY+" || clientX : "+event.clientX+" || clientY : "+event.clientY+" || offsetX : "+offsetX+" || offsetY : "+offsetY);
+        count++;
+
+        var $this = $("#transparentImage"), offset = $this.offset(),
+            width = $this.innerWidth(), height = $this.innerHeight();
+        var parentOffset = $this.offset();
+        var posX = $("#transparentImage").offset().left, posY = $("#transparentImage").offset().top;
+        //console.log((event.pageX - posX)+ ' , ' + (event.pageY - posY));
+
+        var x = event.pageX-posX;
+        x = parseInt(x/width*100,10);
+        x = x<0?0:x;
+        x = x>100?100:x;
+        var y = event.pageY-posY;
+        y = parseInt(y/height*100,10);
+        y = y<0?0:y;
+        y = y>100?100:y;
+        console.log(x+'% '+y+'%');
+
+        $(".context").append($('<div class="commentPoint" id="commentPoint-'+count+'" style="color: #ffffff;"><span class="countComment">'+count+'</span></div></div>')
+            .css('position', 'absolute')
+            .css('top', y + '%')
+            .css('left', x + '%')
+            .css('width', size)
+            .css('height', size)
+            .css('border-radius', '25px')
+            .css('background-color', color)
+        );
+
+        swal({
+            html:true,
+            title:'<i>Leave a Comment - '+count+'</i>',
+            text:'<b><textarea id="inputTextArea" rows="10" cols="40" placeholder="Write your comment here..."></textarea></b>',
+            showCancelButton: true,
+            confirmButtonClass: 'btn-danger',
+            confirmButtonText: 'Send',
+            cancelButtonText: "Cancel",
+            closeOnConfirm: false,
+            closeOnCancel: false
+        }, function (isConfirm) {
+
+            if (isConfirm) {
+                var comment = $("#inputTextArea").val();
+                if (comment == "") {
+                    swal.showInputError("Enter the Comment !!!");
+                    $(".sa-input-error").css("top","10px");
+                    return false
+                }
+                if(comment != ""){
+                    addDashBoardComment();
+                }
+            } else {
+                $("#commentPoint-"+count).remove();
+                count--;
+                swal("Cancelled", "Your comment is not posted.", "error");
+            }
+        });
+
+
+        function addDashBoardComment(){
+            var comment = $("#inputTextArea").val();
+            var dashboardId = $state.params.id;
+            var xAxis = offsetX;
+            var yAxis = offsetY;
+            var dataForm = '{"Comment":"'+comment+'","DashboardId":"'+dashboardId+'","xAxis":"'+x+'%","yAxis":"'+y+'%"}';
+            //console.log("Count : "+count+" || screenX : "+event.screenX+" || screenY : "+event.screenY+" || clientX : "+event.clientX+" || clientY : "+event.clientY+" || offsetX : "+offsetX+" || offsetY : "+offsetY);
+            console.log(dataForm);
+
+            // Send JSON data to the database for CreateComment
+            // $http({
+            //     method: 'POST', url: '/api/v1/create/dashboardComment', data: dataForm
+            // }).then(function successCallback(response){
+            //     console.log(response);
+            //     swal("Submitted!", "Your comment has been posted sucessfully.", "success");
+            // }, function errorCallback (error){
+            //     console.log('Error in creating dashboard comment post',error);
+            //     swal("Error in creating dashboard comment post", "", "error");
+            // });
+
+            swal("Submitted!", "Your comment has been posted sucessfully.", "success");
+        }
+
+
+    };
+
+    $scope.closeCommentMode = function () {
+        count=0;
+        $(".commentPoint").html("");
+        $(".context").removeClass("commentPoint");
+        $rootScope.tempDashboard=true;
+        $rootScope.$emit("CallSwitchChangeFunc", {value:0});
+    };
+
 }

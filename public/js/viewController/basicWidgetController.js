@@ -30,7 +30,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 $scope.storeCustomData();
             }
             else {
-                $scope.clearReferenceWidget();
+                //$scope.clearReferenceWidget();
                 $scope.getReferenceWidgetsForChosenChannel();
                 $scope.getProfilesForDropdown();
             }
@@ -297,15 +297,17 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         $scope.tokenExpired = false;
         var lastWidgetId = $rootScope.customWidgetId;
         if (lastWidgetId != undefined) {
-            console.log("lastWidgetId : " + lastWidgetId);
             $http({
                 method: 'POST',
                 url: '/api/v1/delete/widgets/' + lastWidgetId
-            }).then(function successCallback(response) {
-                console.log(response);
-            }, function errorCallback(error) {
-                console.log('Error in deleting profile', error)
-            });
+            }).then(
+                function successCallback(response) {
+                    $rootScope.customWidgetId = '';
+                },
+                function errorCallback(error) {
+                    console.log('Error in deleting profile', error)
+                }
+            );
         }
     };
 

@@ -2732,8 +2732,8 @@ exports.getChannelData = function (req, res, next) {
                         var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
                         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); //adding plus one so that today also included
                         console.log('InstagramResponse', result, diffDays);
-                        if (endPointMetric.items.indexOf("/") > -1) {
-                            endPointMetric = endPointMetric.items.split("/");
+                        if (endPointMetric.items[0].indexOf("/") > -1) {
+                            endPointMetric = endPointMetric.items[0].split("/");
                         }
                         console.log("endPointMetric", endPointMetric);
                         var count = endPointMetric[0];

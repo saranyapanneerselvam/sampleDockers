@@ -82,7 +82,7 @@ module.exports = {
         followers:'followers',
         favourites:'favourites',
         listed:'listed',
-        retweets_of_your_tweets:'retweets_of_your_tweets'
+        retweets_of_your_tweets:'retweetsOfYourTweets'
     },
 
     'googleAdwordsMetric' :{

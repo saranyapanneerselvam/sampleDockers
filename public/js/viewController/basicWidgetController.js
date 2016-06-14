@@ -27,6 +27,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             $scope.clearReferenceWidget();
         } else if ($scope.currentView === 'step_two') {
             document.getElementById('basicWidgetBackButton1').disabled = false;
+            $scope.clearReferenceWidget();
             if (getChannelName == "CustomData") {
                 $scope.storeCustomData();
             }
@@ -110,11 +111,9 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             else if (expiresIn === undefined)
                 $scope.tokenExpired = false;
             else {
-                console.log('else');
                 $scope.tokenExpired = true;
             }
             $scope.storedProfile = this.profileOptionsModel;
-            console.log($scope.storedProfile)
             $http({
                 method: 'GET',
                 url: '/api/v1/get/objects/' + profileId
@@ -345,11 +344,9 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             "widgetType": "custom",
             "channelId": $scope.storedChannelId
         };
-        console.log('json data', jsonData);
         $http({
             method: 'POST', url: '/api/v1/create/customwidgets', data: jsonData
         }).then(function successCallback(response) {
-            console.log(response.data);
             $scope.errorMessage = true;
             $scope.customMessage = false;
             $scope.customDocLinkMessage = false;
@@ -358,7 +355,6 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             getCustomWidgetId = response.data.widgetsList.id._id;
             $rootScope.customWidgetId = response.data.widgetsList.id._id;
             var domainUrl = "";
-            console.log(window.location.hostname);
             if (window.location.hostname == "localhost") {
                 domainUrl = "http://localhost:8080";
             }

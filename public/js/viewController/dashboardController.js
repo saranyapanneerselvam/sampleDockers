@@ -259,8 +259,9 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                         'minSizeY': (typeof dashboardWidgetList[getWidgetInfo].minSize != 'undefined'? dashboardWidgetList[getWidgetInfo].minSize.h : 1),
                         'minSizeX': (typeof dashboardWidgetList[getWidgetInfo].minSize != 'undefined'? dashboardWidgetList[getWidgetInfo].minSize.w : 1),
                         'maxSizeY': (typeof dashboardWidgetList[getWidgetInfo].maxSize != 'undefined'? dashboardWidgetList[getWidgetInfo].maxSize.h : 3),
-                        'maxSizeX': (typeof dashboardWidgetList[getWidgetInfo].maxSize != 'undefined'? dashboardWidgetList[getWidgetInfo].maxSize.w : 6),
+                        'maxSizeX': (typeof dashboardWidgetList[getWidgetInfo].maxSize != 'undefined'? dashboardWidgetList[getWidgetInfo].maxSize.w : 3),
                         'name': (typeof dashboardWidgetList[getWidgetInfo].name != 'undefined'? dashboardWidgetList[getWidgetInfo].name : ''),
+                        'widgetType': (typeof dashboardWidgetList[getWidgetInfo].widgetType != 'undefined'? dashboardWidgetList[getWidgetInfo].widgetType : ''),
                         'id': dashboardWidgetList[getWidgetInfo]._id,
                         //'chart': {'api': {}},
                         'visibility': false
@@ -336,6 +337,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             'maxSizeY': (typeof widget.maxSize != 'undefined'? widget.maxSize.h : 3),
             'maxSizeX': (typeof widget.maxSize != 'undefined'? widget.maxSize.w : 3),
             'name': (typeof widget.name != 'undefined'? widget.name : ''),
+            'widgetType':(typeof widget.widgetType != 'undefined'? widget.widgetType : ''),
             'id': widget._id,
             //'chart': {'api': {}},
             'visibility': false

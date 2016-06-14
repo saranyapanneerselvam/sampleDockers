@@ -186,46 +186,46 @@ showMetricApp.service('createWidgets',function($http,$q){
             var splitDate, newDate, inputDate;
             var changedWidget = JSON.parse(JSON.stringify(widget));
 
-/*
-            for(var i = 0; i < widget.charts.length; i++) {
-                if (typeof(widget.charts[i].chartData[0].total) === 'object') {
-                    var endpoint = [];
-                    for (objectTypeObjects in widget.charts[i].metricDetails.objectTypes) {
-                        if (widget.charts[i].metricDetails.objectTypes[objectTypeObjects].objectTypeId == widget.charts[i].chartObjectTypeId) {
-                            endpoint = widget.charts[i].metricDetails.objectTypes[objectTypeObjects].meta.endpoint;
-                        }
-                    }
-                    if (typeof endpoint[0] == 'object') {
+            /*
+             for(var i = 0; i < widget.charts.length; i++) {
+             if (typeof(widget.charts[i].chartData[0].total) === 'object') {
+             var endpoint = [];
+             for (objectTypeObjects in widget.charts[i].metricDetails.objectTypes) {
+             if (widget.charts[i].metricDetails.objectTypes[objectTypeObjects].objectTypeId == widget.charts[i].chartObjectTypeId) {
+             endpoint = widget.charts[i].metricDetails.objectTypes[objectTypeObjects].meta.endpoint;
+             }
+             }
+             if (typeof endpoint[0] == 'object') {
 
-                        for(items in endpoint) {
-                            modifiedEndpoint = '';
-                            console.log(items,endpoint[items]);
-                            for(subpoints in endpoint[items]) {
-                                console.log(subpoints,endpoint[items][subpoints])
-                                modifiedEndpoint += subpoints;
-                                if (endpoint[items].length - endpointLength > 1)
-                                    modifiedEndpoint += '_';
-                            }
-                            console.log(modifiedEndpoint)
-                        }
+             for(items in endpoint) {
+             modifiedEndpoint = '';
+             console.log(items,endpoint[items]);
+             for(subpoints in endpoint[items]) {
+             console.log(subpoints,endpoint[items][subpoints])
+             modifiedEndpoint += subpoints;
+             if (endpoint[items].length - endpointLength > 1)
+             modifiedEndpoint += '_';
+             }
+             console.log(modifiedEndpoint)
+             }
 
-/!*
-                        for(items in endpoint) {
-                            var modifiedEndpoint = "";
-                            for (var endpointLength = 0; endpointLength < endpoint[items].length; endpointLength++) {
-                                modifiedEndpoint += endpoint[items][endpointLength];
-                                if (endpoint[items].length - endpointLength > 1)
-                                    modifiedEndpoint += '_';
-                            }
-                            for(dataItems in widget.charts[i].chartData) {
+             /!*
+             for(items in endpoint) {
+             var modifiedEndpoint = "";
+             for (var endpointLength = 0; endpointLength < endpoint[items].length; endpointLength++) {
+             modifiedEndpoint += endpoint[items][endpointLength];
+             if (endpoint[items].length - endpointLength > 1)
+             modifiedEndpoint += '_';
+             }
+             for(dataItems in widget.charts[i].chartData) {
 
-                            }
-                        }
-*!/
-                    }
-                }
-            }
-*/
+             }
+             }
+             *!/
+             }
+             }
+             }
+             */
 
             for(var i = 0; i < widget.charts.length; i++){
 
@@ -245,12 +245,26 @@ showMetricApp.service('createWidgets',function($http,$q){
                             var currentItem = endpoint[items];
                             formattedChartData = [];
                             for(dataObjects in widget.charts[i].chartData){
-                                var yValue = 0;
+                                var yValue = 0, endpointArray;
                                 if(widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )) {
-                                    //console.log(widget.charts[i].chartData[dataObjects].total);
-                                    if(typeof widget.charts[i].chartData[dataObjects].total[currentItem] != 'undefined') {
-                                        yValue = widget.charts[i].chartData[dataObjects].total[currentItem];
+                                    for(keyValuePairs in widget.charts[i].chartData[dataObjects].total) {
+                                        console.log(widget.charts[i].chartData[dataObjects].total[keyValuePairs], keyValuePairs);
+                                        if(keyValuePairs.search('/') > -1) {
+                                            endpointArray = keyValuePairs.split('/');
+                                            for(splittedValues in endpointArray) {
+                                                console.log(splittedValues, endpointArray[splittedValues]);
+                                            }
+                                        }
+                                        else if(keyValuePairs == currentItem) {
+                                            yValue = widget.charts[i].chartData[dataObjects].total[currentItem];
+                                        }
                                     }
+
+                                    /*
+                                     if(typeof widget.charts[i].chartData[dataObjects].total[currentItem] != 'undefined') {
+                                     yValue = widget.charts[i].chartData[dataObjects].total[currentItem];
+                                     }
+                                     */
                                 }
                                 formattedChartData.push(
                                     {
@@ -404,65 +418,65 @@ showMetricApp.service('createWidgets',function($http,$q){
                                 endpoint = widget.charts[i].metricDetails.objectTypes[objectTypeObjects].meta.endpoint;
                             }
                         }
-/*
-                        if(typeof endpoint[0] == 'object') {
-                            for(items in endpoint){
-                                var modifiedEndpoint = "";
-                                for(var endpointLength = 0; endpointLength < endpoint[items].length; endpointLength++){
-                                    modifiedEndpoint += endpoint[items][endpointLength];
-                                    if(endpoint[items].length - endpointLength > 1)
-                                        modifiedEndpoint += '_';
-                                }
+                        /*
+                         if(typeof endpoint[0] == 'object') {
+                         for(items in endpoint){
+                         var modifiedEndpoint = "";
+                         for(var endpointLength = 0; endpointLength < endpoint[items].length; endpointLength++){
+                         modifiedEndpoint += endpoint[items][endpointLength];
+                         if(endpoint[items].length - endpointLength > 1)
+                         modifiedEndpoint += '_';
+                         }
 
-                                for(dataObjects in widget.charts[i].chartData){
-                                    formattedChartData.push(
-                                        {
-                                            x: moment(widget.charts[i].chartData[dataObjects].date),
-                                            y:widget.charts[i].chartData[dataObjects].total[modifiedEndpoint]
-                                        }
-                                    );
-                                }
-                                /!*
-                                                                var currentItem = endpoint[items];
-                                                                formattedChartData = [];
-                                                                for(dataObjects in widget.charts[i].chartData){
-                                                                    formattedChartData.push(
-                                                                        {
-                                                                            x: moment(widget.charts[i].chartData[dataObjects].date),
-                                                                            y:widget.charts[i].chartData[dataObjects].total[currentItem]
-                                                                        }
-                                                                    );
-                                                                }
-                                                                changedWidget.charts[i].chartData[items] = formattedChartData;
-                                *!/
-                            }
-                        }
-                        else {
-*/
-                            for(items in endpoint){
-                                var currentItem = endpoint[items];
-                                formattedChartData = [];
-                                for(dataObjects in widget.charts[i].chartData){
-                                    var yValue = 0;
-                                    if(widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )) {
-                                        console.log(widget.charts[i].chartData[dataObjects].total);
-                                        if(typeof widget.charts[i].chartData[dataObjects].total[currentItem] != 'undefined') {
-                                            yValue = widget.charts[i].chartData[dataObjects].total[currentItem];
-                                        }
+                         for(dataObjects in widget.charts[i].chartData){
+                         formattedChartData.push(
+                         {
+                         x: moment(widget.charts[i].chartData[dataObjects].date),
+                         y:widget.charts[i].chartData[dataObjects].total[modifiedEndpoint]
+                         }
+                         );
+                         }
+                         /!*
+                         var currentItem = endpoint[items];
+                         formattedChartData = [];
+                         for(dataObjects in widget.charts[i].chartData){
+                         formattedChartData.push(
+                         {
+                         x: moment(widget.charts[i].chartData[dataObjects].date),
+                         y:widget.charts[i].chartData[dataObjects].total[currentItem]
+                         }
+                         );
+                         }
+                         changedWidget.charts[i].chartData[items] = formattedChartData;
+                         *!/
+                         }
+                         }
+                         else {
+                         */
+                        for(items in endpoint){
+                            var currentItem = endpoint[items];
+                            formattedChartData = [];
+                            for(dataObjects in widget.charts[i].chartData){
+                                var yValue = 0;
+                                if(widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )) {
+                                    //console.log(widget.charts[i].chartData[dataObjects].total);
+                                    if(typeof widget.charts[i].chartData[dataObjects].total[currentItem] != 'undefined') {
+                                        yValue = widget.charts[i].chartData[dataObjects].total[currentItem];
                                     }
-                                    formattedChartData.push(
-                                        {
-                                            x: moment(widget.charts[i].chartData[dataObjects].date),
-                                            //y: (widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )? (typeof widget.charts[i].chartData[dataObjects].total[currentItem] != 'undefined' ? widget.charts[i].chartData[dataObjects].total[currentItem] : 0) : 0)
-                                            y: yValue
-                                        }
-                                    );
                                 }
-                                changedWidget.charts[i].chartData[items] = formattedChartData;
+                                formattedChartData.push(
+                                    {
+                                        x: moment(widget.charts[i].chartData[dataObjects].date),
+                                        //y: (widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )? (typeof widget.charts[i].chartData[dataObjects].total[currentItem] != 'undefined' ? widget.charts[i].chartData[dataObjects].total[currentItem] : 0) : 0)
+                                        y: yValue
+                                    }
+                                );
                             }
-/*
+                            changedWidget.charts[i].chartData[items] = formattedChartData;
                         }
-*/
+                        /*
+                         }
+                         */
                     }
                     else {
                         for(dataObjects in widget.charts[i].chartData){

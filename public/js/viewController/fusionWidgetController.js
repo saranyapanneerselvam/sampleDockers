@@ -118,7 +118,7 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
                     title = $scope.uniquechannelNames[index];
                     break;
                 case 'Instagram' :
-                    url = '/api/auth/twitter';
+                    url = '/api/auth/instagram';
                     title = $scope.uniquechannelNames[index];
                     break;
             }
@@ -334,6 +334,7 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
             data: inputParams
         }).then(
             function successCallback(response) {
+                console.log(response);
                 for(widgetObjects in response.data.widgetsList)
                     $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
             },

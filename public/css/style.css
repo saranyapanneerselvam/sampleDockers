@@ -6067,6 +6067,10 @@ div.context a.commentLink {
     cursor: crosshair;
 }
 
+.widgetTransparentImage{
+    cursor: crosshair;
+}
+
 .dashboardContent{
     position: relative;
     left: 0px;
@@ -6081,10 +6085,18 @@ div.context a.commentLink {
     z-index: 0;
 }
 
+
+.getWidgetGraph{
+    position: relative;
+    left: 0px;
+    top: 0px;
+    z-index: 0;
+}
+
 .context{
     position: absolute;
     left: 0px;
-    top: 75px;
+    top: 10px;
     z-index: 1;
 }
 

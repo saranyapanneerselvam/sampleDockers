@@ -12,9 +12,9 @@ function SwitchController($scope,$http,$state,$rootScope,$window,$stateParams,ge
     });
 
     $scope.changeCallback = function (getValue) {
-        contentHeight = $("#page-wrapper").height();
-        contentWidth = $("#page-wrapper").width();
-        $("#transparentImage").css("width",contentWidth).css("height",contentHeight);
+        // contentHeight = $("#page-wrapper").height();
+        // contentWidth = $("#page-wrapper").width();
+        // $("#widgetTransparentImage").css("width",contentWidth).css("height",contentHeight);
 
         if($scope.switchEnabled==false){
             //console.log("if switch change : "+$scope.enabled);

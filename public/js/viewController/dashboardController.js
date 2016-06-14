@@ -259,7 +259,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                         'minSizeY': (typeof dashboardWidgetList[getWidgetInfo].minSize != 'undefined'? dashboardWidgetList[getWidgetInfo].minSize.h : 1),
                         'minSizeX': (typeof dashboardWidgetList[getWidgetInfo].minSize != 'undefined'? dashboardWidgetList[getWidgetInfo].minSize.w : 1),
                         'maxSizeY': (typeof dashboardWidgetList[getWidgetInfo].maxSize != 'undefined'? dashboardWidgetList[getWidgetInfo].maxSize.h : 3),
-                        'maxSizeX': (typeof dashboardWidgetList[getWidgetInfo].maxSize != 'undefined'? dashboardWidgetList[getWidgetInfo].maxSize.w : 3),
+                        'maxSizeX': (typeof dashboardWidgetList[getWidgetInfo].maxSize != 'undefined'? dashboardWidgetList[getWidgetInfo].maxSize.w : 6),
                         'name': (typeof dashboardWidgetList[getWidgetInfo].name != 'undefined'? dashboardWidgetList[getWidgetInfo].name : ''),
                         'id': dashboardWidgetList[getWidgetInfo]._id,
                         //'chart': {'api': {}},
@@ -534,21 +534,19 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
     };
 
-    $scope.callThePosition = function (event){
+    $scope.callThePosition = function (event,widgetID){
         var dialog, form;
         var x = event.x;
         var y = event.y;
         var offsetX = event.offsetX;
         var offsetY = event.offsetY;
         var contentWidth = $("#page-wrapper").width();
-        //console.log("Count : "+count+" || screenX : "+event.screenX+" || screenY : "+event.screenY+" || clientX : "+event.clientX+" || clientY : "+event.clientY+" || offsetX : "+offsetX+" || offsetY : "+offsetY);
         count++;
 
-        var $this = $("#transparentImage"), offset = $this.offset(),
+        var $this = $("#widgetTransparentImage-"+widgetID), offset = $this.offset(),
             width = $this.innerWidth(), height = $this.innerHeight();
         var parentOffset = $this.offset();
-        var posX = $("#transparentImage").offset().left, posY = $("#transparentImage").offset().top;
-        //console.log((event.pageX - posX)+ ' , ' + (event.pageY - posY));
+        var posX = $("#widgetTransparentImage-"+widgetID).offset().left, posY = $("#widgetTransparentImage-"+widgetID).offset().top;
 
         var x = event.pageX-posX;
         x = parseInt(x/width*100,10);
@@ -560,7 +558,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         y = y>100?100:y;
         console.log(x+'% '+y+'%');
 
-        $(".context").append($('<div class="commentPoint" id="commentPoint-'+count+'" style="color: #ffffff;"><span class="countComment">'+count+'</span></div></div>')
+        $("#widgetTransparentImage-"+widgetID).append($('<div class="commentPoint" id="commentPoint-'+count+'" style="color: #ffffff;"><span class="countComment">'+count+'</span></div></div>')
             .css('position', 'absolute')
             .css('top', y + '%')
             .css('left', x + '%')
@@ -606,7 +604,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             var xAxis = offsetX;
             var yAxis = offsetY;
             var dataForm = '{"Comment":"'+comment+'","DashboardId":"'+dashboardId+'","xAxis":"'+x+'%","yAxis":"'+y+'%"}';
-            //console.log("Count : "+count+" || screenX : "+event.screenX+" || screenY : "+event.screenY+" || clientX : "+event.clientX+" || clientY : "+event.clientY+" || offsetX : "+offsetX+" || offsetY : "+offsetY);
             console.log(dataForm);
 
             // Send JSON data to the database for CreateComment

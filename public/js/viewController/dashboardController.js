@@ -431,19 +431,34 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
     //To delete the dashboard
     $scope.deleteDashboard = function(){
-        $http({
-            method:'POST',
-            url:'/api/v1/delete/userDashboards/' + $state.params.id
-        }).then(
-            function successCallback(response){
-                $state.go('app.reporting.dashboards');
+        swal({
+                title: "Confirm Delete?",
+                text: "Dashboard and all its contents will be removed",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Confirm",
+                closeOnConfirm: true
             },
-            function errorCallback(error){
-                swal({  title: "", text: "<span style='sweetAlertFont'>Unable to delete dashboard.Please try again</span> .",   html: true });
-                console.log('Error in deleting dashboard',error);
+            function () {
+                $http({
+                    method: 'POST',
+                    url: '/api/v1/delete/userDashboards/' + $state.params.id
+                }).then(
+                    function successCallback(response) {
+                        $state.go('app.reporting.dashboards');
+                    },
+                    function errorCallback(error) {
+                        swal({
+                            title: "",
+                            text: "<span style='sweetAlertFont'>Unable to delete dashboard.Please try again</span> .",
+                            html: true
+                        });
+                        console.log('Error in deleting dashboard', error);
+                    }
+                );
             }
         );
-
     };
 
     var count =0;

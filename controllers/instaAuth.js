@@ -92,7 +92,7 @@ module.exports = function (app) {
                                         objectList.channelId = objectType[0].channelId;
                                         objectList.profileId = response._id;
                                         objectList.objectTypeId = objectType[0]._id;
-                                        objectList.name = "instagram";
+                                        objectList.name = response.name;
                                         objectList.updated = new Date();
                                         objectList.created = new Date();
 

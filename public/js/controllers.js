@@ -248,7 +248,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                 var yValue = 0, endpointArray;
                                 if(widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )) {
                                     for(keyValuePairs in widget.charts[i].chartData[dataObjects].total) {
-                                        console.log(widget.charts[i].chartData[dataObjects].total[keyValuePairs], keyValuePairs);
+                                        //console.log(widget.charts[i].chartData[dataObjects].total[keyValuePairs], keyValuePairs);
                                         if(keyValuePairs.search('/') > -1) {
                                             endpointArray = keyValuePairs.split('/');
                                             for(splittedValues in endpointArray) {
@@ -523,6 +523,7 @@ showMetricApp.service('createWidgets',function($http,$q){
         graphData.lineData = []; graphData.barData = []; graphData.pieData = [];
         graphData.lineDataOptions = null; graphData.barDataOptions = null; graphData.pieDataOptions = null;
 
+        var lowestLineValue =0, highestLineValue = 0;
         var barStacked = true;
 
         if(widgetData.charts==[] || widgetData.charts==""){
@@ -561,17 +562,17 @@ showMetricApp.service('createWidgets',function($http,$q){
             for(var i=0;i<widgetData.charts.length;i++){
                 //If the chart type is LINE or AREA
                 if(widgetData.charts[i].chartType == 'line' || widgetData.charts[i].chartType == 'area'){
-                    var displaySummaryLineData = 0, lowestValue = 0, highestValue = 0;
+                    var displaySummaryLineData = 0;
 
                     //To handle chart creation for regular widgets (basic, adv, fusion)
                     if(widgetData.charts[i].metricDetails!=undefined){
                         if(widgetData.charts[i].chartData[0].x){
                             for(var items in widgetData.charts[i].chartData) {
                                 displaySummaryLineData += parseInt(widgetData.charts[i].chartData[items].y);
-                                if(parseInt(widgetData.charts[i].chartData[items].y) < lowestValue)
-                                    lowestValue = parseInt(widgetData.charts[i].chartData[items].y);
-                                if(parseInt(widgetData.charts[i].chartData[items].y) > highestValue)
-                                    highestValue = parseInt(widgetData.charts[i].chartData[items].y);
+                                if(parseInt(widgetData.charts[i].chartData[items].y) < lowestLineValue)
+                                    lowestLineValue = parseInt(widgetData.charts[i].chartData[items].y);
+                                if(parseInt(widgetData.charts[i].chartData[items].y) > highestLineValue)
+                                    highestLineValue = parseInt(widgetData.charts[i].chartData[items].y);
                             }
                             graphData.lineData.push({
                                 values: widgetData.charts[i].chartData,      //values - represents the array of {x,y} data points
@@ -586,14 +587,17 @@ showMetricApp.service('createWidgets',function($http,$q){
                                 displaySummaryLineData = 0;
                                 for(dataItems in widgetData.charts[i].chartData[items]) {
                                     displaySummaryLineData += parseInt(widgetData.charts[i].chartData[items][dataItems].y);
-                                    if(parseInt(widgetData.charts[i].chartData[items][dataItems].y) < lowestValue)
-                                        lowestValue = parseInt(widgetData.charts[i].chartData[items][dataItems].y);
-                                    if(parseInt(widgetData.charts[i].chartData[items][dataItems].y) > highestValue)
-                                        highestValue = parseInt(widgetData.charts[i].chartData[items][dataItems].y);
+                                    if(parseInt(widgetData.charts[i].chartData[items][dataItems].y) < lowestLineValue)
+                                        lowestLineValue = parseInt(widgetData.charts[i].chartData[items][dataItems].y);
+                                    if(parseInt(widgetData.charts[i].chartData[items][dataItems].y) > highestLineValue)
+                                        highestLineValue = parseInt(widgetData.charts[i].chartData[items][dataItems].y);
                                 }
+                                var endpointDisplayCode = widgetData.charts[i].metricDetails.objectTypes[0].meta.endpoint[items];
                                 graphData.lineData.push({
                                     values: widgetData.charts[i].chartData[items],      //values - represents the array of {x,y} data points
-                                    key: widgetData.charts[i].metricDetails.objectTypes[0].meta.endpoint[items], //key  - the name of the series.
+                                    key: typeof widgetData.charts[i].metricDetails.objectTypes[0].meta.endpointDisplayName != 'undefined'? (typeof widgetData.charts[i].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode] != 'undefined'? widgetData.charts[i].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode]: widgetData.charts[i].metricDetails.objectTypes[0].meta.endpoint[items]) : widgetData.charts[i].metricDetails.objectTypes[0].meta.endpoint[items],
+                                    //key: typeof widgetData.charts[i].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode] != 'undefined'? widgetData.charts[i].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode] : widgetData.charts[i].metricDetails.objectTypes[0].meta.endpoint[items], //key  - the name of the series.
+                                    //key: widgetData.charts[i].metricDetails.objectTypes[0].meta.endpoint[items], //key  - the name of the series.
                                     color: widgetData.charts[i].chartColour[items],  //color - optional: choose your own line color.
                                     summaryDisplay: parseInt(displaySummaryLineData),
                                     area: widgetData.charts[i].chartType == 'area'? true : false
@@ -638,7 +642,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                             },
                             axisLabelDistance: -10,
                             showLegend: true,
-                            forceY: [lowestValue,highestValue == 0? 10 : highestValue],
+                            forceY: [lowestLineValue,highestLineValue == 0? 10 : highestLineValue + 10],
                             //yDomain: [lowestValue,highestValue],
                             legend: {
                                 rightAlign: false
@@ -649,13 +653,18 @@ showMetricApp.service('createWidgets',function($http,$q){
 
                 //If the chart type is BAR
                 else if (widgetData.charts[i].chartType == 'bar'){
-                    var displaySummaryBarData = 0;
+                    var displaySummaryBarData = 0, lowestValue = 0, highestValue = 0;
 
                     //To handle chart creation for regular widgets (basic, adv, fusion)
                     if(widgetData.charts[i].metricDetails!=undefined){
                         if(widgetData.charts[i].chartData[0].x){
-                            for(items in widgetData.charts[i].chartData)
+                            for(items in widgetData.charts[i].chartData) {
                                 displaySummaryBarData = displaySummaryBarData + parseInt(widgetData.charts[i].chartData[items].y);
+                                if(parseInt(widgetData.charts[i].chartData[items].y) < lowestValue)
+                                    lowestValue = parseInt(widgetData.charts[i].chartData[items].y);
+                                if(parseInt(widgetData.charts[i].chartData[items].y) > highestValue)
+                                    highestValue = parseInt(widgetData.charts[i].chartData[items].y);
+                            }
                             graphData.barData.push({
                                 values: widgetData.charts[i].chartData,      //values - represents the array of {x,y} data points
                                 key: widgetData.charts[i].metricDetails.name, //key  - the name of the series.
@@ -666,8 +675,13 @@ showMetricApp.service('createWidgets',function($http,$q){
                         else {
                             for(items in widgetData.charts[i].chartData) {
                                 displaySummaryBarData = 0;
-                                for(dataItems in widgetData.charts[i].chartData[items])
+                                for(dataItems in widgetData.charts[i].chartData[items]) {
                                     displaySummaryBarData = displaySummaryBarData + parseInt(widgetData.charts[i].chartData[items][dataItems].y);
+                                    if(parseInt(widgetData.charts[i].chartData[items][dataItems].y) < lowestValue)
+                                        lowestValue = parseInt(widgetData.charts[i].chartData[items][dataItems].y);
+                                    if(parseInt(widgetData.charts[i].chartData[items][dataItems].y) > highestValue)
+                                        highestValue = parseInt(widgetData.charts[i].chartData[items][dataItems].y);
+                                }
                                 graphData.barData.push({
                                     values: widgetData.charts[i].chartData[items],      //values - represents the array of {x,y} data points
                                     key: widgetData.charts[i].metricDetails.objectTypes[0].meta.endpoint[items], //key  - the name of the series.
@@ -722,6 +736,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                             axisLabelDistance: -10,
                             showLegend: true,
                             stacked: barStacked,
+                            forceY: [lowestValue,highestValue == 0? 10 : highestValue + 10],
                             showControls: false,
                             legend: {
                                 rightAlign: false

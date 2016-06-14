@@ -239,6 +239,7 @@ function RecommendedDashboardController($scope, $http, $window, $q,  $state, $ro
                     }
                     $scope.referenceWidgetsList[widget].charts[chart].metrics = matchingMetric;
                 }
+                
                 var jsonData = {
                     "dashboardId": response.data,
                     "widgetType": $scope.referenceWidgetsList[widget].widgetType,

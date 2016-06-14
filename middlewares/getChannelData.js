@@ -802,6 +802,15 @@ exports.getChannelData = function (req, res, next) {
                                 }
                                 var metricId = dataFromRemote[j].metricId;
                             }
+
+                            if(typeof finalData[0].total == 'object') {
+                                for(data in finalData){
+                                    var jsonObj = {}, tempKey;
+                                    for(items in finalData[data].total)
+                                        jsonObj[items.replace(/[$.]/g,'_')] = finalData[data].total[items];
+                                    finalData[data].total = jsonObj;
+                                }
+                            }
                             var now = new Date();
 
                             //Updating the old data with new one

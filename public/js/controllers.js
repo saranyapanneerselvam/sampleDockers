@@ -986,8 +986,6 @@ showMetricApp.service('createWidgets',function($http,$q){
             {W:6,H:3,N:8,r:2,c:4}
         ];
 
-        console.log(widget);
-
         var setLayoutOptions = function() {
             sizeY = typeof widget.size != 'undefined'? widget.size.h : 3;
             sizeX = typeof widget.size != 'undefined'? widget.size.w : 3;
@@ -1005,6 +1003,10 @@ showMetricApp.service('createWidgets',function($http,$q){
             chartName = "Custom Data";
         }
         else {
+            chartName = (typeof widget.name != 'undefined'? widget.name: '');
+        }
+/*
+        else {
             if(widget.charts==[] || widget.charts==""){
                 chartName = "";
             }
@@ -1021,6 +1023,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                 chartName = chartName.concat(uniqueNames);
             }
         }
+*/
 
         var modifiedWidget = {
             'name': chartName,

@@ -7,6 +7,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     $scope.referenceWidgetsList = [];
     $scope.profileList = {};
     $scope.storedObject = {};
+    $scope.storedProfile = {};
     $scope.widgetType = $stateParams.widgetType;
     var getChannelName = "";
     var getCustomWidgetObj = {};
@@ -112,13 +113,15 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 console.log('else');
                 $scope.tokenExpired = true;
             }
+            $scope.storedProfile = this.profileOptionsModel;
+            console.log($scope.storedProfile)
             $http({
                 method: 'GET',
                 url: '/api/v1/get/objects/' + profileId
             }).then(function successCallback(response) {
                 $scope.objectList = response.data.objectList;
                 if ($scope.storedChannelName === 'Twitter' || $scope.storedChannelName === 'Instagram') {
-                     $scope.objectForWidgetChosen([$scope.objectList[0].name,$scope.objectList[0]._id,$scope.objectList[0].objectTypeId]);
+                    $scope.objectForWidgetChosen([$scope.objectList[0].name,$scope.objectList[0]._id,$scope.objectList[0].objectTypeId]);
                 }
             }, function errorCallback(error) {
                 console.log(error);
@@ -207,7 +210,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     };
 
     $scope.createAndFetchBasicWidget = function () {
-        var chartColors = [];
+        var chartColors = [], widgetName;
 
         if (getChannelName == "CustomData") {
             getCustomWidgetObj = {
@@ -237,11 +240,15 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 //$scope.storedReferenceWidget.charts[i].colour = chartColors[i];
                 $scope.storedReferenceWidget.charts[i].objectName = $scope.storedObject.name;
             }
+            if($scope.storedChannelName === 'Twitter' || $scope.storedChannelName === 'Instagram')
+                widgetName = $scope.storedReferenceWidget.name + ' - ' + $scope.storedProfile.name;
+            else
+                widgetName = $scope.storedReferenceWidget.name + ' - ' + $scope.storedProfile.name + ' - ' + $scope.storedObject.name;
 
             var jsonData = {
                 "dashboardId": $state.params.id,
                 "widgetType": $scope.widgetType,
-                "name": $scope.storedReferenceWidget.name,
+                "name": widgetName,
                 "description": $scope.storedReferenceWidget.description,
                 "charts": $scope.storedReferenceWidget.charts,
                 "order": $scope.storedReferenceWidget.order,

@@ -130,7 +130,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                                     updatedCharts.push({
                                         channelId: widget.charts[chartObjects].channelId,
                                         chartName: widget.charts[chartObjects].name,
-                                        chartType: widget.charts[chartObjects].metrics[0].chartType,
+                                        chartType: typeof widget.charts[chartObjects].metrics[0].chartType != 'undefined'? widget.charts[chartObjects].metrics[0].chartType: '',
+                                        chartOptions: widget.charts[chartObjects].metrics[0].chartOptions,
                                         chartObjectTypeId: widget.charts[chartObjects].metrics[0].objectTypeId,
                                         chartData: response.data[dataObjects].data,
                                         chartMetricId: response.data[dataObjects].metricId,
@@ -176,7 +177,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                     }
                 );
             }
-
             return deferred.promise;
         }
 
@@ -519,10 +519,11 @@ showMetricApp.service('createWidgets',function($http,$q){
 
     //To load the data available for graphs into nvd3 format as per the chart type and to group the graphs by chart type
     this.chartCreator = function(widgetData){
-        var modifiedCharts = [],
-            graphData = [];
+        var modifiedCharts = [], graphData = [];
         graphData.lineData = []; graphData.barData = []; graphData.pieData = [];
         graphData.lineDataOptions = null; graphData.barDataOptions = null; graphData.pieDataOptions = null;
+
+        var barStacked = true;
 
         if(widgetData.charts==[] || widgetData.charts==""){
             var customDataUrl = "";
@@ -554,7 +555,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                 key: "noData",
                 color: '#7E57C2'
             });
-
         }
         else {
 
@@ -662,7 +662,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                                 color: widgetData.charts[i].chartColour[0],  //color - optional: choose your own line color.
                                 summaryDisplay: parseInt(displaySummaryBarData)
                             });
-
                         }
                         else {
                             for(items in widgetData.charts[i].chartData) {
@@ -677,6 +676,13 @@ showMetricApp.service('createWidgets',function($http,$q){
                                 });
                             }
                         }
+
+                        if(typeof widgetData.charts[i].chartOptions != 'undefined') {
+                            if(typeof widgetData.charts[i].chartOptions.stacked != 'undefined')
+                                if(widgetData.charts[i].chartOptions.stacked == 'false')
+                                barStacked = false;
+                        }
+
                     }
 
                     //To handle chart creation for custom widgets
@@ -715,7 +721,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                             },
                             axisLabelDistance: -10,
                             showLegend: true,
-                            stacked: true,
+                            stacked: barStacked,
                             showControls: false,
                             legend: {
                                 rightAlign: false

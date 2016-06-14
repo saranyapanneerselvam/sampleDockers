@@ -62,6 +62,7 @@
             <ul >
                 <li gridster-item="widget" ng-repeat="(widgetIndex,widget) in dashboard.widgets">
                     <div class="box" ng-controller="CustomWidgetController" id="{{widget.id}}">
+
                         <div class="box-header" ng-style="{'background-color': dashboard.widgetData[widgetIndex].color}">
                             <h3 style="color: #ffffff;">{{dashboard.widgetData[widgetIndex].name}}</h3>
                             <div class="graph-icon">
@@ -69,7 +70,9 @@
                                 <a title="settings" ng-click="openSettings(widget)"><i class="fa fa-cog"></i></a>
                             </div>
                         </div>
+
                         <div class="box-content" style="vertical-align: middle" ng-style="{position:(isMobile?'static':'absolute')}">
+
                             <div ng-if="dashboard.widgetData[widgetIndex].visibility == false">
                                 <div class="spiner-example">
                                     <div class="sk-spinner sk-spinner-cube-grid">
@@ -103,11 +106,10 @@
                                 </div>
                             </div>
 
-                            <div class="context widgetTransparentImage" id="widgetTransparentImage-{{widget.id}}" ng-hide="tempDashboard" ng-click="callThePosition($event,widget.id)" style="width: 100%;height: 100%;">
-
-                            </div>
+                            <div class="context widgetTransparentImage" id="widgetTransparentImage-{{widget.id}}" ng-hide="tempDashboard" ng-click="callThePosition($event,widget.id)" style="width: 100%;height: 100%;"></div>
 
                         </div>
+
                     </div>
                 </li>
             </ul>

@@ -6100,6 +6100,10 @@ div.context a.commentLink {
     z-index: 1;
 }
 
+.navbarFixed{
+    position: fixed !important;
+}
+
 .nv-noData{
     font-size:14px !important;
 }

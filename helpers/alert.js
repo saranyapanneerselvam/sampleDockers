@@ -81,3 +81,30 @@ exports.createUpdateAlert = function (req, done) {
         });
     }
 }
+
+exports.getAlertForWidget =function(req, res, next){
+    Alert.find({}, function (err, alertDetails) {
+        if (err)
+            req.app.result = {error: err, message: 'Database error'};
+        else if (!alertDetails.length)
+            req.app.result = {status: 302, message: 'No record found'};
+        else
+            req.app.result = alertDetails;
+        next();
+
+    })
+}
+
+exports.removeAlertForWidget = function(req,res,next){
+    Alert.remove({'_id':req.params.widgetId},function(err,alerts){
+        console.log('deleteAlerts',alerts);
+        if (err)
+            return res.status(500).json({error: 'Internal server error'});
+        else if (alerts!=1)
+            return res.status(501).json({error: 'Not implemented'});
+        else {
+            req.app.result = req.params.widgetId;
+            next();
+        }
+    })
+}

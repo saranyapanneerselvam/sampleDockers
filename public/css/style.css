@@ -87,11 +87,11 @@
 }
 */
 
-
-
+.plus{color:#04509B !important;}
 .fontClass{color:#999;}
 .unfontClass{color:#000;}
 .graph-icon a{color:#fff;}
+.alertList{border:1px #8c8c8c solid;margin: 35px;}
 svg:hover #Calendar-Icon { fill: #8560c5 ; }
 .nv-axis.nv-x .tick line {
     display:none;opacity: 0;

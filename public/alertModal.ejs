@@ -1,27 +1,53 @@
 <div class="modal-dialog modal-lg" ng-init="open()">
     <script type="text/ng-template" id="modal.ejs">
-        <div class="modal-content" ng-controller="AlertController">
-            <div class="modal-header">
-                <h5 class="model-title">Configure alert</h5>
+        <div class="modal-content" ng-controller="AlertController"  ng-init="changeViewsInAlertModal('step_one');">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="modal-header">
+                        <button type="button" class="close" ng-click="closeBasicWidgetModal(currentModalView)" aria-hidden="true">&times;</button>
+                        <h3 class="model-title">Alerts for this Widget</h3>
+                    </div>
+                </div>
+
             </div>
             <div class="modal-body">
                 <div class="wrapper wrapper-content">
-                    <form name="alertForm">
-                        <div class="row">
+                    <div class="row" ng-show="currentView === 'step_one'" ng-cloak>
+                        <div class="col-lg-12">
+                            <a ng-click="changeViewsInAlertModal('step_two')"><i class="fa fa-plus plus fa-3x"></i></a>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="alertList" ng-repeat="alerts in  storedAlertsForWidget.data">
+                                <table class="table" >
+                                    <tbody>
+                                    <tr>
+                                        <td>{{alerts.name}}</td>
+                                        <td>{{storeMetric[$index].name.name}}</td>
+                                        <td>{{alerts.mailingId.email}}</td>
+                                        <td>{{alerts.operation}}</td>
+                                        <td>{{alerts.threshold.gt}}</td>
+                                        <td><i class="fa fa-minus" ng-click="deleteAlert(alerts)" aria-hidden="true"></i></td>
+                                        <td><i class="fa fa-pencil" ng-click="editAlert(alerts,storeMetric[$index].name)" aria-hidden="true"></i></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" ng-show="currentView === 'step_two'" ng-cloak>
+                        <form name="alertForm">
                             <!--<div class="col-lg-12">-->
                             <div class="col-sm-9">
-                                    <input class="form-control m-b choose-text" placeholder="Enter a name" type="text"
-                                           name="input" ng-model="name" required/>
+                                <input class="form-control m-b choose-text" placeholder="Enter a name" type="text"
+                                       name="input" ng-model="name" required/>
                             </div>
                             <div class="col-sm-9">
-                                    <select class="form-control m-b choose-text" ng-model="metric"
-                                            id="metricOptions">
-                                        <!--ng-options="metrics as metrics.name for metrics in metricDetails[0].metrics" required >-->
-                                        <option value="">Select a Metric</option>
-                                        <option ng-repeat="metrics in storeFinalMetric | orderBy:'$index':true"
-                                                value="{{[metrics._id,metrics.endPoints]}}">{{metrics.name}}
-                                        </option>
-                                    </select>
+                                <select class="form-control m-b choose-text" ng-model="metric" id="metricOptions">
+                                    <!--ng-options="metrics as metrics.name for metrics in metricDetails[0].metrics" required >-->
+                                    <option value="">Select a Metric</option>
+                                    <option ng-repeat="metrics in storeFinalMetric | orderBy:'$index':true"
+                                            value="{{[metrics._id,metrics.endPoints]}}">{{metrics.name}}
+                                    </option>
+                                </select>
                             </div>
                             <div class="col-sm-9">
                                 <select class="form-control m-b choose-text" ng-model="operation" required>
@@ -32,7 +58,8 @@
                             </div>
                             <div class="col-sm-9">
                                 <input class="form-control m-b choose-text" placeholder="Enter a threshold value"
-                                       type="number" name="input" ng-model="threshold" ng-pattern="/^[0-9]{1,7}$/" required/>
+                                       type="number" name="input" ng-model="threshold" ng-pattern="/^[0-9]{1,7}$/"
+                                       required/>
                             </div>
                             <div class="col-sm-9">
                                 <select class="form-control m-b choose-text" ng-model="interval" required>
@@ -47,16 +74,22 @@
                                 <span class="text-error" data-ng-show="alertForm.email.$error.required">Email is required</span>
                             </div>
                             <!--</div>-->
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <div class="row">
                     <div class="col-lg-12 text-right">
-                        <button class="btn btn-primary button-mode" id="submitExportButton"
-                                ng-click="saveAlert();closeExport();" ng-disabled="alertForm.$invalid">Submit
+                        <button class="btn btn-primary button-mode" id="basicWidgetBackButton1"
+                                ng-show="currentView === 'step_two'" ng-click="changeViewsInAlertModal('step_one')">
+                            Previous
                         </button>
+                        <button class="btn btn-primary button-mode" id="" ng-hide="currentView === 'step_one'"
+                                ng-click="saveAlert();changeViewsInAlertModal('step_one');"
+                                ng-disabled="alertForm.$invalid">Submit
+                        </button>
+
                     </div>
                 </div>
             </div>

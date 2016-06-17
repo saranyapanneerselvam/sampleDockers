@@ -4,7 +4,7 @@ function NavigationController($scope,$http,$state,$rootScope,$window,$stateParam
     console.log("navigation controller called");
 
     $(".exportModalContent").on( 'click', function( ev ) {
-        $(".navbar").css('z-index','0');
+        $(".navbar").css('z-index','1');
         $(".white-bg").addClass('md-show');
         $(".md-overlay").css("background","rgba(0,0,0,0.5)");
         $("#exportModalContent").addClass('md-show');
@@ -21,7 +21,7 @@ function NavigationController($scope,$http,$state,$rootScope,$window,$stateParam
 
 
     $(".settingModalContent").on( 'click', function( ev ) {
-        $(".navbar").css('z-index','0');
+        $(".navbar").css('z-index','1');
         $(".white-bg").addClass('md-show');
         $(".md-overlay").css("background","rgba(0,0,0,0.5)");
         $("#settingModalContent").addClass('md-show');
@@ -31,7 +31,7 @@ function NavigationController($scope,$http,$state,$rootScope,$window,$stateParam
 
 
     $(".addRemoveModalContent").on( 'click', function( ev ) {
-        $(".navbar").css('z-index','0');
+        $(".navbar").css('z-index','1');
         $(".white-bg").addClass('md-show');
         $(".md-overlay").css("background","rgba(0,0,0,0.5)");
         $("#addRemoveModalContent").addClass('md-show');
@@ -40,7 +40,7 @@ function NavigationController($scope,$http,$state,$rootScope,$window,$stateParam
     });
 
     $(".modifyUserModalContent").on( 'click', function( ev ) {
-        $(".navbar").css('z-index','0');
+        $(".navbar").css('z-index','1');
         $(".white-bg").addClass('md-show');
         $(".md-overlay").css("background","rgba(0,0,0,0.5)");
         $("#modifyUserModalContent").addClass('md-show');
@@ -50,7 +50,7 @@ function NavigationController($scope,$http,$state,$rootScope,$window,$stateParam
 
 
     $(".newAccountModalContent").on( 'click', function( ev ) {
-        $(".navbar").css('z-index','0');
+        $(".navbar").css('z-index','1');
         $(".white-bg").addClass('md-show');
         $(".md-overlay").css("background","rgba(0,0,0,0.5)");
         $("#newAccountModalContent").addClass('md-show');

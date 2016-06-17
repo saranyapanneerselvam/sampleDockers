@@ -250,6 +250,7 @@
 
 <script type="application/javascript">
     $(".closeModalContent").on( 'click', function( ev ) {
+        $(".navbar").css("z-index","1");
         $(".white-bg").removeClass('md-show');
         $("#settingModalContent").removeClass('md-show');
         $("#addRemoveModalContent").removeClass('md-show');

@@ -508,7 +508,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
              var yAxis = $("#hiddenYaxis-"+countValue).val();
              existCommentCheck = countValue;
 
-             $(".navbar").css('z-index','0');
+             $(".navbar").css('z-index','1');
              $(".white-bg").addClass('md-show');
              $(".md-overlay").css("background","rgba(0,0,0,0.5)");
              $("#commentModalContent").addClass('md-show');
@@ -645,7 +645,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 );
 
 
-                $(".navbar").css('z-index','0');
+                $(".navbar").css('z-index','1');
                 $(".white-bg").addClass('md-show');
                 $(".md-overlay").css("background","rgba(0,0,0,0.5)");
                 $("#commentModalContent").addClass('md-show');

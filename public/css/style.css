@@ -6086,6 +6086,10 @@ a.customApiLink{
     font-family: Brandon Grotesque;
 }
 
+.exportCloseButton{
+    font-size: 25px !important;
+}
+
 .successImage{
     display: none;
 }

@@ -11,15 +11,6 @@ function NavigationController($scope,$http,$state,$rootScope,$window,$stateParam
         $(".md-effect-19").addClass('md-setperspective');
     });
 
-    $(".closeExportModalContent").click(function(){
-        document.getElementById('dashboardTitleIcons').style.visibility = "visible";
-        $(".white-bg").removeClass('md-show');
-        $(".errorExportMessage").text("").hide();
-        $("#exportOptionJpeg").prop("checked",false);
-        $("#exportOptionPDF").prop("checked",false);
-        $("#exportModalContent").removeClass('md-show');
-    });
-
     $('#exportOptionJpeg').change(function() {
         $(".errorExportMessage").text("").hide();
     });
@@ -67,17 +58,7 @@ function NavigationController($scope,$http,$state,$rootScope,$window,$stateParam
 
     });
 
-    $(".closeModalContent").on( 'click', function( ev ) {
-        $(".white-bg").removeClass('md-show');
-        $("#settingModalContent").removeClass('md-show');
-        $("#addRemoveModalContent").removeClass('md-show');
-        $("#modifyUserModalContent").removeClass('md-show');
-        $("#newAccountModalContent").removeClass('md-show');
-        $("#exportJPEGModalContent").removeClass('md-show');
-        $("#exportPDFModalContent").removeClass('md-show');
-        $("#commentModalContent").removeClass('md-show');
-    });
-
+     
 
     function removeModal( hasPerspective ) {
         classie.remove( modal, 'md-show' );

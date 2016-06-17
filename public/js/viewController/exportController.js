@@ -18,6 +18,21 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
     };
     $scope.fetchDashboardName();
 
+    $scope.closeExport = function(){
+        var setJPEGOption = $("#exportOptionJpeg").prop("checked");
+        var setPDFOption = $("#exportOptionPDF").prop("checked");
+        var dashboardLayout = document.getElementById('dashboardLayout');
+
+        if(setJPEGOption==false && setPDFOption==false){
+            $(".errorExportMessage").text("* Select the option to export").show();
+            return false;
+        }
+        else{
+            $(".errorExportMessage").text("").hide();
+        }
+    };
+
+
     $scope.submitExport = function(){
         var setJPEGOption = $("#exportOptionJpeg").prop("checked");
         var setPDFOption = $("#exportOptionPDF").prop("checked");
@@ -26,26 +41,30 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
         console.log(dashboardLayout);
 
         if(setJPEGOption==true){
-            swal("Please wait while the JPEG file is being generated", "", "warning");
+            $(".navbar").css('z-index','0');
+            $(".white-bg").addClass('md-show');
+            $("#exportModalContent").removeClass('md-show');
+            $(".md-overlay").css("background","rgba(0,0,0,0.5)");
+            $("#exportJPEGModalContent").addClass('md-show');
+            $(".md-effect-19").addClass('md-setperspective');
+
             domtoimage.toBlob(dashboardLayout)
                 .then(function (blob) {
                     document.getElementById('dashboardTitleIcons').style.visibility = "visible";
                     var timestamp = Number(new Date());
                     window.saveAs(blob, dashboardName+"_"+timestamp+".jpeg");
+                    $("#exportOptionJpeg").prop("checked",false);
                 });
         }
 
         if(setPDFOption==true){
-
-            swal({
-                html:true,
-                imageUrl: '/image/loading.gif',
-                title:'',
-                text:'<b> Please wait while the PDF file is being generated </b>',
-                allowOutsideClick:false,
-                allowEscapeKey:false,
-                showConfirmButton:false
-            });
+            $(".navbar").css('z-index','0');
+            $(".white-bg").addClass('md-show');
+            $("#exportModalContent").removeClass('md-show');
+            $(".md-overlay").css("background","rgba(0,0,0,0.5)");
+            $("#exportPDFModalContent").addClass('md-show');
+            $(".md-effect-19").addClass('md-setperspective');
+            $(".pdfHeadText").hide();
 
             domtoimage.toPng(dashboardLayout)
                 .then(function (dataUrl) {
@@ -58,6 +77,7 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
                         method: 'POST', url: '/api/v1/createHtml5ToPdf/dashboard', data: jsonData
                     }).then(function successCallback(response){
                         console.log(response);
+                        $("#exportOptionPDF").prop("checked",false);
                         document.getElementById('dashboardTitleIcons').style.visibility = "visible";
                         var domainUrl = "";
                         if (window.location.hostname == "localhost") {
@@ -66,25 +86,44 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
                         else {
                             domainUrl = "";
                         }
-                        swal({
-                            html:true,
-                            title:'<i>PDF has been generated successfully</i>',
-                            text:'<b><a href="'+domainUrl+response.data.Response+'" download style="color: #1AB394;">Click here to download the PDF</a></b>',
-                            allowOutsideClick:false,
-                            allowEscapeKey:false,
-                            confirmButtonText:"Close"
-    
-                        });
+
+                        $("#exportPDFModalContent").removeClass('md-show');
+                        $(".md-overlay").css("background","rgba(0,0,0,0.5)");
+                        $("#exportPDFModalContent").addClass('md-show');
+                        $(".md-effect-19").addClass('md-setperspective');
+
+                        $(".loadingStatus").hide();
+                        $(".pdfHeadText").show().text("PDF has been generated successfully").css('font-style','italic');
+                        $(".pdfContentText").html('<b><a href="'+domainUrl+response.data.Response+'" download style="color: #1AB394;">Click here to download the PDF</a></b>');
+
                     }, function errorCallback (error){
                         console.log('Error in creating PDF dashboard widgets',error);
-                        swal("Something went wrong. Please try again", "", "error");
+
+                        $("#exportPDFModalContent").removeClass('md-show');
+                        $(".md-overlay").css("background","rgba(0,0,0,0.5)");
+                        $("#exportPDFModalContent").addClass('md-show');
+                        $(".md-effect-19").addClass('md-setperspective');
+
+                        $(".loadingStatus").hide();
+                        $(".pdfHeadText").show().text("Uh-Oh!!").css('font-style','normal');
+                        $(".pdfContentText").html('<b>Something went wrong. Please try again</b>');
+
                         document.getElementById('dashboardTitleIcons').style.visibility = "visible";
                     });
     
             })
             .catch(function (error) {
                 console.error('oops, something went wrong!', error);
-                swal("Something went wrong. Please try again", "", "error");
+
+                $("#exportPDFModalContent").removeClass('md-show');
+                $(".md-overlay").css("background","rgba(0,0,0,0.5)");
+                $("#exportPDFModalContent").addClass('md-show');
+                $(".md-effect-19").addClass('md-setperspective');
+
+                $(".loadingStatus").hide();
+                $(".pdfHeadText").show().text("Uh-Oh!!").css('font-style','normal');
+                $(".pdfContentText").html('<b>Something went wrong. Please try again</b>');
+
             });
         }
     };

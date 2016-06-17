@@ -87,6 +87,7 @@
 }
 */
 
+
 .plus{color:#04509B !important;}
 .fontClass{color:#999;}
 .unfontClass{color:#000;}
@@ -5980,8 +5981,159 @@ a.customApiLink{
     float: right;
 }
 
+#page-wrapper{
+    margin-top:50px !important;
+}
+
+.errorExportMessage{
+    color: #ff0301;
+    display: none;
+    font-size:15px;
+}
 
 
+.exportHeadText{
+    font-size: 20px;
+    font-family: "Brandon Grotesque-bold";
+    color: rgb(4, 80, 155);
+    text-align: center;
+}
+
+.exportContentText{
+    color: #575757;
+    font-size: 30px;
+    text-align: center;
+    font-weight: 600;
+    text-transform: none;
+    position: relative;
+    margin: 25px 0;
+    padding: 0;
+    line-height: 40px;
+    display: block;
+    font-family: Brandon Grotesque;
+}
+
+.jpegContentText {
+    background-color: white;
+    font-family: Brandon Grotesque;
+    width: 478px;
+    padding: 17px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.pdfExportContentText{
+    background-color: white;
+    font-family: Brandon Grotesque;
+    width: 478px;
+    padding: 17px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.commonComingSoon{
+    background-color: white;
+    font-family: Brandon Grotesque;
+    width: 478px;
+    padding: 17px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.pdfHeadText{
+    background-color: white;
+    font-family: Brandon Grotesque;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 25px;
+}
+
+.closeModalContent{
+    border: none;
+    font-size: 17px;
+    font-weight: 500;
+    border-radius: 5px;
+    padding: 10px 32px;
+    margin: 26px 5px 0 5px;
+    cursor: pointer;
+}
+
+#submitExportButton{
+    border: none;
+    font-size: 17px;
+    font-weight: 500;
+    border-radius: 5px;
+    padding: 10px 32px;
+    margin: 26px 5px 0 5px;
+    cursor: pointer;
+}
+
+.commentTextContent{
+    background-color: white;
+    font-family: Brandon Grotesque;
+    width: 450px;
+    padding: 17px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.commentHeadText{
+    color: #575757;
+    font-size: 30px;
+    text-align: center;
+    font-weight: 600;
+    text-transform: none;
+    font-family: Brandon Grotesque;
+}
+
+.successImage{
+    display: none;
+}
+
+
+.closeExportModalContent{
+    cursor: pointer;
+}
+
+.closeModalContent{
+    cursor: pointer;
+}
+
+.comingSoon{
+    color: #575757;
+    font-size: 30px;
+    text-align: center;
+    font-weight: 600;
+    text-transform: none;
+    position: relative;
+    margin: 25px 0;
+    padding: 0;
+    line-height: 40px;
+    display: block;
+    font-family: Brandon Grotesque;
+}
+
+
+#inputTextArea{
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    color: grey;
+}
+
+.commentMessage{
+    display: none;
+    color: #797979;
+    font-size: 16px;
+    text-align: center;
+    font-weight: 300;
+    position: relative;
+    text-align: inherit;
+    float: none;
+    margin: 0;
+    padding: 0;
+    line-height: normal;
+}
 
 #sliderLabel {
 

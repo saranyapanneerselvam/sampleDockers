@@ -1,4 +1,4 @@
-<nav class="navbar-default navbar-static-side navbarFixed" role="navigation">
+<nav class="navbar-default navbar-static-side navbarFixed" role="navigation" ng-controller="NavigationController">
     <div class="sidebar-collapse">
         <!--List to be displayed in the sidebar when the 'dashboardReporting' state is active-->
         <ul side-navigation class="nav metismenu" id="side-menu" ng-class="{active: $state.includes('reporting')}">
@@ -44,7 +44,7 @@
 
                 </ul>
             </li>
-            <li class="soonModel">
+            <li class="md-trigger md-setperspective md-effect-19 usersModalContent" data-modal="usersModalContent">
                 <a>
                     <svg width="17px" height="16px" viewBox="9 381 17 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                         <!-- Generator: Sketch 3.7.2 (28276) - http://www.bohemiancoding.com/sketch -->
@@ -54,16 +54,16 @@
                             <path d="M0.78676,8.66864 C1.10704,8.8978 1.50416,9.01952 1.97744,9.01952 L3.12188,9.01952 C3.70192,8.31776 4.44992,7.96688 5.38084,7.93628 C4.90756,7.26444 4.67908,6.54704 4.67908,5.75348 C4.67908,5.58552 4.69404,5.4026 4.72464,5.18908 C4.34316,5.32644 3.96168,5.38696 3.5802,5.38696 C3.25924,5.38696 2.92332,5.32644 2.57244,5.20404 C2.23652,5.08232 1.9618,4.95992 1.74828,4.85316 C1.53476,4.73076 1.41236,4.67024 1.38176,4.67024 C0.66436,4.67024 0.31348,5.66168 0.31348,7.66156 C0.31348,8.10424 0.46648,8.44016 0.78676,8.66864 L0.78676,8.66864 Z M3.59516,4.67024 C4.19016,4.67024 4.709,4.45604 5.13672,4.029 C5.56376,3.60128 5.77796,3.08244 5.77796,2.48744 C5.77796,1.89176 5.56376,1.37292 5.13672,0.94588 C4.709,0.51816 4.19016,0.30464 3.59516,0.30464 C2.98452,0.30464 2.46568,0.51816 2.0536,0.94588 C1.62588,1.37292 1.41236,1.89176 1.41236,2.48744 C1.41236,3.08244 1.62588,3.60128 2.0536,4.029 C2.46568,4.45604 2.98452,4.67024 3.59516,4.67024 L3.59516,4.67024 Z M3.12188,14.97224 C3.53396,15.36936 4.0834,15.56792 4.7702,15.56792 L12.21892,15.56792 C12.90572,15.56792 13.45516,15.36936 13.86724,14.97224 C14.27932,14.5758 14.49284,14.04132 14.49284,13.37016 C14.49284,13.06484 14.47788,12.77448 14.46224,12.4848 C14.44728,12.19444 14.40172,11.88912 14.34052,11.5532 C14.27932,11.21796 14.20316,10.91264 14.11136,10.63792 C14.01956,10.34756 13.89784,10.07284 13.74484,9.79812 C13.59252,9.53904 13.42456,9.29492 13.226,9.11132 C13.02744,8.9284 12.78332,8.7754 12.49364,8.65368 C12.20328,8.54692 11.883,8.48572 11.53212,8.48572 C11.48588,8.48572 11.36416,8.54692 11.18056,8.66864 C10.98268,8.79104 10.78412,8.9284 10.55496,9.06576 C10.32648,9.21808 10.02116,9.35544 9.639,9.47784 C9.25752,9.59956 8.87604,9.66076 8.49456,9.66076 C8.11308,9.66076 7.7316,9.59956 7.35012,9.47784 C6.96796,9.35544 6.66332,9.21808 6.43416,9.06576 C6.22064,8.9284 6.00644,8.79104 5.82352,8.66864 C5.62496,8.54692 5.50324,8.48572 5.457,8.48572 C5.10612,8.48572 4.78584,8.54692 4.49548,8.65368 C4.2058,8.7754 3.97664,8.9284 3.76312,9.11132 C3.56456,9.29492 3.3966,9.53904 3.24428,9.79812 C3.09128,10.07284 2.96956,10.34756 2.87776,10.63792 C2.78596,10.91264 2.7098,11.21796 2.6486,11.5532 C2.5874,11.88912 2.54184,12.19444 2.52688,12.4848 C2.51124,12.77448 2.49628,13.06484 2.49628,13.37016 C2.49628,14.04132 2.7098,14.5758 3.12188,14.97224 L3.12188,14.97224 Z M8.49456,9.01952 C9.39488,9.01952 10.15852,8.69924 10.79908,8.058 C11.44032,7.41744 11.7606,6.6538 11.7606,5.75348 C11.7606,4.85316 11.44032,4.0902 10.79908,3.44896 C10.15852,2.80772 9.39488,2.48744 8.49456,2.48744 C7.5786,2.48744 6.81564,2.80772 6.1744,3.44896 C5.53384,4.0902 5.21288,4.85316 5.21288,5.75348 C5.21288,6.6538 5.53384,7.41744 6.1744,8.058 C6.81564,8.69924 7.5786,9.01952 8.49456,9.01952 L8.49456,9.01952 Z M13.39396,4.67024 C14.0046,4.67024 14.52344,4.45604 14.93552,4.029 C15.36256,3.60128 15.57676,3.08244 15.57676,2.48744 C15.57676,1.89176 15.36256,1.37292 14.93552,0.94588 C14.52344,0.51816 14.0046,0.30464 13.39396,0.30464 C12.79896,0.30464 12.28012,0.51816 11.8524,0.94588 C11.42536,1.37292 11.21116,1.89176 11.21116,2.48744 C11.21116,3.08244 11.42536,3.60128 11.8524,4.029 C12.28012,4.45604 12.79896,4.67024 13.39396,4.67024 L13.39396,4.67024 Z M13.8822,9.01952 L15.01168,9.01952 C15.48496,9.01952 15.86644,8.8978 16.1874,8.66864 C16.50768,8.44016 16.66,8.10424 16.66,7.66156 C16.66,5.66168 16.30912,4.67024 15.60736,4.67024 C15.57676,4.67024 15.45436,4.73076 15.24084,4.85316 C15.02732,4.95992 14.7526,5.08232 14.41668,5.20404 C14.0658,5.32644 13.72988,5.38696 13.4096,5.38696 C13.01248,5.38696 12.631,5.32644 12.24952,5.18908 C12.28012,5.4026 12.29508,5.58552 12.29508,5.75348 C12.29508,6.54704 12.06592,7.26444 11.62324,7.93628 C12.5392,7.96688 13.2872,8.31776 13.8822,9.01952 L13.8822,9.01952 Z" id="Fill-46" fill="#04509B"></path>
                         </g>
                     </svg>
-                    <span class="nav-label soonModel" >  Users and Accounts</span>
+                    <span class="nav-label">Users and Accounts</span>
                     <span class="fa arrow"></span>
                 </a>
                 <ul class="nav nav-second-level collapse">
-                    <li class="soonModel"><a ng-click="">Add / Remove User</a></li>
-                    <li class="soonModel"><a>Modify User Permissions</a></li>
-                    <li class="soonModel"><a>Create New Account</a></li>
+                    <li class="md-trigger md-setperspective md-effect-19 addRemoveModalContent" data-modal="addRemoveModalContent"><a ng-click="">Add / Remove User</a></li>
+                    <li class="md-trigger md-setperspective md-effect-19 modifyUserModalContent" data-modal="modifyUserModalContent"><a>Modify User Permissions</a></li>
+                    <li class="md-trigger md-setperspective md-effect-19 newAccountModalContent" data-modal="newAccountModalContent"><a>Create New Account</a></li>
                 </ul>
             </li>
-            <li class="soonModel">
+            <li class="md-trigger md-setperspective md-effect-19 settingModalContent" data-modal="settingModalContent">
                 <a>
                     <svg width="17px" height="16px" viewBox="0 0 17 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                         <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
@@ -121,10 +121,13 @@
         </ul>
     </div>
     <div class="slimScrollBar" style="width: 7px; position: absolute; top: 0px; opacity: 0.4; display: none; border-radius: 7px; z-index: 99; right: 1px; height: 344.828px; background: rgb(0, 0, 0);"></div><div class="slimScrollRail" style="width: 7px; height: 100%; position: absolute; top: 0px; display: none; border-radius: 7px; opacity: 0.9; z-index: 90; right: 1px; background: rgb(51, 51, 51);"></div>
+
+
 </nav>
 
 <script>
     $('.soonModel').click(function () {
         swal("Coming Soon!");
     });
+
 </script>

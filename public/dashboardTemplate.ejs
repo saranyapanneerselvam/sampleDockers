@@ -37,7 +37,7 @@
                                 </div>
                             </a>
 -->
-                            <a ng-click="exportModal('app.reporting.dashboard.exportModal')">
+                            <a class="md-trigger md-setperspective md-effect-19 exportModalContent" data-modal="exportModalContent" > <!-- ng-click="exportModal('app.reporting.dashboard.exportModal')" -->
                                 <div class="title-icons">
                                     <svg width="28px" height="26px" viewBox="835 11 28 26" version="1.1"
                                          xmlns="http://www.w3.org/2000/svg"
@@ -116,5 +116,18 @@
         </div>
     </div>
     <div ui-view="lightbox"></div>
+    <div class="md-modal md-effect-19" id="comingSoon">
+        <div class="md-content">
+            <h3>Settings</h3>
+            <div style="text-align: center;">
+                <h2>Coming Soon!</h2>
+                <button class="btn btn-primary button-mode md-close settingClose">OK</button>
+            </div>
+        </div>
+    </div>
+
+
+
+
     <script src="js/datePicker/Calendar.js"></script>
 </div>

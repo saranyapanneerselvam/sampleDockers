@@ -41,12 +41,10 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
         console.log(dashboardLayout);
 
         if(setJPEGOption==true){
-            $(".navbar").css('z-index','0');
-            $(".white-bg").addClass('md-show');
+            $(".navbar").css('z-index','1');
             $("#exportModalContent").removeClass('md-show');
             $(".md-overlay").css("background","rgba(0,0,0,0.5)");
             $("#exportJPEGModalContent").addClass('md-show');
-            $(".md-effect-19").addClass('md-setperspective');
 
             domtoimage.toBlob(dashboardLayout)
                 .then(function (blob) {
@@ -58,12 +56,10 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
         }
 
         if(setPDFOption==true){
-            $(".navbar").css('z-index','0');
-            $(".white-bg").addClass('md-show');
+            $(".navbar").css('z-index','1');
             $("#exportModalContent").removeClass('md-show');
             $(".md-overlay").css("background","rgba(0,0,0,0.5)");
             $("#exportPDFModalContent").addClass('md-show');
-            $(".md-effect-19").addClass('md-setperspective');
             $(".pdfHeadText").hide();
 
             domtoimage.toPng(dashboardLayout)
@@ -90,7 +86,6 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
                         $("#exportPDFModalContent").removeClass('md-show');
                         $(".md-overlay").css("background","rgba(0,0,0,0.5)");
                         $("#exportPDFModalContent").addClass('md-show');
-                        $(".md-effect-19").addClass('md-setperspective');
 
                         $(".loadingStatus").hide();
                         $(".pdfHeadText").show().text("PDF has been generated successfully").css('font-style','italic');
@@ -102,7 +97,6 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
                         $("#exportPDFModalContent").removeClass('md-show');
                         $(".md-overlay").css("background","rgba(0,0,0,0.5)");
                         $("#exportPDFModalContent").addClass('md-show');
-                        $(".md-effect-19").addClass('md-setperspective');
 
                         $(".loadingStatus").hide();
                         $(".pdfHeadText").show().text("Uh-Oh!!").css('font-style','normal');
@@ -118,7 +112,6 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
                 $("#exportPDFModalContent").removeClass('md-show');
                 $(".md-overlay").css("background","rgba(0,0,0,0.5)");
                 $("#exportPDFModalContent").addClass('md-show');
-                $(".md-effect-19").addClass('md-setperspective');
 
                 $(".loadingStatus").hide();
                 $(".pdfHeadText").show().text("Uh-Oh!!").css('font-style','normal');

@@ -509,10 +509,8 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
              existCommentCheck = countValue;
 
              $(".navbar").css('z-index','1');
-             $(".white-bg").addClass('md-show');
              $(".md-overlay").css("background","rgba(0,0,0,0.5)");
              $("#commentModalContent").addClass('md-show');
-             $(".md-effect-19").addClass('md-setperspective');
              $(".successImage").hide();
              $(".commentHeadText").text('Leave a Comment - '+countValue).css('font-style','italic');
              $(".commentMessage").hide();
@@ -558,7 +556,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                      $("#commentModalContent").removeClass('md-show');
                      $(".md-overlay").css("background","rgba(0,0,0,0.5)");
                      $("#commentModalContent").addClass('md-show');
-                     $(".md-effect-19").addClass('md-setperspective');
                      $(".successImage").show().attr("src","/image/success.png");
                      $(".commentHeadText").html('Updated!').css('font-style','normal');
                      $(".commentMessage").text('Your comment has been updated sucessfully').show().css('color','');
@@ -568,7 +565,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                      $(".closeModalContent").show();
 
                      $(".closeModalContent").on('click',function () {
-                         $(".white-bg").removeClass('md-show');
                          $(".successImage").hide();
                          $("#commentModalContent").removeClass('md-show');
                      });
@@ -584,7 +580,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                  $("#commentModalContent").removeClass('md-show');
                  $(".md-overlay").css("background","rgba(0,0,0,0.5)");
                  $("#commentModalContent").addClass('md-show');
-                 $(".md-effect-19").addClass('md-setperspective');
                  $(".successImage").show();
                  $(".commentHeadText").html('Deleted!').css('font-style','normal');
                  $(".successImage").show().attr("src","/image/success.png");
@@ -596,7 +591,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                  existCommentCheck="";
 
                  $(".closeModalContent").on('click',function () {
-                     $(".white-bg").removeClass('md-show');
                      $(".successImage").hide();
                      $("#commentModalContent").removeClass('md-show');
                  });
@@ -646,10 +640,8 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
 
                 $(".navbar").css('z-index','1');
-                $(".white-bg").addClass('md-show');
                 $(".md-overlay").css("background","rgba(0,0,0,0.5)");
                 $("#commentModalContent").addClass('md-show');
-                $(".md-effect-19").addClass('md-setperspective');
                 $(".successImage").hide();
                 $(".commentHeadText").text('Leave a Comment - '+count).css('font-style','italic');
                 $(".commentMessage").hide();
@@ -701,7 +693,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                          $("#commentModalContent").removeClass('md-show');
                          $(".md-overlay").css("background","rgba(0,0,0,0.5)");
                          $("#commentModalContent").addClass('md-show');
-                         $(".md-effect-19").addClass('md-setperspective');
                          $(".successImage").show().attr("src","/image/success.png");
                          $(".commentHeadText").html('Submitted!').css('font-style','normal');
                          $(".commentMessage").text('Your comment has been posted sucessfully').show().css('color','');
@@ -726,7 +717,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                         $("#commentModalContent").removeClass('md-show');
                         $(".md-overlay").css("background","rgba(0,0,0,0.5)");
                         $("#commentModalContent").addClass('md-show');
-                        $(".md-effect-19").addClass('md-setperspective');
                         $(".successImage").show().attr("src","/image/success.png");
                         $(".commentHeadText").html('Submitted!').css('font-style','normal');
                         $(".commentMessage").text('Your comment has been posted sucessfully.').show().css('color','');
@@ -736,7 +726,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                         $(".closeModalContent").show();
 
                         $(".closeModalContent").on('click',function () {
-                            $(".white-bg").removeClass('md-show');
                             $(".successImage").hide();
                             $("#commentModalContent").removeClass('md-show');
                         });
@@ -750,7 +739,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     $("#commentModalContent").removeClass('md-show');
                     $(".md-overlay").css("background","rgba(0,0,0,0.5)");
                     $("#commentModalContent").addClass('md-show');
-                    $(".md-effect-19").addClass('md-setperspective');
                     $(".commentHeadText").html('Comment').css('font-style','normal');
                     $(".successImage").show().attr("src","/image/error.png");
                     $(".commentMessage").text('Your comment is not posted').show();
@@ -760,7 +748,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     $(".closeModalContent").show();
 
                     $(".closeModalContent").on('click',function () {
-                        $(".white-bg").removeClass('md-show');
                         $(".successImage").hide();
                         $("#commentModalContent").removeClass('md-show');
                     });

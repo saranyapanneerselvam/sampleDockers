@@ -1,11 +1,275 @@
+<!-- ModalContents -->
+<div class="md-modal md-effect-19" id="exportModalContent">
+    <div class="md-content" ng-controller="ExportController">
+
+        <div class="wrapper wrapper-content">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="center">
+                        <h5 class="exportHeadText">Choose your Export option   </h5>
+                        <hr/>
+                        <br/>
+                        <label class="btn btn-default">
+                            <input type="radio" id="exportOptionJpeg" name="exportOption" value="JPEG"/> JPEG
+                        </label>
+                        <label class="btn btn-default">
+                            <input type="radio" id="exportOptionPDF" name="exportOption" value="PDF"/> PDF
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <br/>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="center">
+                        <span class="errorExportMessage"></span>
+                    </div>
+                </div>
+            </div>
+            <br/>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="pull-right">
+                        <button class="btn btn-primary" id="submitExportButton" ng-click="submitExport();closeExport();">Export</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="md-modal md-effect-19" id="settingModalContent">
+    <div class="md-content commonComingSoon">
+
+        <div>
+            <div class="wrapper wrapper-content">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="center">
+                            <h2 class="comingSoon">Coming Soon!</h2>
+                        </div>
+                    </div>
+                </div>
+                <br/>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="center">
+                            <button class="btn btn-primary closeModalContent">OK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="md-modal md-effect-19" id="addRemoveModalContent">
+    <div class="md-content commonComingSoon">
+
+        <div>
+            <div class="wrapper wrapper-content">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="center">
+                            <h2 class="comingSoon">Coming Soon!</h2>
+                        </div>
+                    </div>
+                </div>
+                <br/>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="center">
+                            <button class="btn btn-primary closeModalContent">OK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="md-modal md-effect-19" id="modifyUserModalContent">
+    <div class="md-content commonComingSoon">
+
+        <div>
+            <div class="wrapper wrapper-content">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="center">
+                            <h2 class="comingSoon">Coming Soon!</h2>
+                        </div>
+                    </div>
+                </div>
+                <br/>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="center">
+                            <button class="btn btn-primary closeModalContent">OK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="md-modal md-effect-19" id="newAccountModalContent">
+    <div class="md-content commonComingSoon">
+
+        <div>
+            <div class="wrapper wrapper-content">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="center">
+                            <h2 class="comingSoon">Coming Soon!</h2>
+                        </div>
+                    </div>
+                </div>
+                <br/>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="center">
+                            <button class="btn btn-primary closeModalContent">OK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="md-modal md-effect-19" id="exportJPEGModalContent">
+    <div class="md-content jpegContentText">
+
+        <div>
+            <div class="wrapper wrapper-content">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="center">
+                            <img src="/image/warning.png">
+                            <h2 class="exportContentText">Please wait while the JPEG file is being generated</h2>
+                        </div>
+                    </div>
+                </div>
+                <br/>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="center">
+                            <button class="btn btn-primary closeModalContent">OK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<div class="md-modal md-effect-19" id="exportPDFModalContent">
+    <div class="md-content pdfExportContentText">
+
+        <div class="wrapper wrapper-content">
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="center">
+                        <img class="loadingStatus" src="/image/loading.gif" />
+                        <h5 class="pdfHeadText">PDF file is being generated</h5>
+                        <h2 class="pdfContentText">Please wait while the PDF file is being generated</h2>
+                    </div>
+                </div>
+            </div>
+            <br/>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="center">
+                        <button class="btn btn-primary closeModalContent">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div class="md-modal md-effect-19" id="commentModalContent">
+    <div class="md-content commentTextContent">
+
+        <div class="wrapper wrapper-content">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="center">
+                        <img class="successImage" src="/image/success.png" />
+                        <br/>
+                        <h2 class="commentHeadText">Leave a Comment</h2>
+                        <br/>
+                        <textarea id="inputTextArea" rows="10" cols="40" placeholder="Write your comment here..."></textarea>
+                        <h2 class="commentMessage"></h2>
+                    </div>
+                </div>
+            </div>
+            <br/>
+            <div class="row">
+                <div class="col-md-12">
+                    <div style="text-align: center;">
+                        <div style="display:inline-block;">
+                            <button class="btn btn-primary cancelModalContent">Cancel</button>
+                        </div>
+                        <div style="display:inline-block;">
+                            <button class="btn btn-primary sendCommentModalContent">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="center">
+                        <button class="btn btn-primary closeModalContent">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="application/javascript">
+    $(".closeModalContent").on( 'click', function( ev ) {
+        $(".navbar").css("z-index","1");
+        $("#settingModalContent").removeClass('md-show');
+        $("#addRemoveModalContent").removeClass('md-show');
+        $("#modifyUserModalContent").removeClass('md-show');
+        $("#newAccountModalContent").removeClass('md-show');
+        $("#exportJPEGModalContent").removeClass('md-show');
+        $("#exportPDFModalContent").removeClass('md-show');
+        $("#commentModalContent").removeClass('md-show');
+    });
+
+</script>
+
 <!-- Wrapper-->
 <div id="wrapper" class="white-bg">
 
     <!-- Navigation -->
     <div ng-include="'common/navigation.ejs'"></div>
 
-    <!-- ModalContents -->
-    <div ng-include="'common/modalExportContents.ejs'"></div>
+
 
     <!-- Page wraper -->
     <!-- ng-class with current state name give you the ability to extended customization your view -->

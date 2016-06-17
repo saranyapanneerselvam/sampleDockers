@@ -1,14 +1,11 @@
 showMetricApp.controller('NavigationController',NavigationController)
 
 function NavigationController($scope,$http,$state,$rootScope,$window,$stateParams,generateChartColours) {
-    console.log("navigation controller called");
 
     $(".exportModalContent").on( 'click', function( ev ) {
         $(".navbar").css('z-index','1');
-        $(".white-bg").addClass('md-show');
         $(".md-overlay").css("background","rgba(0,0,0,0.5)");
         $("#exportModalContent").addClass('md-show');
-        $(".md-effect-19").addClass('md-setperspective');
     });
 
     $('#exportOptionJpeg').change(function() {
@@ -22,40 +19,28 @@ function NavigationController($scope,$http,$state,$rootScope,$window,$stateParam
 
     $(".settingModalContent").on( 'click', function( ev ) {
         $(".navbar").css('z-index','1');
-        $(".white-bg").addClass('md-show');
         $(".md-overlay").css("background","rgba(0,0,0,0.5)");
         $("#settingModalContent").addClass('md-show');
-        $(".md-effect-19").addClass('md-setperspective');
-
     });
 
 
     $(".addRemoveModalContent").on( 'click', function( ev ) {
         $(".navbar").css('z-index','1');
-        $(".white-bg").addClass('md-show');
         $(".md-overlay").css("background","rgba(0,0,0,0.5)");
         $("#addRemoveModalContent").addClass('md-show');
-        $(".md-effect-19").addClass('md-setperspective');
-
     });
 
     $(".modifyUserModalContent").on( 'click', function( ev ) {
         $(".navbar").css('z-index','1');
-        $(".white-bg").addClass('md-show');
         $(".md-overlay").css("background","rgba(0,0,0,0.5)");
         $("#modifyUserModalContent").addClass('md-show');
-        $(".md-effect-19").addClass('md-setperspective');
-
     });
 
 
     $(".newAccountModalContent").on( 'click', function( ev ) {
         $(".navbar").css('z-index','1');
-        $(".white-bg").addClass('md-show');
         $(".md-overlay").css("background","rgba(0,0,0,0.5)");
         $("#newAccountModalContent").addClass('md-show');
-        $(".md-effect-19").addClass('md-setperspective');
-
     });
 
     

@@ -665,7 +665,7 @@ perspective effects (not including the modals and the overlay).
 }
 
 /* Effect 19:  Slip in from the top with perspective on container */
-.md-show.md-effect-19 ~ .container {
+.md-show.md-effect-19 ~ .white-bg {
 	height: 100%;
 	overflow: hidden;
 }
@@ -676,7 +676,7 @@ perspective effects (not including the modals and the overlay).
 	transition: all 0.5s;
 }
 
-.md-show.md-effect-19 ~ .container,
+.md-show.md-effect-19 ~ .white-bg,
 .md-show.md-effect-19 ~ .md-overlay {
 	-webkit-transform-style: preserve-3d;
 	-webkit-transform-origin: 50% 100%;
@@ -686,7 +686,7 @@ perspective effects (not including the modals and the overlay).
 	-moz-animation: OpenTop 0.5s forwards ease-in;
 	transform-style: preserve-3d;
 	transform-origin: 50% 100%;
-	animation: OpenTop 0.5s forwards ease-in;
+	animation: OpenTop 0.8s forwards ease-in;
 }
 
 @-webkit-keyframes OpenTop {

@@ -58,8 +58,7 @@ function NavigationController($scope,$http,$state,$rootScope,$window,$stateParam
 
     });
 
-     
-
+    
     function removeModal( hasPerspective ) {
         classie.remove( modal, 'md-show' );
 

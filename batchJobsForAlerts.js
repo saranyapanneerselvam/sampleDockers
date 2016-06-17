@@ -15,7 +15,7 @@ var Data = require('./models/data');
 var Metric = require('./models/metrics');
 var Object = require('./models/objects');
 
-var mongoConnectionString = "mongodb://showmetric:showmetric@ds013918.mlab.com:13918/showmetric";
+var mongoConnectionString = 'mongodb://admin:admin@ds015334.mlab.com:15334/datapoolt15062016';
 var moment = require('moment');
 var nodemailer = require('nodemailer');
 
@@ -108,6 +108,7 @@ agenda.define('Send Alerts', function (job, done) {
 
             // Send
             transporter.sendMail(mailOptions, function (error, info) {
+                console.log('info',info)
                 if (error) {
                     callback(null, 'success')
                 } else {
@@ -122,11 +123,13 @@ agenda.define('Send Alerts', function (job, done) {
 
         //check interval if,daily check threshold,else check today is friday
         if (utcTime < time) {
+            console.log('alert.objectId,',alert.objectId,alert.metricId,time);
             Data.findOne({
                 'objectId': alert.objectId,
                 'metricId': alert.metricId,
                 data: {$elemMatch: {date: time}},
             }, function (err, data) {
+                console.log('data',data)
                 if (err || !data)
                     callback(null, 'success')
                 else {
@@ -142,7 +145,8 @@ agenda.define('Send Alerts', function (job, done) {
                                     var chosenValue = _.find(dataArray, function (o) {
                                         return o.date === time;
                                     });
-                                        if (typeof alert.endPoint === object)
+                                    console.log('chosenValue',chosenValue,typeof chosenValue.total,alert.endPoint)
+                                        if (typeof chosenValue.total === 'object')
                                             var valueToCheck = chosenValue.total[alert.endPoint];
                                         else
                                             var valueToCheck = chosenValue.total;
@@ -150,6 +154,7 @@ agenda.define('Send Alerts', function (job, done) {
                                             storeOperator = key == 'gt' ? '>' : '<';
                                             thresholdValue = alert.threshold[key]
                                         }
+                                    console.log('valueToCheck',valueToCheck)
                                         var checkingThreshold = operators[storeOperator](valueToCheck, thresholdValue);
                                         if (alert.interval === configAuth.interval.setDaily) {
                                             if (checkingThreshold === true) {
@@ -160,7 +165,7 @@ agenda.define('Send Alerts', function (job, done) {
 
                                         }
                                         else if (alert.interval === configAuth.interval.setWeekly) {
-                                            console.log('inside weekly alert');
+                                            console.log('inside weekly alert',checkingThreshold);
                                             if (checkingThreshold === true && currentDayName === configAuth.dayNames.Friday) {
                                                 console.log('sending weekly alert');
                                                 sendEmail(alert.mailingId.email, thresholdValue, metric.name, object.name, alert.name,alert._id);

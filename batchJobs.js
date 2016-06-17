@@ -24,7 +24,7 @@ var oauth2Client = new OAuth2(configAuth.googleAuth.clientID, configAuth.googleA
 
 //load async module
 var async = require("async");
-var mongoConnectionString = "mongodb://admin:admin@localhost:27017/datapoolt_02062016";
+var mongoConnectionString = "mongodb://admin:admin@ds015334.mlab.com:15334/datapoolt15062016";
 var FB = require('fb');
 //db connection for storing agenda jobs
 var agenda = new Agenda({db: {address: mongoConnectionString}});
@@ -84,7 +84,6 @@ agenda.define('Update channel data', function (job, done) {
             store_final_data: ['merge_all_final_data', 'get_channel_data_remote', storeFinalData]
 
         }, function (err, results) {
-            //console.log('final data', results.store_final_data,err)
             if (err) {
                 console.log('error', err)
             }
@@ -106,14 +105,12 @@ agenda.define('Update channel data', function (job, done) {
         }
 
         function getData(callback) {
-            console.log('inside data');
             Data.find({
                 bgFetch: true
             }, checkNullObject(callback));
         }
 
         function getMetric(results, callback) {
-            console.log('object',results.data[0].metricId)
             async.concatSeries(results.data, findEachMetrics, callback);
         }
 
@@ -194,9 +191,9 @@ agenda.define('Update channel data', function (job, done) {
                         case configAuth.channels.googleAnalytics:
                             initializeGa(allResultData, next);
                             break;
-                        /*case configAuth.channels.googleAdwords:
-                         selectAdwordsObjectType(allResultData, next);
-                         break;*/
+                        case configAuth.channels.googleAdwords:
+                            selectAdwordsObjectType(allResultData, next);
+                            break;
                         default:
                             console.log('No channel selected')
                     }
@@ -444,7 +441,7 @@ agenda.define('Update channel data', function (job, done) {
                             startDate: updated,
                             endDate: currentDate,
                             metricId: initialResults.metric._id,
-                            endPoint: initialResults.metric.objectTypes[0].meta.endpoint
+                            endpoint: initialResults.metric.objectTypes[0].meta.endpoint
                         }
                         callback(null, allObjects);
                     }
@@ -501,13 +498,13 @@ agenda.define('Update channel data', function (job, done) {
                         }
                         else {
                             var endPointMetric = {}
-                            endPointMetric = {items: result.endPoint};
+                            endPointMetric = {items: result.endpoint};
                             var storeStartDate = new Date(result.startDate);
                             var storeEndDate = new Date(result.endDate);
                             var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
                             var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); //adding plus one so that today also included
-                            if (endPointMetric.items.indexOf("/") > -1) {
-                                endPointMetric = endPointMetric.items.split("/");
+                            if (endPointMetric.items[0].indexOf("/") > -1) {
+                                endPointMetric = endPointMetric.items[0].split("/");
                             }
                             var count = endPointMetric[0];
                             var item = endPointMetric[1];
@@ -591,22 +588,34 @@ agenda.define('Update channel data', function (job, done) {
 
                 //check already there is one year data in db
                 if (initialResults.data != null) {
-                    initialResults.data.updated.setDate(initialResults.data.updated.getDate());
+
+                    //initialResults.data.updated.setDate(initialResults.data.updated.getDate());
                     d.setDate(d.getDate());
-                    var endDate = initialResults.data.updated;
-                    endDate.setDate(endDate.getDate());
-                    var updated = moment(endDate).format('YYYY-MM-DD');
-                    d.setDate(d.getDate() + 1);
-                    var now = moment(d).format('YYYY-MM-DD');
                     if (initialResults.data.updated < new Date()) {
-                        console.log('Inside FB IF condition', initialResults.data.updated, new Date());
+                        var endDate = initialResults.data.updated;
+                        endDate.setDate(endDate.getDate() + 1);
+                        var updated = moment(endDate).format('YYYY-MM-DD');
+                        d.setDate(d.getDate() + 1);
+                        var now = moment(d).format('YYYY-MM-DD');
                         var query = initialResults.object.channelObjectId + "/insights/" + initialResults.metric.objectTypes[0].meta.fbMetricName + "?since=" + updated + "&until=" + now;
-                        queryObject = {query: query, metricId: initialResults.metric._id};
+                        queryObject = {
+                            query: query, metricId: initialResults.metric._id, metric: initialResults.metric,
+                            startDate: updated,
+                            endDate: now
+                        };
                         callback(null, queryObject);
                     }
                     else {
-                        console.log('Inside FB ELSE condition', initialResults.data.updated, new Date());
-                        queryObject = {query: 'DataFromDb', metricId: initialResults.metric._id};
+                        var endDate = initialResults.data.updated;
+                        endDate.setDate(endDate.getDate() + 1);
+                        var updated = moment(endDate).format('YYYY-MM-DD');
+                        d.setDate(d.getDate() + 1);
+                        var now = moment(d).format('YYYY-MM-DD');
+                        queryObject = {
+                            query: 'DataFromDb', metricId: initialResults.metric._id, metric: initialResults.metric,
+                            startDate: updated,
+                            endDate: now
+                        };
                         callback(null, queryObject);
                     }
 
@@ -629,7 +638,10 @@ agenda.define('Update channel data', function (job, done) {
                         res: 'DataFromDb',
                         metricId: query.metricId,
                         queryResults: initialResults,
-                        channelId: initialResults.metric.channelId
+                        channelId: initialResults.metric.channelId,
+                        startDate: query.startDate,
+                        endDate: query.endDate,
+                        metric: initialResults.metric
                     }
                     callback(null, queryResponse);
                 }
@@ -649,7 +661,10 @@ agenda.define('Update channel data', function (job, done) {
                                 res: fbQueryRes,
                                 metricId: query.metricId,
                                 queryResults: initialResults,
-                                channelId: initialResults.metric.channelId
+                                channelId: initialResults.metric.channelId,
+                                metric: initialResults.metric,
+                                startDate: query.startDate,
+                                endDate: query.endDate,
                             }
                             callback('', queryResponse);
                         }
@@ -665,7 +680,6 @@ agenda.define('Update channel data', function (job, done) {
                 call_fb_ads_data: callFetchFBadsData,
                 get_fb_ads_data_from_remote: ['call_fb_ads_data', fetchFBadsData],
             }, function (err, results) {
-                //console.log('results.get_fb_ads_data_from_remote',results.get_fb_ads_data_from_remote)
                 if (err) {
                     return callback(err, null);
                 }
@@ -676,11 +690,13 @@ agenda.define('Update channel data', function (job, done) {
                 d = new Date();
                 var allObjects = {};
                 if (initialResults.data.data != null) {
-                    var updated = moment(initialResults.data.updated).format('YYYY-MM-DD');
+                    var updated = initialResults.data.updated;
+                    updated.setDate(updated.getDate() + 1);
+                    updated = moment(updated).format('YYYY-MM-DD');
                     var currentDate = moment(new Date()).format('YYYY-MM-DD');
                     d.setDate(d.getDate() + 1);
                     var startDate = moment(d).format('YYYY-MM-DD');
-                    if (updated < currentDate) {
+                    if (initialResults.data.updated < new Date()) {
                         var query = "v2.5/" + adAccountId + "/insights?limit=365&time_increment=1&fields=" + initialResults.metric.objectTypes[0].meta.fbAdsMetricName + '&time_range[since]=' + updated + '&time_range[until]=' + startDate;
                         allObjects = {
                             profile: initialResults.profile,
@@ -695,7 +711,6 @@ agenda.define('Update channel data', function (job, done) {
                         callback(null, [allObjects]);
                     }
                     else {
-                        console.log('fromdb')
                         allObjects = {
                             profile: initialResults.profile,
                             query: query,
@@ -717,7 +732,6 @@ agenda.define('Update channel data', function (job, done) {
 
             function fetchFBadsData(allObjects, callback) {
                 var entireObjects = [];
-                //console.log('allObjects.call_fb_ads_data',allObjects.call_fb_ads_data)
                 if (allObjects.call_fb_ads_data.dataResult === 'DataFromDb') {
                     entireObjects.push({
                         profile: initialResults.profile,
@@ -749,7 +763,6 @@ agenda.define('Update channel data', function (job, done) {
                 }
 
                 else {
-                    //  console.log('token',results)
                     var queryResponse = {};
                     var storeDefaultValues = [];
                     FB.setAccessToken(results.profile.accessToken);
@@ -775,7 +788,13 @@ agenda.define('Update channel data', function (job, done) {
                                 var storeStartDate = new Date(results.startDate);
                                 var storeEndDate = new Date(results.endDate);
                                 var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
-                                var storeDefaultValues = findDaysDifference(storeEndDate, storeStartDate);
+                                if (results.widget.objectTypes[0].meta.endpoint.length)
+                                    var storeDefaultValues = findDaysDifference(storeStartDate, storeEndDate, results.metric.objectTypes[0].endpoint);
+                                else {
+                                    if (results.widget.objectTypes[0].meta.responseType === 'object')
+                                        var storeDefaultValues = findDaysDifference(storeStartDate, storeEndDate, undefined, 'noEndPoint');
+                                    else var storeDefaultValues = findDaysDifference(storeStartDate, storeEndDate, undefined);
+                                }
 
                                 //controlled pagination Data
                                 if (apiResult.data.length != 0) {
@@ -812,6 +831,11 @@ agenda.define('Update channel data', function (job, done) {
                                             }
                                         }
                                     }
+                                }
+                                else {
+                                    if (results.widget.objectTypes[0].responseType === 'object')
+                                        var storeDefaultValues = findDaysDifference(storeStartDate, storeEndDate, undefined, 'noEndPoint');
+                                    else var storeDefaultValues = findDaysDifference(storeStartDate, storeEndDate, undefined);
                                 }
                             }
                             finalData = {
@@ -852,12 +876,11 @@ agenda.define('Update channel data', function (job, done) {
                 check_data_exist: ['get_dimension', checkDataExist],
                 call_get_analytic_data: ['check_data_exist', analyticData]
             }, function (err, results) {
-                console.log('call_get_analytic_data')
                 if (err) {
                     return callback(err, null);
                 }
                 allDataObject = {
-                    data:results.call_get_analytic_data,
+                    data: results.call_get_analytic_data,
                     results: results,
                     queryResults: results.call_get_analytic_data.queryResults,
                     channelId: results.call_get_analytic_data.channelId
@@ -881,7 +904,6 @@ agenda.define('Update channel data', function (job, done) {
                 var profile = results.profile;
                 //var widget = results.widget.charts;
                 oauth2Client.refreshAccessToken(function (err, tokens) {
-                    console.log('refresh token error', err);
                     if (err) {
                         if (err.code === 400)
                             return res.status(401).json({error: 'Authentication required to perform this action'})
@@ -896,14 +918,10 @@ agenda.define('Update channel data', function (job, done) {
                             access_token: tokens.access_token,
                             refresh_token: tokens.refresh_token
                         });
-                        //work(data, metric, object, widget, callback);
-                        //function work(data, metric, object, widget, done) {
                         var allObjects = {};
-                        //async.times(metric.length, function (i, next) {
                         var d = new Date();
                         var dimensionArray = [];
                         var dimensionList = metric.objectTypes[0].meta.dimension;
-                        //console.log('list', dimensionList, metric[i].objectTypes[0].meta.dimension);
                         var getDimension = dimensionList[0].name;
                         var dimensionListLength = dimensionList.length;
                         if (dimensionList.length === 1)
@@ -921,10 +939,12 @@ agenda.define('Update channel data', function (job, done) {
                         else
                             var metricName = metric.objectTypes[0].meta.gaMetricName;
                         if (data.data != null) {
-
-                            var startDate = moment(data.updated).format('YYYY-MM-DD');
+                            var startDate = data.updated;
+                            startDate.setDate(startDate.getDate() + 1);
+                            var startDate = moment(startDate).format('YYYY-MM-DD');
                             var endDate = moment(new Date()).format('YYYY-MM-DD');
                             if (data.updated < new Date()) {
+
                                 allObjects = {
                                     oauth2Client: oauth2Client,
                                     object: object,
@@ -936,13 +956,13 @@ agenda.define('Update channel data', function (job, done) {
                                     data: results.data,
                                     results: results,
                                     metricId: data.metricId,
-                                    api: metric.objectTypes[0].meta.api
+                                    api: metric.objectTypes[0].meta.api,
+                                    metric: metric
                                 };
-                                //var dataResultDetails = analyticData(oauth2Client, results.object, dimension.get_dimension, metric.objectTypes[0].meta.gaMetricName, startDate, endDate, results.response, results.data, results);
                                 callback(null, allObjects);
                             }
                             else {
-                                allObjects = {metricId: data.metricId, data: 'DataFromDb'}
+                                allObjects = {metricId: data.metricId, data: 'DataFromDb', metric: metric}
                                 callback(null, allObjects);
                             }
 
@@ -955,7 +975,6 @@ agenda.define('Update channel data', function (job, done) {
 
             //to get the final google analytic data
             function analyticData(allObjects, callback) {
-
                 allObjects = allObjects.check_data_exist;
                 var finalData = {};
                 if (allObjects.data === 'DataFromDb') {
@@ -967,12 +986,7 @@ agenda.define('Update channel data', function (job, done) {
                     };
                     callback(null, finalData);
                 }
-
                 else {
-                    var dimensionList;
-                    var dimension;
-
-                    var apiCallingMethod;
                     var apiQuery = {}
                     if (allObjects.api === 'mcf') {
                         apiQuery = {
@@ -986,7 +1000,7 @@ agenda.define('Update channel data', function (job, done) {
                             //'max-results': 2000
                         }
                         var analytics = googleapis.analytics({version: 'v3', auth: oauth2Client}).data.mcf.get;
-                        callGoogleApi(analytics);
+                        callGoogleApi(apiQuery);
                     }
 
                     else {
@@ -1010,7 +1024,6 @@ agenda.define('Update channel data', function (job, done) {
 
                     function callGoogleApi(apiQuery) {
                         analytics(apiQuery, function (err, result) {
-                        console.log('google analytics error', err, allObjects.startDate, allObjects.endDate,result)
                             if (err) {
                                 if (err.code === 400)
                                     return res.status(401).json({error: 'Authentication required to perform this action'})
@@ -1020,9 +1033,13 @@ agenda.define('Update channel data', function (job, done) {
 
                             }
                             else {
-                                for(var i=0;i<result.rows.length;i++){
-                                    googleResult.push(result.rows[i]);
+                                if (result.rows != undefined) {
+                                    for (var i = 0; i < result.rows.length; i++) {
+                                        googleResult.push(result.rows[i]);
+                                    }
                                 }
+                                else
+                                    googleResult = 'No Data';
 
                                 if (result.nextLink != undefined) {
                                     var splitRequiredQueryData = result.nextLink.split('&');
@@ -1036,8 +1053,6 @@ agenda.define('Update channel data', function (job, done) {
                                         'metrics': allObjects.metricName,
                                         prettyPrint: true
                                     }
-
-                                    //console.log('googleResult32',result.rows)
                                     callGoogleApi(apiQuery);
                                 }
                                 else {
@@ -1049,6 +1064,7 @@ agenda.define('Update channel data', function (job, done) {
                                         channelId: results.metric.channelId,
                                         startDate: allObjects.startDate,
                                         endDate: allObjects.endDate,
+                                        metric: allObjects.metric
                                     };
                                     callback(null, finalData);
 
@@ -1070,14 +1086,12 @@ agenda.define('Update channel data', function (job, done) {
                 call_adword_data: fetchAdwordsQuery,
                 get_google_adsword_data_from_remote: ['call_adword_data', fetchGoogleAdwordsData]
             }, function (err, results) {
-                console.log('errrr', err)
                 if (err) {
                     return callback(err, null);
                 }
                 callback(null, results.get_google_adsword_data_from_remote);
             });
             function fetchAdwordsQuery(callback) {
-                console.log('metric')
                 var adAccountId = initialResults.object.channelObjectId;
                 d = new Date();
                 var allObjects = {};
@@ -1119,9 +1133,6 @@ agenda.define('Update channel data', function (job, done) {
             function fetchGoogleAdwordsData(allObjects, callback) {
                 var count = 0;
                 var actualFinalApiData = {};
-                //console.log('wantsObject',allObjects.call_adword_data);
-                //async.concatSeries(allObjects.call_adword_data, checkDbData, callback);
-                // function checkDbData(result, callback) {
                 count++;
 
                 if (allObjects.call_adword_data == 'DataFromDb') {
@@ -1141,7 +1152,6 @@ agenda.define('Update channel data', function (job, done) {
             }
 
             function getAdwordsDataForEachMetric(results, callback) {
-                console.log('ads');
                 var during = results.startDate + ',' + results.endDate;
                 googleAds.use({
                     clientID: configAuth.googleAdwordsAuth.clientID,
@@ -1159,18 +1169,15 @@ agenda.define('Update channel data', function (job, done) {
                     .from('ACCOUNT_PERFORMANCE_REPORT')
                     .during(during)
                     .send().then(function (response) {
-                        console.log('ApiResponse');
                         storeAdwordsFinalData(results, response.data);
                     })
                     .catch(function (error) {
-                        console.log('apiError', error);
                         callback(error, null);
 
                     });
 
                 //To store the final result in db
                 function storeAdwordsFinalData(results, data) {
-                    console.log('storeAdwordsFinalData');
                     var actualFinalApiData = {};
                     if (data.error) {
                         console.log('error')
@@ -1247,7 +1254,6 @@ agenda.define('Update channel data', function (job, done) {
 
 
         function mergeAllFinalData(results, callback) {
-            console.log('mergerdata')
             var loopCount = results.data.length;
             iterateEachChannelData(results.get_channel, results.get_channel_data_remote, results.metric, results.data, callback);
             function iterateEachChannelData(channel, dataFromRemote, metric, dataFromDb, callback) {
@@ -1440,28 +1446,55 @@ agenda.define('Update channel data', function (job, done) {
                         }
                     }
                     else if (channel[j].code === configAuth.channels.facebook) {
+                        var beforeReplaceEmptyData =[];
                         var finalData = [];
+                        var finalData1 = [];
                         if (dataFromRemote[j].res != 'DataFromDb') {
-                            console.log('data from remote',dataFromRemote[j].res)
+                            if (dataFromRemote[j].res.data.length) {
+                                var dataLength = dataFromRemote[j].res.data[0].values.length;
 
-                            //Array to hold the final result
-                            for (var index in dataFromRemote[j].res.data[0].values) {
-                                var value = {};
-                                value = {
-                                    total: dataFromRemote[j].res.data[0].values[index].value,
-                                    date: dataFromRemote[j].res.data[0].values[index].end_time.substr(0, 10)
-                                };
-                                if (String(metric[j]._id) === String(dataFromRemote[j].metricId)) {
-                                    finalData.push(value);
-                                    var metricId = dataFromRemote[j].metricId;
+
+                                var fbDataLength = dataFromRemote[j].res.data[0].values.length;
+                                //Array to hold the final result
+                                for (var index in dataFromRemote[j].res.data[0].values) {
+                                    var value = {};
+                                    value = {
+                                        total: dataFromRemote[j].res.data[0].values[index].value,
+                                        date: dataFromRemote[j].res.data[0].values[index].end_time.substr(0, 10)
+                                    };
+                                    if (String(metric[j]._id) === String(dataFromRemote[j].metricId)) {
+                                        beforeReplaceEmptyData.push(value);
+                                        var metricId = dataFromRemote[j].metricId;
+                                    }
                                 }
-                                console.log('finalData',finalData)
+                                console.log('beforeReplaceEmptyData',dataFromRemote[j].res.data[0].values)
+                                if (dataFromRemote[j].metric.objectTypes[0].meta.endpoint.length)
+                                    finalData1 = findDaysDifference(dataFromRemote[j].startDate, dataFromRemote[j].endDate, dataFromRemote[j].metric.objectTypes[0].meta.endpoint);
+                                else {
+                                    if (dataFromRemote[j].metric.objectTypes[0].meta.responseType === 'object')
+                                        finalData1 = findDaysDifference(dataFromRemote[j].startDate, dataFromRemote[j].endDate, undefined, 'noEndPoint');
+                                    else
+                                        finalData1 = findDaysDifference(dataFromRemote[j].startDate, dataFromRemote[j].endDate, undefined);
 
+                                }
+                                var finalReplacedData = replaceEmptyData(finalData1, beforeReplaceEmptyData);
+                                finalReplacedData.forEach(function (value) {
+                                    finalData.push(value)
+                                })
+                            }
+                            else {
+                                if (dataFromRemote[j].metric.objectTypes[0].meta.endpoint.length)
+                                    finalData = findDaysDifference(dataFromRemote[j].startDate, dataFromRemote[j].endDate, dataFromRemote[j].metric.objectTypes[0].meta.endpoint);
+                                else {
+                                    if (dataFromRemote[j].metric.objectTypes[0].meta.responseType === 'object')
+                                        finalData = findDaysDifference(dataFromRemote[j].startDate, dataFromRemote[j].endDate, undefined, 'noEndPoint');
+                                    else
+                                        finalData = findDaysDifference(dataFromRemote[j].startDate, dataFromRemote[j].endDate, undefined);
+                                }
                             }
                             var findCurrentDate = _.findIndex(finalData, function (o) {
                                 return o.date == moment(new Date).format('YYYY-MM-DD');
                             });
-                            console.log('findCurrentDate',findCurrentDate)
                             if (dataFromDb[j].data != null) {
 
                                 //merge the old data with new one and update it in db
@@ -1473,7 +1506,16 @@ agenda.define('Update channel data', function (job, done) {
                                 }
 
                             }
-                          console.log('finalData',finalData)
+                            console.log('finaldata',finalData[0])
+                            if (typeof finalData[0].total == 'object') {
+                                console.log('object check')
+                                for (data in finalData) {
+                                    var jsonObj = {}, tempKey;
+                                    for (var items in finalData[data].total)
+                                        jsonObj[items.replace(/[$.]/g, '/')] = finalData[data].total[items];
+                                    finalData[data].total = jsonObj;
+                                }
+                            }
                             next(null, finalData)
                         }
                         else {
@@ -1482,9 +1524,8 @@ agenda.define('Update channel data', function (job, done) {
                     }
                     else if (channel[j].code === configAuth.channels.facebookAds) {
                         var finalData = [];
-
                         if (dataFromRemote[j].data != 'DataFromDb') {
-                            //console.log('dataFromRemote[j].data',dataFromRemote[j])
+
                             //Array to hold the final result
                             for (var data in dataFromRemote[j].data) {
 
@@ -1493,7 +1534,6 @@ agenda.define('Update channel data', function (job, done) {
                             var findCurrentDate = _.findIndex(finalData, function (o) {
                                 return o.date == moment(new Date).format('YYYY-MM-DD');
                             });
-                            //console.log('findCurrentDate', findCurrentDate)
                             var metricId = dataFromRemote[j].metricId;
                             if (dataFromDb[j].data != null) {
 
@@ -1524,7 +1564,6 @@ agenda.define('Update channel data', function (job, done) {
                     else if (channel[j].code === configAuth.channels.googleAnalytics) {
                         //function storeDataForGA(dataFromRemote, dataFromDb, widget, metric, done) {
                         // async.times(dataFromDb.length, function (j, next) {
-                        console.log('datafrom remote',dataFromRemote[j].data)
                         if (dataFromRemote[j].data.data != 'DataFromDb') {
 
                             var storeGoogleData = [];
@@ -1532,102 +1571,137 @@ agenda.define('Update channel data', function (job, done) {
                             var dimension;
                             var dimensionArray = [];
                             var dimensionList = metric[j].objectTypes[0].meta.dimension;
+                            if (dimensionList[0].name === "ga:date") {
+                                if (dataFromRemote[j].data.metric.objectTypes[0].meta.endpoint)
+                                    finalData = findDaysDifference(dataFromRemote[j].data.startDate, dataFromRemote[j].data.endDate, dataFromRemote[j].data.metric.objectTypes[0].meta.endpoint);
+                                else {
+                                    if (dataFromRemote[j].metric.objectTypes[0].meta.responseType === 'object')
+                                        finalData = findDaysDifference(dataFromRemote[j].data.startDate, dataFromRemote[j].data.endDate, undefined, 'noEndPoint');
+                                    else
+                                        finalData = findDaysDifference(dataFromRemote[j].data.startDate, dataFromRemote[j].data.endDate, undefined);
+                                }
+                            }
 
-                            //google analytics
-                            //calculating the result length
-                            var resultLength = dataFromRemote[j].data.data.length;
-                            var resultCount = dataFromRemote[j].data.data.length - 1;
-console.log('resultLength',resultLength,resultCount,dataFromRemote[j])
-                            //loop to store the entire result into an array
-                            for (var i = 0; i < resultLength; i++) {
-                                var obj = {};
+                            //Check empty data from query response
+                            if (dataFromRemote[j].data.data === 'No Data')
+                                storeGoogleData = finalData;
+                            else {
 
-                                console.log('dimension length',dimensionList.length)
-                                //loop generate array dynamically based on given dimension list
-                                for (var m = 0; m < dimensionList.length; m++) {
+                                //google analytics
+                                //calculating the result length
+                                var resultLength = dataFromRemote[j].data.data.length;
+                                var resultCount = dataFromRemote[j].data.data[0].length - 1;
+                                //loop to store the entire result into an array
+                                for (var i = 0; i < resultLength; i++) {
+                                    var obj = {};
 
-                                    if (m == 0) {
+                                    //loop generate array dynamically based on given dimension list
+                                    for (var m = 0; m < dimensionList.length; m++) {
 
-                                        //date value is coming in the format of 20160301 so splitting like yyyy-mm--dd format
-                                        //obj['metricName'] = metricName;
-                                        if (metric[j].objectTypes[0].meta.api === configAuth.googleApiTypes.mcfApi) {
-                                            var year = dataFromRemote[j].data.data[i][0].primitiveValue.substring(0, 4);
-                                            var month = dataFromRemote[j].data.data[i][0].primitiveValue.substring(4, 6);
-                                            var date = dataFromRemote[j].data.data[i][0].primitiveValue.substring(6, 8);
-                                            obj[dimensionList[m].storageName] = [year, month, date].join('-');
-                                            obj['total'] = dataFromRemote[j].data.data[i][resultCount].primitiveValue;
+                                        if (m == 0) {
+
+                                            //date value is coming in the format of 20160301 so splitting like yyyy-mm--dd format
+                                            //obj['metricName'] = metricName;
+                                            if (metric[j].objectTypes[0].meta.api === configAuth.googleApiTypes.mcfApi) {
+                                                var year = dataFromRemote[j].data.data[i][0].primitiveValue.substring(0, 4);
+                                                var month = dataFromRemote[j].data.data[i][0].primitiveValue.substring(4, 6);
+                                                var date = dataFromRemote[j].data.data[i][0].primitiveValue.substring(6, 8);
+                                                obj[dimensionList[m].storageName] = [year, month, date].join('-');
+                                                obj['total'] = dataFromRemote[j].data.data[i][resultCount].primitiveValue;
+                                            }
+
+                                            else {
+                                                var year = dataFromRemote[j].data.data[i][0].substring(0, 4);
+                                                var month = dataFromRemote[j].data.data[i][0].substring(4, 6);
+                                                var date = dataFromRemote[j].data.data[i][0].substring(6, 8);
+                                                obj[dimensionList[m].name.substr(3)] = [year, month, date].join('-');
+                                                obj['total'] = dataFromRemote[j].data.data[i][resultCount];
+                                            }
+
                                         }
-
                                         else {
-                                            var year = dataFromRemote[j].data.data[i][0].substring(0, 4);
-                                            var month = dataFromRemote[j].data.data[i][0].substring(4, 6);
-                                            var date = dataFromRemote[j].data.data[i][0].substring(6, 8);
-                                            obj[dimensionList[m].name.substr(3)] = [year, month, date].join('-');
-                                            obj['total'] = dataFromRemote[j].data.data[i][resultCount];
+                                            obj[dimensionList[m].name.substr(3)] = dataFromRemote[j].data.data[i][m];
+                                            if (metric[j].objectTypes[0].meta.api === configAuth.googleApiTypes.mcfApi)
+                                                obj['total'] = dataFromRemote[j].data.data[i][resultCount].primitiveValue;
+                                            else
+                                                obj['total'] = dataFromRemote[j].data.data[i][resultCount];
                                         }
 
+                                    }
+                                    storeGoogleData.push(obj);
+
+
+                                }
+                                if (dimensionList.length > 1) {
+                                    if (metric[j].objectTypes[0].meta.endpoint.length) {
+                                        var result = _.chain(storeGoogleData)
+                                            .groupBy("date")
+                                            .toPairs()
+                                            .map(function (currentItem) {
+                                                return _.zipObject(["date", "data"], currentItem);
+                                            })
+                                            .value();
+                                        var storeFinalData = [];
+                                        var groupedData = result;
+                                        var objToStoreFinalData = {};
+                                        var initD;
+                                        for (var i = 0; i < groupedData.length; i++) {
+                                            if (dimensionList.length === 2)
+                                                initD = 1;
+                                            else
+                                                initD = 2;
+                                            for (var d = initD; d < dimensionList.length; d++) {
+                                                for (var g = 0; g < groupedData[i].data.length; g++) {
+                                                    var dimensionData = groupedData[i].data[g][dimensionList[1].name.substr(3)]
+                                                    if (initD === 1)
+                                                        var finalDimensionData = dimensionData;
+
+                                                    else
+                                                        var finalDimensionData = dimensionData + '/' + groupedData[i].data[g][dimensionList[d].name.substr(3)];
+
+
+                                                    var replacedValue = finalDimensionData.split('.').join('002E');
+                                                    objToStoreFinalData[replacedValue] = groupedData[i].data[g].total;
+                                                }
+                                                storeFinalData.push({
+                                                    total: objToStoreFinalData,
+                                                    date: groupedData[i].date
+                                                })
+
+                                            }
+                                            var objToStoreFinalData = {};
+
+                                        }
+                                        storeGoogleData = storeFinalData;
                                     }
                                     else {
-                                        obj[dimensionList[m].name.substr(3)] = dataFromRemote[j].data.data[i][m];
-                                        if (metric[j].objectTypes[0].meta.api === configAuth.googleApiTypes.mcfApi)
-                                            obj['total'] = dataFromRemote[j].data.data[i][resultCount].primitiveValue;
-                                        else
-                                            obj['total'] = dataFromRemote[j].data.data[i][resultCount];
+                                        var result = _.chain(storeGoogleData)
+                                            .groupBy("date")
+                                            .toPairs()
+                                            .map(function (currentItem) {
+                                                return _.zipObject(["date", "total"], currentItem);
+                                            })
+                                            .value();
+                                        storeGoogleData = result;
                                     }
-
-                                }
-                                storeGoogleData.push(obj);
-                                //console.log('storeGoogleData',storeGoogleData);
-
-                            }
-                            if (dimensionList.length > 1) {
-                                var result = _.chain(storeGoogleData)
-                                    .groupBy("date")
-                                    .toPairs()
-                                    .map(function (currentItem) {
-                                        return _.zipObject(["date", "data"], currentItem);
-                                    })
-                                    .value();
-                                var storeFinalData = [];
-                                var groupedData = result;
-                                var objToStoreFinalData = {};
-                                var initD;
-                                for (var i = 0; i < groupedData.length; i++) {
-                                    if (dimensionList.length === 2)
-                                        initD = 1;
-                                    else
-                                        initD = 2;
-                                    for (var d = initD; d < dimensionList.length; d++) {
-                                        for (var g = 0; g < groupedData[i].data.length; g++) {
-                                            var dimensionData = groupedData[i].data[g][dimensionList[1].name.substr(3)]
-                                            if (initD === 1)
-                                                var finalDimensionData = dimensionData;
-
-                                            else
-                                                var finalDimensionData = dimensionData + '/' + groupedData[i].data[g][dimensionList[d].name.substr(3)];
-
-
-                                            var replacedValue = finalDimensionData.split('.').join('002E');
-                                            objToStoreFinalData[replacedValue] = groupedData[i].data[g].total;
+                                    var daysDifference = findDaysDifference(dataFromRemote[j].data.startDate, dataFromRemote[j].data.endDate, undefined, 'noEndPoint');
+                                    var defaultArrayLength = daysDifference.length;
+                                    var googleDataLength = storeGoogleData.length;
+                                    for (var i = 0; i < defaultArrayLength; i++) {
+                                        for (var k = 0; k < googleDataLength; k++) {
+                                            if (daysDifference[i].date === storeGoogleData[k].date) {
+                                                daysDifference[i] = storeGoogleData[k]
+                                            }
                                         }
-                                        storeFinalData.push({
-                                            total: objToStoreFinalData,
-                                            date: groupedData[i].date
-                                        })
-
                                     }
-                                    var objToStoreFinalData = {};
+                                    storeGoogleData = daysDifference;
 
                                 }
-                                storeGoogleData = storeFinalData;
-
-                            }
-
-                            var findCurrentDate = _.findIndex(storeGoogleData, function (o) {
-                                return o.date == moment(new Date).format('YYYY-MM-DD');
-                            });
-                            var metricId = dataFromRemote[j].metricId;
-                            if (dataFromDb[j].data != null) {
+                                var findCurrentDate = _.findIndex(storeGoogleData, function (o) {
+                                    return o.date == moment(new Date).format('YYYY-MM-DD');
+                                });
+                                var metricId = dataFromRemote[j].metricId;
+                                if (dataFromDb[j].data != null) {
 
                                     //merge the old data with new one and update it in db
                                     for (var key = 0; key < dataFromDb[j].data.length; key++) {
@@ -1640,21 +1714,19 @@ console.log('resultLength',resultLength,resultCount,dataFromRemote[j])
                                             }
                                         }
                                         else {
-                                            //console.log('else data',dataFromDb[j].data[key])
                                             storeGoogleData.push(dataFromDb[j].data[key]);
                                         }
 
                                     }
                                     var metricId = metric._id;
 
+                                }
                             }
-                            //console.log('storeFinalDatastoreFinalData',storeGoogleData);
                             next(null, storeGoogleData)
                         }
                         else {
                             next(null, 'DataFromDb')
                         }
-
 
 
                         //}, done);
@@ -1749,22 +1821,52 @@ console.log('resultLength',resultLength,resultCount,dataFromRemote[j])
         }
 
         //Function to find days difference
-        function findDaysDifference(startDate, endDate) {
+        function findDaysDifference(startDate, endDate, endPoint, noEndPoint) {
             var storeDefaultValues = [];
-            //d.setDate(d.getDate() + 1);
             var storeStartDate = new Date(startDate);
             var storeEndDate = new Date(endDate);
-
             var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
             var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
-
+            console.log('diffDays', diffDays)
             for (var i = 0; i <= diffDays; i++) {
-
+                //console.log('startdatee', storeStartDate, i)
                 var finalDate = moment(storeStartDate).format('YYYY-MM-DD');
-                storeDefaultValues.push({date: finalDate, total: 0});
+                if (endPoint != undefined) {
+                    var totalObject = {};
+                    for (var j = 0; j < endPoint.length; j++) {
+                        totalObject[endPoint[j]] = 0;
+
+                    }
+                    //console.log('totalObject',  totalObject)
+                    storeDefaultValues.push({date: finalDate, total: totalObject});
+
+                }
+                else if (noEndPoint) storeDefaultValues.push({date: finalDate, total: {}});
+                else {
+                    storeDefaultValues.push({date: finalDate, total: 0});
+                    //console.log('fbendpoint else')
+                }
+
                 storeStartDate.setDate(storeStartDate.getDate() + 1);
             }
+//console.log('storeDefaultValues',storeDefaultValues)
             return storeDefaultValues;
+        }
+
+        function replaceEmptyData(daysDifference, finalData) {
+  //          console.log('daysDifference', daysDifference, finalData)
+            var defaultArrayLength = daysDifference.length;
+            var dataLength = finalData.length;
+            for (var i = 0; i < defaultArrayLength; i++) {
+                for (var k = 0; k < dataLength; k++) {
+                    if (daysDifference[i].date === finalData[k].date) {
+                        //console.log('inif');
+                        daysDifference[i] = finalData[k]
+                    }
+                }
+            }
+    //        console.log('replacefrom', daysDifference)
+            return daysDifference;
         }
     }
 });

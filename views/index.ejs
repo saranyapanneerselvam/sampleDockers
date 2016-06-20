@@ -7,7 +7,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <!-- Add Your favicon here -->
-    <!--<link rel="icon" href="img/favicon.ico">-->
+    <link rel="icon" href="image/favicon.png">
 
     <title>Datapoolt - Catapult your marketing strategy with data!</title>
 
@@ -24,7 +24,9 @@
     <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
-	
+
+    <!--Integration with google recaptcha-->
+    <script src='https://www.google.com/recaptcha/api.js'></script>
     <!-- Custom styles for this template -->
 	
 </head>
@@ -45,8 +47,10 @@
                 <div id="navbar" class="navbar-collapse collapse">
                     <ul class="nav navbar-nav navbar-right">
                         <li><a class="page-scroll" href="#page-top">Home</a></li>
-                        <li><a class="page-scroll" href="#features">Features</a></li>
+                        <li><a class="page-scroll" href="#beta1">Features</a></li>
 			            <li><a class="page-scroll" href="#invite">Get Invite!</a></li>
+                        <li><a class="page-scroll" href="#integrations">Integrations</a></li>
+                        <li><a class="page-scroll" href="#contact">Contact Us</a></li>
                         <li><a href="/api/v1/login">Login</a></li>
                     </ul>
                 </div>
@@ -57,16 +61,16 @@
     <ol class="carousel-indicators">
         <li data-target="#inSlider" data-slide-to="0" class="active"></li>
         <li data-target="#inSlider" data-slide-to="1"></li>
+        <li data-target="#inSlider" data-slide-to="2"></li>
     </ol>
     <div class="carousel-inner" role="listbox">
         <div class="item active">
             <div class="container">
-                <div class="carousel-caption">
-                    <h1>Marketing Intelligence<br/>
-                        made simple <br/></h1>
-                    <p>Digital marketing management platform for all stages of marketing <br/>from listening, publishing, performance monitoring,<br/> insights and spend optimization.</p>
+                <div class="carousel-caption blank">
+                    <h1>Analytics for Everyone</h1>
+                    <p>Comprehensive and easy-to-use <br/> Datapoolt makes data simpler to read and understand</p>
                     <p>
-                        <a class="btn btn-lg btn-primary" href="/api/v1/signup">Sign Up</a>
+                        <a  href="#invite"><button class="btn btn-lg btn-primary btn-breathe invite">Get your Beta Invite and use for FREE!</button></a>
                     </p>
                 </div>
                 <!--<div class="carousel-image wow zoomIn">-->
@@ -80,13 +84,31 @@
         <div class="item">
             <div class="container">
                 <div class="carousel-caption blank">
-                    <h1>Informed decisions.<br/> Exceptional execution.<br/> Intelligent spending.<br/> Digital marketer’s <br/>ultimate companion.</h1>
-                    <p><a class="btn btn-lg btn-primary" href="/api/v1/signup" role="button">Sign Up</a></p>
+                    <h1>Monitor and Compare Every Channel</h1>
+                    <p>Keep a tab on every channel <br/> with Datapoolt’s advanced cross channel reporting</p>
+                    <p>
+                        <a  href="#invite"><button class="btn btn-lg btn-primary btn-breathe invite">Get your Beta Invite and use for FREE!</button></a>
+                    </p>
                 </div>
             </div>
             <!-- Set background for slide in css -->
             <div class="header-back two"><div class="overlay"></div></div>
         </div>
+        <div class="item">
+            <div class="container">
+                <div class="carousel-caption blank">
+                    <h1>Infinitely extensible dashboards</h1>
+                    <p>Plug in and review any custom data <br/>
+                        using the Datapoolt dashboard</p>
+                    <p>
+                        <a href="#invite"><button class="btn btn-lg btn-primary btn-breathe invite">Get your Beta Invite and use for FREE!</button></a>
+                    </p>
+                </div>
+            </div>
+            <!-- Set background for slide in css -->
+            <div class="header-back three"><div class="overlay"></div></div>
+        </div>
+
     </div>
     <a class="left carousel-control" href="#inSlider" role="button" data-slide="prev">
         <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
@@ -99,40 +121,7 @@
 <div height="200">
 </div><br/> <br/> <br/>
 
-<section id="features" class="container services">
-    <div class="row">
-	<div class="col-lg-12 text-center">
-            <div class="navy-line"></div>
-            <h1>Features</h1>
-        </div>
-        <div class="col-sm-3">
-            <h2>Reporting Analysis</h2>
-            <p style="text-align:justify;">Execution is a very small part of Digital Marketing. The real trick lies in measuring the effectiveness of your digital marketing actions and making informed decisions.ShowMetric provides a single platform to monitor all your digital marketing KPIs and gather actionable insights on a near real time basis.
-</p>
-            
-        </div>
-        <div class="col-sm-3">
-            <h2>Listening and Publishing</h2>
-            <p style="text-align:justify;">Find out what your audience are saying about your brand across all channels on a real time basis. Engage with your brand’s influencers and respond to competitor activities across all channels from a single platform.
-</p>
-            
-        </div>
-        <div class="col-sm-3">
-            <h2>Marketing automation</h2>
-            <p style="text-align:justify;">Leverage the ability to schedule and publish your messages across all your social channels. Automate your email campaigns and follow-up campaign mails by setting up automated rules
-</p>
-            
-        </div>
-        <div class="col-sm-3">
-            <h2>Ad Spend Optimization</h2>
-            <p style="text-align:justify;">Reap the maximum out of your ads budget by extracting the best performance for your goals. Automate the optimization of your ad campaign spends across all channels using automated pre-set rules
-</p>
-            
-        </div>
-    </div>
-</section>
-
-<section  id="beta1" class="container features">
+<section  id="beta1" class="container services">
     <div class="row">
         <div class="col-lg-12 text-center">
             <div class="navy-line"></div>
@@ -143,13 +132,13 @@
     <div class="row">
         <div class="col-md-3 text-center wow fadeInLeft">
             <div>
-                <i class="fa fa-mobile features-icon"></i>
-                <h2>Get all your data in one place</h2>
+                <i class="fa fa-2x fa-mobile features-icon"></i>
+                <h2>Data Collation</h2>
                 <p>Get rid of the need for multiple browser tabs open. With our reporting dashboards, all your digital marketing data will be available for you in one place!</p>
             </div>
             <div class="m-t-lg">
-                <i class="fa fa-bar-chart features-icon"></i>
-                <h2>Cross channel analysis</h2>
+                <i class="fa fa-2x fa-bar-chart features-icon"></i>
+                <h2>Cross-channel analysis</h2>
                 <p>Want to ensure you don’t miss any opportunities across the social channels? Our fusion insights help you to compare cross channel metrics and spot trends and correlations.</p>
             </div>
         </div>
@@ -158,16 +147,46 @@
         </div>
         <div class="col-md-3 text-center wow fadeInRight">
             <div>
-                <i class="fa fa-envelope features-icon"></i>
-                <h2>Readymade reporting dashboards</h2>
-                <p>We offer you multiple pre-built dashboards with well formulated set of insights. Each of these dashboards will suit specific type of need of yours and will help you get started instantly </p>
+                <i class="fa fa-2x fa-envelope features-icon"></i>
+                <h2>Dashboard Templates</h2>
+                <p>Multiple pre-built dashboards with well formulated set of insights that suit specific type of need and will help you get started instantly </p>
             </div>
             <div class="m-t-lg">
-                <i class="fa fa-google features-icon"></i>
+                <i class="fa fa-2x fa-google features-icon"></i>
                 <h2>Actionable Insights</h2>
-                <p>Ever needed help to make sense of all your data? Well, ShowMetric will provide you all the insights you need from actionable data available from all your digital marketing channels </p>
+                <p>Ever needed help to make sense of all your data? Well, Datapoolt will provide you all the insights you need from actionable data available from all your digital marketing channels </p>
             </div>
         </div>
+    </div>
+</section>
+
+
+<section id="features" class="container services">
+    <div class="row">
+        <div class="col-lg-12 text-center">
+            <div class="navy-line"></div>
+            <h1>...And More</h1>
+        </div>
+    </div>
+    <div class="row features-block">
+        <div class="col-lg-6 features-text wow fadeInLeft">
+            <h2>Monitor Better</h2>
+            <p>Stay on top of your performance by using our alerts feature. Get push notifications, e-mails for every KPI that hits a target. Easily configurable alerts let you stay on track consistently</p>
+        </div>
+        <div class="col-lg-6 text-right wow fadeInRight">
+            <img src="image/landing/Dashboard1.png" alt="dashboard" class="img-responsive pull-right">
+        </div>
+    </div>
+
+    <div class="row features-block">
+        <div class="col-lg-6 text-left wow fadeInLeft">
+            <img src="image/landing/Dashboard2.png" alt="dashboard" class="img-responsive pull-left">
+        </div>
+        <div class="col-lg-6 features-text wow fadeInLeft">
+            <h2>Beautiful Reporting</h2>
+            <p>Ever wanted to share a dashboard with your management team or with your clients? Export dashboards easily as a PDF or as images to use in your presenations. Take the power of our visualization to the next level</p>
+        </div>
+
     </div>
 </section>
 
@@ -181,32 +200,128 @@
             </div>
         </div>
         <div class="text-center">
-            <form id="nl-form" class="nl-form" name='contactform' action="/getinvite" method="post">
+            <form id="nl-form" class="nl-form" name='contactform' action="/getinvite" method="post" onsubmit="return validateForm();">
                 Hi Datapoolt! My name is
-                <input type="text" name="name"/>.
-                <br /> I am from a
-                <select name="typeofcustomer">
-                    <option value="marketingagency" selected>marketing agency</option>
+                <input type="text" name="name" required/>.
+                <br /> I work as/in a
+                <select name="typeofcustomer" required>
+                    <option value="" selected></option>
+                    <option value="marketingagency" >marketing agency</option>
                     <option value="startup">startup</option>
                     <option value="freelancer">freelance marketer</option>
                     <option value="others">other type of firm</option>
                 </select>
                 and would like an invite to your beta.
                 <br /> My phone number is
-                <input type="text" name="phonenumber" />
+                <input type="text" name="phonenumber" required />
                 and my email ID is
-                <input type="email" name="email" />
+                <input type="email" name="email" required />
                 <br /> Please send me an invite to your product!
+                <div style="width: 304px;margin: 0 auto;">
+                    <div class="g-recaptcha" data-sitekey="6LeeViITAAAAADcrxirAR8OseW3s1qtKEVL8bs-P"></div>
+                </div>
                 <div class="nl-submit-wrap">
-                    <button class="nl-submit" type="submit">Send us your details</button>
+                    <button class="nl-submit btn-breathe invite" type="submit">Get FREE beta access!</button>
                 </div>
             </form>
         </div>
     </div>
-
 </section>
 
 
+<section id="pricing" class="pricing">
+    <div class="container">
+        <div class="row m-b-lg">
+            <div class="col-lg-12 text-center">
+                <div class="navy-line"></div>
+                <h1>Pricing</h1>
+                <p>Simple subscription options that suit all business needs</p>
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-4 wow zoomIn">
+                <ul class="pricing-plan list-unstyled" style="text-align:center">
+                    <li class="pricing-title">
+                        Data Ninja - $25/month
+                    </li>
+                    <li>15 Widgets</li>
+                    <li>5 Insights</li>
+                    <li>5 Fusions</li>
+                    <li>30 day data window</li>
+
+                </ul>
+            </div>
+
+            <div class="col-lg-4 wow zoomIn">
+                <ul class="pricing-plan list-unstyled selected" style="text-align:center">
+                    <li class="pricing-title">
+                        Data Samurai - $50/month
+                    </li>
+                    <li>Unlimited Widgets</li>
+                    <li>15 Insights</li>
+                    <li>15 Fusions</li>
+                    <li>6 month data window</li>
+                    <li>Auto scheduled insights report</li>
+                    <li>Dashboard export</li>
+
+                </ul>
+            </div>
+
+            <div class="col-lg-4 wow zoomIn">
+                <ul class="pricing-plan list-unstyled" style="text-align:center">
+                    <li class="pricing-title">
+                        Data Shogun - $100/month
+                    </li>
+                    <li>Unlimited Widgets</li>
+                    <li>Unlimited Insights</li>
+                    <li>Unlimited Fusions</li>
+                    <li>12 month data window</li>
+                    <li>Auto scheduled insights report</li>
+                    <li>Dashboard export</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="integrations" class="container services">
+    <div class="container">
+        <div class="row m-b-lg">
+            <div class="col-lg-12 text-center">
+                <div class="navy-line"></div>
+                <h1>Integrations</h1>
+                <p>Pool in data from</p>
+            </div>
+        </div>
+
+        <div class="col-md-6 widget-icons"><img src="image/lightbox/Facebook.png" style="max-width: 100%;max-height:100%;padding: 15px 5px; "/></div>
+        <div class="col-md-6 widget-icons"><img src="image/lightbox/Google Analytics.png" style="max-width: 100%;max-height:100%;padding: 15px 5px; "/></div>
+        <div class="col-md-6 widget-icons"><img src="image/lightbox/Twitter.png" style="max-width: 100%;max-height:100%;padding: 15px 5px; "/></div>
+        <div class="col-md-6 widget-icons"><img src="image/lightbox/Instagram.png" style="max-width: 100%;max-height:100%;padding: 15px 5px; "/></div>
+        <div class="col-md-6 widget-icons"><img src="image/lightbox/Pinterest.png" style="max-width: 100%;max-height:100%;padding: 15px 5px; "/></div>
+        <div class="col-md-6 widget-icons"><img src="image/lightbox/Mailchimp.png" style="max-width: 100%;max-height:100%;padding: 15px 5px; "/></div>
+        <div class="col-md-6 widget-icons"><img src="image/lightbox/FacebookAds.png" style="max-width: 100%;max-height:100%;padding: 15px 5px; "/></div>
+        <div class="col-md-6 widget-icons"><img src="image/lightbox/GoogleAdwords.png" style="max-width: 100%;max-height:100%;padding: 15px 5px; "/></div>
+        <div class="col-md-6 widget-icons"><img src="image/lightbox/Aweber.png" style="max-width: 100%;max-height:100%;padding: 15px 5px; "/></div>
+        <div class="col-md-6 widget-icons"><img src="image/lightbox/HubSpot.png" style="max-width: 100%;max-height:100%;padding: 15px 5px; "/></div>
+        <div class="col-md-6 widget-icons"><img src="image/lightbox/KissMetrics.png" style="max-width: 100%;max-height:100%;padding: 15px 5px; "/></div>
+        <div class="col-md-6 widget-icons"><img src="image/lightbox/linkedin.png" style="max-width: 100%;max-height:100%;padding: 15px 5px; "/></div>
+<!--
+        <div class="col-md-6 widget-icons"><img src="image/lightbox/monitor.png" style="max-width: 100%;max-height:100%;padding: 15px 5px; "/></div>
+-->
+        <div class="col-md-6 widget-icons"><img src="image/lightbox/Sendgrid.png" style="max-width: 100%;max-height:100%;padding: 15px 5px; "/></div>
+        <div class="col-md-6 widget-icons"><img src="image/lightbox/Shopify.png" style="max-width: 100%;max-height:100%;padding: 15px 5px; "/></div>
+        <div class="col-md-6 widget-icons"><img src="image/lightbox/Swarm.png" style="max-width: 100%;max-height:100%;padding: 15px 5px; "/></div>
+        <div class="col-md-6 widget-icons"><img src="image/lightbox/Tumblr.png" style="max-width: 100%;max-height:100%;padding: 15px 5px; "/></div>
+        <div class="col-md-6 widget-icons"><img src="image/lightbox/Vimeo.png" style="max-width: 100%;max-height:100%;padding: 15px 5px; "/></div>
+        <div class="col-md-6 widget-icons"><img src="image/lightbox/WooCommerce.png" style="max-width: 100%;max-height:100%;padding: 15px 5px; "/></div>
+        <div class="col-md-6 widget-icons"><img src="image/lightbox/youtube.png" style="max-width: 100%;max-height:100%;padding: 15px 5px; "/></div>
+        <div class="col-md-6 widget-icons"><img src="image/lightbox/Zapier.png" style="max-width: 100%;max-height:100%;padding: 15px 5px; "/></div>
+
+
+    </div>
+</section>
 
 
 <section id="contact" class="gray-section contact">
@@ -221,9 +336,8 @@
         <div class="row m-b-lg">
             <div class="col-lg-3 col-lg-offset-3">
                 <address>
-				    <i class="fa fa-phone"> <span style="font-size:15px"> (91)95000 63611 </span> </i><br/> <br/>
-					<i class="fa fa-skype"> <span style="font-size:15px">  rajeshkumar2v </span> </i> <br/>
-					<i class="fa fa-envelope"></i> <span style="font-size:15px"> <a href="mailto:sales@showmetric.co"> sales@showmetric.co</a> </span><br/> <br/>
+				    <i class="fa fa-phone"> <span style="font-size:15px"> +91 95000 63611 (or) +91 80561 38326 </span> </i><br/> <br/>
+					<i class="fa fa-envelope"></i> <span style="font-size:15px"> <a href="mailto:hello@datapoolt.co"> hello@datapoolt.co</a> </span><br/> <br/>
                 </address>
             </div>
             <div class="col-lg-4">
@@ -239,18 +353,18 @@
                     Or follow us on social platforms
                 </p>
                 <ul class="list-inline social-icon">
-                    <li><a href="http://www.twitter.com/ShowMetric" target="_blank"><i class="fa fa-twitter"></i></a>
+                    <li><a href="http://www.twitter.com/Datapoolt" target="_blank"><i class="fa fa-twitter"></i></a>
                     </li>
-                    <li><a href="http://www.facebook.com/ShowMetric" target="_blank"><i class="fa fa-facebook"></i></a>
+                    <li><a href="http://www.facebook.com/Datapoolt" target="_blank"><i class="fa fa-facebook"></i></a>
                     </li>
-                    <li><a href="http://www.linkedin.com/company/showmetric" target="_blank"><i class="fa fa-linkedin"></i></a>
+                    <li><a href="http://www.linkedin.com/company/datapoolt" target="_blank"><i class="fa fa-linkedin"></i></a>
                     </li>
                 </ul>
             </div>
         </div>
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 text-center m-t-lg m-b-lg">
-                <p><strong>&copy; 2016 Datapoolt - Cormallen Digital LLP</strong></p>
+                <p><strong>&copy; 2016 Datapoolt</strong></p>
             </div>
         </div>
     </div>
@@ -258,7 +372,16 @@
 		
     </div>
   </div>
-
+<script type="text/javascript" language="javascript">
+    var captchaSuccess;
+    function validateForm(){
+        var captcha_response = grecaptcha.getResponse();
+        if(captcha_response.length == 0)
+            return false;
+        else
+            return true;
+    }
+</script>
 <script src="js/jquery/jquery-2.1.1.js"></script>
 <script src="js/pace.min.js"></script>
 <script src="js/bootstrap/bootstrap.min.js"></script>

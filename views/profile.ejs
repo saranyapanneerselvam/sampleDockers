@@ -11,32 +11,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Page title set in pageTitle directive -->
-    <title page-title></title>
+    <title page-title>Datapoolt</title>
+    <link rel="icon" href="image/favicon.png">
 
     <!-- Bootstrap -->
     <!--<link href="css/bootstrap.css" rel="stylesheet">-->
-    <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.css">
+    <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.min.css">
     <!--<link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">-->
 
     <!-- Font awesome -->
-    <link href="font-awesome/css/font-awesome.css" rel="stylesheet">
+    <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet">
     <!-- Main Inspinia CSS files -->
     <link href="css/animate.css" rel="stylesheet">
     <link id="loadBefore" href="css/style.css" rel="stylesheet">
     <link href="css/datePicker/application.css" rel="stylesheet">
-
+    <link href="css/sweetAlert/sweetalert.css" rel="stylesheet">
+    <link href="css/angular-ui-switch.css" rel="stylesheet">
+    <link  href="css/theme-dark/annotorious-dark.css" rel="stylesheet" />
+    <link href="css/modalEffects.css" rel="stylesheet" />
   </head>
 
 <!-- ControllerAs syntax -->
 <!-- Main controller with serveral data used in Inspinia theme on diferent view -->
-<body ng-controller="MainCtrl as main" class="{{$state.current.data.specialClass}} mini-navbar" landing-scrollspy id="page-top">
+<body ng-controller="MainCtrl as main" class="fixed-nav {{$state.current.data.specialClass}} mini-navbar" landing-scrollspy id="page-top">
 
 <!-- Main view  -->
 <div ui-view> </div>
 
 <!-- jQuery and Bootstrap -->
 <script src="js/jquery/jquery-2.1.1.min.js"></script>
-<script src="js/plugins/jquery-ui/jquery-ui.js"></script>
+<script src="js/plugins/jquery-ui/jquery-ui.min.js"></script>
 <script src="js/bootstrap/bootstrap.min.js"></script>
 <!--<script src="datePicker/js/vendor/jquery.js"></script>
 <script src="datePicker/js/vendor/moment.js"></script>-->
@@ -58,41 +62,49 @@
 
 <!-- Main Angular scripts-->
 <!-- Adding templates for introducing angularjs-nvd3 functionalities -->
-<script src="/bower_components/angular/angular.js"></script>
-<script src="/bower_components/d3/d3.js"></script>
-<script src="/bower_components/nvd3/build/nv.d3.js"></script> <!-- or use another assembly -->
-<script src="/bower_components/angular-nvd3/dist/angular-nvd3.js"></script>
-<script src="/bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
-<script src="/bower_components/angular-bootstrap/ui-bootstrap.js"></script>
-<link rel="stylesheet" href="/bower_components/nvd3/build/nv.d3.css">
+<script src="/bower_components/angular/angular.min.js"></script>
+<script src="/bower_components/d3/d3.min.js"></script>
+<script src="/bower_components/nvd3/build/nv.d3.min.js"></script> <!-- or use another assembly -->
+<script src="/bower_components/angular-nvd3/dist/angular-nvd3.min.js"></script>
+<script src="/bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+<script src="/bower_components/angular-bootstrap/ui-bootstrap.min.js"></script>
+<link rel="stylesheet" href="/bower_components/nvd3/build/nv.d3.min.css">
 <link rel="stylesheet" href="/bower_components/angular-bootstrap/ui-bootstrap-csp.css">
-<script src="bower_components/jquery/dist/jquery.js"></script>
+<!--<script src="bower_components/jquery/dist/jquery.min.js"></script>-->
 <script src="bower_components/moment/moment.js"></script>
+<script src="js/toolTip.js"></script>
+<!--
 <script src="bower_components/bootstrap-daterangepicker/daterangepicker.js"></script>
-<script src="bower_components/angular-daterangepicker/js/angular-daterangepicker.js"></script>
+<script src="bower_components/angular-daterangepicker/js/angular-daterangepicker.min.js"></script>
 <link rel="stylesheet" href="bower_components/bootstrap-daterangepicker/daterangepicker.css"/>
+-->
 
+<!--
 <script src="bower_components/css-element-queries/src/ResizeSensor.js"></script>
 <script src="bower_components/css-element-queries/src/ElementQueries.js"></script>
+-->
 
-<link href="bower_components/angular-xeditable/dist/css/xeditable.css" rel="stylesheet">
-<script src="bower_components/angular-xeditable/dist/js/xeditable.js"></script>
+<link href="bower_components/angular-xeditable/dist/css/xeditable.min.css" rel="stylesheet">
+<script src="bower_components/angular-xeditable/dist/js/xeditable.min.js"></script>
 <script src="bower_components/jspdf/dist/jspdf.min.js"></script>
+<script src="bower_components/angular-gridster/dist/angular-gridster.min.js"></script>
 
+<!--
 <script type="text/javascript" src="http://gabelerner.github.io/canvg/rgbcolor.js"></script>
 <script type="text/javascript" src="http://gabelerner.github.io/canvg/StackBlur.js"></script>
 <script type="text/javascript" src="http://gabelerner.github.io/canvg/canvg.js"></script>
+-->
 
 <!--
 <script src="js/angular/angular.js"></script>
 -->
-<script src="js/angular/angular-sanitize.js"></script>
+<script src="js/angular/angular-sanitize.min.js"></script>
 <script src="js/plugins/oclazyload/dist/ocLazyLoad.min.js"></script>
 <script src="js/angular-translate/angular-translate.min.js"></script>
 <!--
 <script src="js/ui-router/angular-ui-router.min.js"></script>
 -->
-<script src="js/ui-router/angular-ui-router.js"></script>
+<script src="js/ui-router/angular-ui-router.min.js"></script>
 <!--
 <script src="js/bootstrap/ui-bootstrap-tpls-0.12.0.min.js"></script>
 -->
@@ -100,13 +112,24 @@
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.1/angular-animate.js"> </script>
 <!--
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/1.2.1/ui-bootstrap-tpls.js"></script>
--->
-<!--
 <script src="js/ui-bootstrap-tpls/ui-bootstrap-tpls.js"></script>
--->
 <script src="js/angular-gridster/angular-gridster.min.js"></script>
-<script src="js/plugins/angular-idle/angular-idle.js"></script>
+-->
+<script src="js/clipboard.min.js"></script>
+<script src="js/dom-to-image.js"></script>
+<script src="js/FileSaver.js"></script>
+<script src="js/sweetAlert/sweetalert.min.js"></script>
+<script src="js/jspdf.min.js"></script>
+<script src="js/angular-ui-switch.js"></script>
+<script src="js/annotorious.min.js"></script>
 
+<script src="js/modalEffectsClassie.js"></script>
+<script src="js/modalEffects.js"></script>
+<script>
+    $(function(){
+        $('body').tooltip({selector: '[data-toggle="tooltip"]'});
+    });
+</script>
 
 <!--
  You need to include this script on any page that has a Google Map.
@@ -114,7 +137,9 @@
  https://developers.google.com/maps/documentation/javascript/tutorial#api_key
  After your sign up replace the key in the URL below..
 -->
+<!--
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDQTpXj82d8UpCi97wzo_nKXL7nYrd4G70"></script>
+-->
 
 <!-- Anglar App Script -->
 <script src="js/app.js"></script>
@@ -132,5 +157,10 @@
 <script src="js/viewController/dashboardController.js"></script>
 <script src="js/viewController/modalInstanceController.js"></script>
 <script src="js/viewController/fusionWidgetController.js"></script>
+<script src="js/viewController/recommendedDashboardController.js"></script>
+<script src="js/viewController/exportController.js"></script>
+<script src="js/viewController/switchController.js"></script>
+<script src="js/viewController/alertController.js"></script>
+<script src="js/viewController/navigationController.js"></script>
 </body>
 </html>

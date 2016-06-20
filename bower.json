@@ -1,5 +1,5 @@
 {
-  "name": "ShowMetricDev",
+  "name": "datapoolt",
   "description": "ShowMetric Development version phase 1",
   "main": "server.js",
   "authors": [
@@ -27,6 +27,7 @@
     "angular-daterangepicker": "*",
     "css-element-queries": "*",
     "angular-xeditable": "*",
-    "jspdf": "*"
+    "jspdf": "*",
+    "angular-gridster": "*"
   }
 }

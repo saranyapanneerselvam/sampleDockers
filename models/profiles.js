@@ -12,6 +12,7 @@ var profilesSchema = mongoose.Schema({
     refreshToken: String,
     userId: String,
     channelId: String,
+    expiresIn: Date,
     created: Date,
     updated: Date,
     deleted: Date

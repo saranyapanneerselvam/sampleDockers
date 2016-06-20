@@ -28,17 +28,19 @@ module.exports = function(app) {
     app.get('/api/auth/facebookads', function (req, res) {
         res.redirect(authorization_uri);
     });
+    
 // Callback service parsing the authorization token and asking for the access token
     app.get('/auth/facebookads/callback', function (req, res) {
         var code = req.query.code;
         oauth2.authCode.getToken({
             code: code,
-            redirect_uri: configAuth.facebookAdsAuth.redirect_uri,
+            redirect_uri: configAuth.facebookAdsAuth.redirect_uri
         }, saveToken);
         function saveToken(error, result) {
+            var getExpiresInValue = 5097600;
             if (error) {
                 console.log('Access Token Error', error.message);
-                result.sendStatus(500);
+                //result.sendStatus(500);
             }
             token = oauth2.accessToken.create(result);
             console.log(result);
@@ -50,9 +52,13 @@ module.exports = function(app) {
                 accessToken = result.substr(result.indexOf('=') + 1);
             }
             else {
+                console.log('expires',accessToken);
                 var expires = accessToken.substr(indexExpires);
-                accessToken = accessToken.substr(0, indexExpires);
-                console.log('expires', accessToken);
+                var getExpiresIn = accessToken.indexOf('expires=');
+                var expiresInValue = accessToken.substr(getExpiresIn);
+                var getExpiresInValue=expiresInValue.substr(expiresInValue.indexOf('=') + 1);
+                console.log('expiresin ',getExpiresInValue);
+                var accessToken = accessToken.substr(0,indexExpires);
             }
             //Store the token and expired time into DB
             request('https://graph.facebook.com/me?access_token=' + accessToken, function (error, response, body) {
@@ -66,11 +72,16 @@ module.exports = function(app) {
                     console.log('id', parsedData);
                     //set token details to tokens
                     req.tokens = accessToken;
+                    var numdays = (Math.floor(getExpiresInValue / 86400)-1);
+                    var currentdate = new Date();
+                    currentdate.setDate(currentdate.getDate() +numdays);
+                    console.log('numdays',numdays,currentdate);
                     console.log('token', accessToken);
                     channels.findOne({code: configAuth.channels.facebookAds}, function (err, channelList) {
                         req.channelId = channelList._id;
                         req.channelCode = '3';
                         FB.setAccessToken(accessToken);//Set access token
+                        req.expiresIn = currentdate;
                         FB.api(req.userId, {fields: ['id', 'name', 'email']}, function (profile) {
                             if (!profile || profile.error) {
                                 console.log(!profile ? 'error occurred' : profile.error);

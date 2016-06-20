@@ -36,9 +36,9 @@ function pageTitle($rootScope, $timeout) {
         link: function(scope, element) {
             var listener = function(event, toState, toParams, fromState, fromParams) {
                 // Default title - load on Dashboard 1
-                var title = 'INSPINIA | Responsive Admin Theme';
+                var title = 'Datapoolt';
                 // Create your own title pattern
-                if (toState.data && toState.data.pageTitle) title = 'INSPINIA | ' + toState.data.pageTitle;
+                if (toState.data && toState.data.pageTitle) title = 'Datapoolt | ' + toState.data.pageTitle;
                 $timeout(function() {
                     element.text(title);
                 });
@@ -76,7 +76,7 @@ function responsiveVideo() {
             video
                 .attr('data-aspectRatio', video.height() / video.width())
                 .removeAttr('height')
-                .removeAttr('width')
+                .removeAttr('width');
 
             //We can use $watch on $window.innerWidth also.
             $(window).resize(function() {
@@ -170,7 +170,7 @@ function iboxToolsFullScreen($timeout) {
 function minimalizaSidebar($timeout) {
     return {
         restrict: 'A',
-        template: '<a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="" ng-click="minimalize()"><i class="fa fa-bars"></i></a>',
+        template: '<a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="" ng-click="minimalize()" style="margin-top: 10px;"><i class="fa fa-bars"></i></a>',
         controller: function ($scope, $element) {
             $scope.minimalize = function () {
                 $("body").toggleClass("mini-navbar");
@@ -181,16 +181,27 @@ function minimalizaSidebar($timeout) {
                     setTimeout(
                         function () {
                             $('#side-menu').fadeIn(500);
+                            if (!$('body').hasClass('body-small')){
+                                    document.getElementById('tabs-container-desk-view').setAttribute('style','padding-left: 221px;');
+                                    document.getElementById('tabs-container-response-view').setAttribute('style','padding-left: 221px;');
+                            }
                         }, 100);
                 } else if ($('body').hasClass('fixed-sidebar')){
                     $('#side-menu').hide();
                     setTimeout(
                         function () {
+                            console.log('Inside else if');
                             $('#side-menu').fadeIn(500);
                         }, 300);
                 } else {
                     // Remove all inline style from jquery fadeIn function to reset menu state
                     $('#side-menu').removeAttr('style');
+                    console.log('Inside else');
+                    if ($('body').hasClass('mini-navbar')){
+                        //document.getElementById('topNavbarList').setAttribute('style','padding-left: 71px;');
+                            document.getElementById('tabs-container-desk-view').setAttribute('style','padding-left: 71px;');
+                            document.getElementById('tabs-container-response-view').setAttribute('style','padding-left: 71px;');
+                    }
                 }
             }
         }
@@ -483,6 +494,37 @@ function channelDiv(){
 
     }
 }
+
+function sizeWatcher ($timeout){
+    return {
+        scope: {
+            sizeWatcherHeight: '=',
+            sizeWatcherWidth: '='
+        },
+        link: function( scope, elem, attrs ){
+            function initsize(){
+                scope.sizeWatcherHeight = elem.prop('offsetHeight');
+                scope.sizeWatcherWidth = elem.prop('clientWidth');
+            }
+            scope.$watch( function() {
+                initsize();
+            } );
+            function checkSize(){
+                initsize();
+                $timeout( checkSize, 1000 );
+            }
+            checkSize();
+            scope.$on('gridster-item-transition-end',function(e,item){
+               scope.$emit('my-gridster-item-transition-end',item);
+            });
+            scope.$on('gridster-item-resized',function(e,item){
+                scope.$emit('my-gridster-item-resized',item);
+            });
+        }
+    };
+}
+
+
 /**
  *
  * Pass all functions into module
@@ -508,4 +550,5 @@ angular
     .directive('fitHeight', fitHeight)
     .directive('iboxToolsFullScreen', iboxToolsFullScreen)
     .directive('slimScroll', slimScroll)
-    .directive('channelDiv',channelDiv);
+    .directive('channelDiv',channelDiv)
+    .directive('sizeWatcher',sizeWatcher);

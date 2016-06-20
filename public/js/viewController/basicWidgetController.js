@@ -1,41 +1,43 @@
-showMetricApp.controller('BasicWidgetController',BasicWidgetController)
+showMetricApp.controller('BasicWidgetController', BasicWidgetController)
 
-function BasicWidgetController($scope,$http,$state,$rootScope,$window,$stateParams) {
+function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stateParams, generateChartColours) {
     $scope.currentView = 'step_one';
     $scope.objectList = {};
     $scope.metricList = {};
     $scope.referenceWidgetsList = [];
     $scope.profileList = {};
-    $scope.storedObjects = {};
+    $scope.storedObject = {};
+    $scope.storedProfile = {};
     $scope.widgetType = $stateParams.widgetType;
     var getChannelName = "";
+    var getCustomWidgetObj = {};
     var getCustomWidgetId = "";
-    console.log('widgetType',$scope.widgetType);
+    $scope.tokenExpired = false;
+
+
+    console.log('widgetType', $scope.widgetType);
+
     $scope.changeViewsInBasicWidget = function (obj) {
         $scope.currentView = obj;
         $rootScope.currentModalView = obj;
-        if($scope.currentView === 'step_one'){
-            document.getElementById('basicWidgetBackButton1').disabled=true;
-            document.getElementById('basicWidgetNextButton').disabled=true;
+        if ($scope.currentView === 'step_one') {
+            document.getElementById('basicWidgetBackButton1').disabled = true;
+            document.getElementById('basicWidgetNextButton').disabled = true;
             $scope.listChannels();
             $scope.clearReferenceWidget();
-        } else if($scope.currentView === 'step_two'){
-            document.getElementById('basicWidgetBackButton1').disabled=false;
-            console.log("Chennal : "+getChannelName);
-            if(getChannelName=="CustomData"){
+        } else if ($scope.currentView === 'step_two') {
+            document.getElementById('basicWidgetBackButton1').disabled = false;
+            $scope.clearReferenceWidget();
+            if (getChannelName == "CustomData") {
                 $scope.storeCustomData();
-                $(".showCustomUrlLink" ).show();
-                $(".showReferenceWidgets" ).html('');
             }
-            else{
-                $scope.clearReferenceWidget();
+            else {
+                //$scope.clearReferenceWidget();
                 $scope.getReferenceWidgetsForChosenChannel();
                 $scope.getProfilesForDropdown();
-                $(".showReferenceWidgets" ).show();
-                $(".showCustomUrlLink").html('');
             }
-        } else if ($scope.currentView === 'step_three'){
-            document.getElementById('basicWidgetBackButton1').disabled=false;
+        } else if ($scope.currentView === 'step_three') {
+            document.getElementById('basicWidgetBackButton1').disabled = false;
         }
     };
 
@@ -55,18 +57,18 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
             method: 'GET',
             url: '/api/v1/get/referenceWidgets/' + $scope.widgetType
         }).then(function successCallback(response) {
-            for(i=0;i<response.data.referenceWidgets.length;i++) {
-                if(response.data.referenceWidgets[i].charts[0].channelId === $scope.storedChannelId) {
+            for (i = 0; i < response.data.referenceWidgets.length; i++) {
+                if (response.data.referenceWidgets[i].charts[0].channelId === $scope.storedChannelId) {
                     $scope.referenceWidgetsList.push(response.data.referenceWidgets[i]);
                 }
             }
-        }, function errorCallback (error){
+        }, function errorCallback(error) {
             console.log('Error in finding reference widgets', error);
         });
 
         $http({
             method: 'GET',
-            url: '/api/v1/get/metrics/'+$scope.storedChannelId
+            url: '/api/v1/get/metrics/' + $scope.storedChannelId
         }).then(function successCallback(response) {
             $scope.metricList = response.data.metricsList;
         }, function errorCallback(error) {
@@ -75,37 +77,79 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
     };
 
     $scope.getProfilesForDropdown = function () {
-        $http({ method: 'GET', url: '/api/v1/get/profiles/'+$scope.storedChannelId
+        $http({
+            method: 'GET', url: '/api/v1/get/profiles/' + $scope.storedChannelId
         }).then(function successCallback(response) {
             $scope.profileList = response.data.profileList;
             $scope.objectList = [];
+
         }, function errorCallback(error) {
             console.log('Error in finding profiles');
         });
     };
 
-    $scope.getObjectsForChosenProfile = function(){
-        $http({
-            method: 'GET',
-            url: '/api/v1/get/objects/'+ $scope.profileOptionsModel._id
-        }).then(function successCallback(response) {
-            $scope.objectList=response.data.objectList;
-            console.log(response.data.objectList);
-        }, function errorCallback(error) {
-            console.log(error);
-        });
+    $scope.getObjectsForChosenProfile = function () {
+        $scope.checkExpiresIn = null;
+        if (!this.profileOptionsModel) {
+            $scope.objectList = null;
+            if ($scope.storedChannelName === 'Twitter' || $scope.storedChannelName === 'Instagram') {
+                $scope.objectForWidgetChosen($scope.objectList);
+            }
+        }
+        else {
+            if(this.profileOptionsModel.expiresIn!= undefined)
+                $scope.checkExpiresIn = new Date(this.profileOptionsModel.expiresIn);
+            $scope.tokenExpired = false;
+            var profileId = this.profileOptionsModel._id;
+            var expiresIn = this.profileOptionsModel.expiresIn;
+            var currentDate = new Date();
+            var newexpiresIn = new Date(expiresIn);
+            if (currentDate <= newexpiresIn) {
+                //token is valid
+                $scope.tokenExpired = false;
+            }
+            else if (expiresIn === undefined)
+                $scope.tokenExpired = false;
+            else {
+                $scope.tokenExpired = true;
+            }
+            $scope.storedProfile = this.profileOptionsModel;
+            $http({
+                method: 'GET',
+                url: '/api/v1/get/objects/' + profileId
+            }).then(function successCallback(response) {
+                $scope.objectList = response.data.objectList;
+                if ($scope.storedChannelName === 'Twitter' || $scope.storedChannelName === 'Instagram') {
+                    $scope.objectForWidgetChosen([$scope.objectList[0].name,$scope.objectList[0]._id,$scope.objectList[0].objectTypeId]);
+                }
+            }, function errorCallback(error) {
+                console.log(error);
+            });
+        }
     };
 
     $scope.refreshObjectsForChosenProfile = function () {
-        if($scope.profileOptionsModel._id) {
+        if (this.profileOptionsModel._id) {
             switch ($scope.storedChannelName) {
-                case 'Facebook':            $scope.objectType = 'page';         break;
-                case 'Google Analytics':    $scope.objectType = 'view';         break;
-                case 'Facebook Ads':        $scope.objectType = 'fbadaccount';  break;
+                case 'Facebook':
+                    $scope.objectType = 'page';
+                    break;
+                case 'Google Analytics':
+                    $scope.objectType = 'gaview';
+                    break;
+                case 'FacebookAds':
+                    $scope.objectType = 'fbadaccount';
+                    break;
+                case 'Twitter':
+                    $scope.objectType = 'tweet';
+                    break;
+                case 'Instagram' :
+                    $scope.objectType = 'instagram';
+                    break;
             }
             $http({
                 method: 'GET',
-                url: '/api/v1/channel/profiles/objectsList/'+ $scope.profileOptionsModel._id +'?objectType='+ $scope.objectType
+                url: '/api/v1/channel/profiles/objectsList/' + this.profileOptionsModel._id + '?objectType=' + $scope.objectType
             }).then(function successCallback(response) {
                 $scope.objectList = response.data;
             }, function errorCallback(error) {
@@ -115,9 +159,10 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
     };
 
     $scope.addNewProfile = function () {
-        var url,title;
+        var url, title;
+
         function popupwindow(url, title, w, h) {
-            switch ($scope.storedChannelName){
+            switch ($scope.storedChannelName) {
                 case 'Facebook':
                     url = '/api/v1/auth/facebook';
                     title = $scope.storedChannelName;
@@ -126,16 +171,24 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
                     url = '/api/v1/auth/google';
                     title = $scope.storedChannelName;
                     break;
-                case 'Facebook Ads':
+                case 'FacebookAds':
                     url = '/api/auth/facebookads';
                     title = $scope.storedChannelName;
                     break;
+                case 'Twitter':
+                    url = '/api/auth/twitter';
+                    title = $scope.storedChannelName;
+                    break;
+                case 'Instagram':
+                    url = '/api/auth/instagram';
+                    title = $scope.storedChannelName;
+                    break;
             }
-            var left = (screen.width/2)-(w/2);
-            var top = (screen.height/2)-(h/2);
-            return window.open(url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width='+w+', height='+h+', top='+top+', left='+left);
+            var left = (screen.width / 2) - (w / 2);
+            var top = (screen.height / 2) - (h / 2);
+            return window.open(url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
         }
-        popupwindow(url,title, 1000,500);
+        popupwindow(url, title, 1000, 500);
     };
 
     $window.afterAuthentication = function () {
@@ -143,112 +196,189 @@ function BasicWidgetController($scope,$http,$state,$rootScope,$window,$statePara
     };
 
     $scope.removeExistingProfile = function () {
-        if($scope.profileOptionsModel) {
+        if (this.profileOptionsModel) {
             $http({
                 method: 'POST',
-                url: '/api/v1/post/removeProfiles/'+$scope.profileOptionsModel._id
-            }).then(function successCallback(response){
+                url: '/api/v1/post/removeProfiles/' + this.profileOptionsModel._id
+            }).then(function successCallback(response) {
                 $scope.getProfilesForDropdown();
-            },function errorCallback(error){
-                console.log('Error in deleting profile',error)
+            }, function errorCallback(error) {
+                console.log('Error in deleting profile', error)
             });
         }
     };
 
-    $scope.createAndFetchBasicWidget =function() {
-        if(getChannelName=="CustomData"){
+    $scope.createAndFetchBasicWidget = function () {
+        var chartColors = [], widgetName;
+
+        if (getChannelName == "CustomData") {
+            getCustomWidgetObj = {
+                '_id': getCustomWidgetId,
+                'widgetType': 'custom'
+            };
             // final function after custom api url creation goes here
-            $rootScope.$emit('populateDashboardWidgets',getCustomWidgetId);
+            $rootScope.$broadcast('populateWidget', getCustomWidgetObj);
         }
-        else{
+        else {
             // function for saving other widgets goes here
             var matchingMetric = [];
-            for(var i=0;i<$scope.storedReferenceWidget.charts.length;i++) {
+            var inputParams = [];
+            var chartCount = $scope.storedReferenceWidget.charts.length;
+            //var chartColors = generateChartColours.fetchRandomColors(chartCount);
+            var widgetColor = generateChartColours.fetchWidgetColor($scope.storedChannelName);
+
+            for (var i = 0; i < $scope.storedReferenceWidget.charts.length; i++) {
                 matchingMetric = [];
-                for(var j=0;j<$scope.storedReferenceWidget.charts[i].metrics.length;j++) {
-                    if($scope.storedReferenceWidget.charts[i].metrics[j].objectTypeId === this.objectOptionsModel.objectTypeId) {
+                for (var j = 0; j < $scope.storedReferenceWidget.charts[i].metrics.length; j++) {
+                    if ($scope.storedReferenceWidget.charts[i].metrics[j].objectTypeId === $scope.storedObject.objectTypeId) {
                         matchingMetric.push($scope.storedReferenceWidget.charts[i].metrics[j]);
-                        matchingMetric[0].objectId = this.objectOptionsModel._id;
+                        matchingMetric[0].objectId = $scope.storedObject._id;
                     }
                 }
                 $scope.storedReferenceWidget.charts[i].metrics = matchingMetric;
-                //console.log('Displaying metrics',$scope.storedReferenceWidget.charts[i].metrics);
+                //$scope.storedReferenceWidget.charts[i].colour = chartColors[i];
+                $scope.storedReferenceWidget.charts[i].objectName = $scope.storedObject.name;
             }
+            if($scope.storedChannelName === 'Twitter' || $scope.storedChannelName === 'Instagram')
+                widgetName = $scope.storedReferenceWidget.name + ' - ' + $scope.storedProfile.name;
+            else
+                widgetName = $scope.storedReferenceWidget.name + ' - ' + $scope.storedProfile.name + ' - ' + $scope.storedObject.name;
+
             var jsonData = {
                 "dashboardId": $state.params.id,
                 "widgetType": $scope.widgetType,
+                "name": widgetName,
+                "description": $scope.storedReferenceWidget.description,
                 "charts": $scope.storedReferenceWidget.charts,
                 "order": $scope.storedReferenceWidget.order,
                 "offset": $scope.storedReferenceWidget.offset,
                 "size": $scope.storedReferenceWidget.size,
                 "minSize": $scope.storedReferenceWidget.minSize,
-                "maxSize": $scope.storedReferenceWidget.maxSize
+                "maxSize": $scope.storedReferenceWidget.maxSize,
+                "color": widgetColor
             };
-            console.log('json data',jsonData);
+            inputParams.push(jsonData);
+
             $http({
                 method: 'POST',
                 url: '/api/v1/widgets',
-                data: jsonData
-            }).then(function successCallback(response){
-                console.log('Response after creating widget', response);
-                $rootScope.$broadcast('populateWidget',response.data.widgetsList.id);
-            }, function errorCallback (error){
-                console.log('Error in getting widget id',error);
+                data: inputParams
+            }).then(function successCallback(response) {
+                for(widgetObjects in response.data.widgetsList) {
+                    $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
+                }
+            }, function errorCallback(error) {
+                console.log('Error in getting widget id', error);
+                swal({
+                    title: "",
+                    text: "<span style='sweetAlertFont'>Please try again! Something is missing</span> .",
+                    html: true
+                });
             });
         }
     };
 
-    $scope.storeChannel = function(){
+    $scope.storeChannel = function () {
         $scope.storedChannelId = this.data._id;
         $scope.storedChannelName = this.data.name;
         getChannelName = this.data.name;
+        if (getChannelName == "CustomData") {
+            $scope.metricContent = true;
+            $scope.showCustomContent = false;
+            $scope.selectCustomLinkHead = "Step 2 : Custom Data URL";
+        }
+        else {
+            $scope.metricContent = false;
+            $scope.showCustomContent = true;
+            $scope.selectCustomLinkHead = "Step 2 : Choose a Metric";
+        }
     };
 
-    $scope.storeReferenceWidget = function(){$scope.storedReferenceWidget = this.referenceWidgets;};
-    $scope.clearReferenceWidget = function(){
-        $scope.referenceWidgetsList= [];
+    $scope.storeReferenceWidget = function () {
+        $scope.storedReferenceWidget = this.referenceWidgets;
     };
-    $scope.objectForWidgetChosen = function() {
-        if(this.objectOptionsModel != null)
-            document.getElementById('basicWidgetNextButton').disabled=false;
+
+    $scope.clearReferenceWidget = function () {
+        $scope.referenceWidgetsList = [];
+        $scope.tokenExpired = false;
+        var lastWidgetId = $rootScope.customWidgetId;
+        if (lastWidgetId != undefined) {
+            $http({
+                method: 'POST',
+                url: '/api/v1/delete/widgets/' + lastWidgetId
+            }).then(
+                function successCallback(response) {
+                    $rootScope.customWidgetId = '';
+                },
+                function errorCallback(error) {
+                    console.log('Error in deleting profile', error)
+                }
+            );
+        }
+    };
+
+    $scope.objectForWidgetChosen = function (objectOptionsModel) {
+        if ($scope.storedChannelName === 'Google Analytics' && objectOptionsModel)
+            objectOptionsModel = JSON.parse(objectOptionsModel);
+
+        if(objectOptionsModel != undefined && objectOptionsModel[1] != undefined) {
+            $scope.storedObject = {
+                name: objectOptionsModel[0],
+                _id: objectOptionsModel[1],
+                objectTypeId: objectOptionsModel[2]
+            };
+        } else {
+            $scope.storedObject = null;
+        }
+
+        if ($scope.storedObject != null && (  $scope.checkExpiresIn === null || $scope.checkExpiresIn >= new Date()))
+            document.getElementById('basicWidgetFinishButton').disabled = false;
         else
-            document.getElementById('basicWidgetNextButton').disabled=true;
+            document.getElementById('basicWidgetFinishButton').disabled = true;
     };
-    //$scope.listChannels();
-    //$scope.storeMetric = function(){$scope.storedMetricId = this.MetricName._id;};
-    //$scope.clearMetric = function(){$scope.storedMetricId = null;};
-    $scope.errorMessage=true;
-    $scope.storeCustomData = function () {
-        $(".selectCustomLinkHead").text("Step2.Select the Link");
 
+    $scope.errorMessage = true;
+    $scope.storeCustomData = function () {
         var jsonData = {
             "dashboardId": $state.params.id,
             "widgetType": "custom",
             "channelId": $scope.storedChannelId
         };
-        console.log('json data', jsonData);
         $http({
             method: 'POST', url: '/api/v1/create/customwidgets', data: jsonData
-        }).then(function successCallback(response){
-            console.log(response.data);
-            $scope.errorMessage=true;
-            document.getElementById('basicWidgetBackButton2').disabled=false;
+        }).then(function successCallback(response) {
+            $scope.errorMessage = true;
+            $scope.customMessage = false;
+            $scope.customDocLinkMessage = false;
+            document.getElementById('basicWidgetBackButton2').disabled = false;
+            document.getElementById('basicWidgetNextButton').disabled = false;
             getCustomWidgetId = response.data.widgetsList.id._id;
-            $rootScope.customWidgetId=response.data.widgetsList.id._id;
-            $(".customApiLink").html('http://localhost:8080/api/v1/create/customdata/'+response.data.widgetsList.id._id);
-        }, function errorCallback (error){
-            console.log('Error in getting customwidgets',error);
-            document.getElementById('basicWidgetBackButton2').disabled=true;
-            document.getElementById('basicWidgetNextButton').disabled=true;
-            $scope.errorMessage=false;
+            $rootScope.customWidgetId = response.data.widgetsList.id._id;
+            var domainUrl = "";
+            if (window.location.hostname == "localhost") {
+                domainUrl = "http://localhost:8080";
+            }
+            else {
+                domainUrl = window.location.hostname;
+            }
+            $(".customApiLink").html(domainUrl + '/api/v1/create/customdata/' + response.data.widgetsList.id._id);
+            $scope.customLink = domainUrl + '/api/v1/create/customdata/' + response.data.widgetsList.id._id;
+
+        }, function errorCallback(error) {
+            console.log('Error in getting customwidgets', error);
+            $scope.customMessage = true;
+            $scope.errorMessage = false;
+            $scope.customDocLinkMessage = true;
         });
+        new Clipboard('#btnCopyLink');
     };
 
-    $scope.selectCustomAPILink = function () {
-        var getCustomLink = $(".customApiLink").text();
-        console.log(getCustomLink);
-        $(".isChecked").show();
-        document.getElementById('basicWidgetNextButton').disabled=false;
+    $scope.copyToClipboard = function () {
+        swal("Copied", "", "success");
     };
+
+    $scope.ComingSoonAlert=function (){
+        swal("Coming Soon!");
+    }
 
 }

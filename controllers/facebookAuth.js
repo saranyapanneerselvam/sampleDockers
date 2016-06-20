@@ -1,7 +1,9 @@
 var channels = require('../models/channels');
+var userPermission = require('../helpers/utility');
 module.exports = function (app) {
     var request = require('request');
     var user = require('../helpers/user');
+
 // load the auth variables
     var configAuth = require('../config/auth');
     var FB = require('fb');
@@ -13,6 +15,7 @@ module.exports = function (app) {
         authorizationPath: 'oauth'
     });
     console.log('config details', configAuth.facebookAuth.clientID);
+
 // Authorization uri definition
     var authorization_uri = oauth2.authCode.authorizeURL({
         redirect_uri: configAuth.facebookAuth.callbackURL,
@@ -23,9 +26,8 @@ module.exports = function (app) {
 
 // Initial page redirecting to Github
     app.get('/api/v1/auth/facebook', function (req, res) {
-
         res.redirect(authorization_uri);
-        console.log('res',res);
+        console.log('res', res);
     });
 
 // Callback service parsing the authorization token and asking for the access token
@@ -35,31 +37,38 @@ module.exports = function (app) {
         //console.log('code', res);
         oauth2.authCode.getToken({
             code: code,
-            redirect_uri: 'http://localhost:8080/auth/facebook/callback'
+            redirect_uri: configAuth.facebookAuth.callbackURL
         }, saveToken);
 
         function saveToken(error, result) {
+            var getExpiresInValue = 5097600;
             if (error) {
                 console.log('Access Token Error', error);
             }
             else {
                 token = oauth2.accessToken.create(result);
+                console.log('access token', result)
                 var accessToken = result.substr(result.indexOf('=') + 1);
                 var indexExpires = accessToken.indexOf('&');
-                if(indexExpires===-1)
+                if (indexExpires === -1) {
+                    console.log('in if');
                     var accessToken = result.substr(result.indexOf('=') + 1);
-                else{
-                    console.log('expires',accessToken);
-                    var expires = accessToken.substr(indexExpires);
-                    var accessToken = accessToken.substr(0,indexExpires);
+
                 }
-
-
-                //console.log('access token', accessToken);
+                else {
+                    console.log('expires', accessToken);
+                    var expires = accessToken.substr(indexExpires);
+                    var getExpiresIn = accessToken.indexOf('expires=');
+                    console.log('no getExpiresIn', getExpiresIn)
+                    var expiresInValue = accessToken.substr(getExpiresIn);
+                    var getExpiresInValue = expiresInValue.substr(expiresInValue.indexOf('=') + 1);
+                    console.log('expiresin ', getExpiresIn, getExpiresInValue);
+                    var accessToken = accessToken.substr(0, indexExpires);
+                }
 
                 //To get logged user's userId ,email..
                 request('https://graph.facebook.com/me?access_token=' + accessToken, function (error, response, body) {
-                    console.log('response', body);
+                    console.log('response', body, getExpiresInValue, accessToken);
                     if (!error && response.statusCode == 200) {
 
                         //parse the body data
@@ -69,17 +78,22 @@ module.exports = function (app) {
                         req.userId = parsedData.id;
                         req.profileName = parsedData.name;
 
-                        console.log('id', parsedData);
+                        console.log('id', typeof getExpiresInValue,getExpiresInValue);
                         //set token details to tokens
                         req.tokens = accessToken;
+                        var numdays = (Math.floor(getExpiresInValue / 86400) - 1);
+                        var currentdate = new Date();
+                        currentdate.setDate(currentdate.getDate() + numdays);
+                        console.log('numdays', numdays, currentdate);
                         channels.findOne({code: configAuth.channels.facebook}, function (err, channelDetails) {
-                            console.log('parse',req.userId,accessToken);
+                            console.log('parse', req.userId, accessToken);
                             req.channelId = channelDetails._id;
                             req.channelName = channelDetails.name;
                             req.channelCode = '2';
                             FB.setAccessToken(accessToken);//Set access token
+                            req.expiresIn = currentdate;
                             FB.api(req.userId, {fields: ['id', 'name', 'email']}, function (profile) {
-                                console.log('profile',profile);
+                                console.log('profile', profile);
                                 if (!profile || profile.error) {
                                     console.log(!profile ? 'error occurred' : profile.error);
                                     return;
@@ -92,7 +106,7 @@ module.exports = function (app) {
                                     user.storeProfiles(req, function (err, response) {
                                         console.log('stored');
                                         if (err)
-                                            res.json('Error');
+                                            res.json('Error', err);
                                         else {
                                             //If response of the storeProfiles function is success then close the authentication window
                                             res.render('successAuthentication');
@@ -101,6 +115,10 @@ module.exports = function (app) {
                                 }
                             });
                         })
+
+                        //calculate seconds to days
+                        //add number of days with current date and store it as expiresInDate
+
 
                     }
                 })

@@ -1,3 +1,4 @@
+var moment = require('moment');
 var profile = require('../models/profiles');
 var exports = module.exports = {};
 
@@ -7,7 +8,7 @@ var exports = module.exports = {};
  2.res have the query response
  */
 exports.storeProfiles = function (req, done) {
-    req.showMetric = {};
+
     var tokens = req.tokens;
     profile.findOne({'userId': req.userId, 'channelId': req.channelId}, function (err, profileDetails) {
 
@@ -34,12 +35,16 @@ exports.storeProfiles = function (req, done) {
                 $set: {
                     "accessToken": newAccessToken,
                     "refreshToken": newRefreshToken,
-                    'updated': updated
+                    'updated': updated,
+                    "expiresIn" : req.expiresIn
                 }
             }, {upsert: true}, function (err, updateResult) {
                 if (!err) {
-                    req.showMetric.status = 302;
-                    done(null, {status: 302});
+                    profile.findOne({'userId': req.userId,'channelId': req.channelId}, function(err,profileDetail){
+                        if(!err){
+                            done(null, profileDetail);
+                        }
+                    });
                 }
                 else {
                     done(null, {status: 302});
@@ -70,13 +75,20 @@ exports.storeProfiles = function (req, done) {
             newProfile.userId = req.userId;
             newProfile.created = new Date();
             newProfile.updated = new Date();
+            newProfile.expiresIn = req.expiresIn;
+
 
             // save the user
             newProfile.save(function (err, user) {
                     if (err)
                         done(err);
                     else {
-                        done(null, {userDetails: user, status: 200});
+                        profile.findOne({'userId': user.userId,'channelId': user.channelId}, function(err,profileDetail){
+                            if(!err){
+                                console.log('profile',profileDetail)
+                                done(null, profileDetail);
+                            }
+                        });
                     }
                 }
             );

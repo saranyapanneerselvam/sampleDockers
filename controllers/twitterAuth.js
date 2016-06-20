@@ -1,6 +1,8 @@
 var request = require('request');
 var configAuth = require('../config/auth');
 var profile = require('../models/profiles');
+var objects = require('../models/objects');
+var objectType = require('../models/objectTypes');
 var channels = require('../models/channels');
 var user = require('../helpers/user');
 module.exports = function (app) {
@@ -59,12 +61,38 @@ module.exports = function (app) {
                             console.log(channelList);
                             req.channelId =channelList._id ;
                             req.channelCode = '4';
-                            user.storeProfiles(req, function (err, response ) {
+                            user.storeProfiles(req, function (err, response) {
                                 if (err)
                                     res.json('Error');
                                 else {
                                     //If response of the storeProfiles function is success then render the successAuthentication page
-                                    res.render('successAuthentication');
+                                    objects.findOne({'profileId':response._id} , function(err, object){
+                                        if(object!=null){
+                                            console.log('object',object);
+                                            res.render('successAuthentication');
+                                        }
+                                        else{
+                                            objectType.findOne({'channelId':response.channelId},function(err,objectTypeList){
+                                                if(!err){
+                                                    console.log(objectTypeList);
+                                                    var  objectItem = new objects();
+                                                    objectItem.profileId = response._id;
+                                                    objectItem.name=response.name;
+                                                    objectItem.objectTypeId=objectTypeList._id;
+                                                    objectItem.updated=new Date();
+                                                    objectItem.created=new Date();
+                                                    objectItem.save(function(err,objectListItem){
+                                                        if(!err){
+                                                            console.log('object2',objectListItem);
+                                                            res.render('successAuthentication');
+                                                        }
+                                                    });
+
+                                                }
+                                            });
+                                        }
+                                    });
+
                                 }
                             });
                         });

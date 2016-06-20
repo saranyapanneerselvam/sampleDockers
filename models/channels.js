@@ -5,6 +5,7 @@ var mongoose = require('mongoose');
 
 // define the schema for our user model
 var channelsSchema = mongoose.Schema({
+    integrated: Boolean,
     name: String,
     code: String,
     image: String,

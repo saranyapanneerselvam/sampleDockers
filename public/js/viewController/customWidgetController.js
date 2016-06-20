@@ -7,7 +7,8 @@ function CustomWidgetController($scope,$uibModal) {
     };
     $scope.openSettings = function(widget) {
         $uibModal.open({
-            scope: $scope,backdrop: true,
+            scope: $scope,
+            backdrop: true,
             templateUrl: 'widget_settings.ejs',
             controller: 'WidgetSettingsController',
             resolve: {

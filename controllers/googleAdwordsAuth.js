@@ -42,7 +42,7 @@ module.exports = function (app) {
         //console.log('code', res);
         oauth2.authCode.getToken({
             code: code,
-            redirect_uri: 'http://localhost:8080/auth/adwords/callback'
+            redirect_uri: configAuth.googleAdwordsAuth.callbackURL
         }, saveToken);
 
         function saveToken(error, result) {

@@ -9,7 +9,7 @@ exports.createHtml5ToPdf = function (req, res, next) {
     var timestamp = Number(new Date());
     var getName = "";
 
-    if(req.body.dashboardName==undefined || req.body.dashboardName=="undefined"){
+    if(req.body.dashboardName==undefined || req.body.dashboardName=="undefined" || req.body.dashboardName==""){
         getName = "No_Name";
     }
     else{

@@ -600,6 +600,23 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         */
     };
 
+
+    $(".exportModalContent").on( 'click', function( ev ) {
+        $(".navbar").css('z-index','1');
+        $(".md-overlay").css("background","rgba(0,0,0,0.5)");
+        $("#exportModalContent").addClass('md-show');
+    });
+
+    $('#exportOptionJpeg').change(function() {
+        $(".errorExportMessage").text("").hide();
+    });
+
+    $('#exportOptionPDF').change(function() {
+        $(".errorExportMessage").text("").hide();
+    });
+    
+
+
     $scope.callThePosition = function (event,widgetID){
         console.log(existCommentCheck+" != "+count);
         if(existCommentCheck==""){

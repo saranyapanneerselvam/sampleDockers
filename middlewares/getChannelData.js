@@ -733,9 +733,13 @@ exports.getChannelData = function (req, res, next) {
                                                 initD = 1;
                                             else
                                                 initD = 2;
+                                            console.log('initD',initD);
                                             for (var d = initD; d < dimensionList.length; d++) {
                                                 for (var g = 0; g < groupedData[i].data.length; g++) {
-                                                    var dimensionData = groupedData[i].data[g][dimensionList[1].name.substr(3)]
+                                                    console.log('groupedData',groupedData[i].data);
+                                                    console.log('DimensionList',dimensionList[1]);
+                                                    var dimensionData = groupedData[i].data[g][dimensionList[1].name.substr(3)];
+                                                    console.log('DimensionData',dimensionData);
                                                     if (initD === 1)
                                                         var finalDimensionData = dimensionData;
 

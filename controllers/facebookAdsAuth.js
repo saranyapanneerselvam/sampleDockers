@@ -28,12 +28,13 @@ module.exports = function(app) {
     app.get('/api/auth/facebookads', function (req, res) {
         res.redirect(authorization_uri);
     });
+    
 // Callback service parsing the authorization token and asking for the access token
     app.get('/auth/facebookads/callback', function (req, res) {
         var code = req.query.code;
         oauth2.authCode.getToken({
             code: code,
-            redirect_uri: configAuth.facebookAdsAuth.redirect_uri,
+            redirect_uri: configAuth.facebookAdsAuth.redirect_uri
         }, saveToken);
         function saveToken(error, result) {
             var getExpiresInValue = 5097600;

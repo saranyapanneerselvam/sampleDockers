@@ -2,15 +2,8 @@ showMetricApp.controller('AlertController', AlertController)
 function AlertController($scope, $http, $q, $state, $rootScope, $window, $stateParams, generateChartColours) {
 
     var isEdit = false;
-    $scope.alert;
-    $scope.metricName;
-    $scope.currentView = 'step_one';
-    var storeMetricDetails = [];
-    var storeMetricDetailsInEdit = [];
-    $scope.storedAlertsForWidget = [];
-    $scope.storeMetric = [];
-    $scope.operation;
-
+    $scope.alert, $scope.metricName, $scope.currentView = 'step_one', $scope.operation,  $scope.storedAlertsForWidget = [], $scope.storeMetric = [];
+    var storeMetricDetails = [], storeMetricDetailsInEdit = [];
 
     $scope.changeViewsInAlertModal = function (obj) {
         $scope.currentView = obj;
@@ -113,6 +106,7 @@ function AlertController($scope, $http, $q, $state, $rootScope, $window, $stateP
         });
         return deferred.promise;
     };
+
     $scope.alertFunction = function () {
         console.log('enteringFunction', $rootScope.selectedWidget.id, isEdit);
         if (isEdit == true) {
@@ -249,6 +243,5 @@ function AlertController($scope, $http, $q, $state, $rootScope, $window, $stateP
         $scope.changeViewsInAlertModal('step_two');
 
     };
-
 
 }

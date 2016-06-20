@@ -3,6 +3,7 @@ var userPermission = require('../helpers/utility');
 module.exports = function (app) {
     var request = require('request');
     var user = require('../helpers/user');
+
 // load the auth variables
     var configAuth = require('../config/auth');
     var FB = require('fb');
@@ -14,6 +15,7 @@ module.exports = function (app) {
         authorizationPath: 'oauth'
     });
     console.log('config details', configAuth.facebookAuth.clientID);
+
 // Authorization uri definition
     var authorization_uri = oauth2.authCode.authorizeURL({
         redirect_uri: configAuth.facebookAuth.callbackURL,
@@ -24,7 +26,6 @@ module.exports = function (app) {
 
 // Initial page redirecting to Github
     app.get('/api/v1/auth/facebook', function (req, res) {
-
         res.redirect(authorization_uri);
         console.log('res', res);
     });
@@ -36,7 +37,7 @@ module.exports = function (app) {
         //console.log('code', res);
         oauth2.authCode.getToken({
             code: code,
-            redirect_uri: 'http://localhost:8080/auth/facebook/callback'
+            redirect_uri: configAuth.facebookAuth.callbackURL
         }, saveToken);
 
         function saveToken(error, result) {

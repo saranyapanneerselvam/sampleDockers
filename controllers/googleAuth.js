@@ -17,7 +17,7 @@ module.exports = function (app) {
 
     // Authorization uri definition
     var authorization_uri = oauth2.authCode.authorizeURL({
-        redirect_uri: 'http://localhost:8080/auth/google/callback',
+        redirect_uri: configAuth.googleAuth.callbackURL,
         approval_prompt: 'force',
         access_type: 'offline',
         scope: 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/analytics.readonly ',
@@ -35,7 +35,7 @@ module.exports = function (app) {
         var code = req.query.code;
         oauth2.authCode.getToken({
             code: code,
-            redirect_uri: 'http://localhost:8080/auth/google/callback'
+            redirect_uri: configAuth.googleAuth.callbackURL
         }, saveToken);
 
         function saveToken(error, result) {

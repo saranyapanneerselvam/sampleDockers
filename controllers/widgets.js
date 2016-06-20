@@ -35,4 +35,10 @@ module.exports = function (app) {
             res.json({widgetsList: req.app.result});
     });
 
+    //To name update the widgets
+    app.post('/api/v1/update/widgets', widgetsList.updateNameOfWidgets, function (req, res) {
+        res.json({widgetsList: req.app.result});
+    });
+
+
 };

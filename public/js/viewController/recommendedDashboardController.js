@@ -224,6 +224,7 @@ function RecommendedDashboardController($scope, $http, $window, $q,  $state, $ro
         }).then(function successCallback(response) {
             var inputParams = [];
             var dashboardId = response.data;
+
             for (var widget = 0; widget < $scope.referenceWidgetsList.length; widget++) {
                 for (var chart = 0; chart < $scope.referenceWidgetsList[widget].charts.length; chart++) {
                     for (var j = 0; j < $scope.storedUserChosenValues.length; j++) {
@@ -235,15 +236,32 @@ function RecommendedDashboardController($scope, $http, $window, $q,  $state, $ro
                                     matchingMetric[0].objectId = $scope.storedUserChosenValues[j].object._id;
                                 }
                             }
+                            for(var n=0;n<$scope.getChannelList.length;n++) {
+                                var widgetName ;
+                                if ($scope.storedUserChosenValues[j].profile.channelId === $scope.getChannelList[n]._id) {
+                                    if ($scope.getChannelList[n].name === 'Twitter' || $scope.getChannelList[n].name === 'Instagram') {
+                                        widgetName = $scope.referenceWidgetsList[widget].name + ' - ' + $scope.storedUserChosenValues[j].profile.name;
+                                    }
+                                    else {
+                                        widgetName = $scope.referenceWidgetsList[widget].name + ' - ' + $scope.storedUserChosenValues[j].profile.name + ' - ' + $scope.storedUserChosenValues[j].object.name;
+                                    }
+
+                                }
+
+                            }
+
+
                         }
-                    }
+
+
+                        }
                     $scope.referenceWidgetsList[widget].charts[chart].metrics = matchingMetric;
                 }
-                
+
                 var jsonData = {
                     "dashboardId": response.data,
                     "widgetType": $scope.referenceWidgetsList[widget].widgetType,
-                    "name": $scope.referenceWidgetsList[widget].name,
+                    "name": widgetName,
                     "description": $scope.referenceWidgetsList[widget].description,
                     "charts": $scope.referenceWidgetsList[widget].charts,
                     "order": $scope.referenceWidgetsList[widget].order,
@@ -254,6 +272,7 @@ function RecommendedDashboardController($scope, $http, $window, $q,  $state, $ro
                 };
                 inputParams.push(jsonData);
             }
+
             $http({
                 method: 'POST',
                 url: '/api/v1/widgets',

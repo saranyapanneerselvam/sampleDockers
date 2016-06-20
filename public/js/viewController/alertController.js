@@ -1,7 +1,6 @@
 showMetricApp.controller('AlertController', AlertController)
 function AlertController($scope, $http, $q, $state, $rootScope, $window, $stateParams, generateChartColours) {
 
-    console.log('$rootScope.id', $rootScope.selectedWidget.id);
     var isEdit = false;
     $scope.alert;
     $scope.metricName;
@@ -26,7 +25,7 @@ function AlertController($scope, $http, $q, $state, $rootScope, $window, $stateP
             $scope.metricDetails = '';
             $scope.storeMetric = [];
             $scope.storeFinalMetric = '';
-            $scope.storedAlertsForWidget = '';
+            $scope.storedAlertsForWidget = [];
             $scope.fetchAlertsForWidget();
                    }
         else if ($scope.currentView === 'step_two') {
@@ -62,26 +61,31 @@ function AlertController($scope, $http, $q, $state, $rootScope, $window, $stateP
             url: '/api/v1/get/alerts/' + $rootScope.selectedWidget.id
         }).then(
             function successCallback(response) {
-                $scope.storedAlertsForWidget = ({data: response.data});
-                console.log('$scope.storedAlertsForWidget', $scope.storedAlertsForWidget);
-                for (var i = 0; i < $scope.storedAlertsForWidget.data.length; i++) {
-                    console.log('storedAlertsForWidget', $scope.storedAlertsForWidget.data[i].metricId);
-                    storeMetricDetailsInEdit.push($scope.getMetricDetails($scope.storedAlertsForWidget.data[i].metricId, i));
-                }
-                $q.all(storeMetricDetailsInEdit).then(
-                    function successCallback(storeMetricDetailsInEdit) {
-                        for (var j = 0; j < $scope.storedAlertsForWidget.data.length; j++) {
-                            for (var i = 0; i < storeMetricDetailsInEdit.length; i++) {
-                                if ($scope.storedAlertsForWidget.data[j].metricId === storeMetricDetailsInEdit[i].metrics[0]._id)
-                                    $scope.storeMetric[i] = ({name: storeMetricDetailsInEdit[i].metrics[0]});
-                            }
-                        }
-                    },
-                    function errorCallback(error) {
-                        $scope.$parent.closeBasicWidgetModal('');
-                        swal("Sorry! Something went wrong, Please try again.");
+                console.log('InsideOfSuccessCallback',response.status);
+                if(response.status == '200') {
+                    $scope.storedAlertsForWidget = ({data: response.data});
+                    console.log('$scope.storedAlertsForWidget', $scope.storedAlertsForWidget);
+                    for (var i = 0; i < $scope.storedAlertsForWidget.data.length; i++) {
+                        console.log('storedAlertsForWidget', $scope.storedAlertsForWidget.data[i].metricId);
+                        storeMetricDetailsInEdit.push($scope.getMetricDetails($scope.storedAlertsForWidget.data[i].metricId, i));
                     }
-                );
+                    $q.all(storeMetricDetailsInEdit).then(
+                        function successCallback(storeMetricDetailsInEdit) {
+                            for (var j = 0; j < $scope.storedAlertsForWidget.data.length; j++) {
+                                for (var i = 0; i < storeMetricDetailsInEdit.length; i++) {
+                                    if ($scope.storedAlertsForWidget.data[j].metricId === storeMetricDetailsInEdit[i].metrics[0]._id)
+                                        $scope.storeMetric[i] = ({name: storeMetricDetailsInEdit[i].metrics[0]});
+                                }
+                            }
+                        },
+                        function errorCallback(error) {
+                            $scope.$parent.closeBasicWidgetModal('');
+                            swal("Sorry! Something went wrong, Please try again.");
+                        }
+                    );
+                }
+                else{$scope.storedAlertsForWidget=[];
+                }
             },
             function errorCallback(error) {
                 $scope.$parent.closeBasicWidgetModal('');
@@ -109,7 +113,6 @@ function AlertController($scope, $http, $q, $state, $rootScope, $window, $stateP
         });
         return deferred.promise;
     };
-
     $scope.alertFunction = function () {
         console.log('enteringFunction', $rootScope.selectedWidget.id, isEdit);
         if (isEdit == true) {

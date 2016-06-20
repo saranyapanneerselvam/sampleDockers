@@ -92,7 +92,8 @@
 .fontClass{color:#999;}
 .unfontClass{color:#000;}
 .graph-icon a{color:#fff;}
-.alertList{border:1px #8c8c8c solid;margin: 35px;}
+.alertList{margin: 30px;}
+.createAlert{margin-top:8px !important;}
 svg:hover #Calendar-Icon { fill: #8560c5 ; }
 .nv-axis.nv-x .tick line {
     display:none;opacity: 0;
@@ -135,7 +136,7 @@ svg:hover #Calendar-Icon { fill: #8560c5 ; }
 .topnavbar-header{
     height: 50px;
 }
-.widget-body{padding-top: 25px !important;}
+.widget-body{padding: 25px 10px 10px 10px !important;height: 180px !important;}
 .favigon-img{padding-right: 5px;}
 .menus-img a{margin-top: 13px;}
 .wizard > .steps .current a, .wizard > .steps{

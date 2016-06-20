@@ -83,11 +83,11 @@ exports.createUpdateAlert = function (req, done) {
 }
 
 exports.getAlertForWidget =function(req, res, next){
-    Alert.find({}, function (err, alertDetails) {
+    Alert.find({widgetId:req.params.widgetId}, function (err, alertDetails) {
         if (err)
-            req.app.result = {error: err, message: 'Database error'};
+            return res.status(500).json({error: err});
         else if (!alertDetails.length)
-            req.app.result = {status: 302, message: 'No record found'};
+            return res.status(204).json({error: 'No records found'});
         else
             req.app.result = alertDetails;
         next();

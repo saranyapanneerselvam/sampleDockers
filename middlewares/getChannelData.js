@@ -2797,7 +2797,7 @@ exports.getChannelData = function (req, res, next) {
                     }
                     for (var i = 0; i < userMediaRecent.length; i++) {
                         var storeDate = userMediaRecent[i].created_time;
-                        var dateString = moment.unix(storeDate).format("YYYY/MM/DD");
+                        var dateString = moment.unix(storeDate).format("YYYY-MM-DD");
                         actualFinalApiData.push({date: dateString, total: userMediaRecent[i]})
                     }
                     actualFinalApiData.forEach(function (value, index) {

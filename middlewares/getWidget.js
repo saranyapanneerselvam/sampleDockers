@@ -101,7 +101,7 @@ exports.saveWidgets = function (req, res, next) {
             function (err, result) {
                 if (err)
                     return res.status(500).json({error: 'Internal server error'});
-                else{
+                else {
                     req.app.result = result.storeAllWidgets;
                     next();
                 }
@@ -123,7 +123,7 @@ exports.saveWidgets = function (req, res, next) {
 
             async.concatSeries(widgets, saveAllWidgets, callback);
 
-            function saveAllWidgets(result,callback) {
+            function saveAllWidgets(result, callback) {
                 req.dashboardId = result.dashboardId;
                 charts = result.charts;
                 colCount = result.col;
@@ -251,5 +251,68 @@ exports.saveCustomWidgets = function (req, res, next) {
             req.app.result = {'status': '302'};
         next();
     });
+
+};
+
+exports.updateNameOfWidgets = function (req, res, next) {
+    if (req.user) {
+        async.auto({storeAllWidgets: processAllWidgets},
+            function (err, result) {
+                if (err)
+                    return res.status(500).json({error: 'Internal server error'});
+                else {
+                    req.app.result = result.storeAllWidgets;
+                    next();
+                }
+            })
+        function processAllWidgets(callback) {
+            console.log('printingReqBody',req.body)
+            var widgetName;
+            var widgets = req.body;
+            console.log('widget',widgets);
+            async.concatSeries(widgets, saveAllWidgets, callback);
+
+            function saveAllWidgets(result, callback) {
+                req.dashboardId = result.dashboardId;
+                widgetName = result.name;
+                console.log('printingWidget',result,widgetName)
+                userPermission.checkUserAccess(req, res, function (err, response) {
+                    if (err)
+                        return res.status(500).json({error: 'Internal server error'});
+                    else {
+                        var widgetId = result.widgetId;
+                        // update the dashboard data
+                        if (result.name != undefined) {
+                            widgetsList.update({_id: widgetId}, {
+                                $set: {
+                                    name: widgetName,
+                                }
+                            }, function (err, widget) {
+                                if (err)
+                                    return res.status(500).json({error: 'Internal server error'});
+                                else if (widget === 0)
+                                    return res.status(501).json({error: 'Not implemented'});
+                                else {
+                                    widgetsList.findOne({_id: widgetId}, function (err, widgetDetails) {
+                                        if (err)
+                                            return res.status(500).json({error: 'Internal server error'});
+                                        else if (!widgetDetails)
+                                            return res.status(204).json({error: 'No records found'});
+                                        else {
+                                            req.app.result = widgetId;
+                                            callback(null, widgetDetails);
+                                        }
+                                    })
+                                }
+                            });
+                        }
+                    }
+                })
+            }
+        }
+    }
+    else
+        res.status(401).json({error: 'Authentication required to perform this action'})
+
 
 };

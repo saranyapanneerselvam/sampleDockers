@@ -250,6 +250,74 @@
     </div>
 </div>
 
+
+
+<div class="md-modal md-effect-19" id="getLoadingModalContent">
+    <div class="md-content commonGetLoading" style="width: 50%;">
+
+        <div>
+            <div class="wrapper wrapper-content">
+
+                <br/>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="center">
+                            <div class="mainLoading">
+                                <div class="slice">
+                                    <div data-loader="circle-clock"></div>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <br/>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="center">
+                            <h2>Loading...</h2>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="md-modal md-effect-19" id="waitForWidgetsLoadModalContent">
+    <div class="md-content waitForWidgetsLoad">
+
+        <div>
+            <div class="wrapper wrapper-content">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="center">
+                            <h2 class="comingSoon">Please wait for all widgets to load.</h2>
+                        </div>
+                    </div>
+                </div>
+                <br/>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="center">
+                            <button class="btn btn-primary closeModalContent">OK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <script type="application/javascript">
     $(".closeModalContent").on( 'click', function( ev ) {
         $(".navbar").css("z-index","1");
@@ -261,6 +329,7 @@
         $("#exportJPEGModalContent").removeClass('md-show');
         $("#exportPDFModalContent").removeClass('md-show');
         $("#commentModalContent").removeClass('md-show');
+        $("#waitForWidgetsLoadModalContent").removeClass('md-show');
     });
 
 </script>

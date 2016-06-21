@@ -5930,6 +5930,30 @@ body.body-small .vote-icon {
     padding: 10px 10px;
 }
 
+
+
+.mainLoading {
+    bottom: 0; left: 0; top: 0; right: 0;
+    margin: auto;
+    position: absolute;
+    width: 150px;
+    height: 100px;
+}
+.slice {
+    padding: 2em;
+}
+.slice > div {
+    margin: 1em auto;
+}
+.slice > div:nth-child(2) {
+    font-family: cursive;
+    position: absolute;
+    bottom: 0;
+    left: 3em;
+    color: #fff;
+}
+
+
 .findOutHow{
     color:black !important;
     text-decoration: underline;

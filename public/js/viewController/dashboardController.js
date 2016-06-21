@@ -229,6 +229,10 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
     //To populate all the widgets in a dashboard when the dashboard is refreshed or opened or calendar date range in the dashboard header is changed
     $rootScope.populateDashboardWidgets = function() {
+        $(".navbar").css('z-index','1');
+        $(".md-overlay").css("background","rgba(0,0,0,0.5)");
+        $("#getLoadingModalContent").addClass('md-show');
+        isExportOptionSet=0;
         $scope.dashboard.widgets = [];
         $scope.dashboard.widgetData = [];
         $http({
@@ -236,6 +240,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             url: '/api/v1/dashboards/widgets/'+ $state.params.id
         }).then(
             function successCallback(response) {
+                $("#getLoadingModalContent").removeClass('md-show');
                 var widgets = [];
                 var dashboardWidgetList = response.data.widgetsList;
                 if(dashboardWidgetList) {
@@ -285,6 +290,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                                     $scope.dashboard.widgetData[widgetIndex] = widgetToBeLoaded;
                                     //console.log('widgetData:',$scope.dashboard.widgetData[widgetIndex]);
                                     isExportOptionSet=1;
+
                                 },
                                 function errorCallback(error){
                                     console.log(error);
@@ -602,9 +608,16 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
 
     $(".exportModalContent").on( 'click', function( ev ) {
-        $(".navbar").css('z-index','1');
-        $(".md-overlay").css("background","rgba(0,0,0,0.5)");
-        $("#exportModalContent").addClass('md-show');
+        if(isExportOptionSet==1){
+            $(".navbar").css('z-index','1');
+            $(".md-overlay").css("background","rgba(0,0,0,0.5)");
+            $("#exportModalContent").addClass('md-show');
+        }
+        else{
+            $(".navbar").css('z-index','1');
+            $(".md-overlay").css("background","rgba(0,0,0,0.5)");
+            $("#waitForWidgetsLoadModalContent").addClass('md-show');
+        }
     });
 
     $('#exportOptionJpeg').change(function() {

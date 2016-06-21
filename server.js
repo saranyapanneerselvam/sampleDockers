@@ -158,6 +158,7 @@ require('./controllers/customChannelData')(app);
 require('./controllers/recommendedDashboard')(app);
 require('./controllers/exportHtml5ToPDF')(app);
 require('./controllers/alert')(app);
+require('./controllers/bgFetchUpdation')(app);
 
 router.use(function (req, res, next) {
     req.app = {};

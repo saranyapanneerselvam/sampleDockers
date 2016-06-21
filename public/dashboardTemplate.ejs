@@ -5,7 +5,7 @@
                 <div class="dashboardTemplate-items">
                     <div class="col-sm-3 dashboardName">
                         <a href="#" ng-model="dashboardName" editable-text="dashboard.dashboardName" onaftersave="changeDashboardName()" buttons="no" e-maxlength="35">
-                            <pre ng-class={'fontClass':dashboard.dashboardName=='','unfontClass':dashboard.dashboardName!=''}>{{dashboard.dashboardName || 'Name your dashboard'}}</pre>
+                            <pre ng-style="!dashboard.dashboardName  && {'color':'#999'}  || dashboard.dashboardName && {'color':'#000'}">{{dashboard.dashboardName || 'Name your dashboard'}}</pre>
                         </a>
                     </div >
                     <div class="col-sm-4">

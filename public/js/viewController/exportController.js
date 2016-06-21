@@ -50,6 +50,7 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
                 .then(function (blob) {
                     document.getElementById('dashboardTitleIcons').style.visibility = "visible";
                     var timestamp = Number(new Date());
+                    $("#exportJPEGModalContent").removeClass('md-show');
                     window.saveAs(blob, dashboardName+"_"+timestamp+".jpeg");
                     $("#exportOptionJpeg").prop("checked",false);
                 });

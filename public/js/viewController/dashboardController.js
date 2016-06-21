@@ -4,7 +4,9 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
     $scope.loading=false;
     $scope.$window = $window;
     var isExportOptionSet = "";
-
+    $(".navbar").css('z-index','1');
+    $(".md-overlay").css("background","rgba(0,0,0,0.5)");
+    $("#getLoadingModalContent").addClass('md-show');
     //Sets up all the required parameters for the dashboard to function properly when it is initially loaded. This is called in the ng-init function of the dashboard template
     $scope.dashboardConfiguration = function () {
 
@@ -359,6 +361,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         //Fetching the promise that contains all the data for all the widgets in the dashboard
         $q.all(inputWidget).then(
             function successCallback(inputWidget){
+                $("#getLoadingModalContent").removeClass('md-show');
                 var widgetIndex = $scope.dashboard.widgets.map(function(el) {return el.id;}).indexOf(inputWidget[0]._id);
                 var finalChartData = createWidgets.chartCreator(inputWidget[0]);
                 var widgetToBeLoaded = createWidgets.replacePlaceHolderWidget(inputWidget[0],finalChartData);

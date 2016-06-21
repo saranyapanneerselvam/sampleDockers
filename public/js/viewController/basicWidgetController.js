@@ -210,7 +210,9 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
 
     $scope.createAndFetchBasicWidget = function () {
         var chartColors = [], widgetName;
-
+        $(".navbar").css('z-index','1');
+        $(".md-overlay").css("background","rgba(0,0,0,0.5)");
+        $("#getLoadingModalContent").addClass('md-show');
         if (getChannelName == "CustomData") {
             getCustomWidgetObj = {
                 '_id': getCustomWidgetId,
@@ -264,16 +266,22 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 url: '/api/v1/widgets',
                 data: inputParams
             }).then(function successCallback(response) {
+                $("#getLoadingModalContent").removeClass('md-show');
                 for(widgetObjects in response.data.widgetsList) {
                     $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
                 }
             }, function errorCallback(error) {
                 console.log('Error in getting widget id', error);
-                swal({
+                $("#getLoadingModalContent").removeClass('md-show');
+                $(".navbar").css('z-index','1');
+                $(".md-overlay").css("background","rgba(0,0,0,0.5)");
+                $("#somethingWentWrongModalContent").addClass('md-show');
+                $("#somethingWentWrongText").text("Please try again! Something is missing");
+                /*swal({
                     title: "",
                     text: "<span style='sweetAlertFont'>Please try again! Something is missing</span> .",
                     html: true
-                });
+                });*/
             });
         }
     };

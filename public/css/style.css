@@ -86,8 +86,17 @@
     }
 }
 */
-
-
+.aside{padding-left: 83px; position: absolute;width: 100%;}
+.postComment{overflow: hidden; white-space: nowrap;text-overflow: ellipsis;}
+.impression{padding-top: 15px;}
+.likes{float: left;}
+.listed-image{float: left;}
+.scrollInWidget{height: 100% !important;}
+.apiLink{color: #000;}
+.apiLink:hover{text-decoration: underline; }
+.comment{float: left;margin-left: 5px;}
+.date{float: right;}
+.listed{height:55px;width: 98%;background-color: #f5f5f5; margin-bottom: 5px;padding: 0px;padding-top: 3px;}
 .plus{color:#04509B !important;}
 .fontClass{color:#999;}
 .unfontClass{color:#000;}

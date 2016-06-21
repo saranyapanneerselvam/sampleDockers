@@ -511,6 +511,91 @@ showMetricApp.service('createWidgets',function($http,$q){
                         changedWidget.charts[i].chartData.push(formattedChartData);
                     }
                 }
+
+                else if(widget.charts[i].chartType == 'instagramPosts'){
+                    changedWidget.charts[i].chartData = [];
+                    if(typeof(widget.charts[i].chartData[0].total) === 'object') {
+                        console.log('requestToCreateCharts',widget)
+                        var images = 'images';
+                        var thumbnail='thumbnail';
+                        var likes ='likes';
+                        var comments='comments'
+                        var count='count';
+                        var caption='caption';
+                        var post='text';
+                        var link='link';
+
+
+                        for(dataObjects in widget.charts[i].chartData){
+                            formattedChartData.push(
+                                {
+                                    date: widget.charts[i].chartData[dataObjects].date,
+                                    image: (widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )? (typeof widget.charts[i].chartData[dataObjects].total[images][thumbnail] != 'undefined' ? widget.charts[i].chartData[dataObjects].total[images][thumbnail] : 0) : 0),
+                                    postComment: (widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )? (typeof widget.charts[i].chartData[dataObjects].total[caption][post] != 'undefined' ? widget.charts[i].chartData[dataObjects].total[caption][post] : 0) : 0),
+                                    likes: (widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )? (typeof widget.charts[i].chartData[dataObjects].total[likes][count] != 'undefined' ? widget.charts[i].chartData[dataObjects].total[likes][count] : 0) : 0),
+                                    comments: (widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )? (typeof widget.charts[i].chartData[dataObjects].total[comments][count] != 'undefined' ? widget.charts[i].chartData[dataObjects].total[comments][count] : 0) : 0),
+                                    links: (widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )? (typeof widget.charts[i].chartData[dataObjects].total[link] != 'undefined' ? widget.charts[i].chartData[dataObjects].total[link] : 0) : 0),
+                                }
+                            );
+                        }
+                        changedWidget.charts[i].chartData[items] = formattedChartData;
+                    }
+                    else{
+                        console.log('requestToCreateCharts',widget)
+                        var images = 'images';
+                        var thumbnail='thumbnail';
+                        var likes ='likes';
+                        var comments='comments'
+                        var count='count';
+                        var caption='caption';
+                        var post='text';
+                        var link='link';
+
+
+                        for(dataObjects in widget.charts[i].chartData){
+                            formattedChartData.push(
+                                {
+                                    date: widget.charts[i].chartData[dataObjects].date,
+                                    image: (widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )? (typeof widget.charts[i].chartData[dataObjects].total[images][thumbnail] != 'undefined' ? widget.charts[i].chartData[dataObjects].total[images][thumbnail] : 0) : 0),
+                                    postComment: (widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )? (typeof widget.charts[i].chartData[dataObjects].total[caption][post] != 'undefined' ? widget.charts[i].chartData[dataObjects].total[caption][post] : 0) : 0),
+                                    likes: (widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )? (typeof widget.charts[i].chartData[dataObjects].total[likes][count] != 'undefined' ? widget.charts[i].chartData[dataObjects].total[likes][count] : 0) : 0),
+                                    comments: (widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )? (typeof widget.charts[i].chartData[dataObjects].total[comments][count] != 'undefined' ? widget.charts[i].chartData[dataObjects].total[comments][count] : 0) : 0),
+                                    links: (widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )? (typeof widget.charts[i].chartData[dataObjects].total[link] != 'undefined' ? widget.charts[i].chartData[dataObjects].total[link] : 0) : 0),
+                                }
+                            );
+                        }
+                        changedWidget.charts[i].chartData[items] = formattedChartData;
+                    }
+                    console.log('changedWidget',changedWidget);
+
+                }
+
+                else if(widget.charts[i].chartType == 'highEngagementTweets'){
+                    console.log('requestToCreateCharts',widget)
+                    changedWidget.charts[i].chartData = [];
+                    var likes ='favorite_count';
+                    var reTweet='retweet_count'
+                    var entities='entities';
+                    var media='media';
+                    var post='text';
+                    var link='expanded_url';
+
+                    for(dataObjects in widget.charts[i].chartData){
+                        formattedChartData.push(
+                            {
+                                date: widget.charts[i].chartData[dataObjects].date,
+                                likes: (widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )? (typeof widget.charts[i].chartData[dataObjects].total[likes] != 'undefined' ? widget.charts[i].chartData[dataObjects].total[likes] : 0) : 0),
+                                reTweet: (widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )? (typeof widget.charts[i].chartData[dataObjects].total[reTweet] != 'undefined' ? widget.charts[i].chartData[dataObjects].total[reTweet] : 0) : 0),
+                                postComment: (widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )? (typeof widget.charts[i].chartData[dataObjects].total[post] != 'undefined' ? widget.charts[i].chartData[dataObjects].total[post] : 0) : 0),
+                                links: (widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )? (typeof widget.charts[i].chartData[dataObjects].total.entities!= 'undefined' ? widget.charts[i].chartData[dataObjects].total.entities  : 0) : 0),
+                            }
+                        );
+                    }
+
+                    changedWidget.charts[i].chartData[items] = formattedChartData;
+                    console.log('changedWidget',changedWidget);
+
+                }
             }
             formattedWidget.resolve(changedWidget);
             return formattedWidget.promise;
@@ -522,6 +607,8 @@ showMetricApp.service('createWidgets',function($http,$q){
         var modifiedCharts = [], graphData = [];
         graphData.lineData = []; graphData.barData = []; graphData.pieData = [];
         graphData.lineDataOptions = null; graphData.barDataOptions = null; graphData.pieDataOptions = null;
+        graphData.instagramPosts=[]; graphData.highEngagementTweets=[];
+        var instagramPost=false,highEngagement=false;
 
         var lowestLineValue =0, highestLineValue = 0;
         var barStacked = true;
@@ -827,6 +914,23 @@ showMetricApp.service('createWidgets',function($http,$q){
                         }
                     };
                 }
+
+                //If the chart type is instagramPost
+                else if(widgetData.charts[i].chartType == 'instagramPosts'){
+                    instagramPost=true;
+                    for(items in widgetData.charts[i].chartData) {
+                        graphData.instagramPosts.push(widgetData.charts[i].chartData[items]);
+                    }
+                }
+
+                 //If the chart type is highEngagementTweets
+                else if(widgetData.charts[i].chartType == 'highEngagementTweets'){
+                    highEngagement=true;
+                    for(items in widgetData.charts[i].chartData) {
+                        graphData.highEngagementTweets.push(widgetData.charts[i].chartData[items]);
+                    }
+                    console.log('widgetDataWhenFormate',widgetData)
+                }
             }
         }
 
@@ -848,6 +952,26 @@ showMetricApp.service('createWidgets',function($http,$q){
                 'data': graphData.pieData,
                 'api': {}
         });
+
+        if(instagramPost != false)
+            modifiedCharts.push({
+                'options': {
+                    'chart':{'type':'instagramPosts'}
+                },
+                'data': graphData.instagramPosts[0],
+                //'api': {}
+            });
+
+        if(highEngagement !=false){
+            modifiedCharts.push({
+                'options': {
+                    'chart':{'type':'highEngagementTweets'}
+                },
+                'data': graphData.highEngagementTweets[0],
+                //'api': {}
+            });
+        }
+        console.log('modifiedCharts',modifiedCharts);
 
         return(modifiedCharts);
     };

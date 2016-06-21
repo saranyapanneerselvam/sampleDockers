@@ -1183,15 +1183,54 @@ exports.getChannelData = function (req, res, next) {
                                                 }
                                             }
                                             else {
-                                                var total = dataFromRemote[j].data[0].user[param[index]];
-                                                totalArray.push({total: total, date: currentDate});
 
-                                                //Get the required data based on date range
-                                                storeTweetDetails.push({
-                                                        total: total,
-                                                        date: currentDate
+                                                var duplicateData=[];
+                                                var tempDate= [];
+                                                var dupReweetCount=0;
+                                                if (metric[j].code == configAuth.twitterMetric.retweets_of_your_tweets) {
+                                                    var tweetCount=dataFromRemote[j].data;
+                                                    //console.log('tweetCount',tweetCount);
+                                                    for(var i=0;i<tweetCount.length;i++){
+                                                       // console.log('convertDate',tweetCount[i].created_at);
+                                                        tempDate.push({date:formatDate(new Date(Date.parse(tweetCount[i].created_at.replace(/( +)/, ' UTC$1'))))});
                                                     }
-                                                );
+                                                    var tempDateCount = _.uniqBy(tempDate,'date')
+                                                    for(var m =0;m<tempDateCount.length;m++) {
+                                                        storeTweetDetails.push({date: tempDateCount[m].date,total:0});
+                                                    }
+                                                    console.log('checkingParmstempDateCount',tempDateCount.length,storeTweetDetails,storeTweetDetails.length);
+                                                    for(var m =0;m<storeTweetDetails.length;m++){
+                                                        for(var k=0;k<tweetCount.length;k++){
+                                                            var responseDate = formatDate(new Date(Date.parse(tweetCount[k].created_at.replace(/( +)/, ' UTC$1'))))
+                                                            //console.log('responseDate',responseDate,'uniqueDate',tempDateCount[m])
+                                                            if(storeTweetDetails[m].date=== responseDate){
+                                                                console.log('InsideIf',m,storeTweetDetails[m],k,formatDate(new Date(Date.parse(tweetCount[k].created_at.replace(/( +)/, ' UTC$1')))))
+                                                                console.log('retweet_count',tweetCount[k].retweet_count);
+                                                                dupReweetCount+=tweetCount[k].retweet_count;
+                                                            }
+                                                        }
+                                                        //Get the required data based on date range
+                                                        storeTweetDetails[m].total=(dupReweetCount);
+                                                        var dupReweetCount=0;
+
+                                                    }
+                                                    console.log('checkingParms',storeTweetDetails);
+                                                   // var tempCount = _.groupBy(dataFromRemote[j].data,'createdAt');
+                                                    // console.log('checkingParms',tweetCount);
+                                                }
+                                                else {
+                                                    var total = dataFromRemote[j].data[0].user[param[index]];
+                                                    totalArray.push({total: total, date: currentDate});
+                                                    console.log('total array', totalArray)
+
+                                                    //Get the required data based on date range
+                                                    storeTweetDetails.push({
+                                                            total: total,
+                                                            date: currentDate
+                                                        }
+                                                    );
+                                                }
+
                                             }
                                         }
                                     }

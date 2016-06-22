@@ -326,6 +326,22 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         }
     };
 
+
+
+    var removeByAttr = function(arr, attr, value){
+        var i = arr.length;
+        while(i--){
+            if( arr[i]
+                && arr[i].hasOwnProperty(attr)
+                && (arguments.length > 2 && arr[i][attr] === value ) ){
+
+                arr.splice(i,1);
+
+            }
+        }
+        return arr;
+    }
+    
     $scope.storeReferenceWidget = function () {
         $scope.storedReferenceWidget = this.referenceWidgets;
 

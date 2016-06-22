@@ -118,6 +118,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 method: 'GET',
                 url: '/api/v1/get/objects/' + profileId
             }).then(function successCallback(response) {
+                console.log('WORKING')
                 $scope.objectList = response.data.objectList;
                 if ($scope.storedChannelName === 'Twitter' || $scope.storedChannelName === 'Instagram') {
                     $scope.objectForWidgetChosen([$scope.objectList[0].name,$scope.objectList[0]._id,$scope.objectList[0].objectTypeId]);
@@ -145,6 +146,9 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     break;
                 case 'Instagram' :
                     $scope.objectType = 'instagram';
+                    break;
+                case 'GoogleAdwords' :
+                    $scope.objectType = 'adwordaccount';
                     break;
             }
             $http({
@@ -181,6 +185,10 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     break;
                 case 'Instagram':
                     url = '/api/auth/instagram';
+                    title = $scope.storedChannelName;
+                    break;
+                case 'GoogleAdwords':
+                    url = '/api/auth/adwords';
                     title = $scope.storedChannelName;
                     break;
             }

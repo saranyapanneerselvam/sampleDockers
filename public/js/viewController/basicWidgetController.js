@@ -12,6 +12,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     var getChannelName = "";
     var getCustomWidgetObj = {};
     var getCustomWidgetId = "";
+    var getReferenceWidgetsArr = new Array();
     $scope.tokenExpired = false;
 
 
@@ -25,16 +26,21 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             document.getElementById('basicWidgetNextButton').disabled = true;
             $scope.listChannels();
             $scope.clearReferenceWidget();
+            getReferenceWidgetsArr=[];
         } else if ($scope.currentView === 'step_two') {
             document.getElementById('basicWidgetBackButton1').disabled = false;
             $scope.clearReferenceWidget();
             if (getChannelName == "CustomData") {
                 $scope.storeCustomData();
+                $("#basicWidgetNextButton").hide();
+                $("#basicWidgetFinishButtonCustom").show();
             }
             else {
                 //$scope.clearReferenceWidget();
                 $scope.getReferenceWidgetsForChosenChannel();
                 $scope.getProfilesForDropdown();
+                $("#basicWidgetNextButton").show();
+                $("#basicWidgetFinishButtonCustom").hide();
             }
         } else if ($scope.currentView === 'step_three') {
             document.getElementById('basicWidgetBackButton1').disabled = false;
@@ -231,66 +237,76 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         }
         else {
             // function for saving other widgets goes here
-            var matchingMetric = [];
-            var inputParams = [];
-            var chartCount = $scope.storedReferenceWidget.charts.length;
-            //var chartColors = generateChartColours.fetchRandomColors(chartCount);
-            var widgetColor = generateChartColours.fetchWidgetColor($scope.storedChannelName);
+            console.log(getReferenceWidgetsArr);
+            console.log("************");
+            for(var getData in getReferenceWidgetsArr){
+                var matchingMetric = [];
+                var inputParams = [];
+                var chartCount = getReferenceWidgetsArr[getData].charts.length;
+                //var chartColors = generateChartColours.fetchRandomColors(chartCount);
+                var widgetColor = generateChartColours.fetchWidgetColor($scope.storedChannelName);
 
-            for (var i = 0; i < $scope.storedReferenceWidget.charts.length; i++) {
-                matchingMetric = [];
-                for (var j = 0; j < $scope.storedReferenceWidget.charts[i].metrics.length; j++) {
-                    if ($scope.storedReferenceWidget.charts[i].metrics[j].objectTypeId === $scope.storedObject.objectTypeId) {
-                        matchingMetric.push($scope.storedReferenceWidget.charts[i].metrics[j]);
-                        matchingMetric[0].objectId = $scope.storedObject._id;
+                for (var i = 0; i < getReferenceWidgetsArr[getData].charts.length; i++) {
+                    matchingMetric = [];
+                    for (var j = 0; j < getReferenceWidgetsArr[getData].charts[i].metrics.length; j++) {
+                        if (getReferenceWidgetsArr[getData].charts[i].metrics[j].objectTypeId === $scope.storedObject.objectTypeId) {
+                            matchingMetric.push(getReferenceWidgetsArr[getData].charts[i].metrics[j]);
+                            matchingMetric[0].objectId = $scope.storedObject._id;
+                        }
                     }
+                    getReferenceWidgetsArr[getData].charts[i].metrics = matchingMetric;
+                    //$scope.storedReferenceWidget.charts[i].colour = chartColors[i];
+                    getReferenceWidgetsArr[getData].charts[i].objectName = $scope.storedObject.name;
                 }
-                $scope.storedReferenceWidget.charts[i].metrics = matchingMetric;
-                //$scope.storedReferenceWidget.charts[i].colour = chartColors[i];
-                $scope.storedReferenceWidget.charts[i].objectName = $scope.storedObject.name;
-            }
-            if($scope.storedChannelName === 'Twitter' || $scope.storedChannelName === 'Instagram')
-                widgetName = $scope.storedReferenceWidget.name + ' - ' + $scope.storedProfile.name;
-            else
-                widgetName = $scope.storedReferenceWidget.name + ' - ' + $scope.storedProfile.name + ' - ' + $scope.storedObject.name;
+                if($scope.storedChannelName === 'Twitter' || $scope.storedChannelName === 'Instagram')
+                    widgetName = getReferenceWidgetsArr[getData].name + ' - ' + $scope.storedProfile.name;
+                else
+                    widgetName = getReferenceWidgetsArr[getData].name + ' - ' + $scope.storedProfile.name + ' - ' + $scope.storedObject.name;
 
-            var jsonData = {
-                "dashboardId": $state.params.id,
-                "widgetType": $scope.widgetType,
-                "name": widgetName,
-                "description": $scope.storedReferenceWidget.description,
-                "charts": $scope.storedReferenceWidget.charts,
-                "order": $scope.storedReferenceWidget.order,
-                "offset": $scope.storedReferenceWidget.offset,
-                "size": $scope.storedReferenceWidget.size,
-                "minSize": $scope.storedReferenceWidget.minSize,
-                "maxSize": $scope.storedReferenceWidget.maxSize,
-                "color": widgetColor
-            };
-            inputParams.push(jsonData);
+                var jsonData = {
+                    "dashboardId": $state.params.id,
+                    "widgetType": $scope.widgetType,
+                    "name": widgetName,
+                    "description": getReferenceWidgetsArr[getData].description,
+                    "charts": getReferenceWidgetsArr[getData].charts,
+                    "order": getReferenceWidgetsArr[getData].order,
+                    "offset": getReferenceWidgetsArr[getData].offset,
+                    "size": getReferenceWidgetsArr[getData].size,
+                    "minSize": getReferenceWidgetsArr[getData].minSize,
+                    "maxSize": getReferenceWidgetsArr[getData].maxSize,
+                    "color": widgetColor
+                };
+                inputParams.push(jsonData);
 
-            $http({
-                method: 'POST',
-                url: '/api/v1/widgets',
-                data: inputParams
-            }).then(function successCallback(response) {
-                $("#getLoadingModalContent").removeClass('md-show');
-                for(widgetObjects in response.data.widgetsList) {
-                    $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
-                }
-            }, function errorCallback(error) {
-                console.log('Error in getting widget id', error);
-                $("#getLoadingModalContent").removeClass('md-show');
-                $(".navbar").css('z-index','1');
-                $(".md-overlay").css("background","rgba(0,0,0,0.5)");
-                $("#somethingWentWrongModalContent").addClass('md-show');
-                $("#somethingWentWrongText").text("Please try again! Something is missing");
-                /*swal({
-                    title: "",
-                    text: "<span style='sweetAlertFont'>Please try again! Something is missing</span> .",
-                    html: true
-                });*/
-            });
+                console.log(inputParams);
+
+                $http({
+                    method: 'POST',
+                    url: '/api/v1/widgets',
+                    data: inputParams
+                }).then(function successCallback(response) {
+                    $("#getLoadingModalContent").removeClass('md-show');
+                    for(widgetObjects in response.data.widgetsList) {
+                        $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
+                    }
+                }, function errorCallback(error) {
+                    console.log('Error in getting widget id', error);
+                    $("#getLoadingModalContent").removeClass('md-show');
+                    $(".navbar").css('z-index','1');
+                    $(".md-overlay").css("background","rgba(0,0,0,0.5)");
+                    $("#somethingWentWrongModalContent").addClass('md-show');
+                    $("#somethingWentWrongText").text("Please try again! Something is missing");
+                    /*swal({
+                     title: "",
+                     text: "<span style='sweetAlertFont'>Please try again! Something is missing</span> .",
+                     html: true
+                     });*/
+                });
+
+            } // for getReferenceWidgetsArr
+
+            getReferenceWidgetsArr = [];
+
         }
     };
 
@@ -312,6 +328,29 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
 
     $scope.storeReferenceWidget = function () {
         $scope.storedReferenceWidget = this.referenceWidgets;
+
+        var IsAlreadyExist = 0;
+        for(getData in getReferenceWidgetsArr){
+
+            if(getReferenceWidgetsArr[getData]._id==this.referenceWidgets._id){
+                removeByAttr(getReferenceWidgetsArr, '_id', getReferenceWidgetsArr[getData]._id);
+                $("#referenceWidgets-"+this.referenceWidgets._id).css("border","2px solid #e7eaec");
+                IsAlreadyExist = 1;
+            }
+
+        }
+
+        if (IsAlreadyExist != 1) {
+            getReferenceWidgetsArr.push(this.referenceWidgets);
+            $("#referenceWidgets-"+this.referenceWidgets._id).css("border","2px solid #04509B");
+            document.getElementById('basicWidgetNextButton').disabled = false;
+        }
+
+        console.log(getReferenceWidgetsArr);
+
+        if(getReferenceWidgetsArr=="" || getReferenceWidgetsArr=="[]" || getReferenceWidgetsArr==null){
+            document.getElementById('basicWidgetNextButton').disabled = true;
+        }
     };
 
     $scope.clearReferenceWidget = function () {

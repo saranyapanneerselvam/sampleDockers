@@ -364,7 +364,7 @@
                         <div class="row" ng-if="currentView === 'step_two'"  ng-cloak>
                             <h5 class="model-title">{{selectCustomLinkHead}}</h5>
                             <div class="col-lg-12">
-                                <div ng-repeat="referenceWidgets in referenceWidgetsList" name="{{referenceWidgets.name}}" ng-hide="metricContent" class="col-lg-2 widget-icons showReferenceWidgets" ng-click="storeReferenceWidget();changeViewsInBasicWidget('step_three');">
+                                <div ng-repeat="referenceWidgets in referenceWidgetsList" name="{{referenceWidgets.name}}" id="referenceWidgets-{{referenceWidgets._id}}" ng-hide="metricContent" class="col-lg-2 widget-icons showReferenceWidgets" ng-click="storeReferenceWidget();">
                                     <p class="metricNames">{{referenceWidgets.name}}</p>
 <!--
                                     <P class="metricDescription" >{{referenceWidgets.description}}</P>
@@ -481,8 +481,9 @@
                     <div class="col-lg-12 text-right">
                         <button class="btn btn-white button-mode" id="basicWidgetBackButton1" ng-hide="currentView === 'step_two'" ng-click="changeViewsInBasicWidget('step_two')">Previous </button>
                         <button class="btn btn-white button-mode" id="basicWidgetBackButton2" ng-show="currentView === 'step_two'" ng-click="changeViewsInBasicWidget('step_one')">Previous </button>
-                        <button class="btn btn-primary button-mode" id="basicWidgetNextButton" ng-hide="currentView === 'step_three'" ng-click="createAndFetchBasicWidget();ok()">Next</button>
-                        <button class="btn btn-primary button-mode" id="basicWidgetFinishButton" ng-show="currentView === 'step_three'" ng-click="createAndFetchBasicWidget();ok()" disabled="disabled">Finish</button>
+                        <button class="btn btn-primary button-mode" id="basicWidgetNextButton" ng-hide="currentView === 'step_three'" ng-click="changeViewsInBasicWidget('step_three')">Next</button>
+                        <button class="btn btn-primary button-mode" id="basicWidgetFinishButtonCustom" ng-show="currentView === 'step_two'" ng-click="createAndFetchBasicWidget();ok();">Finish</button>
+                        <button class="btn btn-primary button-mode" id="basicWidgetFinishButton" ng-show="currentView === 'step_three'" ng-click="createAndFetchBasicWidget();ok();" disabled="disabled">Finish</button>
                     </div>
                 </div>
             </div>

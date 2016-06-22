@@ -151,7 +151,6 @@ require('./controllers/updateDashboardWidgetData')(app);
 require('./controllers/user')(app, passport);
 require('./controllers/facebookInsights')(app);
 require('./controllers/googleAdwordsAuth')(app);
-require('./controllers/pdfExport')(app);
 require('./controllers/referenceWidgets')(app);
 require('./controllers/customIdentity')(app);
 require('./controllers/customChannelData')(app);

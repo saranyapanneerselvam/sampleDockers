@@ -278,6 +278,7 @@ exports.getChannelData = function (req, res, next) {
 
     //To call the respective function based on channel
     function getChannelDataRemote(initialResults, callback) {
+        console.log('result',initialResults.get_channel)
         async.auto({
             get_each_channel_data: getEachChannelData,
 
@@ -656,7 +657,7 @@ exports.getChannelData = function (req, res, next) {
                             }
                             var dimensionArray = [];
                             var dimensionList = metric[j].objectTypes[0].meta.dimension;
-                            if (dimensionList[0].name === "ga:date") {
+                            if (dimensionList[0].name === "ga:date" || dimensionList[0].name ==="mcf:conversionDate") {
                                 if (dataFromRemote[j].metric.objectTypes[0].meta.endpoint.length)
                                     finalData = findDaysDifference(dataFromRemote[j].startDate, dataFromRemote[j].endDate, dataFromRemote[j].metric.objectTypes[0].meta.endpoint);
                                 else {
@@ -1191,7 +1192,7 @@ exports.getChannelData = function (req, res, next) {
                                                     var tweetCount=dataFromRemote[j].data;
                                                     //console.log('tweetCount',tweetCount);
                                                     for(var i=0;i<tweetCount.length;i++){
-                                                       // console.log('convertDate',tweetCount[i].created_at);
+                                                        // console.log('convertDate',tweetCount[i].created_at);
                                                         tempDate.push({date:formatDate(new Date(Date.parse(tweetCount[i].created_at.replace(/( +)/, ' UTC$1'))))});
                                                     }
                                                     var tempDateCount = _.uniqBy(tempDate,'date')
@@ -1215,7 +1216,7 @@ exports.getChannelData = function (req, res, next) {
 
                                                     }
                                                     console.log('checkingParms',storeTweetDetails);
-                                                   // var tempCount = _.groupBy(dataFromRemote[j].data,'createdAt');
+                                                    // var tempCount = _.groupBy(dataFromRemote[j].data,'createdAt');
                                                     // console.log('checkingParms',tweetCount);
                                                 }
                                                 else {
@@ -1436,7 +1437,7 @@ exports.getChannelData = function (req, res, next) {
 
     //to get google analtic data
     function googleDataEntireFunction(results, callback) {
-
+console.log('googleDataEntireFunction')
         var allDataObject = {};
         async.auto({
             get_dimension: getDimension,
@@ -1486,11 +1487,13 @@ exports.getChannelData = function (req, res, next) {
         }
 
         function checkDataExist(dimension, callback) {
+            console.log('checkDataExist');
             var data = results.data;
             var metric = results.metric;
             var object = results.object;
             var widget = results.widget.charts;
             oauth2Client.refreshAccessToken(function (err, tokens) {
+                console.log('error ga',err)
                 if (err) {
                     if (err.code === 400)
                         return res.status(401).json({error: 'Authentication required to perform this action'})
@@ -1588,6 +1591,7 @@ exports.getChannelData = function (req, res, next) {
 
         //to get the final google analytic data
         function analyticData(allObjects, callback) {
+            console.log('analytics data')
             async.concatSeries(allObjects.check_data_exist, getAllMetricData, callback);
 
         }
@@ -1658,6 +1662,7 @@ exports.getChannelData = function (req, res, next) {
                 //var splitRequiredQueryData = {};
                 function callGoogleApi(apiQuery) {
                     analytics(apiQuery, function (err, result) {
+                        console.log('api error',err)
                         if (err) {
                             if (err.code === 400)
                                 return res.status(401).json({error: 'Authentication required to perform this action'})

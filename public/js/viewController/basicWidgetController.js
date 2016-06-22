@@ -237,8 +237,8 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         }
         else {
             // function for saving other widgets goes here
-            console.log(getReferenceWidgetsArr);
-            console.log("************");
+            //console.log(getReferenceWidgetsArr);
+            //console.log("************");
             for(var getData in getReferenceWidgetsArr){
                 var matchingMetric = [];
                 var inputParams = [];
@@ -278,7 +278,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 };
                 inputParams.push(jsonData);
 
-                console.log(inputParams);
+                //console.log(inputParams);
 
                 $http({
                     method: 'POST',
@@ -351,6 +351,8 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             if(getReferenceWidgetsArr[getData]._id==this.referenceWidgets._id){
                 removeByAttr(getReferenceWidgetsArr, '_id', getReferenceWidgetsArr[getData]._id);
                 $("#referenceWidgets-"+this.referenceWidgets._id).css("border","2px solid #e7eaec");
+                $("#triangle-topright-"+this.referenceWidgets._id).removeClass("triangle-topright");
+                $("#metricNames-"+this.referenceWidgets._id).removeClass("getMetricName");
                 IsAlreadyExist = 1;
             }
 
@@ -359,10 +361,12 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         if (IsAlreadyExist != 1) {
             getReferenceWidgetsArr.push(this.referenceWidgets);
             $("#referenceWidgets-"+this.referenceWidgets._id).css("border","2px solid #04509B");
+            $("#triangle-topright-"+this.referenceWidgets._id).addClass("triangle-topright");
+            $("#metricNames-"+this.referenceWidgets._id).addClass("getMetricName");
             document.getElementById('basicWidgetNextButton').disabled = false;
         }
 
-        console.log(getReferenceWidgetsArr);
+        //console.log(getReferenceWidgetsArr);
 
         if(getReferenceWidgetsArr=="" || getReferenceWidgetsArr=="[]" || getReferenceWidgetsArr==null){
             document.getElementById('basicWidgetNextButton').disabled = true;

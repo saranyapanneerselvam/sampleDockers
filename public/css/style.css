@@ -6093,6 +6093,15 @@ a.customApiLink{
     cursor: pointer;
 }
 
+.getCheck{
+    display: none;
+    z-index: 1;
+    position: absolute;
+    margin-top: -35px;
+    margin-left: -15px;
+    color: #fff;
+}
+
 #submitExportButton{
     border: none;
     font-size: 17px;

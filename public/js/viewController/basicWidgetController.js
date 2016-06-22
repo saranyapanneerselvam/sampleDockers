@@ -353,6 +353,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 $("#referenceWidgets-"+this.referenceWidgets._id).css("border","2px solid #e7eaec");
                 $("#triangle-topright-"+this.referenceWidgets._id).removeClass("triangle-topright");
                 $("#metricNames-"+this.referenceWidgets._id).removeClass("getMetricName");
+                $("#getCheck-"+this.referenceWidgets._id).hide();
                 IsAlreadyExist = 1;
             }
 
@@ -363,6 +364,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             $("#referenceWidgets-"+this.referenceWidgets._id).css("border","2px solid #04509B");
             $("#triangle-topright-"+this.referenceWidgets._id).addClass("triangle-topright");
             $("#metricNames-"+this.referenceWidgets._id).addClass("getMetricName");
+            $("#getCheck-"+this.referenceWidgets._id).show();
             document.getElementById('basicWidgetNextButton').disabled = false;
         }
 

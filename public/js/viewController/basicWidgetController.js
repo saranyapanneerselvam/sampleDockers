@@ -110,12 +110,13 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             var expiresIn = this.profileOptionsModel.expiresIn;
             var currentDate = new Date();
             var newexpiresIn = new Date(expiresIn);
-            if (currentDate <= newexpiresIn) {
+            if (currentDate <= newexpiresIn &&  expiresIn != null) {
                 //token is valid
                 $scope.tokenExpired = false;
             }
-            else if (expiresIn === undefined)
+            else if (expiresIn === undefined || expiresIn === null) {
                 $scope.tokenExpired = false;
+            }
             else {
                 $scope.tokenExpired = true;
             }
@@ -325,8 +326,6 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             $scope.selectCustomLinkHead = "Step 2 : Choose a Metric";
         }
     };
-
-
 
     var removeByAttr = function(arr, attr, value){
         var i = arr.length;

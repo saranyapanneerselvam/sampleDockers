@@ -47,7 +47,8 @@ module.exports = function (app) {
                     if (error) {
                         console.log(error);
                         res.send("yeah something broke.");
-                    } else {
+                    }
+                    else {
                         req.session.oauth.access_token = oauth_access_token;
                         req.session.oauth, access_token_secret = oauth_access_token_secret;
                         console.log(results);
@@ -68,7 +69,6 @@ module.exports = function (app) {
                                     //If response of the storeProfiles function is success then render the successAuthentication page
                                     objects.findOne({'profileId':response._id} , function(err, object){
                                         if(object!=null){
-                                            console.log('object',object);
                                             res.render('successAuthentication');
                                         }
                                         else{
@@ -83,25 +83,21 @@ module.exports = function (app) {
                                                     objectItem.created=new Date();
                                                     objectItem.save(function(err,objectListItem){
                                                         if(!err){
-                                                            console.log('object2',objectListItem);
                                                             res.render('successAuthentication');
                                                         }
                                                     });
-
                                                 }
                                             });
                                         }
                                     });
-
                                 }
                             });
                         });
-
                     }
                 }
             );
-        } else
+        }
+        else
             next(new Error("you're not supposed to be here."))
     });
-
-}
+};

@@ -36,7 +36,7 @@ exports.storeProfiles = function (req, done) {
                     "accessToken": newAccessToken,
                     "refreshToken": newRefreshToken,
                     'updated': updated,
-                    "expiresIn" : req.expiresIn
+                    "expiresIn" : req.expiresIn ? req.expiresIn : ''
                 }
             }, {upsert: true}, function (err, updateResult) {
                 if (!err) {

@@ -4,136 +4,119 @@
             <div class="row">
                 <div class="col-lg-12">
                     <div class="modal-header">
-                        <button type="button" class="close" ng-click="closeBasicWidgetModal(currentModalView)"
-                                aria-hidden="true">&times;</button>
+                        <button type="button" class="close" ng-click="closeBasicWidgetModal(currentModalView)" aria-hidden="true">&times;</button>
                         <h3 class="model-title">Alert for this Widget</h3>
                     </div>
                 </div>
-
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="padding: 0px;">
                 <div class="wrapper wrapper-content">
                     <div class="scrollbar" id="scroller">
-                        <div class="row" ng-show="currentView === 'step_one'" ng-cloak>
-                            <div class="col-lg-12">
-                                <a ng-click="changeViewsInAlertModal('step_two')"><i class="fa fa-plus plus fa-3x"></i></a>
+                        <div class="" ng-show="currentView === 'step_one'" ng-cloak>
+                            <div class="col-lg-12" style="text-align: center;">
+                                <a ng-click="changeViewsInAlertModal('step_two')" style="text-align: center"><i class="fa fa-plus plus" style="font-size: 6em;"></i></a>
                             </div>
-                            <div class="col-lg-6 alertList" ng-hide="!storedAlertsForWidget.data">
+                            <div class="col-lg-12" ng-hide="!storedAlertsForWidget.data">
                                 <div class="ibox float-e-margins">
-                                    <div class="ibox-content">
-
+                                    <div class="ibox-content" style="padding: 0px">
                                         <table class="table table-hover">
                                             <thead>
-                                            <tr>
-                                                <th>AlertName</th>
-                                                <th>MetricName</th>
-                                                <th>Email</th>
-                                                <th>Operation</th>
-                                                <th>threshold</th>
-                                                <th>Delete</th>
-                                                <th>Edit</th>
-                                            </tr>
+                                                <tr>
+                                                    <th>AlertName</th>
+                                                    <th>MetricName</th>
+                                                    <th>Email</th>
+                                                    <th>Operation</th>
+                                                    <th>threshold</th>
+                                                    <th>Delete</th>
+                                                    <th>Edit</th>
+                                                </tr>
                                             </thead>
                                             <tbody>
-                                            <tr ng-repeat="alerts in  storedAlertsForWidget.data">
-                                                <td>{{alerts.name}}</td>
-                                                <td>{{storeMetric[$index].name.name}}</td>
-                                                <td>{{alerts.mailingId.email}}</td>
-                                                <td>{{alerts.operation}}</td>
-                                                <td>{{alerts.threshold.gt}}</td>
-                                                <td><i class="fa fa-minus" ng-click="deleteAlert(alerts)"
-                                                       aria-hidden="true"></i></td>
-                                                <td><i class="fa fa-pencil"
-                                                       ng-click="editAlert(alerts,storeMetric[$index].name)"
-                                                       aria-hidden="true"></i></td>
-                                            </tr>
+                                                <tr ng-repeat="alerts in  storedAlertsForWidget.data" ng-cloak>
+                                                    <td>{{alerts.name}}</td>
+                                                    <td ng-cloak ng-if="alerts.endPoint">{{metricsInStoredAlerts[$index].name.name}} - {{alerts.endPoint}}</td>
+                                                    <td ng-cloak ng-if="!alerts.endPoint">{{metricsInStoredAlerts[$index].name.name}}</td>
+                                                    <td>{{alerts.mailingId.email}}</td>
+                                                    <td ng-if="alerts.operation.lt == true">Less than</td>
+                                                    <td ng-if="alerts.operation.gt == true">Greater than</td>
+                                                    <td ng-if="alerts.operation.gt == true">{{alerts.threshold.gt}}</td>
+                                                    <td ng-if="alerts.operation.lt == true">{{alerts.threshold.lt}}</td>
+                                                    <td><a ng-click="deleteAlert(alerts)"><i class="fa fa-minus" aria-hidden="true"></i></a></td>
+                                                    <td><a ng-click="editAlert(alerts,metricsInStoredAlerts[$index].name)"><i class="fa fa-pencil" aria-hidden="true"></i></a></td>
+                                                </tr>
                                             </tbody>
                                         </table>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="row" ng-show="currentView === 'step_two'" ng-cloak>
+                        <div class="" ng-show="currentView === 'step_two'" ng-cloak style="padding-right: 10px">
                             <div class="col-lg-12" style="background-color: #f3f3f4">
-                                <div class="row" style="margin: 30px 5px 5px 5px ;">
-                                    <div class="col-lg-2"></div>
-                                    <div class="col-lg-8" style="margin: 0px">
+                                <div class="row" style="margin: 10px 5px 10px 5px ;">
+                                    <div class="col-lg-12" style="margin: 0px">
                                         <div class="ibox float-e-margins createAlert">
-                                            <div class="ibox-title" style="vertical-align: middle">
-                                                <h5>Add Alert</h5>
+                                            <div class="ibox-title" style="vertical-align: middle; text-align: center;">
+                                                <h5 style="float: none">Add Alert</h5>
                                             </div>
                                             <div class="ibox-content" style="display: block; border: none">
                                                 <form name="alertForm" class="form-horizontal">
                                                     <div class="form-group">
                                                         <div class="col-lg-12">
-                                                    <div class="col-sm-6">
-                                                        <input class="form-control m-b choose-text" placeholder="Enter a name" type="text"
-                                                               name="input" ng-model="name" required/>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <select class="form-control m-b choose-text" ng-model="metric" id="metricOptions">
-                                                            <!--ng-options="metrics as metrics.name for metrics in metricDetails[0].metrics" required >-->
-                                                            <option value="">Select a Metric</option>
-                                                            <option ng-repeat="metrics in storeFinalMetric | orderBy:'$index':true"
-                                                                    value="{{[metrics._id,metrics.endPoints]}}">{{metrics.name}}
-                                                            </option>
-                                                        </select>
-                                                    </div>
+                                                            <div class="col-sm-6">
+                                                                <input class="form-control m-b choose-text" placeholder="Enter a name" type="text" name="input" ng-model="name" required/>
                                                             </div>
-                                                        <div class="col-lg-12">
-                                                    <div class="col-sm-4">
-                                                        <select class="form-control m-b choose-text" ng-model="operation" required>
-                                                            <option value="">Select an operation</option>
-                                                            <option value="gt">Greater than</option>
-                                                            <option value="lt">Less than</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="col-sm-4">
-                                                        <input class="form-control m-b choose-text" placeholder="Enter a threshold value"
-                                                               type="number" name="input" ng-model="threshold" ng-pattern="/^[0-9]{1,7}$/"
-                                                               required/>
-                                                    </div>
-                                                    <div class="col-sm-4">
-                                                        <select class="form-control m-b choose-text" ng-model="interval" required>
-                                                            <option value="">Select an interval</option>
-                                                            <option value="daily">Daily</option>
-                                                            <option value="weekly">Weekly</option>
-                                                        </select>
-                                                    </div>
+                                                            <div class="col-sm-6">
+                                                                <select class="form-control m-b choose-text" ng-model="metric" id="metricOptions" required>
+                                                                    <!--ng-options="metrics as metrics.name for metrics in metricDetails[0].metrics" required >-->
+                                                                    <option value="">Select a Metric</option>
+                                                                    <option ng-repeat="metrics in storeFinalMetric | orderBy:'$index':true" ng-selected="metrics.name == metric" value="{{[metrics._id,metrics.endPoints]}}">{{metrics.name}}</option>
+                                                                </select>
                                                             </div>
-                                                    <div class="col-sm-12">
-                                                        <input class="form-control m-b choose-text" placeholder="Enter a email" type="email"
-                                                               name="input" ng-model="email" required/>
-                                                        <span class="text-error" data-ng-show="alertForm.email.$error.required">Email is required</span>
-                                                    </div>
                                                         </div>
+                                                        <div class="col-lg-12">
+                                                            <div class="col-sm-4">
+                                                                <select class="form-control m-b choose-text" ng-model="operation" required>
+                                                                    <option value="">Select an operation</option>
+                                                                    <option value="gt">Greater than</option>
+                                                                    <option value="lt">Less than</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-sm-4">
+                                                                <input class="form-control m-b choose-text" placeholder="Enter a threshold value" type="number" name="input" ng-model="threshold" ng-pattern="/^[0-9]{1,7}$/" required/>
+                                                            </div>
+                                                            <div class="col-sm-4">
+                                                                <select class="form-control m-b choose-text" ng-model="interval" required>
+                                                                    <option value="">Select an interval</option>
+                                                                    <option value="daily">Daily</option>
+                                                                    <option value="weekly">Weekly</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-12">
+                                                            <div class="col-sm-12">
+                                                                <input class="form-control m-b choose-text" placeholder="Enter a email" type="email" name="input" ng-model="email" required/>
+                                                                <span class="text-error" data-ng-show="alertForm.email.$error.required">Email is required</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </form>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-lg-2"></div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-        <div class="modal-footer">
-            <div class="row">
-                <div class="col-lg-12 text-right">
-                    <button class="btn btn-primary button-mode" id="basicWidgetBackButton1"
-                            ng-show="currentView === 'step_two'" ng-click="changeViewsInAlertModal('step_one')">
-                        Previous
-                    </button>
-                    <button class="btn btn-primary button-mode" id="" ng-hide="currentView === 'step_one'"
-                            ng-click="saveAlert();changeViewsInAlertModal('step_one');"
-                            ng-disabled="alertForm.$invalid">Submit
-                    </button>
-
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-lg-12 text-right">
+                        <button class="btn btn-primary button-mode" id="basicWidgetBackButton1" ng-show="currentView === 'step_two'" ng-click="changeViewsInAlertModal('step_one')">Previous</button>
+                        <button class="btn btn-primary button-mode" id="" ng-hide="currentView === 'step_one'" ng-click="saveAlert();" ng-disabled="alertForm.$invalid">Submit</button>
+                    </div>
                 </div>
             </div>
-        </div>
         </div>
     </script>
 </div>

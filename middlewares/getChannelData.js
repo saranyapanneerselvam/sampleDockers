@@ -86,6 +86,7 @@ exports.getChannelData = function (req, res, next) {
         }
         return storeDefaultValues;
     }
+
     function replaceEmptyData(daysDifference, finalData) {
         var defaultArrayLength = daysDifference.length;
         var dataLength = finalData.length;
@@ -656,7 +657,7 @@ exports.getChannelData = function (req, res, next) {
                             var dimensionArray = [];
                             var dimensionList = metric[j].objectTypes[0].meta.dimension;
                             if (dimensionList[0].name === "ga:date") {
-                                if (dataFromRemote[j].metric.objectTypes[0].meta.endpoint)
+                                if (dataFromRemote[j].metric.objectTypes[0].meta.endpoint.length)
                                     finalData = findDaysDifference(dataFromRemote[j].startDate, dataFromRemote[j].endDate, dataFromRemote[j].metric.objectTypes[0].meta.endpoint);
                                 else {
                                     if (dataFromRemote[j].metric.objectTypes[0].meta.responseType === 'object')
@@ -664,7 +665,7 @@ exports.getChannelData = function (req, res, next) {
                                     else
                                         finalData = findDaysDifference(dataFromRemote[j].startDate, dataFromRemote[j].endDate, undefined);
                                 }
-                                storeGoogleData = replaceEmptyData(finalData, storeGoogleData);
+
                             }
 
                             //Check empty data from query response
@@ -676,15 +677,16 @@ exports.getChannelData = function (req, res, next) {
                                 //calculating the result length
                                 var resultLength = dataFromRemote[j].data.length;
                                 var resultCount = dataFromRemote[j].data[0].length - 1;
-
+                                console.log('resultLength', resultLength, resultCount,dataFromRemote[j].data)
                                 //loop to store the entire result into an array
                                 for (var i = 0; i < resultLength; i++) {
+                                    console.log('i', i)
                                     var obj = {};
 
                                     //loop generate array dynamically based on given dimension list
                                     for (var m = 0; m < dimensionList.length; m++) {
                                         if (m == 0) {
-
+                                            console.log('if',m,dimensionList.length)
                                             //date value is coming in the format of 20160301 so splitting like yyyy-mm--dd format
                                             //obj['metricName'] = metricName;
                                             if (metric[j].objectTypes[0].meta.api === configAuth.googleApiTypes.mcfApi) {
@@ -696,6 +698,7 @@ exports.getChannelData = function (req, res, next) {
                                             }
 
                                             else {
+                                                console.log('else data')
                                                 var year = dataFromRemote[j].data[i][0].substring(0, 4);
                                                 var month = dataFromRemote[j].data[i][0].substring(4, 6);
                                                 var date = dataFromRemote[j].data[i][0].substring(6, 8);
@@ -705,16 +708,23 @@ exports.getChannelData = function (req, res, next) {
 
                                         }
                                         else {
+                                            console.log('else')
                                             obj[dimensionList[m].name.substr(3)] = dataFromRemote[j].data[i][m];
                                             if (metric[j].objectTypes[0].meta.api === configAuth.googleApiTypes.mcfApi)
                                                 obj['total'] = dataFromRemote[j].data[i][resultCount].primitiveValue;
                                             else
                                                 obj['total'] = dataFromRemote[j].data[i][resultCount];
+
                                         }
 
                                     }
+
+                                    console.log('object',obj)
                                     storeGoogleData.push(obj);
                                 }
+
+
+                                console.log('obj', storeGoogleData[0])
                                 if (dimensionList.length > 1) {
                                     if (metric[j].objectTypes[0].meta.endpoint.length) {
                                         var result = _.chain(storeGoogleData)
@@ -745,6 +755,7 @@ exports.getChannelData = function (req, res, next) {
 
                                                     else
                                                         var finalDimensionData = dimensionData + '/' + groupedData[i].data[g][dimensionList[d].name.substr(3)];
+                                                    console.log('finaldimensiondata', storeGoogleData[0], groupedData[i].data[g], dimensionList[1].name, finalDimensionData);
                                                     var replacedValue = finalDimensionData.split('.').join('002E');
                                                     objToStoreFinalData[replacedValue] = groupedData[i].data[g].total;
                                                 }
@@ -788,6 +799,7 @@ exports.getChannelData = function (req, res, next) {
 
 
                             }
+                            storeGoogleData = replaceEmptyData(finalData, storeGoogleData);
                             var now = new Date();
 
                             //Updating the old data with new one
@@ -1171,15 +1183,54 @@ exports.getChannelData = function (req, res, next) {
                                                 }
                                             }
                                             else {
-                                                var total = dataFromRemote[j].data[0].user[param[index]];
-                                                totalArray.push({total: total, date: currentDate});
 
-                                                //Get the required data based on date range
-                                                storeTweetDetails.push({
-                                                        total: total,
-                                                        date: currentDate
+                                                var duplicateData=[];
+                                                var tempDate= [];
+                                                var dupReweetCount=0;
+                                                if (metric[j].code == configAuth.twitterMetric.retweets_of_your_tweets) {
+                                                    var tweetCount=dataFromRemote[j].data;
+                                                    //console.log('tweetCount',tweetCount);
+                                                    for(var i=0;i<tweetCount.length;i++){
+                                                       // console.log('convertDate',tweetCount[i].created_at);
+                                                        tempDate.push({date:formatDate(new Date(Date.parse(tweetCount[i].created_at.replace(/( +)/, ' UTC$1'))))});
                                                     }
-                                                );
+                                                    var tempDateCount = _.uniqBy(tempDate,'date')
+                                                    for(var m =0;m<tempDateCount.length;m++) {
+                                                        storeTweetDetails.push({date: tempDateCount[m].date,total:0});
+                                                    }
+                                                    console.log('checkingParmstempDateCount',tempDateCount.length,storeTweetDetails,storeTweetDetails.length);
+                                                    for(var m =0;m<storeTweetDetails.length;m++){
+                                                        for(var k=0;k<tweetCount.length;k++){
+                                                            var responseDate = formatDate(new Date(Date.parse(tweetCount[k].created_at.replace(/( +)/, ' UTC$1'))))
+                                                            //console.log('responseDate',responseDate,'uniqueDate',tempDateCount[m])
+                                                            if(storeTweetDetails[m].date=== responseDate){
+                                                                console.log('InsideIf',m,storeTweetDetails[m],k,formatDate(new Date(Date.parse(tweetCount[k].created_at.replace(/( +)/, ' UTC$1')))))
+                                                                console.log('retweet_count',tweetCount[k].retweet_count);
+                                                                dupReweetCount+=tweetCount[k].retweet_count;
+                                                            }
+                                                        }
+                                                        //Get the required data based on date range
+                                                        storeTweetDetails[m].total=(dupReweetCount);
+                                                        var dupReweetCount=0;
+
+                                                    }
+                                                    console.log('checkingParms',storeTweetDetails);
+                                                   // var tempCount = _.groupBy(dataFromRemote[j].data,'createdAt');
+                                                    // console.log('checkingParms',tweetCount);
+                                                }
+                                                else {
+                                                    var total = dataFromRemote[j].data[0].user[param[index]];
+                                                    totalArray.push({total: total, date: currentDate});
+                                                    console.log('total array', totalArray)
+
+                                                    //Get the required data based on date range
+                                                    storeTweetDetails.push({
+                                                            total: total,
+                                                            date: currentDate
+                                                        }
+                                                    );
+                                                }
+
                                             }
                                         }
                                     }
@@ -1226,6 +1277,7 @@ exports.getChannelData = function (req, res, next) {
                                     }
                                     storeTweetDetails = daysDifference;
                                 }
+
                                 if (dataFromRemote[key].data != 'DataFromDb') {
                                     if (dataFromDb[j].data != null) {
                                         dataFromDb[j].data.data.forEach(function (value, index) {

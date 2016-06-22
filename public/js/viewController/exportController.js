@@ -50,6 +50,7 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
                 .then(function (blob) {
                     document.getElementById('dashboardTitleIcons').style.visibility = "visible";
                     var timestamp = Number(new Date());
+                    $("#exportJPEGModalContent").removeClass('md-show');
                     window.saveAs(blob, dashboardName+"_"+timestamp+".jpeg");
                     $("#exportOptionJpeg").prop("checked",false);
                 });
@@ -60,7 +61,9 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
             $("#exportModalContent").removeClass('md-show');
             $(".md-overlay").css("background","rgba(0,0,0,0.5)");
             $("#exportPDFModalContent").addClass('md-show');
-            $(".pdfHeadText").hide();
+            $(".pdfHeadText").text('');
+            $(".pdfContentText").html('<b>Please wait while the PDF file is being generated</b>');
+            $(".loadingStatus").show();
 
             domtoimage.toPng(dashboardLayout)
                 .then(function (dataUrl) {

@@ -514,6 +514,11 @@ body{font-family: Brandon Grotesque; }
     font-size: 12px;
     font-weight: 500;
 }
+
+.logintext {
+    font-family: "Brandon Grotesque-regular";
+    font-size: 15px;
+}
 .nav-third-level li a {
     padding-left: 62px;
     /*background: #FFFFFF;*/

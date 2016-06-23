@@ -7,6 +7,14 @@ module.exports = function (app, passport) {
         res.render('index.ejs'); // load the index.ejs file
     });
 
+
+    // LOGIN ===============================
+
+    app.get('/privacy', function (req, res) {
+        res.render('privacy.ejs'); // load the Privacy Policy file
+    });
+
+
     // show the login form
     app.get('/api/v1/login', function (req, res) {
         console.log(req.flash);

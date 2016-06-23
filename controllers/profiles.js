@@ -9,7 +9,7 @@ var profiles = require('../middlewares/removeProfile');
  */
 module.exports = function (app) {
     app.get('/api/v1/get/profiles/:channelId', profilesList.profiles, function (req, res) {
-        var profiles = req.showMetric.profiles;
+        var profiles = req.app.profiles;
         if (profiles)
             res.json({profileList: profiles});
         else

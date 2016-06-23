@@ -86,6 +86,9 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             defaultSizeY: 2,
             minSizeX: 1,
             minSizeY: 1,
+            swapping: true,
+            float: true,
+            pushing: true,
             width: 'auto',
             colWidth:'auto',
             draggable: {

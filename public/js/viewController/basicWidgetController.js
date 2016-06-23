@@ -12,6 +12,8 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     var getChannelName = "";
     var getCustomWidgetObj = {};
     var getCustomWidgetId = "";
+    var isSelectedMetric = "";
+    var referenceWidgetsData = {};
     var getReferenceWidgetsArr = new Array();
     $scope.tokenExpired = false;
 
@@ -65,7 +67,68 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         }).then(function successCallback(response) {
             for (i = 0; i < response.data.referenceWidgets.length; i++) {
                 if (response.data.referenceWidgets[i].charts[0].channelId === $scope.storedChannelId) {
-                    $scope.referenceWidgetsList.push(response.data.referenceWidgets[i]);
+                    //console.log(response.data.referenceWidgets[i]);
+                    console.log("*****************");
+
+
+
+                    var IsAlreadyExist = 0;
+                    for(getData in getReferenceWidgetsArr){
+
+                        if(getReferenceWidgetsArr[getData]._id==response.data.referenceWidgets[i]._id){
+                            isSelectedMetric=1;
+                            referenceWidgetsData = {
+                                '_id':response.data.referenceWidgets[i]._id,
+                                'charts':response.data.referenceWidgets[i].charts,
+                                'created':response.data.referenceWidgets[i].created,
+                                'description':response.data.referenceWidgets[i].description,
+                                'maxSize':response.data.referenceWidgets[i].maxSize,
+                                'minSize':response.data.referenceWidgets[i].minSize,
+                                'name':response.data.referenceWidgets[i].name,
+                                'size':response.data.referenceWidgets[i].size,
+                                'updated':response.data.referenceWidgets[i].updated,
+                                'widgetType':response.data.referenceWidgets[i].widgetType,
+                                'isSelectedMetric':isSelectedMetric,
+                                'border':'2px solid #04509B'
+                            };
+                            //console.log(referenceWidgetsData);
+
+                            IsAlreadyExist = 1;
+                        }
+
+                    }
+
+                    if (IsAlreadyExist != 1) {
+                        isSelectedMetric=0;
+                        referenceWidgetsData = {
+                            '_id':response.data.referenceWidgets[i]._id,
+                            'charts':response.data.referenceWidgets[i].charts,
+                            'created':response.data.referenceWidgets[i].created,
+                            'description':response.data.referenceWidgets[i].description,
+                            'maxSize':response.data.referenceWidgets[i].maxSize,
+                            'minSize':response.data.referenceWidgets[i].minSize,
+                            'name':response.data.referenceWidgets[i].name,
+                            'size':response.data.referenceWidgets[i].size,
+                            'updated':response.data.referenceWidgets[i].updated,
+                            'widgetType':response.data.referenceWidgets[i].widgetType,
+                            'isSelectedMetric':isSelectedMetric,
+                            'border':'2px solid #e7eaec'
+                        };
+                        //console.log(referenceWidgetsData);
+
+                        document.getElementById('basicWidgetNextButton').disabled = false;
+                    }
+
+                    //console.log(getReferenceWidgetsArr);
+
+                    if(getReferenceWidgetsArr=="" || getReferenceWidgetsArr=="[]" || getReferenceWidgetsArr==null){
+                        document.getElementById('basicWidgetNextButton').disabled = true;
+                    }
+
+                    //console.log(referenceWidgetsData);
+
+                    $scope.referenceWidgetsList.push(referenceWidgetsData);
+
                 }
             }
         }, function errorCallback(error) {
@@ -110,12 +173,13 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             var expiresIn = this.profileOptionsModel.expiresIn;
             var currentDate = new Date();
             var newexpiresIn = new Date(expiresIn);
-            if (currentDate <= newexpiresIn) {
+            if (currentDate <= newexpiresIn &&  expiresIn != null) {
                 //token is valid
                 $scope.tokenExpired = false;
             }
-            else if (expiresIn === undefined)
+            else if (expiresIn === undefined || expiresIn === null) {
                 $scope.tokenExpired = false;
+            }
             else {
                 $scope.tokenExpired = true;
             }
@@ -325,8 +389,6 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             $scope.selectCustomLinkHead = "Step 2 : Choose a Metric";
         }
     };
-
-
 
     var removeByAttr = function(arr, attr, value){
         var i = arr.length;

@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
     <!-- Add Your favicon here -->
-    <link rel="icon" href="image/favicon.png">
+    <link rel="icon" href="image/Favicon.png">
 
     <title>Datapoolt - Catapult your marketing strategy with data!</title>
 
@@ -28,6 +29,25 @@
     <!--Integration with google recaptcha-->
     <script src='https://www.google.com/recaptcha/api.js'></script>
     <!-- Custom styles for this template -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+    <script>
+
+        $(function() {
+            $('a[href*="#"]:not([href="#"])').click(function() {
+                if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'') && location.hostname == this.hostname) {
+                    var target = $(this.hash);
+                    target = target.length ? target : $('[name=' + this.hash.slice(1) +']');
+                    if (target.length) {
+                        $('html, body').animate({
+                            scrollTop: target.offset().top
+                        }, 1000);
+                        return false;
+                    }
+                }
+            });
+        });
+    </script>
+
 	
 </head>
 <body id="page-top">

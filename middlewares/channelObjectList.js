@@ -450,46 +450,46 @@ exports.listAccounts = function (req, res, next) {
 
 
 
-//This function to create the Object
-function getTweet(profile , channel){
-    var channelObjectDetails = [];
-    ObjectType.findOne({
-        'type': req.query.objectType,
-        'channelId': profile.channelId
-    },function(err, res){
-        console.log(res);
-        console.log(res._id);
-        var objectsResult = new Object();
-        var profileId = profile._id;
-        var objectTypeId = res._id;
-        var created = new Date();
-        var updated = new Date();
-        console.log ('profileInfo._id',profile._id);
-        console.log ('objectTypeId',objectTypeId);
-        //To store once
-        Object.update({
-            profileId: profile._id
-        },{
-            $setOnInsert: {created: created}, $set: { objectTypeId:objectTypeId,updated: updated}
-        },{upsert: true}, function (err, res) {
-            console.log(err)
+    //This function to create the Object
+    function getTweet(profile , channel){
+        var channelObjectDetails = [];
+        ObjectType.findOne({
+            'type': req.query.objectType,
+            'channelId': profile.channelId
+        },function(err, res){
             console.log(res);
-            if (!err) {
-                Object.find({'profileId': profile._id}, function (err, objectList) {
-                    channelObjectDetails.push({
-                        'result': objectList
+            console.log(res._id);
+            var objectsResult = new Object();
+            var profileId = profile._id;
+            var objectTypeId = res._id;
+            var created = new Date();
+            var updated = new Date();
+            console.log ('profileInfo._id',profile._id);
+            console.log ('objectTypeId',objectTypeId);
+            //To store once
+            Object.update({
+                profileId: profile._id
+            },{
+                $setOnInsert: {created: created}, $set: { objectTypeId:objectTypeId,updated: updated}
+            },{upsert: true}, function (err, res) {
+                console.log(err)
+                console.log(res);
+                if (!err) {
+                    Object.find({'profileId': profile._id}, function (err, objectList) {
+                        channelObjectDetails.push({
+                            'result': objectList
+                        })
+                        if (objectList) {
+                            req.app.result = objectList;
+                            console.log('twitter',objectList);
+                            next();
+                        }
                     })
-                    if (objectList) {
-                        req.app.result = objectList;
-                        console.log('twitter',objectList);
-                        next();
-                    }
-                })
-            }
-
-        })
-    });
-}
+                }
+    
+            })
+        });
+    }
 
 
     function selectTweetObjectType(profile , channel){
@@ -561,7 +561,6 @@ function getTweet(profile , channel){
                 var channelObjectDetails =[];
                 var objectsResult = new Object();
                 var profileId = results._id;
-                var objectTypeId = objectTypeId._id;
                 var channelObjectId = customerId;
                 var name = accountName;
                 var created = new Date();
@@ -572,7 +571,7 @@ function getTweet(profile , channel){
                     channelObjectId: customerId
                 }, {
                     $setOnInsert: {created: created},
-                    $set: {name: name, objectTypeId: objectTypeId, updated: updated}
+                    $set: {name: name, objectTypeId: objectTypeId._id, updated: updated}
                 }, {upsert: true}, function (err, res) {
                     if (!err) {
                         Object.find({'profileId': results._id}, function (err, objectList) {

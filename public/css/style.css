@@ -9025,11 +9025,17 @@ body.md-skin {
     .svg-line1{width: 45px;}  .svg-line2{width: 45px;}
 }
 @media(max-width : 375px) and (min-width : 320px) {.svg-line1{width: 45px;}  .svg-line2{width: 45px;} .fusion-svgLine1{width: 125px;} .fusion-tab{padding-left: 10px !important;}}
-@media(max-width : 560px) and (min-width : 384px) {.svg-line1{width: 80px;}  .svg-line2{width: 80px;} .fusion-svgLine1{width: 215px} .fusion-tab{padding-left: 0px !important;}}
-@media(max-width: 667px)and (min-width:  568px){.svg-line1{width:160px }.svg-line2{width:160px } .fusion-tab{padding-left: 100px !important;} .ibox-title{padding: 7px 200px 0px !important} }
+@media(max-width : 560px) and (min-width : 384px) {.svg-line1{width: 80px;}  .svg-line2{width: 80px;} .fusion-svgLine1{width: 215px} .fusion-tab{padding-left: 0px !important;} .triangle-topright {margin: -13px 0px 0px 90px !important;}}
+@media(max-width: 667px)and (min-width:  568px){.svg-line1{width:160px }.svg-line2{width:160px } .fusion-tab{padding-left: 100px !important;} .ibox-title{padding: 7px 200px 0px !important} .triangle-topright {margin: -13px 0px 0px 185px !important;}}
 @media(max-width : 736px) and (min-width : 600px) {.svg-line1{width: 180px;}  .svg-line2{width: 180px;}  .fusion-tab{padding-left:75px !important;} .fusion-svgLine1{width: 310px} .ibox-title{padding: 7px 200px 0px !important}}
 @media(max-width : 1040px) and (min-width : 768px){.daterange {width: 300px !important; margin-left: 0px !important;padding-bottom: 7px;} .fusion-tab{padding-left: 166px !important;} .ibox-title{padding: 7px 280px 0px !important}}
 @media(max-width:920px) and (min-width: 650px){.grid-text{width:35%}.dashboards{width: 100%;}}
 @media(max-width:645px) and (min-width: 480px){.grid-text{width:85%}.dashboards{width: 100%;}}
 @media(max-width:482px) and (min-width: 320px){.grid-text{width:100%}.dashboards{width: 100%;}}
 @media(max-width:1200px) and (min-width: 480px){.dashboards{width: 100%;}.grid-text{margin-left: 7%}}
+
+@media screen and (max-width: 32em){
+    .triangle-topright {
+        margin: -13px 0px 0px 200px !important;
+    }
+}

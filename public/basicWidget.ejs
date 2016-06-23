@@ -364,12 +364,24 @@
                         <div class="row" ng-if="currentView === 'step_two'"  ng-cloak>
                             <h5 class="model-title">{{selectCustomLinkHead}}</h5>
                             <div class="col-lg-12">
-                                <div ng-repeat="referenceWidgets in referenceWidgetsList" name="{{referenceWidgets.name}}" id="referenceWidgets-{{referenceWidgets._id}}" ng-hide="metricContent" class="col-lg-2 widget-icons showReferenceWidgets" ng-click="storeReferenceWidget();">
-                                    <div id="triangle-topright-{{referenceWidgets._id}}">
-                                        <i id="getCheck-{{referenceWidgets._id}}" class="fa fa-check getCheck"></i>
+                                <div ng-repeat="referenceWidgets in referenceWidgetsList" name="{{referenceWidgets.name}}" ref="{{referenceWidgets.isSelectedMetric}}" id="referenceWidgets-{{referenceWidgets._id}}" style="border:{{referenceWidgets.border}}" ng-hide="metricContent" class="col-lg-2 widget-icons showReferenceWidgets" ng-click="storeReferenceWidget();">
+
+                                    <div ng-if="referenceWidgets.isSelectedMetric==1">
+                                        <div id="triangle-topright-{{referenceWidgets._id}}" class="triangle-topright">
+                                            <i id="getCheck-{{referenceWidgets._id}}" class="fa fa-check getCheck" style="display:block;"></i>
+                                        </div>
+
+                                        <p id="metricNames-{{referenceWidgets._id}}" class="metricNames getMetricName">{{referenceWidgets.name}}</p>
                                     </div>
 
-                                     <p id="metricNames-{{referenceWidgets._id}}" class="metricNames">{{referenceWidgets.name}}</p>
+                                    <div ng-if="!(referenceWidgets.isSelectedMetric==1)">
+                                        <div id="triangle-topright-{{referenceWidgets._id}}">
+                                            <i id="getCheck-{{referenceWidgets._id}}" class="fa fa-check getCheck"></i>
+                                        </div>
+
+                                        <p id="metricNames-{{referenceWidgets._id}}" class="metricNames">{{referenceWidgets.name}}</p>
+                                    </div>
+
                                      <!-- <P class="metricDescription" >{{referenceWidgets.description}}</P> -->
 
                                 </div>

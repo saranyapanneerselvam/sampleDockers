@@ -253,13 +253,14 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 } else {
                     $scope.widgetsPresent = false;
                 }
+                var widgetID=0;
 
                 for(getWidgetInfo in dashboardWidgetList){
                     widgets.push(createWidgets.widgetDataFetchHandler(dashboardWidgetList[getWidgetInfo],{
                         'startDate': moment($scope.dashboardCalendar.start_date).format('YYYY-MM-DD'),
                         'endDate': moment($scope.dashboardCalendar.end_date).format('YYYY-MM-DD')
                     }));
-
+                    widgetID = dashboardWidgetList[getWidgetInfo]._id;
                     //To temporarily create an empty widget with same id as the widgetId till all the data required for the widget is fetched by the called service
                     $scope.dashboard.widgets.push({
                         'row': (typeof dashboardWidgetList[getWidgetInfo].row != 'undefined'? dashboardWidgetList[getWidgetInfo].row : 0),
@@ -295,7 +296,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                                     $scope.dashboard.widgetData[widgetIndex] = widgetToBeLoaded;
                                     //console.log('widgetData:',$scope.dashboard.widgetData[widgetIndex]);
                                     isExportOptionSet=1;
-
                                 },
                                 function errorCallback(error){
                                     console.log(error);
@@ -310,6 +310,9 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                         },
                         function errorCallback(error){
                             console.log(error);
+                            console.log("Error for WidgetID : "+widgetID);
+                            $("#widgetData-"+widgetID).hide();
+                            $("#errorWidgetData-"+widgetID).show();
                             isExportOptionSet=0;
                         }
                     );

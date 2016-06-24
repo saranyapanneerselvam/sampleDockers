@@ -74,7 +74,7 @@
                         <div class="box-content" style="vertical-align: middle" ng-style="{position:(isMobile?'static':'absolute')}">
 
                             <div ng-if="dashboard.widgetData[widgetIndex].visibility == false">
-                                <div class="spiner-example">
+                                <div class="spiner-example" id="widgetData-{{widget.id}}">
                                     <div class="sk-spinner sk-spinner-cube-grid">
                                         <div class="sk-cube"></div>
                                         <div class="sk-cube"></div>
@@ -86,6 +86,9 @@
                                         <div class="sk-cube"></div>
                                         <div class="sk-cube"></div>
                                     </div>
+                                </div>
+                                <div class="errorWidgetData" id="errorWidgetData-{{widget.id}}">
+                                        Could not load data because of an internal server error
                                 </div>
                             </div>
 
@@ -172,9 +175,5 @@
             </div>
         </div>
     </div>
-
-
-
-
     <script src="js/datePicker/Calendar.js"></script>
 </div>

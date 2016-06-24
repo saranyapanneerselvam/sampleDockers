@@ -514,11 +514,6 @@ body{font-family: Brandon Grotesque; }
     font-size: 12px;
     font-weight: 500;
 }
-
-.logintext {
-    font-family: "Brandon Grotesque-regular";
-    font-size: 15px;
-}
 .nav-third-level li a {
     padding-left: 62px;
     /*background: #FFFFFF;*/
@@ -6029,6 +6024,15 @@ a.customApiLink{
     color: #ff0301;
     display: none;
     font-size:15px;
+}
+
+.errorWidgetData{
+    font-size: 16px;
+    color: red;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 300px;
+    display: none;
 }
 
 

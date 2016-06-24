@@ -40,8 +40,8 @@ module.exports = function (app) {
             //On successful authentication - dev
             else {
                 console.log('Access Token is :' + result.access_token);
-                req.token = result.access_token;
-                var token = req.token;
+                req.tokens = result.access_token;
+                var token = req.tokens;
                 req.userId = result.user.id;
                 var profileId = req.userId;
                 console.log('Profie User Id', profileId);

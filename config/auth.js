@@ -45,7 +45,7 @@ module.exports = {
     'facebookAdsAuth' : {
         clientID        : '1716895671912901',
         clientSecret    : 'e5f9e0828dc78c548ddbc3ac9e3658fd',
-        grant_type      : 'c71500c25185e15ad84fadd9df05ded9',
+        grant_type      : '81ec394c25ccd13f60ba3fe2b2ba3f4c',
         site            : 'https://www.facebook.com/dialog/',
         tokenPath       : 'https://graph.facebook.com/oauth/access_token',
         authorizationPath: 'oauth',

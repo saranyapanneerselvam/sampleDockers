@@ -10,7 +10,7 @@ var exports = module.exports = {};
 exports.storeProfiles = function (req, done) {
 
     var tokens = req.tokens;
-    profile.findOne({'userId': req.userId, 'channelId': req.channelId}, function (err, profileDetails) {
+    profile.findOne({'userId': req.userId, 'channelId': req.channelId, 'orgId': req.user.orgId}, function (err, profileDetails) {
 
         // if there are any errors, return the error
         if (err)
@@ -83,7 +83,7 @@ exports.storeProfiles = function (req, done) {
                     if (err)
                         done(err);
                     else {
-                        profile.findOne({'userId': user.userId,'channelId': user.channelId}, function(err,profileDetail){
+                        profile.findOne({'userId': user.userId,'channelId': user.channelId,'orgId':user.orgId}, function(err,profileDetail){
                             if(!err){
                                 console.log('profile',profileDetail)
                                 done(null, profileDetail);

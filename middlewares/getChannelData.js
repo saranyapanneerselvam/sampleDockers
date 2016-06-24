@@ -1754,7 +1754,7 @@ console.log('googleDataEntireFunction')
                         d.setDate(d.getDate() - n);
                         var startDate = calculateDate(d);
 
-                        var query = "v2.5/" + adAccountId + "/insights?limit=365&time_increment=1&fields=" + initialResults.metric[j].objectTypes[0].meta.fbAdsMetricName + '&time_range[since]=' + startDate + '&time_range[until]=' + endDate;
+                        var query = "v2.6/" + adAccountId + "/insights?limit=365&time_increment=1&fields=" + initialResults.metric[j].objectTypes[0].meta.fbAdsMetricName + '&time_range[since]=' + startDate + '&time_range[until]=' + endDate;
                         allObjects = {
                             profile: initialResults.get_profile[j],
                             query: query,
@@ -1777,7 +1777,7 @@ console.log('googleDataEntireFunction')
                         var startDate = calculateDate(d);
                         var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
                         if (updated < currentDate) {
-                            var query = "v2.5/" + adAccountId + "/insights?limit=365&time_increment=1&fields=" + initialResults.metric[j].objectTypes[0].meta.fbAdsMetricName + '&time_range[since]=' + updated + '&time_range[until]=' + startDate;
+                            var query = "v2.6/" + adAccountId + "/insights?limit=365&time_increment=1&fields=" + initialResults.metric[j].objectTypes[0].meta.fbAdsMetricName + '&time_range[since]=' + updated + '&time_range[until]=' + startDate;
                             //var query = pageId + "/insights/" + response.meta.fbMetricName + "?since=" + updated + "&until=" + endDate;
                             allObjects = {
                                 profile: initialResults.get_profile[j],

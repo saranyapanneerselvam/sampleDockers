@@ -366,7 +366,7 @@ exports.listAccounts = function (req, res, next) {
         switch (req.query.objectType) {
             case configAuth.objectType.facebookAds:
                 console.log('fbadaccount');
-                var query = "v2.5/" + profile.userId + "/adaccounts?fields=name";
+                var query = "v2.6/" + profile.userId + "/adaccounts?fields=name";
                 getFbAdAccountList(profile, channel, query);
                 break;
         }

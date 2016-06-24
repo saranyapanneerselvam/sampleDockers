@@ -524,17 +524,31 @@ showMetricApp.service('createWidgets',function($http,$q){
                         var caption='caption';
                         var post='text';
                         var link='link';
+                        var url='url';
 
 
                         for(dataObjects in widget.charts[i].chartData){
                             formattedChartData.push(
                                 {
                                     date: widget.charts[i].chartData[dataObjects].date,
-                                    image: (widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )? (typeof widget.charts[i].chartData[dataObjects].total[images][thumbnail] != 'undefined' ? widget.charts[i].chartData[dataObjects].total[images][thumbnail] : 0) : 0),
-                                    postComment: (widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )? (typeof widget.charts[i].chartData[dataObjects].total[caption][post] != 'undefined' ? widget.charts[i].chartData[dataObjects].total[caption][post] : 0) : 0),
-                                    likes: (widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )? (typeof widget.charts[i].chartData[dataObjects].total[likes][count] != 'undefined' ? widget.charts[i].chartData[dataObjects].total[likes][count] : 0) : 0),
-                                    comments: (widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )? (typeof widget.charts[i].chartData[dataObjects].total[comments][count] != 'undefined' ? widget.charts[i].chartData[dataObjects].total[comments][count] : 0) : 0),
-                                    links: (widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )? (typeof widget.charts[i].chartData[dataObjects].total[link] != 'undefined' ? widget.charts[i].chartData[dataObjects].total[link] : 0) : 0),
+                                    image: (widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )?
+                                                (widget.charts[i].chartData[dataObjects].total[images] != null?
+                                                    (widget.charts[i].chartData[dataObjects].total[images][thumbnail] != null?
+                                                        (typeof widget.charts[i].chartData[dataObjects].total[images][thumbnail][url] != 'undefined' ? widget.charts[i].chartData[dataObjects].total[images][thumbnail][url] : ''):''):''):''),
+
+                                    postComment: (widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )?
+                                                    (widget.charts[i].chartData[dataObjects].total[caption] != null ?
+                                                        (typeof widget.charts[i].chartData[dataObjects].total[caption][post] != 'undefined'?
+                                                            widget.charts[i].chartData[dataObjects].total[caption][post] : ''): '') : ''),
+                                    likes: (widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )?
+                                            (widget.charts[i].chartData[dataObjects].total[likes] != null?
+                                                (typeof widget.charts[i].chartData[dataObjects].total[likes][count] != 'undefined' ? widget.charts[i].chartData[dataObjects].total[likes][count] : 0):0):0),
+
+                                    comments: (widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )?
+                                            (widget.charts[i].chartData[dataObjects].total[comments] != null?
+                                                (typeof widget.charts[i].chartData[dataObjects].total[comments][count] != 'undefined' ? widget.charts[i].chartData[dataObjects].total[comments][count] : 0):0):0),
+                                    links: (widget.charts[i].chartData[dataObjects].total != null && Object.keys(widget.charts[i].chartData[dataObjects].total.length != 0 )?
+                                            (typeof widget.charts[i].chartData[dataObjects].total[link] != 'undefined' ? widget.charts[i].chartData[dataObjects].total[link] : '') : ''),
                                 }
                             );
                         }

@@ -145,6 +145,9 @@ showMetricApp.service('createWidgets',function($http,$q){
                         deferred.resolve(updatedCharts);
                     },
                     function errorCallback(error) {
+                        console.log(error);
+                        $("#widgetData-"+widget._id).hide();
+                        $("#errorWidgetData-"+widget._id).show();
                         deferred.reject(error);
                     }
                 );

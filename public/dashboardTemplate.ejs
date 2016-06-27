@@ -59,11 +59,11 @@
     </div>
     <div class="white-bg dashboardContent">
         <div gridster="gridsterOptions" class="row" style="border: 1px solid #efefef;min-height: 500px" id="gridsterItems"><!--ng-switch-when="true"-->
-            <ul >
+            <ul>
                 <li gridster-item="widget" ng-repeat="(widgetIndex,widget) in dashboard.widgets">
-                    <div class="box" ng-controller="CustomWidgetController" id="{{widget.id}}">
+                    <div class="box getBox-{{widget.id}}" ng-controller="CustomWidgetController" id="{{widget.id}}">
 
-                        <div class="box-header" ng-style="{'background-color': dashboard.widgetData[widgetIndex].color}">
+                        <div class="box-header" id="getWidgetColor-{{widget.id}}" ref="{{dashboard.widgetData[widgetIndex].color}}" ng-style="{'background-color': dashboard.widgetData[widgetIndex].color}">
                             <h3 style="color: #ffffff;">{{dashboard.widgetData[widgetIndex].name}}</h3>
                             <div class="graph-icon">
                                 <a title="alerts" ng-click="alertModal('app.reporting.dashboard.alertModal',widget)"><i class="fa fa-bell-o"></i></a>

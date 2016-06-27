@@ -2874,13 +2874,13 @@ console.log('googleDataEntireFunction')
                         channelId: initialResults.metric[0].channelId
                     }
                     callback(null, actualFinalApiData);
-                    if (pagination.next) {
-                        pagination.next(callApi); // Will get second page results
+                    if(pagination) {
+                        if (pagination.next) {
+                            pagination.next(callApi); // Will get second page results
+                        }
                     }
-
                 };
                 ig.user_media_recent(result.profile.userId, {count: 25}, callApi)
-
             }
         }
     }

@@ -103,8 +103,19 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 enabled: true,
                 handles: ['se'],
                 //handles: ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'],
-                start: function (event, $element, widget) {}, // optional callback fired when resize is started
+                start: function (event, $element, widget) {
+                    var getWidgetColor = $("#getWidgetColor-"+widget.id).attr('ref');
+                    if(getWidgetColor==""){
+                        getWidgetColor="#1AB394";
+                    }
+                    $(".getBox-"+widget.id).css('border','3px solid '+getWidgetColor);
+                }, // optional callback fired when resize is started
                 resize: function (event, $element, widget) {
+                    var getWidgetColor = $("#getWidgetColor-"+widget.id).attr('ref');
+                    if(getWidgetColor==""){
+                        getWidgetColor="#1AB394";
+                    }
+                    $(".getBox-"+widget.id).css('border','3px solid '+getWidgetColor);
                     var ind = $scope.dashboard.widgets.indexOf(widget);
                     for(var i=0;i<$scope.dashboard.widgetData[ind].chart.length;i++){
                         if ($scope.dashboard.widgetData[ind].chart[i].api){
@@ -113,6 +124,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     }
                 }, // optional callback fired when item is resized,
                 stop: function (event, $element, widget) {
+                    $(".getBox-"+widget.id).css('border','1px solid #ccc');
                     function updateCharts(widget){
                         return function(){
                             var ind = $scope.dashboard.widgets.indexOf(widget);

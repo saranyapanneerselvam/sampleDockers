@@ -9,10 +9,8 @@ var getReferenceWidgetsList = require('../middlewares/getReferenceWidgets');
 module.exports = function (app) {
     app.get('/api/v1/get/referenceWidgets/:widgetType', getReferenceWidgetsList.referenceWidgets, function (req, res) {
         var referenceWidgets = req.showMetric.referenceWidgets;
-        console.log('Here it comes');
-        if (referenceWidgets){
-            console.log(referenceWidgets);
-            res.json({referenceWidgets: referenceWidgets});}
+        if (referenceWidgets)
+            res.json({referenceWidgets: referenceWidgets});
         else
             res.status(500).send({error: ""});
     });

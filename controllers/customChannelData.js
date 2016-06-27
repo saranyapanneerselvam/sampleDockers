@@ -19,7 +19,6 @@ module.exports = function (app) {
 
     //To update the existing customChannel Data
     app.put('/api/v1/create/customdata/:widgetId', customChannelData.updateCustomChannelData, function (req, res) {
-        console.log(req.app.result);
         var customDataResult = req.app.result;
         if (customDataResult)
             res.json(customDataResult);

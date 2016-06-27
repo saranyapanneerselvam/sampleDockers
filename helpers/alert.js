@@ -5,7 +5,6 @@ var moment = require('moment')
 var Alert = require('../models/alert');
 var exports = module.exports = {};
 exports.createUpdateAlert = function (req, done) {
-    console.log('alert from client',req.body)
     var createAlert = new Alert();
     var updateValue = {};
     var now = new Date();
@@ -32,15 +31,12 @@ exports.createUpdateAlert = function (req, done) {
         var localTime  = moment.utc(myDate).toDate();
         var utcTime = moment(localTime).format('YYYY-MM-DD HH:mm:ss');
         var time = moment(now).format('YYYY-MM-DD HH:mm:ss');
-        console.log(utcTime,'time',time);
         for(var index in req.body){
-            console.log('index',index);
             if(req.body[index] !=undefined)
                 updateValue[index] = req.body[index];
 
         }
 
-        console.log(updateValue);
         createAlert.save(function (err, alert) {
             if (err)
                 return res.status(500).json({error: 'Internal server error'});
@@ -60,7 +56,6 @@ exports.createUpdateAlert = function (req, done) {
         req.body.updated = now;
         req.body.lastEvaluatedTime = now;
         for(var index in req.body){
-            console.log('index',index);
             if(req.body[index] !=undefined)
                 updateValue[index] = req.body[index];
 
@@ -97,7 +92,6 @@ exports.getAlertForWidget =function(req, res, next){
 
 exports.removeAlertForWidget = function(req,res,next){
     Alert.remove({'_id':req.params.widgetId},function(err,alerts){
-        console.log('deleteAlerts',alerts);
         if (err)
             return res.status(500).json({error: 'Internal server error'});
         else if (alerts!=1)

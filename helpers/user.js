@@ -85,7 +85,6 @@ exports.storeProfiles = function (req, done) {
                     else {
                         profile.findOne({'userId': user.userId,'channelId': user.channelId,'orgId':user.orgId}, function(err,profileDetail){
                             if(!err){
-                                console.log('profile',profileDetail)
                                 done(null, profileDetail);
                             }
                         });

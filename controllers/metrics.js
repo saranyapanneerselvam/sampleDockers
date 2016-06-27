@@ -9,20 +9,16 @@ var getmetricsList = require('../middlewares/getMetrics');
 module.exports = function (app) {
     app.get('/api/v1/get/metrics/:channelId', getmetricsList.metrics, function (req, res) {
         var metrics = req.showMetric.metrics;
-        console.log('Here it comes');
-        if (metrics){
-        console.log(metrics);
-            res.json({metricsList: metrics});}
+        if (metrics)
+            res.json({metricsList: metrics});
         else
             res.status(500).send({error: ""});
     });
 
     app.get('/api/v1/get/metricDetails/:metricId', getmetricsList.metricDetails, function (req, res) {
         var metrics = req.showMetric.metrics;
-        console.log('Here it comes');
-        if (metrics){
-            console.log(metrics);
-            res.json({metricsList: metrics});}
+        if (metrics)
+            res.json({metricsList: metrics});
         else
             res.status(500).send({error: ""});
     });

@@ -33,7 +33,6 @@ module.exports = function (passport) {
     // used to deserialize the user
     passport.deserializeUser(function (id, done) {
         User.findById(id, function (err, user) {
-            // console.log('user',user);
             done(err, user);
         });
     });
@@ -52,7 +51,6 @@ module.exports = function (passport) {
             passReqToCallback: true // allows us to pass back the entire request to the callback
         },
         function (req, email, password, done) {
-            console.log('local signup', req);
             // asynchronous
             // User.findOne wont fire unless data is sent back
             process.nextTick(function () {
@@ -60,35 +58,27 @@ module.exports = function (passport) {
                 // find a user whose email is the same as the forms email
                 // we are checking to see if the user trying to login already exists
                 User.findOne({'email': email}, function (err, user) {
-                    console.log('user',user);
-
                     // if there are any errors, return the error
                     if (err)
                         return done(err);
 
                     // check to see if theres already a user with that email
                     if (user) {
-                        console.log('user exist')
                         return done(null, false, req.flash('signupMessage', 'That email is already taken.'));
-                    } else {
-                        console.log('req body', req.body);
-                        // if there is no user with that email
-
-                        //create the organization
+                    }
+                    else {
+                        // if there is no user with that email create the organization
                         var newOrganization = new Organization();
-                        newOrganization.name = req.body.organization,
-                            newOrganization.country = req.body.country;
+                        newOrganization.name = req.body.organization, newOrganization.country = req.body.country;
                         newOrganization.created = new Date();
                         newOrganization.updated = new Date();
                         // save the Organization
                         newOrganization.save(function (err, response) {
-                            console.log('db response', response);
                             if (err)
                                 return done(err);
                             else {
                                 // create the user
                                 var newUser = new User();
-                                console.log('newUser', newUser);
                                 // set the user's local credentials
                                 newUser.email = req.body.email;
                                 newUser.name = req.body.name;
@@ -183,9 +173,6 @@ module.exports = function (passport) {
 
         // facebook will send back the token and profile
         function (token, refreshToken, profile, done) {
-            //console.log("Comes here.....");
-            //console.log(profile);
-
             // asynchronous
             process.nextTick(function () {
 
@@ -207,8 +194,6 @@ module.exports = function (passport) {
 
                         // set all of the facebook information in our user model
 
-                        console.log("The profile details are --->");
-                        console.log(profile);
                         newUser.facebook.id = profile.id; // set the users facebook id
                         newUser.facebook.token = token; // we will save the token that facebook provides to the user
                         newUser.facebook.name = profile.displayName; // look at the passport user profile to see how names are returned

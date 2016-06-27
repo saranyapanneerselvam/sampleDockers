@@ -14,9 +14,9 @@ module.exports = function (app) {
     var oauth2 = require('simple-oauth2')({
         clientID: configAuth.googleAdwordsAuth.clientID,
         clientSecret: configAuth.googleAdwordsAuth.clientSecret,
-        site: 'https://accounts.google.com/o/',
-        tokenPath: 'https://accounts.google.com/o/oauth2/token',
-        authorizationPath: 'oauth2/auth'
+        site: configAuth.googleAdwordsAuth.site,
+        tokenPath: configAuth.googleAdwordsAuth.tokenPath,
+        authorizationPath: configAuth.googleAdwordsAuth.authorizationPath
     });
 
     // Authorization uri definition
@@ -24,22 +24,18 @@ module.exports = function (app) {
         redirect_uri: configAuth.googleAdwordsAuth.callbackURL,
         state: configAuth.googleAdwordsAuth.state,
         scope: configAuth.googleAdwordsAuth.scope,
-        approval_prompt: 'force',
-        access_type: 'offline'
+        approval_prompt: configAuth.googleAdwordsAuth.approvalPrompt,
+        access_type: configAuth.googleAdwordsAuth.accessType
     });
 
 // Initial page redirecting to Github
-    app.get('/api/auth/adwords', function (req, res) {
-
+    app.get(configAuth.googleAdwordsAuth.localCallingURL, function (req, res) {
         res.redirect(authorization_uri);
-        //console.log('res',res);
     });
 
 // Callback service parsing the authorization token and asking for the access token
-    app.get('/auth/adwords/callback', function (req, res) {
-        console.log('callback');
+    app.get(configAuth.googleAdwordsAuth.localCallbackURL, function (req, res) {
         var code = req.query.code;
-        //console.log('code', res);
         oauth2.authCode.getToken({
             code: code,
             redirect_uri: configAuth.googleAdwordsAuth.callbackURL
@@ -51,10 +47,8 @@ module.exports = function (app) {
             }
             else {
                 token = oauth2.accessToken.create(result);
-                console.log(token);
                 accessToken = token.token.access_token;
                 refreshToken = token.token.refresh_token;
-                console.log(accessToken ,refreshToken );
                 //To get logged user's userId ,email..
                 request('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=' + token.token.access_token, function (error, response, body) {
                     if (!error && response.statusCode == 200) {
@@ -63,11 +57,8 @@ module.exports = function (app) {
                         request('https://www.googleapis.com/oauth2/v2/userinfo?access_token=' + token.token.access_token, function (err, responseData, result) {
                             if (!err) {
 
-
                                 //To parse the access token details
                                 var parsedBodyResult = JSON.parse(body);
-                                console.log('Parsed Body Result',parsedBodyResult);
-
 
                                 //To parse profile result
                                 var parsedResult = JSON.parse(result);
@@ -80,7 +71,6 @@ module.exports = function (app) {
                                 //set token details to tokens
                                 req.tokens = token.token;
                                 channels.findOne({code: configAuth.channels.googleAdwords}, function (err, channelDetails) {
-                                    console.log('channelDetails', channelDetails);
                                     req.channelId = channelDetails._id;
                                     req.channelName = channelDetails.name;
                                     req.channelCode = channelDetails._id;
@@ -100,8 +90,7 @@ module.exports = function (app) {
                         })
                     }
                 })
-
             }
         }
     });
-}
+};

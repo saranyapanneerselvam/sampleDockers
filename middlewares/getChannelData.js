@@ -70,7 +70,6 @@ exports.getChannelData = function (req, res, next) {
         var storeEndDate = new Date(endDate);
         var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
-        console.log('diffDays', diffDays)
         for (var i = 0; i <= diffDays; i++) {
             var finalDate = calculateDate(storeStartDate);
             if (endPoint != undefined) {
@@ -127,21 +126,14 @@ exports.getChannelData = function (req, res, next) {
                 dashboards: {$elemMatch: {dashboardId: dashboardId}}
             }, function (err, user) {
                 if (err)
-                    return res.status(500).json({error: 'Internal Server Error'})
-                else if (!user) {
-                    console.log('permission error');
-                    return res.status(401).json({success: true})
-                }
-
-                else {
-                    console.log('success')
+                    return res.status(500).json({error: 'Internal Server Error'});
+                else if (!user)
+                    return res.status(401).json({success: true});
+                else
                     callEntireDataFunction();
-                }
-
             })
         }
         else {
-            console.log('dashboard match');
             return res.status(401).json({error: 'User must be logged in'})
         }
 
@@ -162,7 +154,6 @@ exports.getChannelData = function (req, res, next) {
             get_channel_objects_db: ['store_final_data', 'get_channel_data_remote', getChannelDataDB]
         }, function (err, results) {
             if (err) {
-                console.log('errr', err)
                 return res.status(500).json({});
             }
             req.app.result = results.get_channel_objects_db;
@@ -278,7 +269,6 @@ exports.getChannelData = function (req, res, next) {
 
     //To call the respective function based on channel
     function getChannelDataRemote(initialResults, callback) {
-        console.log('result',initialResults.get_channel)
         async.auto({
             get_each_channel_data: getEachChannelData,
 
@@ -678,18 +668,14 @@ exports.getChannelData = function (req, res, next) {
                                 //calculating the result length
                                 var resultLength = dataFromRemote[j].data.length;
                                 var resultCount = dataFromRemote[j].data[0].length - 1;
-                                console.log('resultLength', resultLength, resultCount,dataFromRemote[j].data)
                                 //loop to store the entire result into an array
                                 for (var i = 0; i < resultLength; i++) {
-                                    console.log('i', i)
                                     var obj = {};
 
                                     //loop generate array dynamically based on given dimension list
                                     for (var m = 0; m < dimensionList.length; m++) {
                                         if (m == 0) {
-                                            console.log('if',m,dimensionList.length)
                                             //date value is coming in the format of 20160301 so splitting like yyyy-mm--dd format
-                                            //obj['metricName'] = metricName;
                                             if (metric[j].objectTypes[0].meta.api === configAuth.googleApiTypes.mcfApi) {
                                                 var year = dataFromRemote[j].data[i][0].primitiveValue.substring(0, 4);
                                                 var month = dataFromRemote[j].data[i][0].primitiveValue.substring(4, 6);
@@ -699,7 +685,6 @@ exports.getChannelData = function (req, res, next) {
                                             }
 
                                             else {
-                                                console.log('else data')
                                                 var year = dataFromRemote[j].data[i][0].substring(0, 4);
                                                 var month = dataFromRemote[j].data[i][0].substring(4, 6);
                                                 var date = dataFromRemote[j].data[i][0].substring(6, 8);
@@ -709,7 +694,6 @@ exports.getChannelData = function (req, res, next) {
 
                                         }
                                         else {
-                                            console.log('else')
                                             obj[dimensionList[m].name.substr(3)] = dataFromRemote[j].data[i][m];
                                             if (metric[j].objectTypes[0].meta.api === configAuth.googleApiTypes.mcfApi)
                                                 obj['total'] = dataFromRemote[j].data[i][resultCount].primitiveValue;
@@ -720,12 +704,10 @@ exports.getChannelData = function (req, res, next) {
 
                                     }
 
-                                    console.log('object',obj)
                                     storeGoogleData.push(obj);
                                 }
 
 
-                                console.log('obj', storeGoogleData[0])
                                 if (dimensionList.length > 1) {
                                     if (metric[j].objectTypes[0].meta.endpoint.length) {
                                         var result = _.chain(storeGoogleData)
@@ -744,19 +726,14 @@ exports.getChannelData = function (req, res, next) {
                                                 initD = 1;
                                             else
                                                 initD = 2;
-                                            console.log('initD',initD);
                                             for (var d = initD; d < dimensionList.length; d++) {
                                                 for (var g = 0; g < groupedData[i].data.length; g++) {
-                                                    console.log('groupedData',groupedData[i].data);
-                                                    console.log('DimensionList',dimensionList[1]);
                                                     var dimensionData = groupedData[i].data[g][dimensionList[1].name.substr(3)];
-                                                    console.log('DimensionData',dimensionData);
                                                     if (initD === 1)
                                                         var finalDimensionData = dimensionData;
 
                                                     else
                                                         var finalDimensionData = dimensionData + '/' + groupedData[i].data[g][dimensionList[d].name.substr(3)];
-                                                    console.log('finaldimensiondata', storeGoogleData[0], groupedData[i].data[g], dimensionList[1].name, finalDimensionData);
                                                     var replacedValue = finalDimensionData.split('.').join('002E');
                                                     objToStoreFinalData[replacedValue] = groupedData[i].data[g].total;
                                                 }
@@ -1097,7 +1074,6 @@ exports.getChannelData = function (req, res, next) {
                                         fetchPeriod: metric[j].fetchPeriod
                                     }
                                 }, {upsert: true}, function (err) {
-                                    console.log('insta err', err)
                                     if (err) console.log("User not saved");
                                     else
                                         next(null, 'success')
@@ -1190,23 +1166,17 @@ exports.getChannelData = function (req, res, next) {
                                                 var dupReweetCount=0;
                                                 if (metric[j].code == configAuth.twitterMetric.retweets_of_your_tweets) {
                                                     var tweetCount=dataFromRemote[j].data;
-                                                    //console.log('tweetCount',tweetCount);
                                                     for(var i=0;i<tweetCount.length;i++){
-                                                        // console.log('convertDate',tweetCount[i].created_at);
                                                         tempDate.push({date:formatDate(new Date(Date.parse(tweetCount[i].created_at.replace(/( +)/, ' UTC$1'))))});
                                                     }
                                                     var tempDateCount = _.uniqBy(tempDate,'date')
                                                     for(var m =0;m<tempDateCount.length;m++) {
                                                         storeTweetDetails.push({date: tempDateCount[m].date,total:0});
                                                     }
-                                                    console.log('checkingParmstempDateCount',tempDateCount.length,storeTweetDetails,storeTweetDetails.length);
                                                     for(var m =0;m<storeTweetDetails.length;m++){
                                                         for(var k=0;k<tweetCount.length;k++){
                                                             var responseDate = formatDate(new Date(Date.parse(tweetCount[k].created_at.replace(/( +)/, ' UTC$1'))))
-                                                            //console.log('responseDate',responseDate,'uniqueDate',tempDateCount[m])
                                                             if(storeTweetDetails[m].date=== responseDate){
-                                                                console.log('InsideIf',m,storeTweetDetails[m],k,formatDate(new Date(Date.parse(tweetCount[k].created_at.replace(/( +)/, ' UTC$1')))))
-                                                                console.log('retweet_count',tweetCount[k].retweet_count);
                                                                 dupReweetCount+=tweetCount[k].retweet_count;
                                                             }
                                                         }
@@ -1215,14 +1185,11 @@ exports.getChannelData = function (req, res, next) {
                                                         var dupReweetCount=0;
 
                                                     }
-                                                    console.log('checkingParms',storeTweetDetails);
                                                     // var tempCount = _.groupBy(dataFromRemote[j].data,'createdAt');
-                                                    // console.log('checkingParms',tweetCount);
                                                 }
                                                 else {
                                                     var total = dataFromRemote[j].data[0].user[param[index]];
                                                     totalArray.push({total: total, date: currentDate});
-                                                    console.log('total array', totalArray)
 
                                                     //Get the required data based on date range
                                                     storeTweetDetails.push({
@@ -1437,7 +1404,6 @@ exports.getChannelData = function (req, res, next) {
 
     //to get google analtic data
     function googleDataEntireFunction(results, callback) {
-console.log('googleDataEntireFunction')
         var allDataObject = {};
         async.auto({
             get_dimension: getDimension,
@@ -1487,13 +1453,11 @@ console.log('googleDataEntireFunction')
         }
 
         function checkDataExist(dimension, callback) {
-            console.log('checkDataExist');
             var data = results.data;
             var metric = results.metric;
             var object = results.object;
             var widget = results.widget.charts;
             oauth2Client.refreshAccessToken(function (err, tokens) {
-                console.log('error ga',err)
                 if (err) {
                     if (err.code === 400)
                         return res.status(401).json({error: 'Authentication required to perform this action'})
@@ -1591,9 +1555,7 @@ console.log('googleDataEntireFunction')
 
         //to get the final google analytic data
         function analyticData(allObjects, callback) {
-            console.log('analytics data')
             async.concatSeries(allObjects.check_data_exist, getAllMetricData, callback);
-
         }
 
         function getAllMetricData(allObjects, callback) {
@@ -1662,7 +1624,6 @@ console.log('googleDataEntireFunction')
                 //var splitRequiredQueryData = {};
                 function callGoogleApi(apiQuery) {
                     analytics(apiQuery, function (err, result) {
-                        console.log('api error',err)
                         if (err) {
                             if (err.code === 400)
                                 return res.status(401).json({error: 'Authentication required to perform this action'})

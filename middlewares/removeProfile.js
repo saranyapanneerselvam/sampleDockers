@@ -14,6 +14,7 @@ exports.removeProfile = function (req, res, next) {
             function (callback) {
                 var objectResults = [];
                 console.log('inside delete data');
+                console.log(req.params.profileId);
                 ObjectDb.find({profileId: req.params.profileId}, function (err, response) {
                     responseData = response;
                     console.log('responseData', responseData)

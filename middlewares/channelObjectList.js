@@ -8,6 +8,8 @@ var FB = require('fb');
 //To use google api's
 var googleapis = require('googleapis');
 
+var getObjects = require('../helpers/utility');
+
 //To load up the user model
 var Profile = require('../models/profiles');
 
@@ -47,9 +49,8 @@ exports.listAccounts = function (req, res, next) {
         store_channel_objects: ['get_channel_objects_remote', storeChannelObjects],
         get_channel_objects_db: ['store_channel_objects', getChannelObjectsDB]
     }, function (err, results) {
-        if (err) {
+        if (err)
             return res.status(500).json({});
-        }
 
         //Final result will be set here
         req.app.result = results.get_channel_objects_db;
@@ -130,39 +131,32 @@ exports.listAccounts = function (req, res, next) {
             refresh_token: refreshAccessToken,
             get_accounts: ['refresh_token', getAccounts],
             get_properties: ['get_accounts', getPropertiesForAllAccounts],
-            get_views: ['get_properties', getViews],
+            get_views: ['get_properties', getViews]
         }, function (err, results) {
-            if (err) {
+            if (err)
                 return callback(err, null);
-            }
             callback(null, results.get_views);
         });
 
         //To refresh the access token
         function refreshAccessToken(callback) {
-
             oauth2Client.refreshAccessToken(function (err, tokens) {
                 callback(err, tokens);
-
-                if (err) {
+                if (err)
                     return;
-                }
 
-                // your access_token is now refreshed and stored in oauth2Client
-                // store these new tokens in a safe place (e.g. database)
-
+                // your access_token is now refreshed and stored in oauth2Client; store these new tokens in a safe place (e.g. database)
                 var profile = initialResults.get_profile;
                 profile.token = tokens.access_token;
                 var updated = new Date();
-
                 Profile.update({
                     'email': profile.email,
-                    channelId: profile.channelId
+                    'channelId': profile.channelId
                 }, {$set: {"accessToken": tokens.access_token, updated: updated}}, function (err, updateResult) {
-                    if (err || !updateResult) {
-                        console.log('failure');
-                    }
-                    else console.log('Access token Update success');
+                    if (err || !updateResult)
+                        console.log('Failure');
+                    else
+                        console.log('Access token Update success');
                 })
             });
         }
@@ -176,7 +170,6 @@ exports.listAccounts = function (req, res, next) {
                 if (err)
                     return callback(err, '');
                 callback(null, response.items);
-
             });
         }
 
@@ -195,13 +188,12 @@ exports.listAccounts = function (req, res, next) {
         //To get the properties for an account one by one
         function getPropertiesForOneAccount(account, callback) {
             analytics.management.webproperties.list({
-                'accountId': account.id,
+                'accountId': account.id
             }, function (err, response) {
                 if (err)
                     return callback(err, null);
-                for (var i = 0; i < response.items.length; i++) {
+                for (var i = 0; i < response.items.length; i++)
                     response.items[i].account = account;
-                }
                 callback(null, response.items);
             });
         }
@@ -223,16 +215,14 @@ exports.listAccounts = function (req, res, next) {
                 for (var i = 0; i < views.items.length; i++) {
                     dbViews.push({
                         'channelObjectId': views.items[i].id,
-                        objectTypeId: initialResults.get_objectType._id,
+                        'objectTypeId': initialResults.get_objectType._id,
                         'viewName': views.items[i].name,
-                        meta: {webPropertyName: property.name, webPropertyId: property.id}
+                        'meta': {webPropertyName: property.name, webPropertyId: property.id}
                     });
                 }
                 callback(null, dbViews);
             });
         }
-
-
     }
 
     //Set tokens
@@ -266,8 +256,8 @@ exports.listAccounts = function (req, res, next) {
                     name: views[i].viewName,
                     objectTypeId: results.get_objectType._id,
                     meta: {
-                        webPropertyName: views[i].meta.webPropertyName,
-                        webPropertyId: views[i].meta.webPropertyId
+                        'webPropertyName': views[i].meta.webPropertyName,
+                        'webPropertyId': views[i].meta.webPropertyId
                     },
                     updated: now
                 }
@@ -285,11 +275,15 @@ exports.listAccounts = function (req, res, next) {
 
     //To get the objects from db
     function getChannelObjectsDB(results, callback) {
-        var query = {
-            profileId: results.get_profile._id,
-            objectTypeId: results.get_objectType._id
-        };
-        Object.find(query, callback);
+        req.params.profileID = req.params.profileId;
+        getObjects.findObjectsForProfile(req,res,function (err,object) {
+            if(err)
+                callback(err,null);
+            else{
+                req.app.objects  = object;
+                callback(null,object);
+            }
+        });
     }
 
     function getFbAdAccountList(profile, channel, query) {
@@ -450,7 +444,7 @@ exports.listAccounts = function (req, res, next) {
                     Object.find({'profileId': profile._id}, function (err, objectList) {
                         channelObjectDetails.push({
                             'result': objectList
-                        })
+                        });
                         if (objectList) {
                             req.app.result = objectList;
                             next();
@@ -556,7 +550,5 @@ exports.listAccounts = function (req, res, next) {
                 });
             }
         }
-
     }
 };
-

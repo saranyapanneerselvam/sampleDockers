@@ -25,7 +25,7 @@ module.exports = function(app) {
     });
 
     // Initial page redirecting to Github
-    app.get(configAuth.facebookAdsAuth.localCallbackURL, function (req, res) {
+    app.get(configAuth.facebookAdsAuth.localCallingURL, function (req, res) {
         res.redirect(authorization_uri);
     });
     

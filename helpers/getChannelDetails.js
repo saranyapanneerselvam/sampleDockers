@@ -1,7 +1,7 @@
 var Profiles = require('../models/profiles');
 var Channels = require('../models/channels');
 var exports = module.exports = {};
-exports.getChannelDetails = function (req, done) {
+exports.getChannelDetails = function (req, res, done) {
 
     Profiles.findOne({_id:req.profileId}, function (err, profile) {
         if (err)

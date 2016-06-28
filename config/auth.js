@@ -84,7 +84,7 @@ module.exports = {
         authorizationPath: 'oauth',
         redirect_uri : 'https://datapoolt.co/auth/facebookads/callback',
         scope : 'email,manage_pages,read_insights,publish_actions,ads_read,ads_management',
-        state : '4234#'
+        state : '4234#',
         localCallingURL: '/api/auth/facebookads',
         localCallbackURL: '/auth/facebookads/callback',
         accessTokenURL:'https://graph.facebook.com/me?access_token='
@@ -152,5 +152,20 @@ module.exports = {
         Thursday:'Thursday',
         Friday:'Friday',
         Saturday:'Saturday'
+    },
+
+    youTubeAuth: {
+        clientID: '365268185780-vti6ft53qpjml2c5qsaqn0du99omeo3j.apps.googleusercontent.com',
+        clientSecret: 'EZN3KKEuikOjX7sAv75l6sbV',
+        callbackURL: 'http://localhost:8080/auth/youtube/callback'
+    },
+
+    expire:{
+        FBAccessExpire:5097600
+    },
+
+    apiVersions:{
+        FBInsights:'v2.6',
+        FBADs:'v2.6'
     }
 };

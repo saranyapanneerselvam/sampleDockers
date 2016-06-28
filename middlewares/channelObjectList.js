@@ -345,7 +345,7 @@ exports.listAccounts = function (req, res, next) {
         //To select which object type
         switch (req.query.objectType) {
             case configAuth.objectType.facebookAds:
-                var query = "v2.6/" + profile.userId + "/adaccounts?fields=name";
+                var query = configAuth.apiVersions.FBADs +"/" + profile.userId + "/adaccounts?fields=name";
                 getFbAdAccountList(profile, channel, query);
                 break;
         }

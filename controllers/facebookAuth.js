@@ -37,7 +37,7 @@ module.exports = function (app) {
         }, saveToken);
 
         function saveToken(error, result) {
-            var getExpiresInValue = 5097600;
+            var getExpiresInValue = configAuth.expire.FBAccessExpire;
             if (error) {
                 return res.status(401).json({error: 'Authentication required to perform this action'});
             }

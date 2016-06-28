@@ -1,6 +1,8 @@
 //Importing the fb module
 var FB = require('fb');
 
+var configAuth = require('../config/auth');
+
 //Importing the request module
 var request = require('request');
 
@@ -29,7 +31,7 @@ exports.getPageInsights = function (req, res, next) {
     console.log('start', startDate, 'end', endDate)
 
     //For testing start& end date is hard coded it will be replaced by startDate & endDate
-    var query = 'v2.5/' + req.query.pageId + '?fields=posts.until(' + endDate + ').since(' + startDate + ')&access_token=' + accessToken;
+    var query = configAuth.apiVersions.FBInsights+'/' + req.query.pageId + '?fields=posts.until(' + endDate + ').since(' + startDate + ')&access_token=' + accessToken;
     return callGetPostApi(query);
 
     //to get the list of posts for a given page id
@@ -96,8 +98,8 @@ exports.getPageInsights = function (req, res, next) {
             var error = false; //not used now
 
             //access token is hard coded for testing
-            var commentQuery = 'v2.5/' + postList[i] + '/comments?access_token=CAACEdEose0cBAGNkZCMc3dFZAbGrEmFHe5ygfWNMfhHbdoyiwSEgTeBJ86dez6lLqz9vxGLUKCzrnCwDBsBPdNZAYLFqDDHs5xxvR6TzuFxEQvcZChI6mDZBQsthipdZCRz7V2jKPBnIKLzz6Gn7Natut7jUbxvBMR67XtQMVt84baWwsZBl3My1T8oMvZC5Kf4ZBlWb0yxxsnAZDZD';
-            var likeQuery = 'v2.5/' + postList[i] + '/likes?access_token=CAACEdEose0cBAGNkZCMc3dFZAbGrEmFHe5ygfWNMfhHbdoyiwSEgTeBJ86dez6lLqz9vxGLUKCzrnCwDBsBPdNZAYLFqDDHs5xxvR6TzuFxEQvcZChI6mDZBQsthipdZCRz7V2jKPBnIKLzz6Gn7Natut7jUbxvBMR67XtQMVt84baWwsZBl3My1T8oMvZC5Kf4ZBlWb0yxxsnAZDZD';
+            var commentQuery = configAuth.apiVersions.FBInsights+'/' + postList[i] + '/comments?access_token=CAACEdEose0cBAGNkZCMc3dFZAbGrEmFHe5ygfWNMfhHbdoyiwSEgTeBJ86dez6lLqz9vxGLUKCzrnCwDBsBPdNZAYLFqDDHs5xxvR6TzuFxEQvcZChI6mDZBQsthipdZCRz7V2jKPBnIKLzz6Gn7Natut7jUbxvBMR67XtQMVt84baWwsZBl3My1T8oMvZC5Kf4ZBlWb0yxxsnAZDZD';
+            var likeQuery = configAuth.apiVersions.FBInsights+'/' + postList[i] + '/likes?access_token=CAACEdEose0cBAGNkZCMc3dFZAbGrEmFHe5ygfWNMfhHbdoyiwSEgTeBJ86dez6lLqz9vxGLUKCzrnCwDBsBPdNZAYLFqDDHs5xxvR6TzuFxEQvcZChI6mDZBQsthipdZCRz7V2jKPBnIKLzz6Gn7Natut7jUbxvBMR67XtQMVt84baWwsZBl3My1T8oMvZC5Kf4ZBlWb0yxxsnAZDZD';
 
             //to call getCommentData to get comments details
             getCommentData(commentQuery, finalCommentList, function (err, commentsData) {

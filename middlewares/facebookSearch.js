@@ -28,7 +28,7 @@ exports.getSearchResult = function (req, res, next) {
         },
         function (response) {
             console.log('query', response);
-            var query = 'v2.5/search?access_token=' + response.access_token + '&fields=id,name,page&q=' + req.query.keyWord + '&type=page';
+            var query = configAuth.apiVersions.FBInsights+'/search?access_token=' + response.access_token + '&fields=id,name,page&q=' + req.query.keyWord + '&type=page';
             console.log('query', query);
 
             callSearchApi(query);

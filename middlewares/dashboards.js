@@ -21,37 +21,37 @@ exports.getDashboardList = function (req, res, next) {
     else {
         var userDashboard=[];
         User.findOne({_id: req.user._id}, function (err, UserCollection) {
-            console.log('userCollect', UserCollection.dashboards,UserCollection.dashboards.length);
-            for (var i = 0; i < UserCollection.dashboards.length; i++) {
-                userDashboard.push(getDashboard(UserCollection.dashboards[i].dashboardId));
-            }
-            Q.all(userDashboard).then(function successCallback(userDashboard){
-                if(!userDashboard){return res.status(501).json({error: 'Not implemented'})}
-                else {
-                    //console.log('getDashboardData',userDashboard)
-                    req.app.result = userDashboard;
-                    next();
-                }
-            }, function errorCallback(err){
+            if(err)
                 return res.status(500).json({error: 'Internal server error'});
-            });
+            else if(!UserCollection)
+                return res.status(204).json({error: 'No records found'});
+            else {
+                for (var i = 0; i < UserCollection.dashboards.length; i++) {
+                    userDashboard.push(getDashboard(UserCollection.dashboards[i].dashboardId));
+                }
+                Q.all(userDashboard).then(function successCallback(userDashboard){
+                    if(!userDashboard){return res.status(501).json({error: 'Not implemented'})}
+                    else {
+                        req.app.result = userDashboard;
+                        next();
+                    }
+                }, function errorCallback(err){
+                    return res.status(500).json({error: 'Internal server error'});
+                });
+            }
+        });
 
-
-        })
         function getDashboard(UserCollection){
             var deferred = Q.defer();
             dashboardList.findOne({_id:UserCollection}, function (err, dashboard) {
                 //console.log('dashboardCollect', dashboard);
-                if(err){
+                if(err)
                     deferred.reject(new Error(err));
-                }                
-                else {
+                else
                     deferred.resolve(dashboard);
-                }
-            })
+            });
             return deferred.promise;
         }
-
     }
 };
 

@@ -18,8 +18,10 @@ module.exports = function (app) {
         res.json(req.app.result);
     });
 
+/*
     //To get object types
     app.get('/api/v1/channels/:channelId', channelMiddleWare.getObjectTypes, function (req, res) {
         res.json(req.app.result);
     });
+*/
 };

@@ -48,7 +48,8 @@
     "instagram-node": "*",
     "twitter": "^1.2.5",
     "googleads-node-lib": "0.0.34",
-    "adwords-auth": "0.0.10"
+    "adwords-auth": "0.0.10",
+    "semaphore": "*"
   },
   "devDependencies": {
     "mocha": "^2.4.5",

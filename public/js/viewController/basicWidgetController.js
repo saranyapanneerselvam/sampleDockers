@@ -280,6 +280,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 url: '/api/v1/post/removeProfiles/' + this.profileOptionsModel._id
             }).then(function successCallback(response) {
                 $scope.getProfilesForDropdown();
+                console.log($state.params,$rootScope.params,$state.$parent);
             }, function errorCallback(error) {
                 console.log('Error in deleting profile', error)
             });

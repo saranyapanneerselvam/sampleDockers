@@ -59,8 +59,9 @@ exports.getChannels = function (req, res, next) {
 
     })
 
-}
+};
 
+/*
 //To get the list of object types for a channel
 exports.getObjectTypes = function (req, res, next) {
     objectType.find({'channelId':req.params.channelId}, function (err, types) {
@@ -73,4 +74,5 @@ exports.getObjectTypes = function (req, res, next) {
         next();
     });
 
-}
+};
+*/

@@ -47,8 +47,6 @@ exports.listAccounts = function (req, res, next) {
         store_channel_objects: ['get_channel_objects_remote', storeChannelObjects],
         get_channel_objects_db: ['store_channel_objects', getChannelObjectsDB]
     }, function (err, results) {
-        console.log('err = ', err);
-        console.log('results = ', results);
         if (err) {
             return res.status(500).json({});
         }
@@ -97,19 +95,15 @@ exports.listAccounts = function (req, res, next) {
         var channel = results.get_channel;
         switch (channel.code) {
             case configAuth.channels.googleAnalytics:
-                console.log('googleanalytics');
                 getGAChannelObjects(results, callback);
                 break;
             case configAuth.channels.facebook:
-                console.log('facebook');
                 selectFbObjectType(results.get_profile, channel);
                 break;
             case configAuth.channels.facebookAds:
-                console.log('facebookAds');
                 selectFbadsObjectType(results.get_profile, channel);
                 break;
             case configAuth.channels.twitter:
-                console.log('tweeter');
                 selectTweetObjectType(results.get_profile, channel);
                 break;
             case configAuth.channels.googleAdwords:
@@ -118,7 +112,6 @@ exports.listAccounts = function (req, res, next) {
             default:
                 callback('Bad Channel Code', null);
         }
-
     }
 
     //Call the function based on object type
@@ -139,8 +132,6 @@ exports.listAccounts = function (req, res, next) {
             get_properties: ['get_accounts', getPropertiesForAllAccounts],
             get_views: ['get_properties', getViews],
         }, function (err, results) {
-            console.log('err = ', err);
-            console.log('results = ', results);
             if (err) {
                 return callback(err, null);
             }
@@ -149,7 +140,6 @@ exports.listAccounts = function (req, res, next) {
 
         //To refresh the access token
         function refreshAccessToken(callback) {
-            console.log('refreshAccessToken');
 
             oauth2Client.refreshAccessToken(function (err, tokens) {
                 callback(err, tokens);
@@ -170,7 +160,6 @@ exports.listAccounts = function (req, res, next) {
                     channelId: profile.channelId
                 }, {$set: {"accessToken": tokens.access_token, updated: updated}}, function (err, updateResult) {
                     if (err || !updateResult) {
-
                         console.log('failure');
                     }
                     else console.log('Access token Update success');
@@ -296,7 +285,6 @@ exports.listAccounts = function (req, res, next) {
 
     //To get the objects from db
     function getChannelObjectsDB(results, callback) {
-        console.log('getChannelObjectsDB');
         var query = {
             profileId: results.get_profile._id,
             objectTypeId: results.get_objectType._id
@@ -315,9 +303,7 @@ exports.listAccounts = function (req, res, next) {
                 FB.setAccessToken(profile.accessToken);
                 FB.api(query,
                     function (adAccount) {
-                        console.log(adAccount);
                         var adslength = adAccount.data.length;
-                        console.log(adslength);
                         req.app.result = adAccount;
                         for (var i = 0; i < adslength; i++) {
                             var objectsResult = new Object();
@@ -327,8 +313,6 @@ exports.listAccounts = function (req, res, next) {
                             var name = adAccount.data[i].name;
                             var created = new Date();
                             var updated = new Date();
-                            console.log('profileInfo._id', profile._id)
-                            console.log('channelObjectId', channelObjectId)
                             //To store once
                             Object.update({
                                 profileId: profile._id,
@@ -337,16 +321,13 @@ exports.listAccounts = function (req, res, next) {
                                 $setOnInsert: {created: created},
                                 $set: {name: name, objectTypeId: objectTypeId, updated: updated}
                             }, {upsert: true}, function (err, res) {
-                                console.log(err)
-                                console.log(res);
                                 if (!err) {
                                     Object.find({'profileId': profile._id}, function (err, objectList) {
                                         channelObjectDetails.push({
                                             'result': objectList
-                                        })
+                                        });
                                         if (adAccount.data.length == channelObjectDetails.length) {
                                             req.app.result = objectList;
-                                            console.log('er');
                                             next();
                                         }
                                     })
@@ -361,11 +342,9 @@ exports.listAccounts = function (req, res, next) {
 
     // This function to get adaccounts who login user
     function selectFbadsObjectType(profile, channel) {
-        console.log('insight fbadaccount', req.query.objectType);
         //To select which object type
         switch (req.query.objectType) {
             case configAuth.objectType.facebookAds:
-                console.log('fbadaccount');
                 var query = "v2.6/" + profile.userId + "/adaccounts?fields=name";
                 getFbAdAccountList(profile, channel, query);
                 break;
@@ -432,7 +411,6 @@ exports.listAccounts = function (req, res, next) {
                                                     });
                                                     if (pageList.data.length == channelObjectDetails.length) {
                                                         req.app.result = objectList;
-                                                        console.log('er');
                                                         next();
                                                     }
                                                 })
@@ -457,23 +435,17 @@ exports.listAccounts = function (req, res, next) {
             'type': req.query.objectType,
             'channelId': profile.channelId
         },function(err, res){
-            console.log(res);
-            console.log(res._id);
             var objectsResult = new Object();
             var profileId = profile._id;
             var objectTypeId = res._id;
             var created = new Date();
             var updated = new Date();
-            console.log ('profileInfo._id',profile._id);
-            console.log ('objectTypeId',objectTypeId);
             //To store once
             Object.update({
                 profileId: profile._id
             },{
                 $setOnInsert: {created: created}, $set: { objectTypeId:objectTypeId,updated: updated}
             },{upsert: true}, function (err, res) {
-                console.log(err)
-                console.log(res);
                 if (!err) {
                     Object.find({'profileId': profile._id}, function (err, objectList) {
                         channelObjectDetails.push({
@@ -481,7 +453,6 @@ exports.listAccounts = function (req, res, next) {
                         })
                         if (objectList) {
                             req.app.result = objectList;
-                            console.log('twitter',objectList);
                             next();
                         }
                     })
@@ -493,11 +464,9 @@ exports.listAccounts = function (req, res, next) {
 
 
     function selectTweetObjectType(profile , channel){
-        //console.log('insight fbadaccount',req.query.objectType);
         //To select which object type
         switch (req.query.objectType) {
             case configAuth.objectType.twitter:
-                console.log('fbadaccount');
                 getTweet(profile, channel);
                 break;
         }
@@ -580,7 +549,6 @@ exports.listAccounts = function (req, res, next) {
                             });
                             if (lengthOfModel == channelObjectDetails.length) {
                                 req.app.result = objectList;
-                                console.log('Adwords',objectList);
                                 next();
                             }
                         })

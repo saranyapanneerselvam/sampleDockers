@@ -36,7 +36,6 @@ exports.metricDetails = function (req, res, next) {
      * callback next which returns response to controller
      */
     metricsList.find({_id: req.params.metricId}, function (err, metrics) {
-        console.log('metric details', req.params.metricId, 'err', err, 'metric details', metrics);
         req.showMetric.metrics = metrics;
         next();
     })

@@ -31,6 +31,8 @@ var Object = require('../models/objects');
 //Set OAuth
 var OAuth2 = googleapis.auth.OAuth2;
 
+var semaphore = require('semaphore')(1);
+
 //set Twitter module
 var Twitter = require('twitter');
 
@@ -47,10 +49,10 @@ var spec = {host: 'https://adwords.google.com/api/adwords/reportdownload/v201601
 googleAds.GoogleAdwords(spec);
 
 //set credentials in OAuth2
-var oauth2Client = new OAuth2(configAuth.googleAuth.clientID, configAuth.googleAuth.clientSecret, configAuth.googleAuth.callbackURL);
+//var oauth2Client = new OAuth2(configAuth.googleAuth.clientID, configAuth.googleAuth.clientSecret, configAuth.googleAuth.callbackURL);
 
 // set auth as a global default
-var analytics = googleapis.analytics({version: 'v3', auth: oauth2Client});
+//var analytics = googleapis.analytics({version: 'v3', auth: oauth2Client});
 var Widget = require('../models/widgets');
 var client = new Twitter({
     consumer_key: configAuth.twitterAuth.consumerKey,
@@ -136,8 +138,6 @@ exports.getChannelData = function (req, res, next) {
         else {
             return res.status(401).json({error: 'User must be logged in'})
         }
-
-
     });
 
     function callEntireDataFunction() {
@@ -270,8 +270,7 @@ exports.getChannelData = function (req, res, next) {
     //To call the respective function based on channel
     function getChannelDataRemote(initialResults, callback) {
         async.auto({
-            get_each_channel_data: getEachChannelData,
-
+            get_each_channel_data: getEachChannelData
         }, function (err, results) {
             if (err) {
                 return callback(err, null);
@@ -289,7 +288,6 @@ exports.getChannelData = function (req, res, next) {
                 var newChannelArray = [];
                 newChannelArray.push(initialResults.get_channel[0]);
                 async.concatSeries(newChannelArray, dataForEachChannel, callback);
-
             }
 
         }
@@ -313,7 +311,6 @@ exports.getChannelData = function (req, res, next) {
                         else
                             getFBPageData(result, callback);
                     });
-
                     break;
                 case configAuth.channels.facebookAds:
                     setDataBasedChannelCode(results, function (err, result) {
@@ -322,7 +319,6 @@ exports.getChannelData = function (req, res, next) {
                         else
                             getFBadsinsightsData(result, callback);
                     });
-
                     break;
                 case configAuth.channels.twitter:
                     setDataBasedChannelCode(results, function (err, result) {
@@ -425,17 +421,12 @@ exports.getChannelData = function (req, res, next) {
                 var data = initialResults.data;
                 for (var i = 0; i < data.length; i++) {
                     for (var j = 0; j < metricList.length; j++) {
-
                         if (String(metricList[j]._id) === String(data[i].metricId)) {
-
                             channelData.push(data[i]);
                         }
                     }
-
                 }
-
                 callback(null, channelData);
-
             }
 
             //function to group charts inside widgets based on channel id
@@ -446,18 +437,16 @@ exports.getChannelData = function (req, res, next) {
                 for (var i = 0; i < charts.length; i++) {
                     if (String(results._id) === String(charts[i].channelId)) {
                         chartsArray.push(charts[i]);
-
                     }
                 }
                 widgetArray.push({
                     _id: initialResults.widget._id,
                     widgetType: initialResults.widget.widgetType,
                     charts: chartsArray
-                })
+                });
                 callback(null, widgetArray)
             }
         }
-
     }
 
     //Function to get facebook data
@@ -2015,17 +2004,18 @@ exports.getChannelData = function (req, res, next) {
                         // metricId: results.metricId,
                         queryResults: initialResults,
                         channelId: initialResults.metric[0].channelId
-                    }
+                    };
                     callback(null, actualFinalApiData);
                 }
                 else {
                     getAdwordsDataForEachMetric(result, callback);
-
                 }
             }
         }
 
         function getAdwordsDataForEachMetric(results, callback) {
+            console.log('getAdwordsDataForEachMetric')
+            semaphore.take(function() {
             var errorCount = 0;
             var during = results.startDate + ',' + results.endDate;
             googleAds.use({
@@ -2044,10 +2034,15 @@ exports.getChannelData = function (req, res, next) {
                 .from('ACCOUNT_PERFORMANCE_REPORT')
                 .during(during)
                 .send().then(function (response) {
+                console.log('adwords data',results.query,during,response)
                     storeAdwordsFinalData(results, response.data);
+                    semaphore.leave();
                 })
                 .catch(function (error) {
-                    if (error.status == '400') {
+                    console.log('adwords error',results.query,during,error)
+                    semaphore.leave();
+                    callback(error, null);
+                   /* if (error.status == '400') {
                         errorCount++;
                         if (errorCount < 6) {
                             setTimeout(function () {
@@ -2060,8 +2055,9 @@ exports.getChannelData = function (req, res, next) {
                     }
                     else {
                         callback(error, null);
-                    }
+                    }*/
                 });
+        });
 
             //To store the final result in db
             function storeAdwordsFinalData(results, data) {

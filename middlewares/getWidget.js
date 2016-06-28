@@ -236,7 +236,6 @@ exports.saveWidgets = function (req, res, next) {
 };
 
 exports.saveCustomWidgets = function (req, res, next) {
-    console.log('response');
     var createCustomWidget = new widgetsList();
 
     createCustomWidget.dashboardId = req.body.dashboardId;
@@ -266,16 +265,13 @@ exports.updateNameOfWidgets = function (req, res, next) {
                 }
             })
         function processAllWidgets(callback) {
-            console.log('printingReqBody',req.body)
             var widgetName;
             var widgets = req.body;
-            console.log('widget',widgets);
             async.concatSeries(widgets, saveAllWidgets, callback);
 
             function saveAllWidgets(result, callback) {
                 req.dashboardId = result.dashboardId;
                 widgetName = result.name;
-                console.log('printingWidget',result,widgetName)
                 userPermission.checkUserAccess(req, res, function (err, response) {
                     if (err)
                         return res.status(500).json({error: 'Internal server error'});

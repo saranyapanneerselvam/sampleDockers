@@ -32,7 +32,6 @@ var Object = require('../models/objects');
 var OAuth2 = googleapis.auth.OAuth2;
 
 var semaphore = require('semaphore')(1);
-
 //set Twitter module
 var Twitter = require('twitter');
 
@@ -344,6 +343,14 @@ exports.getChannelData = function (req, res, next) {
                             selectInstagram(result, callback);
                     });
                     break;
+                case configAuth.channels.youTube:
+                    setDataBasedChannelCode(results, function (err, result) {
+                        if (err)
+                            return res.status(500).json({});
+                        else
+                            initializeGa(result, callback);
+                    });
+                    break;
                 default:
                     console.log('No channel selected')
             }
@@ -617,7 +624,7 @@ exports.getChannelData = function (req, res, next) {
             channelWithCode.push({channel: uniqueChannelFromDb[0], allData: wholeQueryResult[0].queryResults});
         async.concatSeries(channelWithCode, storeEachChannelData, callback);
         function storeEachChannelData(allQueryResult, callback) {
-            if (allQueryResult.channel.code == configAuth.channels.googleAnalytics) {
+            if (allQueryResult.channel.code == configAuth.channels.googleAnalytics || allQueryResult.channel.code == configAuth.channels.youTube) {
                 function storeDataForGA(dataFromRemote, dataFromDb, widget, metric, done) {
                     async.times(dataFromDb.length, function (j, next) {
                         if (dataFromRemote[j].data === 'DataFromDb')
@@ -626,17 +633,9 @@ exports.getChannelData = function (req, res, next) {
                             var storeGoogleData = [];
                             var dimensionList = [];
                             var dimension;
-                            if (req.body.dimensionList != undefined) {
-                                dimensionList = req.body.dimensionList;
-                                dimension = results.get_channel_data_remote.get_each_channel_data.get_dimension;
-                            }
-                            else {
-                                dimensionList.push({'name': 'ga:date'});
-                                dimension = results.get_channel_data_remote.get_each_channel_data.get_dimension;
-                            }
                             var dimensionArray = [];
                             var dimensionList = metric[j].objectTypes[0].meta.dimension;
-                            if (dimensionList[0].name === "ga:date" || dimensionList[0].name ==="mcf:conversionDate") {
+                            if (dimensionList[0].name === "ga:date" || dimensionList[0].name ==="mcf:conversionDate" ||dimensionList[0].name ==='day') {
                                 if (dataFromRemote[j].metric.objectTypes[0].meta.endpoint.length)
                                     finalData = findDaysDifference(dataFromRemote[j].startDate, dataFromRemote[j].endDate, dataFromRemote[j].metric.objectTypes[0].meta.endpoint);
                                 else {
@@ -672,7 +671,10 @@ exports.getChannelData = function (req, res, next) {
                                                 obj[dimensionList[m].storageName] = [year, month, date].join('-');
                                                 obj['total'] = dataFromRemote[j].data[i][resultCount].primitiveValue;
                                             }
-
+                                            else if (metric[j].objectTypes[0].meta.api === configAuth.googleApiTypes.youtubeApi) {
+                                                obj[dimensionList[m].storageName] = dataFromRemote[j].data[i][0];
+                                                obj['total'] = dataFromRemote[j].data[i][resultCount];
+                                            }
                                             else {
                                                 var year = dataFromRemote[j].data[i][0].substring(0, 4);
                                                 var month = dataFromRemote[j].data[i][0].substring(4, 6);
@@ -1383,11 +1385,7 @@ exports.getChannelData = function (req, res, next) {
 
     //set oauth credentials and get object type details
     function initializeGa(results, callback) {
-        oauth2Client.setCredentials({
-            access_token: results.get_profile[0].accessToken,
-            refresh_token: results.get_profile[0].refreshToken
-        });
-
+        //console.log('resultfromdb', results.metric[0].objectTypes[0].meta.api)
         googleDataEntireFunction(results, callback);
     }
 
@@ -1446,6 +1444,17 @@ exports.getChannelData = function (req, res, next) {
             var metric = results.metric;
             var object = results.object;
             var widget = results.widget.charts;
+            if (results.metric[0].objectTypes[0].meta.api === configAuth.googleApiTypes.youtubeApi) {
+                //console.log('if',configAuth.youTubeAuth.clientID)
+                //set credentials in OAuth2
+                var oauth2Client = new OAuth2(configAuth.youTubeAuth.clientID, configAuth.youTubeAuth.clientSecret, configAuth.youTubeAuth.callbackURL);
+            }
+            else var oauth2Client = new OAuth2(configAuth.googleAuth.clientID, configAuth.googleAuth.clientSecret, configAuth.googleAuth.callbackURL);
+            //console.log('oauth2Client',oauth2Client)
+            oauth2Client.setCredentials({
+                access_token: results.get_profile[0].accessToken,
+                refresh_token: results.get_profile[0].refreshToken
+            });
             oauth2Client.refreshAccessToken(function (err, tokens) {
                 if (err) {
                     if (err.code === 400)
@@ -1482,6 +1491,8 @@ exports.getChannelData = function (req, res, next) {
                             dimension = dimensionArray[dimensionArray.length - 1].dimension;
                             if (metric[i].objectTypes[0].meta.api === configAuth.googleApiTypes.mcfApi)
                                 var metricName = metric[i].objectTypes[0].meta.gMcfMetricName;
+                            else if (metric[i].objectTypes[0].meta.api === configAuth.googleApiTypes.youtubeApi)
+                                var metricName = metric[i].objectTypes[0].meta.youtubeMetricName;
                             else
                                 var metricName = metric[i].objectTypes[0].meta.gaMetricName;
                             if (data[i].data != null) {
@@ -1576,7 +1587,7 @@ exports.getChannelData = function (req, res, next) {
 
                 var apiCallingMethod;
                 var apiQuery = {}
-                if (allObjects.api === 'mcf') {
+                if (allObjects.api === configAuth.googleApiTypes.mcfApi) {
                     apiQuery = {
                         'key': configAuth.googleAuth.clientSecret,
                         'ids': 'ga:' + allObjects.object.channelObjectId,
@@ -1587,7 +1598,22 @@ exports.getChannelData = function (req, res, next) {
                         prettyPrint: true,
                         //'max-results': 2000
                     }
-                    var analytics = googleapis.analytics({version: 'v3', auth: oauth2Client}).data.mcf.get;
+                    var analytics = googleapis.analytics({version: 'v3', auth: allObjects.oauth2Client}).data.mcf.get;
+                    callGoogleApi(apiQuery);
+                }
+                else if (allObjects.api === configAuth.googleApiTypes.youtubeApi) {
+                    apiQuery = {
+                        'access_token':allObjects.oauth2Client.credentials.access_token,
+                        //'key': configAuth.youTubeAuth.clientSecret,
+                        'ids': 'channel=='+allObjects.object.channelObjectId,
+                        'start-date': allObjects.startDate,
+                        'end-date': allObjects.endDate,
+                        'dimensions': allObjects.dimension,
+                        'metrics': allObjects.metricName,
+                        prettyPrint: true,
+                        //'max-results': 2000
+                    }
+                    var analytics = googleapis.youtubeAnalytics({version: 'v1', auth: allObjects.oauth2Client}).reports.query;
                     callGoogleApi(apiQuery);
                 }
 
@@ -1601,7 +1627,7 @@ exports.getChannelData = function (req, res, next) {
                         'metrics': allObjects.metricName,
                         prettyPrint: true
                     }
-                    var analytics = googleapis.analytics({version: 'v3', auth: oauth2Client}).data.ga.get;
+                    var analytics = googleapis.analytics({version: 'v3', auth: allObjects.oauth2Client}).data.ga.get;
                     callGoogleApi(apiQuery);
 
                 }
@@ -1632,15 +1658,42 @@ exports.getChannelData = function (req, res, next) {
 
                             if (result.nextLink != undefined) {
                                 var splitRequiredQueryData = result.nextLink.split('&');
-                                apiQuery = {
-                                    'auth': allObjects.oauth2Client,
-                                    'ids': 'ga:' + allObjects.object.channelObjectId,
-                                    'start-date': splitRequiredQueryData[3].substr(splitRequiredQueryData[3].indexOf('=') + 1),
-                                    'end-date': splitRequiredQueryData[4].substr(splitRequiredQueryData[4].indexOf('=') + 1),
-                                    'start-index': splitRequiredQueryData[5].substr(splitRequiredQueryData[5].indexOf('=') + 1),
-                                    'dimensions': allObjects.dimension,
-                                    'metrics': allObjects.metricName,
-                                    prettyPrint: true
+                                if (allObjects.api === configAuth.googleApiTypes.mcfApi) {
+                                    apiQuery = {
+                                        'key': configAuth.googleAuth.clientSecret,
+                                        'ids': 'ga:' + allObjects.object.channelObjectId,
+                                        'start-date': splitRequiredQueryData[3].substr(splitRequiredQueryData[3].indexOf('=') + 1),
+                                        'end-date': splitRequiredQueryData[4].substr(splitRequiredQueryData[4].indexOf('=') + 1),
+                                        'start-index': splitRequiredQueryData[5].substr(splitRequiredQueryData[5].indexOf('=') + 1),
+                                        'dimensions': allObjects.dimension,
+                                        'metrics': allObjects.metricName,
+                                        prettyPrint: true,
+                                    }
+                                }
+                                else if (allObjects.api === configAuth.googleApiTypes.youtubeApi) {
+                                    apiQuery = {
+                                        //'access_token':oauth2Client.credentials.access_token,
+                                        'key': configAuth.youTubeAuth.clientSecret,
+                                        'ids': 'channel=='+allObjects.object.channelObjectId,
+                                        'start-date': splitRequiredQueryData[3].substr(splitRequiredQueryData[3].indexOf('=') + 1),
+                                        'end-date': splitRequiredQueryData[4].substr(splitRequiredQueryData[4].indexOf('=') + 1),
+                                        'start-index': splitRequiredQueryData[5].substr(splitRequiredQueryData[5].indexOf('=') + 1),
+                                        'dimensions': allObjects.dimension,
+                                        'metrics': allObjects.metricName,
+                                        prettyPrint: true,
+                                    }
+                                }
+                                else{
+                                    apiQuery = {
+                                        'auth': allObjects.oauth2Client,
+                                        'ids': 'ga:' + allObjects.object.channelObjectId,
+                                        'start-date': splitRequiredQueryData[3].substr(splitRequiredQueryData[3].indexOf('=') + 1),
+                                        'end-date': splitRequiredQueryData[4].substr(splitRequiredQueryData[4].indexOf('=') + 1),
+                                        'start-index': splitRequiredQueryData[5].substr(splitRequiredQueryData[5].indexOf('=') + 1),
+                                        'dimensions': allObjects.dimension,
+                                        'metrics': allObjects.metricName,
+                                        prettyPrint: true
+                                    }
                                 }
                                 callGoogleApi(apiQuery);
                             }
@@ -1942,7 +1995,7 @@ exports.getChannelData = function (req, res, next) {
                         startDate = newEndDate;
                         var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
                         if (calculateDate(data[j].data.updated) < currentDate) {
-                            var query = 'Date,' + initialResults.metric[0].objectTypes[0].meta.gAdsMetricName;
+                            var query = 'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
                             allObjects = {
                                 profile: initialResults.get_profile[j],
                                 query: query,
@@ -1970,7 +2023,7 @@ exports.getChannelData = function (req, res, next) {
                         var endDate = formatDate(new Date());
                         var newEndDate = endDate.replace(/-/g, "");
                         var endDate = newEndDate;
-                        var query = 'Date,' + initialResults.metric[0].objectTypes[0].meta.gAdsMetricName;
+                        var query = 'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
                         allObjects = {
                             profile: initialResults.get_profile[j],
                             query: query,
@@ -2014,7 +2067,7 @@ exports.getChannelData = function (req, res, next) {
         }
 
         function getAdwordsDataForEachMetric(results, callback) {
-            console.log('getAdwordsDataForEachMetric')
+            //console.log('getAdwordsDataForEachMetric')
             semaphore.take(function() {
             var errorCount = 0;
             var during = results.startDate + ',' + results.endDate;
@@ -2034,12 +2087,12 @@ exports.getChannelData = function (req, res, next) {
                 .from('ACCOUNT_PERFORMANCE_REPORT')
                 .during(during)
                 .send().then(function (response) {
-                console.log('adwords data',results.query,during,response)
+                //console.log('adwords data',results.query,during,response)
                     storeAdwordsFinalData(results, response.data);
                     semaphore.leave();
                 })
                 .catch(function (error) {
-                    console.log('adwords error',results.query,during,error)
+                    //console.log('adwords error',results.query,during,error)
                     semaphore.leave();
                     callback(error, null);
                    /* if (error.status == '400') {

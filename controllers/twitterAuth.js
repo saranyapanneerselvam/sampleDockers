@@ -76,6 +76,8 @@ module.exports = function (app) {
                                                         if(!err){
                                                             res.render('successAuthentication');
                                                         }
+                                                        else
+                                                            res.json('Error',err);
                                                     });
                                                 }
                                             });

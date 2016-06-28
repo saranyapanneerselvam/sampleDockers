@@ -326,10 +326,16 @@ exports.listAccounts = function (req, res, next) {
                                         }
                                     })
                                 }
+                                else{
+                                    return res.status(500).json({});
+                                }
                             })
                         }
                     }
                 );
+            }
+            else{
+                return res.status(500).json({});
             }
         })
     }
@@ -409,6 +415,9 @@ exports.listAccounts = function (req, res, next) {
                                                     }
                                                 })
                                             }
+                                            else{
+                                                return res.status(500).json({});
+                                            }
                                         })
                                     }
                                 }
@@ -416,6 +425,9 @@ exports.listAccounts = function (req, res, next) {
                         }
                     }
                 );
+            }
+            else{
+                return res.status(500).json({});
             }
         })
     }
@@ -429,30 +441,40 @@ exports.listAccounts = function (req, res, next) {
             'type': req.query.objectType,
             'channelId': profile.channelId
         },function(err, res){
-            var objectsResult = new Object();
-            var profileId = profile._id;
-            var objectTypeId = res._id;
-            var created = new Date();
-            var updated = new Date();
-            //To store once
-            Object.update({
-                profileId: profile._id
-            },{
-                $setOnInsert: {created: created}, $set: { objectTypeId:objectTypeId,updated: updated}
-            },{upsert: true}, function (err, res) {
-                if (!err) {
-                    Object.find({'profileId': profile._id}, function (err, objectList) {
-                        channelObjectDetails.push({
-                            'result': objectList
-                        });
-                        if (objectList) {
-                            req.app.result = objectList;
-                            next();
-                        }
-                    })
-                }
-    
-            })
+            if(!err) {
+                var objectsResult = new Object();
+                var profileId = profile._id;
+                var objectTypeId = res._id;
+                var created = new Date();
+                var updated = new Date();
+                console.log('profileInfo._id', profile._id);
+                console.log('objectTypeId', objectTypeId);
+                //To store once
+                Object.update({
+                    profileId: profile._id
+                }, {
+                    $setOnInsert: {created: created}, $set: {objectTypeId: objectTypeId, updated: updated}
+                }, {upsert: true}, function (err, res) {
+                    if (!err) {
+                        Object.find({'profileId': profile._id}, function (err, objectList) {
+                            channelObjectDetails.push({
+                                'result': objectList
+                            })
+                            if (objectList) {
+                                req.app.result = objectList;
+                                next();
+                            }
+                        })
+                    }
+                    else{
+                        return res.status(500).json({});
+                    }
+
+                })
+            }
+            else{
+                return res.status(500).json({});
+            }
         });
     }
 
@@ -507,6 +529,9 @@ exports.listAccounts = function (req, res, next) {
                     }
                 });
             }
+            else{
+                return res.status(500).json({});
+            }
         });
     }
     function  queryExec(objectTypeId,results,callback,response){
@@ -546,6 +571,9 @@ exports.listAccounts = function (req, res, next) {
                                 next();
                             }
                         })
+                    }
+                    else{
+                        return res.status(500).json({});
                     }
                 });
             }

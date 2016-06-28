@@ -66,6 +66,9 @@ exports.recommendDashboard = function (req, res, next) {
                     //console.log('PrintingGroupByDashboard',groupByDashboard);
                     next(null,referenceWidgets);
                 }
+                else{
+                    return res.status(500).json({});
+                }
             });
         },callback);
     }
@@ -116,6 +119,9 @@ exports.recommendDashboard = function (req, res, next) {
                     }
                 }
                 callback(null,channelDetails);
+            }
+            else{
+                return res.status(500).json({});
             }
         });
     }

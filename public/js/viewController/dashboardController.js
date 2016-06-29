@@ -30,7 +30,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
         //Setting up grid configuration for widgets
         $scope.gridsterOptions = {
-            margins: [10, 10],
+            margins: [20, 20],
             columns: 6,
             defaultSizeX: 2,
             defaultSizeY: 2,

@@ -31,6 +31,16 @@ mongoose.set('debug',false);
 
 require('./helpers/passport')(passport); // pass passport for configuration
 
+//For redirecting http to https
+app.use(function(req,res,next){
+	if(req.get('X-Forwarded-Proto')=='http'){
+		res.redirect('https://datapoolt.co');
+	}else{
+		next();
+	}
+});
+
+
 // set up our express application
 app.use(morgan('dev')); // log every request to the console
 app.use(cookieParser()); // read cookies (needed for auth)

@@ -36,7 +36,11 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
                     $scope.referenceWidgetsList.push(response.data.referenceWidgets[i]);
             },
             function errorCallback(error) {
-                console.log('Error in finding reference widgets', error);
+                swal({
+                    title: "",
+                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen fusions link</span> .",
+                    html: true
+                });
             }
         );
     };
@@ -69,32 +73,41 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
         $http({
             method: 'GET',
             url: '/api/v1/get/channels'
-        }).then(function successCallback(response) {
-            console.log(response.data);
-            //$scope.channelList = response.data;
-            for (var i = 0; i < $scope.uniquechannelList.length; i++) {
-                for (var j = 0; j < response.data.length; j++) {
-                    if (response.data[j]._id == $scope.uniquechannelList[i]) {
-                        $scope.uniquechannelNames.push(response.data[j].name);
+        }).then(
+            function successCallback(response) {
+                //$scope.channelList = response.data;
+                for (var i = 0; i < $scope.uniquechannelList.length; i++) {
+                    for (var j = 0; j < response.data.length; j++) {
+                        if (response.data[j]._id == $scope.uniquechannelList[i]) {
+                            $scope.uniquechannelNames.push(response.data[j].name);
+                        }
                     }
                 }
+            },
+            function errorCallback(error) {
+                swal({
+                    title: "",
+                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen fusions link</span> .",
+                    html: true
+                });
             }
-            console.log('printing unique channel names', $scope.uniquechannelList, $scope.uniquechannelNames);
-        }, function errorCallback(error) {
-            console.log('Error in finding channels');
-        });
+        );
         var tempProfileList = [];
         for (i = 0; i < $scope.uniquechannelList.length; i++) {
-            console.log($scope.uniquechannelList[i]);
             tempProfileList.push($scope.selectProfile($scope.uniquechannelList[i], i));
         }
-        $q.all(tempProfileList).then(function successCallback(tempProfileList) {
-            $scope.profileList = tempProfileList;
-        }, function errorCallback(err) {
-            console.log('Error in fetching profiles');
-        });
-        console.log('Printing unique channel list', $scope.uniquechannelList);
-
+        $q.all(tempProfileList).then(
+            function successCallback(tempProfileList) {
+                $scope.profileList = tempProfileList;
+            },
+            function errorCallback(err) {
+                swal({
+                    title: "",
+                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen fusions link</span> .",
+                    html: true
+                });
+            }
+        );
     };
 
     $scope.addNewProfile = function (index) {
@@ -121,6 +134,10 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
                     url = '/api/auth/instagram';
                     title = $scope.uniquechannelNames[index];
                     break;
+                case 'GoogleAdwords':
+                    url = '/api/auth/adwords';
+                    title = $scope.uniquechannelNames[index];
+                    break;
             }
             var left = (screen.width / 2) - (w / 2);
             var top = (screen.height / 2) - (h / 2);
@@ -135,7 +152,6 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
     };
 
     $scope.selectProfile = function (channel, index) {
-        console.log(channel, index);
         var deferred = $q.defer();
         $http({
             method: 'GET',
@@ -162,23 +178,18 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
             if ($scope.uniquechannelNames[index] === 'Twitter' || $scope.uniquechannelNames[$index] === 'Instagram') {
                 $scope.objectForWidgetChosen($scope.objectList[index], index);
             }
-        } else {
-
-            //console.log('$scope.uniquechannelNames[index]', $scope.uniquechannelNames[index])
+        }
+        else {
             if ($scope.uniquechannelNames[index] == 'Facebook' || $scope.uniquechannelNames[index] =='FacebookAds') {
                 $scope.expiredRefreshButton = $scope.uniquechannelNames[index];
-                
-                //console.log('this.profileOptionsModel.expiresIn', profileObj.expiresIn);
 
                 if (profileObj.expiresIn != undefined)
                     $scope.checkExpiresIn = new Date(profileObj.expiresIn);
-                //console.log($scope.checkExpiresIn);
                 $scope.tokenExpired = false;
                 //var profileId = this.profileOptionsModel._id;
                 var expiresIn = profileObj.expiresIn;
                 var currentDate = new Date();
-                var newexpiresIn = new Date(expiresIn)
-                //console.log('expiresin', newexpiresIn, currentDate, profileObj)
+                var newexpiresIn = new Date(expiresIn);
                 if (currentDate <= newexpiresIn)
                     $scope.tokenExpired = false;
                 else if (expiresIn === undefined)
@@ -187,7 +198,6 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
                     $scope.tokenExpired = true;
             }
 
-            //console.log('$scope.tokenExpired', $scope.tokenExpired);
             $http({
                 method: 'GET',
                 url: '/api/v1/get/objects/' + profileObj._id
@@ -199,17 +209,20 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
                     }
                 },
                 function errorCallback(error) {
-                    console.log(error);
+                    swal({
+                        title: "",
+                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen fusions link</span> .",
+                        html: true
+                    });
                 }
             );
         }
     };
 
     $scope.objectForWidgetChosen = function (objectList, index) {
-        //console.log('chosen object',objectList,typeof objectList,' index:',index,' ',$scope.uniquechannelNames[index]);
-        if(typeof objectList=== 'string' && objectList.length!=0){
+        if(typeof objectList=== 'string' && objectList.length!=0)
             objectList = JSON.parse(objectList);
-        } else if (typeof objectList === 'string' && objectList.length == 0)
+        else if (typeof objectList === 'string' && objectList.length == 0)
             objectList = null;
 
 
@@ -218,15 +231,17 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
                 object: objectList,
                 profile: this.profileOptionsModel[index]
             };
-        } else if (objectList == null && $scope.currentView == 'step_two') {
+        }
+        else if (objectList == null && $scope.currentView == 'step_two') {
             $scope.storedUserChosenValues[index] = {
                 object: null,
                 profile: null
             };
-        } else if (objectList != null && $scope.currentView == 'step_one') {
+        }
+        else if (objectList != null && $scope.currentView == 'step_one') {
             $scope.storedUserChosenValues = null;
         }
-        //console.log('length of stored user chosen values', $scope.storedUserChosenValues.length);
+
         var chosenObjectCount = 0;
         for (var i = 0; i < $scope.storedUserChosenValues.length; i++) {
             if ($scope.storedUserChosenValues[i] != null) {
@@ -235,28 +250,44 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
                 }
             }
         }
+
         if (chosenObjectCount == $scope.uniquechannelList.length && (  $scope.checkExpiresIn ===null || $scope.checkExpiresIn >= new Date()))
             document.getElementById('basicWidgetFinishButton').disabled = false;
         else
             document.getElementById('basicWidgetFinishButton').disabled = true;
-        //console.log('UserStore', $scope.storedUserChosenValues);
     };
 
     $scope.removeExistingProfile = function (index) {
-        //console.log('DeletingProfile', this.profileOptionsModel[index]._id, this.profileOptionsModel[index].name);
-        if (this.profileOptionsModel) {
-            $http({
-                method: 'POST',
-                url: '/api/v1/post/removeProfiles/' + this.profileOptionsModel[index]._id
-            }).then(
-                function successCallback(response) {
-                    $scope.getProfilesForDropdown();
-                },
-                function errorCallback(error) {
-                    console.log('Error in deleting profile', error)
+        var profileOptionsModel = this.profileOptionsModel;
+        swal({
+                title: "Confirm Delink the Profile?",
+                text: "All data, widgets associated with this profile will be deleted! Confirm?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Confirm",
+                closeOnConfirm: true
+            },
+            function () {
+                if (profileOptionsModel) {
+                    $http({
+                        method: 'POST',
+                        url: '/api/v1/post/removeProfiles/' + profileOptionsModel[index]._id
+                    }).then(
+                        function successCallback(response) {
+                            $scope.getProfilesForDropdown();
+                        },
+                        function errorCallback(error) {
+                            swal({
+                                title: "",
+                                text: "<span style='sweetAlertFont'>Unable to delete profile.Please try again</span> .",
+                                html: true
+                            });
+                        }
+                    );
                 }
-            );
-        }
+            }
+        );
     };
 
     $scope.refreshObjectsForChosenProfile = function (index) {
@@ -277,6 +308,9 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
                 case 'Instagram' :
                     $scope.objectType = 'instagram';
                     break;
+                case 'GoogleAdwords' :
+                    $scope.objectType = 'adwordaccount';
+                    break;
             }
             $http({
                 method: 'GET',
@@ -286,7 +320,11 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
                     $scope.objectList[index] = response.data;
                 },
                 function errorCallback(error) {
-                    console.log(error);
+                    swal({
+                        title: "",
+                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen fusions link</span> .",
+                        html: true
+                    });
                 }
             );
         }
@@ -338,12 +376,10 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
             data: inputParams
         }).then(
             function successCallback(response) {
-                console.log(response);
                 for(widgetObjects in response.data.widgetsList)
                     $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
             },
             function errorCallback(error) {
-                console.log('Error in getting widget id', error);
                 swal({
                     title: "",
                     text: "<span style='sweetAlertFont'>Please try again! Something is missing</span> .",

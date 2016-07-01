@@ -1022,7 +1022,7 @@ exports.getChannelData = function (req, res, next) {
                 function storeDataForInstagram(dataFromRemote, dataFromDb, widget, metric, done) {
                     async.times(metric.length, function (j, next) {
                         var finalData = [];
-                        if (metric[j].objectTypes[0].meta.endpoint === 'user_media_recent') {
+                        if (metric[j].objectTypes[0].meta.endpoint[0] === 'user_media_recent') {
                             callback(null, dataFromRemote[j])
 
                         }
@@ -1092,8 +1092,6 @@ exports.getChannelData = function (req, res, next) {
                         var wholeTweetResponseFromDb = [];
                         var wholeTweetResponse = [];
                         if (metric[j].code === configAuth.twitterMetric.tweets || metric[j].code === configAuth.twitterMetric.followers || metric[j].code == configAuth.twitterMetric.following || metric[j].code === configAuth.twitterMetric.favourites || metric[j].code === configAuth.twitterMetric.listed || metric[j].code === configAuth.twitterMetric.retweets_of_your_tweets) {
-                            if (dataFromRemote[j].data.length != 0) {
-
 
                                 // storeTweetDetails.push({date: createdAt, total: dataFromRemote[j].data[0].user});
                                 for (var key in dataFromRemote) {
@@ -1154,7 +1152,7 @@ exports.getChannelData = function (req, res, next) {
 
                                                 var duplicateData=[];
                                                 var tempDate= [];
-                                                var dupReweetCount=0;
+                                                var duplicateRetweetCount=0;
                                                 if (metric[j].code == configAuth.twitterMetric.retweets_of_your_tweets) {
                                                     var tweetCount=dataFromRemote[j].data;
                                                     for(var i=0;i<tweetCount.length;i++){
@@ -1168,12 +1166,12 @@ exports.getChannelData = function (req, res, next) {
                                                         for(var k=0;k<tweetCount.length;k++){
                                                             var responseDate = formatDate(new Date(Date.parse(tweetCount[k].created_at.replace(/( +)/, ' UTC$1'))))
                                                             if(storeTweetDetails[m].date=== responseDate){
-                                                                dupReweetCount+=tweetCount[k].retweet_count;
+                                                                duplicateRetweetCount+=tweetCount[k].retweet_count;
                                                             }
                                                         }
                                                         //Get the required data based on date range
-                                                        storeTweetDetails[m].total=(dupReweetCount);
-                                                        var dupReweetCount=0;
+                                                        storeTweetDetails[m].total=(duplicateRetweetCount);
+                                                        var duplicateRetweetCount=0;
 
                                                     }
                                                     // var tempCount = _.groupBy(dataFromRemote[j].data,'createdAt');
@@ -1265,11 +1263,7 @@ exports.getChannelData = function (req, res, next) {
                                 }
                                 else
                                     next(null, 'success')
-                            }
-                            else {
-                                req.app.result = {Error: '500'};
-                                next('error');
-                            }
+
                         }
                         else if (metric[j].code === configAuth.twitterMetric.highEngagementTweets) {
                             next(null, dataFromRemote[j]);
@@ -1299,12 +1293,20 @@ exports.getChannelData = function (req, res, next) {
                     }
                     next(null, wholeData)
                 }
-                else if (metric[k].objectTypes[0].meta.endpoint === 'user_media_recent') {
+                else if(metric[k].objectTypes[0].meta.endpoint[0] === 'user_media_recent'){
                     wholeData = {
                         "data": results.store_final_data[0].apiResponse,
                         "metricId": results.store_final_data[0].metricId,
                         "objectId": results.store_final_data[0].queryResults.object[0]._id
-                    }
+                    };
+                    next(null, wholeData);
+                }
+                else if(metric[k].code === 'boardsleaderboard' || metric[k].code==='engagementRate'){
+                    wholeData = {
+                        "data":results.store_final_data[0].apiResponse ,
+                        "metricId": results.store_final_data[0].metricId,
+                        "objectId": results.store_final_data[0].queryResults.object[0]._id
+                    };
                     next(null, wholeData);
                 }
                 else {
@@ -1385,7 +1387,6 @@ exports.getChannelData = function (req, res, next) {
 
     //set oauth credentials and get object type details
     function initializeGa(results, callback) {
-        //console.log('resultfromdb', results.metric[0].objectTypes[0].meta.api)
         googleDataEntireFunction(results, callback);
     }
 
@@ -1445,12 +1446,10 @@ exports.getChannelData = function (req, res, next) {
             var object = results.object;
             var widget = results.widget.charts;
             if (results.metric[0].objectTypes[0].meta.api === configAuth.googleApiTypes.youtubeApi) {
-                //console.log('if',configAuth.youTubeAuth.clientID)
                 //set credentials in OAuth2
                 var oauth2Client = new OAuth2(configAuth.youTubeAuth.clientID, configAuth.youTubeAuth.clientSecret, configAuth.youTubeAuth.callbackURL);
             }
             else var oauth2Client = new OAuth2(configAuth.googleAuth.clientID, configAuth.googleAuth.clientSecret, configAuth.googleAuth.callbackURL);
-            //console.log('oauth2Client',oauth2Client)
             oauth2Client.setCredentials({
                 access_token: results.get_profile[0].accessToken,
                 refresh_token: results.get_profile[0].refreshToken
@@ -2067,7 +2066,6 @@ exports.getChannelData = function (req, res, next) {
         }
 
         function getAdwordsDataForEachMetric(results, callback) {
-            //console.log('getAdwordsDataForEachMetric')
             semaphore.take(function() {
             var errorCount = 0;
             var during = results.startDate + ',' + results.endDate;
@@ -2087,28 +2085,12 @@ exports.getChannelData = function (req, res, next) {
                 .from('ACCOUNT_PERFORMANCE_REPORT')
                 .during(during)
                 .send().then(function (response) {
-                //console.log('adwords data',results.query,during,response)
                     storeAdwordsFinalData(results, response.data);
                     semaphore.leave();
                 })
                 .catch(function (error) {
-                    //console.log('adwords error',results.query,during,error)
                     semaphore.leave();
                     callback(error, null);
-                   /* if (error.status == '400') {
-                        errorCount++;
-                        if (errorCount < 6) {
-                            setTimeout(function () {
-                                getAdwordsDataForEachMetric(results, callback);
-                            }, 30000);
-                        }
-                        else {
-                            callback(error, null);
-                        }
-                    }
-                    else {
-                        callback(error, null);
-                    }*/
                 });
         });
 
@@ -2263,6 +2245,8 @@ exports.getChannelData = function (req, res, next) {
         function getTweetDataFromRemote(queries, callback) {
             var finalTwitterResponse = [];
             var wholeTweetObjects = [];
+            var index=0;
+            var oldMaxId;
             async.timesSeries(queries.get_tweet_queries.length, function (j, next) {
                 if (queries.get_tweet_queries[j].inputs === 'DataFromDb') {
                     finalTwitterResponse = {
@@ -2274,7 +2258,7 @@ exports.getChannelData = function (req, res, next) {
                     next(null, finalTwitterResponse)
                 }
                 else {
-                    callTwitterApi(queries, j, wholeTweetObjects, function (err, response) {
+                    callTwitterApi(queries, j, wholeTweetObjects, oldMaxId,index, function (err, response) {
                         if (err)
                             return res.status(500).json({});
                         else {
@@ -2287,7 +2271,7 @@ exports.getChannelData = function (req, res, next) {
             }, callback)
         }
 
-        function callTwitterApi(queries, j, wholeTweetObjects, callback) {
+        function callTwitterApi(queries, j, wholeTweetObjects, oldMaxId,index, callback) {
             var finalTwitterResponse = {};
             var finalHighEngagedTweets = [];
             var query = queries.get_tweet_queries[j].query;
@@ -2296,11 +2280,11 @@ exports.getChannelData = function (req, res, next) {
             var sortedTweetsArray = [];
             var storeTweetDate;
             var storeDefaultValues = [];
+            var removeDuplicate =[];
+
             client.get(query, inputs, function (error, tweets, response) {
-                if (error)
-                    return res.status(500).json({});
-                else if (tweets.length === 0)
-                    return res.status(500).json({});
+                if (error){
+                    return res.status(500).json({});}
                 else {
                     if (queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.tweets || queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.followers || queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.following || queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.favourites || queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.listed || queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.retweets_of_your_tweets) {
 
@@ -2309,77 +2293,129 @@ exports.getChannelData = function (req, res, next) {
                             metricId: queries.get_tweet_queries[j].metricId,
                             channelId: queries.get_tweet_queries[j].channelId,
                             queryResults: results
-                        }
+                        };
                         callback(null, finalTwitterResponse);
                     }
                     else {
-                        var lastCreatedAt = formatDate(new Date(Date.parse(tweets[tweets.length - 1].created_at.replace(/( +)/, ' UTC$1'))));
-                        var maxId = tweets[tweets.length - 1].id;
-                        if (lastCreatedAt >= req.body.startDate) {
+                        if(index==0 && tweets.length==0 ){
+                            finalTwitterResponse = {
+                                data: tweets,
+                                metricId: queries.get_tweet_queries[j].metricId,
+                                channelId: queries.get_tweet_queries[j].channelId,
+                                queryResults: results
+                            };
+                            callback(null, finalTwitterResponse);
+                        }
+
+                        else if(index==0 && tweets.length!=0){
+                            oldMaxId = tweets[tweets.length - 1].id;
                             tweets.forEach(function (value, index) {
                                 storeTweetDate = formatDate(new Date(Date.parse(value.created_at.replace(/( +)/, ' UTC$1'))));
                                 wholeTweetObjects.push({total: value, date: storeTweetDate});
-                            })
+                            });
 
                             queries.get_tweet_queries[j].inputs = {
                                 screen_name: queries.get_tweet_queries[j].inputs.screen_name,
                                 count: queries.get_tweet_queries[j].inputs.count,
-                                max_id: maxId
+                                max_id: oldMaxId
                             };
-                            callTwitterApi(queries, j, wholeTweetObjects, callback);
+                            index++;
+
+                            callTwitterApi(queries, j, wholeTweetObjects,oldMaxId,index, callback);
                         }
-                        else {
-                            tweets.forEach(function (value) {
-                                storeTweetDate = formatDate(new Date(Date.parse(value.created_at.replace(/( +)/, ' UTC$1'))));
-                                wholeTweetObjects.push({total: value, date: storeTweetDate});
 
-                            })
-                            var storeStartDate = new Date(req.body.startDate);
-                            var storeEndDate = new Date(req.body.endDate);
-                            var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
-                            var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
-                            for (var i = 0; i < diffDays; i++) {
-                                var finalDate = calculateDate(storeStartDate);
-                                storeDefaultValues.push({
-                                    date: finalDate,
-                                    total: {retweet_count: 0, favorite_count: 0}
+                        else if(index!=0 && tweets.length!=0 ){
+                            if(oldMaxId === tweets[tweets.length - 1].id){
+                                tweets.forEach(function (value, index) {
+                                    storeTweetDate = formatDate(new Date(Date.parse(value.created_at.replace(/( +)/, ' UTC$1'))));
+                                    wholeTweetObjects.push({total: value, date: storeTweetDate});
                                 });
-                                storeStartDate.setDate(storeStartDate.getDate() + 1);
+                                storingProcess(wholeTweetObjects);
                             }
+                            else{
+                                oldMaxId = tweets[tweets.length - 1].id;
+                                var maxId= tweets[tweets.length - 1].id;
+                                tweets.forEach(function (value, index) {
+                                    storeTweetDate = formatDate(new Date(Date.parse(value.created_at.replace(/( +)/, ' UTC$1'))));
+                                    wholeTweetObjects.push({total: value, date: storeTweetDate});
+                                });
 
-                            //To replace the missing dates in whole data with empty values
-                            var validData = wholeTweetObjects.length;
-                            for (var m = 0; m < validData; m++) {
-                                for (var k = 0; k < storeDefaultValues.length; k++) {
-                                    if (wholeTweetObjects[m].date === storeDefaultValues[k].date)
-                                        storeDefaultValues[k] = wholeTweetObjects[m];
+
+                                queries.get_tweet_queries[j].inputs = {
+                                    screen_name: queries.get_tweet_queries[j].inputs.screen_name,
+                                    count: queries.get_tweet_queries[j].inputs.count,
+                                    max_id: maxId
+                                };
+                                callTwitterApi(queries, j, wholeTweetObjects,oldMaxId,index, callback);
+                            }
+                        }
+
+                        else if(index!=0 && tweets.length==0){
+                                storingProcess(wholeTweetObjects)
+
+                        }
+
+                        function storingProcess(wholeTweetObjects) {
+                            for(var i=0;i<wholeTweetObjects.length;i++){
+                                var lastCreatedAt = formatDate(new Date(Date.parse(wholeTweetObjects[i].total.created_at)));
+                                var changeFormatCreateAt =moment.utc(lastCreatedAt).unix();
+                                var startDate =moment.utc(req.body.startDate).unix();
+                                var endDate = moment.utc(req.body.endDate).unix();
+
+                                if (changeFormatCreateAt >= startDate && changeFormatCreateAt <= endDate ) {
+                                    var count = wholeTweetObjects[i].total.retweet_count + wholeTweetObjects[i].total.favorite_count;
+                                        highEngagedTweetsCount.push({count:count,total:wholeTweetObjects[i].total,date: moment.utc(wholeTweetObjects[i].date).unix()});
+                                }
+                            }
+                            var sortedTweetsReverse=[];
+                            storeDefaultValues = _.sortBy(highEngagedTweetsCount, ['count','date']);
+                            sortedTweetsArray = _.orderBy(storeDefaultValues, ['count'], ['desc']);
+
+                            for(var i=0;i<sortedTweetsArray.length;i++){
+                                if(i==0){
+                                    removeDuplicate[i]={count:sortedTweetsArray[i].count,date:moment.unix(sortedTweetsArray[i].date).format("YYYY/MM/DD"),total:sortedTweetsArray[i].total};
+                                }
+                                else if(removeDuplicate[i-1].count===sortedTweetsArray[i].count){
+                                    var UnsortedDate=new Date(Date.parse(removeDuplicate[i-1].total.created_at.replace(/( \+)/, ' UTC$1')));
+                                    var SortedDate =new Date(Date.parse(sortedTweetsArray[i].total.created_at.replace(/( \+)/, ' UTC$1'))) ;
+                                    var removeDuplicateDate=moment.utc(UnsortedDate).unix();
+                                    var sortedTweetsArrayDate=moment.utc(SortedDate).unix();
+
+                                    if(removeDuplicateDate < sortedTweetsArrayDate) {
+                                        var beforValue = removeDuplicate[i - 1];
+                                        removeDuplicate[i - 1] = {count:sortedTweetsArray[i].count,date: moment.unix(sortedTweetsArray[i].date).format("YYYY/MM/DD"),total:sortedTweetsArray[i].total};
+                                        removeDuplicate[i] = beforValue;
+                                    }
+                                    else{
+                                        removeDuplicate[i]={count:sortedTweetsArray[i].count,date:moment.unix(sortedTweetsArray[i].date).format("YYYY/MM/DD"),total:sortedTweetsArray[i].total};
+                                    }
+                                }
+                                else{
+                                    removeDuplicate[i]={count:sortedTweetsArray[i].count,date:moment.unix(sortedTweetsArray[i].date).format("YYYY/MM/DD"),total:sortedTweetsArray[i].total};
                                 }
 
                             }
-                            //find sum
-                            storeDefaultValues.forEach(function (value, index) {
-                                var count = value.total.retweet_count + value.total.favorite_count;
-                                highEngagedTweetsCount.push({count: count, date: value.date, total: value.total})
-                            })
-                            sortedTweetsArray = _.sortBy(highEngagedTweetsCount, ['count']);
-                            for (var index = 1; index <= 20; index++) {
-                                finalHighEngagedTweets.push(sortedTweetsArray[sortedTweetsArray.length - index]);
+
+                            if(removeDuplicate.length >20) {
+                                for (var index = 1; index < 20; index++) {
+                                    finalHighEngagedTweets.push(removeDuplicate[index]);
+                                }
+                            }
+                            else{
+                                for (var index = 0; index < removeDuplicate.length; index++) {
+                                finalHighEngagedTweets.push(removeDuplicate[index]);
+                            }
                             }
                             finalTwitterResponse = {
                                 data: finalHighEngagedTweets,
                                 metricId: queries.get_tweet_queries[j].metricId,
                                 channelId: queries.get_tweet_queries[j].channelId,
                                 queryResults: results
-                            }
+                            };
                             callback(null, finalTwitterResponse);
                         }
-
-
                     }
-
                 }
-
-
             })
         }
     }
@@ -2815,6 +2851,7 @@ exports.getChannelData = function (req, res, next) {
             var storeMetric;
             var tot_metric = [];
             var sorteMediasArray = [];
+            var storeData=[];
             var actualFinalApiData = [];
             var userMediaRecent = [];
             var recentMedia = [];
@@ -2864,30 +2901,106 @@ exports.getChannelData = function (req, res, next) {
             }
             else {
                 var callApi = function (err, medias, pagination, remaining, limit) {
-                    for (var key in medias) {
-                        userMediaRecent.push(medias[key])
+                    if(result.metricCode === 'likes' || result.metricCode=== 'comments'){
+                        for (var key in medias) {
+                            userMediaRecent.push(medias[key])
+                        }
+                        if (pagination) {
+                            if (pagination.next) {
+                                pagination.next(callApi); // Will get second page results
+                            }
+                            else {
+                                for(var i = 0; i < userMediaRecent.length; i++) {
+                                    var storeDate = userMediaRecent[i].created_time;
+                                    var startDate = moment(req.body.startDate).unix();
+                                    var endDate = moment(req.body.endDate).unix();
+                                    if(storeDate>=startDate && storeDate<=endDate){
+                                        var formateDate = moment.unix(storeDate).format('YYYY-MM-DD');
+                                        storeData.push({date: formateDate, total: userMediaRecent[i]})
+                                    }
+
+                                }
+                                var uniqueDate = _.groupBy(storeData,'date')
+                                for(var key in uniqueDate){
+                                    var like='likes';
+                                    var count='count';
+                                    var comments='comments';
+                                    var tempLikes=0;
+                                    var tempComments=0;
+                                    for(var j=0;j<uniqueDate[key].length;j++){
+                                        var date=uniqueDate[key][j].date;
+                                        tempLikes +=uniqueDate[key][j].total[like][count];
+                                        tempComments+=uniqueDate[key][j].total[comments][count];
+                                    }
+                                    if(result.metricCode === 'likes' ){
+                                        recentMedia.push({date:date,total:tempLikes})
+                                    }
+                                    else {
+                                        recentMedia.push({date:date,total:tempComments})
+                                    }
+                                    tempLikes=0;
+                                    tempComments=0;
+                                }
+                                var storeStartDate = new Date(req.body.startDate);
+                                var storeEndDate = new Date(req.body.endDate);
+                                var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
+                                var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                                for (var i = 0; i <= diffDays; i++) {
+                                    var finalDate = formatDate(storeStartDate);
+                                    tot_metric.push({date: finalDate, total: 0});
+                                    storeStartDate.setDate(storeStartDate.getDate() + 1);
+                                    for (var n = 0; n < recentMedia.length; n++) {
+                                        if (recentMedia[n].date===tot_metric[i].date) {
+                                            tot_metric[i] = {
+                                                total:  recentMedia[n].total,
+                                                date: recentMedia[n].date
+                                            };
+                                        }
+                                    }
+                                }
+
+                                actualFinalApiData = {
+                                    apiResponse: tot_metric,
+                                    metricId: result.metricId,
+                                    queryResults: initialResults,
+                                    channelId: initialResults.metric[0].channelId
+                                };
+
+                                callback(null, actualFinalApiData);
+
+
+                            }
+                        }
                     }
-                    for (var i = 0; i < userMediaRecent.length; i++) {
-                        var storeDate = userMediaRecent[i].created_time;
-                        var dateString = moment.unix(storeDate).format("YYYY-MM-DD");
-                        actualFinalApiData.push({date: dateString, total: userMediaRecent[i]})
-                    }
-                    actualFinalApiData.forEach(function (value, index) {
-                        var count = value.total.likes.count + value.total.comments.count;
-                        recentMedia.push({count: count, date: value.date, total: value.total})
-                    })
-                    var MediasArray = _.sortBy(recentMedia, ['count']);
-                    sorteMediasArray = MediasArray.reverse();
-                    actualFinalApiData = {
-                        apiResponse: sorteMediasArray,
-                        metricId: result.metricId,
-                        queryResults: initialResults,
-                        channelId: initialResults.metric[0].channelId
-                    }
-                    callback(null, actualFinalApiData);
-                    if(pagination) {
-                        if (pagination.next) {
-                            pagination.next(callApi); // Will get second page results
+                    else {
+                        for (var key in medias) {
+                            userMediaRecent.push(medias[key]);
+                        }
+                        if (pagination) {
+                            if (pagination.next) {
+                                pagination.next(callApi); // Will get second page results
+                            }
+                            else {
+                                for (var i = 0; i < userMediaRecent.length; i++) {
+                                    var storeDate = userMediaRecent[i].created_time;
+                                    var dateString = moment.unix(storeDate).format("YYYY-MM-DD");
+                                    storeData.push({date: dateString, total: userMediaRecent[i]})
+                                }
+                                storeData.forEach(function (value, index) {
+                                    var count = value.total.likes.count + value.total.comments.count;
+                                    recentMedia.push({count: count, date: value.date, total: value.total})
+                                });
+                                var MediasArray = _.sortBy(recentMedia, ['count']);
+                                sorteMediasArray = MediasArray.reverse();
+                                actualFinalApiData = {
+                                    apiResponse: sorteMediasArray,
+                                    metricId: result.metricId,
+                                    queryResults: initialResults,
+                                    channelId: initialResults.metric[0].channelId
+                                };
+
+                                callback(null, actualFinalApiData);
+                            }
                         }
                     }
                 };

@@ -17,9 +17,6 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     var getReferenceWidgetsArr = new Array();
     $scope.tokenExpired = false;
 
-
-    console.log('widgetType', $scope.widgetType);
-
     $scope.changeViewsInBasicWidget = function (obj) {
         $scope.currentView = obj;
         $rootScope.currentModalView = obj;
@@ -53,28 +50,30 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         $http({
             method: 'GET',
             url: '/api/v1/get/channels'
-        }).then(function successCallback(response) {
-            $scope.channelList = response.data;
-        }, function errorCallback(error) {
-            console.log('Error in finding channels');
-        });
+        }).then(
+            function successCallback(response) {
+                $scope.channelList = response.data;
+            },
+            function errorCallback(error) {
+                swal({
+                    title: "",
+                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                    html: true
+                });
+            }
+        );
     };
 
     $scope.getReferenceWidgetsForChosenChannel = function () {
         $http({
             method: 'GET',
             url: '/api/v1/get/referenceWidgets/' + $scope.widgetType
-        }).then(function successCallback(response) {
-            for (i = 0; i < response.data.referenceWidgets.length; i++) {
+        }).then(
+            function successCallback(response) {
+                for (var i = 0; i < response.data.referenceWidgets.length; i++) {
                 if (response.data.referenceWidgets[i].charts[0].channelId === $scope.storedChannelId) {
-                    //console.log(response.data.referenceWidgets[i]);
-                    console.log("*****************");
-
-
-
                     var IsAlreadyExist = 0;
-                    for(getData in getReferenceWidgetsArr){
-
+                    for(var getData in getReferenceWidgetsArr){
                         if(getReferenceWidgetsArr[getData]._id==response.data.referenceWidgets[i]._id){
                             isSelectedMetric=1;
                             referenceWidgetsData = {
@@ -91,11 +90,8 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                                 'isSelectedMetric':isSelectedMetric,
                                 'border':'2px solid #04509B'
                             };
-                            //console.log(referenceWidgetsData);
-
                             IsAlreadyExist = 1;
                         }
-
                     }
 
                     if (IsAlreadyExist != 1) {
@@ -114,47 +110,58 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                             'isSelectedMetric':isSelectedMetric,
                             'border':'2px solid #e7eaec'
                         };
-                        //console.log(referenceWidgetsData);
-
                         document.getElementById('basicWidgetNextButton').disabled = false;
                     }
 
-                    //console.log(getReferenceWidgetsArr);
-
-                    if(getReferenceWidgetsArr=="" || getReferenceWidgetsArr=="[]" || getReferenceWidgetsArr==null){
+                    if(getReferenceWidgetsArr=="" || getReferenceWidgetsArr=="[]" || getReferenceWidgetsArr==null)
                         document.getElementById('basicWidgetNextButton').disabled = true;
-                    }
-
-                    //console.log(referenceWidgetsData);
 
                     $scope.referenceWidgetsList.push(referenceWidgetsData);
-
                 }
             }
-        }, function errorCallback(error) {
-            console.log('Error in finding reference widgets', error);
-        });
+            },
+            function errorCallback(error) {
+                swal({
+                    title: "",
+                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                    html: true
+                });
+            }
+        );
 
         $http({
             method: 'GET',
             url: '/api/v1/get/metrics/' + $scope.storedChannelId
-        }).then(function successCallback(response) {
-            $scope.metricList = response.data.metricsList;
-        }, function errorCallback(error) {
-            console.log('Error in finding metrics');
-        });
+        }).then(
+            function successCallback(response) {
+                $scope.metricList = response.data.metricsList;
+            },
+            function errorCallback(error) {
+                swal({
+                    title: "",
+                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                    html: true
+                });
+            }
+        );
     };
 
     $scope.getProfilesForDropdown = function () {
         $http({
             method: 'GET', url: '/api/v1/get/profiles/' + $scope.storedChannelId
-        }).then(function successCallback(response) {
-            $scope.profileList = response.data.profileList;
-            $scope.objectList = [];
-
-        }, function errorCallback(error) {
-            console.log('Error in finding profiles');
-        });
+        }).then(
+            function successCallback(response) {
+                $scope.profileList = response.data.profileList;
+                $scope.objectList = [];
+            },
+            function errorCallback(error) {
+                swal({
+                    title: "",
+                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                    html: true
+                });
+            }
+        );
     };
 
     $scope.getObjectsForChosenProfile = function () {
@@ -187,15 +194,21 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             $http({
                 method: 'GET',
                 url: '/api/v1/get/objects/' + profileId
-            }).then(function successCallback(response) {
-                console.log('WORKING')
-                $scope.objectList = response.data.objectList;
-                if ($scope.storedChannelName === 'Twitter' || $scope.storedChannelName === 'Instagram') {
-                    $scope.objectForWidgetChosen([$scope.objectList[0].name,$scope.objectList[0]._id,$scope.objectList[0].objectTypeId]);
+            }).then(
+                function successCallback(response) {
+                    $scope.objectList = response.data.objectList;
+                    if ($scope.storedChannelName === 'Twitter' || $scope.storedChannelName === 'Instagram') {
+                        $scope.objectForWidgetChosen([$scope.objectList[0].name,$scope.objectList[0]._id,$scope.objectList[0].objectTypeId]);
+                    }
+                },
+                function errorCallback(error) {
+                    swal({
+                        title: "",
+                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                        html: true
+                    });
                 }
-            }, function errorCallback(error) {
-                console.log(error);
-            });
+            );
         }
     };
 
@@ -224,11 +237,18 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             $http({
                 method: 'GET',
                 url: '/api/v1/channel/profiles/objectsList/' + this.profileOptionsModel._id + '?objectType=' + $scope.objectType
-            }).then(function successCallback(response) {
-                $scope.objectList = response.data;
-            }, function errorCallback(error) {
-                console.log(error);
-            });
+            }).then(
+                function successCallback(response) {
+                    $scope.objectList = response.data;
+                },
+                function errorCallback(error) {
+                    swal({
+                        title: "",
+                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                        html: true
+                    });
+                }
+            );
         }
     };
 
@@ -274,17 +294,36 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     };
 
     $scope.removeExistingProfile = function () {
-        if (this.profileOptionsModel) {
-            $http({
-                method: 'POST',
-                url: '/api/v1/post/removeProfiles/' + this.profileOptionsModel._id
-            }).then(function successCallback(response) {
-                $scope.getProfilesForDropdown();
-                console.log($state.params,$rootScope.params,$state.$parent);
-            }, function errorCallback(error) {
-                console.log('Error in deleting profile', error)
-            });
-        }
+        var profileOptionsModel = this.profileOptionsModel;
+        swal({
+                title: "Confirm Profile Delink?",
+                text: "All data, widgets associated with this profile will be deleted! Confirm?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Confirm",
+                closeOnConfirm: true
+            },
+            function () {
+                if (profileOptionsModel) {
+                    $http({
+                        method: 'POST',
+                        url: '/api/v1/post/removeProfiles/' + profileOptionsModel._id
+                    }).then(
+                        function successCallback(response) {
+                            $scope.getProfilesForDropdown();
+                        },
+                        function errorCallback(error) {
+                            swal({
+                                title: "",
+                                text: "<span style='sweetAlertFont'>Something went wrong with Profile delink.Please try again</span> .",
+                                html: true
+                            });
+                        }
+                    );
+                }
+            }
+        );
     };
 
     $scope.createAndFetchBasicWidget = function () {
@@ -302,8 +341,6 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         }
         else {
             // function for saving other widgets goes here
-            //console.log(getReferenceWidgetsArr);
-            //console.log("************");
             for(var getData in getReferenceWidgetsArr){
                 var matchingMetric = [];
                 var inputParams = [];
@@ -343,35 +380,32 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 };
                 inputParams.push(jsonData);
 
-                //console.log(inputParams);
-
                 $http({
                     method: 'POST',
                     url: '/api/v1/widgets',
                     data: inputParams
-                }).then(function successCallback(response) {
-                    $("#getLoadingModalContent").removeClass('md-show');
-                    for(widgetObjects in response.data.widgetsList) {
-                        $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
+                }).then(
+                    function successCallback(response) {
+                        $("#getLoadingModalContent").removeClass('md-show');
+                        for(widgetObjects in response.data.widgetsList) {
+                            $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
+                        }
+                    },
+                    function errorCallback(error) {
+                        $("#getLoadingModalContent").removeClass('md-show');
+                        $(".navbar").css('z-index','1');
+                        $(".md-overlay").css("background","rgba(0,0,0,0.5)");
+                        $("#somethingWentWrongModalContent").addClass('md-show');
+                        $("#somethingWentWrongText").text("Something went wrong! Please try again");
+                        swal({
+                            title: "",
+                            text: "<span style='sweetAlertFont'>Something went wrong! Please try again!</span> .",
+                            html: true
+                        });
                     }
-                }, function errorCallback(error) {
-                    console.log('Error in getting widget id', error);
-                    $("#getLoadingModalContent").removeClass('md-show');
-                    $(".navbar").css('z-index','1');
-                    $(".md-overlay").css("background","rgba(0,0,0,0.5)");
-                    $("#somethingWentWrongModalContent").addClass('md-show');
-                    $("#somethingWentWrongText").text("Please try again! Something is missing");
-                    /*swal({
-                     title: "",
-                     text: "<span style='sweetAlertFont'>Please try again! Something is missing</span> .",
-                     html: true
-                     });*/
-                });
-
-            } // for getReferenceWidgetsArr
-
+                );
+            }
             getReferenceWidgetsArr = [];
-
         }
     };
 
@@ -387,7 +421,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         else {
             $scope.metricContent = false;
             $scope.showCustomContent = true;
-            $scope.selectCustomLinkHead = "Step 2 : Choose a Metric";
+            $scope.selectCustomLinkHead = "Step 2 : Choose your Metrics";
         }
     };
 
@@ -397,20 +431,17 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             if( arr[i]
                 && arr[i].hasOwnProperty(attr)
                 && (arguments.length > 2 && arr[i][attr] === value ) ){
-
                 arr.splice(i,1);
-
             }
         }
         return arr;
-    }
+    };
     
     $scope.storeReferenceWidget = function () {
         $scope.storedReferenceWidget = this.referenceWidgets;
 
         var IsAlreadyExist = 0;
-        for(getData in getReferenceWidgetsArr){
-
+        for(var getData in getReferenceWidgetsArr){
             if(getReferenceWidgetsArr[getData]._id==this.referenceWidgets._id){
                 removeByAttr(getReferenceWidgetsArr, '_id', getReferenceWidgetsArr[getData]._id);
                 $("#referenceWidgets-"+this.referenceWidgets._id).css("border","2px solid #e7eaec");
@@ -419,7 +450,6 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 $("#getCheck-"+this.referenceWidgets._id).hide();
                 IsAlreadyExist = 1;
             }
-
         }
 
         if (IsAlreadyExist != 1) {
@@ -430,8 +460,6 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             $("#getCheck-"+this.referenceWidgets._id).show();
             document.getElementById('basicWidgetNextButton').disabled = false;
         }
-
-        //console.log(getReferenceWidgetsArr);
 
         if(getReferenceWidgetsArr=="" || getReferenceWidgetsArr=="[]" || getReferenceWidgetsArr==null){
             document.getElementById('basicWidgetNextButton').disabled = true;
@@ -451,7 +479,11 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     $rootScope.customWidgetId = '';
                 },
                 function errorCallback(error) {
-                    console.log('Error in deleting profile', error)
+                    swal({
+                        title: "",
+                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                        html: true
+                    });
                 }
             );
         }
@@ -485,31 +517,37 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             "channelId": $scope.storedChannelId
         };
         $http({
-            method: 'POST', url: '/api/v1/create/customwidgets', data: jsonData
-        }).then(function successCallback(response) {
-            $scope.errorMessage = true;
-            $scope.customMessage = false;
-            $scope.customDocLinkMessage = false;
-            document.getElementById('basicWidgetBackButton2').disabled = false;
-            document.getElementById('basicWidgetNextButton').disabled = false;
-            getCustomWidgetId = response.data.widgetsList.id._id;
-            $rootScope.customWidgetId = response.data.widgetsList.id._id;
-            var domainUrl = "";
-            if (window.location.hostname == "localhost") {
-                domainUrl = "http://localhost:8080";
+            method: 'POST',
+            url: '/api/v1/create/customwidgets',
+            data: jsonData
+        }).then(
+            function successCallback(response) {
+                $scope.errorMessage = true;
+                $scope.customMessage = false;
+                $scope.customDocLinkMessage = false;
+                document.getElementById('basicWidgetBackButton2').disabled = false;
+                document.getElementById('basicWidgetNextButton').disabled = false;
+                getCustomWidgetId = response.data.widgetsList.id._id;
+                $rootScope.customWidgetId = response.data.widgetsList.id._id;
+                var domainUrl = "";
+                if (window.location.hostname == "localhost")
+                    domainUrl = "http://localhost:8080";
+                else
+                    domainUrl = window.location.hostname;
+                $(".customApiLink").html(domainUrl + '/api/v1/create/customdata/' + response.data.widgetsList.id._id);
+                $scope.customLink = domainUrl + '/api/v1/create/customdata/' + response.data.widgetsList.id._id;
+            },
+            function errorCallback(error) {
+                $scope.customMessage = true;
+                $scope.errorMessage = false;
+                $scope.customDocLinkMessage = true;
+                swal({
+                    title: "",
+                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                    html: true
+                });
             }
-            else {
-                domainUrl = window.location.hostname;
-            }
-            $(".customApiLink").html(domainUrl + '/api/v1/create/customdata/' + response.data.widgetsList.id._id);
-            $scope.customLink = domainUrl + '/api/v1/create/customdata/' + response.data.widgetsList.id._id;
-
-        }, function errorCallback(error) {
-            console.log('Error in getting customwidgets', error);
-            $scope.customMessage = true;
-            $scope.errorMessage = false;
-            $scope.customDocLinkMessage = true;
-        });
+        );
         new Clipboard('#btnCopyLink');
     };
 
@@ -517,8 +555,8 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         swal("Copied", "", "success");
     };
 
-    $scope.ComingSoonAlert=function (){
+    $scope.ComingSoonAlert = function (){
         swal("Coming Soon!");
-    }
+    };
 
 }

@@ -52,7 +52,7 @@ module.exports = function (app) {
                         req.userEmail = results.screen_name;
                         tokens = req.tokens;
                         channels.findOne({code : configAuth.channels.twitter},function(err ,channelList){
-                            req.channelId =channelList._id ;
+                            req.channelId = channelList._id ;
                             req.channelCode = '4';
                             user.storeProfiles(req, function (err, response) {
                                 if (err)

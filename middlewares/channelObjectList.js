@@ -447,8 +447,6 @@ exports.listAccounts = function (req, res, next) {
                 var objectTypeId = res._id;
                 var created = new Date();
                 var updated = new Date();
-                console.log('profileInfo._id', profile._id);
-                console.log('objectTypeId', objectTypeId);
                 //To store once
                 Object.update({
                     profileId: profile._id

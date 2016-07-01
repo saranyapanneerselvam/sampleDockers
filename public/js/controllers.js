@@ -2,6 +2,947 @@ var showMetricApp = angular.module('inspinia');
 
 showMetricApp.service('createWidgets',function($http,$q){
 
+
+
+    this.widgetHandler = function(widget,dateRange) {
+
+        var deferredWidget = $q.defer();
+        var tempWidget = JSON.parse(JSON.stringify(widget));
+
+        if(widget.widgetType == 'customFusion') {
+            var sourceWidgetList = [], dataLoadedWidgetArray = [], widgetChartsArray = [];
+            sourceWidgetList.push(fetchCustomFusionWidgets(widget));
+            $q.all(sourceWidgetList).then(
+                function successCallback(sourceWidgetList) {
+                    var widgetList = sourceWidgetList[0];
+                    for(var subWidgets in widgetList) {
+                        if(widgetList[subWidgets].widgetType == 'basic' || widgetList[subWidgets].widgetType == 'adv' || widgetList[subWidgets].widgetType == 'fusion')
+                            dataLoadedWidgetArray.push(getRegularWidgetElements(widgetList[subWidgets],dateRange));
+                        else if(widgetList[subWidgets].widgetType == 'custom')
+                            dataLoadedWidgetArray.push(getCustomWidgetElements(widgetList[subWidgets],dateRange));
+                    }
+                    $q.all(dataLoadedWidgetArray).then(
+                            function successCallback(dataLoadedWidgetArray) {
+                                for(var dataLoadedWidgets in dataLoadedWidgetArray) {
+                                    if(dataLoadedWidgetArray[dataLoadedWidgets].widgetType == 'basic' || dataLoadedWidgetArray[dataLoadedWidgets].widgetType == 'adv' || dataLoadedWidgetArray[dataLoadedWidgets].widgetType == 'fusion')
+                                        widgetChartsArray.push(formulateRegularWidgetGraphs(dataLoadedWidgetArray[dataLoadedWidgets]));
+                                    else if(dataLoadedWidgetArray[dataLoadedWidgets].widgetType == 'custom')
+                                        widgetChartsArray.push(formulateCustomWidgetGraphs(dataLoadedWidgetArray[dataLoadedWidgets]));
+                                }
+                                $q.all(widgetChartsArray).then(
+                                    function successCallback(widgetChartsArray) {
+                                        var consolidatedChartsArray = [];
+                                        for(var arrayObjects in widgetChartsArray) {
+                                            for(var subObjects in widgetChartsArray[arrayObjects])
+                                                consolidatedChartsArray.push(widgetChartsArray[arrayObjects][subObjects])
+                                        }
+                                        var widgetData = createWidgetData(tempWidget,consolidatedChartsArray);
+                                        widgetData.then(
+                                            function successCallback(widgetData) {
+                                                deferredWidget.resolve(widgetData);
+                                            },
+                                            function errorCallback(error) {
+                                                deferredWidget.reject(error);
+                                            }
+                                        );
+                                    },
+                                    function errorCallback(error) {
+                                        deferredWidget.reject(error);
+                                    }
+                                );
+                            },
+                            function errorCallback(err) {
+                                deferredWidget.reject(err);
+                            }
+                    );
+                },
+                function errorCallback(err) {
+                    deferredWidget.reject(err);
+                }
+            );
+        }
+        else if (widget.widgetType == 'basic' || widget.widgetType == 'adv' || widget.widgetType == 'fusion') {
+            var dataLoadedWidget = getRegularWidgetElements(tempWidget,dateRange);
+            dataLoadedWidget.then(
+                function successCallback(dataLoadedWidget) {
+                    var widgetCharts = formulateRegularWidgetGraphs(dataLoadedWidget);
+                    widgetCharts.then(
+                        function successCallback(widgetCharts) {
+                            var widgetData = createWidgetData(widget,widgetCharts);
+                            widgetData.then(
+                                function successCallback(widgetData) {
+                                    deferredWidget.resolve(widgetData);
+                                },
+                                function errorCallback(error) {
+                                    deferredWidget.reject(error);
+                                }
+                            );
+                        },
+                        function errorCallback(error) {
+                            deferredWidget.reject(error);
+                        }
+                    );
+                },
+                function errorCallback(error) {
+                    deferredWidget.reject(error);
+                }
+            );
+        }
+        else if(widget.widgetType == 'custom') {
+            var dataLoadedWidget = getCustomWidgetElements(tempWidget,dateRange);
+            dataLoadedWidget.then(
+                function successCallback(dataLoadedWidget) {
+                    var widgetCharts = formulateCustomWidgetGraphs(dataLoadedWidget);
+                    widgetCharts.then(
+                        function successCallback(widgetCharts) {
+                            var widgetData = createWidgetData(widget,widgetCharts);
+                            widgetData.then(
+                                function successCallback(widgetData) {
+                                    deferredWidget.resolve(widgetData);
+                                },
+                                function errorCallback(error) {
+                                    deferredWidget.reject(error);
+                                }
+                            );
+                        },
+                        function errorCallback(error) {
+                            deferredWidget.reject(error);
+                        }
+                    );
+                },
+                function errorCallback(error) {
+                    deferredWidget.reject(error);
+                }
+            );
+
+        }
+        return deferredWidget.promise;
+
+        function fetchCustomFusionWidgets(widget) {
+            var deferred = $q.defer();
+            var sourceWidgetList = [];
+            var finalWidgetList = [];
+
+            for(var widgetReferences in widget.widgets) {
+                var widgetType = widget.widgets[widgetReferences].widgetType;
+                if(widgetType == 'basic' || widgetType == 'adv' || widgetType == 'fusion' || widgetType == 'custom')
+                    sourceWidgetList.push(getWidgetData(widget.widgets[widgetReferences].widgetId));
+            }
+            $q.all(sourceWidgetList).then(
+                function successCallback(sourceWidgetList) {
+                    deferred.resolve(sourceWidgetList);
+                },
+                function errorCallback(err) {
+                    deferred.reject(err);
+                }
+            );
+            return deferred.promise;
+
+            function getWidgetData(widgetId) {
+                var data = $q.defer();
+                $http({
+                    method: 'GET',
+                    url: '/api/v1/widget/' + widgetId
+                }).then(
+                    function successCallback(response){
+                        data.resolve(response.data[0]);
+                    },
+                    function errorCallback(err){
+                        data.resolve(err);
+                    }
+                );
+                return data.promise;
+            }
+        }
+
+        function getCustomWidgetElements(widget,dateRange) {
+            var deferred = $q.defer();
+            var updatedCharts = [];
+            var countCustomData = 0;
+
+            $http({
+                method: 'POST',
+                url: '/api/v1/customWidget/data/' + widget._id,
+                data: {
+                    "startDate": dateRange.startDate,
+                    "endDate": dateRange.endDate
+                }
+            }).then(
+                function successCallback(response) {
+                    var formattedCharts = [];
+                    countCustomData++;
+                    for(var getData in response.data){
+                        if(response.data[getData].widgetId == widget._id){
+                            updatedCharts.push({
+                                _id: response.data[getData]._id,
+                                chartName: "Custom Data "+countCustomData,
+                                chartType: response.data[getData].chartType,
+                                widgetId: response.data[getData].widgetId,
+                                chartData: response.data[getData].data,
+                                intervalType: response.data[getData].intervalType,
+                                metricsCount: response.data[getData].metricsCount
+                            });
+                        }
+                    }
+                    widget.charts = updatedCharts;
+                    deferred.resolve(widget);
+                },
+                function errorCallback(error) {
+                    deferred.reject(error);
+                }
+            );
+            return deferred.promise;
+        }
+
+        function formulateCustomWidgetGraphs(widget) {
+            var deferred = $q.defer();
+            var widgetCharts = [];
+
+            for(var charts in widget.charts) {
+                var valuesArr = [], formattedChartData = [];
+                if (widget.charts[charts].chartType == 'line' || widget.charts[charts].chartType == 'bar' || widget.charts[charts].chartType == 'area') {
+                    for (var dataObjects in widget.charts[charts].chartData) {
+                        var IsAlreadyExist = 0;
+                        for (var getData in widgetCharts) {
+                            if (widgetCharts[getData].key == widget.charts[charts].chartData[dataObjects].name) {
+                                valuesArr = widgetCharts[getData].values;
+                                var dataValues = {
+                                    'x': moment(widget.charts[charts].chartData[dataObjects].date),
+                                    'y': widget.charts[charts].chartData[dataObjects].values
+                                };
+                                valuesArr.push(dataValues);
+                                valuesArr.sort(function (a, b) {
+                                    var c = new Date(a.x);
+                                    var d = new Date(b.x);
+                                    return c - d;
+                                });
+                                widgetCharts[getData].values = valuesArr;
+                                IsAlreadyExist = 1;
+                            }
+                        }
+                        if (IsAlreadyExist != 1) {
+                            valuesArr = [];
+                            var dataValues = {
+                                'x': moment(widget.charts[charts].chartData[dataObjects].date),
+                                'y': widget.charts[charts].chartData[dataObjects].values
+                            };
+                            valuesArr.push(dataValues);
+                            valuesArr.sort(function (a, b) {
+                                var c = new Date(a.x);
+                                var d = new Date(b.x);
+                                return c - d;
+                            });
+                            widgetCharts.push({
+                                type: widget.charts[charts].chartType,
+                                values: valuesArr,
+                                key: widget.charts[charts].chartData[dataObjects].name,
+                                color: null
+                            });
+                        }
+                    }
+                }
+                else if(widget.charts[charts].chartType == 'pie') {
+                    for (var dataObjects in widget.charts[charts].chartData) {
+                        var IsAlreadyExist = 0;
+                        for(getData in widgetCharts){
+                            var yValue = 0;
+                            if(widgetCharts[getData].key == widget.charts[charts].chartData[dataObjects].name){
+                                yValue = parseInt(widgetCharts[getData].y);
+                                widgetCharts[getData].y = parseInt(yValue)+parseInt(widget.charts[charts].chartData[dataObjects].values);
+                                IsAlreadyExist = 1;
+                            }
+                        }
+                        if (IsAlreadyExist != 1) {
+                            widgetCharts.push({
+                                type: widget.charts[charts].chartType,
+                                y: parseInt(widget.charts[charts].chartData[dataObjects].values),
+                                key: widget.charts[charts].chartData[dataObjects].name,
+                                color: null
+                            });
+                        }
+                    }
+                }
+            }
+
+            deferred.resolve(widgetCharts);
+            return deferred.promise;
+        }
+
+        function getRegularWidgetElements(widget,dateRange) {
+            var deferred = $q.defer();
+            var updatedCharts;
+            updatedCharts = getRegularWidgetData(widget,dateRange);
+            updatedCharts.then(
+                function successCallback(updatedCharts) {
+                    widget.charts = updatedCharts;
+                    var metricDetails = [];
+                    for(charts in widget.charts)
+                        metricDetails.push(fetchMetricDetails(widget.charts[charts]));
+                    $q.all(metricDetails).then(
+                        function successCallback(metricDetails){
+                            for(charts in widget.charts)
+                                widget.charts[charts].metricDetails = metricDetails[charts];
+                            deferred.resolve(widget);
+                        },
+                        function errorCallback(error){
+                            deferred.reject(error);
+                        }
+                    );
+                },
+                function errorCallback(error) {
+                    deferred.reject(error);
+                }
+            );
+            return deferred.promise;
+        }
+        
+        function getRegularWidgetData(widget,dateRange) {
+            var deferred = $q.defer();
+            var updatedCharts = [];
+            $http({
+                method: 'POST',
+                url: '/api/v1/widgets/data/' + widget._id,
+                data: {
+                    "startDate": dateRange.startDate,
+                    "endDate": dateRange.endDate
+                }
+            }).then(
+                function successCallback(response) {
+                    for(chartObjects in widget.charts){
+                        for(datas in response.data){
+                            if(String(widget.charts[chartObjects].metrics[0].metricId) === String(response.data[datas].metricId)){
+                                updatedCharts.push({
+                                    channelId: widget.charts[chartObjects].channelId,
+                                    chartType: typeof widget.charts[chartObjects].metrics[0].chartType != 'undefined'? widget.charts[chartObjects].metrics[0].chartType: '',
+                                    chartName: widget.charts[chartObjects].name,
+                                    chartColour: widget.charts[chartObjects].metrics[0].color,
+                                    chartOptions: widget.charts[chartObjects].metrics[0].chartOptions,
+                                    chartMetricId: response.data[datas].metricId,
+                                    chartObjectId: response.data[datas].objectId,
+                                    chartObjectTypeId: widget.charts[chartObjects].metrics[0].objectTypeId,
+                                    chartObjectName: widget.charts[chartObjects].objectName,
+                                    chartData: response.data[datas].data
+                                });
+                            }
+                        }
+                    }
+                    deferred.resolve(updatedCharts);
+                },
+                function errorCallback(error) {
+                    deferred.reject(error);
+                }
+            );
+            return deferred.promise;
+        }
+
+        function fetchMetricDetails(chart) {
+
+            var deferred = $q.defer();
+
+            if(chart.chartMetricId == undefined){
+                deferred.reject("error");
+            }
+            else{
+                $http({
+                    method:'GET',
+                    url:'/api/v1/get/metricDetails/' + chart.chartMetricId
+                }).then(
+                    function successCallback(response){
+                        deferred.resolve(response.data.metricsList[0]);
+                    },
+                    function errorCallback(error){
+                        deferred.reject(error);
+                    }
+                );
+            }
+            return deferred.promise;
+        }
+
+        function formulateRegularWidgetGraphs(widget) {
+
+            var deferred = $q.defer();
+            var widgetCharts = [];
+
+            if(widget.charts.length > 0) {
+                for(var charts in widget.charts) {
+                    var chartType = widget.charts[charts].chartType;
+
+                    if(chartType == "line" || chartType == "area" || chartType == "bar") {
+                        if(typeof widget.charts[charts].chartData[0].total == 'object') {
+                            var endpoint;
+                            for(objectTypes in widget.charts[charts].metricDetails.objectTypes){
+                                if(widget.charts[charts].metricDetails.objectTypes[objectTypes].objectTypeId == widget.charts[charts].chartObjectTypeId)
+                                    endpoint = widget.charts[charts].metricDetails.objectTypes[objectTypes].meta.endpoint;
+                            }
+                            var formattedChartDataArray = [];
+                            for(items in endpoint){
+                                var currentItem = endpoint[items];
+                                var formattedChartData = [];
+                                for(datas in widget.charts[charts].chartData){
+                                    var yValue = 0, endpointArray;
+                                    if(widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )) {
+                                        for(keyValuePairs in widget.charts[charts].chartData[datas].total) {
+                                            //console.log(widget.charts[i].chartData[datas].total[keyValuePairs], keyValuePairs);
+                                            if(keyValuePairs.search('/') > -1) {
+                                                endpointArray = keyValuePairs.split('/');
+                                                for(splittedValues in endpointArray) {
+                                                    console.log(splittedValues, endpointArray[splittedValues]);
+                                                }
+                                            }
+                                            else if(keyValuePairs == currentItem) {
+                                                yValue = widget.charts[charts].chartData[datas].total[currentItem];
+                                            }
+                                        }
+                                    }
+                                    formattedChartData.push({
+                                            x: moment(widget.charts[charts].chartData[datas].date),
+                                            y: yValue
+                                    });
+                                }
+                                formattedChartDataArray.push(formattedChartData);
+                            }
+                            widget.charts[charts].chartData = formattedChartDataArray;
+                        }
+                        else {
+                            var formattedChartData = [];
+                            for(datas in widget.charts[charts].chartData) {
+                                formattedChartData.push({
+                                        x: moment(widget.charts[charts].chartData[datas].date),
+                                        y:widget.charts[charts].chartData[datas].total
+                                });
+                            }
+                            widget.charts[charts].chartData = formattedChartData;
+                        }
+                    }
+                    else if(chartType == "pie"){
+                        if(typeof(widget.charts[charts].chartData[0].total) === 'object') {
+                            var endpoint = [];
+                            for(objectTypes in widget.charts[charts].metricDetails.objectTypes){
+                                if(widget.charts[charts].metricDetails.objectTypes[objectTypes].objectTypeId == widget.charts[charts].chartObjectTypeId)
+                                    endpoint = widget.charts[charts].metricDetails.objectTypes[objectTypes].meta.endpoint;
+                            }
+                            var formattedChartDataArray = [];
+                            for(items in endpoint){
+                                var currentItem = endpoint[items];
+                                formattedChartData = [];
+                                var yValue = 0;
+                                for(datas in widget.charts[charts].chartData){
+                                    if(widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )) {
+                                        if(typeof widget.charts[charts].chartData[datas].total[currentItem] != 'undefined') {
+                                            yValue += parseInt(widget.charts[charts].chartData[datas].total[currentItem]);
+                                        }
+                                    }
+                                }
+                                formattedChartData.push({
+                                    y: yValue
+                                });
+                                formattedChartDataArray.push(formattedChartData);
+                            }
+                            widget.charts[charts].chartData = formattedChartDataArray;
+                        }
+                        else {
+                            var yValue = 0;
+                            for(datas in widget.charts[charts].chartData) {
+                                yValue += parseInt(widget.charts[charts].chartData[datas].total);
+                            }
+                            formattedChartData.push({
+                                y: yValue
+                            });
+                            widget.charts[charts].chartData = formattedChartData;
+                        }
+                    }
+                    else if(chartType == "instagramPosts"){
+                        if(typeof(widget.charts[charts].chartData[0].total) === 'object') {
+                            var images = 'images';
+                            var thumbnail='thumbnail';
+                            var likes ='likes';
+                            var comments='comments'
+                            var count='count';
+                            var caption='caption';
+                            var post='text';
+                            var link='link';
+                            var url='url';
+
+                            var formattedChartDataArray = [];
+                            for(datas in widget.charts[charts].chartData) {
+                                var formattedChartData = {
+                                    date: widget.charts[charts].chartData[datas].date,
+                                    image: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
+                                        (widget.charts[charts].chartData[datas].total[images] != null?
+                                            (widget.charts[charts].chartData[datas].total[images][thumbnail] != null?
+                                                (typeof widget.charts[charts].chartData[datas].total[images][thumbnail][url] != 'undefined' ? widget.charts[charts].chartData[datas].total[images][thumbnail][url] : ''):''):''):''),
+
+                                    postComment: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
+                                        (widget.charts[charts].chartData[datas].total[caption] != null ?
+                                            (typeof widget.charts[charts].chartData[datas].total[caption][post] != 'undefined'?
+                                                widget.charts[charts].chartData[datas].total[caption][post] : ''): '') : ''),
+                                    likes: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
+                                        (widget.charts[charts].chartData[datas].total[likes] != null?
+                                            (typeof widget.charts[charts].chartData[datas].total[likes][count] != 'undefined' ? widget.charts[charts].chartData[datas].total[likes][count] : 0):0):0),
+
+                                    comments: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
+                                        (widget.charts[charts].chartData[datas].total[comments] != null?
+                                            (typeof widget.charts[charts].chartData[datas].total[comments][count] != 'undefined' ? widget.charts[charts].chartData[datas].total[comments][count] : 0):0):0),
+                                    links: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
+                                        (typeof widget.charts[charts].chartData[datas].total[link] != 'undefined' ? widget.charts[charts].chartData[datas].total[link] : '') : ''),
+                                };
+                                formattedChartDataArray.push(formattedChartData);
+                            }
+                            widget.charts[charts].chartData = formattedChartDataArray;
+                        }
+                    }
+                    else if(chartType == "highEngagementTweets"){
+                        if(typeof(widget.charts[charts].chartData[0].total) === 'object') {
+                            var likes ='favorite_count';
+                            var reTweet='retweet_count'
+                            var entities='entities';
+                            var media='media';
+                            var post='text';
+                            var link='expanded_url';
+
+                            var formattedChartDataArray = [];
+                            for(datas in widget.charts[charts].chartData) {
+                                var formattedChartData = {
+                                    date: widget.charts[charts].chartData[datas].date,
+                                    likes: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )? (typeof widget.charts[charts].chartData[datas].total[likes] != 'undefined' ? widget.charts[charts].chartData[datas].total[likes] : 0) : 0),
+                                    reTweet: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )? (typeof widget.charts[charts].chartData[datas].total[reTweet] != 'undefined' ? widget.charts[charts].chartData[datas].total[reTweet] : 0) : 0),
+                                    postComment: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )? (typeof widget.charts[charts].chartData[datas].total[post] != 'undefined' ? widget.charts[charts].chartData[datas].total[post] : 0) : 0),
+                                    links: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )? (typeof widget.charts[charts].chartData[datas].total.entities!= 'undefined' ? widget.charts[charts].chartData[datas].total.entities  : 0) : 0),
+                                };
+                                formattedChartDataArray.push(formattedChartData);
+                            }
+                            widget.charts[charts].chartData = formattedChartDataArray;
+                        }
+                    }
+                }
+                for(var charts in widget.charts) {
+                    var chartType = widget.charts[charts].chartType;
+                    if(chartType == "line" || chartType == "bar" || chartType == "area" || chartType == "pie") {
+                        if(widget.charts[charts].chartData[0].x){
+                            var summaryValue = 0;
+                            for(var datas in widget.charts[charts].chartData)
+                                summaryValue += parseInt(widget.charts[charts].chartData[datas].y);
+                            if(chartType == 'line' || chartType == 'bar') {
+                                widgetCharts.push({
+                                    'type': widget.charts[charts].chartType,
+                                    'values': widget.charts[charts].chartData,      //values - represents the array of {x,y} data points
+                                    'key': widget.charts[charts].metricDetails.name, //key  - the name of the series.
+                                    'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
+                                    'summaryDisplay': parseInt(summaryValue)
+                                });
+                            }
+                            else if(chartType == 'area') {
+                                widgetCharts.push({
+                                    'type': widget.charts[charts].chartType,
+                                    'values': widget.charts[charts].chartData,      //values - represents the array of {x,y} data points
+                                    'key': widget.charts[charts].metricDetails.name, //key  - the name of the series.
+                                    'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
+                                    'summaryDisplay': parseInt(summaryValue),
+                                    'area': true
+                                });
+                            }
+                            else {
+                                widgetCharts.push({
+                                    'type': widget.charts[charts].chartType,
+                                    'y': parseInt(summaryValue),      //values - represents the array of {x,y} data points
+                                    'key': widget.charts[charts].metricDetails.name, //key  - the name of the series.
+                                    'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
+                                    'summaryDisplay': parseInt(summaryValue)
+                                });
+                            }
+                        }
+                        else {
+                            for(var items in widget.charts[charts].chartData) {
+                                var summaryValue = 0;
+                                for(var datas in widget.charts[charts].chartData[items])
+                                    summaryValue += parseInt(widget.charts[charts].chartData[items][datas].y);
+                                var endpointDisplayCode = widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items];
+                                if(chartType == 'line' || chartType == 'bar') {
+                                    widgetCharts.push({
+                                        'type': widget.charts[charts].chartType,
+                                        'values': widget.charts[charts].chartData[items],      //values - represents the array of {x,y} data points
+                                        'key': typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName != 'undefined'? (typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode] != 'undefined'? widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode]: widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items]) : widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items],
+                                        'color': typeof widget.charts[charts].chartColour != 'undefined' ? (typeof widget.charts[charts].chartColour[items] != 'undefined'? widget.charts[charts].chartColour[items] : '') : '',  //color - optional: choose your own line color.
+                                        'summaryDisplay': parseInt(summaryValue)
+                                    });
+                                }
+                                else if(chartType == 'area') {
+                                    widgetCharts.push({
+                                        'type': widget.charts[charts].chartType,
+                                        'values': widget.charts[charts].chartData[items],      //values - represents the array of {x,y} data points
+                                        'key': typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName != 'undefined'? (typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode] != 'undefined'? widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode]: widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items]) : widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items],
+                                        'color': typeof widget.charts[charts].chartColour != 'undefined' ? (typeof widget.charts[charts].chartColour[items] != 'undefined'? widget.charts[charts].chartColour[items] : '') : '',  //color - optional: choose your own line color.
+                                        'summaryDisplay': parseInt(summaryValue),
+                                        'area': true
+                                    });
+                                }
+                                else {
+                                    widgetCharts.push({
+                                        'type': widget.charts[charts].chartType,
+                                        'y': parseInt(summaryValue),      //values - represents the array of {x,y} data points
+                                        'key': typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName != 'undefined'? (typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode] != 'undefined'? widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode]: widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items]) : widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items],
+                                        'color': typeof widget.charts[charts].chartColour != 'undefined' ? (typeof widget.charts[charts].chartColour[items] != 'undefined'? widget.charts[charts].chartColour[items] : '') : '',  //color - optional: choose your own line color.
+                                        'summaryDisplay': parseInt(summaryValue)
+                                    });
+                                }
+                            }
+                        }
+                    }
+                    else if(chartType == 'instagramPosts'){
+                        widgetCharts.push({
+                            'type': widget.charts[charts].chartType,
+                            'values': widget.charts[charts].chartData
+                        });
+                    }
+                    else if(chartType == 'highEngagementTweets'){
+                        widgetCharts.push({
+                            'type': widget.charts[charts].chartType,
+                            'values': widget.charts[charts].chartData
+                        });
+                    }
+                }
+            }
+            deferred.resolve(widgetCharts);
+            return deferred.promise;
+        }
+
+        function createWidgetData(widget,widgetCharts) {
+            var deferred = $q.defer();
+            var finalCharts = [];
+            finalCharts.lineCharts = [], finalCharts.barCharts = [], finalCharts.pieCharts = [], finalCharts.instagramPosts = [], finalCharts.highEngagementTweets = [];
+            var graphOptions = {
+                lineDataOptions: {
+                    chart: {
+                        type: 'lineChart',
+                        margin : {top: 20, right: 25, bottom: 30, left: 35},
+                        x: function(d){ return d.x; },
+                        y: function(d){ return d.y; },
+                        useInteractiveGuideline: true,
+                        xAxis: {
+                            tickFormat: function(d) {
+                                return d3.time.format('%d/%m/%y')(new Date(d))}
+                        },
+                        yAxis: {
+                            tickFormat: function(d) {
+                                return d3.format('f')(d);}
+                        },
+                        axisLabelDistance: -10,
+                        showLegend: true,
+                        //forceY: [lowestLineValue,highestLineValue == 0? 10 : highestLineValue + 10],
+                        //yDomain: [lowestValue,highestValue],
+                        legend: {
+                            rightAlign: false
+                        }
+                    }
+                },
+                barDataOptions: {
+                    chart: {
+                        type: 'multiBarChart',
+                        margin : {top: 20, right: 25, bottom: 30, left: 35},
+                        x: function(d){ return d.x; },
+                        y: function(d){ return d.y; },
+                        useInteractiveGuideline: true,
+                        xAxis: {
+                            tickFormat: function(d) {
+                                return d3.time.format('%d/%m/%y')(new Date(d))}
+                        },
+                        yAxis: {
+                            tickFormat: function(d) {
+                                return d3.format('f')(d);}
+                        },
+                        axisLabelDistance: -10,
+                        showLegend: true,
+                        stacked: true,
+                        //forceY: [lowestValue,highestValue == 0? 10 : highestValue + 10],
+                        showControls: false,
+                        legend: {
+                            rightAlign: false
+                        }
+                    }
+                },
+                pieDataOptions: {
+                    chart: {
+                        type: 'pieChart',
+                        margin : {top: 0, right: 15, bottom: 15, left: 15},
+                        x: function (d) {
+                            return d.key;
+                        },
+                        y: function (d) {
+                            return d.y;
+                        },
+                        showLabels: false,
+                        showLegend: true,
+                        labelsOutside: false,
+                        tooltips: true,
+                        //tooltipcontent: 'toolTipContentFunction()',
+                        //duration: 50,
+                        labelThreshold: 0.01,
+                        labelSunbeamLayout: true,
+                        legend: {
+                            rightAlign: false,
+                            margin: {
+                                top: 0,
+                                right: 0,
+                                bottom: 0,
+                                left: 0
+                            }
+                        }
+                    }
+                },
+                instagramPosts: {
+                    chart: {
+                        type: 'instagramPosts'
+                    }
+                },
+                highEngagementTweets: {
+                    chart: {
+                        type: 'highEngagementTweets'
+                    }
+                }
+            };
+            var sizeY,sizeX,chartsCount = 0,individualGraphWidthDivider,individualGraphHeightDivider,chartName,finalChartData = [];
+            var widgetLayoutOptions = [
+                {W:1,H:1,N:1,r:1,c:1},
+                {W:1,H:1,N:2,r:2,c:1},
+                {W:1,H:1,N:3,r:3,c:1},
+                {W:1,H:1,N:4,r:4,c:1},
+                {W:1,H:1,N:5,r:5,c:1},
+                {W:1,H:1,N:6,r:6,c:1},
+                {W:1,H:1,N:7,r:7,c:1},
+                {W:1,H:1,N:8,r:8,c:1},
+
+                {W:2,H:1,N:1,r:1,c:1},
+                {W:2,H:1,N:2,r:1,c:2},
+                {W:2,H:1,N:3,r:2,c:1},
+                {W:2,H:1,N:4,r:2,c:2},
+                {W:2,H:1,N:5,r:2,c:3},
+                {W:2,H:1,N:6,r:2,c:3},
+                {W:2,H:1,N:7,r:3,c:3},
+                {W:2,H:1,N:8,r:3,c:3},
+
+                {W:3,H:1,N:1,r:1,c:1},
+                {W:3,H:1,N:2,r:1,c:2},
+                {W:3,H:1,N:3,r:1,c:3},
+                {W:3,H:1,N:4,r:2,c:2},
+                {W:3,H:1,N:5,r:2,c:3},
+                {W:3,H:1,N:6,r:2,c:3},
+                {W:3,H:1,N:7,r:3,c:3},
+                {W:3,H:1,N:8,r:3,c:3},
+
+                {W:4,H:1,N:1,r:1,c:1},
+                {W:4,H:1,N:2,r:1,c:2},
+                {W:4,H:1,N:3,r:1,c:3},
+                {W:4,H:1,N:4,r:1,c:4},
+                {W:4,H:1,N:5,r:2,c:3},
+                {W:4,H:1,N:6,r:2,c:3},
+                {W:4,H:1,N:7,r:3,c:3},
+                {W:4,H:1,N:8,r:3,c:3},
+
+                {W:5,H:1,N:1,r:1,c:1},
+                {W:5,H:1,N:2,r:1,c:2},
+                {W:5,H:1,N:3,r:1,c:3},
+                {W:5,H:1,N:4,r:1,c:4},
+                {W:5,H:1,N:5,r:1,c:5},
+                {W:5,H:1,N:6,r:2,c:3},
+                {W:5,H:1,N:7,r:2,c:4},
+                {W:5,H:1,N:8,r:2,c:4},
+
+                {W:6,H:1,N:1,r:1,c:1},
+                {W:6,H:1,N:2,r:1,c:2},
+                {W:6,H:1,N:3,r:1,c:3},
+                {W:6,H:1,N:4,r:1,c:4},
+                {W:6,H:1,N:5,r:1,c:5},
+                {W:6,H:1,N:6,r:2,c:3},
+                {W:6,H:1,N:7,r:2,c:4},
+                {W:6,H:1,N:8,r:2,c:4},
+
+                {W:1,H:2,N:1,r:1,c:1},
+                {W:1,H:2,N:2,r:2,c:1},
+                {W:1,H:2,N:3,r:3,c:1},
+                {W:1,H:2,N:4,r:4,c:1},
+                {W:1,H:2,N:5,r:5,c:1},
+                {W:1,H:2,N:6,r:6,c:1},
+                {W:1,H:2,N:7,r:7,c:1},
+                {W:1,H:2,N:8,r:8,c:1},
+
+                {W:2,H:2,N:1,r:1,c:1},
+                {W:2,H:2,N:2,r:1,c:2},
+                {W:2,H:2,N:3,r:2,c:2},
+                {W:2,H:2,N:4,r:2,c:2},
+                {W:2,H:2,N:5,r:3,c:2},
+                {W:2,H:2,N:6,r:3,c:2},
+                {W:2,H:2,N:7,r:4,c:2},
+                {W:2,H:2,N:8,r:4,c:2},
+
+                {W:3,H:2,N:1,r:1,c:1},
+                {W:3,H:2,N:2,r:1,c:2},
+                {W:3,H:2,N:3,r:2,c:2},
+                {W:3,H:2,N:4,r:2,c:2},
+                {W:3,H:2,N:5,r:2,c:3},
+                {W:3,H:2,N:6,r:2,c:3},
+                {W:3,H:2,N:7,r:2,c:4},
+                {W:3,H:2,N:8,r:2,c:4},
+
+                {W:4,H:2,N:1,r:1,c:1},
+                {W:4,H:2,N:2,r:1,c:2},
+                {W:4,H:2,N:3,r:1,c:3},
+                {W:4,H:2,N:4,r:2,c:2},
+                {W:4,H:2,N:5,r:2,c:3},
+                {W:4,H:2,N:6,r:2,c:3},
+                {W:4,H:2,N:7,r:2,c:4},
+                {W:4,H:2,N:8,r:2,c:4},
+
+                {W:5,H:2,N:1,r:1,c:1},
+                {W:5,H:2,N:2,r:1,c:2},
+                {W:5,H:2,N:3,r:1,c:3},
+                {W:5,H:2,N:4,r:2,c:2},
+                {W:5,H:2,N:5,r:2,c:3},
+                {W:5,H:2,N:6,r:2,c:3},
+                {W:5,H:2,N:7,r:2,c:4},
+                {W:5,H:2,N:8,r:2,c:4},
+
+                {W:6,H:2,N:1,r:1,c:1},
+                {W:6,H:2,N:2,r:1,c:2},
+                {W:6,H:2,N:3,r:1,c:3},
+                {W:6,H:2,N:4,r:2,c:2},
+                {W:6,H:2,N:5,r:2,c:3},
+                {W:6,H:2,N:6,r:2,c:3},
+                {W:6,H:2,N:7,r:2,c:4},
+                {W:6,H:2,N:8,r:2,c:4},
+
+                {W:1,H:3,N:1,r:1,c:1},
+                {W:1,H:3,N:2,r:2,c:1},
+                {W:1,H:3,N:3,r:3,c:1},
+                {W:1,H:3,N:4,r:4,c:1},
+                {W:1,H:3,N:5,r:5,c:1},
+                {W:1,H:3,N:6,r:6,c:1},
+                {W:1,H:3,N:7,r:7,c:1},
+                {W:1,H:3,N:8,r:8,c:1},
+
+                {W:2,H:3,N:1,r:1,c:1},
+                {W:2,H:3,N:2,r:2,c:1},
+                {W:2,H:3,N:3,r:3,c:1},
+                {W:2,H:3,N:4,r:2,c:2},
+                {W:2,H:3,N:5,r:3,c:2},
+                {W:2,H:3,N:6,r:3,c:2},
+                {W:2,H:3,N:7,r:4,c:2},
+                {W:2,H:3,N:8,r:4,c:2},
+
+                {W:3,H:3,N:1,r:1,c:1},
+                {W:3,H:3,N:2,r:1,c:2},
+                {W:3,H:3,N:3,r:2,c:2},
+                {W:3,H:3,N:4,r:2,c:2},
+                {W:3,H:3,N:5,r:2,c:3},
+                {W:3,H:3,N:6,r:2,c:3},
+                {W:3,H:3,N:7,r:2,c:4},
+                {W:3,H:3,N:8,r:2,c:4},
+
+                {W:4,H:3,N:1,r:1,c:1},
+                {W:4,H:3,N:2,r:1,c:2},
+                {W:4,H:3,N:3,r:1,c:3},
+                {W:4,H:3,N:4,r:2,c:2},
+                {W:4,H:3,N:5,r:2,c:3},
+                {W:4,H:3,N:6,r:2,c:3},
+                {W:4,H:3,N:7,r:2,c:4},
+                {W:4,H:3,N:8,r:2,c:4},
+
+                {W:5,H:3,N:1,r:1,c:1},
+                {W:5,H:3,N:2,r:1,c:2},
+                {W:5,H:3,N:3,r:1,c:3},
+                {W:5,H:3,N:4,r:2,c:2},
+                {W:5,H:3,N:5,r:2,c:3},
+                {W:5,H:3,N:6,r:2,c:3},
+                {W:5,H:3,N:7,r:2,c:4},
+                {W:5,H:3,N:8,r:2,c:4},
+
+                {W:6,H:3,N:1,r:1,c:1},
+                {W:6,H:3,N:2,r:1,c:2},
+                {W:6,H:3,N:3,r:1,c:3},
+                {W:6,H:3,N:4,r:2,c:2},
+                {W:6,H:3,N:5,r:2,c:3},
+                {W:6,H:3,N:6,r:2,c:3},
+                {W:6,H:3,N:7,r:2,c:4},
+                {W:6,H:3,N:8,r:2,c:4}
+            ];
+
+            for(var charts in widgetCharts) {
+                if(widgetCharts[charts].type == 'line' || widgetCharts[charts].type == 'area') finalCharts.lineCharts.push(widgetCharts[charts]);
+                else if(widgetCharts[charts].type == 'bar') finalCharts.barCharts.push(widgetCharts[charts]);
+                else if(widgetCharts[charts].type == 'pie') finalCharts.pieCharts.push(widgetCharts[charts]);
+                else if(widgetCharts[charts].type == 'instagramPosts') finalCharts.instagramPosts.push(widgetCharts[charts]);
+                else if(widgetCharts[charts].type == 'highEngagementTweets') finalCharts.highEngagementTweets.push(widgetCharts[charts]);
+            }
+
+            if(finalCharts.lineCharts.length > 0) {
+                chartsCount++;
+                finalChartData.push({
+                    'options': graphOptions.lineDataOptions,
+                    'data': finalCharts.lineCharts,
+                    'api': {}
+                });
+            }
+            if(finalCharts.barCharts.length > 0) {
+                chartsCount++;
+                finalChartData.push({
+                    'options': graphOptions.barDataOptions,
+                    'data': finalCharts.barCharts,
+                    'api': {}
+                });
+            }
+            if(finalCharts.pieCharts.length > 0) {
+                chartsCount++;
+                finalChartData.push({
+                    'options': graphOptions.pieDataOptions,
+                    'data': finalCharts.pieCharts,
+                    'api': {}
+                });
+            }
+            if(finalCharts.instagramPosts.length > 0) {
+                chartsCount++;
+                finalChartData.push({
+                    'options': graphOptions.instagramPosts,
+                    'data': finalCharts.instagramPosts[0].values
+                });
+            }
+            if(finalCharts.highEngagementTweets.length > 0) {
+                chartsCount++;
+                finalChartData.push({
+                    'options': graphOptions.highEngagementTweets,
+                    'data': finalCharts.highEngagementTweets[0].values
+                });
+            }
+
+            var setLayoutOptions = function() {
+                sizeY = typeof widget.size != 'undefined'? widget.size.h : 3;
+                sizeX = typeof widget.size != 'undefined'? widget.size.w : 3;
+                for(var i=0;i<widgetLayoutOptions.length;i++){
+                    if(widgetLayoutOptions[i].W == sizeX && widgetLayoutOptions[i].H == sizeY && widgetLayoutOptions[i].N == chartsCount){
+                        individualGraphWidthDivider = widgetLayoutOptions[i].c;
+                        individualGraphHeightDivider = widgetLayoutOptions[i].r;
+                    }
+                }
+            };
+            setLayoutOptions();
+            if(widget.widgetType == 'custom') chartName = "Custom Data";
+            else chartName = (typeof widget.name != 'undefined'? widget.name: '');
+
+            var modifiedWidget = {
+                'name': chartName,
+                'visibility': true,
+                'id': widget._id,
+                'color': widget.color,
+                'chart': finalChartData,
+                'layoutOptionsX': individualGraphWidthDivider,
+                'layoutOptionsY': individualGraphHeightDivider
+            };
+            deferred.resolve(modifiedWidget);
+            return deferred.promise;
+        }
+
+    };
+
+
+
     //To fetch data for a widget for given date range; fetching the metric details for all the charts inside the widget
     this.widgetDataFetchHandler = function(widget,chosenDateRange){
 
@@ -123,7 +1064,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                     }
                 }).then(
                     function successCallback(response) {
-                        console.log(response);
                         for(chartObjects in widget.charts){
                             for(dataObjects in response.data){
                                 if(String(widget.charts[chartObjects].metrics[0].metricId) === String(response.data[dataObjects].metricId)){
@@ -518,7 +1458,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                 else if(widget.charts[i].chartType == 'instagramPosts'){
                     changedWidget.charts[i].chartData = [];
                     if(typeof(widget.charts[i].chartData[0].total) === 'object') {
-                        console.log('requestToCreateCharts',widget)
                         var images = 'images';
                         var thumbnail='thumbnail';
                         var likes ='likes';
@@ -558,7 +1497,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                         changedWidget.charts[i].chartData[items] = formattedChartData;
                     }
                     else{
-                        console.log('requestToCreateCharts',widget)
                         var images = 'images';
                         var thumbnail='thumbnail';
                         var likes ='likes';
@@ -583,12 +1521,9 @@ showMetricApp.service('createWidgets',function($http,$q){
                         }
                         changedWidget.charts[i].chartData[items] = formattedChartData;
                     }
-                    console.log('changedWidget',changedWidget);
-
                 }
 
                 else if(widget.charts[i].chartType == 'highEngagementTweets'){
-                    console.log('requestToCreateCharts',widget)
                     changedWidget.charts[i].chartData = [];
                     var likes ='favorite_count';
                     var reTweet='retweet_count'
@@ -608,10 +1543,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                             }
                         );
                     }
-
                     changedWidget.charts[i].chartData[items] = formattedChartData;
-                    console.log('changedWidget',changedWidget);
-
                 }
             }
             formattedWidget.resolve(changedWidget);
@@ -946,7 +1878,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                     for(items in widgetData.charts[i].chartData) {
                         graphData.highEngagementTweets.push(widgetData.charts[i].chartData[items]);
                     }
-                    console.log('widgetDataWhenFormate',widgetData)
                 }
             }
         }
@@ -975,8 +1906,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                 'options': {
                     'chart':{'type':'instagramPosts'}
                 },
-                'data': graphData.instagramPosts[0],
-                //'api': {}
+                'data': graphData.instagramPosts[0]
             });
 
         if(highEngagement !=false){
@@ -984,12 +1914,9 @@ showMetricApp.service('createWidgets',function($http,$q){
                 'options': {
                     'chart':{'type':'highEngagementTweets'}
                 },
-                'data': graphData.highEngagementTweets[0],
-                //'api': {}
+                'data': graphData.highEngagementTweets[0]
             });
         }
-        console.log('modifiedCharts',modifiedCharts);
-
         return(modifiedCharts);
     };
 

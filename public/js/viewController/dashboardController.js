@@ -268,14 +268,13 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                         $scope.widgetsPresent = false;
                     }
                     var widgetID=0;
+                    var dashboardWidgets = [];
 
-                    for(getWidgetInfo in dashboardWidgetList){
-                        widgets.push(createWidgets.widgetDataFetchHandler(dashboardWidgetList[getWidgetInfo],{
+                    for(var getWidgetInfo in dashboardWidgetList){
+                        dashboardWidgets.push(createWidgets.widgetHandler(dashboardWidgetList[getWidgetInfo],{
                             'startDate': moment($scope.dashboardCalendar.start_date).format('YYYY-MM-DD'),
                             'endDate': moment($scope.dashboardCalendar.end_date).format('YYYY-MM-DD')
                         }));
-                        widgetID = dashboardWidgetList[getWidgetInfo]._id;
-
                         //To temporarily create an empty widget with same id as the widgetId till all the data required for the widget is fetched by the called service
                         $scope.dashboard.widgets.push({
                             'row': (typeof dashboardWidgetList[getWidgetInfo].row != 'undefined'? dashboardWidgetList[getWidgetInfo].row : 0),
@@ -300,31 +299,18 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                             'color': (typeof dashboardWidgetList[getWidgetInfo].color != 'undefined'? dashboardWidgetList[getWidgetInfo].color : '')
                         });
 
-                        //Fetching the promise that contains all the data for the particular widget in the dashboard
-                        widgets[getWidgetInfo].then(
-                            function successCallback(widget){
-                                var widgetIndex = $scope.dashboard.widgets.map(function(el) {return el.id;}).indexOf(widget._id);
-                                var finalChartData = createWidgets.chartCreator(widget);
-                                var widgetToBeLoaded = createWidgets.replacePlaceHolderWidget(widget,finalChartData);
-                                widgetToBeLoaded.then(
-                                    function successCallback(widgetToBeLoaded){
-                                        $scope.dashboard.widgetData[widgetIndex] = widgetToBeLoaded;
-                                        isExportOptionSet=1;
-                                    },
-                                    function errorCallback(error){
-                                        isExportOptionSet=0;
-                                        swal({
-                                            title: '',
-                                            text: '<span style="sweetAlertFont">There has been an error in populating the widgets! Please refresh the dashboard again</span>',
-                                            html: true
-                                        });
-                                    }
-                                );
+                        dashboardWidgets[getWidgetInfo].then(
+                            function successCallback(dashboardWidgets) {
+                                var widgetIndex = $scope.dashboard.widgets.map(function(el) {return el.id;}).indexOf(dashboardWidgets.id);
+                                $scope.dashboard.widgetData[widgetIndex] = dashboardWidgets;
+                                isExportOptionSet=1;
                             },
                             function errorCallback(error){
-                                $("#widgetData-"+widgetID).hide();
-                                $("#errorWidgetData-"+widgetID).show();
-                                isExportOptionSet=0;
+                                swal({
+                                    title: '',
+                                    text: '<span style = "sweetAlertFont">Error in populating widgets! Please refresh the dashboard again</span>',
+                                    html: true
+                                });
                             }
                         );
                     }
@@ -341,15 +327,13 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
     };
 
     //To catch a request for a new widget creation and create the dashboard in the frontend
-    $scope.$on('populateWidget', function(e,widget,dataDateRange){
+    $scope.$on('populateWidget', function(e,widget){
         var inputWidget = [];
-        var chartName;
-        inputWidget.push(
-            createWidgets.widgetDataFetchHandler(widget,{
-                'startDate': moment($scope.dashboardCalendar.start_date).format('YYYY-MM-DD'),
-                'endDate': moment($scope.dashboardCalendar.end_date).format('YYYY-MM-DD')
-            })
-        );
+        inputWidget.push(createWidgets.widgetHandler(widget,{
+            'startDate': moment($scope.dashboardCalendar.start_date).format('YYYY-MM-DD'),
+            'endDate': moment($scope.dashboardCalendar.end_date).format('YYYY-MM-DD')
+        }));
+
         $scope.widgetsPresent = true;
 
         //To temporarily create an empty widget with same id as the widgetId till all the data required for the widget is fetched by the called service
@@ -379,29 +363,15 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         //Fetching the promise that contains all the data for all the widgets in the dashboard
         $q.all(inputWidget).then(
             function successCallback(inputWidget){
+                console.log(inputWidget);
                 $("#getLoadingModalContent").removeClass('md-show');
-                var widgetIndex = $scope.dashboard.widgets.map(function(el) {return el.id;}).indexOf(inputWidget[0]._id);
-                var finalChartData = createWidgets.chartCreator(inputWidget[0]);
-                var widgetToBeLoaded = createWidgets.replacePlaceHolderWidget(inputWidget[0],finalChartData);
-
-                widgetToBeLoaded.then(
-                    function successCallback(widgetToBeLoaded){
-                        $scope.dashboard.widgetData[widgetIndex] = widgetToBeLoaded;
-                    },
-                    function errorCallback(error) {
-                        console.log(error);
-                        swal({
-                            title: "",
-                            text: '<span style="sweetAlertFont">Error in creating the widget! Please try again</span>',
-                            html: true
-                        });
-                    }
-                );
+                var widgetIndex = $scope.dashboard.widgets.map(function(el) {return el.id;}).indexOf(inputWidget[0].id);
+                $scope.dashboard.widgetData[widgetIndex] = inputWidget[0];
             },
             function errorCallback(error){
                 swal({
                     title: "",
-                    text: '<span style="sweetAlertFont">Error in creating the widget! Please try again</span>',
+                    text: '<span style="sweetAlertFont">Error in displaying widget! Please refresh the dashboard</span>',
                     html: true
                 });
             }

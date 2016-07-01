@@ -96,7 +96,8 @@ module.exports = {
         googleAnalytics: 'googleanalytics',
         twitter :'twitter',
         googleAdwords : 'googleAdwords',
-        instagram: 'instagram'
+        instagram: 'instagram',
+        youtube: 'youtube'
     },
 
     'objectType':{
@@ -107,7 +108,8 @@ module.exports = {
         twitter :'tweet',
         googleAdword :'adwordaccount',
         googleProperty: 'gaproperty',
-        googleAccount: 'gaaccount'
+        googleAccount: 'gaaccount',
+        youtubeChannel:'youtubeChannel'
     },
 
     'twitterMetric':{
@@ -136,7 +138,8 @@ module.exports = {
 
     googleApiTypes:{
         mcfApi:'mcf',
-        gaApi:'ga'
+        gaApi:'ga',
+        youtubeApi: 'youtube'
     },
 
     interval:{
@@ -157,7 +160,16 @@ module.exports = {
     youTubeAuth: {
         clientID: '365268185780-vti6ft53qpjml2c5qsaqn0du99omeo3j.apps.googleusercontent.com',
         clientSecret: 'EZN3KKEuikOjX7sAv75l6sbV',
-        callbackURL: 'http://localhost:8080/auth/youtube/callback'
+        callbackURL: 'http://localhost:8080/auth/youtube/callback',
+        site: 'https://accounts.google.com/o/',
+        tokenPath: 'https://accounts.google.com/o/oauth2/token',
+        authorizationPath: 'oauth2/auth',
+        approvalPrompt: 'force',
+        accessType: 'offline',
+        scope: 'https://www.googleapis.com/auth/youtube https://www.googleapis.com/auth/yt-analytics.readonly https://www.googleapis.com/auth/yt-analytics-monetary.readonly',
+        state: '3832$',
+        localCallingURL: '/api/v1/auth/youTube',
+        localCallbackURL: '/auth/youtube/callback'
     },
 
     expire:{

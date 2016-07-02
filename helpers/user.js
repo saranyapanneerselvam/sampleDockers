@@ -1,3 +1,5 @@
+//Load the auth file
+var configAuth = require('../config/auth');
 var moment = require('moment');
 var profile = require('../models/profiles');
 var exports = module.exports = {};
@@ -8,10 +10,13 @@ var exports = module.exports = {};
  2.res have the query response
  */
 exports.storeProfiles = function (req, done) {
-
+    var setData = {};
     var tokens = req.tokens;
-    profile.findOne({'userId': req.userId, 'channelId': req.channelId, 'orgId': req.user.orgId}, function (err, profileDetails) {
-
+    profile.findOne({
+        'userId': req.userId,
+        'channelId': req.channelId,
+        'orgId': req.user.orgId
+    }, function (err, profileDetails) {
         // if there are any errors, return the error
         if (err)
             done(err);
@@ -30,26 +35,47 @@ exports.storeProfiles = function (req, done) {
                 newAccessToken = tokens;
                 newRefreshToken = "";
             }
-
-            profile.update({'userId': req.userId,'channelId': req.channelId}, {
-                $set: {
+            if (req.code === configAuth.channels.googleAdwords) {
+                setData = {
                     "accessToken": newAccessToken,
                     "refreshToken": newRefreshToken,
                     'updated': updated,
-                    "expiresIn" : req.expiresIn ? req.expiresIn : ''
+                    "expiresIn": req.expiresIn ? req.expiresIn : '',
+                    "canManageClients": req.canManageClients,
+                    "customerId": req.customerId
                 }
+            }
+            else {
+                setData = {
+                    "accessToken": newAccessToken,
+                    "refreshToken": newRefreshToken,
+                    'updated': updated,
+                    "expiresIn": req.expiresIn ? req.expiresIn : ''
+                }
+            }
+            profile.update({
+                'userId': req.userId,
+                'channelId': req.channelId,
+                'orgId': req.user.orgId
+            },{
+                $set: setData
             }, {upsert: true}, function (err, updateResult) {
                 if (!err) {
-                    profile.findOne({'userId': req.userId,'channelId': req.channelId}, function(err,profileDetail){
-                        if(!err){
+                    profile.findOne({
+                        'userId': req.userId,
+                        'channelId': req.channelId,
+                        'orgId': req.user.orgId
+                    }, function (err, profileDetail) {
+                        if (!err) {
                             done(null, profileDetail);
                         }
+                        else done(err);
                     });
                 }
                 else {
                     done(null, {status: 302});
                 }
-            })
+            });
         }
         else {
             // if there is no profile with that email
@@ -70,27 +96,34 @@ exports.storeProfiles = function (req, done) {
             //Store the refresh token for facebook
             else
                 newProfile.accessToken = tokens;
-
             newProfile.orgId = req.user.orgId;
             newProfile.userId = req.userId;
             newProfile.created = new Date();
             newProfile.updated = new Date();
             newProfile.expiresIn = req.expiresIn;
-
+            if (req.code === configAuth.channels.googleAdwords) {
+                newProfile.canManageClients = req.canManageClients;
+                newProfile.customerId = req.customerId;
+            }
 
             // save the user
             newProfile.save(function (err, user) {
                     if (err)
                         done(err);
                     else {
-                        profile.findOne({'userId': user.userId,'channelId': user.channelId,'orgId':user.orgId}, function(err,profileDetail){
-                            if(!err){
+                        profile.findOne({
+                            'userId': user.userId,
+                            'channelId': user.channelId,
+                            'orgId': user.orgId
+                        }, function (err, profileDetail) {
+                            if (!err) {
                                 done(null, profileDetail);
                             }
+                            else done(err);
                         });
                     }
                 }
             );
         }
     });
-}
+};

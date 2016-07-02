@@ -173,6 +173,10 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             }
         }
         else {
+            console.log('this.profileOptionsModel.canManageClients',this.profileOptionsModel.canManageClients)
+            if(this.profileOptionsModel.canManageClients===false)
+                $scope.canManageClients = true;
+            else  $scope.canManageClients = false;
             if(this.profileOptionsModel.expiresIn!= undefined)
                 $scope.checkExpiresIn = new Date(this.profileOptionsModel.expiresIn);
             $scope.tokenExpired = false;
@@ -197,7 +201,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             }).then(
                 function successCallback(response) {
                     $scope.objectList = response.data.objectList;
-                    if ($scope.storedChannelName === 'Twitter' || $scope.storedChannelName === 'Instagram') {
+                    if ($scope.storedChannelName === 'Twitter' || $scope.storedChannelName === 'Instagram' || $scope.canManageClients === true) {
                         $scope.objectForWidgetChosen([$scope.objectList[0].name,$scope.objectList[0]._id,$scope.objectList[0].objectTypeId]);
                     }
                 },

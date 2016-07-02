@@ -2131,10 +2131,15 @@ exports.getChannelData = function (req, res, next) {
                     param.push('cost / conv.');
                 }
                 var finalData = [];
+                var totalValue;
                 for (var prop = 0; prop < data.length; prop++) {
+                    if(results.metricCode === configAuth.googleAdwordsMetric.costPerConversion || results.metricCode === configAuth.googleAdwordsMetric.costPerClick||results.metricCode === configAuth.googleAdwordsMetric.costPerThousandImpressions||results.metricCode === configAuth.googleAdwordsMetric.cost)
+                        totalValue = parseFloat((data[prop][param] / 1000000).toFixed(6));
+                    else
+                        totalValue = parseFloat(data[prop][param]);
                     var value = {};
                     value = {
-                        total: parseInt(data[prop][param]),
+                        total: totalValue,
                         date: data[prop].day
                     };
                     finalData.push(value);

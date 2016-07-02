@@ -1,0 +1,6 @@
+# Ignore environment varialbes
+.env
+
+# Ignore npm stuff
+npm-debug.log
+node_modules/

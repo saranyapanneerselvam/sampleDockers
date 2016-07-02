@@ -32,7 +32,7 @@ var oauth2Client = new OAuth2(configAuth.googleAuth.clientID, configAuth.googleA
 var oauth2AdsClient = new OAuth2(configAuth.googleAdwordsAuth.clientID, configAuth.googleAdwordsAuth.clientSecret, configAuth.googleAdwordsAuth.callbackURL);
 
 //set googleadword node library
-var AdWords = require('googleads-node-lib');
+var AdWords = require('../lib/googleads-node-lib');
 
 // set auth as a global default
 var analytics = googleapis.analytics({version: 'v3', auth: oauth2Client});
@@ -81,8 +81,10 @@ exports.listAccounts = function (req, res, next) {
             refreshToken: 1,
             channelId: 1,
             userId: 1,
-            name:1,
-            email: 1
+            name: 1,
+            email: 1,
+            canManageClients: 1,
+            customerId: 1
         }, checkNullObject(callback));
     }
 
@@ -503,32 +505,31 @@ exports.listAccounts = function (req, res, next) {
             'channelId': results.channelId
         }, function (err, objectTypeId) {
             if (!err) {
-                var service = new AdWords.ManagedCustomerService({
-                    ADWORDS_CLIENT_ID: configAuth.googleAdwordsAuth.clientID,
-                    ADWORDS_CLIENT_CUSTOMER_ID: configAuth.googleAdwordsAuth.managerClientId,
-                    ADWORDS_DEVELOPER_TOKEN: configAuth.googleAdwordsAuth.developerToken,
-                    ADWORDS_REFRESH_TOKEN: results.refreshToken,
-                    ADWORDS_SECRET: configAuth.googleAdwordsAuth.clientSecret,
-                    ADWORDS_USER_AGENT: configAuth.googleAdwordsAuth.userAgent
-                });
-                var clientCustomerId = configAuth.googleAdwordsAuth.managerClientId;
-                var selector = new AdWords.Selector.model({
-                    fields: service.selectable,
-                    ordering: [{field: 'Name', sortOrder: 'ASCENDING'}],
-                    paging: {startIndex: 0, numberResults: 100},
-                    predicates: []
-                });
-
-                service.get(clientCustomerId, selector, function(err, response) {
-                    if (err)
-                        console.log(err);
-                    else {
-                        queryExec(objectTypeId,results,callback,response);
-                    }
-                });
-            }
-            else{
-                return res.status(500).json({});
+                if(results.canManageClients===true){
+                    var service = new AdWords.ManagedCustomerService({
+                        ADWORDS_CLIENT_ID: configAuth.googleAdwordsAuth.clientID,
+                        ADWORDS_CLIENT_CUSTOMER_ID: results.customerId,
+                        ADWORDS_DEVELOPER_TOKEN: configAuth.googleAdwordsAuth.developerToken,
+                        ADWORDS_REFRESH_TOKEN: results.refreshToken,
+                        ADWORDS_SECRET: configAuth.googleAdwordsAuth.clientSecret,
+                        ADWORDS_USER_AGENT: configAuth.googleAdwordsAuth.userAgent
+                    });
+                    var clientCustomerId = results.customerId;
+                    var selector = new AdWords.Selector.model({
+                        fields: service.selectable,
+                        ordering: [{field: 'Name', sortOrder: 'ASCENDING'}],
+                        paging: {startIndex: 0, numberResults: 100},
+                        predicates: []
+                    });
+                    service.get(clientCustomerId, selector, function(err, response) {
+                        console.log('canmanage',response)
+                        if (err)
+                            console.log(err);
+                        else {
+                            queryExec(objectTypeId,results,callback,response);
+                        }
+                    });
+                }
             }
         });
     }

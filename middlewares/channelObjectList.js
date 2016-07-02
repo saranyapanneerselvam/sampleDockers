@@ -522,7 +522,6 @@ exports.listAccounts = function (req, res, next) {
                         predicates: []
                     });
                     service.get(clientCustomerId, selector, function(err, response) {
-                        console.log('canmanage',response)
                         if (err)
                             console.log(err);
                         else {

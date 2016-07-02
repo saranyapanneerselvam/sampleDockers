@@ -8,10 +8,7 @@ var customData = require('../models/data');
 exports.saveCustomChannelData = function (req, res, next) {
     var existcustomDataID = 0;
     customData.find({widgetId: req.params.widgetId}, function (err, result) {
-        console.log(result);
         if(result=="" || result=="[]"){
-            console.log("No Custom Data");
-            console.log(req.body);
             var isSendPost = 1;
             var sendMessage = "";
             var createCustomData = new customData();
@@ -27,7 +24,6 @@ exports.saveCustomChannelData = function (req, res, next) {
             }
             else{
                 json = req.body.data;
-                console.log(req.body.data);
             }
 
             if(json==""){
@@ -93,9 +89,7 @@ exports.saveCustomChannelData = function (req, res, next) {
                 }
             }
 
-
-            console.log("Is Send Post : "+isSendPost);
-
+            
             createCustomData.data= data;
             createCustomData.created = new Date();
             createCustomData.updated = new Date();
@@ -200,13 +194,11 @@ exports.saveCustomChannelData = function (req, res, next) {
                         var newValue = 0;
                         for(getData in result[0].data){
                             if(result[0].data[getData].values!=undefined){
-                                //console.log(result[0].data[getData].values+" == "+result[0].data[getData].date+" == "+result[0].data[getData].name);
                                 oldValue = result[0].data[getData].values;
                                 var inTotal = parseInt(data[getChcekValue].values);
 
                                 if(data[getChcekValue].date==result[0].data[getData].date && data[getChcekValue].name==result[0].data[getData].name){
                                     newValue = parseInt(oldValue)+parseInt(inTotal);
-                                    //console.log("New Value : "+newValue);
                                     data[getChcekValue].values = newValue;
                                 }
 
@@ -215,22 +207,16 @@ exports.saveCustomChannelData = function (req, res, next) {
                     }
                 }
             }
-
-            console.log("Is Send Post : "+isSendPost);
-
+            
             if(isSendPost==1){
                 var updated = new Date();
                 customData.update({
                     _id: existcustomDataID
                 }, {$set: {"widgetId":req.params.widgetId, "data": data, "metricsCount":req.body.metricsCount, "chartType":req.body.chartType,  "intervalType":req.body.intervalType, updated: updated}}, function (err, updateResult) {
-                    console.log("success => "+updateResult);
-                    console.log("Error => "+err);
                     if (err) {
-                        console.log('failure');
                         sendMessage = "Failed in updating the Custom Data";
                     }
                     else{
-                        console.log('Update success');
                         sendMessage = "Custom Data Updated successfully";
                     }
                     isSendPost="";
@@ -336,22 +322,16 @@ exports.updateCustomChannelData = function (req, res, next) {
                 }
             }
         }
-
-        console.log("Is Send Post : "+isSendPost);
-
+        
         if(isSendPost==1){
             var updated = new Date();
             customData.update({
                 _id: customDataID
             }, {$set: {"widgetId":req.params.widgetId, "data": data, "metricsCount":req.body.metricsCount, "chartType":req.body.chartType,  "intervalType":req.body.intervalType, updated: updated}}, function (err, updateResult) {
-                console.log("success => "+updateResult);
-                console.log("Error => "+err);
                 if (err) {
-                    console.log('failure');
                     sendMessage = "Failed in updating the Custom Data";
                 }
                 else{
-                    console.log('Update success');
                     sendMessage = "Custom Data Updated successfully";
                 }
                 isSendPost="";
@@ -397,11 +377,10 @@ exports.getCustomChannelWidgetData = function (req, res, next) {
                     "created": {"$first": "$created"},
                     "intervalType": {"$first": "$intervalType"},
                     "metricsCount": {"$first": "$metricsCount"},
-                    "widgetId": {"$first": "$widgetId"},
+                    "widgetId": {"$first": "$widgetId"}
                 }
             }]
         , function (err, result) {
-            console.log('err', err, 'resposne', result);
             if(err)
                 req.app.result = {'error': err};
             else if (result.length)

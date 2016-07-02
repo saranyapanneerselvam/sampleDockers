@@ -18,7 +18,6 @@ exports.metrics = function (req, res, next) {
      * callback next which returns response to controller
      */
     metricsList.find({channelId: req.params.channelId}, function (err, metrics) {
-        console.log('metrics', req.params.channelId, 'err', err, 'metric', metrics);
         req.showMetric.metrics = metrics;
         next();
     })

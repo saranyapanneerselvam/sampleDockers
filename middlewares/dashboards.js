@@ -13,7 +13,6 @@ var Q = require("q");
 
  */
 exports.getDashboardList = function (req, res, next) {
-    console.log('user in dashboard', req.user);
     //req.showMetric = {};
     if (!req.user) {
         return res.status(401).json({error: 'Authentication required to perform this action'})
@@ -44,7 +43,6 @@ exports.getDashboardList = function (req, res, next) {
         function getDashboard(UserCollection){
             var deferred = Q.defer();
             dashboardList.findOne({_id:UserCollection}, function (err, dashboard) {
-                //console.log('dashboardCollect', dashboard);
                 if(err)
                     deferred.reject(new Error(err));
                 else
@@ -60,7 +58,6 @@ exports.getDashboardList = function (req, res, next) {
  * @param req contains the dashboard id
  */
 exports.getDashboardDetails = function (req, res, next) {
-    console.log('cookies', req.user, req.session);
     var dashboardId = req.params.dashboardId;
     if (req.user) {
         dashboardList.findOne({'_id': dashboardId}, function (err, dashboardDetails) {
@@ -89,7 +86,6 @@ exports.storeDashboards = function (req, res, next) {
     var storeAllDashboards = [];
     var dashboardObjects = {};
     if (!req.user) {
-        console.log('if');
         return res.status(401).json({error: 'Authentication required to perform this action'})
     }
     else {
@@ -133,7 +129,6 @@ exports.storeDashboards = function (req, res, next) {
                                 //{"$pushAll" : {dashboards : [{key:1}, {key:2}, {key:3}]}}
                                 // { $addToSet: {dashboards: [{key:1}, {key:2}, {key:3}] } }
                                 , function (err, response) {
-                                    console.log('err', err, response);
                                     if (err)
                                         return res.status(500).json({error: 'Internal server error'});
                                     else if (response == 0)

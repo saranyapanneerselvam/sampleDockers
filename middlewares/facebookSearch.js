@@ -27,10 +27,7 @@ exports.getSearchResult = function (req, res, next) {
             "redirect_uri": configAuth.facebookAuth.callbackURL
         },
         function (response) {
-            console.log('query', response);
             var query = configAuth.apiVersions.FBInsights+'/search?access_token=' + response.access_token + '&fields=id,name,page&q=' + req.query.keyWord + '&type=page';
-            console.log('query', query);
-
             callSearchApi(query);
         }
     );
@@ -42,7 +39,6 @@ exports.getSearchResult = function (req, res, next) {
         FB.api(
             query,
             function (pageList) {
-                console.log('pageList.paging', pageList);
                 if (pageList.paging.next) {
                     var query = pageList.paging.next.substr(pageList.paging.next.indexOf('v'));
                     for (key in pageList.data) {
@@ -51,7 +47,6 @@ exports.getSearchResult = function (req, res, next) {
                     callSearchApi(query);
                 }
                 else if (pageList.paging.next == undefined && pageList.paging.previous) {
-                    console.log('pageList.data', finalPageList.length);
                     for (key in pageList.data) {
                         finalPageList.push(pageList.data[key]);
                     }
@@ -60,7 +55,6 @@ exports.getSearchResult = function (req, res, next) {
                     next();
                 }
                 else {
-                    console.log('else');
                     for (key in pageList.data) {
                         finalPageList.push(pageList.data);
                     }

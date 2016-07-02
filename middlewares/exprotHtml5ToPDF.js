@@ -4,7 +4,6 @@ var options = { format:"A3", quality:"75", orientation:"landscape" };
 var exports = module.exports = {};
 
 exports.createHtml5ToPdf = function (req, res, next) {
-    //console.log("Html : "+req.body.dashboardLayout);
     var html = "<img src='"+req.body.dashboardLayout+"' style='width: 100%;' />";
     var timestamp = Number(new Date());
     var getName = "";

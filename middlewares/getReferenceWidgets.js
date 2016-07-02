@@ -14,7 +14,6 @@ exports.referenceWidgets = function (req, res, next) {
      * callback next which returns response to controller
      */
     referenceWidgetsList.find({widgetType: req.params.widgetType}, function (err, referenceWidgets) {
-        console.log('referenceWidgets', req.params.widgetType, 'err', err, 'referenceWidgets', referenceWidgets);
         req.showMetric.referenceWidgets = referenceWidgets;
         next();
     })

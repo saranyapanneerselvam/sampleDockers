@@ -16,7 +16,6 @@ exports.recommendDashboard = function (req, res, next) {
         channel:['recommendedDashboard','referenceWidget',getUniqueChannels]
     }, function (err, results) {
         if (err) {
-            console.log(err);
             return res.status(500).json({});
         }
 
@@ -37,17 +36,14 @@ exports.recommendDashboard = function (req, res, next) {
     }
 
     function getReferenceWidget(results,callback){
-        //console.log('results',results);
         for(var i=0;i<results.recommendedDashboard.length;i++){
             groupByDashboard[i] = [];
             groupByDashboard[i].dashboard = results.recommendedDashboard[i];
-            //console.log(groupByDashboard[i].dashboard);
         }
         async.concatSeries(results.recommendedDashboard,callReferenceWidget,callback);
     }
 
     function callReferenceWidget(dashboard,callback){
-        //console.log('finalreferenceData',dashboard);
         var index = indexByKeyValue(groupByDashboard,'_id',dashboard._id);
         function indexByKeyValue(arraytosearch, key, valuetosearch) {
             for (var i = 0; i < arraytosearch.length; i++) {
@@ -63,7 +59,6 @@ exports.recommendDashboard = function (req, res, next) {
             referenceWidget.findOne({_id: dashboard.widgets[n]}, function(err,referenceWidgets){
                 if(!err) {
                     groupByDashboard[index].referenceWidgets[n] = referenceWidgets;
-                    //console.log('PrintingGroupByDashboard',groupByDashboard);
                     next(null,referenceWidgets);
                 }
                 else{
@@ -81,7 +76,6 @@ exports.recommendDashboard = function (req, res, next) {
             groupByDashboard[i].channels = [];
             for(var j=0;j<groupByDashboard[i].referenceWidgets.length;j++){
                 for(var k=0;k<groupByDashboard[i].referenceWidgets[j].charts.length;k++){
-                    //console.log('Inside the for loop');
                     if (uniqueChannel[i].indexOf(groupByDashboard[i].referenceWidgets[j].charts[k].channelId) == -1) {
                         uniqueChannel[i].push(groupByDashboard[i].referenceWidgets[j].charts[k].channelId);
                     }
@@ -103,7 +97,6 @@ exports.recommendDashboard = function (req, res, next) {
         if (uniqueChannel.indexOf(results.channelId) == -1) {
             uniqueChannel.push(results);
         }
-        //console.log('uniqueChannel',uniqueChannel);
         async.concatSeries(uniqueChannel,finalChannel,callback);
     }
 
@@ -114,7 +107,6 @@ exports.recommendDashboard = function (req, res, next) {
                     for(var j=0;j<uniqueChannel[i].length;j++){
                         if(channelDetails._id == uniqueChannel[i][j]){
                             groupByDashboard[i].channels.push(channelDetails);
-                            //console.log('FinalGroupByDashboard',groupByDashboard);
                         }
                     }
                 }

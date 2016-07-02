@@ -28,7 +28,6 @@ exports.getPageInsights = function (req, res, next) {
 
     //Store start date
     var startDate = calculateDate(d);
-    console.log('start', startDate, 'end', endDate)
 
     //For testing start& end date is hard coded it will be replaced by startDate & endDate
     var query = configAuth.apiVersions.FBInsights+'/' + req.query.pageId + '?fields=posts.until(' + endDate + ').since(' + startDate + ')&access_token=' + accessToken;
@@ -36,13 +35,10 @@ exports.getPageInsights = function (req, res, next) {
 
     //to get the list of posts for a given page id
     function callGetPostApi(query) {
-        console.log('query');
         /* make the API call */
         FB.api(
             query,
             function (postList) {
-                console.log('post list', postList);
-
                 /*  //To handle timeout error
                  if(postList.error.code === 'ETIMEDOUT'){
                  req.app.result = {message:'Timed out error',status:408};
@@ -136,7 +132,6 @@ exports.getPageInsights = function (req, res, next) {
                  req.app.result = {message:'Timed out error',status:408};
                  next();
                  }*/
-                console.log('like', likeDetails)
                 //To check the next in data array
                 if (likeDetails.data.length && likeDetails.paging.next) {
 
@@ -166,7 +161,6 @@ exports.getPageInsights = function (req, res, next) {
         FB.api(
             commentQuery,
             function (commentList) {
-                console.log('commentList', commentList)
 
                 /* //To handle timeout error
                  if(commentList.error.code === 'ETIMEDOUT'){
@@ -266,7 +260,6 @@ exports.getPageInsights = function (req, res, next) {
 
         req.app.result = storeFinalResult;
         next();
-        console.log("Your Top 10 fans are: " + storeFinalResult);
     }
 
     //To format the date

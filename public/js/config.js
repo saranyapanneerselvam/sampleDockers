@@ -59,8 +59,7 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                             }
                         },
                         function errorCallback(error) {
-                            console.log('Error in finding dashboard Id',error);
-                            return error;
+                            $scope.createNewDashboard();
                         }
                     );
                 }

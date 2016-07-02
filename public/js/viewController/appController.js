@@ -4,6 +4,22 @@ function AppController($http,$state,$scope) {
 
     $scope.loading=false;
 
+    $scope.fetchUserName = function() {
+        $http(
+            {
+                method: 'GET',
+                url: '/api/v1/me'
+            }
+        ).then(
+            function successCallback(response) {
+                $scope.userName = response.data.userDetails[0].name;
+            },
+            function errorCallback(error) {
+                $scope.userName = '';
+            }
+        );
+    };
+
     $scope.createNewDashboard = function() {
         $scope.loading=true;
         $http(

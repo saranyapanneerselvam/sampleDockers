@@ -13,79 +13,6 @@
 }
 */
 
-/*
-
-.modal-open body  {
-    background: #ffffff;
-    -webkit-perspective: 600px;
-    -moz-perspective: 600px;
-    perspective: 600px;
-}
-
-!*
-.modal-open {
-    -webkit-transition: all 0.5s;
-    -moz-transition: all 0.5s;
-    transition: all 0.5s;
-}
-*!
-
-.modal-open {
-    background-color: #ffffff;
-    -webkit-perspective: 600px;
-    -moz-perspective: 600px;
-    perspective: 600px;
-    -webkit-transform-style: preserve-3d;
-    -webkit-transform-origin: 50% 100%;
-    -webkit-animation: OpenTop 2.5s forwards ease-in;
-    -moz-transform-style: preserve-3d;
-    -moz-transform-origin: 50% 100%;
-    -moz-animation: OpenTop 2.5s forwards ease-in;
-    transform-style: preserve-3d;
-    transform-origin: 50% 100%;
-    animation: OpenTop 2.5s forwards ease-in;
-}
-.modal.in {
-    -webkit-transition: all 0.5s;
-    -moz-transition: all 0.5s;
-    transition: all 0.5s;
-}
-.modal .fade .in .modal-dialog{
-    !*
-    -webkit-transform: translateY(0);
-    -moz-transform: translateY(0);
-    -ms-transform: translateY(0);
-    transform: translateY(0);
-    *!
-    -webkit-transition: all 1.5s;
-    -moz-transition: all 1.5s;
-    -ms-transition: all 1.5s;
-    -o-transition: all 1.5s;
-    transition: all 1.5s;
-    -webkit-animation-delay: 5.5s;
-    animation-delay: 5.5s;
-}
-@-webkit-keyframes OpenTop {
-    50% {
-        -webkit-transform: rotateX(20deg);
-        -webkit-animation-timing-function: ease-out;
-    }
-}
-
-@-moz-keyframes OpenTop {
-    50% {
-        -moz-transform: rotateX(20deg);
-        -moz-animation-timing-function: ease-out;
-    }
-}
-
-@keyframes OpenTop {
-    50% {
-        transform: rotateX(20deg);
-        animation-timing-function: ease-out;
-    }
-}
-*/
 .aside{padding-left: 83px; position: absolute;width: 100%;}
 .postComment{overflow: hidden; white-space: nowrap;text-overflow: ellipsis;}
 .impression{padding-top: 15px;}
@@ -145,7 +72,7 @@ svg:hover #Calendar-Icon { fill: #8560c5 ; }
 .topnavbar-header{
     height: 50px;
 }
-.widget-body{padding: 25px 10px 10px 10px !important;height: 180px !important;}
+.widget-body{padding: 25px 10px 10px 10px !important;height: 380px !important;}
 .favigon-img{padding-right: 5px;}
 .menus-img a{margin-top: 13px;}
 .wizard > .steps .current a, .wizard > .steps{

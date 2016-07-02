@@ -66,8 +66,6 @@
     </div>
 </div>
 
-
-
 <div class="md-modal md-effect-19" id="addRemoveModalContent">
     <div class="md-content commonComingSoon">
 
@@ -93,7 +91,6 @@
         </div>
     </div>
 </div>
-
 
 <div class="md-modal md-effect-19" id="modifyUserModalContent">
     <div class="md-content commonComingSoon">
@@ -121,8 +118,6 @@
     </div>
 </div>
 
-
-
 <div class="md-modal md-effect-19" id="newAccountModalContent">
     <div class="md-content commonComingSoon">
 
@@ -148,8 +143,6 @@
         </div>
     </div>
 </div>
-
-
 
 <div class="md-modal md-effect-19" id="exportJPEGModalContent">
     <div class="md-content jpegContentText">
@@ -186,10 +179,6 @@
         </div>
     </div>
 </div>
-
-
-
-
 
 <div class="md-modal md-effect-19" id="exportPDFModalContent">
     <div class="md-content pdfExportContentText">
@@ -228,7 +217,6 @@
 
     </div>
 </div>
-
 
 <div class="md-modal md-effect-19" id="commentModalContent">
     <div class="md-content commentTextContent">
@@ -270,8 +258,6 @@
     </div>
 </div>
 
-
-
 <div class="md-modal md-effect-19" id="getLoadingModalContent">
     <div class="md-content commonGetLoading" style="width: 50%;">
 
@@ -309,8 +295,6 @@
     </div>
 </div>
 
-
-
 <div class="md-modal md-effect-19" id="waitForWidgetsLoadModalContent">
     <div class="md-content waitForWidgetsLoad">
 
@@ -336,8 +320,6 @@
         </div>
     </div>
 </div>
-
-
 
 <div class="md-modal md-effect-19" id="somethingWentWrongModalContent">
     <div class="md-content somethingWentWrong">
@@ -365,8 +347,6 @@
     </div>
 </div>
 
-
-
 <script type="application/javascript">
     $(".closeModalContent").on( 'click', function( ev ) {
         $(".navbar").css("z-index","1");
@@ -381,12 +361,10 @@
         $("#waitForWidgetsLoadModalContent").removeClass('md-show');
         $("#somethingWentWrongModalContent").removeClass('md-show');
     });
-
 </script>
 
 <!-- Wrapper-->
-<div id="wrapper" class="white-bg">
-
+<div id="wrapper" class="white-bg" ng-init="fetchUserName()">
     <!-- Navigation -->
     <div ng-include="'common/navigation.ejs'"></div>
 

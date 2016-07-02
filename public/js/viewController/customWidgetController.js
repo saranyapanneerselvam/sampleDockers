@@ -3,7 +3,6 @@ showMetricApp.controller('CustomWidgetController',CustomWidgetController)
 function CustomWidgetController($scope,$uibModal) {
     $scope.remove = function(widget) {
         $scope.dashboard.widgets.splice($scope.dashboard.widgets.indexOf(widget), 1);
-        console.log('removed');
     };
     $scope.openSettings = function(widget) {
         $uibModal.open({

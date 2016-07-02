@@ -45,6 +45,11 @@
                                     </svg>
                                 </div>
                             </a>
+                            <a ng-click="setAutoArrange()">
+                                <div class="title-icons">
+                                    <i class="fa fa-th" aria-hidden="true" style="color:#04509B;font-size: 30px;"></i>
+                                </div>
+                            </a>
                         </form>
                     </div>
                 </div>
@@ -63,7 +68,7 @@
                         <div class="box-header" id="getWidgetColor-{{widget.id}}" ref="{{dashboard.widgetData[widgetIndex].color}}" ng-style="{'background-color': dashboard.widgetData[widgetIndex].color}">
                             <h3 style="color: #ffffff;">{{dashboard.widgetData[widgetIndex].name}}</h3>
                             <div class="graph-icon">
-                                <a title="alerts" ng-click="alertModal('app.reporting.dashboard.alertModal',widget)"><i class="fa fa-bell-o"></i></a>
+                                <a title="alerts" ng-click="alertModal('app.reporting.dashboard.alertModal',widget)" ng-hide="widget.widgetType == 'customFusion'"><i class="fa fa-bell-o"></i></a>
                                 <a title="settings" ng-click="openSettings(widget)"><i class="fa fa-cog"></i></a>
                             </div>
                         </div>

@@ -3,6 +3,7 @@ showMetricApp.controller('DashboardController',DashboardController);
 function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$stateParams,createWidgets,$q) {
     $scope.loading=false;
     $scope.$window = $window;
+    $scope.autoArrangeGrid = false;
     var isExportOptionSet = '';
     $(".navbar").css('z-index','1');
     $(".md-overlay").css('background','rgba(0,0,0,0.5)');
@@ -262,11 +263,10 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     $("#getLoadingModalContent").removeClass('md-show');
                     var widgets = [];
                     var dashboardWidgetList = response.data.widgetsList;
-                    if(dashboardWidgetList) {
+                    if(dashboardWidgetList)
                         $scope.widgetsPresent = true;
-                    } else {
+                    else
                         $scope.widgetsPresent = false;
-                    }
                     var widgetID=0;
                     var dashboardWidgets = [];
 
@@ -275,22 +275,41 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                             'startDate': moment($scope.dashboardCalendar.start_date).format('YYYY-MM-DD'),
                             'endDate': moment($scope.dashboardCalendar.end_date).format('YYYY-MM-DD')
                         }));
-                        //To temporarily create an empty widget with same id as the widgetId till all the data required for the widget is fetched by the called service
-                        $scope.dashboard.widgets.push({
-                            'row': (typeof dashboardWidgetList[getWidgetInfo].row != 'undefined'? dashboardWidgetList[getWidgetInfo].row : 0),
-                            'col': (typeof dashboardWidgetList[getWidgetInfo].col != 'undefined'? dashboardWidgetList[getWidgetInfo].col : 0),
-                            'sizeY': (typeof dashboardWidgetList[getWidgetInfo].size != 'undefined'? dashboardWidgetList[getWidgetInfo].size.h : 2),
-                            'sizeX': (typeof dashboardWidgetList[getWidgetInfo].size != 'undefined'? dashboardWidgetList[getWidgetInfo].size.w : 2),
-                            'minSizeY': (typeof dashboardWidgetList[getWidgetInfo].minSize != 'undefined'? dashboardWidgetList[getWidgetInfo].minSize.h : 1),
-                            'minSizeX': (typeof dashboardWidgetList[getWidgetInfo].minSize != 'undefined'? dashboardWidgetList[getWidgetInfo].minSize.w : 1),
-                            'maxSizeY': (typeof dashboardWidgetList[getWidgetInfo].maxSize != 'undefined'? dashboardWidgetList[getWidgetInfo].maxSize.h : 3),
-                            'maxSizeX': (typeof dashboardWidgetList[getWidgetInfo].maxSize != 'undefined'? dashboardWidgetList[getWidgetInfo].maxSize.w : 3),
-                            'name': (typeof dashboardWidgetList[getWidgetInfo].name != 'undefined'? dashboardWidgetList[getWidgetInfo].name : ''),
-                            'widgetType': (typeof dashboardWidgetList[getWidgetInfo].widgetType != 'undefined'? dashboardWidgetList[getWidgetInfo].widgetType : ''),
-                            'id': dashboardWidgetList[getWidgetInfo]._id,
-                            //'chart': {'api': {}},
-                            'visibility': false
-                        });
+
+                        if($scope.autoArrangeGrid == true) {
+                            $scope.gridsterOptions.autogenerate_stylesheet = true;
+                            $scope.dashboard.widgets.push({
+                                //'row': (typeof dashboardWidgetList[getWidgetInfo].row != 'undefined'? dashboardWidgetList[getWidgetInfo].row : 0),
+                                //'col': (typeof dashboardWidgetList[getWidgetInfo].col != 'undefined'? dashboardWidgetList[getWidgetInfo].col : 0),
+                                'sizeY': (typeof dashboardWidgetList[getWidgetInfo].size != 'undefined'? dashboardWidgetList[getWidgetInfo].size.h : 2),
+                                'sizeX': (typeof dashboardWidgetList[getWidgetInfo].size != 'undefined'? dashboardWidgetList[getWidgetInfo].size.w : 2),
+                                'minSizeY': (typeof dashboardWidgetList[getWidgetInfo].minSize != 'undefined'? dashboardWidgetList[getWidgetInfo].minSize.h : 1),
+                                'minSizeX': (typeof dashboardWidgetList[getWidgetInfo].minSize != 'undefined'? dashboardWidgetList[getWidgetInfo].minSize.w : 1),
+                                'maxSizeY': (typeof dashboardWidgetList[getWidgetInfo].maxSize != 'undefined'? dashboardWidgetList[getWidgetInfo].maxSize.h : 3),
+                                'maxSizeX': (typeof dashboardWidgetList[getWidgetInfo].maxSize != 'undefined'? dashboardWidgetList[getWidgetInfo].maxSize.w : 3),
+                                'name': (typeof dashboardWidgetList[getWidgetInfo].name != 'undefined'? dashboardWidgetList[getWidgetInfo].name : ''),
+                                'widgetType': (typeof dashboardWidgetList[getWidgetInfo].widgetType != 'undefined'? dashboardWidgetList[getWidgetInfo].widgetType : ''),
+                                'id': dashboardWidgetList[getWidgetInfo]._id,
+                                'visibility': false
+                            });
+                        }
+                        else {
+                            $scope.dashboard.widgets.push({
+                                'row': (typeof dashboardWidgetList[getWidgetInfo].row != 'undefined'? dashboardWidgetList[getWidgetInfo].row : 0),
+                                'col': (typeof dashboardWidgetList[getWidgetInfo].col != 'undefined'? dashboardWidgetList[getWidgetInfo].col : 0),
+                                'sizeY': (typeof dashboardWidgetList[getWidgetInfo].size != 'undefined'? dashboardWidgetList[getWidgetInfo].size.h : 2),
+                                'sizeX': (typeof dashboardWidgetList[getWidgetInfo].size != 'undefined'? dashboardWidgetList[getWidgetInfo].size.w : 2),
+                                'minSizeY': (typeof dashboardWidgetList[getWidgetInfo].minSize != 'undefined'? dashboardWidgetList[getWidgetInfo].minSize.h : 1),
+                                'minSizeX': (typeof dashboardWidgetList[getWidgetInfo].minSize != 'undefined'? dashboardWidgetList[getWidgetInfo].minSize.w : 1),
+                                'maxSizeY': (typeof dashboardWidgetList[getWidgetInfo].maxSize != 'undefined'? dashboardWidgetList[getWidgetInfo].maxSize.h : 3),
+                                'maxSizeX': (typeof dashboardWidgetList[getWidgetInfo].maxSize != 'undefined'? dashboardWidgetList[getWidgetInfo].maxSize.w : 3),
+                                'name': (typeof dashboardWidgetList[getWidgetInfo].name != 'undefined'? dashboardWidgetList[getWidgetInfo].name : ''),
+                                'widgetType': (typeof dashboardWidgetList[getWidgetInfo].widgetType != 'undefined'? dashboardWidgetList[getWidgetInfo].widgetType : ''),
+                                'id': dashboardWidgetList[getWidgetInfo]._id,
+                                'visibility': false
+                            });
+                        }
+
                         $scope.dashboard.widgetData.push({
                             'id':  dashboardWidgetList[getWidgetInfo]._id,
                             'chart': [],
@@ -298,7 +317,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                             'name': (typeof dashboardWidgetList[getWidgetInfo].name != 'undefined'? dashboardWidgetList[getWidgetInfo].name : ''),
                             'color': (typeof dashboardWidgetList[getWidgetInfo].color != 'undefined'? dashboardWidgetList[getWidgetInfo].color : '')
                         });
-
                         dashboardWidgets[getWidgetInfo].then(
                             function successCallback(dashboardWidgets) {
                                 var widgetIndex = $scope.dashboard.widgets.map(function(el) {return el.id;}).indexOf(dashboardWidgets.id);
@@ -314,6 +332,8 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                             }
                         );
                     }
+                    $scope.autoArrangeGrid = false;
+                    $scope.gridsterOptions.autogenerate_stylesheet = true;
                 },
                 function errorCallback(error) {
                     swal({
@@ -463,6 +483,11 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 );
             }
         );
+    };
+
+    $scope.setAutoArrange = function () {
+        $scope.autoArrangeGrid = true;
+        $rootScope.populateDashboardWidgets();
     };
 
     var count =0;

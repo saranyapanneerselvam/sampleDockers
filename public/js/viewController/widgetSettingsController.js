@@ -12,7 +12,6 @@ function WidgetSettingsController($scope, $uibModalInstance, widget, $http, $sta
     $scope.dashboardWidgets = [];
 
     $scope.dismiss = function () {
-        console.log('dismiss');
         $scope.widgetsList = [];
         $scope.selectedWidgetsList = [];
         $scope.dashboardWidgets = [];
@@ -25,7 +24,6 @@ function WidgetSettingsController($scope, $uibModalInstance, widget, $http, $sta
     };
 
     $scope.submit = function () {
-        console.log('form', $scope.form);
         var inputParams = [];
         var jsonData = {
             "dashboardId": $state.params.id,
@@ -70,7 +68,6 @@ function WidgetSettingsController($scope, $uibModalInstance, widget, $http, $sta
     $scope.selectedFusableWidgets = function () {
         $scope.changeViews('step_two');
         if($scope.dashboardWidgets.length > 0) {
-            console.log('WORKING',$scope.dashboardWidgets)
 
             $scope.dashboardWidgets.forEach(function (value, key) {
                 if(value._id != $scope.widget.id && value.widgetType != 'customFusion') {
@@ -122,9 +119,9 @@ function WidgetSettingsController($scope, $uibModalInstance, widget, $http, $sta
                     storeFinalWidgetsList.push({widgetId: value.id,widgetType: value.widgetType})
                 }
             );
-            console.log(storeFinalWidgetsList)
             var jsonData = {
                 "dashboardId": $state.params.id,
+                "name": "Custom Fusion",
                 "widgetType": widgetType,
                 "widgets":storeFinalWidgetsList,
                 "size": {h: 2, w: 4},
@@ -133,14 +130,13 @@ function WidgetSettingsController($scope, $uibModalInstance, widget, $http, $sta
                 "color": '#1F77B4'
             };
             inputParams.push(jsonData);
-            console.log(inputParams);
             $http({
                 method: 'POST',
                 url: '/api/v1/widgets',
                 data: inputParams
             }).then(
                 function successCallback(response) {
-                    console.log(response);
+                    $rootScope.populateDashboardWidgets();
                     $scope.dismiss();
                 },
                 function errorCallback(error) {
@@ -163,7 +159,6 @@ function WidgetSettingsController($scope, $uibModalInstance, widget, $http, $sta
     };
 
     $scope.pushSelectedWidgets = function (selectedItem,from,to) {
-
         var idx=from.indexOf(selectedItem);
         if (idx != -1) {
             from.splice(idx, 1);

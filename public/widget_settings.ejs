@@ -44,19 +44,22 @@
         <div class="modal-body widget-body">
             <div class="wrapper wrapper-content" ng-show="currentView === 'step_two'">
                 <div class="row" style="margin: 0px">
-                    <div class="col-sm-4">
+                    <div class="col-sm-4 fuse-widgets panel panel-default" style="margin-left: 34px;">
                         <label for="availableWidgets">Available Dashboard Widgets</label>
-                        <select size="15" multiple ng-model="availableWidgetsList" ng-options="widgets as widgets.label for widgets in widgetsList"></select>
+                        <select size="15" class="form-control select-widget" multiple ng-model="availableWidgets" ng-options="widgets as widgets.label for widgets in widgetsList"></select>
+                    </div>
+                    <div class="col-sm-3 pull-push-widgets">
+                        <div>
+                            <button class="btn btn-white button-widget" ng-click="pushSelectedWidgets(availableWidgets[0],widgetsList,selectedWidgetsList)">Push <i class="fa fa-angle-right arrowColors" aria-hidden="true"></i></button>
+                        </div>
+                        <div>
+                            <button class="btn btn-white button-widget" ng-click="pushSelectedWidgets(selectedWidgets[0],selectedWidgetsList,widgetsList)">Pull <i class="fa fa-angle-left arrowColors" aria-hidden="true"></i></button>
+                        </div>
                     </div>
                     <div class="col-sm-1"></div>
-                    <div class="col-sm-2">
-                        <button class="btn btn-white" ng-click="pushSelectedWidgets(availableWidgetsList[0],widgetsList,selectedWidgetsList)">Push</button>
-                        <button class="btn btn-white" ng-click="pushSelectedWidgets(selectedWidgetsList[0],selectedWidgetsList,widgetsList)">Pull</button>
-                    </div>
-                    <div class="col-sm-1"></div>
-                    <div class="col-sm-4 panel panel-default">
+                    <div class="col-sm-4 fuse-widgets panel panel-default">
                         <label for="availableWidgets">Widgets to be fused</label>
-                        <select size="15" multiple ng-model="selectedWidgetsList" ng-options="selectedWidgets as selectedWidgets.label for selectedWidgets in selectedWidgetsList"></select>
+                        <select size="15" multiple class="form-control select-widget" multiple ng-model="selectedWidgets" ng-options="selectedWidgets as selectedWidgets.label for selectedWidgets in selectedWidgetsList"></select>
                     </div>
                 </div>
             </div>

@@ -151,7 +151,6 @@ exports.getChannelData = function (req, res, next) {
             store_final_data: ['get_channel_data_remote', storeFinalData],
             get_channel_objects_db: ['store_final_data', 'get_channel_data_remote', getChannelDataDB]
         }, function (err, results) {
-            console.log('err',err,results)
             if (err)
                 return res.status(500).json({error: 'Internal server error'})
             req.app.result = results.get_channel_objects_db;

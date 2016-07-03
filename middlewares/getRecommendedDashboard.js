@@ -14,6 +14,7 @@ exports.recommendDashboard = function (req, res, next) {
         referenceWidget : ['recommendedDashboard',getReferenceWidget],
         channel:['recommendedDashboard','referenceWidget',getUniqueChannels]
     }, function (err, results) {
+        console.log('ERROR',err,'RESULTS',results);
         if (err) {
             return res.status(500).json({});
         }
@@ -56,7 +57,7 @@ exports.recommendDashboard = function (req, res, next) {
 
         async.times(dashboard.widgets.length, function(n,next) {
             referenceWidget.findOne({_id: dashboard.widgets[n]}, function(err,referenceWidgets){
-                if (err ||!referenceWidgets.length)
+                if (err ||!referenceWidgets)
                     next('error',null);
                 else{
                     groupByDashboard[index].referenceWidgets[n] = referenceWidgets;
@@ -128,6 +129,5 @@ exports.recommendDashboard = function (req, res, next) {
                 callback(null, object);
         }
     }
-
 
 };

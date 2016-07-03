@@ -85,7 +85,7 @@ exports.deleteWidgets = function (req, res, next) {
                     if (err)
                         return res.status(500).json({error: 'Internal server error'});
                     else if (!widget)
-                        return res.status(501).json({error: 'Not implemented'})
+                        return res.status(501).json({error: 'Not implemented'});
                     else {
                         req.app.result = req.params.widgetId;
                         next();
@@ -173,7 +173,6 @@ exports.saveWidgets = function (req, res, next) {
                             createWidget.created = new Date();
                             createWidget.updated = new Date();
                             createWidget.visibility = true;
-                            console.log('CREATEWIDGET',createWidget);
                             createWidget.save(function (err, widgetDetail) {
                                 if (err)
                                     return res.status(500).json({error: 'Internal server error'});
@@ -200,8 +199,6 @@ exports.saveWidgets = function (req, res, next) {
                                                     updated: createWidget.created
                                                 }
                                             };
-                                            console.log('QUERY',query);
-
                                             //form the query
                                             bulk.find(query).update(update);
                                         }
@@ -209,7 +206,6 @@ exports.saveWidgets = function (req, res, next) {
 
                                             //Doing the bulk update
                                             bulk.execute(function (err, response) {
-                                                console.log('errr', err, response, response.nMatched, 'nModified', response.nModified, 'nUpserted', response.nUpserted)
                                                 callback(err, widgetDetail);
                                             });
                                         }
@@ -292,12 +288,13 @@ exports.saveCustomWidgets = function (req, res, next) {
     createCustomWidget.dashboardId = req.body.dashboardId;
     createCustomWidget.widgetType = req.body.widgetType;
     createCustomWidget.channelId = req.body.channelId;
+    createCustomWidget.visibility = true;
     createCustomWidget.created = new Date();
     createCustomWidget.updated = new Date();
     createCustomWidget.save(function (err, customWidgetDetail) {
         if (err)
             return res.status(500).json({error: err});
-        else if (!alertDetails.length)
+        else if (!customWidgetDetail)
             return res.status(204).json({error: 'No records found'});
         else {
             req.app.result = {'status': '200', 'id': customWidgetDetail};

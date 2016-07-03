@@ -387,7 +387,8 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     "size": getReferenceWidgetsArr[getData].size,
                     "minSize": getReferenceWidgetsArr[getData].minSize,
                     "maxSize": getReferenceWidgetsArr[getData].maxSize,
-                    "color": widgetColor
+                    "color": widgetColor,
+                    "visibility": true
                 };
                 inputParams.push(jsonData);
 
@@ -525,7 +526,8 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         var jsonData = {
             "dashboardId": $state.params.id,
             "widgetType": "custom",
-            "channelId": $scope.storedChannelId
+            "channelId": $scope.storedChannelId,
+            "visibility": true
         };
         $http({
             method: 'POST',

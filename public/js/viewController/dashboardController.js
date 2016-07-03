@@ -262,7 +262,13 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 function successCallback(response) {
                     $("#getLoadingModalContent").removeClass('md-show');
                     var widgets = [];
-                    var dashboardWidgetList = response.data.widgetsList;
+                    var dashboardWidgetList = [];
+                    var initialWidgetList = response.data.widgetsList;
+                    for(getWidgetInfo in initialWidgetList){
+                        if(initialWidgetList[getWidgetInfo].visibility == true)
+                            dashboardWidgetList.push(initialWidgetList[getWidgetInfo]);
+                    }
+                    //var dashboardWidgetList = response.data.widgetsList;
                     if(dashboardWidgetList)
                         $scope.widgetsPresent = true;
                     else
@@ -271,6 +277,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     var dashboardWidgets = [];
 
                     for(var getWidgetInfo in dashboardWidgetList){
+                        console.log(dashboardWidgetList[getWidgetInfo]);
                         dashboardWidgets.push(createWidgets.widgetHandler(dashboardWidgetList[getWidgetInfo],{
                             'startDate': moment($scope.dashboardCalendar.start_date).format('YYYY-MM-DD'),
                             'endDate': moment($scope.dashboardCalendar.end_date).format('YYYY-MM-DD')
@@ -349,6 +356,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
     //To catch a request for a new widget creation and create the dashboard in the frontend
     $scope.$on('populateWidget', function(e,widget){
         var inputWidget = [];
+        console.log(widget);
         inputWidget.push(createWidgets.widgetHandler(widget,{
             'startDate': moment($scope.dashboardCalendar.start_date).format('YYYY-MM-DD'),
             'endDate': moment($scope.dashboardCalendar.end_date).format('YYYY-MM-DD')
@@ -420,7 +428,8 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             url:'/api/v1/delete/widgets/' + widget.id
         }).then(
             function successCallback(response){
-                for(items in $scope.dashboard.widgetData) {
+                console.log(response);
+                for(var items in $scope.dashboard.widgetData) {
                     if($scope.dashboard.widgetData[items].id == widgetId)
                         $scope.dashboard.widgetData.splice(items,1);
                 }

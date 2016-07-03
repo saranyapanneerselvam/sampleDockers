@@ -367,7 +367,8 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
             "offset": $scope.storedReferenceWidget.offset,
             "size": $scope.storedReferenceWidget.size,
             "minSize": $scope.storedReferenceWidget.minSize,
-            "maxSize": $scope.storedReferenceWidget.maxSize
+            "maxSize": $scope.storedReferenceWidget.maxSize,
+            "visibility": true
         };
         inputParams.push(jsonData);
         $http({

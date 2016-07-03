@@ -12,10 +12,20 @@
     display: none;
 }
 */
-
+.fuse-widgets{padding: 0px;}
+.pull-push-widgets{text-align: center}
+.select-widget{border:none !important;}
+.button-widget{background-color: #04509B !important; width: 40%;margin-bottom: 5px; color: #fff !important;}
+.arrowColors{
+    color:#fff;}
+.select-widget option{text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;}
 .aside{padding-left: 83px; position: absolute;width: 100%;}
 .postComment{overflow: hidden; white-space: nowrap;text-overflow: ellipsis;}
 .impression{padding-top: 15px;}
+.img-thumbnail{
+    padding:0px !important;}
 .likes{float: left;}
 .listed-image{float: left;}
 .scrollInWidget{height: 100% !important;}

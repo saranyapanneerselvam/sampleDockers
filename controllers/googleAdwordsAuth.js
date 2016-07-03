@@ -8,11 +8,6 @@ module.exports = function (app) {
     var configAuth = require('../config/auth');
     var AdWords = require('../lib/googleads-node-lib');
     var channels = require('../models/channels');
-
-    /* var googleAds = require('../lib/googleAdwords');
-    var spec = {host : 'https://adwords.google.com/api/adwords/reportdownload/v201601'};
-    googleAds.GoogleAdwords(spec);*/
-
     var oauth2 = require('simple-oauth2')({
         clientID: configAuth.googleAdwordsAuth.clientID,
         clientSecret: configAuth.googleAdwordsAuth.clientSecret,
@@ -49,8 +44,8 @@ module.exports = function (app) {
             }
             else {
                 token = oauth2.accessToken.create(result);
-                accessToken = token.token.access_token;
-                refreshToken = token.token.refresh_token;
+                var accessToken = token.token.access_token;
+                var refreshToken = token.token.refresh_token;
                 //To get logged user's userId ,email..
                 request('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=' + token.token.access_token, function (error, response, body) {
                     if (!error && response.statusCode == 200) {
@@ -96,27 +91,26 @@ module.exports = function (app) {
                                                 if (err)
                                                     res.json('Error');
                                                 else {
-                                                    if(clientResponse.rval.canManageClients===false){
+                                                    if (clientResponse.rval.canManageClients === false) {
                                                         //If response of the storeProfiles function is success then render the successAuthentication page
-                                                        Object.findOne({'profileId':response._id} , function(err, object){
-                                                            console.log('object',object)
-                                                            if(object!=null){
+                                                        Object.findOne({'profileId': response._id}, function (err, object) {
+                                                            if (object != null) {
                                                                 res.render('successAuthentication');
                                                             }
-                                                            else{
-                                                                ObjectType.findOne({'channelId':response.channelId},function(err,objectTypeList){
-                                                                    if(!err){
+                                                            else {
+                                                                ObjectType.findOne({'channelId': response.channelId}, function (err, objectTypeList) {
+                                                                    if (!err) {
                                                                         console.log(objectTypeList);
-                                                                        var  storeObject = new Object();
+                                                                        var storeObject = new Object();
                                                                         storeObject.profileId = response._id;
-                                                                        storeObject.channelObjectId=clientResponse.rval.customerId;
-                                                                        storeObject.name=response.name;
-                                                                        storeObject.objectTypeId=objectTypeList._id;
-                                                                        storeObject.updated=new Date();
-                                                                        storeObject.created=new Date();
-                                                                        storeObject.save(function(err,objectListItem){
-                                                                            console.log('after save',objectListItem,err)
-                                                                            if(!err){
+                                                                        storeObject.channelObjectId = clientResponse.rval.customerId;
+                                                                        storeObject.name = response.name;
+                                                                        storeObject.objectTypeId = objectTypeList._id;
+                                                                        storeObject.updated = new Date();
+                                                                        storeObject.created = new Date();
+                                                                        storeObject.save(function (err, objectListItem) {
+                                                                            console.log('after save', objectListItem, err)
+                                                                            if (!err) {
                                                                                 res.render('successAuthentication');
                                                                             }
                                                                         });
@@ -133,7 +127,7 @@ module.exports = function (app) {
                                 });
                             }
                             else
-                                return res.status(401).json({error: err});
+                                return res.status(401).json({error: 'Authentication required to perform this action'});
                         })
                     }
                 })

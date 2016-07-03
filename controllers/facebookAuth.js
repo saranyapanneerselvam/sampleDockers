@@ -1,5 +1,4 @@
 var channels = require('../models/channels');
-var userPermission = require('../helpers/utility');
 module.exports = function (app) {
     var request = require('request');
     var user = require('../helpers/user');
@@ -73,36 +72,38 @@ module.exports = function (app) {
                         var currentdate = new Date();
                         currentdate.setDate(currentdate.getDate() + numdays);
                         channels.findOne({code: configAuth.channels.facebook}, function (err, channelDetails) {
-                            req.channelId = channelDetails._id;
-                            req.channelName = channelDetails.name;
-                            req.channelCode = '2';
-                            FB.setAccessToken(accessToken);//Set access token
-                            req.expiresIn = currentdate;
-                            FB.api(req.userId, {fields: ['id', 'name', 'email']}, function (profile) {
-                                if (!profile || profile.error) {
-                                    //console.log(!profile ? 'error occurred' : profile.error);
-                                    return;
-                                }
-                                else {
-                                    req.userEmail = profile.email;
-                                    req.userId = profile.id;
-                                    //Call the helper to store user details
-                                    user.storeProfiles(req, function (err, response) {
-                                        if (err)
-                                            res.json('Error', err);
-                                        else {
-                                            //If response of the storeProfiles function is success then close the authentication window
-                                            res.render('successAuthentication');
-                                        }
-                                    });
-                                }
-                            });
+                            if (err)
+                                return res.status(500).json({error: err});
+                            else if (!channelDetails)
+                                return res.status(204).json({error: 'No records found'});
+                            else {
+                                req.channelId = channelDetails._id;
+                                req.channelName = channelDetails.name;
+                                req.channelCode = '2';
+                                FB.setAccessToken(accessToken);//Set access token
+                                req.expiresIn = currentdate;
+                                FB.api(req.userId, {fields: ['id', 'name', 'email']}, function (profile) {
+                                    if (!profile || profile.error) {
+                                        return res.status(500).json({error: profile.err});
+                                    }
+                                    else {
+                                        req.userEmail = profile.email;
+                                        req.userId = profile.id;
+
+                                        //Call the helper to store user details
+                                        user.storeProfiles(req, function (err) {
+                                            if (err)
+                                                res.json('Error', err);
+                                            else {
+
+                                                //If response of the storeProfiles function is success then close the authentication window
+                                                res.render('successAuthentication');
+                                            }
+                                        });
+                                    }
+                                });
+                            }
                         })
-
-                        //calculate seconds to days
-                        //add number of days with current date and store it as expiresInDate
-
-
                     }
                 })
             }

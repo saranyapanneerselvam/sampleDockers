@@ -18,8 +18,7 @@ module.exports = function (app) {
 
     //To get dashboard details based on dashboard id
     app.get('/api/v1/get/dashboards/:dashboardId', getDashboards.getDashboardDetails, function (req, res) {
-        var result = req.app.result;
-        res.json(result);
+        res.json(req.app.result);
 
     });
 

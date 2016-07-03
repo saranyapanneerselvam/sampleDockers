@@ -1,13 +1,9 @@
-var profile = require('../models/profiles');
 var configAuth = require ('../config/auth');
 var channels = require('../models/channels');
 var request = require('request');
 var  FB = require('fb');
-var graph = require ('fbgraph');
 var user = require('../helpers/user');
-
 module.exports = function(app) {
-
     var oauth2 = require('simple-oauth2')({
         clientID: configAuth.facebookAdsAuth.clientID,
         clientSecret: configAuth.facebookAdsAuth.clientSecret,
@@ -58,41 +54,46 @@ module.exports = function(app) {
             //Store the token and expired time into DB
             request(configAuth.facebookAdsAuth.accessTokenURL + accessToken, function (error, response, body) {
                 if (!error && response.statusCode == 200) {
+
                     //parse the body data
                     var parsedData = JSON.parse(body);
+
                     //set the body into userdata
                     req.userId = parsedData.id;
                     req.profileName = parsedData.name;
+
                     //set token details to tokens
                     req.tokens = accessToken;
                     var numdays = (Math.floor(getExpiresInValue / 86400)-1);
                     var currentdate = new Date();
                     currentdate.setDate(currentdate.getDate() +numdays);
                     channels.findOne({code: configAuth.channels.facebookAds}, function (err, channelList) {
-                        req.channelId = channelList._id;
-                        req.channelCode = '3';
-                        FB.setAccessToken(accessToken);//Set access token
-                        req.expiresIn = currentdate;
-                        FB.api(req.userId, {fields: ['id', 'name', 'email']}, function (profile) {
-                            if (!profile || profile.error) {
-                                //console.log(!profile ? 'error occurred' : profile.error);
-                                return;
-                            }
-                            else {
-                                req.userEmail = profile.email;
-                                //Call the helper to store user details
-                                user.storeProfiles(req, function (err, response) {
-                                    if (err)
-                                        res.json('Error');
-                                    else {
-                                        /* specfic_user = res.userDetails.userId;*/
-                                        /*getAccount(tokenAccess,'v2.5/me/adaccounts',specfic_user);*/
-                                        res.render('successAuthentication');
-                                        //If response of the storeProfiles function is success then redirect it to successAuthentication page
-                                    }
-                                });
-                            }
-                        });
+                        if (err)
+                            return res.status(500).json({error: 'Internal server error'})
+                        else if (!channelList)
+                            return res.status(204).json({error: 'No records found'});
+                        else{
+                            req.channelId = channelList._id;
+                            req.channelCode = '3';
+                            FB.setAccessToken(accessToken);//Set access token
+                            req.expiresIn = currentdate;
+                            FB.api(req.userId, {fields: ['id', 'name', 'email']}, function (profile) {
+                                if (!profile || profile.error) {
+                                    return res.status(500).json({error: 'Internal server error'})
+                                }
+                                else {
+                                    req.userEmail = profile.email;
+
+                                    //Call the helper to store user details
+                                    user.storeProfiles(req, function (err) {
+                                        if (err)
+                                            res.json('Error');
+                                        else
+                                            res.render('successAuthentication');
+                                    });
+                                }
+                            });
+                        }
                     })
                 }
             });

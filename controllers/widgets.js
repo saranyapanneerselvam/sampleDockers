@@ -23,11 +23,7 @@ module.exports = function (app) {
 
     //To store the custom widgets
     app.post('/api/v1/create/customwidgets', widgetsList.saveCustomWidgets, function (req, res) {
-        var customWidgets = req.app.result;
-        if (customWidgets)
-            res.json({widgetsList: customWidgets});
-        else
-            res.status(500).send({error: ""});
+            res.json({widgetsList: req.app.result});
     });
 
     //To delete the widgets

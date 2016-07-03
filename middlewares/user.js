@@ -29,13 +29,13 @@ exports.getUserDetails = function (req, res, next) {
 };
 
 exports.updateLastDashboardId = function (req,res,next) {
-    user.update({'_id': req.user._id}, {$set: {"lastDashboardId": req.params.id, updated: new Date()}},{upsert: true},  function (err) {
-        if (!err) {
+    user.update({'_id': req.user._id}, {$set: {"lastDashboardId": req.params.id, updated: new Date()}},{upsert: true},  function (err,user) {
+        if (err)
+            return res.status(500).json({error: 'Internal server error'})
+        else if (user == 0)
+            return res.status(501).json({error: 'Not implemented'})
+        else{
             req.app.result = {'status': '200', 'dashboardId': req.params.id};
-            next();
-        }
-        else {
-            req.app.result = {'status': '302'};
             next();
         }
     });

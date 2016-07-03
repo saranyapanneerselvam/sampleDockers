@@ -8,7 +8,7 @@ var getObjects = require('../helpers/utility');
 exports.objects = function (req, res, next) {
     getObjects.findObjectsForProfile(req, res, function (err, object) {
         if (err)
-            callback(err, null);
+            return res.status(500).json({error: 'Internal server error'});
         else {
             req.app.objects = object;
             next();

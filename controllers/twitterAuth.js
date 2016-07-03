@@ -19,9 +19,8 @@ module.exports = function (app) {
 
     app.get(configAuth.twitterAuth.localCallingURL, function (req, res) {
         oa.getOAuthRequestToken(function (error, oauth_token, oauth_token_secret, results) {
-            if (error) {
+            if (error)
                 return res.status(401).json({error: 'Authentication required to perform this action'});
-            }
             else {
                 req.session.oauth = {};
                 req.session.oauth.token = oauth_token;
@@ -48,43 +47,53 @@ module.exports = function (app) {
                         req.session.oauth, access_token_secret = oauth_access_token_secret;
                         req.tokens = oauth_access_token;
                         req.userId = results.user_id;
-                        req.profileName =  results.screen_name;
+                        req.profileName = results.screen_name;
                         req.userEmail = results.screen_name;
                         tokens = req.tokens;
-                        channels.findOne({code : configAuth.channels.twitter},function(err ,channelList){
-                            req.channelId = channelList._id ;
-                            req.channelCode = '4';
-                            user.storeProfiles(req, function (err, response) {
-                                if (err)
-                                    res.json('Error');
-                                else {
-                                    //If response of the storeProfiles function is success then render the successAuthentication page
-                                    objects.findOne({'profileId':response._id} , function(err, object){
-                                        if(object!=null){
-                                            res.render('successAuthentication');
-                                        }
-                                        else{
-                                            objectType.findOne({'channelId':response.channelId},function(err,objectTypeList){
-                                                if(!err){
-                                                    var  objectItem = new objects();
-                                                    objectItem.profileId = response._id;
-                                                    objectItem.name=response.name;
-                                                    objectItem.objectTypeId=objectTypeList._id;
-                                                    objectItem.updated=new Date();
-                                                    objectItem.created=new Date();
-                                                    objectItem.save(function(err,objectListItem){
-                                                        if(!err){
-                                                            res.render('successAuthentication');
-                                                        }
-                                                        else
-                                                            res.json('Error',err);
-                                                    });
-                                                }
-                                            });
-                                        }
-                                    });
-                                }
-                            });
+                        channels.findOne({code: configAuth.channels.twitter}, function (err, channelList) {
+                            if (err)
+                                return res.status(500).json({error: err});
+                            else if (!channelList)
+                                return res.status(204).json({error: 'No records found'});
+                            else {
+                                req.channelId = channelList._id;
+                                req.channelCode = '4';
+                                user.storeProfiles(req, function (err, response) {
+                                    if (err) return res.status(500).json({error: err});
+                                    else {
+                                        //If response of the storeProfiles function is success then render the successAuthentication page
+                                        objects.findOne({'profileId': response._id}, function (err, object) {
+                                            if (object != null) {
+                                                res.render('successAuthentication');
+                                            }
+                                            else {
+                                                objectType.findOne({'channelId': response.channelId}, function (err, objectTypeList) {
+                                                    if (err)
+                                                        return res.status(500).json({error: err});
+                                                    else if (!objectTypeList)
+                                                        return res.status(204).json({error: 'No records found'});
+                                                    else {
+                                                        var objectItem = new objects();
+                                                        objectItem.profileId = response._id;
+                                                        objectItem.name = response.name;
+                                                        objectItem.objectTypeId = objectTypeList._id;
+                                                        objectItem.updated = new Date();
+                                                        objectItem.created = new Date();
+                                                        objectItem.save(function (err, objectListItem) {
+                                                            if (err)
+                                                                return res.status(500).json({error: 'Internal server error'});
+                                                            else if (!objectListItem)
+                                                                return res.status(204).json({error: 'No records found'});
+                                                            else res.render('successAuthentication');
+                                                        });
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+
                         });
                     }
                 }

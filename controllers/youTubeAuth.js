@@ -40,9 +40,7 @@ module.exports = function (app) {
         }, saveToken);
 
         function saveToken(error, result) {
-            if (error) {
-                console.log('Access Token Error', error.message);
-            }
+            if (error) return res.status(401).json({error: 'Authentication required to perform this action'});
             token = oauth2.accessToken.create(result);
 
             //To get logged user's userId ,email..
@@ -77,32 +75,44 @@ module.exports = function (app) {
 
                                         //If response of the storeProfiles function is success then render the successAuthentication page
                                         Object.findOne({'profileId':response._id} , function(err, object){
-                                            if(object!=null){
-                                                res.render('successAuthentication');
-                                            }
+                                            if (err)
+                                                return res.status(500).json({error: err});
+                                            
                                             else{
-                                                ObjectType.findOne({'channelId':response.channelId},function(err,objectTypeList){
-                                                    if(!err){
-                                                        var  storeObject = new Object();
-                                                        storeObject.profileId = response._id;
-                                                        storeObject.channelObjectId=req.userId;
-                                                        storeObject.name=response.name;
-                                                        storeObject.objectTypeId=objectTypeList._id;
-                                                        storeObject.updated=new Date();
-                                                        storeObject.created=new Date();
-                                                        storeObject.save(function(err,objectListItem){
-                                                            if(!err){
-                                                                res.render('successAuthentication');
-                                                            }
-                                                        });
-                                                    }
-                                                });
+                                                if(object!=null){
+                                                    res.render('successAuthentication');
+                                                }
+                                                else{
+                                                    ObjectType.findOne({'channelId':response.channelId},function(err,objectTypeList){
+                                                        if (err)
+                                                            return res.status(500).json({error: err});
+                                                        else if (!objectTypeList)
+                                                            return res.status(204).json({error: 'No records found'});
+                                                        else{
+                                                            var  storeObject = new Object();
+                                                            storeObject.profileId = response._id;
+                                                            storeObject.channelObjectId=req.userId;
+                                                            storeObject.name=response.name;
+                                                            storeObject.objectTypeId=objectTypeList._id;
+                                                            storeObject.updated=new Date();
+                                                            storeObject.created=new Date();
+                                                            storeObject.save(function(err,objectListItem){
+                                                                if(!err){
+                                                                    res.render('successAuthentication');
+                                                                }
+                                                            });
+                                                        }
+
+                                                    });
+                                                }
                                             }
+
                                         });
                                     }
                                 });
                             });
                         }
+                        else return res.status(401).json({error: 'Authentication required to perform this action'});
                     })
                 }
             })

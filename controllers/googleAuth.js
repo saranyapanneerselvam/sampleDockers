@@ -38,14 +38,12 @@ module.exports = function (app) {
         }, saveToken);
 
         function saveToken(error, result) {
-            if (error) {
+            if (error) 
                 return res.status(401).json({error: 'Authentication required to perform this action'});
-            }
             token = oauth2.accessToken.create(result);
 
             //To get logged user's userId ,email..
             request(configAuth.googleAuth.requestTokenURL + token.token.access_token, function (error, response, body) {
-
                 if (!error && response.statusCode == 200) {
 
                     //To get the profile name .. based on access token
@@ -81,6 +79,7 @@ module.exports = function (app) {
                                 });
                             });
                         }
+                        else  return res.status(401).json({error: 'Authentication required to perform this action'});
                     })
                 }
             })

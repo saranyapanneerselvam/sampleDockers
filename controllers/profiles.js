@@ -9,11 +9,7 @@ var profiles = require('../middlewares/removeProfile');
  */
 module.exports = function (app) {
     app.get('/api/v1/get/profiles/:channelId', profilesList.profiles, function (req, res) {
-        var profiles = req.app.profiles;
-        if (profiles)
-            res.json({profileList: profiles});
-        else
-            res.status(500).send({error: ""});
+            res.json({profileList: req.app.profiles});
     });
 
     app.post('/api/v1/post/removeProfiles/:profileId', profiles.removeProfile, function (req, res) {

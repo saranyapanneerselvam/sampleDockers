@@ -32,7 +32,5 @@ exports.createHtml5ToPdf = function (req, res, next) {
             req.app.result = {'status': '200','Response': '/PDF/'+getName+'_'+timestamp+'.pdf'};
             next();
         });
-
-
     }
 };

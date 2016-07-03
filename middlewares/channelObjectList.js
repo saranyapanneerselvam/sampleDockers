@@ -143,23 +143,24 @@ exports.listAccounts = function (req, res, next) {
         //To refresh the access token
         function refreshAccessToken(callback) {
             oauth2Client.refreshAccessToken(function (err, tokens) {
-                callback(err, tokens);
                 if (err)
-                    return;
-
-                // your access_token is now refreshed and stored in oauth2Client; store these new tokens in a safe place (e.g. database)
-                var profile = initialResults.get_profile;
-                profile.token = tokens.access_token;
-                var updated = new Date();
-                Profile.update({
-                    'email': profile.email,
-                    'channelId': profile.channelId
-                }, {$set: {"accessToken": tokens.access_token, updated: updated}}, function (err, updateResult) {
-                    if (err || !updateResult)
-                        console.log('Failure');
-                    else
-                        console.log('Access token Update success');
-                })
+                    callback(err, tokens);
+                else {
+                    // your access_token is now refreshed and stored in oauth2Client; store these new tokens in a safe place (e.g. database)
+                    var profile = initialResults.get_profile;
+                    profile.token = tokens.access_token;
+                    var updated = new Date();
+                    Profile.update({
+                        'email': profile.email,
+                        'channelId': profile.channelId
+                    }, {$set: {"accessToken": tokens.access_token, updated: updated}}, function (err, updateResult) {
+                        if (err)
+                            return res.status(500).json({error: 'Internal server error'})
+                        else if (updateResult == 0)
+                            return res.status(501).json({error: 'Not implemented'})
+                        else callback(null, 'success');
+                    })
+                }
             });
         }
 
@@ -278,12 +279,12 @@ exports.listAccounts = function (req, res, next) {
     //To get the objects from db
     function getChannelObjectsDB(results, callback) {
         req.params.profileID = req.params.profileId;
-        getObjects.findObjectsForProfile(req,res,function (err,object) {
-            if(err)
-                callback(err,null);
-            else{
-                req.app.objects  = object;
-                callback(null,object);
+        getObjects.findObjectsForProfile(req, res, function (err, object) {
+            if (err)
+                callback(err, null);
+            else {
+                req.app.objects = object;
+                callback(null, object);
             }
         });
     }
@@ -294,8 +295,12 @@ exports.listAccounts = function (req, res, next) {
         ObjectType.findOne({
             'type': req.query.objectType,
             'channelId': profile.channelId
-        }, function (err, res) {
-            if (!err) {
+        }, function (err, objecttype) {
+            if (err)
+                return res.status(500).json({error: err});
+            else if (!objecttype)
+                return res.status(204).json({error: 'No records found'});
+            else {
                 FB.setAccessToken(profile.accessToken);
                 FB.api(query,
                     function (adAccount) {
@@ -304,7 +309,7 @@ exports.listAccounts = function (req, res, next) {
                         for (var i = 0; i < adslength; i++) {
                             var objectsResult = new Object();
                             var profileId = profile._id;
-                            var objectTypeId = res._id;
+                            var objectTypeId = objecttype._id;
                             var channelObjectId = adAccount.data[i].id;
                             var name = adAccount.data[i].name;
                             var created = new Date();
@@ -317,27 +322,31 @@ exports.listAccounts = function (req, res, next) {
                                 $setOnInsert: {created: created},
                                 $set: {name: name, objectTypeId: objectTypeId, updated: updated}
                             }, {upsert: true}, function (err, res) {
-                                if (!err) {
+                                if (err)
+                                    return res.status(500).json({error: 'Internal server error'})
+                                else if (res == 0)
+                                    return res.status(501).json({error: 'Not implemented'})
+                                else {
                                     Object.find({'profileId': profile._id}, function (err, objectList) {
-                                        channelObjectDetails.push({
-                                            'result': objectList
-                                        });
-                                        if (adAccount.data.length == channelObjectDetails.length) {
-                                            req.app.result = objectList;
-                                            next();
+                                        if (err)
+                                            return res.status(500).json({error: err});
+                                        else if (!objectList.length)
+                                            return res.status(204).json({error: 'No records found'});
+                                        else {
+                                            channelObjectDetails.push({
+                                                'result': objectList
+                                            });
+                                            if (adAccount.data.length == channelObjectDetails.length) {
+                                                req.app.result = objectList;
+                                                next();
+                                            }
                                         }
                                     })
-                                }
-                                else{
-                                    return res.status(500).json({});
                                 }
                             })
                         }
                     }
                 );
-            }
-            else{
-                return res.status(500).json({});
             }
         })
     }
@@ -347,7 +356,7 @@ exports.listAccounts = function (req, res, next) {
         //To select which object type
         switch (req.query.objectType) {
             case configAuth.objectType.facebookAds:
-                var query = configAuth.apiVersions.FBADs +"/" + profile.userId + "/adaccounts?fields=name";
+                var query = configAuth.apiVersions.FBADs + "/" + profile.userId + "/adaccounts?fields=name";
                 getFbAdAccountList(profile, channel, query);
                 break;
         }
@@ -377,11 +386,15 @@ exports.listAccounts = function (req, res, next) {
         ObjectType.findOne({
             'type': req.query.objectType,
             'channelId': profile.channelId
-        }, function (err, res) {
-            if (!err) {
+        }, function (err, objecttype) {
+            if (err)
+                return res.status(500).json({error: err});
+            else if (!objecttype)
+                return res.status(204).json({error: 'No records found'});
+            else {
                 Object.find({'profileId': profile._id}).sort({updated: -1}).exec(function (err, objectList) {
-                        if (err)
-                            req.app.result = {error: err, message: 'Database error'};
+                    if (err)
+                        return res.status(500).json({error: 'Internal server error'})
                         else {
                             //Set access token
                             FB.setAccessToken(profile.accessToken);
@@ -393,7 +406,7 @@ exports.listAccounts = function (req, res, next) {
                                     for (var i = 0; i < length; i++) {
                                         var objectsResult = new Object();
                                         var profileId = profile._id;
-                                        var objectTypeId = res._id;
+                                        var objectTypeId = objecttype._id;
                                         var channelObjectId = pageList.data[i].id;
                                         var name = pageList.data[i].name;
                                         var created = new Date();
@@ -405,20 +418,27 @@ exports.listAccounts = function (req, res, next) {
                                         }, {
                                             $setOnInsert: {created: created},
                                             $set: {name: name, objectTypeId: objectTypeId, updated: updated}
-                                        }, {upsert: true}, function (err) {
-                                            if (!err) {
+                                        }, {upsert: true}, function (err, object) {
+                                            if (err)
+                                                return res.status(500).json({error: 'Internal server error'})
+                                            else if (object == 0)
+                                                return res.status(501).json({error: 'Not implemented'})
+                                            else {
                                                 Object.find({'profileId': profile._id}, function (err, objectList) {
-                                                    channelObjectDetails.push({
-                                                        'result': objectList
-                                                    });
-                                                    if (pageList.data.length == channelObjectDetails.length) {
-                                                        req.app.result = objectList;
-                                                        next();
+                                                    if (err)
+                                                        return res.status(500).json({error: err});
+                                                    else if (!objectList.length)
+                                                        return res.status(204).json({error: 'No records found'});
+                                                    else {
+                                                        channelObjectDetails.push({
+                                                            'result': objectList
+                                                        });
+                                                        if (pageList.data.length == channelObjectDetails.length) {
+                                                            req.app.result = objectList;
+                                                            next();
+                                                        }
                                                     }
                                                 })
-                                            }
-                                            else{
-                                                return res.status(500).json({});
                                             }
                                         })
                                     }
@@ -428,58 +448,67 @@ exports.listAccounts = function (req, res, next) {
                     }
                 );
             }
-            else{
-                return res.status(500).json({});
-            }
+
         })
     }
 
 
-
     //This function to create the Object
-    function getTweet(profile , channel){
+    function getTweet(profile, channel) {
         var channelObjectDetails = [];
         ObjectType.findOne({
             'type': req.query.objectType,
             'channelId': profile.channelId
-        },function(err, res){
-            if(!err) {
+        }, function (err, res) {
+            channelObjectDetails.push({
+                'result': objectList
+            });
+            if (pageList.data.length == channelObjectDetails.length) {
+                req.app.result = objectList;
+                next();
+            }
+            else {
                 var objectsResult = new Object();
                 var profileId = profile._id;
                 var objectTypeId = res._id;
                 var created = new Date();
                 var updated = new Date();
+
                 //To store once
                 Object.update({
                     profileId: profile._id
                 }, {
                     $setOnInsert: {created: created}, $set: {objectTypeId: objectTypeId, updated: updated}
                 }, {upsert: true}, function (err, res) {
-                    if (!err) {
+                    if (err)
+                        return res.status(500).json({error: 'Internal server error'})
+                    else if (res == 0)
+                        return res.status(501).json({error: 'Not implemented'})
+                    else {
                         Object.find({'profileId': profile._id}, function (err, objectList) {
-                            channelObjectDetails.push({
-                                'result': objectList
-                            })
-                            if (objectList) {
-                                req.app.result = objectList;
-                                next();
+                            if (err)
+                                return res.status(500).json({error: 'Internal server error'})
+                            else if (objectList == 0)
+                                return res.status(501).json({error: 'Not implemented'})
+                            else {
+                                channelObjectDetails.push({
+                                    'result': objectList
+                                })
+                                if (objectList) {
+                                    req.app.result = objectList;
+                                    next();
+                                }
                             }
                         })
                     }
-                    else{
-                        return res.status(500).json({});
-                    }
-
                 })
-            }
-            else{
-                return res.status(500).json({});
             }
         });
     }
 
 
-    function selectTweetObjectType(profile , channel){
+    function selectTweetObjectType(profile, channel) {
+
         //To select which object type
         switch (req.query.objectType) {
             case configAuth.objectType.twitter:
@@ -497,15 +526,19 @@ exports.listAccounts = function (req, res, next) {
     }
 
     //Get clientCustomerId from managerservices
+    function getAdwordsCustomerId(results, callback) {
 
-    function getAdwordsCustomerId(results, callback){
         //To get the object type id from database
         ObjectType.findOne({
             'type': req.query.objectType,
             'channelId': results.channelId
         }, function (err, objectTypeId) {
-            if (!err) {
-                if(results.canManageClients===true){
+            if (err)
+                return res.status(500).json({error: err});
+            else if (!objectTypeId.length)
+                return res.status(204).json({error: 'No records found'});
+            else {
+                if (results.canManageClients === true) {
                     var service = new AdWords.ManagedCustomerService({
                         ADWORDS_CLIENT_ID: configAuth.googleAdwordsAuth.clientID,
                         ADWORDS_CLIENT_CUSTOMER_ID: results.customerId,
@@ -521,22 +554,23 @@ exports.listAccounts = function (req, res, next) {
                         paging: {startIndex: 0, numberResults: 100},
                         predicates: []
                     });
-                    service.get(clientCustomerId, selector, function(err, response) {
+                    service.get(clientCustomerId, selector, function (err, response) {
                         if (err)
-                            console.log(err);
+                            return res.status(401).json({error: 'Authentication required to perform this action'});
                         else {
-                            queryExec(objectTypeId,results,callback,response);
+                            queryExec(objectTypeId, results, callback, response);
                         }
                     });
                 }
             }
         });
     }
-    function  queryExec(objectTypeId,results,callback,response){
+
+    function queryExec(objectTypeId, results, callback, response) {
         var model = response.entries.models;
         var lengthOfModel = 0;
-        for(var i=0;i<model.length;i++){
-            if(model[i].attributes.canManageClients != true)
+        for (var i = 0; i < model.length; i++) {
+            if (model[i].attributes.canManageClients != true)
                 lengthOfModel++;
         }
         for (var i = 0; i < model.length; i++) {
@@ -544,13 +578,11 @@ exports.listAccounts = function (req, res, next) {
             if (modelResult !== true) {
                 var accountName = model[i].attributes.name;
                 var customerId = model[i].attributes.customerId;
-                var channelObjectDetails =[];
-                var objectsResult = new Object();
-                var profileId = results._id;
-                var channelObjectId = customerId;
+                var channelObjectDetails = [];
                 var name = accountName;
                 var created = new Date();
                 var updated = new Date();
+
                 //To store once
                 Object.update({
                     profileId: results._id,
@@ -559,7 +591,11 @@ exports.listAccounts = function (req, res, next) {
                     $setOnInsert: {created: created},
                     $set: {name: name, objectTypeId: objectTypeId._id, updated: updated}
                 }, {upsert: true}, function (err, res) {
-                    if (!err) {
+                    if (err)
+                        return res.status(500).json({error: err});
+                    else if (!res.length)
+                        return res.status(204).json({error: 'No records found'});
+                    else {
                         Object.find({'profileId': results._id}, function (err, objectList) {
                             channelObjectDetails.push({
                                 'result': objectList
@@ -569,9 +605,6 @@ exports.listAccounts = function (req, res, next) {
                                 next();
                             }
                         })
-                    }
-                    else{
-                        return res.status(500).json({});
                     }
                 });
             }

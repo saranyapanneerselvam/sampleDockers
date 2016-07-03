@@ -14,7 +14,6 @@ var exports = module.exports = {};
  * @param next - callback
  */
 exports.storeCustomIdentity = function (req, res, next) {
-
         var createCustomIdentity = new customIdentityList();
         createCustomIdentity.userId = req.body.userId;
         createCustomIdentity.dashboardId = req.body.dashboardId;
@@ -22,17 +21,15 @@ exports.storeCustomIdentity = function (req, res, next) {
         createCustomIdentity.created = new Date();
         createCustomIdentity.updated = new Date();
         createCustomIdentity.save(function (err, customData) {
-                if (!err) {
+            if (err)
+                return res.status(500).json({error: 'Internal server error'});
+            else if (!alert)
+                return res.status(204).json({error: 'No records found'});
+            else {
                     req.app.result = {'status': '200', 'id': customData._id};
                     next();
                 }
-                else {
-                    req.app.result = {'status': '302'};
-                    next();
-                }
             });
-
-
 };
 
 

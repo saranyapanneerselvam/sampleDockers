@@ -1,7 +1,7 @@
 /**
  * Created by user on 07-Jun-16.
  */
-var moment = require('moment')
+
 var Alert = require('../models/alert');
 var exports = module.exports = {};
 exports.createUpdateAlert = function (req, done) {
@@ -10,7 +10,7 @@ exports.createUpdateAlert = function (req, done) {
     var now = new Date();
 
     //To check whether new dashboard or not
-    if (req.body.alertId == undefined) {
+    if (req.body.alertId === undefined) {
         createAlert.name = req.body.name;
         createAlert.operation = req.body.operation;
         createAlert.threshold = req.body.threshold;
@@ -26,17 +26,11 @@ exports.createUpdateAlert = function (req, done) {
         createAlert.updated = now;
         createAlert.lastEvaluatedTime = now;
         req.body.updated = now;
-        var objectLength = Object.keys(req.body).length;
-        var myDate = '2016-06-07T12:35:59.443Z';
-        var localTime  = moment.utc(myDate).toDate();
-        var utcTime = moment(localTime).format('YYYY-MM-DD HH:mm:ss');
-        var time = moment(now).format('YYYY-MM-DD HH:mm:ss');
         for(var index in req.body){
             if(req.body[index] !=undefined)
                 updateValue[index] = req.body[index];
 
         }
-
         createAlert.save(function (err, alert) {
             if (err)
                 return res.status(500).json({error: 'Internal server error'});
@@ -47,9 +41,7 @@ exports.createUpdateAlert = function (req, done) {
                 done();
             }
         })
-
     }
-
 
     //To update already existing database
     else {
@@ -58,7 +50,6 @@ exports.createUpdateAlert = function (req, done) {
         for(var index in req.body){
             if(req.body[index] !=undefined)
                 updateValue[index] = req.body[index];
-
         }
 
         // update the dashboard data
@@ -83,10 +74,10 @@ exports.getAlertForWidget =function(req, res, next){
             return res.status(500).json({error: err});
         else if (!alertDetails.length)
             return res.status(204).json({error: 'No records found'});
-        else
+        else{
             req.app.result = alertDetails;
-        next();
-
+            next();
+        }
     })
 }
 

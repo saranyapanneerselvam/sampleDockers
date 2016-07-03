@@ -68,8 +68,7 @@ module.exports = function (app, passport) {
     });
     
     app.post('/api/v1/updateLastDashboardId/:id', userDetails.updateLastDashboardId, function (req, res) {
-        var result = req.app.result;
-        res.json(result);
+        res.json(req.app.result);
     });
 
     app.get('/customDataDocumentation', function (req, res) {

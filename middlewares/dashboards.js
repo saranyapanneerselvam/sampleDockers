@@ -13,37 +13,38 @@ var Q = require("q");
 
  */
 exports.getDashboardList = function (req, res, next) {
-    //req.showMetric = {};
     if (!req.user) {
         return res.status(401).json({error: 'Authentication required to perform this action'})
     }
     else {
-        var userDashboard=[];
+        var userDashboard = [];
         User.findOne({_id: req.user._id}, function (err, UserCollection) {
-            if(err)
+            if (err)
                 return res.status(500).json({error: 'Internal server error'});
-            else if(!UserCollection)
+            else if (!UserCollection)
                 return res.status(204).json({error: 'No records found'});
             else {
                 for (var i = 0; i < UserCollection.dashboards.length; i++) {
                     userDashboard.push(getDashboard(UserCollection.dashboards[i].dashboardId));
                 }
-                Q.all(userDashboard).then(function successCallback(userDashboard){
-                    if(!userDashboard){return res.status(501).json({error: 'Not implemented'})}
+                Q.all(userDashboard).then(function successCallback(userDashboard) {
+                    if (!userDashboard) {
+                        return res.status(501).json({error: 'Not implemented'})
+                    }
                     else {
                         req.app.result = userDashboard;
                         next();
                     }
-                }, function errorCallback(err){
+                }, function errorCallback(err) {
                     return res.status(500).json({error: 'Internal server error'});
                 });
             }
         });
 
-        function getDashboard(UserCollection){
+        function getDashboard(UserCollection) {
             var deferred = Q.defer();
-            dashboardList.findOne({_id:UserCollection}, function (err, dashboard) {
-                if(err)
+            dashboardList.findOne({_id: UserCollection}, function (err, dashboard) {
+                if (err)
                     deferred.reject(new Error(err));
                 else
                     deferred.resolve(dashboard);
@@ -65,14 +66,14 @@ exports.getDashboardDetails = function (req, res, next) {
                 return res.status(500).json({error: 'Internal server error'});
             else if (!dashboardDetails)
                 return res.status(204).json({error: 'No records found'});
-            else{
+            else {
                 req.app.result = dashboardDetails;
                 next();
             }
         })
     }
     else
-        return res.status(401).json({error:'Authentication required to perform this action'})
+        return res.status(401).json({error: 'Authentication required to perform this action'})
 };
 
 /**
@@ -98,15 +99,19 @@ exports.storeDashboards = function (req, res, next) {
             createDashboard.orgId = req.user.orgId;
             createDashboard.name = req.body.name;
             createDashboard.save(function (err, dashboard) {
-                if (!err) {
+                if (err)
+                    return res.status(500).json({error: 'Internal server error'});
+                else if (!dashboard)
+                    return res.status(204).json({error: 'No records found'});
+                else {
                     User.findOne({_id: req.user._id}, function (err, user) {
                         if (err)
                             return res.status(500).json({error: 'Internal server error'});
                         else if (!user)
                             return res.status(204).json({error: 'No records found'});
                         else {
-                            if(user.dashboards) {
-                                if (user.dashboards.length){
+                            if (user.dashboards) {
+                                if (user.dashboards.length) {
                                     getDashboards = user.dashboards;
                                     getDashboards.forEach(function (item) {
                                         storeAllDashboards.push(item);
@@ -133,19 +138,15 @@ exports.storeDashboards = function (req, res, next) {
                                         return res.status(500).json({error: 'Internal server error'});
                                     else if (response == 0)
                                         return res.status(501).json({error: 'Not implemented'});
-                                    else{
-                                        req.app.result =  dashboard._id;
+                                    else {
+                                        req.app.result = dashboard._id;
                                         next();
                                     }
 
                                 })
                         }
                     })
-
                 }
-                else
-                    return res.status(501).json({error: 'Not implemented'})
-
             });
         }
 
@@ -159,24 +160,24 @@ exports.storeDashboards = function (req, res, next) {
 
             // update the dashboard data
             dashboardList.update({_id: _id}, {
-                $set: {'name': name,  updated: updated}
-            }, {upsert: true}, function (err,response) {
+                $set: {'name': name, updated: updated}
+            }, {upsert: true}, function (err, response) {
                 if (err)
                     return res.status(500).json({error: 'Internal server error'})
                 else if (response == 0)
                     return res.status(501).json({error: 'Not implemented'})
-                else{
-                    req.app.result =  _id;
+                else {
+                    req.app.result = _id;
                     next();
                 }
             });
         }
     }
-
 };
 exports.removeDashboardFromUser = function (req, res, next) {
-    req.dashboardId= req.params.dashboardId;
-    var tempDashboardId=[];
+    req.dashboardId = req.params.dashboardId;
+    var tempDashboardId = [];
+    console.log('user',req.user)
     if (req.user) {
         userPermission.checkUserAccess(req, res, function (err, response) {
             if (err)
@@ -188,17 +189,21 @@ exports.removeDashboardFromUser = function (req, res, next) {
                     }
                 }
                 if (response.lastDashboardId === req.params.dashboardId) {
-                    if (tempDashboardId.length===0) {
+                    if (tempDashboardId.length === 0) {
                         User.update({'_id': req.user._id}, {
                             $set: {
                                 'lastDashboardId': '',
                                 'dashboards': tempDashboardId
                             }
                         }, function (err, updateDashboard) {
-                            if (!err)
-                                removeWidget();
+
+                            if (err)
+                                return res.status(500).json({error: 'Internal server error'})
+                            else if (updateDashboard == 0)
+                                return res.status(501).json({error: 'Not implemented'})
+                            else removeWidget();
                         })
-                    }
+                    } 
                     else {
                         User.update({'_id': req.user._id}, {
                             $set: {
@@ -206,34 +211,40 @@ exports.removeDashboardFromUser = function (req, res, next) {
                                 'dashboards': tempDashboardId
                             }
                         }, function (err, updateDashboard) {
-                            if (!err)
-                                removeWidget();
+                            if (err)
+                                return res.status(500).json({error: 'Internal server error'})
+                            else if (updateDashboard == 0)
+                                return res.status(501).json({error: 'Not implemented'})
+                            else removeWidget();
                         })
                     }
                 }
                 else {
                     User.update({'_id': req.user._id}, {$set: {'dashboards': tempDashboardId}}, function (err, updateDashboard) {
-                        if (!err)
-                            removeWidget();
+                        if (err)
+                            return res.status(500).json({error: 'Internal server error'})
+                        else if (tempDashboardId == 0)
+                            return res.status(501).json({error: 'Not implemented'})
+                        else removeWidget();
                     })
                 }
             }
         });
+        function removeWidget() {
+            Widget.remove({'dashboardId': req.params.dashboardId}, function (err, widget) {
+                if (err)
+                    return res.status(500).json({error: 'Internal server error'})
 
-        function removeWidget(){
-            Widget.remove({'dashboardId':req.params.dashboardId},function(err,widget){
-                if(err)
-                    return res.status(500).json({error: 'Internal server error'});
                 else
                     removeDashboard();
             })
         }
 
-        function removeDashboard(){
-            dashboardList.remove({'_id':req.params.dashboardId},function(err,dashboard){
+        function removeDashboard() {
+            dashboardList.remove({'_id': req.params.dashboardId}, function (err, dashboard) {
                 if (err)
                     return res.status(500).json({error: 'Internal server error'});
-                else if (dashboard!=1)
+                else if (dashboard != 1)
                     return res.status(501).json({error: 'Not implemented'});
                 else {
                     req.app.result = req.params.dashboardId;
@@ -242,4 +253,5 @@ exports.removeDashboardFromUser = function (req, res, next) {
             })
         }
     }
+    else return res.status(401).json({error: 'Authentication required to perform this action'});
 };

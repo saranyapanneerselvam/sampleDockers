@@ -237,6 +237,9 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 case 'GoogleAdwords' :
                     $scope.objectType = 'adwordaccount';
                     break;
+                case 'youtube' :
+                    $scope.objectType = 'youtubeChannel';
+                    break;
             }
             $http({
                 method: 'GET',
@@ -283,6 +286,10 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     break;
                 case 'GoogleAdwords':
                     url = '/api/auth/adwords';
+                    title = $scope.storedChannelName;
+                    break;
+                case 'youtube':
+                    url = '/api/v1/auth/youTube';
                     title = $scope.storedChannelName;
                     break;
             }

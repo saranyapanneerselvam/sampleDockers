@@ -35,7 +35,8 @@ var self = module.exports = {
     },
     findObjectsForProfile: function (req, res, done) {
         objectList.find({profileId: req.params.profileID}, function (err, objects) {
-            if (objects != null && objects.length > 0) {
+            if(err) done(err);
+            else if (objects != null && objects.length > 0) {
                 req.profileId = objects[0].profileId;
 
                 channelHelper.getChannelDetails(req,res, function (err, channel) {

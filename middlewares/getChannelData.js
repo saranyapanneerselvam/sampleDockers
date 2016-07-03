@@ -66,7 +66,6 @@ exports.getChannelData = function (req, res, next) {
     //Function to find days difference
     function findDaysDifference(startDate, endDate, endPoint, noEndPoint) {
         var storeDefaultValues = [];
-        //d.setDate(d.getDate() + 1);
         var storeStartDate = new Date(startDate);
         var storeEndDate = new Date(endDate);
         var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
@@ -152,9 +151,9 @@ exports.getChannelData = function (req, res, next) {
             store_final_data: ['get_channel_data_remote', storeFinalData],
             get_channel_objects_db: ['store_final_data', 'get_channel_data_remote', getChannelDataDB]
         }, function (err, results) {
-            if (err) {
-                return res.status(500).json({});
-            }
+            console.log('err',err,results)
+            if (err)
+                return res.status(500).json({error: 'Internal server error'})
             req.app.result = results.get_channel_objects_db;
             next();
         });
@@ -288,7 +287,6 @@ exports.getChannelData = function (req, res, next) {
                 newChannelArray.push(initialResults.get_channel[0]);
                 async.concatSeries(newChannelArray, dataForEachChannel, callback);
             }
-
         }
 
         function dataForEachChannel(results, callback) {
@@ -298,7 +296,7 @@ exports.getChannelData = function (req, res, next) {
                 case configAuth.channels.googleAnalytics:
                     setDataBasedChannelCode(results, function (err, result) {
                         if (err)
-                            return res.status(500).json({});
+                            return res.status(500).json({error: 'Internal server error'})
                         else
                             initializeGa(result, callback);
                     });
@@ -306,7 +304,7 @@ exports.getChannelData = function (req, res, next) {
                 case configAuth.channels.facebook:
                     setDataBasedChannelCode(results, function (err, result) {
                         if (err)
-                            return res.status(500).json({});
+                            return res.status(500).json({error: 'Internal server error'})
                         else
                             getFBPageData(result, callback);
                     });
@@ -314,7 +312,7 @@ exports.getChannelData = function (req, res, next) {
                 case configAuth.channels.facebookAds:
                     setDataBasedChannelCode(results, function (err, result) {
                         if (err)
-                            return res.status(500).json({});
+                            return res.status(500).json({error: 'Internal server error'})
                         else
                             getFBadsinsightsData(result, callback);
                     });
@@ -322,7 +320,7 @@ exports.getChannelData = function (req, res, next) {
                 case configAuth.channels.twitter:
                     setDataBasedChannelCode(results, function (err, result) {
                         if (err)
-                            return res.status(500).json({});
+                            return res.status(500).json({error: 'Internal server error'})
                         else
                             getTweetData(result, callback);
                     });
@@ -330,7 +328,7 @@ exports.getChannelData = function (req, res, next) {
                 case configAuth.channels.googleAdwords:
                     setDataBasedChannelCode(results, function (err, result) {
                         if (err)
-                            return res.status(500).json({});
+                            return res.status(500).json({error: 'Internal server error'})
                         else
                             selectAdwordsObjectType(result, callback);
                     });
@@ -338,21 +336,21 @@ exports.getChannelData = function (req, res, next) {
                 case configAuth.channels.instagram:
                     setDataBasedChannelCode(results, function (err, result) {
                         if (err)
-                            return res.status(500).json({});
+                            return res.status(500).json({error: 'Internal server error'})
                         else
                             selectInstagram(result, callback);
                     });
                     break;
-                case configAuth.channels.youTube:
+                case configAuth.channels.youtube:
                     setDataBasedChannelCode(results, function (err, result) {
                         if (err)
-                            return res.status(500).json({});
+                            return res.status(500).json({error: 'Internal server error'})
                         else
                             initializeGa(result, callback);
                     });
                     break;
                 default:
-                    console.log('No channel selected')
+                    callback('error')
             }
         }
 
@@ -367,9 +365,8 @@ exports.getChannelData = function (req, res, next) {
                 group_charts: ['group_data', groupCharts]
 
             }, function (err, results) {
-                if (err) {
+                if (err)
                     return callback(err, null);
-                }
                 wholeObject = {
                     widget: results.group_charts,
                     data: results.group_data,
@@ -380,6 +377,7 @@ exports.getChannelData = function (req, res, next) {
                 };
                 callback(null, wholeObject);
             });
+
             //function to group profiles based on channel id
             function groupProfile(callback) {
                 var profile = [];
@@ -398,39 +396,32 @@ exports.getChannelData = function (req, res, next) {
                 var channelObjects = [];
                 var objects = initialResults.object;
                 for (var i = 0; i < objects.length; i++) {
-                    if (String(results.group_profile[0]._id) === String(objects[i].profileId)) {
+                    if (String(results.group_profile[0]._id) === String(objects[i].profileId))
                         channelObjects.push(objects[i]);
-
-                    }
                 }
                 callback(null, channelObjects)
-
             }
 
             //function to group metrics based on channel id
             function groupMetrics(objects, callback) {
                 var channelMetrics = [];
                 var metrics = initialResults.metric;
-
                 for (var i = 0; i < metrics.length; i++) {
-                    if (results._id == metrics[i].channelId) {
+                    if (results._id == metrics[i].channelId)
                         channelMetrics.push(metrics[i]);
-                    }
                 }
                 callback(null, channelMetrics);
             }
 
             //function to group data based on metric
             function groupData(metrics, callback) {
-
                 var channelData = [];
                 var metricList = metrics.group_metrics;
                 var data = initialResults.data;
                 for (var i = 0; i < data.length; i++) {
                     for (var j = 0; j < metricList.length; j++) {
-                        if (String(metricList[j]._id) === String(data[i].metricId)) {
+                        if (String(metricList[j]._id) === String(data[i].metricId))
                             channelData.push(data[i]);
-                        }
                     }
                 }
                 callback(null, channelData);
@@ -442,9 +433,8 @@ exports.getChannelData = function (req, res, next) {
                 var widgetArray = [];
                 var charts = initialResults.widget.charts;
                 for (var i = 0; i < charts.length; i++) {
-                    if (String(results._id) === String(charts[i].channelId)) {
+                    if (String(results._id) === String(charts[i].channelId))
                         chartsArray.push(charts[i]);
-                    }
                 }
                 widgetArray.push({
                     _id: initialResults.widget._id,
@@ -463,9 +453,8 @@ exports.getChannelData = function (req, res, next) {
             get_start_end_dates: getDates,
             get_object_list: ['get_start_end_dates', passQueryToGraphApi]
         }, function (err, results) {
-            if (err) {
+            if (err)
                 return callback(err, null);
-            }
             callback(null, results.get_object_list);
         });
 
@@ -473,7 +462,7 @@ exports.getChannelData = function (req, res, next) {
         function getDates(callback) {
             loopGetDates(initialResults.data, initialResults.metric, callback);
             function loopGetDates(data, metric, done) {
-                async.times(Math.min(data.length, metric.length), function (j, next) {
+                async.timesSeries(Math.min(data.length, metric.length), function (j, next) {
                     var d = new Date();
                     var queryObject = {};
 
@@ -484,8 +473,6 @@ exports.getChannelData = function (req, res, next) {
                         var updated = formatDate(data[j].data.updated);
                         var now = formatDate(new Date());
                         if (updated < now) {
-
-                            //for(var i=0;i<)
                             var query = initialResults.object[0].channelObjectId + "/insights/" + metric[j].objectTypes[0].meta.fbMetricName + "?since=" + updated + "&until=" + now;
                             queryObject = {
                                 query: query,
@@ -506,17 +493,13 @@ exports.getChannelData = function (req, res, next) {
                             };
                             next(null, queryObject);
                         }
-
                     }
 
                     //To four queries to get one year data
                     else {
-                        var d = new Date();
                         async.concatSeries([93, 93, 93, 86], setStartEndDate, function (err, query) {
-
                             next(null, query);
                         });
-
                     }
 
                     //To form query based on start end date for getting one year data
@@ -538,8 +521,6 @@ exports.getChannelData = function (req, res, next) {
                 }, done);
 
             }
-
-            //async.concat(initialResults.data, getDatesForAllMetrics, callback);
         }
 
         //To pass the query to graph api
@@ -580,7 +561,6 @@ exports.getChannelData = function (req, res, next) {
                         else
                             return res.status(500).json({error: 'Internal server error'})
                     }
-
                     else {
                         queryResponse = {
                             res: fbQueryRes,
@@ -635,7 +615,7 @@ exports.getChannelData = function (req, res, next) {
                             var dimension;
                             var dimensionArray = [];
                             var dimensionList = metric[j].objectTypes[0].meta.dimension;
-                            if (dimensionList[0].name === "ga:date" || dimensionList[0].name ==="mcf:conversionDate" ||dimensionList[0].name ==='day') {
+                            if (dimensionList[0].name === "ga:date" || dimensionList[0].name === "mcf:conversionDate" || dimensionList[0].name === 'day') {
                                 if (dataFromRemote[j].metric.objectTypes[0].meta.endpoint.length)
                                     finalData = findDaysDifference(dataFromRemote[j].startDate, dataFromRemote[j].endDate, dataFromRemote[j].metric.objectTypes[0].meta.endpoint);
                                 else {
@@ -650,12 +630,12 @@ exports.getChannelData = function (req, res, next) {
                             //Check empty data from query response
                             if (dataFromRemote[j].data === 'No Data')
                                 storeGoogleData = finalData;
-
                             else {
-                                //google analytics
+
                                 //calculating the result length
                                 var resultLength = dataFromRemote[j].data.length;
                                 var resultCount = dataFromRemote[j].data[0].length - 1;
+
                                 //loop to store the entire result into an array
                                 for (var i = 0; i < resultLength; i++) {
                                     var obj = {};
@@ -682,7 +662,6 @@ exports.getChannelData = function (req, res, next) {
                                                 obj[dimensionList[m].name.substr(3)] = [year, month, date].join('-');
                                                 obj['total'] = dataFromRemote[j].data[i][resultCount];
                                             }
-
                                         }
                                         else {
                                             obj[dimensionList[m].name.substr(3)] = dataFromRemote[j].data[i][m];
@@ -690,15 +669,10 @@ exports.getChannelData = function (req, res, next) {
                                                 obj['total'] = dataFromRemote[j].data[i][resultCount].primitiveValue;
                                             else
                                                 obj['total'] = dataFromRemote[j].data[i][resultCount];
-
                                         }
-
                                     }
-
                                     storeGoogleData.push(obj);
                                 }
-
-
                                 if (dimensionList.length > 1) {
                                     if (metric[j].objectTypes[0].meta.endpoint.length) {
                                         var result = _.chain(storeGoogleData)
@@ -722,7 +696,6 @@ exports.getChannelData = function (req, res, next) {
                                                     var dimensionData = groupedData[i].data[g][dimensionList[1].name.substr(3)];
                                                     if (initD === 1)
                                                         var finalDimensionData = dimensionData;
-
                                                     else
                                                         var finalDimensionData = dimensionData + '/' + groupedData[i].data[g][dimensionList[d].name.substr(3)];
                                                     var replacedValue = finalDimensionData.split('.').join('002E');
@@ -732,10 +705,8 @@ exports.getChannelData = function (req, res, next) {
                                                     total: objToStoreFinalData,
                                                     date: groupedData[i].date
                                                 })
-
                                             }
                                             var objToStoreFinalData = {};
-
                                         }
                                         storeGoogleData = storeFinalData;
                                     }
@@ -754,8 +725,6 @@ exports.getChannelData = function (req, res, next) {
                                 var wholeResponse = [];
                                 if (dataFromDb[j].data != null) {
                                     var metricId;
-                                    metricId = dataFromDb[j].metricId;
-
                                     var finalData = [];
                                     for (var r = 0; r < dataFromDb[j].data.data.length; r++) {
                                         if (dataFromRemote[j].metricId === dataFromDb[j].metricId) {
@@ -765,8 +734,6 @@ exports.getChannelData = function (req, res, next) {
                                         }
                                     }
                                 }
-
-
                             }
                             storeGoogleData = replaceEmptyData(finalData, storeGoogleData);
                             var now = new Date();
@@ -783,21 +750,18 @@ exports.getChannelData = function (req, res, next) {
                                     bgFetch: metric[j].bgFetch,
                                     fetchPeriod: metric[j].fetchPeriod
                                 }
-                            }, {upsert: true}, function (err) {
-                                if (err) console.log("User not saved", err);
-                                else {
-                                    next(null, 'success')
-                                }
+                            }, {upsert: true}, function (err, data) {
+                                if (err)
+                                    return res.status(500).json({error: 'Internal server error'})
+                                else if (data == 0)
+                                    return res.status(501).json({error: 'Not implemented'})
+                                else next(null, 'success')
                             })
                         }
-
-
                     }, done);
                 }
 
                 storeDataForGA(groupAllChannelData[allQueryResult.channel._id][0].results.call_get_analytic_data, allQueryResult.allData.data, allQueryResult.allData.widget[0].charts, allQueryResult.allData.metric, callback);
-
-
             }
             else if (allQueryResult.channel.code == configAuth.channels.facebook) {
                 storeDataForFB(groupAllChannelData[allQueryResult.channel._id], allQueryResult.allData.data, allQueryResult.allData.widget[0].charts, allQueryResult.allData.metric, callback);
@@ -806,6 +770,7 @@ exports.getChannelData = function (req, res, next) {
                         var beforeReplaceEmptyData = [];
                         var finalData = [];
                         var finalData1 = [];
+
                         //Array to hold the final result
                         for (var key in dataFromRemote) {
                             if (String(dataFromRemote[key].channelId) === String(metric[0].channelId)) {
@@ -835,7 +800,6 @@ exports.getChannelData = function (req, res, next) {
                                                     finalData1 = findDaysDifference(dataFromRemote[key].startDate, dataFromRemote[key].endDate, undefined, 'noEndPoint');
                                                 else
                                                     finalData1 = findDaysDifference(dataFromRemote[key].startDate, dataFromRemote[key].endDate, undefined);
-
                                             }
                                             var finalReplacedData = replaceEmptyData(finalData1, beforeReplaceEmptyData);
                                             finalReplacedData.forEach(function (value) {
@@ -854,10 +818,7 @@ exports.getChannelData = function (req, res, next) {
                                                     finalData = findDaysDifference(dataFromRemote[key].startDate, dataFromRemote[key].endDate, undefined);
                                             }
                                         }
-                                        //finalData = findDaysDifference(dataFromRemote[key].startDate, dataFromRemote[key].endDate);
                                     }
-
-
                                 }
                             }
                         }
@@ -871,9 +832,9 @@ exports.getChannelData = function (req, res, next) {
                                 var metricId = dataFromRemote[j].metricId;
                             }
                             if (typeof finalData[0].total == 'object') {
-                                for (data in finalData) {
+                                for (var data in finalData) {
                                     var jsonObj = {}, tempKey;
-                                    for (items in finalData[data].total)
+                                    for (var items in finalData[data].total)
                                         jsonObj[items.replace(/[$.]/g, '/')] = finalData[data].total[items];
                                     finalData[data].total = jsonObj;
                                 }
@@ -892,27 +853,24 @@ exports.getChannelData = function (req, res, next) {
                                     bgFetch: metric[j].bgFetch,
                                     fetchPeriod: metric[j].fetchPeriod
                                 }
-                            }, {upsert: true}, function (err) {
-                                if (err) console.log("User not saved", err);
-                                else
-                                    next(null, 'success')
+                            }, {upsert: true}, function (err, data) {
+                                if (err)
+                                    return res.status(500).json({error: 'Internal server error'})
+                                else if (data == 0)
+                                    return res.status(501).json({error: 'Not implemented'})
+                                else next(null, 'success')
                             });
                         }
                         else
                             next(null, 'success')
                     }, done);
-
-
                 }
-
             }
             else if (allQueryResult.channel.code == configAuth.channels.facebookAds) {
-
                 storeDataForFBAds(groupAllChannelData[allQueryResult.channel._id], allQueryResult.allData.data, allQueryResult.allData.widget[0].charts, allQueryResult.allData.metric, callback);
                 function storeDataForFBAds(dataFromRemote, dataFromDb, widget, metric, done) {
                     async.timesSeries(dataFromDb.length, function (j, next) {
                         var finalData = [];
-
                         for (var index = 0; index < dataFromRemote.length; index++) {
                             if (dataFromRemote[index].data === 'DataFromDb') {
                             }
@@ -933,7 +891,6 @@ exports.getChannelData = function (req, res, next) {
                             }
                             var now = new Date();
 
-
                             //Updating the old data with new one
                             Data.update({
                                 'objectId': widget[j].metrics[0].objectId,
@@ -946,13 +903,13 @@ exports.getChannelData = function (req, res, next) {
                                     bgFetch: metric[j].bgFetch,
                                     fetchPeriod: metric[j].fetchPeriod
                                 }
-                            }, {upsert: true}, function (err) {
-                                if (err) console.log("User not saved");
-                                else
-                                    next(null, 'success');
-
+                            }, {upsert: true}, function (err,data) {
+                                if (err)
+                                    return res.status(500).json({error: 'Internal server error'})
+                                else if (data == 0)
+                                    return res.status(501).json({error: 'Not implemented'})
+                                else next(null, 'success');
                             });
-
                         }
                         else
                             next(null, 'success')
@@ -960,7 +917,6 @@ exports.getChannelData = function (req, res, next) {
                 }
             }
             else if (allQueryResult.channel.code == configAuth.channels.googleAdwords) {
-
                 storeDataForAdwords(groupAllChannelData[allQueryResult.channel._id], allQueryResult.allData.data, allQueryResult.allData.widget[0].charts, allQueryResult.allData.metric, callback);
                 function storeDataForAdwords(dataFromRemote, dataFromDb, widget, metric, done) {
                     async.times(metric.length, function (j, next) {
@@ -983,9 +939,7 @@ exports.getChannelData = function (req, res, next) {
                                     for (var key = 0; key < dataFromDb[j].data.data.length; key++) {
                                         finalData.push(dataFromDb[j].data.data[key]);
                                     }
-                                    var metricId = metric._id;
                                 }
-
                             }
                             var now = new Date();
 
@@ -1001,43 +955,37 @@ exports.getChannelData = function (req, res, next) {
                                     bgFetch: metric[j].bgFetch,
                                     fetchPeriod: metric[j].fetchPeriod
                                 }
-                            }, {upsert: true}, function (err) {
-                                if (err) console.log("User not saved");
-                                else
-                                    next(null, 'success')
+                            }, {upsert: true}, function (err,data) {
+                                if (err)
+                                    return res.status(500).json({error: 'Internal server error'})
+                                else if (data == 0)
+                                    return res.status(501).json({error: 'Not implemented'})
+                                else next(null, 'success')
                             });
                         }
-
                         else
                             next(null, 'success')
-
                     }, done);
-
-
                 }
-
             }
             else if (allQueryResult.channel.code == configAuth.channels.instagram) {
                 storeDataForInstagram(groupAllChannelData[allQueryResult.channel._id], allQueryResult.allData.data, allQueryResult.allData.widget[0].charts, allQueryResult.allData.metric, callback);
                 function storeDataForInstagram(dataFromRemote, dataFromDb, widget, metric, done) {
                     async.times(metric.length, function (j, next) {
                         var finalData = [];
-                        if (metric[j].objectTypes[0].meta.endpoint[0] === 'user_media_recent') {
-                            callback(null, dataFromRemote[j])
-
-                        }
+                        if (metric[j].objectTypes[0].meta.endpoint[0] === 'user_media_recent')
+                            callback(null, dataFromRemote[j]);
                         else {
+
                             //Array to hold the final result
                             for (var key in dataFromRemote) {
                                 if (dataFromRemote[key].apiResponse === 'DataFromDb') {
                                 }
                                 else {
-                                    if (String(metric[j]._id) == String(dataFromRemote[key].metricId)) {
+                                    if (String(metric[j]._id) == String(dataFromRemote[key].metricId))
                                         finalData = dataFromRemote[key].apiResponse;
-                                    }
                                 }
                             }
-
                             if (dataFromRemote[j].apiResponse != 'DataFromDb') {
                                 if (dataFromDb[j].data != null) {
                                     if (dataFromRemote[j].metricId == dataFromDb[j].metricId) {
@@ -1046,9 +994,7 @@ exports.getChannelData = function (req, res, next) {
                                         for (var key = 0; key < dataFromDb[j].data.data.length; key++) {
                                             finalData.push(dataFromDb[j].data.data[key]);
                                         }
-                                        var metricId = metric._id;
                                     }
-
                                 }
                                 var now = new Date();
 
@@ -1064,22 +1010,19 @@ exports.getChannelData = function (req, res, next) {
                                         bgFetch: metric[j].bgFetch,
                                         fetchPeriod: metric[j].fetchPeriod
                                     }
-                                }, {upsert: true}, function (err) {
-                                    if (err) console.log("User not saved");
-                                    else
-                                        next(null, 'success')
+                                }, {upsert: true}, function (err,data) {
+                                    if (err)
+                                        return res.status(500).json({error: 'Internal server error'})
+                                    else if (data == 0)
+                                        return res.status(501).json({error: 'Not implemented'})
+                                    else next(null, 'success');
                                 });
                             }
-
                             else
                                 next(null, 'success')
                         }
-
                     }, done);
-
-
                 }
-
             }
             else if (allQueryResult.channel.code == configAuth.channels.twitter) {
                 storeDataForTwitter(groupAllChannelData[allQueryResult.channel._id], allQueryResult.allData.data, allQueryResult.allData.widget[0].charts, allQueryResult.allData.metric, callback);
@@ -1092,185 +1035,166 @@ exports.getChannelData = function (req, res, next) {
                         var wholeTweetResponseFromDb = [];
                         var wholeTweetResponse = [];
                         if (metric[j].code === configAuth.twitterMetric.tweets || metric[j].code === configAuth.twitterMetric.followers || metric[j].code == configAuth.twitterMetric.following || metric[j].code === configAuth.twitterMetric.favourites || metric[j].code === configAuth.twitterMetric.listed || metric[j].code === configAuth.twitterMetric.retweets_of_your_tweets) {
+                            for (var key in dataFromRemote) {
+                                if (dataFromRemote[key].data === 'DataFromDb') {
 
-                                // storeTweetDetails.push({date: createdAt, total: dataFromRemote[j].data[0].user});
-                                for (var key in dataFromRemote) {
-                                    if (dataFromRemote[key].data === 'DataFromDb') {
+                                }
+                                else {
 
-                                    }
-                                    else {
-                                        //To format twitter date
-                                        var createdAt = formatDate(new Date(Date.parse(dataFromRemote[j].data[0].created_at.replace(/( +)/, ' UTC$1'))));
-                                        if (String(metric[j]._id) == String(dataFromRemote[key].metricId)) {
-                                            wholeTweetResponse.push({
-                                                date: currentDate,
-                                                total: dataFromRemote[key].data[0]
-                                            });
-                                        }
+                                    //To format twitter date
+                                    var createdAt = formatDate(new Date(Date.parse(dataFromRemote[j].data[0].created_at.replace(/( +)/, ' UTC$1'))));
+                                    if (String(metric[j]._id) == String(dataFromRemote[key].metricId)) {
+                                        wholeTweetResponse.push({
+                                            date: currentDate,
+                                            total: dataFromRemote[key].data[0]
+                                        });
                                     }
                                 }
-                                if (metric[j].code == configAuth.twitterMetric.tweets)
-                                    param.push('statuses_count');
-                                else if (metric[j].code == configAuth.twitterMetric.following)
-                                    param.push('friends_count');
-                                else if (metric[j].code == configAuth.twitterMetric.listed)
-                                    param.push('listed_count');
-                                else if (metric[j].code == configAuth.twitterMetric.followers)
-                                    param.push('followers_count');
-                                else if (metric[j].code == configAuth.twitterMetric.favourites)
-                                    param.push('favourites_count');
-                                else if (metric[j].code == configAuth.twitterMetric.retweets_of_your_tweets)
-                                    param.push('retweet_count');
-                                else if (metric[j].keywordMentions == configAuth.twitterMetric.retweets_of_your_tweets || metric[0].code == configAuth.twitterMetric.mentions)
-                                    param.push('retweet_count', 'favorite_count');
-                                else
-                                    param.push('retweet_count', 'favorite_count');
-                                var dataFromRemoteLength = dataFromRemote[j].data.length;
-                                if (dataFromRemoteLength != 0) {
-                                    if (dataFromRemote[key].data === 'DataFromDb') {
+                            }
+                            if (metric[j].code == configAuth.twitterMetric.tweets)
+                                param.push('statuses_count');
+                            else if (metric[j].code == configAuth.twitterMetric.following)
+                                param.push('friends_count');
+                            else if (metric[j].code == configAuth.twitterMetric.listed)
+                                param.push('listed_count');
+                            else if (metric[j].code == configAuth.twitterMetric.followers)
+                                param.push('followers_count');
+                            else if (metric[j].code == configAuth.twitterMetric.favourites)
+                                param.push('favourites_count');
+                            else if (metric[j].code == configAuth.twitterMetric.retweets_of_your_tweets)
+                                param.push('retweet_count');
+                            else if (metric[j].keywordMentions == configAuth.twitterMetric.retweets_of_your_tweets || metric[0].code == configAuth.twitterMetric.mentions)
+                                param.push('retweet_count', 'favorite_count');
+                            else
+                                param.push('retweet_count', 'favorite_count');
+                            var dataFromRemoteLength = dataFromRemote[j].data.length;
+                            if (dataFromRemoteLength != 0) {
+                                if (dataFromRemote[key].data === 'DataFromDb') {
 
-                                    }
-                                    else {
-                                        var totalArray = [];
-                                        for (var index = 0; index < param.length; index++) {
-                                            if (param.length > 1) {
-                                                var total = dataFromRemote[j].data[0][param[index]];
-                                                var text = dataFromRemote[j].data[0].text;
-                                                totalArray.push(total);
-
-                                                if (totalArray.length > 1) {
-                                                    var title = param[index];
-                                                    storeTweetDetails.push({
-                                                        date: currentDate,
-                                                        text: text,
-                                                        retweet_count: totalArray[0],
-                                                        favourite_count: totalArray[1]
-                                                    });
+                                }
+                                else {
+                                    var totalArray = [];
+                                    for (var index = 0; index < param.length; index++) {
+                                        if (param.length > 1) {
+                                            var total = dataFromRemote[j].data[0][param[index]];
+                                            var text = dataFromRemote[j].data[0].text;
+                                            totalArray.push(total);
+                                            if (totalArray.length > 1) {
+                                                var title = param[index];
+                                                storeTweetDetails.push({
+                                                    date: currentDate,
+                                                    text: text,
+                                                    retweet_count: totalArray[0],
+                                                    favourite_count: totalArray[1]
+                                                });
+                                            }
+                                        }
+                                        else {
+                                            var duplicateData = [];
+                                            var tempDate = [];
+                                            var duplicateRetweetCount = 0;
+                                            if (metric[j].code == configAuth.twitterMetric.retweets_of_your_tweets) {
+                                                var tweetCount = dataFromRemote[j].data;
+                                                for (var i = 0; i < tweetCount.length; i++) {
+                                                    tempDate.push({date: formatDate(new Date(Date.parse(tweetCount[i].created_at.replace(/( +)/, ' UTC$1'))))});
+                                                }
+                                                var tempDateCount = _.uniqBy(tempDate, 'date')
+                                                for (var m = 0; m < tempDateCount.length; m++) {
+                                                    storeTweetDetails.push({date: tempDateCount[m].date, total: 0});
+                                                }
+                                                for (var m = 0; m < storeTweetDetails.length; m++) {
+                                                    for (var k = 0; k < tweetCount.length; k++) {
+                                                        var responseDate = formatDate(new Date(Date.parse(tweetCount[k].created_at.replace(/( +)/, ' UTC$1'))))
+                                                        if (storeTweetDetails[m].date === responseDate)
+                                                            duplicateRetweetCount += tweetCount[k].retweet_count;
+                                                    }
+                                                    //Get the required data based on date range
+                                                    storeTweetDetails[m].total = (duplicateRetweetCount);
+                                                    var duplicateRetweetCount = 0;
                                                 }
                                             }
                                             else {
+                                                var total = dataFromRemote[j].data[0].user[param[index]];
+                                                totalArray.push({total: total, date: currentDate});
 
-                                                var duplicateData=[];
-                                                var tempDate= [];
-                                                var duplicateRetweetCount=0;
-                                                if (metric[j].code == configAuth.twitterMetric.retweets_of_your_tweets) {
-                                                    var tweetCount=dataFromRemote[j].data;
-                                                    for(var i=0;i<tweetCount.length;i++){
-                                                        tempDate.push({date:formatDate(new Date(Date.parse(tweetCount[i].created_at.replace(/( +)/, ' UTC$1'))))});
+                                                //Get the required data based on date range
+                                                storeTweetDetails.push({
+                                                        total: total,
+                                                        date: currentDate
                                                     }
-                                                    var tempDateCount = _.uniqBy(tempDate,'date')
-                                                    for(var m =0;m<tempDateCount.length;m++) {
-                                                        storeTweetDetails.push({date: tempDateCount[m].date,total:0});
-                                                    }
-                                                    for(var m =0;m<storeTweetDetails.length;m++){
-                                                        for(var k=0;k<tweetCount.length;k++){
-                                                            var responseDate = formatDate(new Date(Date.parse(tweetCount[k].created_at.replace(/( +)/, ' UTC$1'))))
-                                                            if(storeTweetDetails[m].date=== responseDate){
-                                                                duplicateRetweetCount+=tweetCount[k].retweet_count;
-                                                            }
-                                                        }
-                                                        //Get the required data based on date range
-                                                        storeTweetDetails[m].total=(duplicateRetweetCount);
-                                                        var duplicateRetweetCount=0;
-
-                                                    }
-                                                    // var tempCount = _.groupBy(dataFromRemote[j].data,'createdAt');
-                                                }
-                                                else {
-                                                    var total = dataFromRemote[j].data[0].user[param[index]];
-                                                    totalArray.push({total: total, date: currentDate});
-
-                                                    //Get the required data based on date range
-                                                    storeTweetDetails.push({
-                                                            total: total,
-                                                            date: currentDate
-                                                        }
-                                                    );
-                                                }
-
+                                                );
                                             }
                                         }
                                     }
+                                }
+                            }
+                            else return res.status(500).json({error: 'Internal server error'});
+                            if (dataFromDb[j].data != null) {
+                                dataFromDb[j].data.data.forEach(function (value, index) {
+                                    if (String(metric[j]._id) == String(dataFromRemote[j].metricId))
+                                        storeTweetDetails.push(value);
+                                })
+                                var updated = formatDate(dataFromDb[j].data.updated);
+                                var startDate = dataFromDb[j].data.updated;
+                                if (updated < currentDate) {
+                                    startDate.setDate(startDate.getDate() + 1);
+                                    var daysDifference = populateDefaultData(startDate, currentDate);
+                                }
+                            }
+                            else {
+                                var d = new Date();
+                                d.setDate(d.getDate() - 365);
+                                var startDate = formatDate(d);
+                                var daysDifference = populateDefaultData(startDate, currentDate);
+                            }
+                            function populateDefaultData(startDate, currentDate) {
+                                var daysDifference = findDaysDifference(startDate, currentDate);
+                                var defaultArrayLength = daysDifference.length;
+                                var tweetsLength = storeTweetDetails.length;
+                                for (var i = 0; i < defaultArrayLength; i++) {
+                                    for (var k = 0; k < tweetsLength; k++) {
+                                        if (daysDifference[i].date === storeTweetDetails[k].date) {
+                                            daysDifference[i] = storeTweetDetails[k]
+                                        }
+                                    }
+                                }
+                                storeTweetDetails = daysDifference;
+                            }
 
-                                    //}
-                                }
-                                else {
-                                    req.app.result = {Error: '500'};
-                                    next();
-                                }
+                            if (dataFromRemote[key].data != 'DataFromDb') {
                                 if (dataFromDb[j].data != null) {
                                     dataFromDb[j].data.data.forEach(function (value, index) {
                                         if (String(metric[j]._id) == String(dataFromRemote[j].metricId))
                                             storeTweetDetails.push(value);
-
                                     })
-                                    var updated = formatDate(dataFromDb[j].data.updated);
-                                    var startDate = dataFromDb[j].data.updated;
-                                    if (updated < currentDate) {
-                                        startDate.setDate(startDate.getDate() + 1);
-                                        var daysDifference = populateDefaultData(startDate, currentDate);
+                                }
+                                var now = new Date();
+                                Data.update({
+                                    'objectId': widget[j].metrics[0].objectId,
+                                    'metricId': dataFromRemote[j].metricId
+                                }, {
+                                    $setOnInsert: {created: now},
+                                    $set: {
+                                        data: storeTweetDetails,
+                                        updated: now,
+                                        bgFetch: metric[j].bgFetch,
+                                        fetchPeriod: metric[j].fetchPeriod
                                     }
-
-                                }
-                                else {
-
-                                    var d = new Date();
-                                    d.setDate(d.getDate() - 365);
-                                    var startDate = formatDate(d);
-                                    var daysDifference = populateDefaultData(startDate, currentDate);
-
-
-                                }
-                                function populateDefaultData(startDate, currentDate) {
-                                    var daysDifference = findDaysDifference(startDate, currentDate);
-                                    var defaultArrayLength = daysDifference.length;
-                                    var tweetsLength = storeTweetDetails.length;
-                                    for (var i = 0; i < defaultArrayLength; i++) {
-                                        for (var k = 0; k < tweetsLength; k++) {
-                                            if (daysDifference[i].date === storeTweetDetails[k].date) {
-                                                daysDifference[i] = storeTweetDetails[k]
-                                            }
-                                        }
-                                    }
-                                    storeTweetDetails = daysDifference;
-                                }
-
-                                if (dataFromRemote[key].data != 'DataFromDb') {
-                                    if (dataFromDb[j].data != null) {
-                                        dataFromDb[j].data.data.forEach(function (value, index) {
-                                            if (String(metric[j]._id) == String(dataFromRemote[j].metricId))
-                                                storeTweetDetails.push(value);
-
-                                        })
-                                    }
-                                    var now = new Date();
-                                    Data.update({
-                                        'objectId': widget[j].metrics[0].objectId,
-                                        'metricId': dataFromRemote[j].metricId
-                                    }, {
-                                        $setOnInsert: {created: now},
-                                        $set: {
-                                            data: storeTweetDetails,
-                                            updated: now,
-                                            bgFetch: metric[j].bgFetch,
-                                            fetchPeriod: metric[j].fetchPeriod
-                                        }
-                                    }, {upsert: true}, function (err) {
-                                        if (err) console.log("User not saved", err);
-                                        else
-                                            next(null, 'success')
-                                    });
-                                }
-                                else
-                                    next(null, 'success')
-
+                                }, {upsert: true}, function (err,data) {
+                                    if (err)
+                                        return res.status(500).json({error: 'Internal server error'})
+                                    else if (data == 0)
+                                        return res.status(501).json({error: 'Not implemented'})
+                                    else next(null, 'success')
+                                });
+                            }
+                            else
+                                next(null, 'success')
                         }
                         else if (metric[j].code === configAuth.twitterMetric.highEngagementTweets) {
                             next(null, dataFromRemote[j]);
                         }
-                        else {
-                            console.log('Wrong Metric')
-                        }
+                        else next('error')
                     }, done)
                 }
             }
@@ -1280,8 +1204,6 @@ exports.getChannelData = function (req, res, next) {
     //Get the data from db
     function getChannelDataDB(results, callback) {
         getGraphDataFromDb(results.widget.charts, results.metric, callback)
-
-        //Get data from db
         function getGraphDataFromDb(widget, metric, done) {
             async.times(widget.length, function (k, next) {
                 var wholeData = {};
@@ -1293,7 +1215,7 @@ exports.getChannelData = function (req, res, next) {
                     }
                     next(null, wholeData)
                 }
-                else if(metric[k].objectTypes[0].meta.endpoint[0] === 'user_media_recent'){
+                else if (metric[k].objectTypes[0].meta.endpoint[0] === 'user_media_recent') {
                     wholeData = {
                         "data": results.store_final_data[0].apiResponse,
                         "metricId": results.store_final_data[0].metricId,
@@ -1301,9 +1223,9 @@ exports.getChannelData = function (req, res, next) {
                     };
                     next(null, wholeData);
                 }
-                else if(metric[k].code === 'boardsleaderboard' || metric[k].code==='engagementRate'){
+                else if (metric[k].code === 'boardsleaderboard' || metric[k].code === 'engagementRate') {
                     wholeData = {
-                        "data":results.store_final_data[0].apiResponse ,
+                        "data": results.store_final_data[0].apiResponse,
                         "metricId": results.store_final_data[0].metricId,
                         "objectId": results.store_final_data[0].queryResults.object[0]._id
                     };
@@ -1311,8 +1233,10 @@ exports.getChannelData = function (req, res, next) {
                 }
                 else {
                     Data.aggregate([
+
                             // Unwind the array to denormalize
                             {"$unwind": "$data"},
+
                             // Match specific array elements
                             {
                                 "$match": {
@@ -1321,12 +1245,14 @@ exports.getChannelData = function (req, res, next) {
                                         {"metricId": widget[k].metrics[0].metricId}]
                                 }
                             },
+
                             // Sort in ascending order
                             {
                                 $sort: {
                                     'data.date': 1
                                 }
                             },
+
                             // Group back to array form
                             {
                                 "$group": {
@@ -1336,12 +1262,20 @@ exports.getChannelData = function (req, res, next) {
                                     "objectId": {"$first": "$objectId"},
                                     "updated": {"$first": "$updated"},
                                     "created": {"$first": "$created"}
-
                                 }
                             }]
                         , function (err, response) {
                             var finalDataArray = [];
-                            if (response.length != 0) {
+                            if (err) return res.status(500).json({error: 'Internal server error'});
+                            else if (!response.length) {
+                                finalDataArray.push({
+                                    metricId: widget[k].metrics[0].metricId,
+                                    objectId: widget[k].metrics[0].objectId,
+                                    data: response
+                                })
+                                next(null, finalDataArray)
+                            }
+                            else {
                                 var storeTotal = [];
                                 response.forEach(function (value, index) {
                                     value.data.forEach(function (dataValue, dataIndex) {
@@ -1353,10 +1287,8 @@ exports.getChannelData = function (req, res, next) {
                                                 newObjForTotal[replacedValue] = dataValue.total[key];
                                             }
                                             storeTotal.push({total: newObjForTotal, date: dataValue.date})
-
                                         }
                                     })
-
                                 })
                                 if (typeof response[0].data[0].total === 'object') {
                                     finalDataArray.push({
@@ -1368,20 +1300,11 @@ exports.getChannelData = function (req, res, next) {
                                     })
                                 }
                                 else finalDataArray = response
-                            } else
-                                finalDataArray.push({
-                                    metricId: widget[k].metrics[0].metricId,
-                                    objectId: widget[k].metrics[0].objectId,
-                                    data: response
-                                })
-                            if (response.length != 0)
-                                next(null, finalDataArray[0])
-                            else
-                                next(null, finalDataArray)
+                                next(null, finalDataArray[0]);
+                            }
                         })
                 }
             }, done)
-
         }
     }
 
@@ -1398,9 +1321,8 @@ exports.getChannelData = function (req, res, next) {
             check_data_exist: ['get_dimension', checkDataExist],
             call_get_analytic_data: ['check_data_exist', analyticData]
         }, function (err, results) {
-            if (err) {
+            if (err)
                 return callback(err, null);
-            }
             allDataObject = {
                 results: results,
                 queryResults: results.call_get_analytic_data[0].queryResults,
@@ -1446,6 +1368,7 @@ exports.getChannelData = function (req, res, next) {
             var object = results.object;
             var widget = results.widget.charts;
             if (results.metric[0].objectTypes[0].meta.api === configAuth.googleApiTypes.youtubeApi) {
+
                 //set credentials in OAuth2
                 var oauth2Client = new OAuth2(configAuth.youTubeAuth.clientID, configAuth.youTubeAuth.clientSecret, configAuth.youTubeAuth.callbackURL);
             }
@@ -1481,6 +1404,7 @@ exports.getChannelData = function (req, res, next) {
                             if (dimensionList.length === 1)
                                 dimensionArray.push({'dimension': getDimension});
                             else {
+
                                 //Dynamically form the dimension object like {ga:}
                                 for (var k = 1; k < dimensionListLength; k++) {
                                     getDimension = getDimension + ',' + dimensionList[k].name;
@@ -1512,14 +1436,12 @@ exports.getChannelData = function (req, res, next) {
                                         api: metric[i].objectTypes[0].meta.api,
                                         metric: metric[i]
                                     };
-                                    //var dataResultDetails = analyticData(oauth2Client, results.object, dimension.get_dimension, metric.objectTypes[0].meta.gaMetricName, startDate, endDate, results.response, results.data, results);
                                     next(null, allObjects);
                                 }
                                 else {
                                     allObjects = {metricId: data[i].metricId, data: 'DataFromDb', metric: metric[i]}
                                     next(null, allObjects);
                                 }
-
                             }
                             else {
 
@@ -1542,14 +1464,11 @@ exports.getChannelData = function (req, res, next) {
                                     metric: metric[i]
                                 };
                                 next(null, allObjects);
-
                             }
                         }, done);
                     }
                 }
-
             });
-
         }
 
         //to get the final google analytic data
@@ -1568,7 +1487,6 @@ exports.getChannelData = function (req, res, next) {
                 };
                 callback(null, finalData);
             }
-
             else {
                 var dimensionList;
                 var dimension;
@@ -1580,9 +1498,6 @@ exports.getChannelData = function (req, res, next) {
                     dimensionList = allObjects.dimension;
                     dimension = 'ga:date';
                 }
-                //get dimension from db
-                //check whether to ga or mcf
-                //
 
                 var apiCallingMethod;
                 var apiQuery = {}
@@ -1595,27 +1510,26 @@ exports.getChannelData = function (req, res, next) {
                         'dimensions': allObjects.dimension,
                         'metrics': allObjects.metricName,
                         prettyPrint: true,
-                        //'max-results': 2000
                     }
                     var analytics = googleapis.analytics({version: 'v3', auth: allObjects.oauth2Client}).data.mcf.get;
                     callGoogleApi(apiQuery);
                 }
                 else if (allObjects.api === configAuth.googleApiTypes.youtubeApi) {
                     apiQuery = {
-                        'access_token':allObjects.oauth2Client.credentials.access_token,
-                        //'key': configAuth.youTubeAuth.clientSecret,
-                        'ids': 'channel=='+allObjects.object.channelObjectId,
+                        'access_token': allObjects.oauth2Client.credentials.access_token,
+                        'ids': 'channel==' + allObjects.object.channelObjectId,
                         'start-date': allObjects.startDate,
                         'end-date': allObjects.endDate,
                         'dimensions': allObjects.dimension,
                         'metrics': allObjects.metricName,
                         prettyPrint: true,
-                        //'max-results': 2000
                     }
-                    var analytics = googleapis.youtubeAnalytics({version: 'v1', auth: allObjects.oauth2Client}).reports.query;
+                    var analytics = googleapis.youtubeAnalytics({
+                        version: 'v1',
+                        auth: allObjects.oauth2Client
+                    }).reports.query;
                     callGoogleApi(apiQuery);
                 }
-
                 else {
                     apiQuery = {
                         'auth': allObjects.oauth2Client,
@@ -1628,14 +1542,12 @@ exports.getChannelData = function (req, res, next) {
                     }
                     var analytics = googleapis.analytics({version: 'v3', auth: allObjects.oauth2Client}).data.ga.get;
                     callGoogleApi(apiQuery);
-
                 }
                 /**Method to call the google api
                  * @param oauth2Client - set credentials
                  */
                 var googleResult = [];
-                //googleResult.rows = {};
-                //var splitRequiredQueryData = {};
+
                 function callGoogleApi(apiQuery) {
                     analytics(apiQuery, function (err, result) {
                         if (err) {
@@ -1643,8 +1555,6 @@ exports.getChannelData = function (req, res, next) {
                                 return res.status(401).json({error: 'Authentication required to perform this action'})
                             else
                                 return res.status(500).json({error: 'Internal server error'})
-                            //googleDataEntireFunction(allObjects.results, callback);
-
                         }
                         else {
                             if (result.rows != undefined) {
@@ -1653,8 +1563,6 @@ exports.getChannelData = function (req, res, next) {
                                 }
                             }
                             else googleResult = 'No Data';
-
-
                             if (result.nextLink != undefined) {
                                 var splitRequiredQueryData = result.nextLink.split('&');
                                 if (allObjects.api === configAuth.googleApiTypes.mcfApi) {
@@ -1671,9 +1579,8 @@ exports.getChannelData = function (req, res, next) {
                                 }
                                 else if (allObjects.api === configAuth.googleApiTypes.youtubeApi) {
                                     apiQuery = {
-                                        //'access_token':oauth2Client.credentials.access_token,
                                         'key': configAuth.youTubeAuth.clientSecret,
-                                        'ids': 'channel=='+allObjects.object.channelObjectId,
+                                        'ids': 'channel==' + allObjects.object.channelObjectId,
                                         'start-date': splitRequiredQueryData[3].substr(splitRequiredQueryData[3].indexOf('=') + 1),
                                         'end-date': splitRequiredQueryData[4].substr(splitRequiredQueryData[4].indexOf('=') + 1),
                                         'start-index': splitRequiredQueryData[5].substr(splitRequiredQueryData[5].indexOf('=') + 1),
@@ -1682,7 +1589,7 @@ exports.getChannelData = function (req, res, next) {
                                         prettyPrint: true,
                                     }
                                 }
-                                else{
+                                else {
                                     apiQuery = {
                                         'auth': allObjects.oauth2Client,
                                         'ids': 'ga:' + allObjects.object.channelObjectId,
@@ -1707,13 +1614,10 @@ exports.getChannelData = function (req, res, next) {
                                     metric: allObjects.metric
                                 };
                                 callback(null, finalData);
-
                             }
-
                         }
                     });
                 }
-
             }
         }
     }
@@ -1743,7 +1647,6 @@ exports.getChannelData = function (req, res, next) {
         function callFetchFBadsData(callback) {
             work(initialResults.data, initialResults.object, initialResults.metric, callback);
             function work(data, object, metric, done) {
-
                 async.timesSeries(object.length, function (j, next) {
                     var adAccountId = initialResults.object[j].channelObjectId;
                     d = new Date();
@@ -1755,8 +1658,7 @@ exports.getChannelData = function (req, res, next) {
                         var endDate = calculateDate(d);
                         d.setDate(d.getDate() - n);
                         var startDate = calculateDate(d);
-
-                        var query = configAuth.apiVersions.FBADs+"/" + adAccountId + "/insights?limit=365&time_increment=1&fields=" + initialResults.metric[j].objectTypes[0].meta.fbAdsMetricName + '&time_range[since]=' + startDate + '&time_range[until]=' + endDate;
+                        var query = configAuth.apiVersions.FBADs + "/" + adAccountId + "/insights?limit=365&time_increment=1&fields=" + initialResults.metric[j].objectTypes[0].meta.fbAdsMetricName + '&time_range[since]=' + startDate + '&time_range[until]=' + endDate;
                         allObjects = {
                             profile: initialResults.get_profile[j],
                             query: query,
@@ -1769,7 +1671,6 @@ exports.getChannelData = function (req, res, next) {
                             metric: metric[j]
                         }
                         callback(null, allObjects);
-                        //fetchFBadsData(initialResults.get_profile[0], query, initialResults, initialResults.data, startDate, endDate);
                     }
 
                     if (data[j].data != null) {
@@ -1779,8 +1680,7 @@ exports.getChannelData = function (req, res, next) {
                         var startDate = calculateDate(d);
                         var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
                         if (updated < currentDate) {
-                            var query = configAuth.apiVersions.FBADs+"/" + adAccountId + "/insights?limit=365&time_increment=1&fields=" + initialResults.metric[j].objectTypes[0].meta.fbAdsMetricName + '&time_range[since]=' + updated + '&time_range[until]=' + startDate;
-                            //var query = pageId + "/insights/" + response.meta.fbMetricName + "?since=" + updated + "&until=" + endDate;
+                            var query = configAuth.apiVersions.FBADs + "/" + adAccountId + "/insights?limit=365&time_increment=1&fields=" + initialResults.metric[j].objectTypes[0].meta.fbAdsMetricName + '&time_range[since]=' + updated + '&time_range[until]=' + startDate;
                             allObjects = {
                                 profile: initialResults.get_profile[j],
                                 query: query,
@@ -1793,7 +1693,6 @@ exports.getChannelData = function (req, res, next) {
                                 metric: metric[j]
                             }
                             next(null, [allObjects]);
-                            //fetchFBadsData(initialResults.get_profile[0], query, initialResults, initialResults.data, updated, currentDate);
                         }
                         else {
                             allObjects = {
@@ -1810,31 +1709,28 @@ exports.getChannelData = function (req, res, next) {
                             }
                             next(null, allObjects);
                         }
-
                     }
                     else {
-                        //setStartEndDate(365);
                         var d = new Date();
                         async.map([365], setStartEndDate, function (err, query) {
                             next(null, query);
                         });
                     }
-
                 }, done)
             }
         }
 
-// This Function executed to get insights data like(impression,clicks)
+        // This Function executed to get insights data like(impression,clicks)
         function fetchFBadsData(allObjects, callback) {
             var entireObjects = {};
             if (allObjects.call_fb_ads_data.dataResult === 'DataFromDb') {
                 entireObjects = {
-                    profile: initialResults.get_profile[j],
+                    profile: '',
                     query: query,
-                    widget: metric[j],
+                    widget: '',
                     dataResult: 'DataFromDb',
                     startDate: updated,
-                    endDate: currentDate,
+                    endDate: '',
                     metricId: allObjects.call_fb_ads_data.metricId,
                     channelId: allObjects.call_fb_ads_data.channelId
                 }
@@ -1921,13 +1817,6 @@ exports.getChannelData = function (req, res, next) {
                                 for (var j = 0; j < obj_metric; j++) {
                                     wholeData.push({date: tot_metric[j].date, total: tot_metric[j].total});
                                 }
-                                if (results.dataResult != 'No data')   console.log('after if');
-
-                                /*for (var i = 0; i < diffDays; i++) {
-                                 var finalDate = calculateDate(storeStartDate);
-                                 storeDefaultValues.push({date: finalDate, total: 0});
-                                 storeStartDate.setDate(storeStartDate.getDate() + 1);
-                                 }*/
 
                                 //To replace the missing dates in whole data with empty values
                                 var validData = wholeData.length;
@@ -2066,74 +1955,65 @@ exports.getChannelData = function (req, res, next) {
         }
 
         function getAdwordsDataForEachMetric(results, callback) {
-            semaphore.take(function() {
-            var errorCount = 0;
-            var during = results.startDate + ',' + results.endDate;
-            googleAds.use({
-                clientID: configAuth.googleAdwordsAuth.clientID,
-                clientSecret: configAuth.googleAdwordsAuth.clientSecret,
-                developerToken: configAuth.googleAdwordsAuth.developerToken
-            });
-            googleAds.use({
-                accessToken: results.profile.accessToken,
-                //tokenExpires: 1424716834341, // Integer: Unix Timestamp of expiration time
-                refreshToken: results.profile.refreshToken,
-                clientCustomerID: results.objects
-            });
-            googleAds.awql()
-                .select(results.query)
-                .from('ACCOUNT_PERFORMANCE_REPORT')
-                .during(during)
-                .send().then(function (response) {
-                    storeAdwordsFinalData(results, response.data);
-                    semaphore.leave();
-                })
-                .catch(function (error) {
-                    semaphore.leave();
-                    callback(error, null);
+            semaphore.take(function () {
+                var errorCount = 0;
+                var during = results.startDate + ',' + results.endDate;
+                googleAds.use({
+                    clientID: configAuth.googleAdwordsAuth.clientID,
+                    clientSecret: configAuth.googleAdwordsAuth.clientSecret,
+                    developerToken: configAuth.googleAdwordsAuth.developerToken
                 });
-        });
+                googleAds.use({
+                    accessToken: results.profile.accessToken,
+                    //tokenExpires: 1424716834341, // Integer: Unix Timestamp of expiration time
+                    refreshToken: results.profile.refreshToken,
+                    clientCustomerID: results.objects
+                });
+                googleAds.awql()
+                    .select(results.query)
+                    .from('ACCOUNT_PERFORMANCE_REPORT')
+                    .during(during)
+                    .send().then(function (response) {
+                        storeAdwordsFinalData(results, response.data);
+                        semaphore.leave();
+                    })
+                    .catch(function (error) {
+                        semaphore.leave();
+                        callback(error, null);
+                    });
+            });
 
             //To store the final result in db
             function storeAdwordsFinalData(results, data) {
                 var actualFinalApiData = {};
                 if (data.error) {
-                    console.log('AdwordsDataError')
+                    return res.status(500).json({error: 'Internal server error'});
                 }
 
                 //Array to hold the final result
                 var param = [];
-                if (results.metricCode === configAuth.googleAdwordsMetric.clicks) {
+                if (results.metricCode === configAuth.googleAdwordsMetric.clicks)
                     param.push('clicks');
-                }
-                else if (results.metricCode === configAuth.googleAdwordsMetric.cost) {
+                else if (results.metricCode === configAuth.googleAdwordsMetric.cost)
                     param.push('cost');
-                }
-                else if (results.metricCode === configAuth.googleAdwordsMetric.conversionRate) {
+                else if (results.metricCode === configAuth.googleAdwordsMetric.conversionRate)
                     param.push('conv. rate');
-                }
-                else if (results.metricCode === configAuth.googleAdwordsMetric.conversions) {
+                else if (results.metricCode === configAuth.googleAdwordsMetric.conversions)
                     param.push('conversions');
-                }
-                else if (results.metricCode === configAuth.googleAdwordsMetric.impressions) {
+                else if (results.metricCode === configAuth.googleAdwordsMetric.impressions)
                     param.push('impressions');
-                }
-                else if (results.metricCode === configAuth.googleAdwordsMetric.clickThroughRate) {
+                else if (results.metricCode === configAuth.googleAdwordsMetric.clickThroughRate)
                     param.push('ctr')
-                }
-                else if (results.metricCode === configAuth.googleAdwordsMetric.costPerClick) {
+                else if (results.metricCode === configAuth.googleAdwordsMetric.costPerClick)
                     param.push('avg. cpc');
-                }
-                else if (results.metricCode === configAuth.googleAdwordsMetric.costPerThousandImpressions) {
+                else if (results.metricCode === configAuth.googleAdwordsMetric.costPerThousandImpressions)
                     param.push('avg. cpm');
-                }
-                else {
+                else
                     param.push('cost / conv.');
-                }
                 var finalData = [];
                 var totalValue;
                 for (var prop = 0; prop < data.length; prop++) {
-                    if(results.metricCode === configAuth.googleAdwordsMetric.costPerConversion || results.metricCode === configAuth.googleAdwordsMetric.costPerClick||results.metricCode === configAuth.googleAdwordsMetric.costPerThousandImpressions||results.metricCode === configAuth.googleAdwordsMetric.cost)
+                    if (results.metricCode === configAuth.googleAdwordsMetric.costPerConversion || results.metricCode === configAuth.googleAdwordsMetric.costPerClick || results.metricCode === configAuth.googleAdwordsMetric.costPerThousandImpressions || results.metricCode === configAuth.googleAdwordsMetric.cost)
                         totalValue = parseFloat((data[prop][param] / 1000000).toFixed(6));
                     else
                         totalValue = parseFloat(data[prop][param]);
@@ -2250,7 +2130,7 @@ exports.getChannelData = function (req, res, next) {
         function getTweetDataFromRemote(queries, callback) {
             var finalTwitterResponse = [];
             var wholeTweetObjects = [];
-            var index=0;
+            var index = 0;
             var oldMaxId;
             async.timesSeries(queries.get_tweet_queries.length, function (j, next) {
                 if (queries.get_tweet_queries[j].inputs === 'DataFromDb') {
@@ -2263,9 +2143,9 @@ exports.getChannelData = function (req, res, next) {
                     next(null, finalTwitterResponse)
                 }
                 else {
-                    callTwitterApi(queries, j, wholeTweetObjects, oldMaxId,index, function (err, response) {
+                    callTwitterApi(queries, j, wholeTweetObjects, oldMaxId, index, function (err, response) {
                         if (err)
-                            return res.status(500).json({});
+                            return res.status(500).json({error: 'Internal server error'});
                         else {
                             next(null, response);
                         }
@@ -2276,7 +2156,7 @@ exports.getChannelData = function (req, res, next) {
             }, callback)
         }
 
-        function callTwitterApi(queries, j, wholeTweetObjects, oldMaxId,index, callback) {
+        function callTwitterApi(queries, j, wholeTweetObjects, oldMaxId, index, callback) {
             var finalTwitterResponse = {};
             var finalHighEngagedTweets = [];
             var query = queries.get_tweet_queries[j].query;
@@ -2285,11 +2165,11 @@ exports.getChannelData = function (req, res, next) {
             var sortedTweetsArray = [];
             var storeTweetDate;
             var storeDefaultValues = [];
-            var removeDuplicate =[];
+            var removeDuplicate = [];
 
             client.get(query, inputs, function (error, tweets, response) {
-                if (error){
-                    return res.status(500).json({});}
+                if (error)
+                    return res.status(500).json({error: 'Internal server error'});
                 else {
                     if (queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.tweets || queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.followers || queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.following || queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.favourites || queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.listed || queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.retweets_of_your_tweets) {
 
@@ -2302,7 +2182,7 @@ exports.getChannelData = function (req, res, next) {
                         callback(null, finalTwitterResponse);
                     }
                     else {
-                        if(index==0 && tweets.length==0 ){
+                        if (index == 0 && tweets.length == 0) {
                             finalTwitterResponse = {
                                 data: tweets,
                                 metricId: queries.get_tweet_queries[j].metricId,
@@ -2312,7 +2192,7 @@ exports.getChannelData = function (req, res, next) {
                             callback(null, finalTwitterResponse);
                         }
 
-                        else if(index==0 && tweets.length!=0){
+                        else if (index == 0 && tweets.length != 0) {
                             oldMaxId = tweets[tweets.length - 1].id;
                             tweets.forEach(function (value, index) {
                                 storeTweetDate = formatDate(new Date(Date.parse(value.created_at.replace(/( +)/, ' UTC$1'))));
@@ -2325,91 +2205,104 @@ exports.getChannelData = function (req, res, next) {
                                 max_id: oldMaxId
                             };
                             index++;
-
-                            callTwitterApi(queries, j, wholeTweetObjects,oldMaxId,index, callback);
+                            callTwitterApi(queries, j, wholeTweetObjects, oldMaxId, index, callback);
                         }
-
-                        else if(index!=0 && tweets.length!=0 ){
-                            if(oldMaxId === tweets[tweets.length - 1].id){
+                        else if (index != 0 && tweets.length != 0) {
+                            if (oldMaxId === tweets[tweets.length - 1].id) {
                                 tweets.forEach(function (value, index) {
                                     storeTweetDate = formatDate(new Date(Date.parse(value.created_at.replace(/( +)/, ' UTC$1'))));
                                     wholeTweetObjects.push({total: value, date: storeTweetDate});
                                 });
                                 storingProcess(wholeTweetObjects);
                             }
-                            else{
+                            else {
                                 oldMaxId = tweets[tweets.length - 1].id;
-                                var maxId= tweets[tweets.length - 1].id;
+                                var maxId = tweets[tweets.length - 1].id;
                                 tweets.forEach(function (value, index) {
                                     storeTweetDate = formatDate(new Date(Date.parse(value.created_at.replace(/( +)/, ' UTC$1'))));
                                     wholeTweetObjects.push({total: value, date: storeTweetDate});
                                 });
-
-
                                 queries.get_tweet_queries[j].inputs = {
                                     screen_name: queries.get_tweet_queries[j].inputs.screen_name,
                                     count: queries.get_tweet_queries[j].inputs.count,
                                     max_id: maxId
                                 };
-                                callTwitterApi(queries, j, wholeTweetObjects,oldMaxId,index, callback);
+                                callTwitterApi(queries, j, wholeTweetObjects, oldMaxId, index, callback);
                             }
                         }
-
-                        else if(index!=0 && tweets.length==0){
-                                storingProcess(wholeTweetObjects)
-
-                        }
+                        else if (index != 0 && tweets.length == 0)
+                            storingProcess(wholeTweetObjects)
 
                         function storingProcess(wholeTweetObjects) {
-                            for(var i=0;i<wholeTweetObjects.length;i++){
+                            for (var i = 0; i < wholeTweetObjects.length; i++) {
                                 var lastCreatedAt = formatDate(new Date(Date.parse(wholeTweetObjects[i].total.created_at)));
-                                var changeFormatCreateAt =moment.utc(lastCreatedAt).unix();
-                                var startDate =moment.utc(req.body.startDate).unix();
+                                var changeFormatCreateAt = moment.utc(lastCreatedAt).unix();
+                                var startDate = moment.utc(req.body.startDate).unix();
                                 var endDate = moment.utc(req.body.endDate).unix();
 
-                                if (changeFormatCreateAt >= startDate && changeFormatCreateAt <= endDate ) {
+                                if (changeFormatCreateAt >= startDate && changeFormatCreateAt <= endDate) {
                                     var count = wholeTweetObjects[i].total.retweet_count + wholeTweetObjects[i].total.favorite_count;
-                                        highEngagedTweetsCount.push({count:count,total:wholeTweetObjects[i].total,date: moment.utc(wholeTweetObjects[i].date).unix()});
+                                    highEngagedTweetsCount.push({
+                                        count: count,
+                                        total: wholeTweetObjects[i].total,
+                                        date: moment.utc(wholeTweetObjects[i].date).unix()
+                                    });
                                 }
                             }
-                            var sortedTweetsReverse=[];
-                            storeDefaultValues = _.sortBy(highEngagedTweetsCount, ['count','date']);
+                            var sortedTweetsReverse = [];
+                            storeDefaultValues = _.sortBy(highEngagedTweetsCount, ['count', 'date']);
                             sortedTweetsArray = _.orderBy(storeDefaultValues, ['count'], ['desc']);
 
-                            for(var i=0;i<sortedTweetsArray.length;i++){
-                                if(i==0){
-                                    removeDuplicate[i]={count:sortedTweetsArray[i].count,date:moment.unix(sortedTweetsArray[i].date).format("YYYY/MM/DD"),total:sortedTweetsArray[i].total};
+                            for (var i = 0; i < sortedTweetsArray.length; i++) {
+                                if (i == 0) {
+                                    removeDuplicate[i] = {
+                                        count: sortedTweetsArray[i].count,
+                                        date: moment.unix(sortedTweetsArray[i].date).format("YYYY/MM/DD"),
+                                        total: sortedTweetsArray[i].total
+                                    };
                                 }
-                                else if(removeDuplicate[i-1].count===sortedTweetsArray[i].count){
-                                    var UnsortedDate=new Date(Date.parse(removeDuplicate[i-1].total.created_at.replace(/( \+)/, ' UTC$1')));
-                                    var SortedDate =new Date(Date.parse(sortedTweetsArray[i].total.created_at.replace(/( \+)/, ' UTC$1'))) ;
-                                    var removeDuplicateDate=moment.utc(UnsortedDate).unix();
-                                    var sortedTweetsArrayDate=moment.utc(SortedDate).unix();
+                                else if (removeDuplicate[i - 1].count === sortedTweetsArray[i].count) {
+                                    var UnsortedDate = new Date(Date.parse(removeDuplicate[i - 1].total.created_at.replace(/( \+)/, ' UTC$1')));
+                                    var SortedDate = new Date(Date.parse(sortedTweetsArray[i].total.created_at.replace(/( \+)/, ' UTC$1')));
+                                    var removeDuplicateDate = moment.utc(UnsortedDate).unix();
+                                    var sortedTweetsArrayDate = moment.utc(SortedDate).unix();
 
-                                    if(removeDuplicateDate < sortedTweetsArrayDate) {
+                                    if (removeDuplicateDate < sortedTweetsArrayDate) {
                                         var beforValue = removeDuplicate[i - 1];
-                                        removeDuplicate[i - 1] = {count:sortedTweetsArray[i].count,date: moment.unix(sortedTweetsArray[i].date).format("YYYY/MM/DD"),total:sortedTweetsArray[i].total};
+                                        removeDuplicate[i - 1] = {
+                                            count: sortedTweetsArray[i].count,
+                                            date: moment.unix(sortedTweetsArray[i].date).format("YYYY/MM/DD"),
+                                            total: sortedTweetsArray[i].total
+                                        };
                                         removeDuplicate[i] = beforValue;
                                     }
-                                    else{
-                                        removeDuplicate[i]={count:sortedTweetsArray[i].count,date:moment.unix(sortedTweetsArray[i].date).format("YYYY/MM/DD"),total:sortedTweetsArray[i].total};
+                                    else {
+                                        removeDuplicate[i] = {
+                                            count: sortedTweetsArray[i].count,
+                                            date: moment.unix(sortedTweetsArray[i].date).format("YYYY/MM/DD"),
+                                            total: sortedTweetsArray[i].total
+                                        };
                                     }
                                 }
-                                else{
-                                    removeDuplicate[i]={count:sortedTweetsArray[i].count,date:moment.unix(sortedTweetsArray[i].date).format("YYYY/MM/DD"),total:sortedTweetsArray[i].total};
+                                else {
+                                    removeDuplicate[i] = {
+                                        count: sortedTweetsArray[i].count,
+                                        date: moment.unix(sortedTweetsArray[i].date).format("YYYY/MM/DD"),
+                                        total: sortedTweetsArray[i].total
+                                    };
                                 }
 
                             }
 
-                            if(removeDuplicate.length >20) {
+                            if (removeDuplicate.length > 20) {
                                 for (var index = 1; index < 20; index++) {
                                     finalHighEngagedTweets.push(removeDuplicate[index]);
                                 }
                             }
-                            else{
+                            else {
                                 for (var index = 0; index < removeDuplicate.length; index++) {
-                                finalHighEngagedTweets.push(removeDuplicate[index]);
-                            }
+                                    finalHighEngagedTweets.push(removeDuplicate[index]);
+                                }
                             }
                             finalTwitterResponse = {
                                 data: finalHighEngagedTweets,
@@ -2452,19 +2345,10 @@ exports.getChannelData = function (req, res, next) {
                 var storeStartDate = new Date(Date.parse(wholetweetData[wholetweetData.length - 1].created_at.replace(/( +)/, ' UTC$1')));
 
             }
-            else {
+            else
                 var storeStartDate = new Date(Date.parse(wholetweetData[0].created_at.replace(/( +)/, ' UTC$1')));
-
-            }
-
-
             storeEndDate.setDate(storeEndDate.getDate() + 1);
         }
-
-
-        //var storeStartDate = new Date(Date.parse(dataResult.data[dataResult.data.length - 1].created_at.replace(/( +)/, ' UTC$1')));
-        //var storeEndDate = new Date(endDate);
-
         var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
@@ -2477,7 +2361,6 @@ exports.getChannelData = function (req, res, next) {
 
         defaultTweetDataArray.push(defaultTweetValues);
         for (var i = 0; i < diffDays; i++) {
-
             var finalDate = calculateDate(storeStartDate);
             defaultTweetValues = {
                 created_at: finalDate,
@@ -2487,7 +2370,6 @@ exports.getChannelData = function (req, res, next) {
                 favorite_count: 0
             }
             storeDefaultValues.push(defaultTweetValues);
-            //storeDefaultValues.push(defaultTweetDataArray);
             storeStartDate.setDate(storeStartDate.getDate() + 1);
         }
 
@@ -2495,7 +2377,6 @@ exports.getChannelData = function (req, res, next) {
         var validData = wholetweetData.length;
         for (var j = 0; j < validData; j++) {
             for (var k = 0; k < storeDefaultValues.length; k++) {
-
                 if (metric[0].name == configAuth.twitterMetric.keywordMentions)
                     var tweetCreatedAt = calculateDate(new Date(Date.parse(wholetweetData.statuses[j].created_at.replace(/( +)/, ' UTC$1'))));
                 else
@@ -2514,22 +2395,20 @@ exports.getChannelData = function (req, res, next) {
             'metricId': results.widget.charts[0].metrics[0].metricId
         }, {
             $set: {data: storeDefaultValues, updated: now}
-        }, {upsert: true}, function (err) {
-            if (err) console.log("User not saved", err);
+        }, {upsert: true}, function (err, data) {
+            if (err)
+                return res.status(500).json({error: 'Internal server error'})
+            else if (data == 0)
+                return res.status(501).json({error: 'Not implemented'})
             else {
                 Data.findOne({
                     'objectId': results.widget.charts[0].metrics[0].objectId,
                     'metricId': results.widget.charts[0].metrics[0].metricId
                 }, function (err, response) {
-                    if (!err) {
-                        sendFinalData(response, metric);
-                    }
-
-                    else if (!response.length)
-                        return res.status(500).json({});
-                    else
-                        return res.status(302).json({});
-
+                    if (err) return res.status(500).json({error: 'Internal server error'});
+                    else if (!alertDetails.length)
+                        return res.status(204).json({error: 'No records found'});
+                    else sendFinalData(response, metric);
                 })
             }
         });
@@ -2580,9 +2459,6 @@ exports.getChannelData = function (req, res, next) {
                 else
                     var inputs = {q: '%23' + profile.name, count: count};
             }
-            /* else
-             return res.status(500).json({error: 'Error'});*/
-
         }
         else if (metric[0].name === configAuth.twitterMetric.Mentions || metricType === configAuth.twitterMetric.HighEngagementtweets) {
             if (tweets != undefined && tweets != '') {
@@ -2590,18 +2466,10 @@ exports.getChannelData = function (req, res, next) {
 
             }
             //To check whether the metric is mention or not
-            if (req.body.mentions != undefined) {
-
-                var inputs = checkMentionsInClientInput(until, count, tweets, req.body.mentions)
-            }
-            else {
-                var inputs = checkMentionsInClientInput(until, count, tweets)
-            }
+            if (req.body.mentions != undefined) var inputs = checkMentionsInClientInput(until, count, tweets, req.body.mentions)
+            else var inputs = checkMentionsInClientInput(until, count, tweets)
         }
-        else
-            var inputs = {screen_name: profile.name, since_id: '718324934175563800'};
-
-
+        else var inputs = {screen_name: profile.name, since_id: '718324934175563800'};
         if (data != null || tweets != '') {
             if (tweets != undefined && tweets != '') {
                 var TweetObject;
@@ -2611,56 +2479,36 @@ exports.getChannelData = function (req, res, next) {
 
                 }
                 var createdAt = new Date(Date.parse(tweets[0].created_at.replace(/( +)/, ' UTC$1')));
-
             }
-            else {
-
-                var createdAt = new Date(Date.parse(data.data[data.data.length - 1].created_at.replace(/( +)/, ' UTC$1')));
-            }
+            else var createdAt = new Date(Date.parse(data.data[data.data.length - 1].created_at.replace(/( +)/, ' UTC$1')));
             if (tempCount - 1 == i || tempCount == undefined || tempCount == '') {
                 if (new Date(req.body.startDate) > createdAt) {
                     var totalCount = getDaysDifference(createdAt, new Date(req.body.startDate));
                     callTweetApiBasedCondition(query, profile, totalCount, wholetweetData, widget, metric, data, results, until, tweets, createdAt, inputs);
                 }
-
                 else
                 //call data from db
                     sendFinalData(data, metric);
             }
 
-
         }
         else
             callTweetApiBasedCondition(query, profile, 200, wholetweetData, widget, metric, data, results, until, tweets, '', inputs)
-
     }
 
     function callTweetApiBasedCondition(query, profile, totalCount, wholetweetData, widget, metric, data, results, until, tweets, createdAt, inputs) {
         client.get(query, inputs, function (error, tweets, response) {
             if (error)
-                return res.status(500).json({});
-            else if (tweets.length == 0) {
-
+                return res.status(500).json({error: 'Internal server error'});
+            else if (tweets.length == 0)
                 storeTweetData(wholetweetData, results, metric, 1);
-            }
             else {
                 if (data == null) {
-                    if (metric[0].name == configAuth.twitterMetric.keywordMentions) {
-                        var createdAt = new Date(Date.parse(tweets.statuses[0].created_at.replace(/( +)/, ' UTC$1')));
-                    }
-                    else
-                        var createdAt = new Date(Date.parse(tweets[0].created_at.replace(/( +)/, ' UTC$1')));
-
-//                var totalCount = getDaysDifference(createdAt, new Date(req.body.startDate));
+                    if (metric[0].name == configAuth.twitterMetric.keywordMentions) var createdAt = new Date(Date.parse(tweets.statuses[0].created_at.replace(/( +)/, ' UTC$1')));
+                    else var createdAt = new Date(Date.parse(tweets[0].created_at.replace(/( +)/, ' UTC$1')));
                 }
-                else {
-
-                    var createdAt = data.updated;
-
-//                var totalCount = getDaysDifference(createdAt, new Date(req.body.startDate));
-                }
+                else var createdAt = data.updated;
                 if (new Date(req.body.startDate) > createdAt && createdAt.setDate(createdAt.getDate() + 1) != new Date()) {
-
                     var totalCount = getDaysDifference(createdAt, new Date(req.body.startDate));
                     if (new Date(req.body.startDate) > createdAt) {
                         if (totalCount < 200)
@@ -2754,10 +2602,7 @@ exports.getChannelData = function (req, res, next) {
                 }
             }
         }
-        else {
-            req.app.result = {Error: '500'};
-            next();
-        }
+        else return res.status(500).json({error: 'Internal server error'});
 
     }
 
@@ -2856,17 +2701,14 @@ exports.getChannelData = function (req, res, next) {
             var storeMetric;
             var tot_metric = [];
             var sorteMediasArray = [];
-            var storeData=[];
+            var storeData = [];
             var actualFinalApiData = [];
             var userMediaRecent = [];
             var recentMedia = [];
             ig.use({access_token: result.profile.accessToken});
             if (result.query === 'user') {
                 ig.user(result.profile.userId, function (err, results, remaining, limit) {
-                    if (err) {
-                        console.log('Media Error : ', err);
-                        return res.status(500).json({});
-                    }
+                    if (err) return res.status(500).json({error: 'Internal server error'});
                     else {
                         var endPointMetric = {};
                         endPointMetric = {items: result.endpoint};
@@ -2892,7 +2734,6 @@ exports.getChannelData = function (req, res, next) {
                                     date: result.endDate
                                 };
                             }
-
                         }
                         actualFinalApiData = {
                             apiResponse: tot_metric,
@@ -2906,7 +2747,7 @@ exports.getChannelData = function (req, res, next) {
             }
             else {
                 var callApi = function (err, medias, pagination, remaining, limit) {
-                    if(result.metricCode === 'likes' || result.metricCode=== 'comments'){
+                    if (result.metricCode === 'likes' || result.metricCode === 'comments') {
                         for (var key in medias) {
                             userMediaRecent.push(medias[key])
                         }
@@ -2915,36 +2756,35 @@ exports.getChannelData = function (req, res, next) {
                                 pagination.next(callApi); // Will get second page results
                             }
                             else {
-                                for(var i = 0; i < userMediaRecent.length; i++) {
+                                for (var i = 0; i < userMediaRecent.length; i++) {
                                     var storeDate = userMediaRecent[i].created_time;
                                     var startDate = moment(req.body.startDate).unix();
                                     var endDate = moment(req.body.endDate).unix();
-                                    if(storeDate>=startDate && storeDate<=endDate){
+                                    if (storeDate >= startDate && storeDate <= endDate) {
                                         var formateDate = moment.unix(storeDate).format('YYYY-MM-DD');
                                         storeData.push({date: formateDate, total: userMediaRecent[i]})
                                     }
-
                                 }
-                                var uniqueDate = _.groupBy(storeData,'date')
-                                for(var key in uniqueDate){
-                                    var like='likes';
-                                    var count='count';
-                                    var comments='comments';
-                                    var tempLikes=0;
-                                    var tempComments=0;
-                                    for(var j=0;j<uniqueDate[key].length;j++){
-                                        var date=uniqueDate[key][j].date;
-                                        tempLikes +=uniqueDate[key][j].total[like][count];
-                                        tempComments+=uniqueDate[key][j].total[comments][count];
+                                var uniqueDate = _.groupBy(storeData, 'date')
+                                for (var key in uniqueDate) {
+                                    var like = 'likes';
+                                    var count = 'count';
+                                    var comments = 'comments';
+                                    var tempLikes = 0;
+                                    var tempComments = 0;
+                                    for (var j = 0; j < uniqueDate[key].length; j++) {
+                                        var date = uniqueDate[key][j].date;
+                                        tempLikes += uniqueDate[key][j].total[like][count];
+                                        tempComments += uniqueDate[key][j].total[comments][count];
                                     }
-                                    if(result.metricCode === 'likes' ){
-                                        recentMedia.push({date:date,total:tempLikes})
+                                    if (result.metricCode === 'likes') {
+                                        recentMedia.push({date: date, total: tempLikes})
                                     }
                                     else {
-                                        recentMedia.push({date:date,total:tempComments})
+                                        recentMedia.push({date: date, total: tempComments})
                                     }
-                                    tempLikes=0;
-                                    tempComments=0;
+                                    tempLikes = 0;
+                                    tempComments = 0;
                                 }
                                 var storeStartDate = new Date(req.body.startDate);
                                 var storeEndDate = new Date(req.body.endDate);
@@ -2955,9 +2795,9 @@ exports.getChannelData = function (req, res, next) {
                                     tot_metric.push({date: finalDate, total: 0});
                                     storeStartDate.setDate(storeStartDate.getDate() + 1);
                                     for (var n = 0; n < recentMedia.length; n++) {
-                                        if (recentMedia[n].date===tot_metric[i].date) {
+                                        if (recentMedia[n].date === tot_metric[i].date) {
                                             tot_metric[i] = {
-                                                total:  recentMedia[n].total,
+                                                total: recentMedia[n].total,
                                                 date: recentMedia[n].date
                                             };
                                         }
@@ -2972,8 +2812,6 @@ exports.getChannelData = function (req, res, next) {
                                 };
 
                                 callback(null, actualFinalApiData);
-
-
                             }
                         }
                     }

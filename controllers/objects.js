@@ -8,10 +8,6 @@ var objectList = require('../middlewares/getObjects');
  */
 module.exports = function (app) {
     app.get('/api/v1/get/objects/:profileID', objectList.objects, function (req, res) {
-        var objects = req.app.objects;
-        if (objects)
-            res.json({objectList: objects});
-        else
-            res.status(500).send({error: ""});
+            res.json({objectList: req.app.objects});
     });
 };

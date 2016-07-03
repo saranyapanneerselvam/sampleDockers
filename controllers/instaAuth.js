@@ -33,9 +33,8 @@ module.exports = function (app) {
     app.get(configAuth.instagramAuth.localCallbackURL, function (req, res) {
         ig.authorize_user(req.query.code, redirect_uri, function (err, result) {
             //If authorization Error occurs - dev
-            if (err) {
+            if (err)
                 return res.status(401).json({error: 'Authentication required to perform this action'});
-            }
             //On successful authentication - dev
             else {
                 req.tokens = result.access_token;
@@ -56,16 +55,14 @@ module.exports = function (app) {
                     user.storeProfiles(req, function (err, response) {
                         //If storage error occurs - dev
                         if (err)
-                            res.json('Error',err);
+                            res.json('Error', err);
 
                         else {
                             //Find objects in objects table based on profileId which is to be stored in profile table - dev
                             objects.findOne({profileId: response._id}, function (err, object) {
-                                //If object find error for profileId occurs - dev
-                                if (object) {
-                                    res.render('successAuthentication');
-                                }
-                                else {
+                                if (err)
+                                    return res.status(500).json({error: err});
+                                else if (!object) {
                                     //Find objectType in objectType table based on channelId - dev
                                     objectType.find({'channelId': response.channelId}, function (err, objectType) {
                                         //Create an object for channel and Insert object in profile table - dev
@@ -83,10 +80,13 @@ module.exports = function (app) {
                                                 res.render('successAuthentication');
                                             }
                                             else
-                                                res.json('Error',err);
+                                                res.json('Error', err);
                                         });
                                     });
                                 }
+                                else
+                                //If object find error for profileId occurs - dev
+                                    res.render('successAuthentication');
                             });
                         }
                     });

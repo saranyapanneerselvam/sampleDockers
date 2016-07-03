@@ -19,16 +19,11 @@ module.exports = function (app) {
 
     //To update the existing customChannel Data
     app.put('/api/v1/create/customdata/:widgetId', customChannelData.updateCustomChannelData, function (req, res) {
-        var customDataResult = req.app.result;
-        if (customDataResult)
-            res.json(customDataResult);
-        else
-            res.status(500).send({error: ""});
+            res.json(req.app.result);
     });
 
     app.post('/api/v1/customWidget/data/:widgetId', customChannelData.getCustomChannelWidgetData, function (req, res) {
-        var getCustomChannelData = req.app.result;
-        res.json(getCustomChannelData);
+        res.json(req.app.result);
     });
 
 };

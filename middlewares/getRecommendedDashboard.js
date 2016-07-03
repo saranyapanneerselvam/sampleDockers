@@ -5,7 +5,6 @@ var channels = require('../models/channels.js');
 var async = require("async");
 /** Function to get the recommendedDashboard's details such as pages */
 exports.recommendDashboard = function (req, res, next) {
-    req.showMetric = {};
     var groupByDashboard = [];
     var uniqueChannel= [];
 
@@ -27,7 +26,7 @@ exports.recommendDashboard = function (req, res, next) {
                 channels: groupByDashboard[i].channels
             };
         }
-        req.showMetric.dashboardsDetails = getData;
+        req.app.dashboardsDetails = getData;
         next();
     });
 
@@ -57,12 +56,11 @@ exports.recommendDashboard = function (req, res, next) {
 
         async.times(dashboard.widgets.length, function(n,next) {
             referenceWidget.findOne({_id: dashboard.widgets[n]}, function(err,referenceWidgets){
-                if(!err) {
+                if (err ||!referenceWidgets.length)
+                    next('error',null);
+                else{
                     groupByDashboard[index].referenceWidgets[n] = referenceWidgets;
                     next(null,referenceWidgets);
-                }
-                else{
-                    return res.status(500).json({});
                 }
             });
         },callback);

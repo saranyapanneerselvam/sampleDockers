@@ -116,9 +116,16 @@ function WidgetSettingsController($scope, $uibModalInstance, widget, $http, $sta
         if($scope.selectedWidgetsList.length>0) {
             $scope.selectedWidgetsList.forEach(
                 function (value) {
-                    storeFinalWidgetsList.push({widgetId: value.id,widgetType: value.widgetType})
+                    storeFinalWidgetsList.push({
+                        widgetId: value.id,
+                        widgetType: value.widgetType
+                    });
                 }
             );
+            storeFinalWidgetsList.push({
+                widgetId: widget.id,
+                widgetType: widget.widgetType
+            });
             var jsonData = {
                 "dashboardId": $state.params.id,
                 "name": "Custom Fusion",

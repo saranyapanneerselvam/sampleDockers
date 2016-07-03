@@ -1,6 +1,7 @@
 var user = require('../models/user');
 var profile = require('../models/profiles');
 var exports = module.exports = {};
+var bcrypt = require('bcrypt-nodejs');
 
 /**
  Function to get the user's details such as organization id,name ..
@@ -39,4 +40,29 @@ exports.updateLastDashboardId = function (req,res,next) {
             next();
         }
     });
+};
+
+exports.getUserPassword = function (req, res, next) {
+
+    if(req.user){
+        user.findOne({_id: req.user._id}, function (err, user) {
+            if (err)
+                return res.status(500).json({error: 'Internal server error'});
+            else if (!user)
+                return res.status(204).json({error: 'No records found'});
+            else{
+                if (bcrypt.compareSync(req.body.currentPassword, user.pwdHash)){
+                    user.pwdHash =  bcrypt.hashSync(req.body.newPassword, bcrypt.genSaltSync(8), null);
+                    user.save(function(err){
+                        if (!err){
+                            console.log('User saved....');
+                        }
+                    });
+                }
+                next();
+            }
+        });
+    }
+    else
+        res.status(401).json({error:'Authentication required to perform this action'})
 };

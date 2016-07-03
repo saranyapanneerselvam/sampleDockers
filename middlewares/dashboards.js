@@ -177,7 +177,6 @@ exports.storeDashboards = function (req, res, next) {
 exports.removeDashboardFromUser = function (req, res, next) {
     req.dashboardId = req.params.dashboardId;
     var tempDashboardId = [];
-    console.log('user',req.user)
     if (req.user) {
         userPermission.checkUserAccess(req, res, function (err, response) {
             if (err)

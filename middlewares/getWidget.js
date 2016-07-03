@@ -77,20 +77,71 @@ exports.widgetDetails = function (req, res, next) {
 
 exports.deleteWidgets = function (req, res, next) {
     if (req.user) {
+        var bulk = widgetsList.collection.initializeOrderedBulkOp();
+        var bulkExecute;
         userPermission.checkUserPermission(req, res, function (err) {
             if (err)
                 return res.status(500).json({error: 'Internal server error'});
-            else
-                widgetsList.remove({_id: req.params.widgetId}, function (err, widget) {
+            else {
+                widgetsList.findOne({_id: req.params.widgetId},function(err,widgetDetail){
                     if (err)
                         return res.status(500).json({error: 'Internal server error'});
-                    else if (!widget)
+                    else if (!widgetDetail)
                         return res.status(501).json({error: 'Not implemented'});
-                    else {
-                        req.app.result = req.params.widgetId;
-                        next();
+                    else{
+                        widgetsList.remove({_id: req.params.widgetId}, function (err, widget) {
+                            if (err)
+                                return res.status(500).json({error: 'Internal server error'});
+                            else if (!widget)
+                                return res.status(501).json({error: 'Not implemented'});
+                            else {
+                                if(widgetDetail.widgetType===configAuth.widgetType.customFusion){
+                                    bulkExecute = false;
+                                    if(widgetDetail.widgets.length)
+                                        bulkExecute = true;
+
+                                    //set the update parameters for query
+                                    for (var i = 0; i < widgetDetail.widgets.length; i++) {
+                                        var id = mongoose.Types.ObjectId(widgetDetail.widgets[i].widgetId);
+                                        //set query condition
+                                        var query = {
+                                            _id:id
+                                        };
+
+                                        //set the values
+                                        var update = {
+                                            $set: {
+                                                visibility:true,
+                                                updated: new Date()
+                                            }
+                                        };
+                                        //form the query
+                                        bulk.find(query).update(update);
+                                    }
+                                    if (bulkExecute === true) {
+
+                                        //Doing the bulk update
+                                        bulk.execute(function (err, response) {
+                                            req.app.result = req.params.widgetId;
+                                            next();
+                                        });
+                                    }
+                                    else {
+                                        req.app.result = req.params.widgetId;
+                                        next();
+                                    }
+                                }
+                                else{
+                                    req.app.result = req.params.widgetId;
+                                    next();
+                                }
+                            }
+                        })
+
                     }
                 })
+            }
+
         })
 
     }

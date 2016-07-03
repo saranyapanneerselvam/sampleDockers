@@ -43,6 +43,10 @@ module.exports = function (app, passport) {
         failureFlash: true // allow flash messages
     }));
 
+    app.post('/api/v1/changePassword', userDetails.getUserPassword, function(req,res){
+        res.redirect('/api/v1/login');
+    });
+    
     //Get the details of logged in user
     app.get('/api/v1/me', userDetails.getUserDetails, function (req, res) {
             res.json({userDetails: req.app.result});

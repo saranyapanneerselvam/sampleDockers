@@ -269,7 +269,8 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                             dashboardWidgetList.push(initialWidgetList[getWidgetInfo]);
                     }
                     //var dashboardWidgetList = response.data.widgetsList;
-                    if(dashboardWidgetList)
+                    console.log(dashboardWidgetList,initialWidgetList);
+                    if(dashboardWidgetList.length > 0)
                         $scope.widgetsPresent = true;
                     else
                         $scope.widgetsPresent = false;
@@ -422,6 +423,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
     //To delete a widget from the dashboard
     $scope.deleteWidget = function(widget){
+        var widgetType = widget.widgetType;
         var widgetId = widget.id;
         $http({
             method:'POST',
@@ -429,12 +431,17 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         }).then(
             function successCallback(response){
                 console.log(response);
-                for(var items in $scope.dashboard.widgetData) {
-                    if($scope.dashboard.widgetData[items].id == widgetId)
-                        $scope.dashboard.widgetData.splice(items,1);
+                if(widgetType != 'customFusion') {
+                    for(var items in $scope.dashboard.widgetData) {
+                        if($scope.dashboard.widgetData[items].id == widgetId)
+                            $scope.dashboard.widgetData.splice(items,1);
+                    }
+                    if($scope.dashboard.widgets.length == 0)
+                        $scope.widgetsPresent = false;
                 }
-                if($scope.dashboard.widgets.length == 0)
-                    $scope.widgetsPresent = false;
+                else {
+                    $rootScope.populateDashboardWidgets();
+                }
             },
             function errorCallback(error){
                 console.log('Error in deleting the widget',error);

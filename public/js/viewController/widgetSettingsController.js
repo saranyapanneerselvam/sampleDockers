@@ -71,6 +71,7 @@ function WidgetSettingsController($scope, $uibModalInstance, widget, $http, $sta
 
             $scope.dashboardWidgets.forEach(function (value, key) {
                 if(value._id != $scope.widget.id && value.widgetType != 'customFusion') {
+                    console.log(value);
                     $scope.widgetsList.push({
                         id: value._id,
                         label: value.name,
@@ -88,7 +89,7 @@ function WidgetSettingsController($scope, $uibModalInstance, widget, $http, $sta
                     var widgetsList;
                     widgetsList = response.data.widgetsList;
                     widgetsList.forEach(function (value, key) {
-                        if(value._id != $scope.widget.id && value.widgetType != 'customFusion') {
+                        if(value._id != $scope.widget.id && value.widgetType != 'customFusion' && value.visibility != false) {
                             $scope.widgetsList.push({
                                 id: value._id,
                                 label: value.name,

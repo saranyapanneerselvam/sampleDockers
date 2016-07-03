@@ -24,18 +24,21 @@
                             <p><h4><a href="/customDataDocumentation" target="_blank" class="findOutHow">Find out how to send data for custom widgets - Documentation</a></h4></p>
                         </div>
                     </div>
-                    <div class="row" ng-cloak style="margin: 5px 0px 5px 0px;">
+                    <div class="row" ng-cloak style="margin: 5px 0px 5px 0px;" ng-show="widget.widgetType != 'customFusion'">
                         <a ng-click="selectedFusableWidgets()" class="btn btn-primary pull-left" tabindex="-1">Fuse widgets to this Widget</a>
+                    </div>
+                    <div class="row" ng-cloak style="margin: 5px 0px 5px 0px;" ng-show="widget.widgetType == 'customFusion'">
+                        <p>This is a Custom Fusion widget. To add more widgets to this, please delete this widget and create a new Custom Fusion widget</p>
                     </div>
                 </div>
             </div>
         </div>
         <div class="modal-footer">
             <div class="row" style="margin: 10px 0px 20px 0px;">
-                <div class="col-lg-2 text-right">
-                    <a ng-click="remove(widget);deleteWidget(widget)" class="btn btn-primary button-mode pull-left" tabindex="-1"><i class=" glyphicon glyphicon-trash favigon-img"></i>Delete</a>
-                    <a ng-click="dismiss()" class="btn btn-primary button-mode" tabindex="-1"><i class="glyphicon glyphicon-remove favigon-img"></i>Cancel</a>
-                    <button type="submit" class="btn btn-primary button-mode"><i class="glyphicon glyphicon-ok favigon-img"></i>Save </button>
+                <div class="col-lg-12 text-right">
+                    <a ng-click="remove(widget);deleteWidget(widget)" class="btn btn-primary pull-left" tabindex="-1"><i class=" glyphicon glyphicon-trash favigon-img"></i>Delete</a>
+                    <a ng-click="dismiss()" class="btn btn-primary" tabindex="-1"><i class="glyphicon glyphicon-remove favigon-img"></i>Cancel</a>
+                    <button type="submit" class="btn btn-primary"><i class="glyphicon glyphicon-ok favigon-img"></i>Save </button>
                 </div>
             </div>
         </div>
@@ -50,10 +53,10 @@
                     </div>
                     <div class="col-sm-3 pull-push-widgets">
                         <div>
-                            <button class="btn btn-white button-widget" ng-click="pushSelectedWidgets(availableWidgets[0],widgetsList,selectedWidgetsList)">Push <i class="fa fa-angle-right arrowColors" aria-hidden="true"></i></button>
+                            <button class="btn btn-white button-widget" ng-click="pushSelectedWidgets(availableWidgets[0],widgetsList,selectedWidgetsList)">Add <i class="fa fa-angle-right arrowColors" aria-hidden="true"></i></button>
                         </div>
                         <div>
-                            <button class="btn btn-white button-widget" ng-click="pushSelectedWidgets(selectedWidgets[0],selectedWidgetsList,widgetsList)">Pull <i class="fa fa-angle-left arrowColors" aria-hidden="true"></i></button>
+                            <button class="btn btn-white button-widget" ng-click="pushSelectedWidgets(selectedWidgets[0],selectedWidgetsList,widgetsList)"><i class="fa fa-angle-left arrowColors" aria-hidden="true"></i> Remove</button>
                         </div>
                     </div>
                     <div class="col-sm-1"></div>
@@ -66,10 +69,10 @@
         </div>
         <div class="modal-footer">
             <div class="row" style="margin: 10px 0px 20px 0px;">
-                <div class="col-lg-2 text-right">
-                    <a ng-click="changeViews('step_one')" class="btn btn-primary button-mode pull-left" tabindex="-1">Back</a>
-                    <a ng-click="dismiss()" class="btn btn-primary button-mode" tabindex="-1"><i class="glyphicon glyphicon-remove favigon-img"></i>Cancel</a>
-                    <a ng-click="createCustomFusionWidget()" class="btn btn-primary button-mode" tabindex="-1"><i class="glyphicon glyphicon-ok favigon-img"></i>Save </a>
+                <div class="col-lg-12 text-right">
+                    <a ng-click="changeViews('step_one')" class="btn btn-primary pull-left" tabindex="-1">Back</a>
+                    <a ng-click="dismiss()" class="btn btn-primary" tabindex="-1"><i class="glyphicon glyphicon-remove favigon-img"></i>Cancel</a>
+                    <a ng-click="createCustomFusionWidget()" class="btn btn-primary" tabindex="-1"><i class="glyphicon glyphicon-ok favigon-img"></i>Save </a>
                 </div>
             </div>
         </div>

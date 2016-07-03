@@ -2,7 +2,9 @@ showMetricApp.controller('AlertController', AlertController)
 function AlertController($scope, $http, $q, $state, $rootScope, $window, $stateParams, generateChartColours) {
 
     var isEdit = false;
-    $scope.alert, $scope.metricName, $scope.currentView = 'step_one', $scope.operation,  $scope.storedAlertsForWidget = [], $scope.metricsInStoredAlerts = [];
+    $scope.alert, $scope.metricName, $scope.currentView = 'step_one', $scope.operation;
+    $scope.widgetAlerts = [];
+    $scope.alertMetrics = [];
     var storeMetricDetails = [], widgetMetricDetails = [];
 
     $scope.changeViewsInAlertModal = function (obj) {
@@ -10,25 +12,24 @@ function AlertController($scope, $http, $q, $state, $rootScope, $window, $stateP
         if ($scope.currentView === 'step_one') {
             isEdit = false;
             $scope.name = '';
+            $scope.inAlertMetric = '';
             $scope.metric = '';
             $scope.operation = '';
             $scope.threshold = '';
             $scope.interval = '';
             $scope.email = '';
             $scope.metricDetails = '';
-            $scope.metricsInStoredAlerts = [];
-            $scope.storeFinalMetric = '';
-            $scope.storedAlertsForWidget = [];
-            $scope.fetchAlertsForWidget();
+            $scope.alertMetrics = [];
+            $scope.widgetMetrics = [];
+            $scope.widgetAlerts = [];
+            storeMetricDetails = [];
+            $scope.fetchWidgetAlerts();
         }
         else if ($scope.currentView === 'step_two') {
             if (isEdit == true) {
-                console.log('alertsDetail', $scope.alert, $scope.metricName, $scope.metricName._id);
-
                 $scope.name = $scope.alert.name;
                 $scope.interval = $scope.alert.interval;
                 $scope.email = $scope.alert.mailingId.email;
-
                 if(typeof $scope.alert.operation.gt != 'undefined') {
                     if($scope.alert.operation.gt === true) {
                         $scope.operation = 'gt';
@@ -42,36 +43,29 @@ function AlertController($scope, $http, $q, $state, $rootScope, $window, $stateP
             }
             else {
                 $scope.metricDetails = [];
-                $scope.metricsInStoredAlerts = [];
-                $scope.storeFinalMetric = '';
+                $scope.alertMetrics = [];
+                $scope.widgetMetrics = [];
                 $scope.alertFunction();
             }
         }
     };
 
-    $scope.fetchAlertsForWidget = function () {
+    $scope.fetchWidgetAlerts = function () {
         $http({
             method: 'GET',
             url: '/api/v1/get/alerts/' + $rootScope.selectedWidget.id
         }).then(
             function successCallback(response) {
                 if(response.status == '200') {
-                    $scope.storedAlertsForWidget = {
-                        data: response.data
-                    };
-                    console.log($scope.storedAlertsForWidget);
-                    for (var i = 0; i < $scope.storedAlertsForWidget.data.length; i++)
-                        widgetMetricDetails.push($scope.getMetricDetails($scope.storedAlertsForWidget.data[i].metricId, i));
+                    $scope.widgetAlerts = response.data;
+                    for (var i = 0; i < $scope.widgetAlerts.length; i++)
+                        widgetMetricDetails.push($scope.getMetricDetails($scope.widgetAlerts[i].metricId, i));
                     $q.all(widgetMetricDetails).then(
                         function successCallback(widgetMetricDetails) {
-                            for (var j = 0; j < $scope.storedAlertsForWidget.data.length; j++) {
-                                for (var i = 0; i < widgetMetricDetails.length; i++) {
-                                    if ($scope.storedAlertsForWidget.data[j].metricId === widgetMetricDetails[i].metrics[0]._id) {
-                                        console.log(widgetMetricDetails[i].metrics[0]);
-                                        $scope.metricsInStoredAlerts[i] = {
-                                            name: widgetMetricDetails[i].metrics[0]
-                                        };
-                                    }
+                            for(var alerts in $scope.widgetAlerts) {
+                                for(var metrics in widgetMetricDetails) {
+                                    if($scope.widgetAlerts[alerts].metricId == widgetMetricDetails[metrics].metrics[0]._id)
+                                        $scope.alertMetrics.push(widgetMetricDetails[metrics].metrics[0]);
                                 }
                             }
                         },
@@ -82,7 +76,7 @@ function AlertController($scope, $http, $q, $state, $rootScope, $window, $stateP
                     );
                 }
                 else
-                    $scope.storedAlertsForWidget=[];
+                    $scope.widgetAlerts=[];
             },
             function errorCallback(error) {
                 $scope.$parent.closeBasicWidgetModal('');
@@ -125,43 +119,34 @@ function AlertController($scope, $http, $q, $state, $rootScope, $window, $stateP
                     storeMetricDetails.push($scope.getMetricDetails($scope.widgetDetails.charts[i].metrics[0].metricId, i));
                 $q.all(storeMetricDetails).then(
                     function successCallback(storeMetricDetails) {
-                        $scope.metricDetails = storeMetricDetails;
-                        $scope.storeFinalMetric = [];
-                        var metricsLength = $scope.metricDetails.length;
-
-                        for (var i = 0; i < metricsLength; i++) {
-                            // console.log('endpoint', $scope.metricDetails[i].metrics[0].objectTypes[0].meta.endpoint)
-                            if ($scope.metricDetails[i].metrics[0].objectTypes[0].meta.endpoint.length != 0) {
-                                // console.log('metric if');
-                                var endPointsLength = $scope.metricDetails[i].metrics[0].objectTypes[0].meta.endpoint.length;
-                                for (var j = 0; j < endPointsLength; j++) {
-                                    var metricName = $scope.metricDetails[i].metrics[0].name + '-' + $scope.metricDetails[i].metrics[0].objectTypes[0].meta.endpoint[j];
-                                    $scope.storeFinalMetric.push({
-                                        name: metricName,
-                                        _id: $scope.metricDetails[i].metrics[0]._id,
-                                        endPoints: $scope.metricDetails[i].metrics[0].objectTypes[0].meta.endpoint[j]
+                        $scope.widgetMetrics = [];
+                        for(var metrics in storeMetricDetails) {
+                            if(storeMetricDetails[metrics].metrics[0].objectTypes[0].meta.endpoint.length != 0) {
+                                for(var endpoints in storeMetricDetails[metrics].metrics[0].objectTypes[0].meta.endpoint) {
+                                    $scope.widgetMetrics.push({
+                                        name: storeMetricDetails[metrics].metrics[0].name,
+                                        id: storeMetricDetails[metrics].metrics[0]._id,
+                                        endPoints: storeMetricDetails[metrics].metrics[0].objectTypes[0].meta.endpoint[endpoints]
                                     });
                                 }
-
                             }
                             else {
-                                $scope.storeFinalMetric.push({
-                                    name: $scope.metricDetails[i].metrics[0].name,
-                                    _id: $scope.metricDetails[i].metrics[0]._id
+                                $scope.widgetMetrics.push({
+                                    name: storeMetricDetails[metrics].metrics[0].name,
+                                    id: storeMetricDetails[metrics].metrics[0]._id,
+                                    endPoints: ''
                                 });
                             }
                         }
                         if(isEdit == true) {
-                            for(i=0;i<$scope.storeFinalMetric.length;i++) {
-                                if($scope.alert.metricId == $scope.storeFinalMetric[i]._id) {
+                            for(i=0;i<$scope.widgetMetrics.length;i++) {
+                                if($scope.alert.metricId == $scope.widgetMetrics[i].id) {
                                     if($scope.alert.endPoint != null) {
-                                        if($scope.storeFinalMetric[i].name.includes($scope.alert.endPoint) == true) {
-                                            $scope.metric = $scope.storeFinalMetric[i].name;
-                                        }
+                                        if($scope.widgetMetrics[i].endPoints == $scope.alert.endPoint)
+                                            $scope.inAlertMetric = $scope.widgetMetrics[i].name + ' - ' + $scope.widgetMetrics[i].endPoints;
                                     }
-                                    else {
-                                        $scope.metric = $scope.storeFinalMetric[i].name;
-                                    }
+                                    else
+                                        $scope.inAlertMetric = $scope.widgetMetrics[i].name;
                                 }
                             }
                         }
@@ -181,33 +166,43 @@ function AlertController($scope, $http, $q, $state, $rootScope, $window, $stateP
 
     $scope.saveAlert = function () {
         var objectId;
-        console.log('inside alert', $scope.name, $scope.email, $scope.threshold, $scope.metric, $scope.operation, $scope.interval);
-        console.log($rootScope.selectedWidget);
         var widgetDetail = $scope.widgetDetails.charts;
-        console.log('widgets', widgetDetail)
         for (var k = 0; k < widgetDetail.length; k++) {
-            var parsedData = JSON.parse($scope.metric)
-            console.log('for', parsedData, widgetDetail[k].metrics[0].metricId)
-            if (widgetDetail[k].metrics[0].metricId === parsedData[0]) {
+            var parsedData = JSON.parse($scope.metric);
+            if (widgetDetail[k].metrics[0].metricId === parsedData[0])
                 objectId = widgetDetail[k].metrics[0].objectId;
-            }
         }
-        console.log('objectId', objectId);
         var threshold = {};
         var operation = {};
         operation[$scope.operation] = true;
         threshold[$scope.operation] = $scope.threshold;
-        var alertData = {
-            operation: operation,
-            threshold: threshold,
-            interval: $scope.interval,
-            name: $scope.name,
-            widgetId: $scope.widgetDetails._id,
-            metricId: parsedData[0],
-            objectId: objectId,
-            endPoint: parsedData[1],
-            mailingId: {email: $scope.email}
-        };
+        if (isEdit == true) {
+            var alertData = {
+                alertId: $scope.alert._id,
+                operation: operation,
+                threshold: threshold,
+                interval: $scope.interval,
+                name: $scope.name,
+                widgetId: $scope.widgetDetails._id,
+                metricId: parsedData[0],
+                objectId: objectId,
+                endPoint: parsedData[1],
+                mailingId: {email: $scope.email}
+            };
+        }
+        else {
+            var alertData = {
+                operation: operation,
+                threshold: threshold,
+                interval: $scope.interval,
+                name: $scope.name,
+                widgetId: $scope.widgetDetails._id,
+                metricId: parsedData[0],
+                objectId: objectId,
+                endPoint: parsedData[1],
+                mailingId: {email: $scope.email}
+            };
+        }
 
         $http({
             method: 'POST',
@@ -215,7 +210,6 @@ function AlertController($scope, $http, $q, $state, $rootScope, $window, $stateP
             data: alertData
         }).then(
             function successCallback(alert) {
-                console.log('alert is success');
                 var updatedData = {
                     objectId: objectId,
                     metricId: parsedData[0],
@@ -227,7 +221,7 @@ function AlertController($scope, $http, $q, $state, $rootScope, $window, $stateP
                     data: updatedData
                 }).then(
                     function successCallback(alert) {
-                        changeViewsInAlertModal('step_one');
+                        $scope.changeViewsInAlertModal('step_one');
                     },
                     function errorCallback(error) {
                         $scope.$parent.closeBasicWidgetModal('');
@@ -243,13 +237,12 @@ function AlertController($scope, $http, $q, $state, $rootScope, $window, $stateP
     };
 
     $scope.deleteAlert = function (alert, index) {
-        console.log('deleteAlert', alert, index);
         $http({
             method: 'POST',
             url: '/api/v1/remove/alerts/' + alert._id
         }).then(
             function successCallback(alert) {
-                $scope.fetchAlertsForWidget();
+                $scope.fetchWidgetAlerts();
             },
             function errorCallback(error) {
                 $scope.$parent.closeBasicWidgetModal('');
@@ -259,7 +252,6 @@ function AlertController($scope, $http, $q, $state, $rootScope, $window, $stateP
     };
 
     $scope.editAlert = function (alert, metric) {
-        console.log('alert', alert, metric);
         isEdit = true;
         $scope.alert = alert;
         $scope.metricName = metric;

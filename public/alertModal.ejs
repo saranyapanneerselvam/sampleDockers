@@ -16,7 +16,7 @@
                             <div class="col-lg-12" style="text-align: center;">
                                 <a ng-click="changeViewsInAlertModal('step_two')" style="text-align: center"><i class="fa fa-plus plus" style="font-size: 6em;"></i></a>
                             </div>
-                            <div class="col-lg-12" ng-hide="!storedAlertsForWidget.data">
+                            <div class="col-lg-12" ng-hide="widgetAlerts.length == 0">
                                 <div class="ibox float-e-margins">
                                     <div class="ibox-content" style="padding: 0px">
                                         <table class="table table-hover">
@@ -32,17 +32,17 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr ng-repeat="alerts in  storedAlertsForWidget.data" ng-cloak>
+                                                <tr ng-repeat="alerts in  widgetAlerts" ng-cloak>
                                                     <td>{{alerts.name}}</td>
-                                                    <td ng-cloak ng-if="alerts.endPoint">{{metricsInStoredAlerts[$index].name.name}} - {{alerts.endPoint}}</td>
-                                                    <td ng-cloak ng-if="!alerts.endPoint">{{metricsInStoredAlerts[$index].name.name}}</td>
+                                                    <td ng-cloak ng-if="alerts.endPoint">{{alertMetrics[$index].name}} - {{alerts.endPoint}}</td>
+                                                    <td ng-cloak ng-if="!alerts.endPoint">{{alertMetrics[$index].name}}</td>
                                                     <td>{{alerts.mailingId.email}}</td>
                                                     <td ng-if="alerts.operation.lt == true">Less than</td>
                                                     <td ng-if="alerts.operation.gt == true">Greater than</td>
                                                     <td ng-if="alerts.operation.gt == true">{{alerts.threshold.gt}}</td>
                                                     <td ng-if="alerts.operation.lt == true">{{alerts.threshold.lt}}</td>
                                                     <td><a ng-click="deleteAlert(alerts)"><i class="fa fa-minus" aria-hidden="true"></i></a></td>
-                                                    <td><a ng-click="editAlert(alerts,metricsInStoredAlerts[$index].name)"><i class="fa fa-pencil" aria-hidden="true"></i></a></td>
+                                                    <td><a ng-click="editAlert(alerts,alertMetrics[$index])"><i class="fa fa-pencil" aria-hidden="true"></i></a></td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -69,7 +69,7 @@
                                                                 <select class="form-control m-b choose-text" ng-model="metric" id="metricOptions" required>
                                                                     <!--ng-options="metrics as metrics.name for metrics in metricDetails[0].metrics" required >-->
                                                                     <option value="">Select a Metric</option>
-                                                                    <option ng-repeat="metrics in storeFinalMetric | orderBy:'$index':true" ng-selected="metrics.name == metric" value="{{[metrics._id,metrics.endPoints]}}">{{metrics.name}}</option>
+                                                                    <option ng-repeat="metrics in widgetMetrics | orderBy:'$index':true" ng-selected="metrics.name == metric" value="{{[metrics.id,metrics.endPoints]}}">{{metrics.name}} - {{metrics.endPoints}}</option>
                                                                 </select>
                                                             </div>
                                                         </div>

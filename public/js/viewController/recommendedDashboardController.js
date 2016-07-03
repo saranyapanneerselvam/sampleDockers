@@ -323,6 +323,7 @@ function RecommendedDashboardController($scope, $http, $window, $q,  $state, $ro
                         "size": $scope.referenceWidgetsList[widget].size,
                         "minSize": $scope.referenceWidgetsList[widget].minSize,
                         "maxSize": $scope.referenceWidgetsList[widget].maxSize,
+                        "isAlert": $scope.referenceWidgetsList[widget].isAlert,
                         "color": widgetColor
                     };
                     inputParams.push(jsonData);

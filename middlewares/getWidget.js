@@ -178,7 +178,7 @@ exports.saveWidgets = function (req, res, next) {
             var widgetName;
             var widgets = req.body;
             var widgetsForCustomFusion;
-            var visibility;
+            var isAlert;
 
             async.concatSeries(widgets, saveAllWidgets, callback);
 
@@ -196,6 +196,7 @@ exports.saveWidgets = function (req, res, next) {
                 widgetSize = result.size;
                 widgetName = result.name;
                 widgetType = result.widgetType;
+                isAlert = result.isAlert;
                 userPermission.checkUserAccess(req, res, function (err, response) {
                     if (err)
                         return res.status(500).json({error: 'Internal server error'});
@@ -224,6 +225,7 @@ exports.saveWidgets = function (req, res, next) {
                             createWidget.created = new Date();
                             createWidget.updated = new Date();
                             createWidget.visibility = true;
+                            createWidget.isAlert = isAlert;
                             createWidget.save(function (err, widgetDetail) {
                                 if (err)
                                     return res.status(500).json({error: 'Internal server error'});
@@ -232,7 +234,7 @@ exports.saveWidgets = function (req, res, next) {
                                 else {
                                     if(widgetDetail.widgetType===configAuth.widgetType.customFusion){
                                         bulkExecute = false;
-                                        if(widgetDetail.widgetType.length)
+                                        if(widgetDetail.widgets.length)
                                             bulkExecute = true;
 
                                         //set the update parameters for query
@@ -340,6 +342,7 @@ exports.saveCustomWidgets = function (req, res, next) {
     createCustomWidget.widgetType = req.body.widgetType;
     createCustomWidget.channelId = req.body.channelId;
     createCustomWidget.visibility = true;
+    createCustomWidget.isAlert = false;
     createCustomWidget.created = new Date();
     createCustomWidget.updated = new Date();
     createCustomWidget.save(function (err, customWidgetDetail) {

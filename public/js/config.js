@@ -46,7 +46,6 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                         }
                     ).then(
                         function successCallback(response) {
-                            console.log(response.data.userDetails[0].lastDashboardId);
                             if(response.data.userDetails[0].lastDashboardId) {
                                 $scope.loadingVariable = '';
                                 if(response.data.userDetails[0].lastDashboardId != 'undefined')
@@ -88,9 +87,7 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
             },
             onEnter: function ($stateParams,$http,$state) {
                 var dashboardId = $stateParams.id? $stateParams.id : $state.params.id;
-                console.log('DASHBOARDID',dashboardId,typeof dashboardId)
                 if(typeof dashboardId != 'undefined') {
-                    console.log('INSIDEIF');
                     $http(
                         {
                             method:'POST',
@@ -104,8 +101,6 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                         }
                     );
                 }
-                else
-                    console.log('INSIDEELSE')
             }
         })
 

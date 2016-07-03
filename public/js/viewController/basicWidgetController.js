@@ -87,6 +87,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                                 'size':response.data.referenceWidgets[i].size,
                                 'updated':response.data.referenceWidgets[i].updated,
                                 'widgetType':response.data.referenceWidgets[i].widgetType,
+                                'isAlert':response.data.referenceWidgets[i].isAlert,
                                 'isSelectedMetric':isSelectedMetric,
                                 'border':'2px solid #04509B'
                             };
@@ -107,6 +108,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                             'size':response.data.referenceWidgets[i].size,
                             'updated':response.data.referenceWidgets[i].updated,
                             'widgetType':response.data.referenceWidgets[i].widgetType,
+                            'isAlert':response.data.referenceWidgets[i].isAlert,
                             'isSelectedMetric':isSelectedMetric,
                             'border':'2px solid #e7eaec'
                         };
@@ -173,7 +175,6 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             }
         }
         else {
-            console.log('this.profileOptionsModel.canManageClients',this.profileOptionsModel.canManageClients)
             if(this.profileOptionsModel.canManageClients===false)
                 $scope.canManageClients = true;
             else  $scope.canManageClients = false;
@@ -388,10 +389,10 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     "minSize": getReferenceWidgetsArr[getData].minSize,
                     "maxSize": getReferenceWidgetsArr[getData].maxSize,
                     "color": widgetColor,
-                    "visibility": true
+                    "visibility": true,
+                    "isAlert": getReferenceWidgetsArr[getData].isAlert
                 };
                 inputParams.push(jsonData);
-
                 $http({
                     method: 'POST',
                     url: '/api/v1/widgets',
@@ -399,7 +400,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 }).then(
                     function successCallback(response) {
                         $("#getLoadingModalContent").removeClass('md-show');
-                        for(widgetObjects in response.data.widgetsList) {
+                        for(var widgetObjects in response.data.widgetsList) {
                             $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
                         }
                     },

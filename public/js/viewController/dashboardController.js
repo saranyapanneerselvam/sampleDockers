@@ -296,6 +296,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                                 'maxSizeX': (typeof dashboardWidgetList[getWidgetInfo].maxSize != 'undefined'? dashboardWidgetList[getWidgetInfo].maxSize.w : 3),
                                 'name': (typeof dashboardWidgetList[getWidgetInfo].name != 'undefined'? dashboardWidgetList[getWidgetInfo].name : ''),
                                 'widgetType': (typeof dashboardWidgetList[getWidgetInfo].widgetType != 'undefined'? dashboardWidgetList[getWidgetInfo].widgetType : ''),
+                                'isAlert':(typeof dashboardWidgetList[getWidgetInfo].isAlert != 'undefined'? dashboardWidgetList[getWidgetInfo].isAlert : false),
                                 'id': dashboardWidgetList[getWidgetInfo]._id,
                                 'visibility': false
                             });
@@ -312,6 +313,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                                 'maxSizeX': (typeof dashboardWidgetList[getWidgetInfo].maxSize != 'undefined'? dashboardWidgetList[getWidgetInfo].maxSize.w : 3),
                                 'name': (typeof dashboardWidgetList[getWidgetInfo].name != 'undefined'? dashboardWidgetList[getWidgetInfo].name : ''),
                                 'widgetType': (typeof dashboardWidgetList[getWidgetInfo].widgetType != 'undefined'? dashboardWidgetList[getWidgetInfo].widgetType : ''),
+                                'isAlert':(typeof dashboardWidgetList[getWidgetInfo].isAlert != 'undefined'? dashboardWidgetList[getWidgetInfo].isAlert : false),
                                 'id': dashboardWidgetList[getWidgetInfo]._id,
                                 'visibility': false
                             });
@@ -363,6 +365,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
         $scope.widgetsPresent = true;
 
+        console.log(widget)
         //To temporarily create an empty widget with same id as the widgetId till all the data required for the widget is fetched by the called service
         $scope.dashboard.widgets.push({
             'row': (typeof widget.row != 'undefined'? widget.row : 0),
@@ -375,6 +378,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             'maxSizeX': (typeof widget.maxSize != 'undefined'? widget.maxSize.w : 3),
             'name': (typeof widget.name != 'undefined'? widget.name : ''),
             'widgetType':(typeof widget.widgetType != 'undefined'? widget.widgetType : ''),
+            'isAlert':(typeof widget.isAlert != 'undefined'? widget.isAlert : false),
             'id': widget._id,
             //'chart': {'api': {}},
             'visibility': false
@@ -508,136 +512,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
     var existXaxis = "";
     var existYaxis = "";
 
-    $rootScope.$on("getDashboardCommentsFunc", function(getValue){
-        $scope.getDashboardComments(getValue);
-    });
-
-    $scope.getDashboardComments = function(){
-        console.log("get dashboard comments from database");
-        /*
-         count = 0;
-         var getCommentArr = '[{"Comment":"test 1","DashboardId":"571f2875c761262c0c0db9c8","WidgetId":"5755151332719ba202f3412e","xAxis":"20%","yAxis":"44%"},{"Comment":"test 2","DashboardId":"571f2875c761262c0c0db9c8","WidgetId":"5755122732719ba202f34068","xAxis":"36%","yAxis":"67%"},{"Comment":"test 3","DashboardId":"571f2875c761262c0c0db9c8","WidgetId":"5755011b32719ba202f33fc2","xAxis":"56%","yAxis":"67%"}]';
-         console.log(JSON.parse(getCommentArr));
-         var jsonData = JSON.parse(getCommentArr);
-
-         for(getData in jsonData){
-             count++;
-             $("#widgetTransparentImage-"+jsonData[getData].WidgetId).append($('<div class="commentPoint" id="commentPoint-'+count+'" ref="'+jsonData[getData].WidgetId+'" style="color: #ffffff;"><span class="countComment">'+count+'</span><input type="hidden" id="hiddenComment-'+count+'" value="'+jsonData[getData].Comment+'" /> <input type="hidden" id="hiddenXaxis-'+count+'" value="'+jsonData[getData].xAxis+'" /> <input type="hidden" id="hiddenYaxis-'+count+'" value="'+jsonData[getData].yAxis+'" /> </div></div>')
-             .css('position', 'absolute')
-             .css('top', jsonData[getData].yAxis)
-             .css('left', jsonData[getData].xAxis)
-             .css('width', size)
-             .css('height', size)
-             .css('border-radius', '25px')
-             .css('background-color', color)
-             .css('cursor', 'pointer')
-             .css('z-index', '2')
-             );
-
-         }
-
-         $(".commentPoint").on('click',function () {
-             console.log("exist commentPoint called");
-
-             var countValue = this.id.replace('commentPoint-','');
-             var hiddenComment = $("#hiddenComment-"+countValue).val();
-             var widgetID = $("#commentPoint-"+countValue).attr('ref');
-             var xAxis = $("#hiddenXaxis-"+countValue).val();
-             var yAxis = $("#hiddenYaxis-"+countValue).val();
-             existCommentCheck = countValue;
-
-             $(".navbar").css('z-index','1');
-             $(".md-overlay").css("background","rgba(0,0,0,0.5)");
-             $("#commentModalContent").addClass('md-show');
-             $(".successImage").hide();
-             $(".commentHeadText").text('Leave a Comment - '+countValue).css('font-style','italic');
-             $(".commentMessage").hide();
-             $(".closeModalContent").hide();
-             $("#inputTextArea").show().val(hiddenComment);
-             $(".cancelModalContent").show().text('Delete');
-             $(".sendCommentModalContent").show().text('Update');
-
-             $("#inputTextArea").keyup(function () {
-                 var comment = $("#inputTextArea").val();
-                 if(comment==""){
-                     $(".commentMessage").text('* Enter the Comment !!!').show().css('color','red');
-                 }
-                 else{
-                     $(".commentMessage").text('').hide();
-                 }
-             });
-
-             $(".cancelModalContent").off('click').on('click', function() {
-                 deleteComment();
-             });
-
-
-             $(".sendCommentModalContent").off('click').on('click', function() {
-                 updateDashBoardComment();
-             });
-
-
-             function updateDashBoardComment(){
-                 var comment = $("#inputTextArea").val();
-
-                 if(comment==""){
-                     $(".commentMessage").text('* Enter the Comment !!!').show().css('color','red');
-                     return false;
-                 }
-                 else{
-                     var dashboardId = $state.params.id;
-
-                     var dataForm = '{"Comment":"'+comment+'","DashboardId":"'+dashboardId+'","WidgetId":"'+widgetID+'","xAxis":"'+xAxis+'","yAxis":"'+yAxis+'"}';
-                     console.log(dataForm);
-                     existCommentCheck="";
-                     $("#errorCommentMessage").text('').hide();
-                     $("#commentModalContent").removeClass('md-show');
-                     $(".md-overlay").css("background","rgba(0,0,0,0.5)");
-                     $("#commentModalContent").addClass('md-show');
-                     $(".successImage").show().attr("src","/image/success.png");
-                     $(".commentHeadText").html('Updated!').css('font-style','normal');
-                     $(".commentMessage").text('Your comment has been updated sucessfully').show().css('color','');
-                     $("#inputTextArea").hide();
-                     $(".cancelModalContent").hide();
-                     $(".sendCommentModalContent").hide();
-                     $(".closeModalContent").show();
-
-                     $(".closeModalContent").on('click',function () {
-                         $(".successImage").hide();
-                         $("#commentModalContent").removeClass('md-show');
-                     });
-
-                 }
-
-             }
-
-
-             function deleteComment(){
-                 $("#commentPoint-"+countValue).remove();
-
-                 $("#commentModalContent").removeClass('md-show');
-                 $(".md-overlay").css("background","rgba(0,0,0,0.5)");
-                 $("#commentModalContent").addClass('md-show');
-                 $(".successImage").show();
-                 $(".commentHeadText").html('Deleted!').css('font-style','normal');
-                 $(".successImage").show().attr("src","/image/success.png");
-                 $(".commentMessage").text('Your comment has been deleted successfully').show().css('color','');
-                 $("#inputTextArea").hide();
-                 $(".cancelModalContent").hide();
-                 $(".sendCommentModalContent").hide();
-                 $(".closeModalContent").show();
-                 existCommentCheck="";
-
-                 $(".closeModalContent").on('click',function () {
-                     $(".successImage").hide();
-                     $("#commentModalContent").removeClass('md-show');
-                 });
-             }
-
-         });
-        */
-    };
-
     $(".exportModalContent").on( 'click', function( ev ) {
         if(isExportOptionSet==1){
             $(".navbar").css('z-index','1');
@@ -658,6 +532,137 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
     $('#exportOptionPDF').change(function() {
         $(".errorExportMessage").text("").hide();
     });
+
+/*
+    $rootScope.$on("getDashboardCommentsFunc", function(getValue){
+            $scope.getDashboardComments(getValue);
+        });
+
+    $scope.getDashboardComments = function(){
+            console.log("get dashboard comments from database");
+            /!*
+             count = 0;
+             var getCommentArr = '[{"Comment":"test 1","DashboardId":"571f2875c761262c0c0db9c8","WidgetId":"5755151332719ba202f3412e","xAxis":"20%","yAxis":"44%"},{"Comment":"test 2","DashboardId":"571f2875c761262c0c0db9c8","WidgetId":"5755122732719ba202f34068","xAxis":"36%","yAxis":"67%"},{"Comment":"test 3","DashboardId":"571f2875c761262c0c0db9c8","WidgetId":"5755011b32719ba202f33fc2","xAxis":"56%","yAxis":"67%"}]';
+             console.log(JSON.parse(getCommentArr));
+             var jsonData = JSON.parse(getCommentArr);
+
+             for(getData in jsonData){
+                 count++;
+                 $("#widgetTransparentImage-"+jsonData[getData].WidgetId).append($('<div class="commentPoint" id="commentPoint-'+count+'" ref="'+jsonData[getData].WidgetId+'" style="color: #ffffff;"><span class="countComment">'+count+'</span><input type="hidden" id="hiddenComment-'+count+'" value="'+jsonData[getData].Comment+'" /> <input type="hidden" id="hiddenXaxis-'+count+'" value="'+jsonData[getData].xAxis+'" /> <input type="hidden" id="hiddenYaxis-'+count+'" value="'+jsonData[getData].yAxis+'" /> </div></div>')
+                 .css('position', 'absolute')
+                 .css('top', jsonData[getData].yAxis)
+                 .css('left', jsonData[getData].xAxis)
+                 .css('width', size)
+                 .css('height', size)
+                 .css('border-radius', '25px')
+                 .css('background-color', color)
+                 .css('cursor', 'pointer')
+                 .css('z-index', '2')
+                 );
+
+             }
+
+             $(".commentPoint").on('click',function () {
+                 console.log("exist commentPoint called");
+
+                 var countValue = this.id.replace('commentPoint-','');
+                 var hiddenComment = $("#hiddenComment-"+countValue).val();
+                 var widgetID = $("#commentPoint-"+countValue).attr('ref');
+                 var xAxis = $("#hiddenXaxis-"+countValue).val();
+                 var yAxis = $("#hiddenYaxis-"+countValue).val();
+                 existCommentCheck = countValue;
+
+                 $(".navbar").css('z-index','1');
+                 $(".md-overlay").css("background","rgba(0,0,0,0.5)");
+                 $("#commentModalContent").addClass('md-show');
+                 $(".successImage").hide();
+                 $(".commentHeadText").text('Leave a Comment - '+countValue).css('font-style','italic');
+                 $(".commentMessage").hide();
+                 $(".closeModalContent").hide();
+                 $("#inputTextArea").show().val(hiddenComment);
+                 $(".cancelModalContent").show().text('Delete');
+                 $(".sendCommentModalContent").show().text('Update');
+
+                 $("#inputTextArea").keyup(function () {
+                     var comment = $("#inputTextArea").val();
+                     if(comment==""){
+                         $(".commentMessage").text('* Enter the Comment !!!').show().css('color','red');
+                     }
+                     else{
+                         $(".commentMessage").text('').hide();
+                     }
+                 });
+
+                 $(".cancelModalContent").off('click').on('click', function() {
+                     deleteComment();
+                 });
+
+
+                 $(".sendCommentModalContent").off('click').on('click', function() {
+                     updateDashBoardComment();
+                 });
+
+
+                 function updateDashBoardComment(){
+                     var comment = $("#inputTextArea").val();
+
+                     if(comment==""){
+                         $(".commentMessage").text('* Enter the Comment !!!').show().css('color','red');
+                         return false;
+                     }
+                     else{
+                         var dashboardId = $state.params.id;
+
+                         var dataForm = '{"Comment":"'+comment+'","DashboardId":"'+dashboardId+'","WidgetId":"'+widgetID+'","xAxis":"'+xAxis+'","yAxis":"'+yAxis+'"}';
+                         console.log(dataForm);
+                         existCommentCheck="";
+                         $("#errorCommentMessage").text('').hide();
+                         $("#commentModalContent").removeClass('md-show');
+                         $(".md-overlay").css("background","rgba(0,0,0,0.5)");
+                         $("#commentModalContent").addClass('md-show');
+                         $(".successImage").show().attr("src","/image/success.png");
+                         $(".commentHeadText").html('Updated!').css('font-style','normal');
+                         $(".commentMessage").text('Your comment has been updated sucessfully').show().css('color','');
+                         $("#inputTextArea").hide();
+                         $(".cancelModalContent").hide();
+                         $(".sendCommentModalContent").hide();
+                         $(".closeModalContent").show();
+
+                         $(".closeModalContent").on('click',function () {
+                             $(".successImage").hide();
+                             $("#commentModalContent").removeClass('md-show');
+                         });
+
+                     }
+
+                 }
+
+
+                 function deleteComment(){
+                     $("#commentPoint-"+countValue).remove();
+
+                     $("#commentModalContent").removeClass('md-show');
+                     $(".md-overlay").css("background","rgba(0,0,0,0.5)");
+                     $("#commentModalContent").addClass('md-show');
+                     $(".successImage").show();
+                     $(".commentHeadText").html('Deleted!').css('font-style','normal');
+                     $(".successImage").show().attr("src","/image/success.png");
+                     $(".commentMessage").text('Your comment has been deleted successfully').show().css('color','');
+                     $("#inputTextArea").hide();
+                     $(".cancelModalContent").hide();
+                     $(".sendCommentModalContent").hide();
+                     $(".closeModalContent").show();
+                     existCommentCheck="";
+
+                     $(".closeModalContent").on('click',function () {
+                         $(".successImage").hide();
+                         $("#commentModalContent").removeClass('md-show');
+                     });
+                 }
+
+             });
+            *!/
+        };
 
     $scope.callThePosition = function (event,widgetID){
         console.log(existCommentCheck+" != "+count);
@@ -741,7 +746,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     var dataForm = '{"Comment":"'+comment+'","DashboardId":"'+dashboardId+'","WidgetId":"'+widgetID+'","xAxis":"'+x+'%","yAxis":"'+y+'%"}';
                     console.log(dataForm);
 
-                    /*
+                    /!*
                      Send JSON data to the database for CreateComment
                      $http({
                      method: 'POST', url: '/api/v1/create/dashboardComment', data: dataForm
@@ -769,7 +774,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                         errorComment();
 
                      });
-                     */
+                     *!/
 
                     $("#errorCommentMessage").text('').hide();
                     $("#commentModalContent").removeClass('md-show');
@@ -821,5 +826,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         $rootScope.tempDashboard=true;
         $rootScope.$emit("CallSwitchChangeFunc", {value:0});
     };
+*/
 
 }

@@ -26,7 +26,8 @@ var referenceWidgetSchema = mongoose.Schema({
     charts:Object,
     created: Date,
     updated: Date,
-    deleted: Date
+    deleted: Date,
+    isAlert: Boolean
 });
 
 // create the model for organization and expose it to our app

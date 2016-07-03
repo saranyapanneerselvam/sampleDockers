@@ -22,7 +22,8 @@ var widgetsSchema = mongoose.Schema({
     updated: Date,
     deleted: Date,
     widgets:Array,
-    visibility:Boolean
+    visibility:Boolean,
+    isAlert:Boolean
 });
 
 // create the model for organization and expose it to our app

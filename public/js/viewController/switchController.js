@@ -1,7 +1,7 @@
 showMetricApp.controller('SwitchController',SwitchController)
 
 function SwitchController($scope,$http,$state,$rootScope,$window,$stateParams,generateChartColours) {
-    //console.log("SwitchController called");
+/*    //console.log("SwitchController called");
     $rootScope.tempDashboard=true;
     var contentHeight = "";
     var contentWidth = "";
@@ -33,5 +33,5 @@ function SwitchController($scope,$http,$state,$rootScope,$window,$stateParams,ge
 
         }
 
-    }
+    }*/
 }

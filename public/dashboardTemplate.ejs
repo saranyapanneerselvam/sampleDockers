@@ -23,20 +23,6 @@
                                     </svg>
                                 </div>
                             </a>
-<!--
-                            <a>
-                                <div class="title-icons">
-                                    <svg width="28px" height="28px" viewBox="709 11 28 28" version="1.1"
-                                         xmlns="http://www.w3.org/2000/svg"
-                                         xmlns:xlink="http://www.w3.org/1999/xlink">
-                                        &lt;!&ndash; Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch &ndash;&gt;
-                                        <desc>Created with Sketch.</desc>
-                                        <defs></defs>
-                                        <path d="M715.97651,12.8791946 C718.121924,11.6263982 720.463087,11 723,11 C725.537696,11 727.878076,11.6263982 730.024273,12.8791946 C732.168904,14.1319911 733.868009,15.8310962 735.121588,17.9765101 C736.373602,20.1227069 737,22.4630872 737,25 C737,27.5369128 736.373602,29.8780761 735.121588,32.0234899 C733.868009,34.1689038 732.168904,35.8680089 730.024273,37.1208054 C727.878076,38.3736018 725.537696,39 723,39 C720.463087,39 718.121924,38.3736018 715.97651,37.1208054 C713.830313,35.8680089 712.131208,34.1689038 710.879195,32.0234899 C709.626398,29.8780761 709,27.5369128 709,25 C709,22.4630872 709.626398,20.1227069 710.879195,17.9765101 C712.131208,15.8310962 713.830313,14.1319911 715.97651,12.8791946 C715.97651,12.8791946 713.830313,14.1319911 715.97651,12.8791946 L715.97651,12.8791946 L715.97651,12.8791946 Z M729.871588,18.1291946 C727.968904,16.2265101 725.677852,15.2751678 723,15.2751678 C720.322148,15.2751678 718.031879,16.2265101 716.129195,18.1291946 C714.22651,20.0318792 713.275168,22.3221477 713.275168,25 C713.275168,27.6778523 714.22651,29.9681208 716.129195,31.8708054 C718.031879,33.7734899 720.322148,34.7248322 723,34.7248322 C725.677852,34.7248322 727.968904,33.7734899 729.871588,31.8708054 C731.77349,29.9681208 732.724832,27.6778523 732.724832,25 C732.724832,22.3221477 731.77349,20.0318792 729.871588,18.1291946 C729.871588,18.1291946 731.77349,20.0318792 729.871588,18.1291946 L729.871588,18.1291946 L729.871588,18.1291946 Z M723,25 L727.697987,25 L727.697987,27.3489933 L720.651007,27.3489933 L720.651007,17.9530201 L723,17.9530201 L723,25 L723,25 Z" id="Alert-Icon" stroke="none" fill="#04509B" fill-rule="evenodd"></path>
-                                    </svg>
-                                </div>
-                            </a>
--->
                             <a class="md-trigger md-setperspective md-effect-19 exportModalContent" data-modal="exportModalContent" > <!-- ng-click="exportModal('app.reporting.dashboard.exportModal')" -->
                                 <div class="title-icons">
                                     <svg width="28px" height="26px" viewBox="835 11 28 26" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -68,7 +54,7 @@
                         <div class="box-header" id="getWidgetColor-{{widget.id}}" ref="{{dashboard.widgetData[widgetIndex].color}}" ng-style="{'background-color': dashboard.widgetData[widgetIndex].color}">
                             <h3 style="color: #ffffff;">{{dashboard.widgetData[widgetIndex].name}}</h3>
                             <div class="graph-icon">
-                                <a title="alerts" ng-click="alertModal('app.reporting.dashboard.alertModal',widget)" ng-hide="widget.widgetType == 'customFusion'"><i class="fa fa-bell-o"></i></a>
+                                <a title="alerts" ng-click="alertModal('app.reporting.dashboard.alertModal',widget)" ng-hide="widget.widgetType == 'customFusion' || widget.isAlert == false"><i class="fa fa-bell-o"></i></a>
                                 <a title="settings" ng-click="openSettings(widget)"><i class="fa fa-cog"></i></a>
                             </div>
                         </div>
@@ -111,14 +97,11 @@
                                 </div>
                                 <div ng-repeat="chart in dashboard.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'instagramPosts'" size-watcher size-watcher-height="chart.myheight" size-watcher-width="chart.mywidth" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/dashboard.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/dashboard.widgetData[widgetIndex].layoutOptionsX)+'%'}">
                                     <div class="row" style="margin: 0px;height: 100%">
-                                        <div
-                                             events="events" style="height: 99%"
-                                             ng-if="dashboard.widgetData[widgetIndex].visibility == true">
+                                        <div events="events" style="height: 99%" ng-if="dashboard.widgetData[widgetIndex].visibility == true">
                                             <div class="scrollbar scrollInWidget" id="scroller">
                                                 <div class="col-lg-12 listed" ng-repeat="data in chart.data">
-
-                                                    <div class="col-lg-1 listed-image" ><a  href="{{data.links}}" target="_blank"><img
-                                                                src="{{data.image}}" height="50px" widget="50px"/></a>
+                                                    <div class="col-lg-1 listed-image" >
+                                                        <a  href="{{data.links}}" target="_blank"><img src="{{data.image}}" height="50px" widget="50px"/></a>
                                                     </div>
                                                     <div class="col-lg-11 aside">
                                                         <div class="postComment"><a class="apiLink" href="{{data.links}} " target="_blank">{{data.postComment}}</a></div>
@@ -158,7 +141,9 @@
                                 </div>
                             </div>
 
+<!--
                             <div class="context widgetTransparentImage" id="widgetTransparentImage-{{widget.id}}" ng-hide="tempDashboard" ng-click="callThePosition($event,widget.id)" style="width: 100%;height: 100%;"></div>
+-->
 
                         </div>
 

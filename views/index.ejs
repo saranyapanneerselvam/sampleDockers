@@ -33,6 +33,11 @@
     <script>
 
         $(function() {
+            $('.page-scroll').click(
+                    function () {
+                        $('.navbar-collapse').removeClass('in');
+                    }
+            );
             $('a[href*="#"]:not([href="#"])').click(function() {
                 if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'') && location.hostname == this.hostname) {
                     var target = $(this.hash);
@@ -356,14 +361,14 @@
         <div class="row m-b-lg">
             <div class="col-lg-3 col-lg-offset-3">
                 <address>
-				    <i class="fa fa-phone"> <span style="font-size:15px"> +91 95000 63611 (or) +91 80561 38326 </span> </i><br/> <br/>
+				    <i class="fa fa-phone"></i> <span style="font-size:15px"> +91 95000 63611 (or) +91 80561 38326 </span> <br/> <br/>
 					<i class="fa fa-envelope"></i> <span style="font-size:15px"> <a href="mailto:hello@datapoolt.co"> hello@datapoolt.co</a> </span><br/> <br/>
                 </address>
             </div>
             <div class="col-lg-4">
                 <i class="fa fa-map-marker"></i> <span style="font-size:15px">
 					 140, 1st Floor, JC Complex,<br/>
-                     Thiruvanmiyur,<br/>
+                     L.B Road, Thiruvanmiyur,<br/>
                      Chennai, India - 600041</span><br/>
             </div>
         </div>
@@ -385,9 +390,7 @@
 
         <div class="row">
             <div class="col-lg-12 text-center">
-                <ul>
-                    <li><a href="/privacy" target="_blank">Privacy Policy</a></li>
-                </ul>
+                <a href="/privacy" target="_blank">Privacy Policy</a>
             </div>
         </div>
 

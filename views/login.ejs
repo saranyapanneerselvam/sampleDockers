@@ -1,15 +1,28 @@
 <html>
-
 <head>
     <title>Datapoolt | Login</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../../image/Favicon.png">
     <link href="/css/bootstrap.min.css" rel="stylesheet">
     <link href="/font-awesome/css/font-awesome.css" rel="stylesheet">
-    <link rel="icon" href="../../image/Favicon.png">
     <link href="/css/animate.css" rel="stylesheet">
     <link href="/css/style.css" rel="stylesheet">
-
+    <script src="/js/modernizr.custom.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <script src="/js/hideShowPassword.min.js"></script>
+    <script>
+        $(function() {
+            // Example 1
+            $('#password-1').hideShowPassword({
+                // Creates a wrapper and toggle element with minimal styles.
+                innerToggle: true,
+                // Makes the toggle functional in touch browsers without
+                // the element losing focus.
+                touchSupport: Modernizr.touch
+            });
+        });
+    </script>
 
 
 
@@ -21,7 +34,7 @@
     <div class="row">
 
         <div class="col-md-6">
-            <img src="/image/logo.png">
+            <a href="../../" ><img src="/image/logo.png"></a>
             <h2 class="font-bold">Welcome to Datapoolt</h2>
 
             <p>
@@ -47,15 +60,15 @@
                     <% } %>
                     <form class="m-t" role="form" action="/api/v1/login" method="post">
                         <div class="form-group">
-                            <input type="text" class="form-control" placeholder="Username" name="email" required="">
+                            <input type="email" class="form-control" placeholder="Username" name="email" required="">
                         </div>
                         <div class="form-group">
-                            <input type="password" class="form-control" placeholder="Password" name="password" required="">
+                            <input name="password" class="login-field login-field-password form-control" id="password-1" type="password" required="" placeholder="Password">
                         </div>
 
                         <button type="submit" class="btn btn-primary block full-width m-b">Login</button>
                         <a href="#">
-                            <small>Forgot password?</small>
+                           <!-- <small>Forgot password?</small>-->
                         </a>
 
                         <!--<p class="text-muted text-center">-->
@@ -71,10 +84,10 @@
     <hr/>
     <div class="row">
         <div class="col-md-6">
-            Copyright © Datapoolt
+            Copyright &copy; Datapoolt
         </div>
-        <div class="col-md-6 text-right">
-            <small>© 2015-2016</small>
+        <div class="col-md-6 text-right copy-right">
+            <small>&copy; 2015-2016</small>
         </div>
     </div>
 </div>

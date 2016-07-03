@@ -50,7 +50,7 @@ exports.getUserPassword = function (req, res, next) {
                 return res.status(500).json({error: 'Internal server error'});
             else if (!user)
                 return res.status(204).json({error: 'No records found'});
-            else{
+            else {
                 if (bcrypt.compareSync(req.body.currentPassword, user.pwdHash)){
                     user.pwdHash =  bcrypt.hashSync(req.body.newPassword, bcrypt.genSaltSync(8), null);
                     user.save(function(err){

@@ -123,6 +123,20 @@ svg:hover #Calendar-Icon { fill: #8560c5 ; }
 @font-face { font-family: Brandon Grotesque-medium; font-weight: bold; src: url('../fonts/Brandon Grotesque/Brandon_med.otf');}
 @font-face { font-family: Brandon Grotesque-regular; font-weight: bold; src: url('../fonts/Brandon Grotesque/Brandon_reg.otf');}
 @font-face { font-family: Brandon Grotesque-bold; font-weight: bold; src: url('../fonts/Brandon Grotesque/Brandon_bld.otf');}
+@font-face { font-family: OpenSans-Light;  src: url('../fonts/OpenSans/OpenSans-Light.ttf');}
+@font-face { font-family: OpenSans-Regular; src: url('../fonts/OpenSans/OpenSans-Regular.ttf');}
+@font-face { font-family: Arimo-Regular;  src: url('../fonts/Datapooltfonts/Arimo-Regular.ttf');}
+@font-face { font-family: Assistant-Light; src: url('../fonts/Datapooltfonts/Assistant-Light.ttf');}
+@font-face { font-family: Assistant-Regular;  src: url('../fonts/Datapooltfonts/Assistant-Regular.ttf');}
+@font-face { font-family: Assistant-SemiBold; src: url('../fonts/Datapooltfonts/Assistant-SemiBold.ttf');}
+@font-face { font-family: Biryani-Bold;  src: url('../fonts/Datapooltfonts/Biryani-Bold.ttf');}
+@font-face { font-family: Biryani-DemiBold; src: url('../fonts/Datapooltfonts/Biryani-DemiBold.ttf');}
+@font-face { font-family: Biryani-Regular;  src: url('../fonts/Datapooltfonts/Biryani-Regular.ttf');}
+@font-face { font-family: Lato-Bold; src: url('../fonts/Datapooltfonts/Lato-Bold.ttf');}
+@font-face { font-family: Lato-Regular;  src: url('../fonts/Datapooltfonts/Lato-Regular.ttf');}
+@font-face { font-family: Roboto-Medium; src: url('../fonts/Datapooltfonts/Roboto-Medium.ttf');}
+@font-face { font-family: Roboto-Regular; src: url('../fonts/Datapooltfonts/Roboto-Regular.ttf');}
+
 .add-profile{float: left;margin: 0px ; text-align: left;!important}
 .fa-3x{font-size: 28px!important;color:#fff;padding-left: 5px;}
 .remove-profile{float: right;margin: 0px ;text-align: right;}
@@ -544,6 +558,10 @@ body.mini-navbar .navbar-default .nav > li > .nav-second-level li a {
     -o-transition: all 0.5s;
     transition: all 0.5s;
 }
+body.mini-navbar .navbar-default .nav > li > a:hover{
+background: #E6E3E3;
+    color: #04509B !important;
+}
 .navbar-fixed-top {
     background: #fff;
     transition-duration: 0.5s;
@@ -777,6 +795,15 @@ body.canvas-menu.mini-navbar nav.navbar-static-side {
     .top-navigation .navbar-header {
         display: block;
         float: none;
+    }
+    .commonComingSoon,.pleaseWait{
+        width:auto !important;
+    }
+    .center-768{
+        text-align: center;
+    }
+    .label-font{
+        font-size:14px;
     }
 }
 .menu-visible-lg,
@@ -2818,6 +2845,16 @@ a.forum-item-title:hover {
     .forum-desc {
         float: none !important;
     }
+    .loginColumns {
+        padding: 20px !important;
+        display: block;
+        text-align: center;
+    }
+    .copy-right{
+        padding-top:10px;
+    text-align: center !important;
+}
+
 }
 /* New Timeline style */
 .vertical-container {
@@ -8981,4 +9018,51 @@ body.md-skin {
     .triangle-topright {
         margin: -13px 0px 0px 200px !important;
     }
+}
+.daterange .dr-selections .dr-preset-list{
+    left: 0px !important;
+}
+
+.daterange .dr-selections {
+    width: 100% !important;
+}
+
+/* Hide Show Password */
+.hideShowPassword-toggle {
+    background-image: url(/image/wink.svg);
+    background-position: 0 center;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    height: 100%;
+    overflow: hidden;
+    text-indent: -9999em;
+    width: 44px;
+}
+.hideShowPassword-toggle-hide {
+    background-position: -44px center;
+}
+/* Simple text toggle style */
+.my-toggle-class {
+    color: #888;
+    cursor: pointer;
+    font-size: 0.75em;
+    font-weight: bold;
+    padding: 0.5em 1em;
+    text-transform: uppercase;
+}
+/*
+   * Because our input elements have a z-index so that
+   * their borders will overlap on focus, we'll give ours
+   * a higher one to make sure they're always visible.
+   */
+.hideShowPassword-toggle,  .my-toggle-class {
+    z-index: 3;
+}
+.login-field-password {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    margin-top: -2px;
+}
+.label-font{
+    font-size:14px;
 }

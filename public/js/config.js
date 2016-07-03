@@ -21,21 +21,17 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
 
     $stateProvider
 
-    //Defining 'app' state that will control the actions of the entire page
         .state('app', {
             abstract: true,
             templateUrl: "common/content.ejs",
             controller: 'AppController'
         })
 
-        //Defining two sub-parent states 'adReporting' and 'reporting'
-        //Sub-parent state #1
         .state('app.adReporting', {
             abstract: true,
             url: "/adReporting"
         })
 
-        //Sub-parent state #2
         .state('app.reporting', {
             url: "/reporting",
             template: '{{loadingVariable}}',
@@ -66,7 +62,6 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
             }
         })
 
-        //Defining child states for parent state: 'reporting'
         .state('app.reporting.dashboard', {
             url: "/dashboard/:id",
             views: {
@@ -168,7 +163,7 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                 'lightbox@app.reporting.dashboard': {
                     params: {selectedWidget: null},
                     templateUrl: "alertModal.ejs",
-                    controller: 'LightBoxController',
+                    controller: 'LightBoxController'
                 }
             },
             onEnter: function ($stateParams,$state) {
@@ -185,7 +180,6 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                 }
             }
         })
-
 
         .state('app.reporting.dashboard.exportMessageModal', {
             url: "",
@@ -231,6 +225,16 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                 'main@app': {
                     templateUrl: "gridView.ejs",
                     controller: 'GridviewController'
+                }
+            }
+        })
+
+        .state('app.changePassword', {
+            url: "/changePassword",
+            views: {
+                'main@app': {
+                    templateUrl: "changePassword.ejs",
+                    //controller: ''
                 }
             }
         });

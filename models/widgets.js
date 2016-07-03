@@ -20,7 +20,9 @@ var widgetsSchema = mongoose.Schema({
     color: String,
     created: Date,
     updated: Date,
-    deleted: Date
+    deleted: Date,
+    widgets:Array,
+    visibility:Boolean
 });
 
 // create the model for organization and expose it to our app

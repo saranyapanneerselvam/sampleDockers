@@ -1,5 +1,7 @@
 var async = require("async");
+var configAuth = require('../config/auth');
 var exports = module.exports = {};
+var mongoose = require('mongoose');
 var userPermission = require('../helpers/utility');
 var widgetsList = require('../models/widgets');
 
@@ -96,6 +98,8 @@ exports.deleteWidgets = function (req, res, next) {
 };
 
 exports.saveWidgets = function (req, res, next) {
+    var bulk = widgetsList.collection.initializeOrderedBulkOp();
+    var bulkExecute;
     if (req.user) {
         async.auto({storeAllWidgets: processAllWidgets},
             function (err, result) {
@@ -105,7 +109,9 @@ exports.saveWidgets = function (req, res, next) {
                     req.app.result = result.storeAllWidgets;
                     next();
                 }
-            })
+            }
+        );
+
         function processAllWidgets(callback) {
             var charts;
             var colCount;
@@ -120,6 +126,8 @@ exports.saveWidgets = function (req, res, next) {
             var widgetType;
             var widgetName;
             var widgets = req.body;
+            var widgetsForCustomFusion;
+            var visibility;
 
             async.concatSeries(widgets, saveAllWidgets, callback);
 
@@ -142,6 +150,10 @@ exports.saveWidgets = function (req, res, next) {
                         return res.status(500).json({error: 'Internal server error'});
                     else {
                         var createWidget = new widgetsList();
+                        if (widgetType === configAuth.widgetType.customFusion){
+                            widgetsForCustomFusion = result.widgets;
+                            createWidget.widgets = widgetsForCustomFusion;
+                        }
 
                         //To store the widget
                         //To check whether new dashboard or not
@@ -160,14 +172,53 @@ exports.saveWidgets = function (req, res, next) {
                             createWidget.color = widgetColor;
                             createWidget.created = new Date();
                             createWidget.updated = new Date();
+                            createWidget.visibility = true;
+                            console.log('CREATEWIDGET',createWidget);
                             createWidget.save(function (err, widgetDetail) {
                                 if (err)
                                     return res.status(500).json({error: 'Internal server error'});
                                 else if (!widgetDetail)
                                     return res.status(501).json({error: 'Not implemented'})
                                 else {
-                                    req.app.result = widgetDetail;
-                                    callback(null, widgetDetail);
+                                    if(widgetDetail.widgetType===configAuth.widgetType.customFusion){
+                                        bulkExecute = false;
+                                        if(widgetDetail.widgetType.length)
+                                            bulkExecute = true;
+
+                                        //set the update parameters for query
+                                        for (var i = 0; i < widgetDetail.widgets.length; i++) {
+                                            var id = mongoose.Types.ObjectId(widgetDetail.widgets[i].widgetId);
+                                            //set query condition
+                                            var query = {
+                                                _id:id
+                                            };
+
+                                            //set the values
+                                            var update = {
+                                                $set: {
+                                                    visibility:false,
+                                                    updated: createWidget.created
+                                                }
+                                            };
+                                            console.log('QUERY',query);
+
+                                            //form the query
+                                            bulk.find(query).update(update);
+                                        }
+                                        if (bulkExecute === true) {
+
+                                            //Doing the bulk update
+                                            bulk.execute(function (err, response) {
+                                                console.log('errr', err, response, response.nMatched, 'nModified', response.nModified, 'nUpserted', response.nUpserted)
+                                                callback(err, widgetDetail);
+                                            });
+                                        }
+                                        else callback(null, widgetDetail);
+                                    }
+                                    else{
+                                        req.app.result = widgetDetail;
+                                        callback(null, widgetDetail);
+                                    }
                                 }
                             });
                         }
@@ -244,11 +295,15 @@ exports.saveCustomWidgets = function (req, res, next) {
     createCustomWidget.created = new Date();
     createCustomWidget.updated = new Date();
     createCustomWidget.save(function (err, customWidgetDetail) {
-        if (!err)
+        if (err)
+            return res.status(500).json({error: err});
+        else if (!alertDetails.length)
+            return res.status(204).json({error: 'No records found'});
+        else {
             req.app.result = {'status': '200', 'id': customWidgetDetail};
-        else
-            req.app.result = {'status': '302'};
-        next();
+            next();
+        }
+
     });
 
 };

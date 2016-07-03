@@ -122,6 +122,7 @@ function WidgetSettingsController($scope, $uibModalInstance, widget, $http, $sta
                     storeFinalWidgetsList.push({widgetId: value.id,widgetType: value.widgetType})
                 }
             );
+            console.log(storeFinalWidgetsList)
             var jsonData = {
                 "dashboardId": $state.params.id,
                 "widgetType": widgetType,
@@ -132,12 +133,14 @@ function WidgetSettingsController($scope, $uibModalInstance, widget, $http, $sta
                 "color": '#1F77B4'
             };
             inputParams.push(jsonData);
+            console.log(inputParams);
             $http({
                 method: 'POST',
                 url: '/api/v1/widgets',
                 data: inputParams
             }).then(
                 function successCallback(response) {
+                    console.log(response);
                     $scope.dismiss();
                 },
                 function errorCallback(error) {

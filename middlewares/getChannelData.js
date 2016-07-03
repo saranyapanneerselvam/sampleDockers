@@ -724,7 +724,6 @@ exports.getChannelData = function (req, res, next) {
                                 var wholeResponse = [];
                                 if (dataFromDb[j].data != null) {
                                     var metricId;
-                                    var finalData = [];
                                     for (var r = 0; r < dataFromDb[j].data.data.length; r++) {
                                         if (dataFromRemote[j].metricId === dataFromDb[j].metricId) {
 
@@ -734,7 +733,8 @@ exports.getChannelData = function (req, res, next) {
                                     }
                                 }
                             }
-                            storeGoogleData = replaceEmptyData(finalData, storeGoogleData);
+                            if (finalData.length>storeGoogleData.length)
+                                storeGoogleData = replaceEmptyData(finalData, storeGoogleData);
                             var now = new Date();
 
                             //Updating the old data with new one
@@ -1039,9 +1039,6 @@ exports.getChannelData = function (req, res, next) {
 
                                 }
                                 else {
-
-                                    //To format twitter date
-                                    var createdAt = formatDate(new Date(Date.parse(dataFromRemote[j].data[0].created_at.replace(/( +)/, ' UTC$1'))));
                                     if (String(metric[j]._id) == String(dataFromRemote[key].metricId)) {
                                         wholeTweetResponse.push({
                                             date: currentDate,

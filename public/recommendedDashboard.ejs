@@ -225,8 +225,19 @@
                                                         <div class="form-group">
                                                             <div class="col-lg-12 select-profiles"
                                                                  style="display: flex;">
+                                                                <select class="form-control m-b"
+                                                                        ng-show="listChannel.name ==='Google Analytics'" ng-model="objectOptionsModel1[$index]"
+                                                                        ng-change="objectForWidgetChosen(objectOptionsModel1[$index],$index)">
+                                                                    <option value="">Select an item</option>
+                                                                    <optgroup style="font-wight:bold"  ng-repeat="header in objectList[$index]"
+                                                                              label="{{ header.webPropertyName }}">{{$index}}
+                                                                        <option ng-repeat="item in header.metricDetails"
+                                                                                value="{{item}}" >{{ item.name }}</option>
+                                                                    </optgroup>
+                                                                </select>
                                                                 <select class="form-control m-b col-md-6"
-                                                                        ng-model="objectOptionsModel[$index]" ng-hide = "listChannel.name=== 'Twitter'"
+                                                                        ng-model="objectOptionsModel[$index]"
+                                                                        ng-hide = "listChannel.name=== 'Twitter' || listChannel.name=== 'Google Analytics'"
                                                                         ng-options="objects as objects.name for objects in objectList[$index]"
                                                                         ng-change="objectForWidgetChosen(objectOptionsModel[$index], $index)" >
                                                                     <option value="" selected="selected">Select an item</option>

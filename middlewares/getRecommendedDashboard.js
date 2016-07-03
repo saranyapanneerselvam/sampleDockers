@@ -14,7 +14,6 @@ exports.recommendDashboard = function (req, res, next) {
         referenceWidget : ['recommendedDashboard',getReferenceWidget],
         channel:['recommendedDashboard','referenceWidget',getUniqueChannels]
     }, function (err, results) {
-        console.log('ERROR',err,'RESULTS',results);
         if (err) {
             return res.status(500).json({});
         }

@@ -87,7 +87,6 @@ module.exports = function (app) {
                                             req.customerId = clientResponse.rval.customerId;
                                             //Calling the storeProfiles middleware to store the data
                                             user.storeProfiles(req, function (err, response) {
-                                                console.log('profile response',response)
                                                 if (err)
                                                     res.json('Error');
                                                 else {
@@ -100,7 +99,6 @@ module.exports = function (app) {
                                                             else {
                                                                 ObjectType.findOne({'channelId': response.channelId}, function (err, objectTypeList) {
                                                                     if (!err) {
-                                                                        console.log(objectTypeList);
                                                                         var storeObject = new Object();
                                                                         storeObject.profileId = response._id;
                                                                         storeObject.channelObjectId = clientResponse.rval.customerId;
@@ -109,7 +107,6 @@ module.exports = function (app) {
                                                                         storeObject.updated = new Date();
                                                                         storeObject.created = new Date();
                                                                         storeObject.save(function (err, objectListItem) {
-                                                                            console.log('after save', objectListItem, err)
                                                                             if (!err) {
                                                                                 res.render('successAuthentication');
                                                                             }

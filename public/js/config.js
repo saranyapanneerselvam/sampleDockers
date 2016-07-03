@@ -46,9 +46,13 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                         }
                     ).then(
                         function successCallback(response) {
+                            console.log(response.data.userDetails[0].lastDashboardId);
                             if(response.data.userDetails[0].lastDashboardId) {
                                 $scope.loadingVariable = '';
-                                $state.go('.dashboard',{id: response.data.userDetails[0].lastDashboardId});
+                                if(response.data.userDetails[0].lastDashboardId != 'undefined')
+                                    $state.go('.dashboard',{id: response.data.userDetails[0].lastDashboardId});
+                                else
+                                    $scope.createNewDashboard();
                             }
                             else {
                                 $scope.createNewDashboard();
@@ -84,18 +88,24 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
             },
             onEnter: function ($stateParams,$http,$state) {
                 var dashboardId = $stateParams.id? $stateParams.id : $state.params.id;
-                $http(
-                    {
-                        method:'POST',
-                        url:'/api/v1/updateLastDashboardId/' + dashboardId
-                    }
-                ).then(
-                    function successCallback(response){
-                    },
-                    function errorCallback (error){
-                        console.log('Failure in updating last dashboard id',error)
-                    }
-                );
+                console.log('DASHBOARDID',dashboardId,typeof dashboardId)
+                if(typeof dashboardId != 'undefined') {
+                    console.log('INSIDEIF');
+                    $http(
+                        {
+                            method:'POST',
+                            url:'/api/v1/updateLastDashboardId/' + dashboardId
+                        }
+                    ).then(
+                        function successCallback(response){
+                        },
+                        function errorCallback (error){
+                            console.log('Failure in updating last dashboard id',error)
+                        }
+                    );
+                }
+                else
+                    console.log('INSIDEELSE')
             }
         })
 

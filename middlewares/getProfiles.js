@@ -9,7 +9,7 @@ var profilesList = require('../models/profiles');
  */
 exports.profiles = function (req, res, next) {
     if (req.user) {
-        profilesList.find({channelId: req.params.channelId}, function (err, profiles) {
+            profilesList.find({channelId: req.params.channelId,orgId:req.user.orgId}, function (err, profiles) {
             if (err)
                 return res.status(500).json({error: 'Internal server error'});
             else if (!profiles.length)

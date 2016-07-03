@@ -278,7 +278,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     var dashboardWidgets = [];
 
                     for(var getWidgetInfo in dashboardWidgetList){
-                        console.log(dashboardWidgetList[getWidgetInfo]);
                         dashboardWidgets.push(createWidgets.widgetHandler(dashboardWidgetList[getWidgetInfo],{
                             'startDate': moment($scope.dashboardCalendar.start_date).format('YYYY-MM-DD'),
                             'endDate': moment($scope.dashboardCalendar.end_date).format('YYYY-MM-DD')
@@ -357,7 +356,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
     //To catch a request for a new widget creation and create the dashboard in the frontend
     $scope.$on('populateWidget', function(e,widget){
         var inputWidget = [];
-        console.log(widget);
         inputWidget.push(createWidgets.widgetHandler(widget,{
             'startDate': moment($scope.dashboardCalendar.start_date).format('YYYY-MM-DD'),
             'endDate': moment($scope.dashboardCalendar.end_date).format('YYYY-MM-DD')
@@ -392,7 +390,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         //Fetching the promise that contains all the data for all the widgets in the dashboard
         $q.all(inputWidget).then(
             function successCallback(inputWidget){
-                console.log(inputWidget);
                 $("#getLoadingModalContent").removeClass('md-show');
                 var widgetIndex = $scope.dashboard.widgets.map(function(el) {return el.id;}).indexOf(inputWidget[0].id);
                 $scope.dashboard.widgetData[widgetIndex] = inputWidget[0];
@@ -430,7 +427,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             url:'/api/v1/delete/widgets/' + widget.id
         }).then(
             function successCallback(response){
-                console.log(response);
                 if(widgetType != 'customFusion') {
                     for(var items in $scope.dashboard.widgetData) {
                         if($scope.dashboard.widgetData[items].id == widgetId)
@@ -451,7 +447,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
     //To create alerts
     $scope.alertModal = function(value,widget){
-        console.log('widget',widget);
         $rootScope.selectedWidget = widget;
         $state.go(value);
     };

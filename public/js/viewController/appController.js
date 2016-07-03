@@ -37,7 +37,6 @@ function AppController($http,$state,$scope) {
                     text: "<span style='sweetAlertFont'>Something went wrong! Please try again!</span> .",
                     html: true
                 });
-                console.log('Error in creating new Dashboard',error);
             }
         )
     };

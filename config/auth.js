@@ -179,5 +179,9 @@ module.exports = {
     apiVersions:{
         FBInsights:'v2.6',
         FBADs:'v2.6'
+    },
+
+    widgetType:{
+        customFusion:'customFusion'
     }
 };

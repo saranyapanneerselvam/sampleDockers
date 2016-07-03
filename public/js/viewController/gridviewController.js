@@ -11,14 +11,12 @@ function GridviewController($scope,$http) {
         $http({
             method: 'GET', url: '/api/v1/get/dashboardList'
         }).then(function successCallback(response){
-            console.log('Inside if',response)
             if(response.status == '200')
                 $scope.dashboardList = response.data.dashboardList;
             else
                 $scope.dashboardList = null;
             $("#getLoadingModalContent").removeClass('md-show');
         },function errorCallback(error){
-            console.log('Inside error',error);
             $("#getLoadingModalContent").removeClass('md-show');
             $scope.dashboardList = null;
             $(".navbar").css('z-index','1');
@@ -37,7 +35,6 @@ function GridviewController($scope,$http) {
         $http({
             method:'POST', url:'/api/v1/delete/userDashboards/' + dashboard._id
         }).then(function successCallback(response){
-            console.log('dashboardDeleted',response);
             $("#getLoadingModalContent").removeClass('md-show');
             $scope.fetchAllDashboards();
         },function errorCallback(error){

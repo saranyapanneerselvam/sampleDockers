@@ -862,10 +862,28 @@ showMetricApp.service('createWidgets',function($http,$q){
                 {W:6,H:3,N:7,r:2,c:4},
                 {W:6,H:3,N:8,r:2,c:4}
             ];
+            var lineDataHighValue = 0, lineDataLowValue = 0;
+            var barDataHighValue = 0, barDataLowValue = 0;
 
             for(var charts in widgetCharts) {
-                if(widgetCharts[charts].type == 'line' || widgetCharts[charts].type == 'area') finalCharts.lineCharts.push(widgetCharts[charts]);
-                else if(widgetCharts[charts].type == 'bar') finalCharts.barCharts.push(widgetCharts[charts]);
+                if(widgetCharts[charts].type == 'line' || widgetCharts[charts].type == 'area') {
+                    finalCharts.lineCharts.push(widgetCharts[charts]);
+                    for(var values in widgetCharts[charts].values) {
+                        if(widgetCharts[charts].values[values].y < lineDataLowValue)
+                            lineDataLowValue = parseFloat(widgetCharts[charts].values[values].y);
+                        if(widgetCharts[charts].values[values].y > lineDataHighValue)
+                            lineDataHighValue = parseFloat(widgetCharts[charts].values[values].y);
+                    }
+                }
+                else if(widgetCharts[charts].type == 'bar') {
+                    finalCharts.barCharts.push(widgetCharts[charts]);
+                    for(var values in widgetCharts[charts].values) {
+                        if(widgetCharts[charts].values[values].y < barDataLowValue)
+                            barDataLowValue = parseFloat(widgetCharts[charts].values[values].y);
+                        if(widgetCharts[charts].values[values].y > barDataHighValue)
+                            barDataHighValue = parseFloat(widgetCharts[charts].values[values].y);
+                    }
+                }
                 else if(widgetCharts[charts].type == 'pie') finalCharts.pieCharts.push(widgetCharts[charts]);
                 else if(widgetCharts[charts].type == 'instagramPosts') finalCharts.instagramPosts.push(widgetCharts[charts]);
                 else if(widgetCharts[charts].type == 'highEngagementTweets') finalCharts.highEngagementTweets.push(widgetCharts[charts]);
@@ -873,19 +891,23 @@ showMetricApp.service('createWidgets',function($http,$q){
 
             if(finalCharts.lineCharts.length > 0) {
                 chartsCount++;
+                var forceY = [lineDataLowValue,lineDataHighValue == 0? 10 : (lineDataHighValue>100 ? lineDataHighValue + 10 : lineDataHighValue + 1)];
                 finalChartData.push({
                     'options': graphOptions.lineDataOptions,
                     'data': finalCharts.lineCharts,
                     'api': {}
                 });
+                finalChartData[finalChartData.length -1].options.chart.forceY = forceY;
             }
             if(finalCharts.barCharts.length > 0) {
                 chartsCount++;
+                var forceY = [barDataLowValue,barDataHighValue == 0? 10 : (barDataHighValue>100 ? barDataHighValue + 10 : barDataHighValue + 1)];
                 finalChartData.push({
                     'options': graphOptions.barDataOptions,
                     'data': finalCharts.barCharts,
                     'api': {}
                 });
+                finalChartData[finalChartData.length -1].options.chart.forceY = forceY;
             }
             if(finalCharts.pieCharts.length > 0) {
                 chartsCount++;

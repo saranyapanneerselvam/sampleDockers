@@ -25,8 +25,6 @@ function exportConfig($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, I
             url: "/reporting",
             template: '{{loading}}',
             controller: function ($http,$state,$scope,$rootScope){
-                console.log('Inside the controller');
-                console.log($state.$current.name,$rootScope.dashboardId,$rootScope.startDate,$rootScope.endDate);
                 $scope.loading = "....";
                 $state.go('app.reporting.dashboard',{id: $rootScope.dashboardId});
             }

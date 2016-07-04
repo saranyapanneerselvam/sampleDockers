@@ -129,7 +129,6 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
     $scope.objectForWidgetChosen = function (objectList, index) {
         if (typeof objectList==='string') {
             var parsedObjectList = JSON.parse(objectList);
-            console.log('parsedobj', parsedObjectList)
             objectList = parsedObjectList;
 
         }

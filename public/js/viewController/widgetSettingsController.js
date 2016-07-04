@@ -71,7 +71,6 @@ function WidgetSettingsController($scope, $uibModalInstance, widget, $http, $sta
 
             $scope.dashboardWidgets.forEach(function (value, key) {
                 if(value._id != $scope.widget.id && value.widgetType != 'customFusion') {
-                    console.log(value);
                     $scope.widgetsList.push({
                         id: value._id,
                         label: value.name,

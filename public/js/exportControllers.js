@@ -1,11 +1,10 @@
 function ExportAppController($http,$state,$scope,$stateParams) {
-    console.log('ExportAppController',$state.params,$stateParams);
+    //console.log('ExportAppController',$state.params,$stateParams);
 }
 
 function ExportDashboardController($scope,$timeout,$rootScope,$http,$window,$state,$stateParams) {
 
     $scope.dashboardConfiguration = function () {
-        console.log('ExportDashboardController');
         //Defining configuration parameters for dashboard calendar
         $scope.date = {
             startDate: moment().subtract(29, "days"),
@@ -37,11 +36,8 @@ function ExportDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
             $http({
                 method: 'GET', url: '/api/v1/get/dashboards/'+ $rootScope.dashboardId
             }).then(function successCallback(response) {
-                console.log(response);
-                console.log('successfully retrieved dashboard details',response.data.data.name);
                 $scope.dashboard.dashboardName =  response.data.data.name;
             }, function errorCallback(error) {
-                console.log('Error in getting dashboard details',error);
                 $scope.dashboard.dashboardName =   null;
             });
         };
@@ -85,7 +81,6 @@ function ExportDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
             method: 'GET', url: '/api/v1/dashboards/widgets/'+ $rootScope.dashboardId
         }).then(function successCallback(response) {
             $scope.dashboardWidgetList = response.data.widgetsList;
-            console.log(response.data.widgetsList);
             $scope.widgetsCount = $scope.dashboardWidgetList.length;
             for(i=0;i<$scope.dashboardWidgetList.length;i++){
                 if($scope.dashboardWidgetList[i].widgetType = 'basic')
@@ -113,7 +108,6 @@ function ExportDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
             url: '/api/v1/widgets/data/'+widgetId,
             data: jsonData
         }).then(function successCallback(response){
-            console.log('Data for widget',widgetId,':',response);
             for(i=0;i<response.data[0].data.length;i++){
                 splitDate = [response.data[0].data[i].date];
                 newDate = splitDate[1]+'/'+splitDate[2]+'/'+splitDate[0];
@@ -144,7 +138,6 @@ function ExportDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
             var widgetIndex = $scope.dashboard.widgets.map(function(el) {
                 return el.id;
             }).indexOf(widgetId);
-            console.log(widgetIndex);
             $scope.dashboard.widgets[widgetIndex] = {
                 sizeY: 3, sizeX: 3, name: metricDetails.description, id: widgetId,
                 chart: {

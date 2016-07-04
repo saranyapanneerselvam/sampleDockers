@@ -333,6 +333,11 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                                 isExportOptionSet=1;
                             },
                             function errorCallback(error){
+                                if(typeof error.data.id != 'undefined') {
+                                    $("#widgetData-"+error.data.id).hide();
+                                    $("#errorWidgetData-"+error.data.id).show();
+                                    isExportOptionSet=0;
+                                }
                                 swal({
                                     title: '',
                                     text: '<span style = "sweetAlertFont">Error in populating widgets! Please refresh the dashboard again</span>',
@@ -365,7 +370,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
         $scope.widgetsPresent = true;
 
-        console.log(widget)
         //To temporarily create an empty widget with same id as the widgetId till all the data required for the widget is fetched by the called service
         $scope.dashboard.widgets.push({
             'row': (typeof widget.row != 'undefined'? widget.row : 0),
@@ -399,6 +403,9 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 $scope.dashboard.widgetData[widgetIndex] = inputWidget[0];
             },
             function errorCallback(error){
+                $("#widgetData-"+widget._id).hide();
+                $("#errorWidgetData-"+widget._id).show();
+                isExportOptionSet=0;
                 swal({
                     title: "",
                     text: '<span style="sweetAlertFont">Error in displaying widget! Please refresh the dashboard</span>',

@@ -126,15 +126,15 @@ exports.getChannelData = function (req, res, next) {
                 dashboards: {$elemMatch: {dashboardId: dashboardId}}
             }, function (err, user) {
                 if (err)
-                    return res.status(500).json({error: 'Internal Server Error'});
+                    return res.status(500).json({error: 'Internal Server Error',id:req.params.widgetId});
                 else if (!user)
-                    return res.status(401).json({success: true});
+                    return res.status(401).json({error: 'User not found',id:req.params.widgetId});
                 else
                     callEntireDataFunction();
             })
         }
         else {
-            return res.status(401).json({error: 'User must be logged in'})
+            return res.status(401).json({error: 'User must be logged in',id:req.params.widgetId})
         }
     });
 
@@ -152,7 +152,7 @@ exports.getChannelData = function (req, res, next) {
             get_channel_objects_db: ['store_final_data', 'get_channel_data_remote', getChannelDataDB]
         }, function (err, results) {
             if (err)
-                return res.status(500).json({error: 'Internal server error'})
+                return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
             req.app.result = results.get_channel_objects_db;
             next();
         });
@@ -295,7 +295,7 @@ exports.getChannelData = function (req, res, next) {
                 case configAuth.channels.googleAnalytics:
                     setDataBasedChannelCode(results, function (err, result) {
                         if (err)
-                            return res.status(500).json({error: 'Internal server error'})
+                            return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
                         else
                             initializeGa(result, callback);
                     });
@@ -303,7 +303,7 @@ exports.getChannelData = function (req, res, next) {
                 case configAuth.channels.facebook:
                     setDataBasedChannelCode(results, function (err, result) {
                         if (err)
-                            return res.status(500).json({error: 'Internal server error'})
+                            return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
                         else
                             getFBPageData(result, callback);
                     });
@@ -311,7 +311,7 @@ exports.getChannelData = function (req, res, next) {
                 case configAuth.channels.facebookAds:
                     setDataBasedChannelCode(results, function (err, result) {
                         if (err)
-                            return res.status(500).json({error: 'Internal server error'})
+                            return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
                         else
                             getFBadsinsightsData(result, callback);
                     });
@@ -319,7 +319,7 @@ exports.getChannelData = function (req, res, next) {
                 case configAuth.channels.twitter:
                     setDataBasedChannelCode(results, function (err, result) {
                         if (err)
-                            return res.status(500).json({error: 'Internal server error'})
+                            return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
                         else
                             getTweetData(result, callback);
                     });
@@ -327,7 +327,7 @@ exports.getChannelData = function (req, res, next) {
                 case configAuth.channels.googleAdwords:
                     setDataBasedChannelCode(results, function (err, result) {
                         if (err)
-                            return res.status(500).json({error: 'Internal server error'})
+                            return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
                         else
                             selectAdwordsObjectType(result, callback);
                     });
@@ -335,7 +335,7 @@ exports.getChannelData = function (req, res, next) {
                 case configAuth.channels.instagram:
                     setDataBasedChannelCode(results, function (err, result) {
                         if (err)
-                            return res.status(500).json({error: 'Internal server error'})
+                            return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
                         else
                             selectInstagram(result, callback);
                     });
@@ -554,11 +554,11 @@ exports.getChannelData = function (req, res, next) {
                 graph.get(query.query, function (err, fbQueryRes) {
                     if (err) {
                         if (err.code === 190)
-                            return res.status(401).json({error: 'Authentication required to perform this action'})
+                            return res.status(401).json({error: 'Authentication required to perform this action',id:req.params.widgetId})
                         else if (err.code === 4)
-                            return res.status(4).json({error: 'Forbidden Error'})
+                            return res.status(4).json({error: 'Forbidden Error',id:req.params.widgetId})
                         else
-                            return res.status(500).json({error: 'Internal server error'})
+                            return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
                     }
                     else {
                         queryResponse = {
@@ -751,9 +751,9 @@ exports.getChannelData = function (req, res, next) {
                                 }
                             }, {upsert: true}, function (err, data) {
                                 if (err)
-                                    return res.status(500).json({error: 'Internal server error'})
+                                    return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
                                 else if (data == 0)
-                                    return res.status(501).json({error: 'Not implemented'})
+                                    return res.status(501).json({error: 'Not implemented',id:req.params.widgetId})
                                 else next(null, 'success')
                             })
                         }
@@ -854,9 +854,9 @@ exports.getChannelData = function (req, res, next) {
                                 }
                             }, {upsert: true}, function (err, data) {
                                 if (err)
-                                    return res.status(500).json({error: 'Internal server error'})
+                                    return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
                                 else if (data == 0)
-                                    return res.status(501).json({error: 'Not implemented'})
+                                    return res.status(501).json({error: 'Not implemented',id:req.params.widgetId})
                                 else next(null, 'success')
                             });
                         }
@@ -904,9 +904,9 @@ exports.getChannelData = function (req, res, next) {
                                 }
                             }, {upsert: true}, function (err,data) {
                                 if (err)
-                                    return res.status(500).json({error: 'Internal server error'})
+                                    return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
                                 else if (data == 0)
-                                    return res.status(501).json({error: 'Not implemented'})
+                                    return res.status(501).json({error: 'Not implemented',id:req.params.widgetId})
                                 else next(null, 'success');
                             });
                         }
@@ -956,9 +956,9 @@ exports.getChannelData = function (req, res, next) {
                                 }
                             }, {upsert: true}, function (err,data) {
                                 if (err)
-                                    return res.status(500).json({error: 'Internal server error'})
+                                    return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
                                 else if (data == 0)
-                                    return res.status(501).json({error: 'Not implemented'})
+                                    return res.status(501).json({error: 'Not implemented',id:req.params.widgetId})
                                 else next(null, 'success')
                             });
                         }
@@ -1011,9 +1011,9 @@ exports.getChannelData = function (req, res, next) {
                                     }
                                 }, {upsert: true}, function (err,data) {
                                     if (err)
-                                        return res.status(500).json({error: 'Internal server error'})
+                                        return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
                                     else if (data == 0)
-                                        return res.status(501).json({error: 'Not implemented'})
+                                        return res.status(501).json({error: 'Not implemented',id:req.params.widgetId})
                                     else next(null, 'success');
                                 });
                             }
@@ -1124,7 +1124,9 @@ exports.getChannelData = function (req, res, next) {
                                     }
                                 }
                             }
-                            else return res.status(500).json({error: 'Internal server error'});
+                            else {
+                                return res.status(500).json({error: 'Internal server error',id:req.params.widgetId});
+                            }
                             if (dataFromDb[j].data != null) {
                                 dataFromDb[j].data.data.forEach(function (value, index) {
                                     if (String(metric[j]._id) == String(dataFromRemote[j].metricId))
@@ -1178,9 +1180,9 @@ exports.getChannelData = function (req, res, next) {
                                     }
                                 }, {upsert: true}, function (err,data) {
                                     if (err)
-                                        return res.status(500).json({error: 'Internal server error'})
+                                        return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
                                     else if (data == 0)
-                                        return res.status(501).json({error: 'Not implemented'})
+                                        return res.status(501).json({error: 'Not implemented',id:req.params.widgetId})
                                     else next(null, 'success')
                                 });
                             }
@@ -1262,7 +1264,9 @@ exports.getChannelData = function (req, res, next) {
                             }]
                         , function (err, response) {
                             var finalDataArray = [];
-                            if (err) return res.status(500).json({error: 'Internal server error'});
+                            if (err){
+                                return res.status(500).json({error: 'Internal server error',id:req.params.widgetId});
+                            }
                             else if (!response.length) {
                                 finalDataArray.push({
                                     metricId: widget[k].metrics[0].metricId,
@@ -1376,11 +1380,11 @@ exports.getChannelData = function (req, res, next) {
             oauth2Client.refreshAccessToken(function (err, tokens) {
                 if (err) {
                     if (err.code === 400)
-                        return res.status(401).json({error: 'Authentication required to perform this action'})
+                        return res.status(401).json({error: 'Authentication required to perform this action',id:req.params.widgetId})
                     else if (err.code === 403)
-                        return res.status(403).json({error: 'Forbidden Error'})
+                        return res.status(403).json({error: 'Forbidden Error',id:req.params.widgetId})
                     else
-                        return res.status(500).json({error: 'Internal server error'})
+                        return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
                 }
                 else {
                     profile.token = tokens.access_token;
@@ -1548,9 +1552,9 @@ exports.getChannelData = function (req, res, next) {
                     analytics(apiQuery, function (err, result) {
                         if (err) {
                             if (err.code === 400)
-                                return res.status(401).json({error: 'Authentication required to perform this action'})
+                                return res.status(401).json({error: 'Authentication required to perform this action',id:req.params.widgetId})
                             else
-                                return res.status(500).json({error: 'Internal server error'})
+                                return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
                         }
                         else {
                             if (result.rows != undefined) {
@@ -1767,11 +1771,11 @@ exports.getChannelData = function (req, res, next) {
                 FB.api(query, function (apiResult) {
                     if (apiResult.error) {
                         if (apiResult.error.code === 190)
-                            return res.status(401).json({error: 'Authentication required to perform this action'})
+                            return res.status(401).json({error: 'Authentication required to perform this action',id:req.params.widgetId})
                         else if (apiResult.error.code === 4)
-                            return res.status(4).json({error: 'Forbidden Error'})
+                            return res.status(4).json({error: 'Forbidden Error',id:req.params.widgetId})
                         else
-                            return res.status(500).json({error: 'Internal server error'})
+                            return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
 
                     }
                     else {
@@ -1983,7 +1987,7 @@ exports.getChannelData = function (req, res, next) {
             function storeAdwordsFinalData(results, data) {
                 var actualFinalApiData = {};
                 if (data.error) {
-                    return res.status(500).json({error: 'Internal server error'});
+                    return res.status(500).json({error: 'Internal server error',id:req.params.widgetId});
                 }
 
                 //Array to hold the final result
@@ -2141,7 +2145,7 @@ exports.getChannelData = function (req, res, next) {
                 else {
                     callTwitterApi(queries, j, wholeTweetObjects, oldMaxId, index, function (err, response) {
                         if (err)
-                            return res.status(500).json({error: 'Internal server error'});
+                            return res.status(500).json({error: 'Internal server error',id:req.params.widgetId});
                         else {
                             next(null, response);
                         }
@@ -2164,8 +2168,9 @@ exports.getChannelData = function (req, res, next) {
             var removeDuplicate = [];
 
             client.get(query, inputs, function (error, tweets, response) {
-                if (error)
-                    return res.status(500).json({error: 'Internal server error'});
+                if (error) {
+                    return res.status(500).json({error: 'Internal server error',id:req.params.widgetId});
+                }
                 else {
                     if (queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.tweets || queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.followers || queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.following || queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.favourites || queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.listed || queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.retweets_of_your_tweets) {
 
@@ -2393,17 +2398,17 @@ exports.getChannelData = function (req, res, next) {
             $set: {data: storeDefaultValues, updated: now}
         }, {upsert: true}, function (err, data) {
             if (err)
-                return res.status(500).json({error: 'Internal server error'})
+                return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
             else if (data == 0)
-                return res.status(501).json({error: 'Not implemented'})
+                return res.status(501).json({error: 'Not implemented',id:req.params.widgetId})
             else {
                 Data.findOne({
                     'objectId': results.widget.charts[0].metrics[0].objectId,
                     'metricId': results.widget.charts[0].metrics[0].metricId
                 }, function (err, response) {
-                    if (err) return res.status(500).json({error: 'Internal server error'});
+                    if (err) return res.status(500).json({error: 'Internal server error',id:req.params.widgetId});
                     else if (!alertDetails.length)
-                        return res.status(204).json({error: 'No records found'});
+                        return res.status(204).json({error: 'No records found',id:req.params.widgetId});
                     else sendFinalData(response, metric);
                 })
             }
@@ -2495,7 +2500,7 @@ exports.getChannelData = function (req, res, next) {
     function callTweetApiBasedCondition(query, profile, totalCount, wholetweetData, widget, metric, data, results, until, tweets, createdAt, inputs) {
         client.get(query, inputs, function (error, tweets, response) {
             if (error)
-                return res.status(500).json({error: 'Internal server error'});
+                return res.status(500).json({error: 'Internal server error',id:req.params.widgetId});
             else if (tweets.length == 0)
                 storeTweetData(wholetweetData, results, metric, 1);
             else {
@@ -2598,7 +2603,9 @@ exports.getChannelData = function (req, res, next) {
                 }
             }
         }
-        else return res.status(500).json({error: 'Internal server error'});
+        else{
+            return res.status(500).json({error: 'Internal server error',id:req.params.widgetId});
+        }
 
     }
 
@@ -2704,7 +2711,9 @@ exports.getChannelData = function (req, res, next) {
             ig.use({access_token: result.profile.accessToken});
             if (result.query === 'user') {
                 ig.user(result.profile.userId, function (err, results, remaining, limit) {
-                    if (err) return res.status(500).json({error: 'Internal server error'});
+                    if (err){
+                        return res.status(500).json({error: 'Internal server error',id:req.params.widgetId});  
+                    } 
                     else {
                         var endPointMetric = {};
                         endPointMetric = {items: result.endpoint};

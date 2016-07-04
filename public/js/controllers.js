@@ -380,11 +380,10 @@ showMetricApp.service('createWidgets',function($http,$q){
                                     var yValue = 0, endpointArray;
                                     if(widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )) {
                                         for(keyValuePairs in widget.charts[charts].chartData[datas].total) {
-                                            //console.log(widget.charts[i].chartData[datas].total[keyValuePairs], keyValuePairs);
                                             if(keyValuePairs.search('/') > -1) {
                                                 endpointArray = keyValuePairs.split('/');
                                                 for(splittedValues in endpointArray) {
-                                                    console.log(splittedValues, endpointArray[splittedValues]);
+                                                    //console.log(splittedValues, endpointArray[splittedValues]);
                                                 }
                                             }
                                             else if(keyValuePairs == currentItem) {

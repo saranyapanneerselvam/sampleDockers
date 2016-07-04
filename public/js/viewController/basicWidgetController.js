@@ -372,10 +372,10 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     //$scope.storedReferenceWidget.charts[i].colour = chartColors[i];
                     getReferenceWidgetsArr[getData].charts[i].objectName = $scope.storedObject.name;
                 }
-                if($scope.storedChannelName === 'Twitter' || $scope.storedChannelName === 'Instagram')
+                if($scope.storedChannelName === 'Twitter' || $scope.storedChannelName === 'Instagram' || $scope.storedChannelName === 'Google Analytics')
                     widgetName = getReferenceWidgetsArr[getData].name + ' - ' + $scope.storedProfile.name;
                 else
-                    widgetName = getReferenceWidgetsArr[getData].name + ' - ' + $scope.storedProfile.name + ' - ' + $scope.storedObject.name;
+                    widgetName = getReferenceWidgetsArr[getData].name + ' - ' + $scope.storedObject.name;
 
                 var jsonData = {
                     "dashboardId": $state.params.id,

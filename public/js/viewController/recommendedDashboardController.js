@@ -304,11 +304,11 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
                                     var widgetName;
                                     if ($scope.storedUserChosenValues[j].profile.channelId === $scope.getChannelList[n]._id) {
                                         var widgetColor = generateChartColours.fetchWidgetColor($scope.getChannelList[n].name);
-                                        if ($scope.getChannelList[n].name === 'Twitter' || $scope.getChannelList[n].name === 'Instagram') {
+                                        if ($scope.getChannelList[n].name === 'Twitter' || $scope.getChannelList[n].name === 'Instagram' || $scope.storedChannelName === 'Google Analytics') {
                                             widgetName = $scope.referenceWidgetsList[widget].name + ' - ' + $scope.storedUserChosenValues[j].profile.name;
                                         }
                                         else {
-                                            widgetName = $scope.referenceWidgetsList[widget].name + ' - ' + $scope.storedUserChosenValues[j].profile.name + ' - ' + $scope.storedUserChosenValues[j].object.name;
+                                            widgetName = $scope.referenceWidgetsList[widget].name + ' - ' + $scope.storedUserChosenValues[j].object.name;
                                         }
 
                                     }

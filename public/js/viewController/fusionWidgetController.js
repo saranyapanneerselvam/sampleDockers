@@ -338,9 +338,11 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
         var inputParams = [];
 
         var widgetName = $scope.storedReferenceWidget.name;
+/*
         for(items in $scope.storedUserChosenValues) {
             widgetName += ' - ' + $scope.storedUserChosenValues[items].profile.name + '(' + $scope.storedUserChosenValues[items].object.name + ')'
         }
+*/
         for (var i = 0; i < $scope.storedReferenceCharts.length; i++) {
             for (var j = 0; j < $scope.storedUserChosenValues.length; j++) {
                 if ($scope.storedReferenceCharts[i].channelId === $scope.storedUserChosenValues[j].profile.channelId) {

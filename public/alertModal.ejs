@@ -69,7 +69,7 @@
                                                                 <select class="form-control m-b choose-text" ng-model="metric" id="metricOptions" required>
                                                                     <!--ng-options="metrics as metrics.name for metrics in metricDetails[0].metrics" required >-->
                                                                     <option value="">Select a Metric</option>
-                                                                    <option ng-repeat="metrics in widgetMetrics | orderBy:'$index':true" ng-selected="metrics.name == metric" value="{{[metrics.id,metrics.endPoints]}}">{{metrics.name}} - {{metrics.endPoints}}</option>
+                                                                    <option ng-repeat="metrics in widgetMetrics | orderBy:'$index':true" ng-selected="metrics.name === inAlertMetric" value="{{[metrics.id,metrics.endPoints]}}">{{metrics.name}}</option>
                                                                 </select>
                                                             </div>
                                                         </div>

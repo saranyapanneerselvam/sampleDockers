@@ -124,7 +124,7 @@ function AlertController($scope, $http, $q, $state, $rootScope, $window, $stateP
                             if(storeMetricDetails[metrics].metrics[0].objectTypes[0].meta.endpoint.length != 0) {
                                 for(var endpoints in storeMetricDetails[metrics].metrics[0].objectTypes[0].meta.endpoint) {
                                     $scope.widgetMetrics.push({
-                                        name: storeMetricDetails[metrics].metrics[0].name,
+                                        name: storeMetricDetails[metrics].metrics[0].name + ' - ' + storeMetricDetails[metrics].metrics[0].objectTypes[0].meta.endpoint[endpoints],
                                         id: storeMetricDetails[metrics].metrics[0]._id,
                                         endPoints: storeMetricDetails[metrics].metrics[0].objectTypes[0].meta.endpoint[endpoints]
                                     });
@@ -143,7 +143,7 @@ function AlertController($scope, $http, $q, $state, $rootScope, $window, $stateP
                                 if($scope.alert.metricId == $scope.widgetMetrics[i].id) {
                                     if($scope.alert.endPoint != null) {
                                         if($scope.widgetMetrics[i].endPoints == $scope.alert.endPoint)
-                                            $scope.inAlertMetric = $scope.widgetMetrics[i].name + ' - ' + $scope.widgetMetrics[i].endPoints;
+                                            $scope.inAlertMetric = $scope.widgetMetrics[i].name;
                                     }
                                     else
                                         $scope.inAlertMetric = $scope.widgetMetrics[i].name;

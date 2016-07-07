@@ -987,6 +987,7 @@ showMetricApp.service('generateChartColours',function(){
     this.fetchWidgetColor = function (channelName) {
         var colourChart = ['#EF5350','#EC407A','#9C27B0','#42A5F5','#26A69A','#FFCA28','#FF7043','#8D6E63'];
         var widgetColor;
+        console.log(channelName);
         switch (channelName){
             case 'Facebook':
                 widgetColor = '#3B5998';
@@ -1005,6 +1006,9 @@ showMetricApp.service('generateChartColours',function(){
                 break;
             case 'Instagram':
                 widgetColor = '#895A4D';
+                break;
+            case 'YouTube':
+                widgetColor = '#CC181E';
                 break;
             default:
                 widgetColor = '#04509B';

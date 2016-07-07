@@ -603,7 +603,7 @@ exports.getChannelData = function (req, res, next) {
             channelWithCode.push({channel: uniqueChannelFromDb[0], allData: wholeQueryResult[0].queryResults});
         async.concatSeries(channelWithCode, storeEachChannelData, callback);
         function storeEachChannelData(allQueryResult, callback) {
-            if (allQueryResult.channel.code == configAuth.channels.googleAnalytics || allQueryResult.channel.code == configAuth.channels.youTube) {
+            if (allQueryResult.channel.code == configAuth.channels.googleAnalytics || allQueryResult.channel.code == configAuth.channels.youtube) {
                 function storeDataForGA(dataFromRemote, dataFromDb, widget, metric, done) {
                     async.times(dataFromDb.length, function (j, next) {
                         if (dataFromRemote[j].data === 'DataFromDb')

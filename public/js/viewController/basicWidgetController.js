@@ -238,7 +238,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 case 'GoogleAdwords' :
                     $scope.objectType = 'adwordaccount';
                     break;
-                case 'youtube' :
+                case 'YouTube' :
                     $scope.objectType = 'youtubeChannel';
                     break;
             }
@@ -289,7 +289,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     url = '/api/auth/adwords';
                     title = $scope.storedChannelName;
                     break;
-                case 'youtube':
+                case 'YouTube':
                     url = '/api/v1/auth/youTube';
                     title = $scope.storedChannelName;
                     break;

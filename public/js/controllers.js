@@ -617,18 +617,24 @@ showMetricApp.service('createWidgets',function($http,$q){
                         useInteractiveGuideline: true,
                         xAxis: {
                             tickFormat: function(d) {
-                                return d3.time.format('%d/%m/%y')(new Date(d))}
+                                return d3.time.format('%d/%m/%y')(new Date(d))},
+                            showMaxMin: false
                         },
                         yAxis: {
                             tickFormat: function(d) {
-                                return d3.format('f')(d);}
+                                return d3.format('f')(d);},
+                            showMaxMin: false
                         },
+
                         axisLabelDistance: -10,
                         showLegend: true,
                         //forceY: [lowestLineValue,highestLineValue == 0? 10 : highestLineValue + 10],
                         //yDomain: [lowestValue,highestValue],
                         legend: {
-                            rightAlign: false
+                            rightAlign: false,
+                            margin: {
+                                bottom: 25
+                            }
                         }
                     }
                 },
@@ -653,7 +659,10 @@ showMetricApp.service('createWidgets',function($http,$q){
                         //forceY: [lowestValue,highestValue == 0? 10 : highestValue + 10],
                         showControls: false,
                         legend: {
-                            rightAlign: false
+                            rightAlign: false,
+                            margin: {
+                                bottom: 25
+                            }
                         }
                     }
                 },
@@ -678,10 +687,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                         legend: {
                             rightAlign: false,
                             margin: {
-                                top: 0,
-                                right: 0,
-                                bottom: 0,
-                                left: 0
+                                bottom: 25
                             }
                         }
                     }

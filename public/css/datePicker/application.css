@@ -73,7 +73,7 @@
 }
 
 .daterange .dr-input .dr-dates .dr-date.dr-active, .daterange .dr-input .dr-dates .dr-date:focus, .daterange .dr-input .dr-dates .dr-date:hover {
-    color: #7E57C2;
+    color: #04509B;
 }
 
 .daterange .dr-input .dr-dates .dr-date:empty:after {

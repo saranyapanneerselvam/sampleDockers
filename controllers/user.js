@@ -4,7 +4,8 @@ module.exports = function (app, passport) {
 
     // HOME PAGE (with login links)
     app.get('/', function (req, res) {
-        res.render('index.ejs'); // load the index.ejs file
+        if (req.user) res.redirect('/profile')
+        else res.render('index.ejs'); // load the index.ejs file
     });
 
 
@@ -17,9 +18,16 @@ module.exports = function (app, passport) {
 
     // show the login form
     app.get('/api/v1/login', function (req, res) {
-        console.log(req.flash);
+        console.log(req.connection,req.connection.remoteAddress);
+        var ip = req.headers['x-forwarded-for'] ||
+            req.connection.remoteAddress ||
+            req.socket.remoteAddress ||
+            req.connection.socket.remoteAddress;
+        console.log('ipaddress',ip)
+        if (req.user) res.redirect('/profile')
+        else
         // render the page and pass in any flash data if it exists
-        res.render('login', {message: req.flash('loginMessage')});
+            res.render('login', {message: req.flash('loginMessage')});
     });
 
     // process the login form - app.post('/login', do all our passport stuff here);
@@ -43,13 +51,13 @@ module.exports = function (app, passport) {
         failureFlash: true // allow flash messages
     }));
 
-    app.post('/api/v1/changePassword', userDetails.getUserPassword, function(req,res){
+    app.post('/api/v1/changePassword', userDetails.getUserPassword, function (req, res) {
         res.redirect('/api/v1/login');
     });
-    
+
     //Get the details of logged in user
     app.get('/api/v1/me', userDetails.getUserDetails, function (req, res) {
-            res.json({userDetails: req.app.result});
+        res.json({userDetails: req.app.result});
     });
 
     // =====================================
@@ -62,7 +70,7 @@ module.exports = function (app, passport) {
             res.render('profile.ejs');
         else
             res.redirect('/api/v1/login');
-            //res.status(401).json({error:'Authentication required to perform this action'})
+        //res.status(401).json({error:'Authentication required to perform this action'})
     });
 
     app.get('/signout', function (req, res) {
@@ -70,7 +78,7 @@ module.exports = function (app, passport) {
         res.redirect('/');
 
     });
-    
+
     app.post('/api/v1/updateLastDashboardId/:id', userDetails.updateLastDashboardId, function (req, res) {
         res.json(req.app.result);
     });

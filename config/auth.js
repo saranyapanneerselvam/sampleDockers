@@ -183,5 +183,13 @@ module.exports = {
 
     widgetType:{
         customFusion:'customFusion'
+    },
+
+    dataFormat:{
+        dateFormat:'YYYYMMDD',
+        logDataFormat:'[:date[clf]] :method :url :status :res[header] :response-time ms',
+        fileNameFormat:'/errorLog-%DATE%.log',
+        frequency:'daily',
+        folderName:'/log'
     }
 };

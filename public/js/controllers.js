@@ -627,7 +627,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                         },
 
                         axisLabelDistance: -10,
-                        showLegend: true,
+                        showLegend: false,
                         //forceY: [lowestLineValue,highestLineValue == 0? 10 : highestLineValue + 10],
                         //yDomain: [lowestValue,highestValue],
                         legend: {
@@ -654,7 +654,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                 return d3.format('f')(d);}
                         },
                         axisLabelDistance: -10,
-                        showLegend: true,
+                        showLegend: false,
                         stacked: true,
                         //forceY: [lowestValue,highestValue == 0? 10 : highestValue + 10],
                         showControls: false,
@@ -677,7 +677,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                             return d.y;
                         },
                         showLabels: false,
-                        showLegend: true,
+                        showLegend: false,
                         labelsOutside: false,
                         tooltips: true,
                         //tooltipcontent: 'toolTipContentFunction()',

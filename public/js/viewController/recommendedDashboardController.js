@@ -214,10 +214,11 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
                 closeOnConfirm: true
             },
             function () {
-                if(this.profileOptionsModel) {
+                if($scope.profileOptionsModel[index]) {
+                    console.log('HTTP BEING CALLED')
                     $http({
                         method: 'POST',
-                        url: '/api/v1/post/removeProfiles/' + this.profileOptionsModel[index]._id
+                        url: '/api/v1/post/removeProfiles/' + $scope.profileOptionsModel[index]._id
                     }).then(
                         function successCallback(response) {
                             $scope.getProfileForChosenChannel($scope.fullOfDashboard);

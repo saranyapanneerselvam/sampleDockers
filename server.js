@@ -5,9 +5,11 @@
 var express = require('express');
 var router = express.Router();
 var app = express();
+var fs = require('file-system');
 var path = require('path');
 var port = process.env.PORT || 8080;
 var mongoose = require('mongoose');
+var FileStreamRotator = require('file-stream-rotator')
 var passport = require('passport');
 var flash = require('connect-flash');
 var morgan = require('morgan');
@@ -15,7 +17,10 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
 var mongoStore = require('connect-mongo')(session);
+var moment = require('moment');
 var configDB = require('./config/database.js');
+//Load the auth file
+var configAuth = require('./config/auth');
 var sessionConfig = {
     secret: 'ilovescotchscotchyscotchscotch',
     store: new mongoStore({
@@ -33,33 +38,40 @@ require('./helpers/passport')(passport); // pass passport for configuration
 
 //For redirecting http to https
 app.use(function(req,res,next){
-	if(req.get('X-Forwarded-Proto')=='http'){
-		res.redirect('https://datapoolt.co');
-	}else{
-		next();
-	}
+    if(req.get('X-Forwarded-Proto')=='http'){
+        res.redirect('https://datapoolt.co');
+    }else{
+        next();
+    }
 });
+var logDirectory = __dirname + configAuth.dataFormat.folderName
 
+// ensure log directory exists
+fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory)
 
-// set up our express application
-app.use(morgan('dev')); // log every request to the console
+// create a rotating write stream
+var accessLogStream = FileStreamRotator.getStream({
+    date_format:configAuth.dataFormat.dateFormat,
+    filename: logDirectory + '/errorLog-%DATE%.log',
+    frequency: configAuth.dataFormat.frequency
+})
+app.use(morgan({format:configAuth.dataFormat.logDataFormat,stream: {
+    write: function(str)
+    {
+        accessLogStream.write(str);
+    }
+},skip:function (req, res) { return res.statusCode < 400 }}));
 app.use(cookieParser()); // read cookies (needed for auth)
 app.use(bodyParser({limit: "50mb"})); // get information from html forms
- 
 app.set('view engine', 'ejs'); // set up ejs for templating
 app.set('views', path.join(__dirname, 'views/'));
-// required for passport
-//app.use(session({secret: 'ilovescotchscotchyscotchscotch'})); // session secret
 app.use(session(sessionConfig));
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
 
-//app.use(express.static(path.join(__dirname, './views')));
-//app.set('views', path.join(__dirname, 'public/views'));
 app.use(express.static(__dirname + '/public'));
 app.use('/bower_components',  express.static(__dirname + '/bower_components'));
-
 app.post('/getinvite', function(req,res){
 
     var formName = req.body.name;

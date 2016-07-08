@@ -133,7 +133,7 @@ function WidgetSettingsController($scope, $uibModalInstance, widget, $http, $sta
                 "widgets":storeFinalWidgetsList,
                 "size": {h: 2, w: 4},
                 "minSize": {h: 2, w: 4},
-                "maxSize": {h: 2, w: 4},
+                "maxSize": {h: 3, w: 6},
                 "color": '#1F77B4'
             };
             inputParams.push(jsonData);

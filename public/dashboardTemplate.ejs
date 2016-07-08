@@ -56,6 +56,7 @@
                             <div class="graph-icon">
                                 <a title="alerts" ng-click="alertModal('app.reporting.dashboard.alertModal',widget)" ng-hide="widget.widgetType == 'customFusion' || widget.isAlert == false"><i class="fa fa-bell-o"></i></a>
                                 <a title="settings" ng-click="openSettings(widget)"><i class="fa fa-cog"></i></a>
+                                <a title="Toggle Legends" ng-click="toggleLegends(widget.id)"><i class="fa fa-filter"></i></a>
                             </div>
                         </div>
 
@@ -81,7 +82,7 @@
                             </div>
                             <div class="row getWidgetGraph" style="height: 100%;margin:0px;" ng-if="dashboard.widgetData[widgetIndex].visibility == true">
                                 <div ng-repeat="chart in dashboard.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'lineChart'  || chart.options.chart.type=== 'pieChart' || chart.options.chart.type=== 'multiBarChart' " size-watcher size-watcher-height="chart.myheight" size-watcher-width="chart.mywidth" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/dashboard.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/dashboard.widgetData[widgetIndex].layoutOptionsX)+'%'}">
-                                    <div class="row" style="margin: 0px;height: 15%" ng-if="isMobile">
+                                    <div class="row" style="margin: 0px;height: 15%">
                                         <ul style="height:100%;font-size:14px;">
                                             <li  ng-repeat="data in chart.data" size-watcher size-watcher-height="data.myheight" size-watcher-width="data.mywidth" ng-class="calculateColumnWidth(chart.data.length)" ng-style="calculateRowHeight(data.myheight,chart.data.length)" style="text-align: center;padding-top: 1px;padding-left:0px;padding-right: 2px;">
                                                 <div ng-style="{'color': data.color}" style="margin: 0px;height: 100%;overflow: hidden;white-space: nowrap;color: #000000;text-align: left" >
@@ -90,7 +91,7 @@
                                             </li>
                                         </ul>
                                     </div>
-                                    <div class="row" style="margin: 0px;height: 100%">
+                                    <div class="row" style="margin: 0px;height: 85%">
                                         <nvd3 options="chart.options" data="chart.data" api="chart.api" config="{refreshDataOnly:true, deepWatchDataDepth: 0}" events="events" ng-if="dashboard.widgetData[widgetIndex].visibility == true"></nvd3>
                                     </div>
                                 </div>

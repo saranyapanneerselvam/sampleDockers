@@ -512,6 +512,21 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         $rootScope.populateDashboardWidgets();
     };
 
+    $scope.toggleLegends = function (widgetId) {
+        for(var widgetData in $scope.dashboard.widgetData) {
+            if($scope.dashboard.widgetData[widgetData].id == widgetId) {
+                for(var chart in $scope.dashboard.widgetData[widgetData].chart) {
+                    if(typeof $scope.dashboard.widgetData[widgetData].chart[chart].options.chart.showLegend != 'undefined') {
+                        if($scope.dashboard.widgetData[widgetData].chart[chart].options.chart.showLegend == true)
+                            $scope.dashboard.widgetData[widgetData].chart[chart].options.chart.showLegend = false;
+                        else
+                            $scope.dashboard.widgetData[widgetData].chart[chart].options.chart.showLegend = true;
+                    }
+                }
+            }
+        }
+    };
+
     var count =0;
     var color = '#F53F72';
     var size = '30px';

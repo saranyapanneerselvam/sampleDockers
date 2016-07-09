@@ -361,7 +361,6 @@ showMetricApp.service('createWidgets',function($http,$q){
             var deferred = $q.defer();
             var widgetCharts = [];
 
-            console.log(widget);
             if(widget.charts.length > 0) {
                 for(var charts in widget.charts) {
                     var chartType = widget.charts[charts].chartType;

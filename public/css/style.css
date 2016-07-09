@@ -431,10 +431,10 @@ body{font-family: Heebo-Light; }
     float: right;
 }
 .fa.arrow:before {
-    content: "\f104";
+    content: "\f105";
 }
 .active > a > .fa.arrow:before {
-    content: "\f107";
+    content: "\f105";
 }
 .nav-second-level li,
 .nav-third-level li {
@@ -2735,7 +2735,7 @@ svg.nvd3-svg {
     content: "\e114";
 }
 .metismenu .fa.arrow:before {
-    content: "\f104";
+    content: "\f105";
 }
 .metismenu .active > a > .fa.arrow:before {
     content: "\f107";

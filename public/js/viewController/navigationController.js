@@ -2,7 +2,12 @@ showMetricApp.controller('NavigationController',NavigationController)
 
 function NavigationController($scope,$http,$state,$rootScope,$window,$stateParams,generateChartColours) {
 
-    
+
+    $(".insightsModalContent").on( 'click', function( ev ) {
+        $(".navbar").css('z-index','1');
+        $(".md-overlay").css("background","rgba(0,0,0,0.5)");
+        $("#insightsModalContent").addClass('md-show');
+    });
 
 
     $(".settingModalContent").on( 'click', function( ev ) {

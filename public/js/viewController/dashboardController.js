@@ -223,11 +223,18 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         });
 
         $scope.calculateColumnWidth = function(x) {
-            var y = Math.round(12/x);
-            if(y<6)
+
+            if(x<=2)
+                return ('col-sm-'+12+' col-md-'+12+' col-lg-'+12);
+            else if(x>2 && x<=4)
                 return ('col-sm-'+6+' col-md-'+6+' col-lg-'+6);
             else
-                return ('col-sm-'+y+' col-md-'+y+' col-lg-'+y);
+                return ('col-sm-'+4+' col-md-'+4+' col-lg-'+4);
+            // var y = Math.round(12/x);
+            // if(y<6)
+            //     return ('col-sm-'+6+' col-md-'+6+' col-lg-'+6);
+            // else
+            //     return ('col-sm-'+y+' col-md-'+y+' col-lg-'+y);
         };
 
         $scope.calculateRowHeight = function(availableHeight,noOfItems) {

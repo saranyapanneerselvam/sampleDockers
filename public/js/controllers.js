@@ -361,6 +361,7 @@ showMetricApp.service('createWidgets',function($http,$q){
             var deferred = $q.defer();
             var widgetCharts = [];
 
+            console.log(widget);
             if(widget.charts.length > 0) {
                 for(var charts in widget.charts) {
                     var chartType = widget.charts[charts].chartType;
@@ -519,6 +520,11 @@ showMetricApp.service('createWidgets',function($http,$q){
                             var summaryValue = 0;
                             for(var datas in widget.charts[charts].chartData)
                                 summaryValue += parseInt(widget.charts[charts].chartData[datas].y);
+
+                            if(typeof widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType != 'undefined')
+                                if(widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType == 'avg')
+                                    summaryValue = summaryValue/widget.charts[charts].chartData.length;
+
                             if(chartType == 'line' || chartType == 'bar') {
                                 widgetCharts.push({
                                     'type': widget.charts[charts].chartType,
@@ -553,6 +559,11 @@ showMetricApp.service('createWidgets',function($http,$q){
                                 var summaryValue = 0;
                                 for(var datas in widget.charts[charts].chartData[items])
                                     summaryValue += parseInt(widget.charts[charts].chartData[items][datas].y);
+
+                                if(typeof widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType != 'undefined')
+                                    if(widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType == 'avg')
+                                        summaryValue = summaryValue/widget.charts[charts].chartData.length;
+
                                 var endpointDisplayCode = widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items];
                                 if(chartType == 'line' || chartType == 'bar') {
                                     widgetCharts.push({
@@ -897,7 +908,6 @@ showMetricApp.service('createWidgets',function($http,$q){
 
             var chartColorChecker = [];
             var colourChart = ['#EF5350','#EC407A','#9C27B0','#42A5F5','#26A69A','#FFCA28','#FF7043','#8D6E63'];
-
             function fetchAColour(currentColour,colourArray){
                 var checker;
                 for(var colors in colourChart) {
@@ -1046,7 +1056,6 @@ showMetricApp.service('generateChartColours',function(){
     this.fetchWidgetColor = function (channelName) {
         var colourChart = ['#EF5350','#EC407A','#9C27B0','#42A5F5','#26A69A','#FFCA28','#FF7043','#8D6E63'];
         var widgetColor;
-        console.log(channelName);
         switch (channelName){
             case 'Facebook':
                 widgetColor = '#3B5998';

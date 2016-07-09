@@ -81,21 +81,21 @@
                                 </div>
                             </div>
                             <div class="row getWidgetGraph" style="height: 100%;margin:0px;" ng-if="dashboard.widgetData[widgetIndex].visibility == true">
-                                <div ng-repeat="chart in dashboard.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'lineChart'  || chart.options.chart.type=== 'pieChart' || chart.options.chart.type=== 'multiBarChart' " size-watcher size-watcher-height="chart.myheight" size-watcher-width="chart.mywidth" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/dashboard.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/dashboard.widgetData[widgetIndex].layoutOptionsX)+'%'}">
-                                    <div class="row" style="margin: 0px;height: 15%">
-                                        <ul style="height:100%;font-size:14px; padding-left: 0px">
+                                <div ng-repeat="chart in dashboard.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'lineChart'  || chart.options.chart.type=== 'pieChart' || chart.options.chart.type=== 'multiBarChart' " style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/dashboard.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/dashboard.widgetData[widgetIndex].layoutOptionsX)+'%'}">
+                                    <div class="row" style="margin: 0px;height: 20%">
+                                        <ul style="height:100%;font-size:14px; padding-left: 5px;">
                                             <li  ng-repeat="data in chart.data" size-watcher size-watcher-height="data.myheight" size-watcher-width="data.mywidth" ng-class="calculateColumnWidth(chart.data.length)" ng-style="calculateRowHeight(data.myheight,chart.data.length)" style="text-align: center;padding-top: 1px;padding-left:0px;padding-right: 2px;">
                                                 <div style="margin: 0px;height: 100%;overflow: hidden;white-space: nowrap;color: #000000;text-align: center" >
-                                                    <p ng-style="{'color': '#000000', 'font-family' : 'Bebas Neue', 'font-size' : '18px', }">{{data.key}} - <b ng-style="{'color':data.color, 'font-family' : 'Bebas Neue', 'font-size' : '18px'}"> {{data.summaryDisplay}} <b> <p></p>
+                                                    <p ng-style="{'color': '#000000', 'font-family' : 'Bebas Neue'}" style="font-weight: bold;">{{data.key}} - <b ng-style="{'color':data.color, 'font-family' : 'Bebas Neue'}"> {{data.summaryDisplay}} </b> </p>
                                                 </div>
                                             </li>
                                         </ul>
                                     </div>
-                                    <div class="row" style="margin: 0px;height: 85%">
+                                    <div class="row" style="margin: 0px;height: 80%">
                                         <nvd3 options="chart.options" data="chart.data" api="chart.api" config="{refreshDataOnly:true, deepWatchDataDepth: 0}" events="events" ng-if="dashboard.widgetData[widgetIndex].visibility == true"></nvd3>
                                     </div>
                                 </div>
-                                <div ng-repeat="chart in dashboard.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'instagramPosts'" size-watcher size-watcher-height="chart.myheight" size-watcher-width="chart.mywidth" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/dashboard.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/dashboard.widgetData[widgetIndex].layoutOptionsX)+'%'}">
+                                <div ng-repeat="chart in dashboard.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'instagramPosts'" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/dashboard.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/dashboard.widgetData[widgetIndex].layoutOptionsX)+'%'}">
                                     <div class="row" style="margin: 0px;height: 100%">
                                         <div events="events" style="height: 99%" ng-if="dashboard.widgetData[widgetIndex].visibility == true">
                                             <div class="scrollbar scrollInWidget" id="scroller">
@@ -117,7 +117,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div ng-repeat="chart in dashboard.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'highEngagementTweets'" size-watcher size-watcher-height="chart.myheight" size-watcher-width="chart.mywidth" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/dashboard.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/dashboard.widgetData[widgetIndex].layoutOptionsX)+'%'}">
+                                <div ng-repeat="chart in dashboard.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'highEngagementTweets'" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/dashboard.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/dashboard.widgetData[widgetIndex].layoutOptionsX)+'%'}">
                                     <div class="row" style="margin: 0px;height: 100%">
                                         <div events="events" style="height: 99%" ng-if="dashboard.widgetData[widgetIndex].visibility == true">
                                             <div class="scrollbar scrollInWidget" id="scroller">

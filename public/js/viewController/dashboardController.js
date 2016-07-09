@@ -230,15 +230,19 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 return ('col-sm-'+6+' col-md-'+6+' col-lg-'+6);
             else
                 return ('col-sm-'+4+' col-md-'+4+' col-lg-'+4);
-            // var y = Math.round(12/x);
-            // if(y<6)
-            //     return ('col-sm-'+6+' col-md-'+6+' col-lg-'+6);
-            // else
-            //     return ('col-sm-'+y+' col-md-'+y+' col-lg-'+y);
         };
 
         $scope.calculateRowHeight = function(availableHeight,noOfItems) {
-            var cols = $window.innerWidth>=768 ? 2 : 1;
+
+            var cols;
+            if(noOfItems<=2)
+                cols = 1;
+            else if(noOfItems>2 && noOfItems<=4)
+                cols = 2;
+            else
+                cols = 3;
+
+            //var cols = $window.innerWidth>=768 ? 2 : 1;
             var rows = Math.ceil(noOfItems/cols);
             var heightPercent = 100/rows;
             var fontSizeEm = availableHeight/100*4.5;

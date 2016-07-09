@@ -894,8 +894,37 @@ showMetricApp.service('createWidgets',function($http,$q){
                 else if(widgetCharts[charts].type == 'highEngagementTweets') finalCharts.highEngagementTweets.push(widgetCharts[charts]);
             }
 
+
+            var chartColorChecker = [];
+            var colourChart = ['#EF5350','#EC407A','#9C27B0','#42A5F5','#26A69A','#FFCA28','#FF7043','#8D6E63'];
+
+            function fetchAColour(currentColour,colourArray){
+                var checker;
+                for(var colors in colourChart) {
+                    checker = false;
+                    for(var items in colourArray) {
+                        if(colourChart[colors] == colourArray[items])
+                            checker = true;
+                    }
+                    if(checker == false)
+                        return colourChart[colors];
+                }
+            }
+
             if(finalCharts.lineCharts.length > 0) {
                 chartsCount++;
+
+                for(var charts in finalCharts.lineCharts) {
+                    for(var items in chartColorChecker) {
+                        if(finalCharts.lineCharts[charts].color == chartColorChecker[items]) {
+                            var neededColour = fetchAColour(finalCharts.lineCharts[charts].color,chartColorChecker);
+                            finalCharts.lineCharts[charts].color = neededColour;
+                        }
+                    }
+                    chartColorChecker.push(finalCharts.lineCharts[charts].color);
+                }
+                chartColorChecker = [];
+
                 var forceY = [lineDataLowValue,lineDataHighValue == 0? 10 : (lineDataHighValue>100 ? lineDataHighValue + 10 : lineDataHighValue + 1)];
                 finalChartData.push({
                     'options': graphOptions.lineDataOptions,
@@ -906,6 +935,18 @@ showMetricApp.service('createWidgets',function($http,$q){
             }
             if(finalCharts.barCharts.length > 0) {
                 chartsCount++;
+
+                for(var charts in finalCharts.barCharts) {
+                    for(var items in chartColorChecker) {
+                        if(finalCharts.barCharts[charts].color == chartColorChecker[items]) {
+                            var neededColour = fetchAColour(finalCharts.barCharts[charts].color,chartColorChecker);
+                            finalCharts.barCharts[charts].color = neededColour;
+                        }
+                    }
+                    chartColorChecker.push(finalCharts.barCharts[charts].color);
+                }
+                chartColorChecker = [];
+
                 var forceY = [barDataLowValue,barDataHighValue == 0? 10 : (barDataHighValue>100 ? barDataHighValue + 10 : barDataHighValue + 1)];
                 finalChartData.push({
                     'options': graphOptions.barDataOptions,
@@ -916,6 +957,18 @@ showMetricApp.service('createWidgets',function($http,$q){
             }
             if(finalCharts.pieCharts.length > 0) {
                 chartsCount++;
+
+                for(var charts in finalCharts.pieCharts) {
+                    for(var items in chartColorChecker) {
+                        if(finalCharts.pieCharts[charts].color == chartColorChecker[items]) {
+                            var neededColour = fetchAColour(finalCharts.pieCharts[charts].color,chartColorChecker);
+                            finalCharts.pieCharts[charts].color = neededColour;
+                        }
+                    }
+                    chartColorChecker.push(finalCharts.pieCharts[charts].color);
+                }
+                chartColorChecker = [];
+
                 finalChartData.push({
                     'options': graphOptions.pieDataOptions,
                     'data': finalCharts.pieCharts,

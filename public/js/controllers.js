@@ -515,70 +515,31 @@ showMetricApp.service('createWidgets',function($http,$q){
                 for(var charts in widget.charts) {
                     var chartType = widget.charts[charts].chartType;
                     if(chartType == "line" || chartType == "bar" || chartType == "area" || chartType == "pie") {
-                        if(widget.charts[charts].chartData[0].x){
-                            var summaryValue = 0;
-                            for(var datas in widget.charts[charts].chartData)
-                                summaryValue += parseInt(widget.charts[charts].chartData[datas].y);
-
-                            if(typeof widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType != 'undefined')
-                                if(widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType == 'avg')
-                                    summaryValue = summaryValue/widget.charts[charts].chartData.length;
-
-                            if(chartType == 'line' || chartType == 'bar') {
-                                widgetCharts.push({
-                                    'type': widget.charts[charts].chartType,
-                                    'values': widget.charts[charts].chartData,      //values - represents the array of {x,y} data points
-                                    'key': widget.charts[charts].metricDetails.name, //key  - the name of the series.
-                                    'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
-                                    'summaryDisplay': parseInt(summaryValue)
-                                });
-                            }
-                            else if(chartType == 'area') {
-                                widgetCharts.push({
-                                    'type': widget.charts[charts].chartType,
-                                    'values': widget.charts[charts].chartData,      //values - represents the array of {x,y} data points
-                                    'key': widget.charts[charts].metricDetails.name, //key  - the name of the series.
-                                    'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
-                                    'summaryDisplay': parseInt(summaryValue),
-                                    'area': true
-                                });
-                            }
-                            else {
-                                widgetCharts.push({
-                                    'type': widget.charts[charts].chartType,
-                                    'y': parseInt(summaryValue),      //values - represents the array of {x,y} data points
-                                    'key': widget.charts[charts].metricDetails.name, //key  - the name of the series.
-                                    'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
-                                    'summaryDisplay': parseInt(summaryValue)
-                                });
-                            }
-                        }
-                        else {
-                            for(var items in widget.charts[charts].chartData) {
+                        if(typeof widget.charts[charts].chartData[0] != 'undefined') {
+                            if(widget.charts[charts].chartData[0].x){
                                 var summaryValue = 0;
-                                for(var datas in widget.charts[charts].chartData[items])
-                                    summaryValue += parseInt(widget.charts[charts].chartData[items][datas].y);
+                                for(var datas in widget.charts[charts].chartData)
+                                    summaryValue += parseInt(widget.charts[charts].chartData[datas].y);
 
                                 if(typeof widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType != 'undefined')
                                     if(widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType == 'avg')
                                         summaryValue = summaryValue/widget.charts[charts].chartData.length;
 
-                                var endpointDisplayCode = widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items];
                                 if(chartType == 'line' || chartType == 'bar') {
                                     widgetCharts.push({
                                         'type': widget.charts[charts].chartType,
-                                        'values': widget.charts[charts].chartData[items],      //values - represents the array of {x,y} data points
-                                        'key': typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName != 'undefined'? (typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode] != 'undefined'? widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode]: widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items]) : widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items],
-                                        'color': typeof widget.charts[charts].chartColour != 'undefined' ? (typeof widget.charts[charts].chartColour[items] != 'undefined'? widget.charts[charts].chartColour[items] : '') : '',  //color - optional: choose your own line color.
+                                        'values': widget.charts[charts].chartData,      //values - represents the array of {x,y} data points
+                                        'key': widget.charts[charts].metricDetails.name, //key  - the name of the series.
+                                        'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
                                         'summaryDisplay': parseInt(summaryValue)
                                     });
                                 }
                                 else if(chartType == 'area') {
                                     widgetCharts.push({
                                         'type': widget.charts[charts].chartType,
-                                        'values': widget.charts[charts].chartData[items],      //values - represents the array of {x,y} data points
-                                        'key': typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName != 'undefined'? (typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode] != 'undefined'? widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode]: widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items]) : widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items],
-                                        'color': typeof widget.charts[charts].chartColour != 'undefined' ? (typeof widget.charts[charts].chartColour[items] != 'undefined'? widget.charts[charts].chartColour[items] : '') : '',  //color - optional: choose your own line color.
+                                        'values': widget.charts[charts].chartData,      //values - represents the array of {x,y} data points
+                                        'key': widget.charts[charts].metricDetails.name, //key  - the name of the series.
+                                        'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
                                         'summaryDisplay': parseInt(summaryValue),
                                         'area': true
                                     });
@@ -587,10 +548,51 @@ showMetricApp.service('createWidgets',function($http,$q){
                                     widgetCharts.push({
                                         'type': widget.charts[charts].chartType,
                                         'y': parseInt(summaryValue),      //values - represents the array of {x,y} data points
-                                        'key': typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName != 'undefined'? (typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode] != 'undefined'? widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode]: widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items]) : widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items],
-                                        'color': typeof widget.charts[charts].chartColour != 'undefined' ? (typeof widget.charts[charts].chartColour[items] != 'undefined'? widget.charts[charts].chartColour[items] : '') : '',  //color - optional: choose your own line color.
+                                        'key': widget.charts[charts].metricDetails.name, //key  - the name of the series.
+                                        'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
                                         'summaryDisplay': parseInt(summaryValue)
                                     });
+                                }
+                            }
+                            else {
+                                for(var items in widget.charts[charts].chartData) {
+                                    var summaryValue = 0;
+                                    for(var datas in widget.charts[charts].chartData[items])
+                                        summaryValue += parseInt(widget.charts[charts].chartData[items][datas].y);
+
+                                    if(typeof widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType != 'undefined')
+                                        if(widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType == 'avg')
+                                            summaryValue = summaryValue/widget.charts[charts].chartData.length;
+
+                                    var endpointDisplayCode = widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items];
+                                    if(chartType == 'line' || chartType == 'bar') {
+                                        widgetCharts.push({
+                                            'type': widget.charts[charts].chartType,
+                                            'values': widget.charts[charts].chartData[items],      //values - represents the array of {x,y} data points
+                                            'key': typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName != 'undefined'? (typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode] != 'undefined'? widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode]: widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items]) : widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items],
+                                            'color': typeof widget.charts[charts].chartColour != 'undefined' ? (typeof widget.charts[charts].chartColour[items] != 'undefined'? widget.charts[charts].chartColour[items] : '') : '',  //color - optional: choose your own line color.
+                                            'summaryDisplay': parseInt(summaryValue)
+                                        });
+                                    }
+                                    else if(chartType == 'area') {
+                                        widgetCharts.push({
+                                            'type': widget.charts[charts].chartType,
+                                            'values': widget.charts[charts].chartData[items],      //values - represents the array of {x,y} data points
+                                            'key': typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName != 'undefined'? (typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode] != 'undefined'? widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode]: widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items]) : widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items],
+                                            'color': typeof widget.charts[charts].chartColour != 'undefined' ? (typeof widget.charts[charts].chartColour[items] != 'undefined'? widget.charts[charts].chartColour[items] : '') : '',  //color - optional: choose your own line color.
+                                            'summaryDisplay': parseInt(summaryValue),
+                                            'area': true
+                                        });
+                                    }
+                                    else {
+                                        widgetCharts.push({
+                                            'type': widget.charts[charts].chartType,
+                                            'y': parseInt(summaryValue),      //values - represents the array of {x,y} data points
+                                            'key': typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName != 'undefined'? (typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode] != 'undefined'? widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode]: widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items]) : widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items],
+                                            'color': typeof widget.charts[charts].chartColour != 'undefined' ? (typeof widget.charts[charts].chartColour[items] != 'undefined'? widget.charts[charts].chartColour[items] : '') : '',  //color - optional: choose your own line color.
+                                            'summaryDisplay': parseInt(summaryValue)
+                                        });
+                                    }
                                 }
                             }
                         }

@@ -83,7 +83,7 @@ module.exports = {
         tokenPath       : 'https://graph.facebook.com/oauth/access_token',
         authorizationPath: 'oauth',
         redirect_uri : 'https://datapoolt.co/auth/facebookads/callback',
-        scope : 'email,manage_pages,read_insights,publish_actions,ads_read,ads_management',
+        scope : 'email,manage_pages,read_insights,ads_read,ads_management',
         state : '4234#',
         localCallingURL: '/api/auth/facebookads',
         localCallbackURL: '/auth/facebookads/callback',
@@ -158,9 +158,9 @@ module.exports = {
     },
 
     youTubeAuth: {
-        clientID: '365268185780-vti6ft53qpjml2c5qsaqn0du99omeo3j.apps.googleusercontent.com',
-        clientSecret: 'EZN3KKEuikOjX7sAv75l6sbV',
-        callbackURL: 'http://localhost:8080/auth/youtube/callback',
+        clientID: '697605351302-cm90a20idvq2gcu3qju0oaab88ik6peg.apps.googleusercontent.com',
+        clientSecret: 'DkUY5XrdcWDQM_7tEI9xNAC6',
+        callbackURL: 'https://datapoolt.co/auth/youtube/callback',
         site: 'https://accounts.google.com/o/',
         tokenPath: 'https://accounts.google.com/o/oauth2/token',
         authorizationPath: 'oauth2/auth',

@@ -38,7 +38,7 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
             controller: function ($http,$state,$scope){
                 $scope.loadingVariable = '';
                 if($state.$current.name == 'app.reporting'){
-                    $scope.loadingVariable = 'LOADING';
+                    $scope.loadingVariable = '';
                     $http(
                         {
                             method: 'GET',

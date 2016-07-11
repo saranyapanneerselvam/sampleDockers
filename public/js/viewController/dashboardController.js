@@ -46,7 +46,10 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             colWidth:'auto',
             draggable: {
                 enabled: true,
-                handle: '.box-header'
+                handle: '.box-header',
+                stop: function (event, $element, widget) {
+                    $rootScope.$broadcast('storeGridStructure',{});
+                }
             },
             outerMargin: true, // whether margins apply to outer edges of the grid
             mobileBreakPoint: 700,
@@ -76,6 +79,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 },
                 stop: function (event, $element, widget) {
                     $(".getBox-"+widget.id).css('border','1px solid #ccc');
+                    $rootScope.$broadcast('storeGridStructure',{});
                     function updateCharts(widget){
                         return function(){
                             var ind = $scope.dashboard.widgets.indexOf(widget);
@@ -86,7 +90,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                         }
                     }
                     $timeout(updateCharts(widget),400);
-
                 }
             }
         };
@@ -164,11 +167,9 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             $scope.isMobile = gridster.isMobile;
         });
 
-        $scope.$watch('dashboard.widgets',function(newVal,oldVal){
+        $scope.$on('storeGridStructure',function(e){
             var inputParams = [];
-            console.log(newVal,oldVal);
             if($scope.dashboard.widgets.length !=0){
-                console.log('DB CALL')
                 for(var getWidgetInfo in $scope.dashboard.widgets){
                     var jsonData = {
                         dashboardId: $state.params.id,
@@ -207,7 +208,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     }
                 );
             }
-        },true);
+        });
 
         angular.element($window).on('resize', function (e) {
             $scope.$broadcast('resize');
@@ -397,12 +398,14 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         $q.all(inputWidget).then(
             function successCallback(inputWidget){
                 $("#getLoadingModalContent").removeClass('md-show');
+                $scope.loadedWidgetCount++;
                 var widgetIndex = $scope.dashboard.widgets.map(function(el) {return el.id;}).indexOf(inputWidget[0].id);
                 $scope.dashboard.widgetData[widgetIndex] = inputWidget[0];
             },
             function errorCallback(error){
                 $("#widgetData-"+widget._id).hide();
                 $("#errorWidgetData-"+widget._id).show();
+                $scope.loadedWidgetCount++;
                 isExportOptionSet=0;
                 swal({
                     title: "",
@@ -495,6 +498,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         $scope.autoArrangeGrid = false;
         $scope.gridsterOptions.autogenerate_stylesheet = false;
         $("#getLoadingModalContent").removeClass('md-show');
+        $rootScope.$broadcast('storeGridStructure',{});
     };
 
     //To export the dashboard into PDF format

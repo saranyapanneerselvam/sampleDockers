@@ -520,10 +520,19 @@ showMetricApp.service('createWidgets',function($http,$q){
                                 var summaryValue = 0;
                                 for(var datas in widget.charts[charts].chartData)
                                     summaryValue += parseInt(widget.charts[charts].chartData[datas].y);
-
-                                if(typeof widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType != 'undefined')
+                                if(typeof widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType != 'undefined') {
                                     if(widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType == 'avg')
                                         summaryValue = summaryValue/widget.charts[charts].chartData.length;
+                                    else if(widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType == 'snapshot') {
+                                        var latestDate = '';
+                                        for(var data in widget.charts[charts].chartData) {
+                                            if(latestDate<moment(widget.charts[charts].chartData[data].x)) {
+                                                latestDate = moment(widget.charts[charts].chartData[data].x);
+                                                summaryValue = widget.charts[charts].chartData[data].y;
+                                            }
+                                        }
+                                    }
+                                }
 
                                 if(chartType == 'line' || chartType == 'bar') {
                                     widgetCharts.push({
@@ -557,12 +566,23 @@ showMetricApp.service('createWidgets',function($http,$q){
                             else {
                                 for(var items in widget.charts[charts].chartData) {
                                     var summaryValue = 0;
-                                    for(var datas in widget.charts[charts].chartData[items])
+                                    for(var datas in widget.charts[charts].chartData[items]) {
                                         summaryValue += parseInt(widget.charts[charts].chartData[items][datas].y);
+                                        if(typeof widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType != 'undefined') {
+                                            if(widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType == 'avg')
+                                                summaryValue = summaryValue/widget.charts[charts].chartData[items].length;
+                                            else if(widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType == 'snapshot') {
+                                                var latestDate = '';
+                                                for(var data in widget.charts[charts].chartData[items]) {
+                                                    if(latestDate<moment(widget.charts[charts].chartData[items][data].x)) {
+                                                        latestDate = moment(widget.charts[charts].chartData[items][data].x);
+                                                        summaryValue = widget.charts[charts].chartData[items][data].y;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
 
-                                    if(typeof widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType != 'undefined')
-                                        if(widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType == 'avg')
-                                            summaryValue = summaryValue/widget.charts[charts].chartData.length;
 
                                     var endpointDisplayCode = widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items];
                                     if(chartType == 'line' || chartType == 'bar') {

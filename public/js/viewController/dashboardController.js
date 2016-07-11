@@ -146,7 +146,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         };
 
         $scope.$on('gridster-resized', function(sizes, gridster) {
-            console.log('gridster resized');
             for(var i=0;i<$scope.dashboard.widgets.length;i++){
                 $timeout(resizeWidget(i), 100);
             }
@@ -215,7 +214,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         });
 
         $scope.$on('resize',function(e){
-            console.log('resize');
             for(var i=0;i<$scope.dashboard.widgets.length;i++){
                 $timeout(resizeWidget(i), 100);
             }

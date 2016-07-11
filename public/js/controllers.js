@@ -20,38 +20,38 @@ showMetricApp.service('createWidgets',function($http,$q){
                             dataLoadedWidgetArray.push(getCustomWidgetElements(widgetList[subWidgets],dateRange));
                     }
                     $q.all(dataLoadedWidgetArray).then(
-                            function successCallback(dataLoadedWidgetArray) {
-                                for(var dataLoadedWidgets in dataLoadedWidgetArray) {
-                                    if(dataLoadedWidgetArray[dataLoadedWidgets].widgetType == 'basic' || dataLoadedWidgetArray[dataLoadedWidgets].widgetType == 'adv' || dataLoadedWidgetArray[dataLoadedWidgets].widgetType == 'fusion')
-                                        widgetChartsArray.push(formulateRegularWidgetGraphs(dataLoadedWidgetArray[dataLoadedWidgets]));
-                                    else if(dataLoadedWidgetArray[dataLoadedWidgets].widgetType == 'custom')
-                                        widgetChartsArray.push(formulateCustomWidgetGraphs(dataLoadedWidgetArray[dataLoadedWidgets]));
-                                }
-                                $q.all(widgetChartsArray).then(
-                                    function successCallback(widgetChartsArray) {
-                                        var consolidatedChartsArray = [];
-                                        for(var arrayObjects in widgetChartsArray) {
-                                            for(var subObjects in widgetChartsArray[arrayObjects])
-                                                consolidatedChartsArray.push(widgetChartsArray[arrayObjects][subObjects])
-                                        }
-                                        var widgetData = createWidgetData(tempWidget,consolidatedChartsArray);
-                                        widgetData.then(
-                                            function successCallback(widgetData) {
-                                                deferredWidget.resolve(widgetData);
-                                            },
-                                            function errorCallback(error) {
-                                                deferredWidget.reject(error);
-                                            }
-                                        );
-                                    },
-                                    function errorCallback(error) {
-                                        deferredWidget.reject(error);
-                                    }
-                                );
-                            },
-                            function errorCallback(err) {
-                                deferredWidget.reject(err);
+                        function successCallback(dataLoadedWidgetArray) {
+                            for(var dataLoadedWidgets in dataLoadedWidgetArray) {
+                                if(dataLoadedWidgetArray[dataLoadedWidgets].widgetType == 'basic' || dataLoadedWidgetArray[dataLoadedWidgets].widgetType == 'adv' || dataLoadedWidgetArray[dataLoadedWidgets].widgetType == 'fusion')
+                                    widgetChartsArray.push(formulateRegularWidgetGraphs(dataLoadedWidgetArray[dataLoadedWidgets]));
+                                else if(dataLoadedWidgetArray[dataLoadedWidgets].widgetType == 'custom')
+                                    widgetChartsArray.push(formulateCustomWidgetGraphs(dataLoadedWidgetArray[dataLoadedWidgets]));
                             }
+                            $q.all(widgetChartsArray).then(
+                                function successCallback(widgetChartsArray) {
+                                    var consolidatedChartsArray = [];
+                                    for(var arrayObjects in widgetChartsArray) {
+                                        for(var subObjects in widgetChartsArray[arrayObjects])
+                                            consolidatedChartsArray.push(widgetChartsArray[arrayObjects][subObjects])
+                                    }
+                                    var widgetData = createWidgetData(tempWidget,consolidatedChartsArray);
+                                    widgetData.then(
+                                        function successCallback(widgetData) {
+                                            deferredWidget.resolve(widgetData);
+                                        },
+                                        function errorCallback(error) {
+                                            deferredWidget.reject(error);
+                                        }
+                                    );
+                                },
+                                function errorCallback(error) {
+                                    deferredWidget.reject(error);
+                                }
+                            );
+                        },
+                        function errorCallback(err) {
+                            deferredWidget.reject(err);
+                        }
                     );
                 },
                 function errorCallback(err) {
@@ -405,7 +405,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                             for(datas in widget.charts[charts].chartData) {
                                 formattedChartData.push({
                                         x: moment(widget.charts[charts].chartData[datas].date),
-                                        y:widget.charts[charts].chartData[datas].total
+                                        y: widget.charts[charts].chartData[datas].total != null ? widget.charts[charts].chartData[datas].total : 0
                                 });
                             }
                             widget.charts[charts].chartData = formattedChartData;
@@ -521,8 +521,9 @@ showMetricApp.service('createWidgets',function($http,$q){
                                 for(var datas in widget.charts[charts].chartData)
                                     summaryValue += parseInt(widget.charts[charts].chartData[datas].y);
                                 if(typeof widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType != 'undefined') {
-                                    if(widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType == 'avg')
-                                        summaryValue = summaryValue/widget.charts[charts].chartData.length;
+                                    if(widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType == 'avg') {
+                                        summaryValue = parseFloat(summaryValue/widget.charts[charts].chartData.length).toFixed(2);
+                                    }
                                     else if(widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType == 'snapshot') {
                                         var latestDate = '';
                                         for(var data in widget.charts[charts].chartData) {
@@ -540,7 +541,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                         'values': widget.charts[charts].chartData,      //values - represents the array of {x,y} data points
                                         'key': widget.charts[charts].metricDetails.name, //key  - the name of the series.
                                         'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
-                                        'summaryDisplay': parseInt(summaryValue)
+                                        'summaryDisplay': parseFloat(summaryValue)
                                     });
                                 }
                                 else if(chartType == 'area') {
@@ -549,17 +550,17 @@ showMetricApp.service('createWidgets',function($http,$q){
                                         'values': widget.charts[charts].chartData,      //values - represents the array of {x,y} data points
                                         'key': widget.charts[charts].metricDetails.name, //key  - the name of the series.
                                         'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
-                                        'summaryDisplay': parseInt(summaryValue),
+                                        'summaryDisplay': parseFloat(summaryValue),
                                         'area': true
                                     });
                                 }
                                 else {
                                     widgetCharts.push({
                                         'type': widget.charts[charts].chartType,
-                                        'y': parseInt(summaryValue),      //values - represents the array of {x,y} data points
+                                        'y': parseFloat(summaryValue),      //values - represents the array of {x,y} data points
                                         'key': widget.charts[charts].metricDetails.name, //key  - the name of the series.
                                         'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
-                                        'summaryDisplay': parseInt(summaryValue)
+                                        'summaryDisplay': parseFloat(summaryValue)
                                     });
                                 }
                             }
@@ -570,7 +571,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                         summaryValue += parseInt(widget.charts[charts].chartData[items][datas].y);
                                         if(typeof widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType != 'undefined') {
                                             if(widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType == 'avg')
-                                                summaryValue = summaryValue/widget.charts[charts].chartData[items].length;
+                                                summaryValue = parseFloat(summaryValue/widget.charts[charts].chartData[items].length).toFixed(2);
                                             else if(widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType == 'snapshot') {
                                                 var latestDate = '';
                                                 for(var data in widget.charts[charts].chartData[items]) {
@@ -591,7 +592,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                             'values': widget.charts[charts].chartData[items],      //values - represents the array of {x,y} data points
                                             'key': typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName != 'undefined'? (typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode] != 'undefined'? widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode]: widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items]) : widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items],
                                             'color': typeof widget.charts[charts].chartColour != 'undefined' ? (typeof widget.charts[charts].chartColour[items] != 'undefined'? widget.charts[charts].chartColour[items] : '') : '',  //color - optional: choose your own line color.
-                                            'summaryDisplay': parseInt(summaryValue)
+                                            'summaryDisplay': parseFloat(summaryValue)
                                         });
                                     }
                                     else if(chartType == 'area') {
@@ -600,17 +601,17 @@ showMetricApp.service('createWidgets',function($http,$q){
                                             'values': widget.charts[charts].chartData[items],      //values - represents the array of {x,y} data points
                                             'key': typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName != 'undefined'? (typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode] != 'undefined'? widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode]: widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items]) : widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items],
                                             'color': typeof widget.charts[charts].chartColour != 'undefined' ? (typeof widget.charts[charts].chartColour[items] != 'undefined'? widget.charts[charts].chartColour[items] : '') : '',  //color - optional: choose your own line color.
-                                            'summaryDisplay': parseInt(summaryValue),
+                                            'summaryDisplay': parseFloat(summaryValue),
                                             'area': true
                                         });
                                     }
                                     else {
                                         widgetCharts.push({
                                             'type': widget.charts[charts].chartType,
-                                            'y': parseInt(summaryValue),      //values - represents the array of {x,y} data points
+                                            'y': parseFloat(summaryValue),      //values - represents the array of {x,y} data points
                                             'key': typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName != 'undefined'? (typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode] != 'undefined'? widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode]: widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items]) : widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items],
                                             'color': typeof widget.charts[charts].chartColour != 'undefined' ? (typeof widget.charts[charts].chartColour[items] != 'undefined'? widget.charts[charts].chartColour[items] : '') : '',  //color - optional: choose your own line color.
-                                            'summaryDisplay': parseInt(summaryValue)
+                                            'summaryDisplay': parseFloat(summaryValue)
                                         });
                                     }
                                 }

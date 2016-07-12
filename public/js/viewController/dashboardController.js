@@ -438,6 +438,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         }).then(
             function successCallback(response){
                 if(widgetType != 'customFusion') {
+                    $scope.loadedWidgetCount--;
                     for(var items in $scope.dashboard.widgetData) {
                         if($scope.dashboard.widgetData[items].id == widgetId)
                             $scope.dashboard.widgetData.splice(items,1);

@@ -89,13 +89,11 @@ module.exports = function (app) {
                                     else {
                                         req.userEmail = profile.email;
                                         req.userId = profile.id;
-
                                         //Call the helper to store user details
                                         user.storeProfiles(req, function (err) {
                                             if (err)
                                                 res.json('Error', err);
                                             else {
-
                                                 //If response of the storeProfiles function is success then close the authentication window
                                                 res.render('successAuthentication');
                                             }

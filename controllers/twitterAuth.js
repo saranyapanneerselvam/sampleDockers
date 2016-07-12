@@ -5,6 +5,7 @@ var objects = require('../models/objects');
 var objectType = require('../models/objectTypes');
 var channels = require('../models/channels');
 var user = require('../helpers/user');
+
 module.exports = function (app) {
     var OAuth = require('oauth').OAuth;
     var oa = new OAuth(

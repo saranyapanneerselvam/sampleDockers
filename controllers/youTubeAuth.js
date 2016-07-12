@@ -1,13 +1,13 @@
-module.exports = function (app) {
-    var request = require('request');
-    var user = require('../helpers/user');
-    var channels = require('../models/channels');
-    var Object = require('../models/objects');
-    var ObjectType = require('../models/objectTypes');
+var request = require('request');
+var user = require('../helpers/user');
+var channels = require('../models/channels');
+var Object = require('../models/objects');
+var ObjectType = require('../models/objectTypes');
+var configAuth = require('../config/auth');// load the auth variables
+var googleapis = require('googleapis');//To use google api'
 
-    // load the auth variables
-    var configAuth = require('../config/auth');
-    var googleapis = require('googleapis');//To use google api'
+
+module.exports = function (app) {
     var OAuth2 = googleapis.auth.OAuth2;
     var oauth2 = require('simple-oauth2')({
         clientID: configAuth.youTubeAuth.clientID,
@@ -50,11 +50,9 @@ module.exports = function (app) {
                     //To get the profile name .. based on access token
                     request('https://www.googleapis.com/youtube/v3/channels?access_token=' + token.token.access_token+'&part=snippet&mine=true', function (err, responseData, result) {
                         if (!err) {
+                            var parsedBodyResult = JSON.parse(result); //To parse the access token details
 
-                            //To parse the access token details
-                            var parsedBodyResult = JSON.parse(result);
-
-                            //set the body into userdata
+                            //set the body into userData
                             req.userEmail = parsedBodyResult.items[0].snippet.title;
                             req.userId = parsedBodyResult.items[0].id;
                             req.profileName = parsedBodyResult.items[0].snippet.title;
@@ -69,19 +67,15 @@ module.exports = function (app) {
                                 //Calling the storeProfiles middleware to store the data
                                 user.storeProfiles(req, function (err, response) {
                                     if (err)
-                                        res.json('Error');
+                                        return res.status(500).json({error: err});
                                     else {
-                                        res.send('success')
-
                                         //If response of the storeProfiles function is success then render the successAuthentication page
-                                        Object.findOne({'profileId':response._id} , function(err, object){
+                                        Object.findOne({profileId:response._id} , function(err, object){
                                             if (err)
                                                 return res.status(500).json({error: err});
-                                            
-                                            else{
-                                                if(object!=null){
+                                            else {
+                                                if(object != null)
                                                     res.render('successAuthentication');
-                                                }
                                                 else{
                                                     ObjectType.findOne({'channelId':response.channelId},function(err,objectTypeList){
                                                         if (err)
@@ -97,16 +91,15 @@ module.exports = function (app) {
                                                             storeObject.updated=new Date();
                                                             storeObject.created=new Date();
                                                             storeObject.save(function(err,objectListItem){
-                                                                if(!err){
+                                                                if(!err)
                                                                     res.render('successAuthentication');
-                                                                }
+                                                                else
+                                                                    return res.status(500).json({error: err});
                                                             });
                                                         }
-
                                                     });
                                                 }
                                             }
-
                                         });
                                     }
                                 });

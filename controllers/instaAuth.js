@@ -76,16 +76,14 @@ module.exports = function (app) {
 
                                         //Query to save profile details - dev
                                         objectList.save(function (err, user) {
-                                            if (!err) {
+                                            if (!err)
                                                 res.render('successAuthentication');
-                                            }
                                             else
-                                                res.json('Error', err);
+                                                return res.status(500).json({error: err});
                                         });
                                     });
                                 }
                                 else
-                                //If object find error for profileId occurs - dev
                                     res.render('successAuthentication');
                             });
                         }

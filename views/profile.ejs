@@ -163,6 +163,7 @@
 <script src="js/viewController/switchController.js"></script>
 <script src="js/viewController/alertController.js"></script>
 <script src="js/viewController/navigationController.js"></script>
+<script type="text/javascript" src="/js/sha256.js"></script>
 
 <!--For Intercom Messenger-->
 <script>
@@ -176,11 +177,19 @@
             var loggedInUserName = response.userDetails[0].name;
             var loggedInUserEmail = response.userDetails[0].email;
             var loggedInUserCreatedTime = response.userDetails[0].created;
+
+            var shaObj = new jsSHA("SHA-256", "TEXT");
+            shaObj.setHMACKey("Lij2mu0RJIcMM24D_osGz3Qc5M1MMTfL2v8JvVF9", "TEXT");
+            shaObj.update(loggedInUserEmail);
+            var hmac = shaObj.getHMAC("HEX");
+
+
             window.intercomSettings = {
-                app_id: "is5esqu3",
+                app_id: "uiizfwfc",
                 name: loggedInUserName, // Full name
                 email: loggedInUserEmail, // Email address
-                created_at: moment.utc(loggedInUserCreatedTime).valueOf() // Signup date as a Unix timestamp
+                created_at: moment.utc(loggedInUserCreatedTime).valueOf(),
+                user_hash: hmac
             };
         }
     }

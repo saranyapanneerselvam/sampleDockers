@@ -379,10 +379,10 @@ showMetricApp.service('createWidgets',function($http,$q){
                                 for(datas in widget.charts[charts].chartData){
                                     var yValue = 0, endpointArray;
                                     if(widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )) {
-                                        for(keyValuePairs in widget.charts[charts].chartData[datas].total) {
+                                        for(var keyValuePairs in widget.charts[charts].chartData[datas].total) {
                                             if(keyValuePairs.search('/') > -1) {
                                                 endpointArray = keyValuePairs.split('/');
-                                                for(splittedValues in endpointArray) {
+                                                for(var splittedValues in endpointArray) {
                                                     //console.log(splittedValues, endpointArray[splittedValues]);
                                                 }
                                             }
@@ -402,7 +402,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                         }
                         else {
                             var formattedChartData = [];
-                            for(datas in widget.charts[charts].chartData) {
+                            for(var datas in widget.charts[charts].chartData) {
                                 formattedChartData.push({
                                         x: moment(widget.charts[charts].chartData[datas].date),
                                         y: widget.charts[charts].chartData[datas].total != null ? widget.charts[charts].chartData[datas].total : 0

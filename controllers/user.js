@@ -26,7 +26,7 @@ module.exports = function (app, passport) {
         console.log('ipaddress',ip)
         if (req.user) res.redirect('/profile')
         else
-        // render the page and pass in any flash data if it exists
+            // render the page and pass in any flash data if it exists
             res.render('login', {message: req.flash('loginMessage')});
     });
 

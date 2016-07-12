@@ -121,6 +121,12 @@ svg:hover #Calendar-Icon { fill: #04509B; }
 @font-face { font-family: Heebo-Regular;  src: url('../fonts/Datapooltfonts/Heebo-Regular.ttf');}
 @font-face { font-family: Heebo-Thin;  src: url('../fonts/Datapooltfonts/Heebo-Thin.ttf');}
 
+@font-face { font-family: Brandon Grotesque; src: url('../fonts/Brandon Grotesque/Brandon_med.otf'); }
+@font-face { font-family: Brandon Grotesque-medium; font-weight: bold; src: url('../fonts/Brandon Grotesque/Brandon_med.otf');}
+@font-face { font-family: Brandon Grotesque-regular; font-weight: bold; src: url('../fonts/Brandon Grotesque/Brandon_reg.otf');}
+@font-face { font-family: Brandon Grotesque-bold; font-weight: bold; src: url('../fonts/Brandon Grotesque/Brandon_bld.otf');}
+
+
 
 @font-face { font-family: Bebas Neue; src: url('../fonts/BebasNeue/BebasNeue_Regular.otf'); }
 @font-face { font-family: Bebas Neue-bold; font-weight: bold; src: url('../fonts/BebasNeue/BebasNeue_Bold.otf');}

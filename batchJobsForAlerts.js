@@ -85,10 +85,10 @@ agenda.define('Send Alerts', function (job, done) {
             }
         };
         var transporter = nodemailer.createTransport({
-            service: 'Gmail',
+            service: 'Zoho',
             auth: {
-                user: 'rajalakshmi.c@habile.in',
-                pass: 'habile3238'
+                user: 'alerts@datapoolt.co',
+                pass: 'Alerts!@#123'
             }
         });
 
@@ -96,7 +96,7 @@ agenda.define('Send Alerts', function (job, done) {
 
             // Email Setup
             var mailOptions = {
-                from: 'Datapoolt Team <rajalakshmi.c@habile.in>',
+                from: 'Datapoolt Alerts <alerts@datapoolt.co>',
                 to: mail,
                 subject: 'The alert ' + alertName + ' has been triggered',
 

@@ -121,6 +121,13 @@ svg:hover #Calendar-Icon { fill: #04509B; }
 @font-face { font-family: Heebo-Regular;  src: url('../fonts/Datapooltfonts/Heebo-Regular.ttf');}
 @font-face { font-family: Heebo-Thin;  src: url('../fonts/Datapooltfonts/Heebo-Thin.ttf');}
 
+
+@font-face { font-family: Bebas Neue; src: url('../fonts/BebasNeue/BebasNeue_Regular.otf'); }
+@font-face { font-family: Bebas Neue-bold; font-weight: bold; src: url('../fonts/BebasNeue/BebasNeue_Bold.otf');}
+@font-face { font-family: Bebas Neue-book; font-weight: bold; src: url('../fonts/BebasNeue/BebasNeue_Book.otf');}
+@font-face { font-family: Bebas Neue-thin; font-weight: bold; src: url('../fonts/BebasNeue/BebasNeue_Thin.otf');}
+@font-face { font-family: Bebas Neue-light; font-weight: bold; src: url('../fonts/BebasNeue/BebasNeue_Light.otf');}
+
 .add-profile{float: left;margin: 0px ; text-align: left;!important}
 .fa-3x{font-size: 28px!important;color:#fff;padding-left: 5px;}
 .remove-profile{float: right;margin: 0px ;text-align: right;}

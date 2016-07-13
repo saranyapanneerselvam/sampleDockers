@@ -644,6 +644,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                 lineDataOptions: {
                     chart: {
                         type: 'lineChart',
+                        noData: 'Data unavailable for this metric',
                         margin : {top: 20, right: 25, bottom: 30, left: 35},
                         x: function(d){ return d.x; },
                         y: function(d){ return d.y; },
@@ -674,6 +675,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                 barDataOptions: {
                     chart: {
                         type: 'multiBarChart',
+                        noData: 'Data unavailable for this metric',
                         margin : {top: 20, right: 25, bottom: 30, left: 35},
                         x: function(d){ return d.x; },
                         y: function(d){ return d.y; },
@@ -702,6 +704,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                 pieDataOptions: {
                     chart: {
                         type: 'pieChart',
+                        noData: 'Data unavailable for this metric',
                         margin : {top: 0, right: 15, bottom: 15, left: 15},
                         x: function (d) {
                             return d.key;
@@ -734,10 +737,17 @@ showMetricApp.service('createWidgets',function($http,$q){
                     chart: {
                         type: 'highEngagementTweets'
                     }
+                },
+                emptyCharts: {
+                    chart: {
+                        type: 'emptyCharts'
+                    }
                 }
             };
             var sizeY,sizeX,chartsCount = 0,individualGraphWidthDivider,individualGraphHeightDivider,chartName,finalChartData = [];
             var widgetLayoutOptions = [
+                {W:1,H:1,N:0,r:1,c:1},
+
                 {W:1,H:1,N:1,r:1,c:1},
                 {W:1,H:1,N:2,r:2,c:1},
                 {W:1,H:1,N:3,r:3,c:1},
@@ -746,6 +756,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                 {W:1,H:1,N:6,r:6,c:1},
                 {W:1,H:1,N:7,r:7,c:1},
                 {W:1,H:1,N:8,r:8,c:1},
+
+                {W:2,H:1,N:0,r:1,c:1},
 
                 {W:2,H:1,N:1,r:1,c:1},
                 {W:2,H:1,N:2,r:1,c:2},
@@ -756,6 +768,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                 {W:2,H:1,N:7,r:3,c:3},
                 {W:2,H:1,N:8,r:3,c:3},
 
+                {W:3,H:1,N:0,r:1,c:1},
+
                 {W:3,H:1,N:1,r:1,c:1},
                 {W:3,H:1,N:2,r:1,c:2},
                 {W:3,H:1,N:3,r:1,c:3},
@@ -764,6 +778,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                 {W:3,H:1,N:6,r:2,c:3},
                 {W:3,H:1,N:7,r:3,c:3},
                 {W:3,H:1,N:8,r:3,c:3},
+
+                {W:4,H:1,N:0,r:1,c:1},
 
                 {W:4,H:1,N:1,r:1,c:1},
                 {W:4,H:1,N:2,r:1,c:2},
@@ -774,6 +790,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                 {W:4,H:1,N:7,r:3,c:3},
                 {W:4,H:1,N:8,r:3,c:3},
 
+                {W:5,H:1,N:0,r:1,c:1},
+
                 {W:5,H:1,N:1,r:1,c:1},
                 {W:5,H:1,N:2,r:1,c:2},
                 {W:5,H:1,N:3,r:1,c:3},
@@ -782,6 +800,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                 {W:5,H:1,N:6,r:2,c:3},
                 {W:5,H:1,N:7,r:2,c:4},
                 {W:5,H:1,N:8,r:2,c:4},
+
+                {W:6,H:1,N:0,r:1,c:1},
 
                 {W:6,H:1,N:1,r:1,c:1},
                 {W:6,H:1,N:2,r:1,c:2},
@@ -792,6 +812,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                 {W:6,H:1,N:7,r:2,c:4},
                 {W:6,H:1,N:8,r:2,c:4},
 
+                {W:1,H:2,N:0,r:1,c:1},
+
                 {W:1,H:2,N:1,r:1,c:1},
                 {W:1,H:2,N:2,r:2,c:1},
                 {W:1,H:2,N:3,r:3,c:1},
@@ -800,6 +822,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                 {W:1,H:2,N:6,r:6,c:1},
                 {W:1,H:2,N:7,r:7,c:1},
                 {W:1,H:2,N:8,r:8,c:1},
+
+                {W:2,H:2,N:0,r:1,c:1},
 
                 {W:2,H:2,N:1,r:1,c:1},
                 {W:2,H:2,N:2,r:1,c:2},
@@ -810,6 +834,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                 {W:2,H:2,N:7,r:4,c:2},
                 {W:2,H:2,N:8,r:4,c:2},
 
+                {W:3,H:2,N:0,r:1,c:1},
+
                 {W:3,H:2,N:1,r:1,c:1},
                 {W:3,H:2,N:2,r:1,c:2},
                 {W:3,H:2,N:3,r:2,c:2},
@@ -818,6 +844,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                 {W:3,H:2,N:6,r:2,c:3},
                 {W:3,H:2,N:7,r:2,c:4},
                 {W:3,H:2,N:8,r:2,c:4},
+
+                {W:4,H:2,N:0,r:1,c:1},
 
                 {W:4,H:2,N:1,r:1,c:1},
                 {W:4,H:2,N:2,r:1,c:2},
@@ -828,6 +856,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                 {W:4,H:2,N:7,r:2,c:4},
                 {W:4,H:2,N:8,r:2,c:4},
 
+                {W:5,H:2,N:0,r:1,c:1},
+
                 {W:5,H:2,N:1,r:1,c:1},
                 {W:5,H:2,N:2,r:1,c:2},
                 {W:5,H:2,N:3,r:1,c:3},
@@ -836,6 +866,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                 {W:5,H:2,N:6,r:2,c:3},
                 {W:5,H:2,N:7,r:2,c:4},
                 {W:5,H:2,N:8,r:2,c:4},
+
+                {W:6,H:2,N:0,r:1,c:1},
 
                 {W:6,H:2,N:1,r:1,c:1},
                 {W:6,H:2,N:2,r:1,c:2},
@@ -846,6 +878,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                 {W:6,H:2,N:7,r:2,c:4},
                 {W:6,H:2,N:8,r:2,c:4},
 
+                {W:1,H:3,N:0,r:1,c:1},
+
                 {W:1,H:3,N:1,r:1,c:1},
                 {W:1,H:3,N:2,r:2,c:1},
                 {W:1,H:3,N:3,r:3,c:1},
@@ -854,6 +888,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                 {W:1,H:3,N:6,r:6,c:1},
                 {W:1,H:3,N:7,r:7,c:1},
                 {W:1,H:3,N:8,r:8,c:1},
+
+                {W:2,H:3,N:0,r:1,c:1},
 
                 {W:2,H:3,N:1,r:1,c:1},
                 {W:2,H:3,N:2,r:2,c:1},
@@ -864,6 +900,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                 {W:2,H:3,N:7,r:4,c:2},
                 {W:2,H:3,N:8,r:4,c:2},
 
+                {W:3,H:3,N:0,r:1,c:1},
+
                 {W:3,H:3,N:1,r:1,c:1},
                 {W:3,H:3,N:2,r:1,c:2},
                 {W:3,H:3,N:3,r:2,c:2},
@@ -872,6 +910,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                 {W:3,H:3,N:6,r:2,c:3},
                 {W:3,H:3,N:7,r:2,c:4},
                 {W:3,H:3,N:8,r:2,c:4},
+
+                {W:4,H:3,N:0,r:1,c:1},
 
                 {W:4,H:3,N:1,r:1,c:1},
                 {W:4,H:3,N:2,r:1,c:2},
@@ -882,6 +922,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                 {W:4,H:3,N:7,r:2,c:4},
                 {W:4,H:3,N:8,r:2,c:4},
 
+                {W:5,H:3,N:0,r:1,c:1},
+
                 {W:5,H:3,N:1,r:1,c:1},
                 {W:5,H:3,N:2,r:1,c:2},
                 {W:5,H:3,N:3,r:1,c:3},
@@ -890,6 +932,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                 {W:5,H:3,N:6,r:2,c:3},
                 {W:5,H:3,N:7,r:2,c:4},
                 {W:5,H:3,N:8,r:2,c:4},
+
+                {W:6,H:3,N:0,r:1,c:1},
 
                 {W:6,H:3,N:1,r:1,c:1},
                 {W:6,H:3,N:2,r:1,c:2},
@@ -926,7 +970,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                 else if(widgetCharts[charts].type == 'instagramPosts') finalCharts.instagramPosts.push(widgetCharts[charts]);
                 else if(widgetCharts[charts].type == 'highEngagementTweets') finalCharts.highEngagementTweets.push(widgetCharts[charts]);
             }
-
 
             var chartColorChecker = [];
             var colourChart = ['#EF5350','#EC407A','#9C27B0','#42A5F5','#26A69A','#FFCA28','#FF7043','#8D6E63'];
@@ -1021,6 +1064,25 @@ showMetricApp.service('createWidgets',function($http,$q){
                     'data': finalCharts.highEngagementTweets[0].values
                 });
             }
+            if(finalChartData.length == 0 && widget.widgetType == 'custom') {
+                if(widget.widgetType == 'custom') {
+                    var customDataUrl = '';
+                    if(window.location.hostname=="localhost")
+                        customDataUrl = "http://localhost:8080/api/v1/create/customdata/"+widget._id;
+                    else
+                        customDataUrl = window.location.hostname +"/api/v1/create/customdata/"+widget._id;
+                    finalChartData.push({
+                        'options': graphOptions.emptyCharts,
+                        'data': [{message:'Please send your data to: ' + customDataUrl}]
+                    });
+                }
+                else {
+                    finalChartData.push({
+                        'options': graphOptions.emptyCharts,
+                        'data': [{message:'Data unavailable for this metric'}]
+                    });
+                }
+            }
 
             var setLayoutOptions = function() {
                 sizeY = typeof widget.size != 'undefined'? widget.size.h : 3;
@@ -1048,9 +1110,7 @@ showMetricApp.service('createWidgets',function($http,$q){
             deferred.resolve(modifiedWidget);
             return deferred.promise;
         }
-
     };
-
 });
 
 showMetricApp.service('generateChartColours',function(){

@@ -188,7 +188,7 @@
                 app_id: "uiizfwfc",
                 name: loggedInUserName, // Full name
                 email: loggedInUserEmail, // Email address
-                created_at: moment.utc(loggedInUserCreatedTime).valueOf(),
+                created_at: Math.floor(moment.utc(loggedInUserCreatedTime).valueOf()/1000),
                 user_hash: hmac
             };
         }

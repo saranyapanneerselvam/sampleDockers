@@ -10,4 +10,7 @@ module.exports = function (app) {
     app.get('/api/v1/get/objects/:profileID', objectList.objects, function (req, res) {
             res.json({objectList: req.app.objects});
     });
+    app.get('/api/v1/get/objectTypeDetail/:objectTypeId', objectList.objectTypes, function (req, res) {
+        res.json({objectType: req.app.result});
+    });
 };

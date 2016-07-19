@@ -1,6 +1,6 @@
 //Load the auth file
 var configAuth = require('../config/auth');
-var moment = require('moment');
+var UserActivity = require('../models/userActivity');
 var profile = require('../models/profiles');
 var exports = module.exports = {};
 
@@ -43,6 +43,15 @@ exports.storeProfiles = function (req, done) {
                     "expiresIn": req.expiresIn ? req.expiresIn : '',
                     "canManageClients": req.canManageClients,
                     "customerId": req.customerId
+                }
+            }
+            else if (req.code === configAuth.channels.mailChimp) {
+                setData = {
+                    "accessToken": newAccessToken,
+                    "refreshToken": newRefreshToken,
+                    'updated': updated,
+                    'dataCenter': req.dataCenter,
+                    "expiresIn": req.expiresIn ? req.expiresIn : ''
                 }
             }
             else {
@@ -96,6 +105,9 @@ exports.storeProfiles = function (req, done) {
             //Store the refresh token for facebook
             else
                 newProfile.accessToken = tokens;
+            if(req.code== configAuth.channels.mailChimp){
+                newProfile.dataCenter = req.dataCenter;
+            }
             newProfile.orgId = req.user.orgId;
             newProfile.userId = req.userId;
             newProfile.created = new Date();
@@ -114,7 +126,8 @@ exports.storeProfiles = function (req, done) {
                         profile.findOne({
                             'userId': user.userId,
                             'channelId': user.channelId,
-                            'orgId': user.orgId
+                            'orgId': req.user.orgId
+
                         }, function (err, profileDetail) {
                             if (!err) {
                                 done(null, profileDetail);
@@ -127,3 +140,13 @@ exports.storeProfiles = function (req, done) {
         }
     });
 };
+
+exports.saveUserActivity = function (req, res, done) {
+    var userActivityCobject = new UserActivity();
+    userActivityCobject.email = req.user.email;
+    userActivityCobject.loggedInTime = new Date();
+    userActivityCobject.userId = req.user._id;
+    userActivityCobject.save(function (err, userActivity) {
+         done(err, userActivity)
+    })
+}

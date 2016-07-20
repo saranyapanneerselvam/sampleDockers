@@ -201,10 +201,16 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
 
                     if($scope.storedChannelName != 'Google Analytics') {
                         uniqueObject = _.groupBy(response.data.objectList, 'objectTypeId');
-                        for(var items in uniqueObject) {
+                        var sortedUniqueObject = {};
+                        for(var objectIds in $scope.uniqueObjectCount) {
+                            for(var uniqueObjects in uniqueObject)
+                                if($scope.uniqueObjectCount[objectIds] == uniqueObjects)
+                                    sortedUniqueObject[uniqueObjects] = uniqueObject[uniqueObjects];
+                        }
+                        for(var items in sortedUniqueObject) {
                             var tempObjectList = [];
-                            for(var subItems in uniqueObject[items])
-                                tempObjectList.push(uniqueObject[items][subItems]);
+                            for(var subItems in sortedUniqueObject[items])
+                                tempObjectList.push(sortedUniqueObject[items][subItems]);
                             var obj = {};
                             obj[k] = tempObjectList;
                             tempList[k] = obj;
@@ -573,17 +579,15 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             storeChosenObject[chosenObject[3]] = {name: chosenObject[0],_id: chosenObject[1],objectTypeId: chosenObject[2]};
         }
         else {
-            storeChosenObject = [];
+            //storeChosenObject = [];
             storeChosenObject[chosenObject[3]] = null;
         }
 
-        console.log('STORECHOSENOBJECT',storeChosenObject,$scope.uniqueObjectCount);
         if(storeChosenObject.length == $scope.uniqueObjectCount.length) {
             countChecker = true;
             for(var items in storeChosenObject)
                 if(storeChosenObject[items] == null)
                     countChecker = false;
-            console.log('COUNTCHECKER: ',countChecker);
             if(countChecker == true)
                 document.getElementById('basicWidgetFinishButton').disabled = false;
             else

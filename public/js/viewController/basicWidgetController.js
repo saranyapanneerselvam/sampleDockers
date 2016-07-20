@@ -28,6 +28,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             $scope.clearReferenceWidget();
             getReferenceWidgetsArr = [];
             storeChosenObject = [];
+            $scope.canManageClients = null;
         }
         else if ($scope.currentView === 'step_two') {
             document.getElementById('basicWidgetBackButton1').disabled = false;
@@ -195,69 +196,38 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 url: '/api/v1/get/objects/' + profileId
             }).then(
                 function successCallback(response) {
-                    var uniqueObjectTypeWithIndex = [];
-                    var j = 0;
                     var uniqueObject;
+                    var k=0; var tempList = {};
 
                     if($scope.storedChannelName != 'Google Analytics') {
                         uniqueObject = _.groupBy(response.data.objectList, 'objectTypeId');
-                        for (var key in uniqueObject) {
-                            getReferenceWidgetsArr.forEach(function (referenceWidget) {
-                                referenceWidget.charts.forEach(function (charts) {
-                                    charts.metrics.forEach(function (metrics) {
-                                        var uniqueObjectType = [];
-                                        if (metrics.objectTypeId === key) {
-                                            for (var i = 0; i < uniqueObject[key].length; i++) {
-                                                uniqueObjectType.push(uniqueObject[key][i])
-                                            }
-                                            var obj = {};
-                                            obj[j] = uniqueObjectType;
-                                            uniqueObjectTypeWithIndex[j] = obj;
-                                            j++;
-                                        }
-                                    })
-                                })
-                            })
+                        for(var items in uniqueObject) {
+                            var tempObjectList = [];
+                            for(var subItems in uniqueObject[items])
+                                tempObjectList.push(uniqueObject[items][subItems]);
+                            var obj = {};
+                            obj[k] = tempObjectList;
+                            tempList[k] = obj;
+                            k++;
                         }
-                        $scope.objectList = uniqueObjectTypeWithIndex;
-                        console.log('OBJECTLIST',$scope.objectList);
+                        $scope.objectList = tempList;
                     }
                     else {
-                        uniqueObjectTypeWithIndex[j] = response.data.objectList;
-                        uniqueObject = _.groupBy(response.data.objectList, function(o){return o.metricDetails[0].objectTypeId});
-                        getReferenceWidgetsArr.forEach(function (referenceWidget) {
-                            referenceWidget.charts.forEach(function (charts) {
-                                charts.metrics.forEach(function (metrics) {
-                                    var uniqueObjectType = [];
-                                    if (metrics.objectTypeId === key) {
-                                        for (var i = 0; i < uniqueObject[key].length; i++) {
-                                            uniqueObjectType.push(uniqueObject[key][i])
-                                        }
-                                        var obj = {};
-                                        obj[j] = uniqueObjectType;
-                                        uniqueObjectTypeWithIndex[j] = obj;
-                                        j++;
-                                    }
-                                });
-                            });
-                        });
-                        $scope.objectList = uniqueObjectTypeWithIndex;
-                        console.log($scope.objectList);
                         document.getElementById('basicWidgetFinishButton').disabled = true;
+                        var uniqueObjectTypeWithIndex = [];
+                        uniqueObjectTypeWithIndex[k] = response.data.objectList;
+                        $scope.objectList = uniqueObjectTypeWithIndex;
                     }
 
-                    console.log('CANMANAGECLIENTS',$scope.canManageClients);
-                    if ($scope.storedChannelName === 'Twitter' || $scope.storedChannelName === 'Instagram' || $scope.canManageClients === true) {
+                    if ($scope.storedChannelName === 'Twitter' || $scope.storedChannelName === 'Instagram' || ($scope.storedChannelName === 'GoogleAdwords' && $scope.canManageClients === true)) {
                         document.getElementById('basicWidgetFinishButton').disabled = true;
-                        for(var items in $scope.uniqueObjectCount) {
+                        for(var items in $scope.uniqueObjectCount)
                             $scope.objectForWidgetChosen([$scope.objectList[0][0][0].name, $scope.objectList[0][0][0]._id, $scope.objectList[0][0][0].objectTypeId,items]);
-                        }
                     }
                     else if($scope.storedChannelName === 'GoogleAdwords' && $scope.canManageClients === false) {
                         storeChosenObject = [];
                         document.getElementById('basicWidgetFinishButton').disabled = true;
                     }
-
                 },
                 function errorCallback(error) {
                     swal({
@@ -278,60 +248,32 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 url: '/api/v1/get/objectTypeDetail/' + objectTypeId
             }).then(
                 function successCallback(response) {
-                    var objectTypeId = response.data.objectType.type;
+                    var objectTypeName = response.data.objectType.type;
                     $http({
                         method: 'GET',
-                        url: '/api/v1/channel/profiles/objectsList/' + profileId + '?objectType=' + objectTypeId
+                        url: '/api/v1/channel/profiles/objectsList/' + profileId + '?objectType=' + objectTypeName
                     }).then(
                         function successCallback(response) {
                             var uniqueObjectTypeWithIndex = [];
-                            var j = 0;
                             var uniqueObject;
+                            var k=0; var tempList = {};
+
+                            k = $scope.uniqueObjectCount.indexOf(objectTypeId);
 
                             if($scope.storedChannelName != 'Google Analytics') {
-                                console.log(response);
                                 uniqueObject = _.groupBy(response.data, 'objectTypeId');
-                                console.log(uniqueObject);
-                                for (var key in uniqueObject) {
-                                    getReferenceWidgetsArr.forEach(function (referenceWidget) {
-                                        referenceWidget.charts.forEach(function (charts) {
-                                            charts.metrics.forEach(function (metrics) {
-                                                var uniqueObjectType = [];
-                                                if (metrics.objectTypeId === key) {
-                                                    for (var i = 0; i < uniqueObject[key].length; i++) {
-                                                        uniqueObjectType.push(uniqueObject[key][i]);
-                                                    }
-                                                    var obj = {};
-                                                    obj[j] = uniqueObjectType;
-                                                    uniqueObjectTypeWithIndex[j] = obj;
-                                                    j++;
-                                                }
-                                            });
-                                        });
-                                    });
+                                for(var items in uniqueObject) {
+                                    var tempObjectList = [];
+                                    for(var subItems in uniqueObject[items])
+                                        tempObjectList.push(uniqueObject[items][subItems]);
+                                    var obj = {};
+                                    obj[k] = tempObjectList;
+                                    tempList = obj;
                                 }
-                                $scope.objectList = uniqueObjectTypeWithIndex;
-                                console.log($scope.objectList);
+                                $scope.objectList[k] = tempList;
                             }
                             else {
-                                uniqueObjectTypeWithIndex[j] = response.data;
-                                uniqueObject = _.groupBy(response.data, function(o){return o.metricDetails[0].objectTypeId});
-                                getReferenceWidgetsArr.forEach(function (referenceWidget) {
-                                    referenceWidget.charts.forEach(function (charts) {
-                                        charts.metrics.forEach(function (metrics) {
-                                            var uniqueObjectType = [];
-                                            if (metrics.objectTypeId === key) {
-                                                for (var i = 0; i < uniqueObject[key].length; i++) {
-                                                    uniqueObjectType.push(uniqueObject[key][i]);
-                                                }
-                                                var obj = {};
-                                                obj[j] = uniqueObjectType;
-                                                uniqueObjectTypeWithIndex[j] = obj;
-                                                j++;
-                                            }
-                                        });
-                                    });
-                                });
+                                uniqueObjectTypeWithIndex[k] = response.data;
                                 $scope.objectList = uniqueObjectTypeWithIndex;
                             }
                         },
@@ -353,47 +295,6 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 }
             );
         }
-
-        /*if (this.profileOptionsModel._id) {
-            switch ($scope.storedChannelName) {
-                case 'Facebook':
-                    $scope.objectType = 'page';
-                    break;
-                case 'Google Analytics':
-                    $scope.objectType = 'gaview';
-                    break;
-                case 'FacebookAds':
-                    $scope.objectType = 'fbadaccount';
-                    break;
-                case 'Twitter':
-                    $scope.objectType = 'tweet';
-                    break;
-                case 'Instagram' :
-                    $scope.objectType = 'instagram';
-                    break;
-                case 'GoogleAdwords' :
-                    $scope.objectType = 'adwordaccount';
-                    break;
-                case 'YouTube' :
-                    $scope.objectType = 'youtubeChannel';
-                    break;
-            }
-            $http({
-                method: 'GET',
-                url: '/api/v1/channel/profiles/objectsList/' + this.profileOptionsModel._id + '?objectType=' + $scope.objectType
-            }).then(
-                function successCallback(response) {
-                    $scope.objectList = response.data;
-                },
-                function errorCallback(error) {
-                    swal({
-                        title: "",
-                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
-                        html: true
-                    });
-                }
-            );
-        }*/
     };
 
     $scope.addNewProfile = function () {
@@ -658,7 +559,6 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     };
 
     $scope.objectForWidgetChosen = function (chosenObject) {
-        console.log('CHOSENOBJECT',chosenObject);
         var countChecker = false;
         if ($scope.storedChannelName === 'Google Analytics' && chosenObject) {
             if(chosenObject[0] != '') {
@@ -671,21 +571,19 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
 
         if (chosenObject != undefined && chosenObject[1] != undefined) {
             storeChosenObject[chosenObject[3]] = {name: chosenObject[0],_id: chosenObject[1],objectTypeId: chosenObject[2]};
-            console.log('Inside 1');
         }
         else {
             storeChosenObject = [];
-            console.log(storeChosenObject)
             storeChosenObject[chosenObject[3]] = null;
-            console.log('Inside 2');
         }
 
+        console.log('STORECHOSENOBJECT',storeChosenObject,$scope.uniqueObjectCount);
         if(storeChosenObject.length == $scope.uniqueObjectCount.length) {
             countChecker = true;
             for(var items in storeChosenObject)
                 if(storeChosenObject[items] == null)
                     countChecker = false;
-            console.log('COUNTCHECKER',countChecker);
+            console.log('COUNTCHECKER: ',countChecker);
             if(countChecker == true)
                 document.getElementById('basicWidgetFinishButton').disabled = false;
             else

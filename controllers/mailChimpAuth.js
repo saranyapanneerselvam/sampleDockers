@@ -124,66 +124,59 @@ module.exports = function (app) {
                                                         console.log('error');
                                                     }
                                                     else {
-                                                        console.log('campaignbody', JSON.parse(body));
                                                         var objectStoreDetails = JSON.parse(body);
-                                                        //console.log('objectStoreDetails',objectsName, objectStoreDetails[objectsName]);
-                                                        for (var i in objectStoreDetails[objectsName]) {
-                                                            console.log('listsbody', objectStoreDetails[objectsName][i]);
-                                                            var profileId = responses._id;
-                                                            var objectTypeId = objectIds;
-                                                            var channelObjectId = objectStoreDetails[objectsName][i].id;
-                                                            var created = new Date();
-                                                            var updated = new Date();
-                                                            if (objectsName === configAuth.objectType.mailChimpList) {
-                                                                var name = objectStoreDetails[objectsName][i].name;
-                                                            }
-                                                            else {
-                                                                var name = objectStoreDetails[objectsName][i].settings.title;
-                                                            }
-                                                            //To store once
-                                                            Object.update({
-                                                                profileId: responses._id,
-                                                                channelObjectId: channelObjectId
-                                                            }, {
-                                                                $setOnInsert: {created: created},
-                                                                $set: {
-                                                                    name: name,
-                                                                    objectTypeId: objectTypeId,
-                                                                    updated: updated
-                                                                }
-                                                            }, {upsert: true}, function (err, object) {
-                                                                if (err)
-                                                                    return res.status(500).json({error: 'Internal server error'})
-                                                                else if (object == 0)
-                                                                    return res.status(501).json({error: 'Not implemented'})
-                                                                else {
-                                                                    console.log('object', object)
-                                                                    res.render('successAuthentication');
-                                                                }
-                                                            })
+                                                        if(objectStoreDetails[objectsName].length===0){
+                                                            console.log('objectsName',objectsName);
+                                                            res.render('successAuthentication');
                                                         }
-
-
+                                                        else {
+                                                            for (var i in objectStoreDetails[objectsName]) {
+                                                                console.log('listsbody', objectStoreDetails[objectsName][i]);
+                                                                var profileId = responses._id;
+                                                                var objectTypeId = objectIds;
+                                                                var channelObjectId = objectStoreDetails[objectsName][i].id;
+                                                                var created = new Date();
+                                                                var updated = new Date();
+                                                                if (objectsName === configAuth.objectType.mailChimpList) {
+                                                                    var name = objectStoreDetails[objectsName][i].name;
+                                                                }
+                                                                else {
+                                                                    var name = objectStoreDetails[objectsName][i].settings.title;
+                                                                }
+                                                                //To store once
+                                                                Object.update({
+                                                                    profileId: responses._id,
+                                                                    channelObjectId: channelObjectId
+                                                                }, {
+                                                                    $setOnInsert: {created: created},
+                                                                    $set: {
+                                                                        name: name,
+                                                                        objectTypeId: objectTypeId,
+                                                                        updated: updated
+                                                                    }
+                                                                }, {upsert: true}, function (err, object) {
+                                                                    if (err)
+                                                                        return res.status(500).json({error: 'Internal server error'})
+                                                                    else if (object == 0)
+                                                                        return res.status(501).json({error: 'Not implemented'})
+                                                                    else {
+                                                                        console.log('object', object)
+                                                                        res.render('successAuthentication');
+                                                                    }
+                                                                })
+                                                            }
+                                                        }
                                                     }
                                                 });
                                             }
                                         }
-
                                     });
-
-
                                 }
                             });
                         });
-
-
                     }
                 })
-
             }
-
         });
-
-
     })
 };

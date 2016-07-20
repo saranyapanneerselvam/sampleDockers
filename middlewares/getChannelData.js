@@ -3282,10 +3282,10 @@ exports.getChannelData = function (req, res, next) {
                         var startDate = formatDate(d);
                         var endDate = formatDate(new Date());
                         if(metric[j].objectTypes[0].meta.endpoint[0]=== 'lists'){
-                            var query = 'https://'+initialResults.get_profile[j].dataCenter+'.api.mailchimp.com/3.0/lists/'+channelObjectId;
+                            var query = 'https://'+initialResults.get_profile[j].dataCenter+'.api.mailchimp.com/3.0/lists/'+channelObjectId+'/?count=100';
                         }
                         else{
-                            var query = 'https://'+initialResults.get_profile[j].dataCenter+'.api.mailchimp.com/3.0/campaigns/'+channelObjectId;
+                            var query = 'https://'+initialResults.get_profile[j].dataCenter+'.api.mailchimp.com/3.0/campaigns/'+channelObjectId+'/?count=100';
                         }
                         allObjects = {
                             profile: initialResults.get_profile[j],
@@ -3337,7 +3337,7 @@ exports.getChannelData = function (req, res, next) {
                 var parsedResponse;
                 var storeMetric;
                 var tot_metric=[];
-                if (err) callback(err)
+                if (err) callback(err);
                 else {
                     var mailChimpResponse=JSON.parse(body);
                     var storeStartDate = new Date(result.startDate);
@@ -3346,35 +3346,40 @@ exports.getChannelData = function (req, res, next) {
                     var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); //adding plus one so that today also included
                     var stats='stats';
                     var item=result.widget.objectTypes[0].meta.mailChimpsMetricName;
-                    if(result.endpoint==='campaign') {
-                        if(result.metricCode==='emailSend') {
-                            storeMetric =parseInt(mailChimpResponse[item]);
+                    if(!mailChimpResponse.id){
+                        return res.status(500).json({error: 'Internal server error',id:req.params.widgetId});
+                    }
+                    else {
+                        if (result.endpoint === 'campaign') {
+                            if (result.metricCode === 'emailSend') {
+                                storeMetric = parseInt(mailChimpResponse[item]);
+                            }
+                            else
+                                storeMetric = parseInt(mailChimpResponse.report_summary[item]);
                         }
-                        else
-                            storeMetric =parseInt(mailChimpResponse.report_summary[item]);
-                    }
-                    else{
-                        storeMetric = parseInt(mailChimpResponse.stats[item]);
-                    }
-                    for (var i = 0; i <= diffDays; i++) {
-                        var finalDate = formatDate(storeStartDate);
-                        tot_metric.push({date: finalDate, total: 0});
-                        storeStartDate.setDate(storeStartDate.getDate() + 1);
+                        else {
+                            storeMetric = parseInt(mailChimpResponse.stats[item]);
+                        }
+                        for (var i = 0; i <= diffDays; i++) {
+                            var finalDate = formatDate(storeStartDate);
+                            tot_metric.push({date: finalDate, total: 0});
+                            storeStartDate.setDate(storeStartDate.getDate() + 1);
 
-                        if (result.endDate === tot_metric[i].date) {
-                            tot_metric[i] = {
-                                total: storeMetric,
-                                date: result.endDate
-                            };
+                            if (result.endDate === tot_metric[i].date) {
+                                tot_metric[i] = {
+                                    total: storeMetric,
+                                    date: result.endDate
+                                };
+                            }
                         }
+                        actualFinalApiData = {
+                            apiResponse: tot_metric,
+                            metricId: result.metricId,
+                            queryResults: initialResults,
+                            channelId: initialResults.metric[0].channelId
+                        }
+                        callback(null, actualFinalApiData)
                     }
-                    actualFinalApiData = {
-                        apiResponse: tot_metric,
-                        metricId: result.metricId,
-                        queryResults: initialResults,
-                        channelId: initialResults.metric[0].channelId
-                    }
-                    callback(null,actualFinalApiData)
                 }
             });
         }

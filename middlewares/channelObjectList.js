@@ -409,7 +409,7 @@ exports.listAccounts = function (req, res, next) {
                                 query,
                                 function (pageList) {
                                     var length = pageList.data.length;
-                                    req.app.result = pageList;
+                                    req.app.result = pageList.data;
                                     for (var i = 0; i < length; i++) {
                                         var objectsResult = new Object();
                                         var profileId = profile._id;
@@ -750,51 +750,55 @@ exports.listAccounts = function (req, res, next) {
                             return res.status(500).json({error: err});
                         }
                         else {
-                            console.log('campaignbody', JSON.parse(body));
                             var objectStoreDetails = JSON.parse(body);
-                            //console.log('objectStoreDetails',objectsName, objectStoreDetails[objectsName]);
-                            for (var i in objectStoreDetails[objectsName]) {
-                                console.log('listsbody', objectStoreDetails[objectsName][i]);
-                                var profileId = results._id;
-                                var objectTypeId = objectIds;
-                                var channelObjectId = objectStoreDetails[objectsName][i].id;
-                                var created = new Date();
-                                var updated = new Date();
-                                if (objectsName === configAuth.objectType.mailChimpList) {
-                                    var name = objectStoreDetails[objectsName][i].name;
-                                }
-                                else {
-                                    var name = objectStoreDetails[objectsName][i].settings.title;
-                                }
-                                //To store once
-                                Object.update({
-                                    profileId: results._id,
-                                    channelObjectId: channelObjectId
-                                }, {
-                                    $setOnInsert: {created: created},
-                                    $set: {
-                                        name: name,
-                                        objectTypeId: objectTypeId,
-                                        updated: updated
+                            if(objectStoreDetails[objectsName].length===0){
+                                req.app.result=objectStoreDetails[objectsName];
+                            }
+                            else {
+                                for (var i in objectStoreDetails[objectsName]) {
+                                    var profileId = results._id;
+                                    var objectTypeId = objectIds;
+                                    var channelObjectId = objectStoreDetails[objectsName][i].id;
+                                    var created = new Date();
+                                    var updated = new Date();
+                                    if (objectsName === configAuth.objectType.mailChimpList) {
+                                        var name = objectStoreDetails[objectsName][i].name;
                                     }
-                                }, {upsert: true}, function (err, object) {
-                                    if (err)
-                                        return res.status(500).json({error: 'Internal server error'})
-                                    else if (object == 0)
-                                        return res.status(501).json({error: 'Not implemented'})
                                     else {
-                                        Object.find({'profileId': results._id,'objectTypeId':objectTypeId}, function (err, objectList) {
-                                            console.log('objectList',objectList);
-                                            channelObjectDetails.push({
-                                                'result': objectList
-                                            });
-                                            if (objectStoreDetails[objectsName].length == channelObjectDetails.length) {
-                                                req.app.result = objectList;
-                                                next();
-                                            }
-                                        })
+                                        var name = objectStoreDetails[objectsName][i].settings.title;
                                     }
-                                })
+                                    //To store once
+                                    Object.update({
+                                        profileId: results._id,
+                                        channelObjectId: channelObjectId
+                                    }, {
+                                        $setOnInsert: {created: created},
+                                        $set: {
+                                            name: name,
+                                            objectTypeId: objectTypeId,
+                                            updated: updated
+                                        }
+                                    }, {upsert: true}, function (err, object) {
+                                        if (err)
+                                            return res.status(500).json({error: 'Internal server error'})
+                                        else if (object == 0)
+                                            return res.status(501).json({error: 'Not implemented'})
+                                        else {
+                                            Object.find({
+                                                'profileId': results._id,
+                                                'objectTypeId': objectTypeId
+                                            }, function (err, objectList) {
+                                                channelObjectDetails.push({
+                                                    'result': objectList
+                                                });
+                                                if (objectStoreDetails[objectsName].length == channelObjectDetails.length) {
+                                                    req.app.result = objectList;
+                                                    next();
+                                                }
+                                            })
+                                        }
+                                    })
+                                }
                             }
 
 

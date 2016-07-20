@@ -27,7 +27,5 @@ exports.objectTypes = function (req, res, next) {
             req.app.result = objectType;
             next();
         }
-        
-        
     })
 };

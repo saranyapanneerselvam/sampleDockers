@@ -17,6 +17,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     var referenceWidgetsData = {};
     var getReferenceWidgetsArr = new Array();
     var storeChosenObject = [];
+    var profileListBeforeAddition = {};
 
     $scope.changeViewsInBasicWidget = function (obj) {
         $scope.currentView = obj;
@@ -28,11 +29,13 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             $scope.clearReferenceWidget();
             getReferenceWidgetsArr = [];
             storeChosenObject = [];
+            $scope.profileList = {};
             $scope.canManageClients = null;
         }
         else if ($scope.currentView === 'step_two') {
             document.getElementById('basicWidgetBackButton1').disabled = false;
             $scope.clearReferenceWidget();
+            $scope.profileList = {};
             if (getChannelName == "CustomData") {
                 $scope.storeCustomData();
                 $("#basicWidgetNextButton").hide();
@@ -144,6 +147,19 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         }).then(
             function successCallback(response) {
                 $scope.profileList = response.data.profileList;
+
+/*
+                var newProfile;
+                for(var newItems in $scope.profileList) {
+                    var checker = false;
+                    for(var oldItems in profileListBeforeAddition) {
+                        if(String($scope.profileList[newItems]) == String(profileListBeforeAddition[oldItems]))
+                            checker = true;
+                    }
+                    if(checker == true)
+                        $scope.profileOptionsModel = $scope.profileList[newItems];
+                }
+*/
                 $scope.objectList = [];
             },
             function errorCallback(error) {
@@ -305,7 +321,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
 
     $scope.addNewProfile = function () {
         var url, title;
-
+        profileListBeforeAddition = $scope.profileList;
         function popupwindow(url, title, w, h) {
             switch ($scope.storedChannelName) {
                 case 'Facebook':
@@ -338,6 +354,10 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     break;
                 case 'Mailchimp':
                     url = '/api/auth/mailchimp';
+                    title = $scope.storedChannelName;
+                    break;
+                case 'LinkedIn':
+                    url = '/api/auth/linkedIn';
                     title = $scope.storedChannelName;
                     break;
             }
@@ -400,14 +420,11 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             $rootScope.$broadcast('populateWidget', getCustomWidgetObj);
         }
         else {
-
             // function for saving other widgets goes here
             for (var getData in getReferenceWidgetsArr) {
                 var matchingMetric = [];
                 var matchingMetricName = '';
                 var inputParams = [];
-                var chartCount = getReferenceWidgetsArr[getData].charts.length;
-                //var chartColors = generateChartColours.fetchRandomColors(chartCount);
                 var widgetColor = generateChartColours.fetchWidgetColor($scope.storedChannelName);
 
                 for (var i = 0; i < getReferenceWidgetsArr[getData].charts.length; i++) {
@@ -647,5 +664,4 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     $scope.ComingSoonAlert = function () {
         swal("Coming Soon!");
     };
-
 }

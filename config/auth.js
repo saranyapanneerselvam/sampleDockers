@@ -120,7 +120,7 @@ module.exports = {
         youtubeChannel:'youtubeChannel',
         mailChimpCampaign:'campaigns',
         mailChimpList:'lists',
-        linkedIn:'page'
+        linkedIn:'companyPage'
     },
 
     'twitterMetric':{
@@ -225,7 +225,7 @@ module.exports = {
         clientID :'81665zttd0yozd',
         clientSecret :'KUlhe3rR1ZoV3V2o',
         redirect_uri:'http://localhost:8080/auth/linkedin2/callback',
-        scope : ['r_basicprofile','r_emailaddress','rw_nus','rw_company_admin', 'r_fullprofile', 'r_network', 'r_contactinfo', 'rw_groups', 'w_messages'],
+        scope : [["r_basicprofile","r_emailaddress","rw_company_admin"]],
         tokenPath:'https://www.linkedin.com/oauth/v2/accessToken',
         site:'https://www.linkedin.com/oauth/',
         authorizationPath: 'v2/authorization'

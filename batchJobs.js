@@ -199,6 +199,9 @@ agenda.define('Update channel data', function (job, done) {
                         case configAuth.channels.youtube:
                             initializeGa(allResultData, next);
                             break;
+                        case configAuth.channels.linkedIn:
+                            selectLinkedInObjectType(allResultData,next);
+                            break;
                         default:
                             next('error')
                     }
@@ -1370,6 +1373,277 @@ agenda.define('Update channel data', function (job, done) {
             }
 
         }
+        function selectLinkedInObjectType(initialResults,callback){
+            async.auto({
+                get_linkedIn_queries: getLinkedInQueries,
+                get_linkedIn_data_from_remote: ['get_linkedIn_queries', getLinkedInDataFromRemote]
+
+            }, function (err, results) {
+                if (err) {
+                    return callback(err, null);
+                }
+                console.log('callback',results);
+                callback(null, results.get_linkedIn_data_from_remote);
+            });
+
+            function getLinkedInQueries(callback) {
+                var channelObjectId = initialResults.object.channelObjectId;
+                d = new Date();
+                var allObjects = {};
+                if (initialResults.data != null) {
+                    console.log('DataChecking',initialResults.data);
+                    var updatedDb =initialResults.data.updated;
+                    console.log('DataChecking',updatedDb);
+                    var updated = initialResults.data.updated;
+                    var currentDate = new Date();
+                    var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+                    updated.setTime(updated.getTime() + oneDay);
+                    if (updatedDb < currentDate) {
+                        console.log('making call api');
+                        if (initialResults.metric.objectTypes[0].meta.endpoint[0] === 'follwers') {
+                            var query = 'https://api.linkedin.com/v1/companies/' + channelObjectId + '/num-followers?oauth2_access_token='+ initialResults.profile.accessToken + '&format=json';
+                        }
+                        else {
+                            if (initialResults.metric.code === 'highestEngagementUpdatesLinkedIn') {
+                                var query = 'https://api.linkedin.com/v1/companies/' + channelObjectId + '/updates?oauth2_access_token=' + initialResults.profile.accessToken + '&count=200&format=json';
+                            }
+                            else {
+                                var openDate = moment(updatedDb).format('YYYY-MM-DD');
+                                var startDate = +moment(openDate);
+                                var closeDate =moment(currentDate).format('YYYY-MM-DD');
+                                var oneDay = 24 * 60 * 60 * 1000;
+                                var endDate = +moment(closeDate);
+                                endDate = (endDate + oneDay);
+                                console.log('openDate', startDate);
+                                var query = 'https://api.linkedin.com/v1/companies/' + channelObjectId + '/historical-status-update-statistics:(time,like-count,impression-count,share-count,click-count,comment-count)?oauth2_access_token=' + initialResults.profile.accessToken + '&time-granularity=day&start-timestamp=' + startDate + '&end-timestamp=' + endDate + '&format=json';
+                            }
+                        }
+                       
+                        allObjects = {
+                            profile: initialResults.profile,
+                            query: query,
+                            widget: initialResults.metric,
+                            dataResult: initialResults.data.data,
+                            startDate: updated,
+                            endDate: currentDate,
+                            metricId: initialResults.metric._id,
+                            metricMeta:initialResults.metric.objectTypes[0].meta.linkedInMetricName,
+                            objectId:channelObjectId,
+                            metricCode:initialResults.metric.code,
+                            endpoint: initialResults.metric.objectTypes[0].meta
+                        }
+                        console.log('dataAllObjects', allObjects);
+                        callback(null, allObjects);
+                    }
+                    else
+                        callback(null, 'DataFromDb');
+                }
+
+            }
+
+            function getLinkedInDataFromRemote(allObjects,callback){
+                console.log('hhaaaaaaaaaaaaaa', allObjects);
+                var actualFinalApiData = {};
+                if (allObjects.get_linkedIn_queries === 'DataFromDb') {
+                    actualFinalApiData = {
+                        apiResponse: 'DataFromDb',
+                        queryResults: initialResults,
+                        channelId: initialResults.metric.channelId
+                    }
+                    callback(null, actualFinalApiData);
+                }
+                else {
+                    callLinkedInForMetrics(allObjects.get_linkedIn_queries,actualFinalApiData, callback);
+                }
+
+            }
+            function callLinkedInForMetrics(result,actualFinalApiData, callback) {
+                var storeMetric;
+                var tot_metric=[];
+                var actualMetric=[];
+                request(result.query,
+                    function (err, response, body) {
+                        console.log('object', body);
+                        if (err || response.statusCode!=200) {
+                            callback(err,null);
+                        }
+                        else {
+                            console.log('needs', result.endpoint);
+                            storeMetric=JSON.parse(body);
+                            if(storeMetric._total==0){
+                                var storeStartDate = new Date(req.body.startDate);
+                                var storeEndDate = new Date(req.body.endDate);
+                                var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
+                                var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); //adding plus one so that today also included
+                                for (var i = 0; i <= diffDays; i++) {
+                                    var finalDate = formatDate(storeStartDate);
+                                    tot_metric.push({date: finalDate, total: 0});
+                                    storeStartDate.setDate(storeStartDate.getDate() + 1);
+                                    //console.log('response', storeMetric);
+                                }
+                                actualFinalApiData = {
+                                    apiResponse: tot_metric,
+                                    metricId: result.metricId,
+                                    queryResults: initialResults,
+                                    channelId: initialResults.metric[0].channelId
+                                }
+                                console.log(actualFinalApiData.apiResponse);
+                                callback(null, actualFinalApiData);
+                            }
+                            else
+                            {
+                                if (result.endpoint.endpoint[0] == 'follwers') {
+                                    var storeStartDate = new Date(result.startDate);
+                                    var storeEndDate = new Date(result.endDate);
+                                    var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
+                                    var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); //adding plus one so that today also included
+                                    for (var i = 0; i <= diffDays; i++) {
+                                        var finalDate = moment(storeStartDate).format('YYYY-MM-DD');
+                                        var endDate=moment(result.endDate).format('YYYY-MM-DD');
+                                        tot_metric.push({date: finalDate, total: 0});
+                                        storeStartDate.setDate(storeStartDate.getDate() + 1);
+                                        console.log('response', storeMetric,endDate);
+                                        if (endDate === tot_metric[i].date) {
+                                            tot_metric[i] = {
+                                                total: storeMetric,
+                                                date: endDate
+                                            };
+                                        }
+                                    }
+                                    actualFinalApiData = {
+                                        apiResponse: tot_metric,
+                                        metricId: result.metricId,
+                                        queryResults: initialResults,
+                                        channelId: initialResults.metric.channelId
+                                    }
+                                    console.log(actualFinalApiData.apiResponse);
+                                    callback(null, actualFinalApiData);
+                                }
+                                else {
+                                    if (result.metricCode === 'highestEngagementUpdatesLinkedIn') {
+                                        //console.log('length', storeMetric.values.length);
+                                        var loopCount=0;
+                                        for (var i = 0; i < storeMetric.values.length; i++) {
+                                            loopCount++;
+                                            var openDate = req.body.startDate;
+                                            var startDate = +moment(openDate);
+                                            var closeDate = req.body.endDate;
+                                            var endDate = +moment(closeDate);
+                                            var updateKey = storeMetric.values[i].updateKey;
+                                            var dataDate = storeMetric.values[i].timestamp;
+                                            console.log('changingDate',dataDate,startDate,dataDate,endDate);
+                                            if (dataDate >= startDate && dataDate <= endDate) {
+                                                console.log('length', storeMetric.values);
+                                                tot_metric.push(storeMetric.values[i]);
+                                            }
+                                            else{
+                                                console.log('loopCount',loopCount);
+
+                                            }
+
+                                        }
+                                        if(tot_metric!=null && tot_metric.length>0){
+                                            for (var m = 0; m < tot_metric.length; m++) {
+                                                var commentText = tot_metric[m].updateContent.companyStatusUpdate.share.comment;
+                                                var companyId = 'https://www.linkedin.com/company/' + tot_metric[m].updateContent.company.id;
+                                                var changeDate = moment.unix(dataDate / 1000).format("YYYY-MM-DD");
+                                                console.log('changeDate', changeDate);
+                                                var queryMakingForHistory = 'https://api.linkedin.com/v1/companies/' + result.objectId + '/historical-status-update-statistics:(time,like-count,impression-count,share-count,click-count,comment-count)?oauth2_access_token=' + result.profile.accessToken + '&time-granularity=day&start-timestamp=' + startDate + '&end-timestamp=' + endDate + '&update-key=' + updateKey + '&format=json&format=json-get&format=json';
+                                                console.log('queryMakingForHistory', queryMakingForHistory);
+                                                var store = callLinkedInCompanyHistory(queryMakingForHistory, changeDate, commentText, companyId);
+                                            }
+                                        }
+                                        else{
+                                            actualFinalApiData = {
+                                                apiResponse: tot_metric,
+                                                metricId: result.metricId,
+                                                queryResults: initialResults,
+                                                channelId: initialResults.metric.channelId
+                                            }
+                                            console.log(actualFinalApiData.apiResponse);
+                                            callback(null, actualFinalApiData);
+                                        }
+
+                                    }
+                                    else {
+                                        for (var i = 0; i < storeMetric.values.length; i++) {
+                                            console.log('storeMetric', storeMetric.values[i][result.metricMeta]);
+                                            var dataDate = storeMetric.values[i].time;
+                                            var changeDate = moment.unix(dataDate / 1000).format("YYYY-MM-DD");
+                                            console.log('changeDate', changeDate);
+                                            actualMetric.push({
+                                                date: changeDate,
+                                                total: storeMetric.values[i][result.metricMeta]
+                                            });
+                                        }
+                                        console.log('tot_metric', actualMetric);
+                                        actualFinalApiData = {
+                                            apiResponse: actualMetric,
+                                            metricId: result.metricId,
+                                            queryResults: initialResults,
+                                            channelId: initialResults.metric.channelId
+                                        }
+                                        console.log(actualFinalApiData.apiResponse);
+                                        callback(null, actualFinalApiData);
+
+                                    }
+                                }
+                            }
+                        }
+                        function callLinkedInCompanyHistory(queryMakingForHistory,changeDate,commentText,companyId){
+                            //actualMetric.push({date: changeDate,text:commentText, total:({likes:0,comments:0,shares:0,clicks:0,impressions:0})});
+                            request(queryMakingForHistory,
+                                function (err, response, linkedIn) {
+                                    if (err) {
+                                        return res.status(500).json({error: 'Internal server error'});
+                                    }
+                                    else {
+                                        var linkedInHistory=JSON.parse(linkedIn);
+                                        var likesCount=0, impressionsCount=0,commentsCount=0,sharesCount=0,clicksCount=0;
+                                        // console.log('queryMakingForHistoryResult',linkedInHistory._total, linkedInHistory.values);
+                                        var companylength=linkedInHistory._total;
+                                        for (var k = 0; k < companylength; k++) {
+                                            likesCount+=linkedInHistory.values[k].likeCount;
+                                            impressionsCount+=linkedInHistory.values[k].impressionCount;
+                                            commentsCount+=linkedInHistory.values[k].commentCount;
+                                            sharesCount+= linkedInHistory.values[k].shareCount;
+                                            clicksCount+= linkedInHistory.values[k].clickCount;
+
+                                        }
+                                        actualMetric.push({date: changeDate,total:({url:companyId,text:commentText,likes:likesCount,comments:commentsCount,shares:sharesCount,clicks:clicksCount,impressions:impressionsCount})});
+                                        likesCount=0; impressionsCount=0;commentsCount=0;sharesCount=0;clicksCount=0;
+                                        console.log('actualMetric',actualMetric);
+                                        console.log('checlkingLength',actualMetric.length,tot_metric.length);
+                                        var metricArray = _.sortBy(actualMetric, ['total.clicks']);
+                                        if(tot_metric.length==actualMetric.length){
+                                            // console.log('metricArray', metricArray);
+                                            var metricArray = _.sortBy(actualMetric, ['total.clicks']);
+                                            var collectionMetric= _.orderBy(metricArray, ['total.clicks','total.shares','total.likes','total.impressions'], ['desc','asc','asc','desc               ']);
+                                            actualFinalApiData = {
+                                                apiResponse: collectionMetric,
+                                                metricId: result.metricId,
+                                                queryResults: initialResults,
+                                                channelId: initialResults.metric.channelId
+                                            }
+                                            console.log(actualFinalApiData.apiResponse);
+                                            callback(null, actualFinalApiData);
+
+                                        }
+
+
+
+                                    }
+
+
+                                });
+
+                        }
+                    });
+
+            }
+        }
+
+
         function mergeAllFinalData(results, callback) {
             var loopCount = results.data.length;
             iterateEachChannelData(results.get_channel, results.get_channel_data_remote, results.metric, results.data, callback);
@@ -1796,6 +2070,37 @@ agenda.define('Update channel data', function (job, done) {
                         else next(null, 'DataFromDb')
                     }
                     else if (channel[j].code === configAuth.channels.mailChimp) {
+                        var finalData = [];
+                        if (dataFromRemote[j].apiResponse != 'DataFromDb') {
+
+                            //Array to hold the final result
+                            for (var key in dataFromRemote) {
+                                if (String(metric[j]._id) == String(dataFromRemote[key].metricId))
+                                    finalData = dataFromRemote[key].apiResponse;
+                            }
+                            var findCurrentDate = _.findIndex(finalData, function (o) {
+                                return o.date == moment(new Date).format('YYYY-MM-DD');
+                            });
+                            if (dataFromDb[j].data != null) {
+
+                                //merge the old data with new one and update it in db
+                                for (var key = 0; key < dataFromDb[j].data.length; key++) {
+                                    if (dataFromDb[j].data[key].date === moment(new Date).format('YYYY-MM-DD'))
+                                        finalData[findCurrentDate] = dataFromDb[j].data[key];
+                                    else
+                                        finalData.push(dataFromDb[j].data[key]);
+                                }
+
+                            }
+                            console.log('finalData',finalData);
+                            next(null, finalData)
+
+                        }
+                        else
+                            next(null, 'DataFromDb')
+                    }
+                    else if (channel[j].code === configAuth.channels.linkedIn) {
+                        console.log('entering!!!!',dataFromRemote[j]);
                         var finalData = [];
                         if (dataFromRemote[j].apiResponse != 'DataFromDb') {
 

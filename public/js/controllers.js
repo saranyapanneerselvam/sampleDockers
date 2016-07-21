@@ -511,6 +511,55 @@ showMetricApp.service('createWidgets',function($http,$q){
                             widget.charts[charts].chartData = formattedChartDataArray;
                         }
                     }
+                    else if(chartType == "highestEngagementLinkedIn"){
+                        if(typeof(widget.charts[charts].chartData[0].total) === 'object') {
+                            var likes ='likes';
+                            var clicks='clicks';
+                            var impressions='impressions';
+                            var shares='shares';
+                            var comments='comments'
+                            var post='text';
+                            var url='url';
+
+                            var formattedChartDataArray = [];
+                            for(datas in widget.charts[charts].chartData) {
+                                var formattedChartData = {
+                                    date: widget.charts[charts].chartData[datas].date,
+                                    link: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
+                                        (widget.charts[charts].chartData[datas].total[url] != null?
+                                            (typeof widget.charts[charts].chartData[datas].total[url] != 'undefined' ? widget.charts[charts].chartData[datas].total[url]:''):''):''),
+
+                                    postComment: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
+                                        (widget.charts[charts].chartData[datas].total[post] != null?
+                                            (typeof widget.charts[charts].chartData[datas].total[post] != 'undefined' ? widget.charts[charts].chartData[datas].total[post]:''):''):''),
+
+                                    impressions: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
+                                        (widget.charts[charts].chartData[datas].total[impressions] != null?
+                                            (typeof widget.charts[charts].chartData[datas].total[impressions] != 'undefined' ? widget.charts[charts].chartData[datas].total[impressions]:0):0):0),
+
+                                    shares: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
+                                        (widget.charts[charts].chartData[datas].total[shares] != null ?
+                                            (typeof widget.charts[charts].chartData[datas].total[shares] != 'undefined'?
+                                                widget.charts[charts].chartData[datas].total[shares] : 0): 0) : 0),
+                                    likes: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
+                                        (widget.charts[charts].chartData[datas].total[likes] != null?
+                                            (typeof widget.charts[charts].chartData[datas].total[likes] != 'undefined' ? widget.charts[charts].chartData[datas].total[likes] : 0):0):0),
+
+                                    comments: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
+                                        (widget.charts[charts].chartData[datas].total[comments] != null?
+                                            (typeof widget.charts[charts].chartData[datas].total[comments]!= 'undefined' ? widget.charts[charts].chartData[datas].total[comments] : 0):0):0),
+                                    clicks: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
+                                        (widget.charts[charts].chartData[datas].total[clicks] != null?
+                                            (typeof widget.charts[charts].chartData[datas].total[clicks]!= 'undefined' ? widget.charts[charts].chartData[datas].total[clicks] : 0):0):0),
+
+                                    /*links: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
+                                        (typeof widget.charts[charts].chartData[datas].total[link] != 'undefined' ? widget.charts[charts].chartData[datas].total[link] : '') : ''),*/
+                                };
+                                formattedChartDataArray.push(formattedChartData);
+                            }
+                            widget.charts[charts].chartData = formattedChartDataArray;
+                        }
+                    }
                 }
                 for(var charts in widget.charts) {
                     var chartType = widget.charts[charts].chartType;
@@ -630,6 +679,12 @@ showMetricApp.service('createWidgets',function($http,$q){
                             'values': widget.charts[charts].chartData
                         });
                     }
+                    else if(chartType == 'highestEngagementLinkedIn'){
+                        widgetCharts.push({
+                            'type': widget.charts[charts].chartType,
+                            'values': widget.charts[charts].chartData
+                        });
+                    }
                 }
             }
             deferred.resolve(widgetCharts);
@@ -639,7 +694,7 @@ showMetricApp.service('createWidgets',function($http,$q){
         function createWidgetData(widget,widgetCharts) {
             var deferred = $q.defer();
             var finalCharts = [];
-            finalCharts.lineCharts = [], finalCharts.barCharts = [], finalCharts.pieCharts = [], finalCharts.instagramPosts = [], finalCharts.highEngagementTweets = [];
+            finalCharts.lineCharts = [], finalCharts.barCharts = [], finalCharts.pieCharts = [], finalCharts.instagramPosts = [], finalCharts.highEngagementTweets = [],finalCharts.highestEngagementLinkedIn=[];
             var graphOptions = {
                 lineDataOptions: {
                     chart: {
@@ -736,6 +791,11 @@ showMetricApp.service('createWidgets',function($http,$q){
                 highEngagementTweets: {
                     chart: {
                         type: 'highEngagementTweets'
+                    }
+                },
+                highestEngagementLinkedIn: {
+                    chart: {
+                        type: 'highestEngagementLinkedIn'
                     }
                 },
                 emptyCharts: {
@@ -969,6 +1029,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                 else if(widgetCharts[charts].type == 'pie') finalCharts.pieCharts.push(widgetCharts[charts]);
                 else if(widgetCharts[charts].type == 'instagramPosts') finalCharts.instagramPosts.push(widgetCharts[charts]);
                 else if(widgetCharts[charts].type == 'highEngagementTweets') finalCharts.highEngagementTweets.push(widgetCharts[charts]);
+                else if(widgetCharts[charts].type == 'highestEngagementLinkedIn') finalCharts.highestEngagementLinkedIn.push(widgetCharts[charts]);
+
             }
 
             var chartColorChecker = [];
@@ -1082,6 +1144,13 @@ showMetricApp.service('createWidgets',function($http,$q){
                         'data': [{message:'Data unavailable for this metric'}]
                     });
                 }
+            }
+            if(finalCharts.highestEngagementLinkedIn.length > 0) {
+                chartsCount++;
+                finalChartData.push({
+                    'options': graphOptions.highestEngagementLinkedIn,
+                    'data': finalCharts.highestEngagementLinkedIn[0].values
+                });
             }
 
             var setLayoutOptions = function() {

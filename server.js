@@ -166,6 +166,7 @@ require('./controllers/googleAuth')(app);
 require('./controllers/twitterAuth')(app);
 require('./controllers/instaAuth')(app);
 require('./controllers/mailChimpAuth')(app);
+require('./controllers/linkedInAuth')(app);
 require('./controllers/channels')(app);
 require('./controllers/metrics')(app);
 require('./controllers/profiles')(app);

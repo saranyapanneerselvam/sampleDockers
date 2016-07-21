@@ -644,46 +644,52 @@ exports.listAccounts = function (req, res, next) {
                         return res.status(500).json({error: 'Internal server error'});
                     else{
                         parseObject=JSON.parse(body);
-                        for(var i in parseObject.values){
-                            var objectsResult = new Object();
-                            var profileId = results._id;
-                            var objectTypeId = objectsType._id;
-                            var channelObjectId = parseObject.values[i].id;
-                            var name = parseObject.values[i].name;
-                            var created = new Date();
-                            var updated = new Date();
-                            //To store once
-                            Object.update({
-                                profileId: results._id,
-                                channelObjectId: parseObject.values[i].id
-                            }, {
-                                $setOnInsert: {created: created},
-                                $set: {name: name, objectTypeId: objectTypeId, updated: updated}
-                            }, {upsert: true}, function (err, object) {
-                                if (err)
-                                    return res.status(500).json({error: 'Internal server error'})
-                                else if (object == 0)
-                                    return res.status(501).json({error: 'Not implemented'})
-                                else {
-                                    Object.find({'profileId': results._id}, function (err, objectList) {
-                                        if (err)
-                                            return res.status(500).json({error: err});
-                                        else if (!objectList.length)
-                                            return res.status(204).json({error: 'No records found'});
-                                        else {
-                                            channelObjectDetails.push({
-                                                'result': objectList
-                                            });
-                                            if (parseObject.values.length == channelObjectDetails.length) {
-                                                req.app.result = objectList;
-                                                next();
+                        if(parseObject._total!=0) {
+                            for (var i in parseObject.values) {
+                                var objectsResult = new Object();
+                                var profileId = results._id;
+                                var objectTypeId = objectsType._id;
+                                var channelObjectId = parseObject.values[i].id;
+                                var name = parseObject.values[i].name;
+                                var created = new Date();
+                                var updated = new Date();
+                                //To store once
+                                Object.update({
+                                    profileId: results._id,
+                                    channelObjectId: parseObject.values[i].id
+                                }, {
+                                    $setOnInsert: {created: created},
+                                    $set: {name: name, objectTypeId: objectTypeId, updated: updated}
+                                }, {upsert: true}, function (err, object) {
+                                    if (err)
+                                        return res.status(500).json({error: 'Internal server error'})
+                                    else if (object == 0)
+                                        return res.status(501).json({error: 'Not implemented'})
+                                    else {
+                                        Object.find({'profileId': results._id}, function (err, objectList) {
+                                            if (err)
+                                                return res.status(500).json({error: err});
+                                            else if (!objectList.length)
+                                                return res.status(204).json({error: 'No records found'});
+                                            else {
+                                                channelObjectDetails.push({
+                                                    'result': objectList
+                                                });
+                                                if (parseObject.values.length == channelObjectDetails.length) {
+                                                    req.app.result = objectList;
+                                                    next();
+                                                }
                                             }
-                                        }
-                                    })
-                                }
-                            })
+                                        })
+                                    }
+                                })
 
 
+                            }
+                        }
+                        else{
+                            req.app.result = [];
+                            next();
                         }
                     }
 

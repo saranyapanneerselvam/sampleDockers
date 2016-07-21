@@ -3232,9 +3232,8 @@ exports.getChannelData = function (req, res, next) {
             get_mailChimp_data_from_remote: ['get_mailChimp_queries', getMailChimpDataFromRemote]
 
         }, function (err, results) {
-            if (err) {
+            if (err)
                 return callback(err, null);
-            }
             callback(null, results.get_mailChimp_data_from_remote);
         });
 
@@ -3249,17 +3248,14 @@ exports.getChannelData = function (req, res, next) {
                         var updatedDb = calculateDate(data[j].data.updated);
                         var updated = data[j].data.updated;
                         var currentDate = calculateDate(new Date());
-                        // d.setDate(d.getDate() + 1);
                         var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
                         updated.setTime(updated.getTime() + oneDay);
                         var startDate = calculateDate(updated);
                         if (updatedDb < currentDate) {
-                            if(metric[j].objectTypes[0].meta.endpoint[0]=== 'lists'){
+                            if(metric[j].objectTypes[0].meta.endpoint[0]=== 'lists')
                                 var query = 'https://'+initialResults.get_profile[j].dataCenter+'.api.mailchimp.com/3.0/lists/'+channelObjectId+'/?count=100';
-                            }
-                            else{
+                            else
                                 var query = 'https://'+initialResults.get_profile[j].dataCenter+'.api.mailchimp.com/3.0/campaigns/'+channelObjectId+'/?count=100';
-                            }
                             allObjects = {
                                 profile: initialResults.get_profile[j],
                                 query: query,
@@ -3281,12 +3277,10 @@ exports.getChannelData = function (req, res, next) {
                         d.setDate(d.getDate() - 365);
                         var startDate = formatDate(d);
                         var endDate = formatDate(new Date());
-                        if(metric[j].objectTypes[0].meta.endpoint[0]=== 'lists'){
+                        if(metric[j].objectTypes[0].meta.endpoint[0]=== 'lists')
                             var query = 'https://'+initialResults.get_profile[j].dataCenter+'.api.mailchimp.com/3.0/lists/'+channelObjectId+'/?count=100';
-                        }
-                        else{
+                        else
                             var query = 'https://'+initialResults.get_profile[j].dataCenter+'.api.mailchimp.com/3.0/campaigns/'+channelObjectId+'/?count=100';
-                        }
                         allObjects = {
                             profile: initialResults.get_profile[j],
                             query: query,
@@ -3299,14 +3293,10 @@ exports.getChannelData = function (req, res, next) {
                             endpoint: metric[j].objectTypes[0].meta.endpoint[0]
                         };
                         next(null, allObjects);
-
                     }
-
                 }, done)
             }
-
         }
-
         function getMailChimpDataFromRemote(allObjects, callback) {
             var actualFinalApiData = {};
             async.concatSeries(allObjects.get_mailChimp_queries, checkDbData, callback);
@@ -3337,7 +3327,7 @@ exports.getChannelData = function (req, res, next) {
                 var parsedResponse;
                 var storeMetric;
                 var tot_metric=[];
-                if (err) callback(err);
+                if (response.statusCode) callback(response.statusCode);
                 else {
                     var mailChimpResponse=JSON.parse(body);
                     var storeStartDate = new Date(result.startDate);
@@ -3346,9 +3336,8 @@ exports.getChannelData = function (req, res, next) {
                     var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); //adding plus one so that today also included
                     var stats='stats';
                     var item=result.widget.objectTypes[0].meta.mailChimpsMetricName;
-                    if(!mailChimpResponse.id){
+                    if(!mailChimpResponse.id)
                         return res.status(500).json({error: 'Internal server error',id:req.params.widgetId});
-                    }
                     else {
                         if (result.endpoint === 'campaign') {
                             if (result.metricCode === 'emailSend') {

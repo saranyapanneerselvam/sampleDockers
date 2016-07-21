@@ -620,7 +620,6 @@ exports.listAccounts = function (req, res, next) {
     }
 
     function selectLinkedInPages(results, callback){
-        console.log('objectType',req.query.objectType);
         switch (req.query.objectType) {
             case configAuth.objectType.linkedIn:
                 getLinkedInPages(results, callback);
@@ -629,30 +628,23 @@ exports.listAccounts = function (req, res, next) {
     }
 
     function  getLinkedInPages(results, callback){
-        console.log('pprofileAccessToken',results.accessToken);
         var channelObjectDetails=[];
         //To get the object type id from database
         ObjectType.findOne({
             'type': req.query.objectType,
             'channelId': results.channelId
         }, function (err, objectTypeId) {
-            console.log('err',err);
             if (!err) {
-                //console.log('object',objectTypeId);
                 var objectsType=objectTypeId;
                 var parseObject;
                 var query='https://api.linkedin.com/v1/companies?oauth2_access_token='+results.accessToken+'&format=json&is-company-admin=true';
                 request(query,
                 function(err,response,body){
-                    console.log('object',objectsType);
-                    if(err){
+                    if(err)
                         return res.status(500).json({error: 'Internal server error'});
-                    }
                     else{
-                        console.log('responseCompany',typeof body);
                         parseObject=JSON.parse(body);
                         for(var i in parseObject.values){
-                            console.log('parseObject',parseObject.values[i])
                             var objectsResult = new Object();
                             var profileId = results._id;
                             var objectTypeId = objectsType._id;
@@ -702,25 +694,11 @@ exports.listAccounts = function (req, res, next) {
             }
         });
     }
-
-    function selectMailchimpObject(results, callback){
-        switch (req.query.objectType) {
-            case configAuth.objectType.mailChimpList:
-                getMailchimpObjects(results, callback);
-                break;
-            case configAuth.objectType.mailChimpCampaign:
-                getMailchimpObjects(results, callback);
-                break;
-        }
-    }
-
-    function getMailchimpObjects(results, callback){
-        console.log('results',results);
+        function selectMailchimpObject(results, callback){
         ObjectType.findOne({
             'type': req.query.objectType,
             'channelId': results.channelId
         }, function (err, objectTypeId) {
-            console.log('objectTypeId',objectTypeId);
             if (err)
                 return res.status(500).json({error: err});
             else if (!objectTypeId)
@@ -746,13 +724,13 @@ exports.listAccounts = function (req, res, next) {
                         }
                     }, function (err, response, body) {
                         var parsedResponse;
-                        if (err) {
+                        if (response.statusCode!=200)
                             return res.status(500).json({error: err});
-                        }
                         else {
                             var objectStoreDetails = JSON.parse(body);
                             if(objectStoreDetails[objectsName].length===0){
                                 req.app.result=objectStoreDetails[objectsName];
+                                next();
                             }
                             else {
                                 for (var i in objectStoreDetails[objectsName]) {

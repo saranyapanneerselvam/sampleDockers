@@ -306,8 +306,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                 }
             }).then(
                 function successCallback(response) {
-                    for(chartObjects in widget.charts){
-                        for(datas in response.data){
+                    for(var chartObjects in widget.charts){
+                        for(var datas in response.data){
                             if(String(widget.charts[chartObjects].metrics[0].metricId) === String(response.data[datas].metricId)){
                                 updatedCharts.push({
                                     channelId: widget.charts[chartObjects].channelId,
@@ -512,6 +512,56 @@ showMetricApp.service('createWidgets',function($http,$q){
                         }
                     }
                     else if(chartType == "highestEngagementLinkedIn"){
+                        if(typeof widget.charts[charts].chartData[0] != 'undefined') {
+                            if(typeof(widget.charts[charts].chartData[0].total) === 'object') {
+                                var likes ='likes';
+                                var clicks='clicks';
+                                var impressions='impressions';
+                                var shares='shares';
+                                var comments='comments'
+                                var post='text';
+                                var url='url';
+
+                                var formattedChartDataArray = [];
+                                for(datas in widget.charts[charts].chartData) {
+                                    var formattedChartData = {
+                                        date: widget.charts[charts].chartData[datas].date,
+                                        link: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
+                                            (widget.charts[charts].chartData[datas].total[url] != null?
+                                                (typeof widget.charts[charts].chartData[datas].total[url] != 'undefined' ? widget.charts[charts].chartData[datas].total[url]:''):''):''),
+
+                                        postComment: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
+                                            (widget.charts[charts].chartData[datas].total[post] != null?
+                                                (typeof widget.charts[charts].chartData[datas].total[post] != 'undefined' ? widget.charts[charts].chartData[datas].total[post]:''):''):''),
+
+                                        impressions: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
+                                            (widget.charts[charts].chartData[datas].total[impressions] != null?
+                                                (typeof widget.charts[charts].chartData[datas].total[impressions] != 'undefined' ? widget.charts[charts].chartData[datas].total[impressions]:0):0):0),
+
+                                        shares: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
+                                            (widget.charts[charts].chartData[datas].total[shares] != null ?
+                                                (typeof widget.charts[charts].chartData[datas].total[shares] != 'undefined'?
+                                                    widget.charts[charts].chartData[datas].total[shares] : 0): 0) : 0),
+                                        likes: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
+                                            (widget.charts[charts].chartData[datas].total[likes] != null?
+                                                (typeof widget.charts[charts].chartData[datas].total[likes] != 'undefined' ? widget.charts[charts].chartData[datas].total[likes] : 0):0):0),
+
+                                        comments: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
+                                            (widget.charts[charts].chartData[datas].total[comments] != null?
+                                                (typeof widget.charts[charts].chartData[datas].total[comments]!= 'undefined' ? widget.charts[charts].chartData[datas].total[comments] : 0):0):0),
+                                        clicks: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
+                                            (widget.charts[charts].chartData[datas].total[clicks] != null?
+                                                (typeof widget.charts[charts].chartData[datas].total[clicks]!= 'undefined' ? widget.charts[charts].chartData[datas].total[clicks] : 0):0):0),
+
+                                        /*links: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
+                                         (typeof widget.charts[charts].chartData[datas].total[link] != 'undefined' ? widget.charts[charts].chartData[datas].total[link] : '') : ''),*/
+                                    };
+                                    formattedChartDataArray.push(formattedChartData);
+                                }
+                                widget.charts[charts].chartData = formattedChartDataArray;
+                            }
+                        }
+/*
                         if(typeof(widget.charts[charts].chartData[0].total) === 'object') {
                             var likes ='likes';
                             var clicks='clicks';
@@ -552,13 +602,14 @@ showMetricApp.service('createWidgets',function($http,$q){
                                         (widget.charts[charts].chartData[datas].total[clicks] != null?
                                             (typeof widget.charts[charts].chartData[datas].total[clicks]!= 'undefined' ? widget.charts[charts].chartData[datas].total[clicks] : 0):0):0),
 
-                                    /*links: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
-                                        (typeof widget.charts[charts].chartData[datas].total[link] != 'undefined' ? widget.charts[charts].chartData[datas].total[link] : '') : ''),*/
+                                    /!*links: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
+                                        (typeof widget.charts[charts].chartData[datas].total[link] != 'undefined' ? widget.charts[charts].chartData[datas].total[link] : '') : ''),*!/
                                 };
                                 formattedChartDataArray.push(formattedChartData);
                             }
                             widget.charts[charts].chartData = formattedChartDataArray;
                         }
+*/
                     }
                 }
                 for(var charts in widget.charts) {

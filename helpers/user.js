@@ -1,15 +1,17 @@
-//Load the auth file
+var async = require("async");
+var getChannelPageList = require('../middlewares/channelObjectList');
 var configAuth = require('../config/auth');
 var UserActivity = require('../models/userActivity');
 var profile = require('../models/profiles');
 var exports = module.exports = {};
+var objectType = require('../models/objectTypes');
 
 /**
  Function to store the logged in user's details..
  @params 1.req contains the facebook user details i.e. username,token,email etc
  2.res have the query response
  */
-exports.storeProfiles = function (req, done) {
+exports.storeProfiles = function (req, res, done) {
     var setData = {};
     var tokens = req.tokens;
     profile.findOne({
@@ -66,7 +68,7 @@ exports.storeProfiles = function (req, done) {
                 'userId': req.userId,
                 'channelId': req.channelId,
                 'orgId': req.user.orgId
-            },{
+            }, {
                 $set: setData
             }, {upsert: true}, function (err, updateResult) {
                 if (!err) {
@@ -105,7 +107,7 @@ exports.storeProfiles = function (req, done) {
             //Store the refresh token for facebook
             else
                 newProfile.accessToken = tokens;
-            if(req.code== configAuth.channels.mailChimp){
+            if (req.code == configAuth.channels.mailChimp) {
                 newProfile.dataCenter = req.dataCenter;
             }
             newProfile.orgId = req.user.orgId;
@@ -130,9 +132,51 @@ exports.storeProfiles = function (req, done) {
 
                         }, function (err, profileDetail) {
                             if (!err) {
-                                done(null, profileDetail);
+                                console.log('req.code',typeof req.code,req.code,req.canManageClients);
+                                if(req.canManageClients===false) done(null,profileDetail)
+                                else if (req.code != configAuth.channels.instagram && req.code !== configAuth.channels.youtube  && req.code !== configAuth.channels.twitter) {
+                                    console.log('if')
+                                    async.auto({
+                                        object_types: getObjectType,
+                                        get_remote_objects: ['object_types', getRemoteObjects]
+                                    }, function (err, results) {
+                                        if (err)
+                                            return res.status(500).json({});
+                                        done(null, results.get_remote_objects);
+                                    })
+                                    function getObjectType(callback) {
+                                        //Find objectType in objectType table based on channelId - dev
+                                        objectType.find({
+                                            'channelId': user.channelId, autoSave: true
+                                        }, function (err, objectType) {
+                                            if (err)
+                                                return res.status(500).json({error: err});
+                                            else if (!objectType.length)
+                                                done(null,'success')
+                                            else callback(null, objectType)
+                                        })
+                                    }
+
+                                    function getRemoteObjects(objectTypesFromDb, callback) {
+                                        async.concatSeries(objectTypesFromDb.object_types, getObjectsForEachObjectType, callback)
+                                    }
+
+                                    function getObjectsForEachObjectType(eachObjectType, callback) {
+                                        req.params.profileId = profileDetail._id;
+                                        req.query.objectType = eachObjectType.type;
+                                        getChannelPageList.listAccounts(req, res, function (err, getObjectList) {
+                                            callback(null, req.app.result);
+                                        })
+                                    }
+                                }
+                                else {
+                                    console.log('else')
+                                    done(null,profileDetail)
+                                }
                             }
-                            else done(err);
+                            else {
+                                done(err);
+                            }
                         });
                     }
                 }
@@ -147,6 +191,6 @@ exports.saveUserActivity = function (req, res, done) {
     userActivityCobject.loggedInTime = new Date();
     userActivityCobject.userId = req.user._id;
     userActivityCobject.save(function (err, userActivity) {
-         done(err, userActivity)
+        done(err, userActivity)
     })
 }

@@ -514,12 +514,6 @@ function sizeWatcher ($timeout){
                 $timeout( checkSize, 1000 );
             }
             checkSize();
-            scope.$on('gridster-item-transition-end',function(e,item){
-               scope.$emit('my-gridster-item-transition-end',item);
-            });
-            scope.$on('gridster-item-resized',function(e,item){
-                scope.$emit('my-gridster-item-resized',item);
-            });
         }
     };
 }

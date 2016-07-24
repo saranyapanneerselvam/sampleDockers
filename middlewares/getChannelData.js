@@ -3419,22 +3419,32 @@ exports.getChannelData = function (req, res, next) {
                             if (result.metricCode === 'emailSend') {
                                 storeMetric = parseInt(mailChimpResponse[item]);
                             }
-                            else
-                                storeMetric = parseInt(mailChimpResponse.report_summary[item]);
+                            else {
+                            if(!mailChimpResponse.report_summary){
+                                    console.log('report not available',tot_metric);
+                                storeMetric = '';
+                                }
+                                else {
+                                    storeMetric = parseInt(mailChimpResponse.report_summary[item]);
+                                }
+
+                            }
                         }
                         else {
-                            storeMetric = parseInt(mailChimpResponse.stats[item]);
+                                storeMetric = parseInt(mailChimpResponse.stats[item]);
                         }
-                        for (var i = 0; i <= diffDays; i++) {
-                            var finalDate = formatDate(storeStartDate);
-                            tot_metric.push({date: finalDate, total: 0});
-                            storeStartDate.setDate(storeStartDate.getDate() + 1);
+                        if(storeMetric!='') {
+                            for (var i = 0; i <= diffDays; i++) {
+                                var finalDate = formatDate(storeStartDate);
+                                tot_metric.push({date: finalDate, total: 0});
+                                storeStartDate.setDate(storeStartDate.getDate() + 1);
 
-                            if (result.endDate === tot_metric[i].date) {
-                                tot_metric[i] = {
-                                    total: storeMetric,
-                                    date: result.endDate
-                                };
+                                if (result.endDate === tot_metric[i].date) {
+                                    tot_metric[i] = {
+                                        total: storeMetric,
+                                        date: result.endDate
+                                    };
+                                }
                             }
                         }
                         actualFinalApiData = {
@@ -3521,7 +3531,7 @@ exports.getChannelData = function (req, res, next) {
                         var startDate = formatDate(d);
                         var endDate = formatDate(new Date());
                         if(metric[j].objectTypes[0].meta.endpoint[0]=== 'follwers'){
-                            var query = 'https://api.linkedin.com/v1/companies/' + channelObjectId + '/num-followers?oauth2_access_token='+ initialResults.get_profile[j].accessToken + '&format=json';
+                            var query = 'https://api.linkedin.com/v1/companies/'+channelObjectId+'/num-followers?oauth2_access_token='+initialResults.get_profile[j].accessToken+'&format=json';
                         }
                         else{
                             if( metric[j].code==='highestEngagementUpdatesLinkedIn'){

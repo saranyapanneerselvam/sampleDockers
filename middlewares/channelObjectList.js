@@ -542,7 +542,7 @@ exports.listAccounts = function (req, res, next) {
         }, function (err, objectTypeId) {
             if (err)
                 return res.status(500).json({error: err});
-            else if (!objectTypeId.length)
+            else if (!objectTypeId)
                 return res.status(204).json({error: 'No records found'});
             else {
                 if (results.canManageClients === true) {
@@ -582,7 +582,7 @@ exports.listAccounts = function (req, res, next) {
         }
         for (var i = 0; i < model.length; i++) {
             var modelResult = model[i].attributes.canManageClients;
-            if (modelResult !== true) {
+            if (modelResult) {
                 var accountName = model[i].attributes.name;
                 var customerId = model[i].attributes.customerId;
                 var channelObjectDetails = [];
@@ -600,7 +600,7 @@ exports.listAccounts = function (req, res, next) {
                 }, {upsert: true}, function (err, res) {
                     if (err)
                         return res.status(500).json({error: err});
-                    else if (!res.length)
+                    else if (!res)
                         return res.status(204).json({error: 'No records found'});
                     else {
                         Object.find({'profileId': results._id}, function (err, objectList) {
@@ -615,10 +615,9 @@ exports.listAccounts = function (req, res, next) {
                     }
                 });
             }
+            else next(null,'success');
         }
-
     }
-
     function selectLinkedInPages(results, callback){
         switch (req.query.objectType) {
             case configAuth.objectType.linkedIn:

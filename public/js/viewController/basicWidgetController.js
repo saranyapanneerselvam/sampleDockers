@@ -177,7 +177,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         storeChosenObject = [];
         if (!this.profileOptionsModel) {
             $scope.objectList = null;
-            storeChosenObject = null;
+            storeChosenObject = [];
             if ($scope.storedChannelName === 'Twitter' || $scope.storedChannelName === 'Instagram' || $scope.storedChannelName === 'GoogleAdwords')
                 for(var items in $scope.uniqueObjectCount)
                     $scope.objectForWidgetChosen([null, null, null,items]);
@@ -459,7 +459,8 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     "maxSize": getReferenceWidgetsArr[getData].maxSize,
                     "color": widgetColor,
                     "visibility": true,
-                    "isAlert": getReferenceWidgetsArr[getData].isAlert
+                    "isAlert": getReferenceWidgetsArr[getData].isAlert,
+                    "channelName": $scope.storedChannelName
                 };
                 inputParams.push(jsonData);
                 $http({
@@ -592,13 +593,10 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 chosenObject = [null,null,null,chosenObject[1]];
         }
 
-        if (chosenObject != undefined && chosenObject[1] != undefined) {
+        if (chosenObject != undefined && chosenObject[1] != undefined)
             storeChosenObject[chosenObject[3]] = {name: chosenObject[0],_id: chosenObject[1],objectTypeId: chosenObject[2]};
-        }
-        else {
-            //storeChosenObject = [];
+        else
             storeChosenObject[chosenObject[3]] = null;
-        }
 
         if(storeChosenObject.length == $scope.uniqueObjectCount.length) {
             countChecker = true;
@@ -620,7 +618,8 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             "dashboardId": $state.params.id,
             "widgetType": "custom",
             "channelId": $scope.storedChannelId,
-            "visibility": true
+            "visibility": true,
+            "channelName": "custom"
         };
         $http({
             method: 'POST',

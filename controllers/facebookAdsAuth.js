@@ -68,6 +68,7 @@ module.exports = function(app) {
                     var currentdate = new Date();
                     currentdate.setDate(currentdate.getDate() +numdays);
                     channels.findOne({code: configAuth.channels.facebookAds}, function (err, channelList) {
+                        req.code = channelList.code;
                         if (err)
                             return res.status(500).json({error: 'Internal server error'})
                         else if (!channelList)
@@ -85,7 +86,7 @@ module.exports = function(app) {
                                     req.userEmail = profile.email;
 
                                     //Call the helper to store user details
-                                    user.storeProfiles(req, function (err) {
+                                    user.storeProfiles(req,res, function (err) {
                                         if (err)
                                             res.json('Error');
                                         else

@@ -80,6 +80,7 @@ module.exports = function (app) {
                                 req.channelId = channelDetails._id;
                                 req.channelName = channelDetails.name;
                                 req.channelCode = '2';
+                                req.code = channelDetails.code;
                                 FB.setAccessToken(accessToken);//Set access token
                                 req.expiresIn = currentdate;
                                 FB.api(req.userId, {fields: ['id', 'name', 'email']}, function (profile) {
@@ -90,7 +91,7 @@ module.exports = function (app) {
                                         req.userEmail = profile.email;
                                         req.userId = profile.id;
                                         //Call the helper to store user details
-                                        user.storeProfiles(req, function (err) {
+                                        user.storeProfiles(req,res, function (err) {
                                             if (err)
                                                 res.json('Error', err);
                                             else {

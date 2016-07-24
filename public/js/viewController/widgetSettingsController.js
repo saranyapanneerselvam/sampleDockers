@@ -134,7 +134,8 @@ function WidgetSettingsController($scope, $uibModalInstance, widget, $http, $sta
                 "size": {h: 2, w: 4},
                 "minSize": {h: 2, w: 4},
                 "maxSize": {h: 3, w: 6},
-                "color": '#1F77B4'
+                "color": '#1F77B4',
+                "channelName": "customFusion"
             };
             inputParams.push(jsonData);
             $http({

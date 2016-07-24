@@ -65,9 +65,10 @@ module.exports = function (app) {
                                     req.channelId = channelDetails._id;
                                     req.channelName = channelDetails.name;
                                     req.channelCode = channelDetails._id;
+                                    req.code = channelDetails.code;
 
                                     //Calling the storeProfiles middleware to store the data
-                                    user.storeProfiles(req, function (err, response) {
+                                    user.storeProfiles(req,res, function (err, response) {
                                         if (err)
                                             return res.status(500).json({error: err});
                                         else {

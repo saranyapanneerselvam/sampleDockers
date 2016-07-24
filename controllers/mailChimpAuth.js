@@ -59,11 +59,11 @@ module.exports = function (app) {
                     uri: 'https://login.mailchimp.com/oauth2/metadata',
                     headers: {
                         'User-Agent': 'node-mailchimp/1.2.0',
-                        'Authorization': 'OAuth '+ token
+                        'Authorization': 'OAuth ' + token
                     }
                 }, function (err, response, body) {
                     var parsedResponse;
-                    if (response.statusCode!=200)
+                    if (response.statusCode != 200)
                         return res.status(401).json({error: 'Authentication required to perform this action'});
                     else {
                         parsedResponse = JSON.parse(body);
@@ -73,6 +73,7 @@ module.exports = function (app) {
                         req.profileName = parsedResponse.login.login_name;
                         req.dataCenter = parsedResponse.dc;
                         channels.findOne({code: configAuth.channels.mailChimp}, function (err, channelDetails) {
+                            console.log('channelDetails',channelDetails)
                             if (err)
                                 return res.status(500).json({error: err});
                             else if (!channelDetails)
@@ -82,85 +83,11 @@ module.exports = function (app) {
                                 req.channelName = channelDetails.name;
                                 req.code = channelDetails.code;
                                 //Calling the storeProfiles middleware to store the data
-                                user.storeProfiles(req, function (err, responses) {
+                                user.storeProfiles(req,res,function (err, responses) {
                                     if (err)
                                         return res.status(500).json({error: err});
-                                    else {
-                                        //Find objectType in objectType table based on channelId - dev
-                                        objectType.find({
-                                            'channelId': responses.channelId
-                                        }, function (err, objectType) {
-                                            if (err)
-                                                return res.status(500).json({error: err});
-                                            else if (!objectType.length)
-                                                return res.status(204).json({error: 'No records found'});
-                                            else{
-                                                //Create an object for channel and Insert object in profile table - dev
-                                                for (var key = 0; key < objectType.length; key++) {
-                                                    if (objectType[key].type === configAuth.objectType.mailChimpList) {
-                                                        var query = 'https://' + dc + '.api.mailchimp.com/3.0/lists?count=100&fields=lists.name,lists.id,lists.stats,lists.date_created';
-                                                        getObjectLists(query);
-                                                    }
-                                                    else {
-                                                        var query ='https://' + dc + '.api.mailchimp.com/3.0/campaigns?count=100&fields=campaigns.id,campaigns.settings,campaigns.create_time';
-                                                        getObjectLists(query);
-                                                    }
-                                                    function getObjectLists(query) {
-                                                        var objectsName = objectType[key].type;
-                                                        var objectIds = objectType[key]._id;
-                                                        var channelObjectDetails = [];
-                                                        request({
-                                                            uri: query,
-                                                            headers: {
-                                                                'User-Agent': 'node-mailchimp/1.2.0',
-                                                                'Authorization': 'OAuth '+ token
-                                                            }
-                                                        }, function (err, response, body) {
-                                                            var parsedResponse;
-                                                            if (response.statusCode!=200) return res.status(401).json({error: 'Authentication required to perform this action'});
-                                                            else {
-                                                                var objectStoreDetails = JSON.parse(body);
-                                                                if(objectStoreDetails[objectsName].length===0)
-                                                                    res.render('successAuthentication');
-                                                                else {
-                                                                    for (var i in objectStoreDetails[objectsName]) {
-                                                                        var profileId = responses._id;
-                                                                        var objectTypeId = objectIds;
-                                                                        var channelObjectId = objectStoreDetails[objectsName][i].id;
-                                                                        var created = new Date();
-                                                                        var updated = new Date();
-                                                                        if (objectsName === configAuth.objectType.mailChimpList)
-                                                                            var name = objectStoreDetails[objectsName][i].name;
-                                                                        else
-                                                                            var name = objectStoreDetails[objectsName][i].settings.title;
-                                                                        //To store once
-                                                                        Object.update({
-                                                                            profileId: responses._id,
-                                                                            channelObjectId: channelObjectId
-                                                                        }, {
-                                                                            $setOnInsert: {created: created},
-                                                                            $set: {
-                                                                                name: name,
-                                                                                objectTypeId: objectTypeId,
-                                                                                updated: updated
-                                                                            }
-                                                                        }, {upsert: true}, function (err, object) {
-                                                                            if (err)
-                                                                                return res.status(500).json({error: 'Internal server error'})
-                                                                            else if (object == 0)
-                                                                                return res.status(501).json({error: 'Not implemented'})
-                                                                            else
-                                                                                res.render('successAuthentication');
-                                                                        })
-                                                                    }
-                                                                }
-                                                            }
-                                                        });
-                                                    }
-                                                }
-                                            }
-                                        });
-                                    }
+                                    else res.render('successAuthentication');
+
                                 });
                             }
                         });

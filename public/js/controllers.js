@@ -274,7 +274,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                 function successCallback(updatedCharts) {
                     widget.charts = updatedCharts;
                     var metricDetails = [];
-                    for(charts in widget.charts)
+                    for(var charts in widget.charts)
                         metricDetails.push(fetchMetricDetails(widget.charts[charts]));
                     $q.all(metricDetails).then(
                         function successCallback(metricDetails){
@@ -765,7 +765,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                 return d3.format('f')(d);},
                             showMaxMin: false
                         },
-
+                        interpolate: "basis",
                         axisLabelDistance: -10,
                         showLegend: false,
                         //forceY: [lowestLineValue,highestLineValue == 0? 10 : highestLineValue + 10],

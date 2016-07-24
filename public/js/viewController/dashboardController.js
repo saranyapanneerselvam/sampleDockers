@@ -314,7 +314,8 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                             'widgetType': (typeof dashboardWidgetList[getWidgetInfo].widgetType != 'undefined'? dashboardWidgetList[getWidgetInfo].widgetType : ''),
                             'isAlert':(typeof dashboardWidgetList[getWidgetInfo].isAlert != 'undefined'? dashboardWidgetList[getWidgetInfo].isAlert : false),
                             'id': dashboardWidgetList[getWidgetInfo]._id,
-                            'visibility': false
+                            'visibility': false,
+                            'channelName':(typeof dashboardWidgetList[getWidgetInfo].channelName != 'undefined'? dashboardWidgetList[getWidgetInfo].channelName : '')
                         });
                         $scope.dashboard.widgetData.push({
                             'id':  dashboardWidgetList[getWidgetInfo]._id,
@@ -382,7 +383,8 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             'isAlert':(typeof widget.isAlert != 'undefined'? widget.isAlert : false),
             'id': widget._id,
             //'chart': {'api': {}},
-            'visibility': false
+            'visibility': false,
+            'channelName':(typeof widget.channelName != 'undefined'? widget.channelName : '')
         });
         $scope.dashboard.widgetData.push({
             'id':  widget._id,

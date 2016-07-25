@@ -1,6 +1,6 @@
 showMetricApp.controller('NavigationController',NavigationController)
 
-function NavigationController($scope,$http,$state,$rootScope,$window,$stateParams,generateChartColours) {
+function NavigationController() {
 
 
     $(".insightsModalContent").on( 'click', function( ev ) {
@@ -18,12 +18,14 @@ function NavigationController($scope,$http,$state,$rootScope,$window,$stateParam
 
 
     $(".addRemoveModalContent").on( 'click', function( ev ) {
+        console.log('CALLED')
         $(".navbar").css('z-index','1');
         $(".md-overlay").css("background","rgba(0,0,0,0.5)");
         $("#addRemoveModalContent").addClass('md-show');
     });
 
     $(".modifyUserModalContent").on( 'click', function( ev ) {
+        console.log('CALLED')
         $(".navbar").css('z-index','1');
         $(".md-overlay").css("background","rgba(0,0,0,0.5)");
         $("#modifyUserModalContent").addClass('md-show');
@@ -31,6 +33,7 @@ function NavigationController($scope,$http,$state,$rootScope,$window,$stateParam
 
 
     $(".newAccountModalContent").on( 'click', function( ev ) {
+        console.log('CALLED')
         $(".navbar").css('z-index','1');
         $(".md-overlay").css("background","rgba(0,0,0,0.5)");
         $("#newAccountModalContent").addClass('md-show');

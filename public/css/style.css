@@ -71,7 +71,8 @@ svg:hover #Calendar-Icon { fill: #04509B; }
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    width: 90%;
+    width: 80%;
+    margin-top:0px !important;
 }
 .topnavbar-header{
     height: 50px;
@@ -108,7 +109,7 @@ svg:hover #Calendar-Icon { fill: #04509B; }
 .metricNames{font-family:Heebo-Medium; font-size:18px;word-wrap: break-word;line-height:1;margin-top: 15px;}
 .getMetricName{margin-top:-10px;}
 .metricDescription{font-family: Heebo-Thin;font-size: 11px;line-height: 1.3;}
-.nav-label{font-size: 18px;font-family: Heebo-Light;padding-left: 5px;}
+.nav-label{font-size: 14px;font-family: Heebo-Light;padding-left: 5px;}
 .logout{height: 11px;color:#fff}
 .nav .nav-tabs li:active{background: #000 url('data:image/svg+xml;utf8,<svg width="7px" height="5px" viewBox="102 51 7 5" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><desc>Created with Sketch.</desc><defs></defs></svg>')  no-repeat;}
 .choose-text{border-radius: 5px}
@@ -4103,7 +4104,7 @@ body.rtls.top-navigation .footer.fixed {
     .ibox-title{padding: 7px 64px 0px !important;}
     .svg-line1{width: 45px;}  .svg-line2{width: 45px;}
 }
-@media(max-width : 375px) and (min-width : 320px) {.svg-line1{width: 45px;}  .svg-line2{width: 45px;} .fusion-svgLine1{width: 125px;} .fusion-tab{padding-left: 10px !important;}}
+@media(max-width : 375px) and (min-width : 320px) {.errorWidgetData{position: relative}.sessionName{display:none}.box-header h3{width: 65%;}.svg-line1{width: 45px;}  .svg-line2{width: 45px;} .fusion-svgLine1{width: 125px;} .fusion-tab{padding-left: 10px !important;}}
 @media(max-width : 560px) and (min-width : 384px) {.svg-line1{width: 80px;}  .svg-line2{width: 80px;} .fusion-svgLine1{width: 215px} .fusion-tab{padding-left: 0px !important;} .triangle-topright {margin: -13px 0px 0px 90px !important;}}
 @media(max-width: 667px)and (min-width:  568px){.svg-line1{width:160px }.svg-line2{width:160px } .fusion-tab{padding-left: 100px !important;} .ibox-title{padding: 7px 200px 0px !important} .triangle-topright {margin: -13px 0px 0px 185px !important;}}
 @media(max-width : 736px) and (min-width : 600px) {.svg-line1{width: 180px;}  .svg-line2{width: 180px;}  .fusion-tab{padding-left:75px !important;} .fusion-svgLine1{width: 310px} .ibox-title{padding: 7px 200px 0px !important}}

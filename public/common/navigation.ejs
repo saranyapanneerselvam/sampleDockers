@@ -9,47 +9,56 @@
             </li>
 
             <li>
-                <a ui-sref="app.reporting.dashboards">
+                <a ng-click="createNewDashboard()">
                     <svg width="17px" height="15px" viewBox="0 0 17 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                        <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
-                        <desc>Created with Sketch.</desc>
                         <defs></defs>
                         <path d="M0.43552381,14.5004286 C0.689714286,14.754619 0.998952381,14.8817143 1.36242857,14.8817143 L6.5587619,14.8817143 C6.90442857,14.8817143 7.21285714,14.754619 7.46785714,14.5004286 C7.72204762,14.2454286 7.84914286,13.937 7.84914286,13.5913333 L7.84914286,9.68538095 C7.84914286,9.33971429 7.72204762,9.03128571 7.46785714,8.77628571 C7.21285714,8.52209524 6.90442857,8.395 6.5587619,8.395 L1.36242857,8.395 C0.998952381,8.395 0.689714286,8.52209524 0.43552381,8.77628571 C0.181333333,9.03128571 0.0542380952,9.33971429 0.0542380952,9.68538095 L0.0542380952,13.5913333 C0.0542380952,13.937 0.181333333,14.2454286 0.43552381,14.5004286 L0.43552381,14.5004286 Z M0.43552381,6.70471429 C0.689714286,6.95971429 0.998952381,7.08680952 1.36242857,7.08680952 L6.5587619,7.08680952 C6.90442857,7.08680952 7.21285714,6.95971429 7.46785714,6.70471429 C7.72204762,6.45052381 7.84914286,6.14209524 7.84914286,5.79642857 L7.84914286,1.88966667 C7.84914286,1.54480952 7.72204762,1.23557143 7.46785714,0.981380952 C7.21285714,0.727190476 6.90442857,0.600095238 6.5587619,0.600095238 L1.36242857,0.600095238 C0.998952381,0.600095238 0.689714286,0.727190476 0.43552381,0.981380952 C0.181333333,1.23557143 0.0542380952,1.54480952 0.0542380952,1.88966667 L0.0542380952,5.79642857 C0.0542380952,6.14209524 0.181333333,6.45052381 0.43552381,6.70471429 L0.43552381,6.70471429 Z M9.52080952,14.5004286 C9.775,14.754619 10.0842381,14.8817143 10.4477143,14.8817143 L15.6440476,14.8817143 C15.9897143,14.8817143 16.2981429,14.754619 16.5523333,14.5004286 C16.8073333,14.2454286 16.9344286,13.937 16.9344286,13.5913333 L16.9344286,9.68538095 C16.9344286,9.33971429 16.8073333,9.03128571 16.5523333,8.77628571 C16.2981429,8.52209524 15.9897143,8.395 15.6440476,8.395 L10.4477143,8.395 C10.0842381,8.395 9.775,8.52209524 9.52080952,8.77628571 C9.26661905,9.03128571 9.13952381,9.33971429 9.13952381,9.68538095 L9.13952381,13.5913333 C9.13952381,13.937 9.26661905,14.2454286 9.52080952,14.5004286 L9.52080952,14.5004286 Z M9.52080952,6.70471429 C9.775,6.95971429 10.0842381,7.08680952 10.4477143,7.08680952 L15.6440476,7.08680952 C15.9897143,7.08680952 16.2981429,6.95971429 16.5523333,6.70471429 C16.8073333,6.45052381 16.9344286,6.14209524 16.9344286,5.79642857 L16.9344286,1.88966667 C16.9344286,1.54480952 16.8073333,1.23557143 16.5523333,0.981380952 C16.2981429,0.727190476 15.9897143,0.600095238 15.6440476,0.600095238 L10.4477143,0.600095238 C10.0842381,0.600095238 9.775,0.727190476 9.52080952,0.981380952 C9.26661905,1.23557143 9.13952381,1.54480952 9.13952381,1.88966667 L9.13952381,5.79642857 C9.13952381,6.14209524 9.26661905,6.45052381 9.52080952,6.70471429 L9.52080952,6.70471429 Z" id="Fill-107" stroke="none" fill="#04509B" fill-rule="evenodd"></path>
                     </svg>
-                    <span class="nav-label">Dashboards</span>
-                    <span class="fa arrow"></span>
+                    <span class="nav-label"> Add Empty Dashboard</span>
                 </a>
-                <ul class="nav nav-second-level collapse">
-                    <li><a ng-click="createNewDashboard()">Add Empty Dashboard</a></li>
-                    <li><a ui-sref="app.reporting.dashboard.recommendedDashboard" ng-show="$state.includes('app.reporting.dashboard')">Add Recommended Dashboard</a></li>
-                    <li><a ui-sref="app.reporting.dashboards">Grid View</a></li>
-                </ul>
             </li>
+
+
             <li ng-show="$state.includes('app.reporting.dashboard')">
-                <a href="">
-                    <svg width="17px" height="13px" viewBox="0 0 17 13" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                        <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
-                        <desc>Created with Sketch.</desc>
-                        <defs></defs>
-                        <path d="M0.600368421,12.0538947 L3.47247368,12.0538947 L3.47247368,7.75647368 L0.600368421,7.75647368 L0.600368421,12.0538947 Z M4.89868421,12.0538947 L7.77078947,12.0538947 L7.77078947,2.01226316 L4.89868421,2.01226316 L4.89868421,12.0538947 Z M9.19610526,12.0538947 L12.0682105,12.0538947 L12.0682105,4.88436842 L9.19610526,4.88436842 L9.19610526,12.0538947 Z M13.5141053,12.0538947 L16.3862105,12.0538947 L16.3862105,0.586947368 L13.5141053,0.586947368 L13.5141053,12.0538947 Z" id="Fill-109" stroke="none" fill="#04509B" fill-rule="evenodd"></path>
-                    </svg>
-                    <span class="nav-label">  Add Widgets</span>
-                    <span class="fa arrow"></span>
+                <a ui-sref="app.reporting.dashboard.recommendedDashboard">
+                    <i class="fa fa-newspaper-o"></i>
+                    <span class="nav-label">  Add Recommended Dashboard</span>
                 </a>
-                <ul class="nav nav-second-level collapse">
-                    <li><a ui-sref="app.reporting.dashboard.basicWidget({widgetType:'basic'})">Widgets</a></li>
-                    <li><a ui-sref="app.reporting.dashboard.fusionWidget">Fusions</a></li>
-                    <li class="md-trigger md-setperspective md-effect-19 addRemoveModalContent" data-modal="addRemoveModalContent"><a>Insights</a></li>
-<!--
-                    <li><a ui-sref="app.reporting.dashboard.basicWidget({widgetType:'adv'})">Insights</a></li>
--->
-                </ul>
             </li>
+
+            <li>
+                <a ui-sref="app.reporting.dashboards">
+                    <i class="fa fa-list"></i>
+                    <span class="nav-label">  Grid View</span>
+                </a>
+            </li>
+
+
+            <li ng-show="$state.includes('app.reporting.dashboard')">
+                <a ui-sref="app.reporting.dashboard.basicWidget({widgetType:'basic'})">
+                    <i class="fa fa-bar-chart-o"></i>
+                    <span class="nav-label">  Add Widgets</span>
+                </a>
+            </li>
+
+
+            <li ng-show="$state.includes('app.reporting.dashboard')">
+                <a ui-sref="app.reporting.dashboard.fusionWidget">
+                    <i class="fa fa-random"></i>
+                    <span class="nav-label">  Fusions</span>
+                </a>
+            </li>
+
+            <li ng-show="$state.includes('app.reporting.dashboard')"class="md-trigger md-setperspective md-effect-19 addRemoveModalContent" data-modal="addRemoveModalContent">
+                <a>
+                    <i class="fa fa-bolt"></i>
+                    <span class="nav-label">  Insights</span>
+                </a>
+            </li>
+
             <li class="md-trigger md-setperspective md-effect-19 usersModalContent" data-modal="usersModalContent">
                 <a>
                     <svg width="17px" height="16px" viewBox="9 381 17 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                        <!-- Generator: Sketch 3.7.2 (28276) - http://www.bohemiancoding.com/sketch -->
-                        <desc>Created with Sketch.</desc>
                         <defs></defs>
                         <g id="fa-group-(alias)" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(9.000000, 381.000000)">
                             <path d="M0.78676,8.66864 C1.10704,8.8978 1.50416,9.01952 1.97744,9.01952 L3.12188,9.01952 C3.70192,8.31776 4.44992,7.96688 5.38084,7.93628 C4.90756,7.26444 4.67908,6.54704 4.67908,5.75348 C4.67908,5.58552 4.69404,5.4026 4.72464,5.18908 C4.34316,5.32644 3.96168,5.38696 3.5802,5.38696 C3.25924,5.38696 2.92332,5.32644 2.57244,5.20404 C2.23652,5.08232 1.9618,4.95992 1.74828,4.85316 C1.53476,4.73076 1.41236,4.67024 1.38176,4.67024 C0.66436,4.67024 0.31348,5.66168 0.31348,7.66156 C0.31348,8.10424 0.46648,8.44016 0.78676,8.66864 L0.78676,8.66864 Z M3.59516,4.67024 C4.19016,4.67024 4.709,4.45604 5.13672,4.029 C5.56376,3.60128 5.77796,3.08244 5.77796,2.48744 C5.77796,1.89176 5.56376,1.37292 5.13672,0.94588 C4.709,0.51816 4.19016,0.30464 3.59516,0.30464 C2.98452,0.30464 2.46568,0.51816 2.0536,0.94588 C1.62588,1.37292 1.41236,1.89176 1.41236,2.48744 C1.41236,3.08244 1.62588,3.60128 2.0536,4.029 C2.46568,4.45604 2.98452,4.67024 3.59516,4.67024 L3.59516,4.67024 Z M3.12188,14.97224 C3.53396,15.36936 4.0834,15.56792 4.7702,15.56792 L12.21892,15.56792 C12.90572,15.56792 13.45516,15.36936 13.86724,14.97224 C14.27932,14.5758 14.49284,14.04132 14.49284,13.37016 C14.49284,13.06484 14.47788,12.77448 14.46224,12.4848 C14.44728,12.19444 14.40172,11.88912 14.34052,11.5532 C14.27932,11.21796 14.20316,10.91264 14.11136,10.63792 C14.01956,10.34756 13.89784,10.07284 13.74484,9.79812 C13.59252,9.53904 13.42456,9.29492 13.226,9.11132 C13.02744,8.9284 12.78332,8.7754 12.49364,8.65368 C12.20328,8.54692 11.883,8.48572 11.53212,8.48572 C11.48588,8.48572 11.36416,8.54692 11.18056,8.66864 C10.98268,8.79104 10.78412,8.9284 10.55496,9.06576 C10.32648,9.21808 10.02116,9.35544 9.639,9.47784 C9.25752,9.59956 8.87604,9.66076 8.49456,9.66076 C8.11308,9.66076 7.7316,9.59956 7.35012,9.47784 C6.96796,9.35544 6.66332,9.21808 6.43416,9.06576 C6.22064,8.9284 6.00644,8.79104 5.82352,8.66864 C5.62496,8.54692 5.50324,8.48572 5.457,8.48572 C5.10612,8.48572 4.78584,8.54692 4.49548,8.65368 C4.2058,8.7754 3.97664,8.9284 3.76312,9.11132 C3.56456,9.29492 3.3966,9.53904 3.24428,9.79812 C3.09128,10.07284 2.96956,10.34756 2.87776,10.63792 C2.78596,10.91264 2.7098,11.21796 2.6486,11.5532 C2.5874,11.88912 2.54184,12.19444 2.52688,12.4848 C2.51124,12.77448 2.49628,13.06484 2.49628,13.37016 C2.49628,14.04132 2.7098,14.5758 3.12188,14.97224 L3.12188,14.97224 Z M8.49456,9.01952 C9.39488,9.01952 10.15852,8.69924 10.79908,8.058 C11.44032,7.41744 11.7606,6.6538 11.7606,5.75348 C11.7606,4.85316 11.44032,4.0902 10.79908,3.44896 C10.15852,2.80772 9.39488,2.48744 8.49456,2.48744 C7.5786,2.48744 6.81564,2.80772 6.1744,3.44896 C5.53384,4.0902 5.21288,4.85316 5.21288,5.75348 C5.21288,6.6538 5.53384,7.41744 6.1744,8.058 C6.81564,8.69924 7.5786,9.01952 8.49456,9.01952 L8.49456,9.01952 Z M13.39396,4.67024 C14.0046,4.67024 14.52344,4.45604 14.93552,4.029 C15.36256,3.60128 15.57676,3.08244 15.57676,2.48744 C15.57676,1.89176 15.36256,1.37292 14.93552,0.94588 C14.52344,0.51816 14.0046,0.30464 13.39396,0.30464 C12.79896,0.30464 12.28012,0.51816 11.8524,0.94588 C11.42536,1.37292 11.21116,1.89176 11.21116,2.48744 C11.21116,3.08244 11.42536,3.60128 11.8524,4.029 C12.28012,4.45604 12.79896,4.67024 13.39396,4.67024 L13.39396,4.67024 Z M13.8822,9.01952 L15.01168,9.01952 C15.48496,9.01952 15.86644,8.8978 16.1874,8.66864 C16.50768,8.44016 16.66,8.10424 16.66,7.66156 C16.66,5.66168 16.30912,4.67024 15.60736,4.67024 C15.57676,4.67024 15.45436,4.73076 15.24084,4.85316 C15.02732,4.95992 14.7526,5.08232 14.41668,5.20404 C14.0658,5.32644 13.72988,5.38696 13.4096,5.38696 C13.01248,5.38696 12.631,5.32644 12.24952,5.18908 C12.28012,5.4026 12.29508,5.58552 12.29508,5.75348 C12.29508,6.54704 12.06592,7.26444 11.62324,7.93628 C12.5392,7.96688 13.2872,8.31776 13.8822,9.01952 L13.8822,9.01952 Z" id="Fill-46" fill="#04509B"></path>
@@ -76,41 +85,9 @@
                     <span class="nav-label" ui-sref="app.changePassword">Change Password</span>
                 </a>
             </li>
-
-<!--
-            <li>
-                <a ui-sref="app.reporting.dashboards">
-                    <i class="fa fa-th-large"></i>
-                    <span class="nav-label">Dashboard Grid View</span>
-                </a>
-            </li>
-            <li>
-                <a href="">
-                    <i class="fa fa-th-large"></i>
-                    <span class="nav-label">Add Dashboards</span>
-                    <span class="fa arrow"></span>
-                </a>
-                <ul class="nav nav-second-level collapse">
-                    <li><a ng-click="createNewDashboard()">Empty Dashboard</a></li>
-                    <li><a ui-sref="app.reporting.dashboard">Recommended Dashboard</a></li>
-                    &lt;!&ndash;<li ui-sref-active="active"><a ui-sref="">Grid View</a></li>&ndash;&gt;
-                </ul>
-            </li>
-            <li ng-show="$state.includes('app.reporting.dashboard')">
-                <a href="">
-                    <i class="fa fa-th-large"></i>
-                    <span class="nav-label">Add Widgets</span>
-                    <span class="fa arrow"></span>
-                </a>
-                <ul class="nav nav-second-level collapse">
-                    <li><a ui-sref="app.reporting.dashboard.basicWidget">Basic Widget</a></li>
-                    <li><a>Advanced Widget</a></li>
-                    <li><a>Fusion Widget</a></li>
-                </ul>
-            </li>
--->
         </ul>
-        <!--List to be displayed in the sidebar when the 'adReporting' state is active-->
+<!--
+        &lt;!&ndash;List to be displayed in the sidebar when the 'adReporting' state is active&ndash;&gt;
         <ul side-navigation class="nav metismenu" id="side-menu" ng-class="{active: $state.includes('adReporting')}" ng-show="$state.includes('adReporting')">
             <li ng-class="{active: $state.includes('adReporting')}">
                 <a><i class="fa fa-th-large"></i> <span class="nav-label">Sample for AdReporting</span> <span class="fa arrow"></span></a>
@@ -119,6 +96,7 @@
                 </ul>
             </li>
         </ul>
+-->
     </div>
     <div class="slimScrollBar" style="width: 7px; position: absolute; top: 0px; opacity: 0.4; display: none; border-radius: 7px; z-index: 99; right: 1px; height: 344.828px; background: rgb(0, 0, 0);"></div><div class="slimScrollRail" style="width: 7px; height: 100%; position: absolute; top: 0px; display: none; border-radius: 7px; opacity: 0.9; z-index: 90; right: 1px; background: rgb(51, 51, 51);"></div>
 

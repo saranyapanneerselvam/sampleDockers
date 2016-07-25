@@ -406,6 +406,12 @@ body{font-family: Heebo-Light; }
 .nav-header .text-muted {
     color: #8095a8;
 }
+.minimalize-styl-1 {
+    padding: 4px 2px;
+    margin: 5px 5px 5px 5px;
+    font-size: 14px;
+    float: left;
+}
 .minimalize-styl-2 {
     padding: 4px 12px;
     margin: 5px 15px 5px 15px;
@@ -537,6 +543,9 @@ body.fixed-nav #wrapper #page-wrapper {
 }
 body.top-navigation.fixed-nav #wrapper #page-wrapper {
     margin-top: 0;
+}
+.fixed-nav .minimalize-styl-1 {
+    margin: 5px 5px 5px 5px;
 }
 .fixed-nav .minimalize-styl-2 {
     margin: 14px 5px 5px 15px;

@@ -26,7 +26,7 @@ module.exports = function (app) {
     app.get('/api/auth/linkedIn', function (req, res) {
         res.redirect(authorization_uri);
     });
-    app.get('/auth/linkedin2/callback', function (req, res) {
+    app.get('/auth/linkedin/callback', function (req, res) {
         var code = req.query.code;
         var param = {
             grant_type: 'authorization_code',

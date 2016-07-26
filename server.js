@@ -55,15 +55,15 @@ var accessLogStream = FileStreamRotator.getStream({
     filename: logDirectory + '/errorLog-%DATE%.log',
     frequency: configAuth.dataFormat.frequency
 })
-app.use(morgan('dev')); // log every request to the console
-/*
+//app.use(morgan('dev')); // log every request to the console
+
 app.use(morgan({format:configAuth.dataFormat.logDataFormat,stream: {
     write: function(str)
     {
         accessLogStream.write(str);
     }
 },skip:function (req, res) { return res.statusCode < 400 }}));
-*/
+
 app.use(cookieParser()); // read cookies (needed for auth)
 app.use(bodyParser({limit: "50mb"})); // get information from html forms
 app.set('view engine', 'ejs'); // set up ejs for templating

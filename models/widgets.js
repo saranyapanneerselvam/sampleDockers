@@ -8,17 +8,23 @@ var widgetsSchema = mongoose.Schema({
     name: String,
     description: String,
     dashboardId: String,
-    chartType: String,
-    order: Number,
-    offSet: Number,
+    channelId: String,
+    row: Number,
+    col: Number,
     size: Object,
     minSize: Object,
     maxSize: Object,
+    referenceWidgetId:String,
     widgetType: String,
-    metrics: Array,
+    charts: Array,
+    color: String,
     created: Date,
     updated: Date,
-    deleted: Date
+    deleted: Date,
+    widgets:Array,
+    visibility:Boolean,
+    isAlert:Boolean,
+    channelName: String
 });
 
 // create the model for organization and expose it to our app

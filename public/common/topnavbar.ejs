@@ -1,133 +1,82 @@
-<div class="row border-bottom">
-    <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
-        <div class="navbar-header">
-            <span minimaliza-sidebar></span>
-            <a href="" class="btn btn-primary" style="margin-top:13px;"> <span></span> Reporting & Analytics</a>
-            <a href="" class="btn btn-primary" style="margin-top:13px;"> <span ></span> Ad campaign Analytics</a>
-            <a href="" class="btn btn-primary" style="margin-top:13px;"> <span></span> Publishing and Monitoring</a>
-        </div>
-
-        <ul class="nav navbar-top-links navbar-right">
-            <!--<li>-->
-            <!--<span class="m-r-sm text-muted welcome-message">Welcome to INSPINIA+ Admin Theme.</span>-->
-            <!--</li>-->
-            <!--<li class="dropdown" dropdown>-->
-            <!--<a class="dropdown-toggle count-info" href dropdown-toggle>-->
-            <!--Language-->
-            <!--</a>-->
-            <!--<ul class="dropdown-menu animated fadeInRight m-t-xs" ng-controller="translateCtrl">-->
-            <!--<li><a ng-click="changeLanguage('en')">English</a></li>-->
-            <!--<li><a ng-click="changeLanguage('es')">Spanish</a></li>-->
-            <!--</ul>-->
-            <!--</li>-->
-            <li class="dropdown" dropdown>
-            <a class="dropdown-toggle count-info" href dropdown-toggle>
-            <i class="fa fa-user"></i> <span class="label label-warning">16</span>
-            </a>
-            <ul class="dropdown-menu dropdown-messages">
-            <li>
-            <div class="dropdown-messages-box">
-            <a ui-sref="profile" class="pull-left">
-            <img alt="image" class="img-circle" src="image/a7.jpg">
-            </a>
-
-            <div>
-            <small class="pull-right">46h ago</small>
-            <strong>Mike Loreipsum</strong> started following <strong>Monica Smith</strong>. <br>
-            <small class="text-muted">3 days ago at 7:58 pm - 10.06.2014</small>
-            </div>
-            </div>
-            </li>
-            <li class="divider"></li>
-            <li>
-            <div class="dropdown-messages-box">
-            <a ui-sref="profile" class="pull-left">
-            <img alt="image" class="img-circle" src="image/a4.jpg">
-            </a>
-
-            <div>
-            <small class="pull-right text-navy">5h ago</small>
-            <strong>Chris Johnatan Overtunk</strong> started following <strong>Monica Smith</strong>. <br>
-            <small class="text-muted">Yesterday 1:21 pm - 11.06.2014</small>
-            </div>
-            </div>
-            </li>
-            <li class="divider"></li>
-            <li>
-            <div class="dropdown-messages-box">
-            <a ui-sref="profile" class="pull-left">
-            <img alt="image" class="img-circle" src="image/profile.jpg">
-            </a>
-
-            <div>
-            <small class="pull-right">23h ago</small>
-            <strong>Monica Smith</strong> love <strong>Kim Smith</strong>. <br>
-            <small class="text-muted">2 days ago at 2:30 am - 11.06.2014</small>
-            </div>
-            </div>
-            </li>
-            <li class="divider"></li>
-            <li>
-            <div class="text-center link-block">
-            <a ui-sref="mailbox.inbox">
-            <i class="fa fa-envelope"></i> <strong>Read All Messages</strong>
-            </a>
-            </div>
-            </li>
-            </ul>
-            </li>
-            <!--<li class="dropdown" dropdown>-->
-            <!--<a class="dropdown-toggle count-info" href dropdown-toggle>-->
-            <!--<i class="fa fa-bell"></i> <span class="label label-primary">8</span>-->
-            <!--</a>-->
-            <!--<ul class="dropdown-menu dropdown-alerts">-->
-            <!--<li>-->
-            <!--<a ui-sref="inbox">-->
-            <!--<div>-->
-            <!--<i class="fa fa-envelope fa-fw"></i> You have 16 messages-->
-            <!--<span class="pull-right text-muted small">4 minutes ago</span>-->
-            <!--</div>-->
-            <!--</a>-->
-            <!--</li>-->
-            <!--<li class="divider"></li>-->
-            <!--<li>-->
-            <!--<a ui-sref="profile">-->
-            <!--<div>-->
-            <!--<i class="fa fa-twitter fa-fw"></i> 3 New Followers-->
-            <!--<span class="pull-right text-muted small">12 minutes ago</span>-->
-            <!--</div>-->
-            <!--</a>-->
-            <!--</li>-->
-            <!--<li class="divider"></li>-->
-            <!--<li>-->
-            <!--<a ui-sref="grid_options">-->
-            <!--<div>-->
-            <!--<i class="fa fa-upload fa-fw"></i> Server Rebooted-->
-            <!--<span class="pull-right text-muted small">4 minutes ago</span>-->
-            <!--</div>-->
-            <!--</a>-->
-            <!--</li>-->
-            <!--<li class="divider"></li>-->
-            <!--<li>-->
-            <!--<div class="text-center link-block">-->
-            <!--<a ui-sref="miscellaneous.notify">-->
-            <!--<strong>See All Alerts</strong>-->
-            <!--<i class="fa fa-angle-right"></i>-->
-            <!--</a>-->
-            <!--</div>-->
-            <!--</li>-->
-            <!--</ul>-->
-            <!--</li>-->
-            <li>
-                <a href="api/v1/signout">
-                    <i class="fa fa-sign-out"> </i> Log out
+<div class="row border-bottom"  ng-controller="TopNavbarController">
+    <nav class="navbar navbar-fixed-top" role="navigation">
+        <div class="navbar-header topnavbar-header">
+            <span minimaliza-sidebar class="menus-img"></span>
+            <span style="float: right">
+                <a class="navbar-minimalize minimalize-styl-1" href="/signout" style="margin-top: 10px;">
+                    <i class="fa fa-power-off fa-3x" style="color: #898989;"></i>
                 </a>
-            </li>
-            <!--<li>-->
-            <!--<a ng-click="$root.rightSidebar = !$root.rightSidebar">-->
-            <!--<i class="fa fa-tasks"></i>-->
-            <!--</a>-->
-            <!--</li>-->
-        </ul>
+            </span>
+
+
+            <span style="float: right">
+<!--
+                <div class="" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav">
+                        <li class="dropdown">
+                            <a class="dropdown-toggle">
+                                <span class="nav-label">Manage users</span>
+                                <i class="fa fa-users fa-3x"></i>
+                            </a>
+                            <ul class="dropdown-menu" ng-controller="NavigationController">
+                                <li class="md-trigger md-setperspective md-effect-19 addRemoveModalContent" data-modal="addRemoveModalContent"><a>Add / Remove User</a></li>
+                                <li class="md-trigger md-setperspective md-effect-19 modifyUserModalContent" data-modal="modifyUserModalContent"><a>Modify User Permissions</a></li>
+                                <li class="md-trigger md-setperspective md-effect-19 newAccountModalContent" data-modal="newAccountModalContent"><a>Create New Account</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+-->
+                <a class="navbar-minimalize minimalize-styl-1 md-trigger md-setperspective md-effect-19 addRemoveModalContent" style="margin-top: 10px;" data-modal="addRemoveModalContent">
+                    <i class="icon icon-profile-male topnavbar-menu-icon"></i>
+                </a>
+                <ul class="nav nav-second-level collapse">
+                    <li class="md-trigger md-setperspective md-effect-19 addRemoveModalContent" data-modal="addRemoveModalContent"><a>Add / Remove User</a></li>
+                    <li class="md-trigger md-setperspective md-effect-19 modifyUserModalContent" data-modal="modifyUserModalContent"><a>Modify User Permissions</a></li>
+                    <li class="md-trigger md-setperspective md-effect-19 newAccountModalContent" data-modal="newAccountModalContent"><a>Create New Account</a></li>
+                </ul>
+            </span>
+
+
+
+
+            <span style="float: right">
+                <a class="navbar-minimalize minimalize-styl-1 md-trigger md-setperspective md-effect-19" ui-sref="app.changePassword" data-modal="settingModalContent" style="margin-top: 10px;">
+                    <i class="icon icon-key topnavbar-menu-icon"></i>
+                </a>
+            </span>
+
+
+            <span class="sessionName" style="float: right">
+                <h3 style="vertical-align: middle; color: #898989;padding-top: 13px;">
+                    Welcome {{userName}}
+                </h3>
+            </span>
+<!--
+            <div class="tabs-container desk-view">
+                    <ul class="nav nav-tabs" style="padding-left: 71px" id="tabs-container-desk-view">
+                        <li class="active first-tab" style="height: 50px;"> <a data-toggle="tab" ui-sref="analyticsReporting/analyticsDashboardTemplate" style="padding-bottom: 10px;margin-right: 0px;"> <span></span> Marketing Dashboards</a></li>
+                    </ul>
+             </div>
+            <div class="tabs-container response-view" style="display:none;">
+                <ul class="nav nav-tabs" style="padding-left: 71px"  id="tabs-container-response-view">
+                    <li class="active first-tab">
+                        <a data-toggle="tab" ui-sref="analyticsReporting/analyticsDashboardTemplate">
+                            <i class="fa fa-line-chart"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+-->
+
+        </div>
     </nav>
 </div>
+<script>
+    $('#soonModel').click(function () {
+        swal("Coming Soon!");
+        $(this).removeClass("active");
+        // adding classname 'active' to current click li
+        $(this).addClass("noChange");
+    });
+</script>

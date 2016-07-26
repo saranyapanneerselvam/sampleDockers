@@ -6,9 +6,10 @@ var mongoose = require('mongoose');
 // define the schema for our user model
 var objectsSchema = mongoose.Schema({
     name: String,
-    profileId: String,
-    channelObjectId: Number,
-    objectTypeId: String,
+    profileId: mongoose.Schema.Types.ObjectId,
+    channelObjectId: String,
+    objectTypeId: mongoose.Schema.Types.ObjectId,
+    meta:Object,
     created: Date,
     updated: Date,
     deleted: Date

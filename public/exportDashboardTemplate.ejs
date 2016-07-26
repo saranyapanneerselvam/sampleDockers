@@ -1,0 +1,29 @@
+<div ng-init="dashboardConfiguration()" id="dashboardLayout">
+    <div class="row">
+        <div class="border-bottom dashboardTitle white-bg">
+            <div class="col col-sm-12">
+                <div class="col-sm-4">
+                    <a href="#" ng-model="dashboardName" editable-text="dashboard.dashboardName">{{ dashboard.dashboardName || 'Name your dashboard' }}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col col-lg-12">
+            <div gridster="gridsterOptions" class="row" style="border: 1px solid #e8e8e8;min-height: 500px" id="gridsterItems">
+                <ul>
+                    <li gridster-item="widget" ng-repeat="widget in dashboard.widgets">
+                        <div class="box" id="{{widget.id}}">
+                            <div class="box-header">
+                                <h3>{{widget.name}}</h3>
+                            </div>
+                            <div class="box-content" style="vertical-align: middle">
+                                <nvd3 options="widget.chart.options" data="widget.chart.data" api="widget.chart.api" config="config" events="events"></nvd3>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,8 +1,8 @@
 module.exports = function (app) {
     var request = require('request');
     var user = require('../helpers/user');
-    var getGoogleMetricData = require('../middlewares/googleBasic');
-// load the auth variables
+    var channels = require('../models/channels');
+    // load the auth variables
     var configAuth = require('../config/auth');
     var googleapis = require('googleapis');//To use google api'
     var OAuth2 = googleapis.auth.OAuth2;
@@ -10,50 +10,45 @@ module.exports = function (app) {
     var oauth2 = require('simple-oauth2')({
         clientID: configAuth.googleAuth.clientID,
         clientSecret: configAuth.googleAuth.clientSecret,
-        site: 'https://accounts.google.com/o/',
-        tokenPath: 'https://accounts.google.com/o/oauth2/token',
-        authorizationPath: 'oauth2/auth',
+        site: configAuth.googleAuth.site,
+        tokenPath: configAuth.googleAuth.tokenPath,
+        authorizationPath: configAuth.googleAuth.authorizationPath
     });
-    console.log('config details', configAuth.googleAuth.clientID);
-// Authorization uri definition
+
+    // Authorization uri definition
     var authorization_uri = oauth2.authCode.authorizeURL({
-        redirect_uri: 'http://localhost:8080/auth/google/callback',
-        approval_prompt: 'force',
-        access_type: 'offline',
-        scope: 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/analytics.readonly https://www.googleapis.com/auth/analytics.manage.users ',
-        state: '3832$'
+        redirect_uri: configAuth.googleAuth.callbackURL,
+        approval_prompt: configAuth.googleAuth.approvalPrompt,
+        access_type: configAuth.googleAuth.accessType,
+        scope: configAuth.googleAuth.scope,
+        state: configAuth.googleAuth.state
     });
 
 // Initial page redirecting to Github
-    app.get('/api/v1/auth/google', function (req, res) {
-        // console.log('callback',res);
+    app.get(configAuth.googleAuth.localCallingURL, function (req, res) {
         res.redirect(authorization_uri);
     });
 
 // Callback service parsing the authorization token and asking for the access token
-    app.get('/auth/google/callback', function (req, res) {
+    app.get(configAuth.googleAuth.localCallbackURL, function (req, res) {
         var code = req.query.code;
         oauth2.authCode.getToken({
             code: code,
-            redirect_uri: 'http://localhost:8080/auth/google/callback'
+            redirect_uri: configAuth.googleAuth.callbackURL
         }, saveToken);
 
         function saveToken(error, result) {
-            if (error) {
-                console.log('Access Token Error', error.message);
-            }
+            if (error) 
+                return res.status(401).json({error: 'Authentication required to perform this action'});
             token = oauth2.accessToken.create(result);
 
             //To get logged user's userId ,email..
-            request('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=' + token.token.access_token, function (error, response, body) {
-
+            request(configAuth.googleAuth.requestTokenURL + token.token.access_token, function (error, response, body) {
                 if (!error && response.statusCode == 200) {
 
                     //To get the profile name .. based on access token
-                    request('https://www.googleapis.com/oauth2/v2/userinfo?access_token=' + token.token.access_token, function (err, responseData, result) {
+                    request(configAuth.googleAuth.accessTokenURL + token.token.access_token, function (err, responseData, result) {
                         if (!err) {
-
-
                             //To parse the access token details
                             var parsedBodyResult = JSON.parse(body);
 
@@ -68,25 +63,28 @@ module.exports = function (app) {
 
                             //set token details to tokens
                             req.tokens = token.token;
-                            req.channelId = '56d52c07e4b0196c549033b6';
-                            req.channelCode = '1';
+                            channels.findOne({code: configAuth.channels.googleAnalytics}, function (err, channelDetails) {
+                                req.channelId = channelDetails._id;
+                                req.channelName = channelDetails.name;
+                                req.channelCode = channelDetails._id;
+                                req.code = channelDetails.code;
 
-                            //Calling the storeProfiles middleware to store the data
-                            user.storeProfiles(req, function (err, response) {
-                                if (err)
-                                    res.json('Error');
-                                else {
-
-                                    //If response of the storeProfiles function is success then redirect it to profile page
-                                    res.redirect('/profile');
-                                }
+                                //Calling the storeProfiles middleware to store the data
+                                user.storeProfiles(req,res, function (err, response) {
+                                    if (err)
+                                        res.json('Error');
+                                    else {
+                                        //If response of the storeProfiles function is success then close the authentication window
+                                        res.render('successAuthentication');
+                                    }
+                                });
                             });
                         }
+                        else  return res.status(401).json({error: 'Authentication required to perform this action'});
                     })
                 }
             })
 
         }
     })
-
-}
+};

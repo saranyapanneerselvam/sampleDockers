@@ -65,15 +65,14 @@
 .modal-footer,.modal-header{border:none !important;}
 .modal-footer{padding-bottom: 0px;}
 
-
-
-
 .close {
     position: absolute;
     z-index: 1;
     right: 2%;
 }
+
 .clearfix{clear:both;}
+
 .modal-open {
     overflow: auto;
 }
@@ -86,18 +85,18 @@
     background-color: #F7F7F8;
 }
 
-
 .inmodal .modal-header {
     padding: 16.5px 0 0;
     margin: 5px 0px 15px;
     background-color: #fff;
-   
 }
+
 .inmodal .modal-body{background-color: #fff;margin: 5px 15px; padding: 12px 12px 0px !important;}
+
 .row.firstline-app,.secondline-app,.thirdline-app {
     padding-left: 15px;
 }
+
 .modal-body .col-lg-2 {
     width: 18.667%
-  }
-  
+}

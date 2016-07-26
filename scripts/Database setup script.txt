@@ -1,0 +1,2008 @@
+
+
+db.getCollection('channels').insert([{name :"Google Analytics", "code" :"googleanalytics", "updated" :ISODate("2016-04-06T07:22:57.638Z"),created :ISODate("2016-04-06T07:22:57.638Z")},
+{name :"Facebook", "code" :"facebook", "updated" :ISODate("2016-04-06T07:22:57.638Z"),created :ISODate("2016-04-06T07:22:57.638Z")},
+{name :"Twitter", "code" :"twitter", "updated" :ISODate("2016-04-06T07:22:57.638Z"),created :ISODate("2016-04-06T07:22:57.638Z")},
+{name :"Facebook Ads", "code" :"facebookads", "updated" :ISODate("2016-04-06T07:22:57.638Z"),created :ISODate("2016-04-06T07:22:57.638Z")}])
+
+db.getCollection('dashboards').insert([{name :"Test", "orgId" :"57060a7a7a0192cc0410fefa", "updated" :ISODate("2016-04-06T07:22:57.638Z"),created :ISODate("2016-04-06T07:22:57.638Z")},
+{name :"Macgyver", "orgId" :"57060a7a7a0192cc0410fefa", "updated" :ISODate("2016-04-06T07:22:57.638Z"),created :ISODate("2016-04-06T07:22:57.638Z")},
+{name :"Dashboard3", "orgId" :"57060a7a7a0192cc0410fefb", "updated" :ISODate("2016-04-06T07:22:57.638Z"),created :ISODate("2016-04-06T07:22:57.638Z")}])
+
+
+
+db.getCollection('organizations').insert([{"name":"Habile","country":"India","subscriptionTypeId":1,"payment_info":{ cardNo: '',  exp: '',  vcc: '', name: ''},"billing_address":{  doorNo:'', street: '', area: '',city: '', state: '',country: '', zip: ''},"active":1,"subscriptionExpiresOn":"", "updated" :ISODate("2016-04-06T07:22:57.638Z"),created :ISODate("2016-04-06T07:22:57.638Z")},
+{"name":"ASOD","country":"India","subscriptionTypeId":1,"payment_info":{ cardNo: '',  exp: '',  vcc: '', name: ''},"billing_address":{  doorNo:'', street: '', area: '',city: '', state: '',country: '', zip: ''},"active":1,"subscriptionExpiresOn":"", "updated" :ISODate("2016-04-06T07:22:57.638Z"),created :ISODate("2016-04-06T07:22:57.638Z")},
+{"name":"Tech rev","country":"India","subscriptionTypeId":1,"payment_info":{ cardNo: '',  exp: '',  vcc: '', name: ''},"billing_address":{  doorNo:'', street: '', area: '',city: '', state: '',country: '', zip: ''},"active":1,"subscriptionExpiresOn":"", "updated" :ISODate("2016-04-06T07:22:57.638Z"),created :ISODate("2016-04-06T07:22:57.638Z")}])
+
+db.getCollection('objecttypes').insert([{
+                                        	"type": "page",
+                                        	"channelId": "570606247a0192cc0410fec7",
+                                        	"updated": ISODate("2016-04-06T07:22:57.638Z"),
+                                        	created: ISODate("2016-04-06T07:22:57.638Z")
+                                        }, {
+                                        	"type": "view",
+                                        	"channelId": "570606247a0192cc0410fec6",
+                                        	"updated": ISODate("2016-04-06T07:22:57.638Z"),
+                                        	created: ISODate("2016-04-06T07:22:57.638Z")
+                                        }, {
+                                        	"type": "post",
+                                        	"channelId": "570606247a0192cc0410fec7",
+                                        	"updated": ISODate("2016-04-06T07:22:57.638Z"),
+                                        	created: ISODate("2016-04-06T07:22:57.638Z")
+                                        }, {
+                                        	"type": "account",
+                                        	"channelId": "570606247a0192cc0410fec6",
+                                        	"updated": ISODate("2016-04-06T07:22:57.638Z"),
+                                        	created: ISODate("2016-04-06T07:22:57.638Z")
+                                        }, {
+                                        	"type": "ad account",
+                                        	"channelId": "570606247a0192cc0410fec9",
+                                        	"updated": ISODate("2016-04-06T07:22:57.638Z"),
+                                        	created: ISODate("2016-04-06T07:22:57.638Z")
+                                        }, {
+                                        	"type": "campaign",
+                                        	"channelId": "570606247a0192cc0410fec9",
+                                        	"updated": ISODate("2016-04-06T07:22:57.638Z"),
+                                        	created: ISODate("2016-04-06T07:22:57.638Z")
+                                        }, {
+                                        	"type": "ad set",
+                                        	"channelId": "570606247a0192cc0410fec9",
+                                        	"updated": ISODate("2016-04-06T07:22:57.638Z"),
+                                        	created: ISODate("2016-04-06T07:22:57.638Z")
+                                        }, {
+                                        	"type": "ad",
+                                        	"channelId": "570606247a0192cc0410fec9",
+                                        	"updated": ISODate("2016-04-06T07:22:57.638Z"),
+                                        	created: ISODate("2016-04-06T07:22:57.638Z")
+                                        }])
+
+db.getCollection('permissions').insert([{
+	"name": "View",
+	"code": "view",
+	"updated": ISODate("2016-04-06T07:22:57.638Z"),
+	created: ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": "Edit",
+	"code": "edit",
+	"updated": ISODate("2016-04-06T07:22:57.638Z"),
+	created: ISODate("2016-04-06T07:22:57.638Z")
+}])
+
+
+db.getCollection('roles').insert([
+{
+	"name": "Super Admin",
+	"code": "superadmin",
+	"type": "system",
+	"permissions": []
+},
+{
+	"name": "Admin",
+	"code": "admin",
+	"type": "system",
+	"permissions": ["57060b507a0192cc0410ff08"]
+},
+{
+	"name": "User",
+	"code": "user",
+	"type": "system",
+	"permissions": ["57060b507a0192cc0410ff08","57060b507a0192cc0410ff09"]
+}
+])
+
+
+
+db.getCollection('users').insert([{ 
+    "updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z"),
+    "orgId": "57060a7a7a0192cc0410fefa",
+    "pwdHash": "$2a$08$JSBCRSVJYkpwda7TLaYGyet.VGV7qr0gpVX0YGh8wZzO4L5j7.7oK",
+    "name": "Karthick",
+    "email": "karthick@showmetric.co",
+    "roleId": "57060cf07a0192cc0410ff0c",
+    "lastLoggedIn": ISODate("2016-04-06T07:22:57.638Z"),
+    "dashboards": [
+        {
+            "dashboardId": "57060aac7a0192cc0410fefd",
+            "view": "true",
+            "edit": "false"
+        }
+    ],
+	"emailVerified":"true",
+	"emailVerification":
+		{
+			"tokenId": "$2a$08$JSBCRSVJYkpwda7TLaYGyet.VGV7qr0gpVX0YGh8wZzO4L5j7uh",
+			"expires": ISODate("2016-04-07T07:22:57.638Z"),
+			"used": "true"
+	},
+	"passwordReset":
+		{
+			"tokenId": "$2a$08$JSBCRSVJYkpwda7TLaYGyet.VGV7qr0gpVX0YGh8wZzO4L5j7uh",
+			"expires": ISODate("2016-04-07T07:22:57.638Z"),
+			"used": "true"
+		},
+		"lastDashboardId":"57060aac7a0192cc0410fefd",
+		"active":true,
+
+},
+
+{
+
+    "updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z"),
+    "orgId" : "57060a7a7a0192cc0410fefa",
+    "pwdHash" : "$2a$08$NamMaxJcMBpo4vhA71dKPuQy1VT3IhqV2ex14Cu9AbrJSK9w6MTde",
+    "name" : "Rajalakshmi",
+    "email" : "rajalakshmi@showmetric.co",
+    "roleId" : "57060cf07a0192cc0410ff0b",
+    "lastLoggedIn" : ISODate("2016-04-06T14:05:12.153Z"),
+	 "dashboards": [
+        {
+            "dashboardId": "57060aac7a0192cc0410fefd",
+            "view": "true",
+            "edit": "false"
+        }
+    ],
+	"emailVerified":"true",
+	"emailVerification":
+		{
+			"tokenId": "$2a$08$JSBCRSVJYkpwda7TLaYGyet.VGV7qr0gpVX0YGh8wZzO4L5j7uh",
+			"expires": ISODate("2016-04-07T07:22:57.638Z"),
+			"used": "true"
+	},
+	"passwordReset":
+		{
+			"tokenId": "$2a$08$JSBCRSVJYkpwda7TLaYGyet.VGV7qr0gpVX0YGh8wZzO4L5j7uh",
+			"expires": ISODate("2016-04-07T07:22:57.638Z"),
+			"used": "true"
+		},
+		"lastDashboardId":"57060aac7a0192cc0410fefd",
+		"active":"true",
+},
+{
+
+   "updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z"),
+    "orgId" : "57060a7a7a0192cc0410fefa",
+    "pwdHash" : "$2a$08$YYLQvDEQe9K2RbQd0Gn5Defsvt3/mfsb7PuE2gMhNME4Jx5.ey8q.",
+    "name" : "saranya",
+    "email" : "saranya.p@habile.in",
+   "lastLoggedIn" : ISODate("2016-04-06T14:05:12.153Z"),
+    "roleId" : "57060cf07a0192cc0410ff0b",
+	 "dashboards": [
+        {
+            "dashboardId": "57060aac7a0192cc0410fefd",
+            "view": "true",
+            "edit": "false"
+        }
+    ],
+	"emailVerified":"true",
+	"emailVerification":
+		{
+			"tokenId": "$2a$08$JSBCRSVJYkpwda7TLaYGyet.VGV7qr0gpVX0YGh8wZzO4L5j7uh",
+			"expires": ISODate("2016-04-07T07:22:57.638Z"),
+			"used": "true"
+	},
+	"passwordReset":
+		{
+			"tokenId": "$2a$08$JSBCRSVJYkpwda7TLaYGyet.VGV7qr0gpVX0YGh8wZzO4L5j7uh",
+			"expires": ISODate("2016-04-07T07:22:57.638Z"),
+			"used": "true"
+		},
+		"lastDashboardId":"57060aac7a0192cc0410fefd",
+		"active":"true",
+
+    "lastDashboardId": "56f8ecebe4b05e6b92be78d6"
+},
+{
+   "updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z"),
+    "orgId" : "57060a7a7a0192cc0410fefa",
+    "pwdHash" : "$2a$08$2UdYhv8dalG2BZNx9Vyw4e8BaV/KY14TwDT.sp4g/6kqQ1RjlEXBu",
+    "name" : "saranya",
+    "email" : "saranya@showmetric.co",
+
+    "roleId" : "57060cf07a0192cc0410ff0b",
+    "lastLoggedIn" : ISODate("2016-04-05T10:28:58.543Z"),
+	 "dashboards": [
+        {
+            "dashboardId": "57060aac7a0192cc0410fefd",
+            "view": "true",
+            "edit": "false"
+        }
+    ],
+	"emailVerified":"true",
+	"emailVerification":
+		{
+			"tokenId": "$2a$08$JSBCRSVJYkpwda7TLaYGyet.VGV7qr0gpVX0YGh8wZzO4L5j7uh",
+			"expires": ISODate("2016-04-07T07:22:57.638Z"),
+			"used": "true"
+	},
+	"passwordReset":
+		{
+			"tokenId": "$2a$08$JSBCRSVJYkpwda7TLaYGyet.VGV7qr0gpVX0YGh8wZzO4L5j7uh",
+			"expires": ISODate("2016-04-07T07:22:57.638Z"),
+			"used": "true"
+		},
+		"lastDashboardId":"57060aac7a0192cc0410fefd",
+		"active":"true",
+},
+{
+    "updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z"),
+    "orgId" : "57060a7a7a0192cc0410fefa",
+    "pwdHash" : "$2a$08$9R8M..5oBaRxqjNNCGEAfeKK.X6FyS2T3Nh8mMT8EfOfW8V01tXmC",
+    "name" : "Daphine",
+    "email" : "daphine.dzosa@habile.in",
+    "__v" : 0,
+    "roleId" : "57060cf07a0192cc0410ff0a",
+    "lastLoggedIn" : ISODate("2016-04-01T14:07:25.912Z"),
+	 "dashboards": [
+        {
+            "dashboardId": "57060aac7a0192cc0410fefd",
+            "view": "true",
+            "edit": "false"
+        }
+    ],
+	"emailVerified":"true",
+	"emailVerification":
+		{
+			"tokenId": "$2a$08$JSBCRSVJYkpwda7TLaYGyet.VGV7qr0gpVX0YGh8wZzO4L5j7uh",
+			"expires": ISODate("2016-04-07T07:22:57.638Z"),
+			"used": "true"
+	},
+	"passwordReset":
+		{
+			"tokenId": "$2a$08$JSBCRSVJYkpwda7TLaYGyet.VGV7qr0gpVX0YGh8wZzO4L5j7uh",
+			"expires": ISODate("2016-04-07T07:22:57.638Z"),
+			"used": "true"
+		},
+		"lastDashboardId":"57060aac7a0192cc0410fefd",
+		"active":"true",
+}])
+
+
+db.getCollection('metrics').insert([{
+	"name": 'Tweets',
+	"description": "Number of tweets posted by your profile by each day",
+	"code": "Tweetes",
+	"channelId": "570606247a0192cc0410fec8",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": "Date",
+	"yAxis": "Count of tweets posted from that profile on that date",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "TweetMetricName":' "statuses_count" within users object'
+    } ,
+	
+	"updated": ISODate("2016-04-06T07:22:57.638Z"),
+	created: ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Following',
+	"description": "Number of users that you follow by each day",
+	"code": "Following",
+	"channelId": "570606247a0192cc0410fec8",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": "Date",
+	"yAxis": "Count of profiles followed by the profile on that date",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "TweetMetricName": '""friends_count" within users object'
+    } ,
+	
+	"updated": ISODate("2016-04-06T07:22:57.638Z"),
+	created: ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Followers',
+	"description": "Number of users that follow your profile by each day",
+	"code": "Followers",
+	"channelId": "570606247a0192cc0410fec8",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": "Date",
+	"yAxis": "Count of twitter users that have followed the user's profile on that date",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "TweetMetricName": '"followers_count" within users object'
+    } ,
+	
+	"updated": ISODate("2016-04-06T07:22:57.638Z"),
+	created: ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Listed',
+	"description": "Number of lists in which your profile has been added to by each day",
+	"code": "Listed",
+	"channelId": "570606247a0192cc0410fec8",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": "Date",
+	"yAxis": "Count of twitter users that have listed the user's profile on that date",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "TweetMetricName": '"listed_count" within users object'
+    } ,
+	
+	"updated": ISODate("2016-04-06T07:22:57.638Z"),
+	created: ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Favourites',
+	"description": "Number of lists in which your profile has been added to by each day",
+	"code": "Favourites",
+	"channelId": "570606247a0192cc0410fec8",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": "Date",
+	"yAxis": "Number of times any of the user's tweets have been tagged as favourite on that date",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "TweetMetricName": '"favorite_count" within users object'
+    } ,
+	
+	"updated": ISODate("2016-04-06T07:22:57.638Z"),
+	created: ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Retweets of your tweets',
+	"description": "Number of times your tweets have been retweeted by each day",
+	"code": "Retweets of your tweets",
+	"channelId": "570606247a0192cc0410fec8",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'date',
+	"yAxis": "Number of times any of the users tweets have been retweeted on that date",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "TweetMetricName": 'GET statuses/lookup (https://api.twitter.com/1.1/statuses/lookup.json)retweet_count within tweets objec Should be retrieved from the DigMa database from the individual tweet ids linked against this profile'
+    } ,
+	
+	"updated": ISODate("2016-04-06T07:22:57.638Z"),
+	created: ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Mentions',
+	"description": "Recent tweets where your name has been mentioned",
+	"code": "Mentions",
+	"channelId": "",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Tweets (Text, retweet_count, favorite_count)',
+	"yAxis": "NA",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "TweetMetricName": "GET statuses/mentions_timeline"
+    } ,
+	
+	"updated": ISODate("2016-04-06T07:22:57.638Z"),
+	created: ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Keyword mentions',
+	"description": "Recent tweets where your search word has been mentioned",
+	"code": "Keyword mentions",
+	"channelId": "570606247a0192cc0410fec8",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Tweets (Text, retweet_count, favorite_count)',
+	"yAxis": "NA",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "TweetMetricName": "GET search/tweets"
+    } ,
+	
+	"updated": ISODate("2016-04-06T07:22:57.638Z"),
+	created: ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'High Engagement tweets',
+	"description": "Recent tweets where your search word has been mentioned",
+	"code": "High Engagement tweets",
+	"channelId": "570606247a0192cc0410fec8",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Tweets (Text, retweet_count, favorite_count)',
+	"yAxis": "NA",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "TweetMetricName": "GET statuses/mentions_timeline"
+    } ,
+	
+	"updated": ISODate("2016-04-06T07:22:57.638Z"),
+	'created': ISODate("2016-04-06T07:22:57.638Z")
+}])
+
+
+db.getCollection('metrics').insert([{
+	"name": 'Cost',
+	"description": 'Daywise number of clicks on your ad account for the selected date range',
+	"code": 'Cost',
+	"channelId": "570606247a0192cc0410fec9",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Date',
+	"yAxis": 'spend',
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbAdsMetricName": "spend"
+    } ,
+	
+	"updated": ISODate("2016-04-06T07:22:57.638Z"),
+	created: ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": "Impressions",
+	"description": 'Daywise click-through rate on your ad account for the selected date range',
+	"code": "Impressions",
+	"channelId": "570606247a0192cc0410fec9",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": "Date",
+	"yAxis": "Impressions",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbAdsMetricName": "impressions"
+    } ,
+	
+	"updated": ISODate("2016-04-06T07:22:57.638Z"),
+	created: ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": "Clicks",
+	"description": 'Daywise cost incurred per click on your ad account for the selected date range',
+	"code": "Clicks",
+	"channelId": "570606247a0192cc0410fec9",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": "Date",
+	"yAxis": 'call_to_action_clicks',
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbAdsMetricName": "call_to_action_clicks"
+    } ,
+	
+	"updated": ISODate("2016-04-06T07:22:57.638Z"),
+	created: ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Click Through Rate',
+	"description": 'Daywise cost incurred per click on your ad account for the selected date range',
+	"code": 'Click Through Rate',
+	"channelId": "570606247a0192cc0410fec9",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": "Date",
+	"yAxis": "ctr",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbAdsMetricName": "ctr"
+    } ,
+	
+	"updated": ISODate("2016-04-06T07:22:57.638Z"),
+	created: ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Cost per Click',
+	"description": 'Daywise result rate on your ad account for the selected date range',
+	"code": 'Cost per Click',
+	"channelId": "570606247a0192cc0410fec9",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": "Date",
+	"yAxis": 'cost_per_inline_link_click',
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbAdsMetricName": "cost_per_inline_link_click"
+    } ,
+	
+	"updated": ISODate("2016-04-06T07:22:57.638Z"),
+	created: ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": "Actions",
+	"description": 'Daywise cost per action on your ad account for the selected date range',
+	"code": "Actions",
+	"channelId": "570606247a0192cc0410fec9",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": "Date",
+	"yAxis": "total_actions",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbAdsMetricName": "total_actions"
+    } ,
+	
+	"updated": ISODate("2016-04-06T07:22:57.638Z"),
+	created: ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Action Rate',
+	"description": 'Breakup of the actions taken on your ad',
+	"code": 'Action Rate',
+	"channelId": "570606247a0192cc0410fec9",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": "Date",
+	"yAxis": 'total_actions / impressions',
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbAdsMetricName": "total_actions / impressions"
+    } ,
+	
+	"updated": ISODate("2016-04-06T07:22:57.638Z"),
+	created: ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Cost Per Action',
+	"description": '',
+	"code": 'Cost Per Action',
+	"channelId": "570606247a0192cc0410fec9",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": "Date",
+	"yAxis": 'cost_per_total_action',
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbAdsMetricName": "cost_per_total_action"
+    } ,
+	
+	"updated": ISODate("2016-04-06T07:22:57.638Z"),
+	created: ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Action types',
+	"description": '',
+	"code": 'Action types',
+	"channelId": "570606247a0192cc0410fec9",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": "Date",
+	"yAxis": '',
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbAdsMetricName": "total_actions by using action_breakdowns = action_type"
+    } ,
+	
+	"updated": ISODate("2016-04-06T07:22:57.638Z"),
+	created: ISODate("2016-04-06T07:22:57.638Z")
+}])
+
+
+db.getCollection('metrics').insert([{
+	"name": "Number or people engaged",
+	"description": "Number of people engaging with your page's posts by each day for the chosen time period",
+	"code": "Number or people engaged",
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": "date",
+	"yAxis": "page_engaged_users",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_engaged_users"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": "Engagement Rate",
+	"description": "Rate of engagement for the page's posts by each day for the chosen time period Engagement rate = Engagement / Reach",
+	"code": "Engagement Rate",
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": "1",
+	"xAxis": "date",
+	"yAxis": "(page_engaged_users / page_impressions_unique) * 100",
+	"scopes": "",
+	'endpoints': "",
+	"meta": {
+        "fbMetricName": "(page_engaged_users / page_impressions_unique) * 100"
+    } ,
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Stories created',
+	"description": 'Count of stories generated about your page on a daily basis for the chosen period',
+	"code": 'Stories created',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'date',
+	"yAxis": 'page_stories',
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_stories"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Story types generated',
+	"description": 'Count of stories generated about your page for the chosen period arranged by the type of stories',
+	"code": 'Story types generated',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Story type (checkin, coupon, event, fan, mention, page post, question, user post, other)',
+	"yAxis": 'page_stories_by_story_type',
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_stories_by_story_type"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Total Reach',
+	"description": 'Numer of users your page content has reached by each day for the chosen time period',
+	"code": 'Total Reach',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'date',
+	"yAxis": 'page_impressions_unique',
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_impressions_unique"
+    } ,
+
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Paid Reach',
+	"description": 'Numer of users your page content has reached through paid means by each day for the chosen time period',
+	"code": 'Paid Reach',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'date',
+	"yAxis": 'page_impressions_paid_unique',
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_impressions_paid_unique"
+    } ,
+
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Organic Reach',
+	"description": 'Numer of users your page content has reached through organic means by each day for the chosen time period',
+	"code": 'Organic Reach',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'date',
+	"yAxis": 'page_impressions_organic_unique',
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_impressions_organic_unique"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Viral Reach',
+	"description": 'Numer of users your page content has reached through user activities in the page by each day for the chosen time period',
+	"code": 'Viral Reach',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'date',
+	"yAxis": 'page_impressions_viral_unique',
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_impressions_viral_unique"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Reach Types',
+	"description": 'Reach of page stories arranged by story type for the chosen time period',
+	"code": 'Reach Types',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Story type (checkin, coupon, event, fan, mention, page post, question, user post, other)',
+	"yAxis": 'page_impressions_by_story_type_unique',
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_impressions_by_story_type_unique"
+    } ,
+
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Reach Country Map',
+	"description": 'Reach of page stories organized by country for the chosen time period shown on a map',
+	"code": 'Reach Country Map',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Output of the query to be fed into map. Each country when highlighted should show the count against that country',
+	"yAxis": "",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": ""
+    } ,
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Reach Country List',
+	"description": 'Reach of page stories organized by country for the chosen time period shown as a list',
+	"code": 'Reach Country List',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Output of the query to be presented in a table format with country name and reach as the columns',
+	"yAxis": "",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_impressions_by_country_unique"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Reach City List',
+	"description": 'Reach of page stories organized by city for the chosen time period shown as a list',
+	"code": 'Reach City List',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Output of the query to be presented in a table format with city name and reach as the columns',
+	"yAxis": "",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_impressions_by_city_unique"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Reach Age Groups',
+	"description": 'Breakup of impressions by age group of the audience',
+	"code": 'Reach Age Groups',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Pie chart of different age groups (both number and percentage)',
+	"yAxis": "",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_impressions_by_age_gender_unique"
+    } ,
+
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Reach Gender',
+	"description": 'Breakup of impressions by gender of the audience',
+	"code": 'Reach Gender',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": "Pie chart of different genders (both number and percentage)",
+	"yAxis": "",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_impressions_by_age_gender_unique"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Reach by frequency of views',
+	"description": 'How many people saw your content multiple times broken down by how many times they saw it',
+	"code": 'Reach by frequency of views',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Frequency',
+	"yAxis": 'Reach',
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_impressions_frequency_distribution"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Reach by viral frequency of views',
+	"description": "How many people saw a fan's content on your page multiple times broken down by how many times they saw it",
+	"code": 'Reach by viral frequency of views',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Frequency',
+	"yAxis": 'Reach',
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_impressions_viral_frequency_distribution"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Total Impressions',
+	"description": 'The total impressions that your page received during the selected date range',
+	"code": 'Total Impressions',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'date',
+	"yAxis": 'page_impressions',
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_impressions"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Paid Impressions',
+	"description": 'The number of paid impressions that your page received during the selected date range',
+	"code": 'Paid Impressions',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Date',
+	"yAxis": 'page_impressions_paid',
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_impressions_paid"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Organic Impressions',
+	"description": 'The number of organic impressions that your page received during the selected date range',
+	"code": 'Organic Impressions',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Date',
+	"yAxis": 'page_impressions_organic',
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_impressions_organic"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Viral Impressions',
+	"description": 'The number of viral impressions (stories, posts by other people) that your page received during the selected date range',
+	"code": 'Viral Impressions',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Date',
+	"yAxis": 'page_impressions_viral',
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_impressions_viral"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Impression Types',
+	"description": 'A breakdown of the impressions by type. The types will be checkin, coupon, event, fan, mention, page post, question, user post, other',
+	"code": 'Impression Types',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Story type (checkin, coupon, event, fan, mention, page post, question, user post, other)',
+	"yAxis": 'page_impressions_by_story_type',
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_impressions_by_story_type"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": "Clicks",
+	"description": "A date wise breakdown of post consumptions for the selected date range ",
+	"code": "Clicks",
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": "Date",
+	"yAxis": "post_consumptions",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "post_consumptions"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Click Types',
+	"description": 'A breakdown of the post consumptions by type',
+	"code": 'Click Types',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Story type (checkin, coupon, event, fan, mention, page post, question, user post, other)',
+	"yAxis": 'post_consumptions_by_type',
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "post_consumptions_by_type"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Check-ins',
+	"description": 'The number of checkins to your location within the selected date range"code"Check-ins',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Date',
+	"yAxis": 'page_places_checkin_total',
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_places_checkin_total"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Check-in Age Groups',
+	"description": 'The number of checkins to your location within the selected date range, broken down by age groups',
+	"code": 'Check-in Age Groups',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Pie chart of checkins broken don by age groups (numbers and percentage)',
+	"yAxis": "",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_places_checkins_by_age_gender"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Check-in Gender',
+	"description": 'The number of checkins to your location within the selected date range, broken down by gender',
+	"code": 'Check-in Gender',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Pie chart of checkins broken don by gender (numbers and percentage)',
+	"yAxis": "",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_places_checkins_by_age_gender"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Check-in Languages',
+	"description": 'The number of checkins to your location within the selected date range, broken down by languages used',
+	"code": 'Check-in Languages',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Output of the query to be presented in a table format with locale and number of checkins as the columns',
+	"yAxis": "",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_places_checkins_by_locale"
+    } ,
+
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Check-in Country Map',
+	"description": 'The number of checkins to your location within the selected date range, broken down by country',
+	"code": 'Check-in Country Map',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Output of the query to be fed into map. Each country when highlighted should show the count against that country',
+	"yAxis": "",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_places_checkins_by_country"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Check-in Country List',
+	"description": 'The number of checkins to your location within the selected date range, broken down by country, presented as a table',
+	"code": 'Check-in Country List',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Output of the query to be presented in a table format with country and number of checkins as the columns',
+	"yAxis": "",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_places_checkins_by_country"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Mobile Check-ins',
+	"description": 'The number of checkins to your location within the selected date range through mobile devices alone',
+	"code": 'Mobile Check-ins',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Date',
+	"yAxis": 'page_places_checkin_mobile',
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_places_checkin_mobile"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Likes',
+	"description": 'Likes',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Date',
+	"yAxis": 'page_positive_feedback_by_type',
+	"scopes": "",
+	"endpoints": "",
+	"meta": 'page_positive_feedback_by_type',
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Lifetime Likes by languages',
+	"description": "A breakdown of your page's fans by language used",
+	"code": 'Lifetime Likes by languages',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Output of the query to be presented in a table format with language and number of fans as the columns',
+	"yAxis": "",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_fans_locale"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Lifetime Likes by country map',
+	"description": "A breakdown of your page's fans by country, presented as a map",
+	"code": 'Lifetime Likes by country map',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Output of the query to be fed into map. Each country when highlighted should show the count against that country',
+	"yAxis": "",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_fans_country"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Lifetime Likes by country list',
+	"description": "A breakdown of your page's fans by country, presented as a table",
+	"code": "Lifetime Likes by country list",
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Output of the query to be presented in a table format with country and number of fans as the columns',
+	"yAxis": "",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_fans_country"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Lifetime Likes by city',
+	"description": "A breakdown of your page's fans by city, presented as a table",
+	"code": 'Lifetime Likes by city',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Output of the query to be presented in a table format with city and number of fans as the columns',
+	"yAxis": "",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_fans_city"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Lifetime Likes by Age Groups',
+	"description": "A breakdown of your page's fans by age group",
+	"code": "Lifetime Likes by Age Groups",
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Pie chart of page likes broken down by age groups (number and percentage)',
+	"yAxis": "",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_fans_gender_age"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Lifetime Likes by Gender',
+	"description": "A breakdown of your page's fans by gender",
+	"code": 'Lifetime Likes by Gender',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Pie chart of page likes broken down by genders (number and percentage)',
+	"yAxis": "",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_fans_gender_age"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Like Sources',
+	"description": "A breakdown of your page's fans by the source of their like. Eg. Suggested pages, Timeline, ads, etc",
+	"code": 'Like Sources',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Radar chart of like frequency by source',
+	"yAxis": "",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_fans_by_like_source"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Unlikes',
+	"description": 'Unlikes',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": "",
+	"yAxis": "",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_negative_feedback_by_type"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Negative Feedback',
+	"description": 'The number of negative feedback received during the selected date range"code"Negative Feedback',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Date',
+	"yAxis": 'page_negative_feedback',
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_negative_feedback"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Negative Feedback Types',
+	"description": 'A breakdown of the type of negative feedback received. The types are hide all, hide. unlike and report spam',
+	"code": 'Negative Feedback Types',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Radar chart of unlike frequency by type',
+	"yAxis": "",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_negative_feedback_by_type"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Page views',
+	"description": 'The number of page views received by your page during the selected date range',
+	"code": 'Page views',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Date',
+	"yAxis": 'page_views',
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_views"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Top referring domains',
+	"description": 'The source of your page views broken down by domain"code"Top referring domains',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Output of the query to be presented in a table format with referral sources and number of referrals as the columns',
+	"yAxis": "",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "page_views_external_referrals"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Top Posts By Comments (lifetime)',
+	"description": 'The posts with maximum comments made during the date range',
+	"code": 'Top Posts By Comments (lifetime)',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Output of the query to be presented in a table format with post text and number of comments as the columns (Top 5 only)',
+	"yAxis": "",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "comments"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Top Posts By Impressions (lifetime)',
+	"description": 'The posts with maximum impressions made during the date range',
+	"code": 'Top Posts By Impressions (lifetime)',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Output of the query to be presented in a table format with post text and number of impressions as the columns (Top 5 only)',
+	"yAxis": "",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "post_impressions"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Top Posts By Likes (lifetime)',
+	"description": 'The posts with maximum likes made during the date range"code"Top Posts By Likes (lifetime)',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Output of the query to be presented in a table format with post text and number of post likes as the columns (Top 5 only)',
+	"yAxis": "",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "likes"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Top Posts By Reach (lifetime)',
+	"description": 'The posts with maximum reach made during the date range',
+	"code": 'Top Posts By Reach (lifetime)',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Output of the query to be presented in a table format with post text and reach as the columns (Top 5 only)',
+	"yAxis": "",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "post_impressions_unique"
+    } ,
+
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}, {
+	"name": 'Top Posts By Shares (lifetime)',
+	"description": 'The posts with maximum shares made during the date range',
+	"code": 'Top Posts By Shares (lifetime)',
+	"channelId": "570606247a0192cc0410fec7",
+	"bgFetch": "true",
+	"fetchPeriod": 1,
+	"xAxis": 'Output of the query to be presented in a table format with post text and number of shares as the columns (Top 5 only)',
+	"yAxis": "",
+	"scopes": "",
+	"endpoints": "",
+	"meta": {
+        "fbMetricName": "sharedposts"
+    } ,
+	
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+}])
+
+
+db.getCollection('metrics').insert([{
+		"name": "Total users",
+		"description": "The total number of users who visited the site for the chosen period.",
+		"code": "totalusers",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "Date",
+		"yAxis": "ga:users",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga:users"
+		},
+		"defaultChartType": "Line",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Sessions",
+		"description": "The total number of sessions recorded in the site for the chosen period.",
+		"code": "Sessions",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "Date",
+		"yAxis": "ga:sessions",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga:sessions"
+		},
+		"defaultChartType": "Line",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Page views",
+		"description": "The total number of page views recorded in the site for the chosen period.",
+		"code": "pageviews",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "Date",
+		"yAxis": "ga:sessions",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga:pageviews"
+		},
+		"defaultChartType": "Line",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Pages per visit",
+		"description": "The average number of pages viewed during a session, including repeated views of a single page.",
+		"code": "pagespervisit",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "Date",
+		"yAxis": "ga:pageviewsPerSession",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga:pageviewsPerSession"
+		},
+		"defaultChartType": "Line",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Average session Duration",
+		"description": "The average duration of user sessions represented in total seconds.",
+		"code": "average_session_duration",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "Date",
+		"yAxis": "ga:avgsessionDuration",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga:avgsessionDuration"
+		},
+		"defaultChartType": "Line",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "New users",
+		"description": "The total number of new users who visited the site for the chosen period.",
+		"code": "newusers",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "Date",
+		"yAxis": "ga:users",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga:users for ga:userType = 'New Visitor'"
+		},
+		"defaultChartType": "Line",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Sessions by devices",
+		"description": "The total number of sessions recorded in the site per device category for the chosen period.",
+		"code": "sessions_by_devices",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "ga:deviceCategory",
+		"yAxis": "ga:sessions",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga:sessions for ga:deviceCategory = 'desktop'ga: sessions for ga: deviceCategory = 'tablet' ga: sessions for ga: deviceCategory = 'mobile'"
+		},
+		"defaultChartType": "Line",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "New vs returning users",
+		"description": "The total number of new users and returning users who visited the site for the chosen period.",
+		"code": "new_vs_returning_users",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "Date",
+		"yAxis": "y1-axis: ga:users for ga:userType = 'New Visitor'y2-axis: ga:users for ga:userType = 'Returning Visitor'",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga:users for ga:userType = 'New Visitor' ga:users for ga:userType = 'Returning Visitor'"
+		},
+		"defaultChartType": "Stacked area",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Users by Age groups",
+		"description": "The list of users sorted by age group for the chosen period.",
+		"code": "users_by_age_groups",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "ga:userAgeBracket",
+		"yAxis": "",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga:userAgeBracket"
+		},
+		"defaultChartType": "Pie",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Users by Gender",
+		"description": "The list of users sorted by gender for the chosen period.",
+		"code": "users_by_gender",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "ga:userGender",
+		"yAxis": "",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga:userGender"
+		},
+		"defaultChartType": "Pie",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Users by country",
+		"description": "The list of users sorted by country for the chosen period.",
+		"code": "users_by_country",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "ga:country",
+		"yAxis": "",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga:country"
+		},
+		"defaultChartType": "Table",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Users by city",
+		"description": "The list of users sorted by city for the chosen period.",
+		"code": "users_by_city",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "ga:city",
+		"yAxis": "",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga:city"
+		},
+		"defaultChartType": "Table",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Organic Search",
+		"description": "Count of page views obtained through organic search for the chosen period",
+		"code": "organic_search",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "Date",
+		"yAxis": "ga:pageviews",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga:pageviews for ga:medium = 'organic'"
+		},
+		"defaultChartType": "Line",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Social source",
+		"description": "Count of page views obtained through social referrals for the chosen period",
+		"code": "social_source",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "Date",
+		"yAxis": "ga:pageviews",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga: pageviews for ga:medium = 'referral' AND ga:hasSocialSourceReferral = 'Yes'"
+		},
+		"defaultChartType": "Line",
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Social source",
+		"description": "Count of page views obtained through social referrals for the chosen period",
+		"code": "social_source",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "Date",
+		"yAxis": "ga:pageviews",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga: pageviews for ga:medium = 'referral' AND ga:hasSocialSourceReferral = 'Yes'"
+		},
+		"defaultChartType": "Line",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Paid Search",
+		"description": "Count of page views obtained through paid search for the chosen period",
+		"code": "paid_search",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "Date",
+		"yAxis": "ga:pageviews",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga:pageviews for ga:medium=cpa OR ga:medium=cpc OR ga:medium=cpm OR ga:medium=cpp OR ga:medium=cpv OR ga:medium=ppc"
+		},
+		"defaultChartType": "Line",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Direct source",
+		"description": "Count of page views obtained through direct search for the chosen period",
+		"code": "direct_source",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "Date",
+		"yAxis": "ga:pageviews",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga:pageviews for ga:medium = ''"
+		},
+		"defaultChartType": "Line",
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Referral Source",
+		"description": "Count of page views obtained through other referrals for the chosen period",
+		"code": "referral_source",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "Date",
+		"yAxis": "ga:pageviews",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga: pageviews for ga:medium = 'referral' AND ga:hasSocialSourceReferral = 'No'"
+		},
+		"defaultChartType": "Line",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Time on site",
+		"description": "The total duration of user sessions represented in total seconds.",
+		"code": "time_on_site",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "Date",
+		"yAxis": "ga:sessionDuration",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga:sessionDuration"
+		},
+		"defaultChartType": "Line",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Bounce rate",
+		"description": "The percentage of single-page session (i.e., session in which the person left your property from the first page) for the chosen period",
+		"code": "bounce_rate",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "Date",
+		"yAxis": "ga:bounceRate",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga:bounceRate"
+		},
+		"defaultChartType": "Line",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Top pages by visits",
+		"description": "Top 10 pages sorted by pageviews in a tabular format",
+		"code": "top_pages_by_visits",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "ga:pageviews,ga:uniquePageviews,ga:timeOnPage,ga:bounces",
+		"yAxis": "",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga:pageviews,ga:uniquePageviews,ga:timeOnPage,ga:bounces"
+		},
+		"defaultChartType": "Table",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Top pages by time",
+		"description": "Top 10 pages sorted by time spent in a tabular format",
+		"code": "Top_pages_by_time",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "ga:pageviews,ga:uniquePageviews,ga:timeOnPage,ga:bounces",
+		"yAxis": "",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga:pageviews,ga:uniquePageviews,ga:timeOnPage,ga:bounces"
+		},
+		"defaultChartType": "Table",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Top pages by bounce rate",
+		"description": "Top 10 pages sorted by bounce rate in a tabular format",
+		"code": "top_pages_by_bounce_rate",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "ga:pageviews,ga:uniquePageviews,ga:timeOnPage,ga:bounces",
+		"yAxis": "",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga:pageviews,ga:uniquePageviews,ga:timeOnPage,ga:bounces"
+		},
+		"defaultChartType": "Table",
+	"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Pages by unique pageviews",
+		"description": "Top 10 pages sorted by unique page views in a tabular format",
+		"code": "pages_by_unique_pageviews",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "ga:pageviews,ga:uniquePageviews,ga:timeOnPage,ga:bounces",
+		"yAxis": "",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga:pageviews,ga:uniquePageviews,ga:timeOnPage,ga:bounces"
+		},
+		"defaultChartType": "Table",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Cost",
+		"description": "Derived cost for the advertising campaign for the chosen period",
+		"code": "Cost",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "Date",
+		"yAxis": "ga:adCost",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga:adCost"
+		},
+		"defaultChartType": "Line",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Impressions",
+		"description": "Total impressions created for the advertising campaign for the chosen period",
+		"code": "Impressions",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "Date",
+		"yAxis": "ga:impressions",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga:impressions"
+		},
+		"defaultChartType": "Line",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	},
+
+	{
+		"name": "Clicks",
+		"description": "Total clicks obtained from ads for the advertising campaign for the chosen period",
+		"code": "Clicks",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "Date",
+		"yAxis": "ga:adClicks",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga:adClicks"
+		},
+		"defaultChartType": "Line",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Click through Rate",
+		"description": "Rate at which displayed ads are clicked through for the advertising campaign for the chosen period",
+		"code": "click_through_rate",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "Date",
+		"yAxis": "ga:CTR",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga:CTR"
+		},
+		"defaultChartType": "Line",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Cost per click",
+		"description": "Cost incurred for a single click in the advertising campaign for the chosen period",
+		"code": "cost_per_click",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "Date",
+		"yAxis": "ga:CPC",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga:CPC"
+		},
+		"defaultChartType": "Line",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Cost per thousand impressions",
+		"description": "Cost incurred for thousand clicks in the advertising campaign for the chosen period",
+		"code": "cost_per_thousand_impressions",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "Date",
+		"yAxis": "ga:CPM",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga:CPM"
+		},
+		"defaultChartType": "Line",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Cost per transaction",
+		"description": "Cost incurred for one transaction for the chosen period",
+		"code": "cost_per_transaction",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "Date",
+		"yAxis": "ga:costPerTransaction",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga:costPerTransaction"
+		},
+		"defaultChartType": "Line",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Cost per goal conversion",
+		"description": "Cost incurred for each goal accomplishment for the chosen period",
+		"code": "cost_per_goal_conversion",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "Date",
+		"yAxis": "ga:costPerGoalConversion",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga:costPerGoalConversion"
+		},
+		"defaultChartType": "Line",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Cost per conversion",
+		"description": "Cost incurred per conversion for the chosen period",
+		"code": "cost_per_conversion",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "Date",
+		"yAxis": "ga:costPerConversion",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga:costPerConversion"
+		},
+		"defaultChartType": "Line",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Revenue per click",
+		"description": "Average revenuefor each click on search ads for the chosen period",
+		"code": "revenue_per_click",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "Date",
+		"yAxis": "ga:RPC",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga:RPC"
+		},
+		"defaultChartType": "Line",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Return on ad spend",
+		"description": "Total transaction revenue and goal value divided by derived advertising cost for the chosen period",
+		"code": "return_on_ad_spend",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "Date",
+		"yAxis": "ga:ROAS",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": "ga:ROAS"
+		},
+		"defaultChartType": "Line",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Conversions",
+		"description": "",
+		"code": "Conversions",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "",
+		"yAxis": "",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": ""
+		},
+		"defaultChartType": "Line",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Conversion rate",
+		"description": "",
+		"code": "conversion_rate",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "",
+		"yAxis": "",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": ""
+		},
+		"defaultChartType": "Line",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Conversion by keywords",
+		"description": "",
+		"code": "conversion_by_keywords",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "",
+		"yAxis": "",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": ""
+		},
+		"defaultChartType": "Table",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Conversion by sources",
+		"description": "",
+		"code": "conversion_by_sources",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "",
+		"yAxis": "",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": ""
+		},
+		"defaultChartType": "Table",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Conversion by sources",
+		"description": "",
+		"code": "conversion_by_sources",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "",
+		"yAxis": "",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": ""
+		},
+		"defaultChartType": "Table",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Conversion mode",
+		"description": "",
+		"code": "conversion_mode",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "",
+		"yAxis": "",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": ""
+		},
+		"defaultChartType": "Table",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}, {
+		"name": "Conversion type",
+		"description": "",
+		"code": "conversion_type",
+		"channelId": "570606247a0192cc0410fec6",
+		"bgFetch": "true",
+		"fetchPeriod": 1,
+		"xAxis": "",
+		"yAxis": "",
+		"scopes": "",
+		"endpoints": "",
+		"meta": {
+			"gaMetricName": ""
+		},
+		"defaultChartType": "",
+		"updated" :ISODate("2016-04-06T07:22:57.638Z"),created : ISODate("2016-04-06T07:22:57.638Z")
+	}
+])

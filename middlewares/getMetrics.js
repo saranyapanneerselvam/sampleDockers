@@ -8,8 +8,7 @@ var metricsList = require('../models/metrics');
 
  */
 exports.metrics = function (req, res, next) {
-    //Set object in req to send the query response to controller
-    req.showMetric = {};
+
     /**
      * Query to find the metric list
      * @params req.params.channelId channel id from request
@@ -18,10 +17,36 @@ exports.metrics = function (req, res, next) {
      * callback next which returns response to controller
      */
     metricsList.find({channelId: req.params.channelId}, function (err, metrics) {
-        console.log('metrics', req.params.channelId, 'err', err, 'metric', metrics);
-        req.showMetric.metrics = metrics;
-        next();
+        if (err)
+            return res.status(500).json({error: err});
+        else if (!metrics.length)
+            return res.status(204).json({error: 'No records found'});
+        else{
+            req.app.metrics = metrics;
+            next();
+        }
     })
-}
+};
 
 
+exports.metricDetails = function (req, res, next) {
+
+    /**
+     * Query to find the details of a given metric
+     * @params req.params.metricId metric id from request
+     * @params err - error response
+     * @params metricDetails - query response
+     * callback next which returns response to controller
+     */
+    metricsList.find({_id: req.params.metricId}, function (err, metrics) {
+        if (err)
+            return res.status(500).json({error: err});
+        else if (!metrics.length)
+            return res.status(204).json({error: 'No records found'});
+        else{
+            req.app.metrics = metrics;
+            next();
+        }
+
+    })
+};

@@ -1,0 +1,80 @@
+<div class="modal-content" ng-init="changeViews('step_one')" ng-cloak>
+    <div class="modal-header">
+        <div class="row">
+            <div class="col-lg-12">
+                <button type="button" class="close" ng-click="dismiss()" aria-hidden="true">&times;</button>
+                <h3 class="model-title">Widget Settings</h3>
+            </div>
+        </div>
+    </div>
+
+    <form name="_form" class="form-horizontal" ng-submit="submit(_form)" ng-show="currentView === 'step_one'">
+        <div class="modal-body widget-body">
+            <div class="wrapper wrapper-content" ng-show="currentView === 'step_one'">
+                <div class="row" ng-show="currentView === 'step_one'" ng-cloak style="margin: 0px;">
+                    <div class="form-group" ng-class="{error: _form.name.$error && _form.submitted}" style="margin: 0px;">
+                        <label class="control-label col-lg-2 col-md-2">Name</label>
+                        <div class="col-lg-9 col-md-9">
+                            <input name="name" type="text" ng-model="form.name" class="form-control"/>
+                        </div>
+                    </div>
+                    <div class="form-group" ng-if="widget.widgetType==='custom'">
+                        <label class="control-label col-lg-2 col-md-2"></label>
+                        <div class="col-lg-9 col-md-9">
+                            <p><h4><a href="/customDataDocumentation" target="_blank" class="findOutHow">Find out how to send data for custom widgets - Documentation</a></h4></p>
+                        </div>
+                    </div>
+                    <div class="row" ng-cloak style="margin: 5px 0px 5px 0px;" ng-show="widget.widgetType != 'customFusion'">
+                        <a ng-click="selectedFusableWidgets()" class="btn btn-primary pull-left" tabindex="-1">Fuse widgets to this Widget</a>
+                    </div>
+                    <div class="row" ng-cloak style="margin: 5px 0px 5px 0px;" ng-show="widget.widgetType == 'customFusion'">
+                        <p>This is a Custom Fusion widget. To add more widgets to this, please delete this widget and create a new Custom Fusion widget</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="row" style="margin: 10px 0px 20px 0px;">
+                <div class="col-lg-12 text-right">
+                    <a ng-click="remove(widget);deleteWidget(widget)" class="btn btn-primary pull-left" tabindex="-1"><i class=" glyphicon glyphicon-trash favigon-img"></i>Delete</a>
+                    <a ng-click="dismiss()" class="btn btn-primary" tabindex="-1"><i class="glyphicon glyphicon-remove favigon-img"></i>Cancel</a>
+                    <button type="submit" class="btn btn-primary"><i class="glyphicon glyphicon-ok favigon-img"></i>Save </button>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="row" ng-show="currentView === 'step_two'" ng-cloak style="margin: 0px;">
+        <div class="modal-body widget-body">
+            <div class="wrapper wrapper-content" ng-show="currentView === 'step_two'">
+                <div class="row" style="margin: 0px">
+                    <div class="col-sm-4 fuse-widgets panel panel-default" style="margin-left: 34px;">
+                        <label for="availableWidgets">Available Dashboard Widgets</label>
+                        <select size="15" class="form-control select-widget" multiple ng-model="availableWidgets" ng-options="widgets as widgets.label for widgets in widgetsList"></select>
+                    </div>
+                    <div class="col-sm-3 pull-push-widgets">
+                        <div>
+                            <button class="btn btn-white button-widget" style="padding: 6px 6px;" ng-click="pushSelectedWidgets(availableWidgets[0],widgetsList,selectedWidgetsList)">Add <i class="fa fa-angle-right arrowColors" aria-hidden="true"></i></button>
+                        </div>
+                        <div>
+                            <button class="btn btn-white button-widget" style="padding: 6px 6px;" ng-click="pushSelectedWidgets(selectedWidgets[0],selectedWidgetsList,widgetsList)"><i class="fa fa-angle-left arrowColors" aria-hidden="true"></i> Remove</button>
+                        </div>
+                    </div>
+                    <div class="col-sm-1"></div>
+                    <div class="col-sm-4 fuse-widgets panel panel-default">
+                        <label for="availableWidgets">Widgets to be fused</label>
+                        <select size="15" multiple class="form-control select-widget" multiple ng-model="selectedWidgets" ng-options="selectedWidgets as selectedWidgets.label for selectedWidgets in selectedWidgetsList"></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="row" style="margin: 10px 0px 20px 0px;">
+                <div class="col-lg-12 text-right">
+                    <a ng-click="changeViews('step_one')" class="btn btn-primary pull-left" tabindex="-1">Back</a>
+                    <a ng-click="dismiss()" class="btn btn-primary" tabindex="-1"><i class="glyphicon glyphicon-remove favigon-img"></i>Cancel</a>
+                    <a ng-click="createCustomFusionWidget()" class="btn btn-primary" tabindex="-1"><i class="glyphicon glyphicon-ok favigon-img"></i>Save </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

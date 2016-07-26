@@ -9,19 +9,32 @@ module.exports = function (app) {
      * @callback dashboard - result from db call
      */
     app.get('/api/v1/dashboards/widgets/:dashboardId', widgetsList.widgets, function (req, res) {
-        var widgets = req.showMetric.widgets;
-        if (widgets)
-            res.json({widgetsList: widgets});
-        else
-            res.status(500).send({error: ""});
+            res.json({widgetsList: req.app.result});
+    });
+
+    app.get('/api/v1/widget/:widgetId', widgetsList.widgetDetails, function (req, res) {
+            res.json(req.app.result);
     });
 
     //To store the widgets
     app.post('/api/v1/widgets', widgetsList.saveWidgets, function (req, res) {
-        var widgets = req.app.result;
-        if (widgets)
-            res.json({widgetsList: widgets});
-        else
-            res.status(500).send({error: ""});
+            res.json({widgetsList: req.app.result});
     });
+
+    //To store the custom widgets
+    app.post('/api/v1/create/customwidgets', widgetsList.saveCustomWidgets, function (req, res) {
+            res.json({widgetsList: req.app.result});
+    });
+
+    //To delete the widgets
+    app.post('/api/v1/delete/widgets/:widgetId', widgetsList.deleteWidgets, function (req, res) {
+            res.json({widgetsList: req.app.result});
+    });
+
+    //To name update the widgets
+    app.post('/api/v1/update/widgets', widgetsList.updateNameOfWidgets, function (req, res) {
+        res.json({widgetsList: req.app.result});
+    });
+
+
 };

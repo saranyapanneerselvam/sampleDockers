@@ -25,13 +25,12 @@ $(document).ready(function () {
         }
 
         if(navbarHeigh < wrapperHeigh){
-            $('#page-wrapper').css("min-height", $(window).height()  + "px");
+            $('#page-wrapper').css("min-height", $(window).height() - 57  + "px");
         }
 
         if ($('body').hasClass('fixed-nav')) {
-            $('#page-wrapper').css("min-height", $(window).height() - 60 + "px");
+            $('#page-wrapper').css("min-height", $(window).height() - 57 + "px");
         }
-
     }
 
 
@@ -68,6 +67,7 @@ $(function() {
 });
 
 
+/*
 $(function(){
 
     //noinspection JSJQueryEfficiency
@@ -99,4 +99,6 @@ $(function(){
         });
 
 });
+*/
 
+new WOW().init();

@@ -10,11 +10,25 @@
 
 
             <span style="float: right">
-                <a class="navbar-minimalize minimalize-styl-1" style="margin-top: 10px;">
 <!--
-                    <span class="nav-label">Manage users</span>
+                <div class="" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav">
+                        <li class="dropdown">
+                            <a class="dropdown-toggle">
+                                <span class="nav-label">Manage users</span>
+                                <i class="fa fa-users fa-3x"></i>
+                            </a>
+                            <ul class="dropdown-menu" ng-controller="NavigationController">
+                                <li class="md-trigger md-setperspective md-effect-19 addRemoveModalContent" data-modal="addRemoveModalContent"><a>Add / Remove User</a></li>
+                                <li class="md-trigger md-setperspective md-effect-19 modifyUserModalContent" data-modal="modifyUserModalContent"><a>Modify User Permissions</a></li>
+                                <li class="md-trigger md-setperspective md-effect-19 newAccountModalContent" data-modal="newAccountModalContent"><a>Create New Account</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
 -->
-                    <i class="fa fa-users fa-3x"></i>
+                <a class="navbar-minimalize minimalize-styl-1 md-trigger md-setperspective md-effect-19 addRemoveModalContent" style="margin-top: 10px;" data-modal="addRemoveModalContent">
+                    <i class="icon icon-profile-male topnavbar-menu-icon"></i>
                 </a>
                 <ul class="nav nav-second-level collapse">
                     <li class="md-trigger md-setperspective md-effect-19 addRemoveModalContent" data-modal="addRemoveModalContent"><a>Add / Remove User</a></li>
@@ -28,10 +42,7 @@
 
             <span style="float: right">
                 <a class="navbar-minimalize minimalize-styl-1 md-trigger md-setperspective md-effect-19" ui-sref="app.changePassword" data-modal="settingModalContent" style="margin-top: 10px;">
-<!--
-                    <span class="nav-label" ui-sref="app.changePassword">Change Password</span>
--->
-                    <i class="fa fa-lock fa-3x"></i>
+                    <i class="icon icon-key topnavbar-menu-icon"></i>
                 </a>
             </span>
 

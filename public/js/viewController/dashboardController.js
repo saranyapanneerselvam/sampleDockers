@@ -492,7 +492,8 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 'widgetType': (typeof tempWidgetList[getWidgetInfo].widgetType != 'undefined'? tempWidgetList[getWidgetInfo].widgetType : ''),
                 'isAlert':(typeof tempWidgetList[getWidgetInfo].isAlert != 'undefined'? tempWidgetList[getWidgetInfo].isAlert : false),
                 'id': tempWidgetList[getWidgetInfo].id,
-                'visibility': false
+                'visibility': false,
+                'channelName': (typeof tempWidgetList[getWidgetInfo].channelName != 'undefined'? tempWidgetList[getWidgetInfo].channelName : '')
             });
             $scope.dashboard.widgetData.push(tempWidgetDataList[getWidgetInfo]);
         }

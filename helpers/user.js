@@ -132,10 +132,8 @@ exports.storeProfiles = function (req, res, done) {
 
                         }, function (err, profileDetail) {
                             if (!err) {
-                                console.log('req.code',typeof req.code,req.code,req.canManageClients);
                                 if(req.canManageClients===false) done(null,profileDetail)
                                 else if (req.code != configAuth.channels.instagram && req.code !== configAuth.channels.youtube  && req.code !== configAuth.channels.twitter) {
-                                    console.log('if')
                                     async.auto({
                                         object_types: getObjectType,
                                         get_remote_objects: ['object_types', getRemoteObjects]
@@ -170,7 +168,6 @@ exports.storeProfiles = function (req, res, done) {
                                     }
                                 }
                                 else {
-                                    console.log('else')
                                     done(null,profileDetail)
                                 }
                             }

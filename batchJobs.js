@@ -1249,13 +1249,11 @@ agenda.define('Update channel data', function (job, done) {
             }
         }
         function selectMailChimp (initialResults, callback){
-            console.log('selectMailChimp')
             async.auto({
                 get_mailChimp_queries: getMailChimpQueries,
                 get_mailChimp_data_from_remote: ['get_mailChimp_queries', getMailChimpDataFromRemote]
 
             }, function (err, results) {
-                console.log('selectMailChimpresult')
                 if (err) {
                     return callback(err, null);
                 }
@@ -1287,7 +1285,6 @@ agenda.define('Update channel data', function (job, done) {
                             metricId: initialResults.metric._id,
                             endpoint: initialResults.metric.objectTypes[0].meta.endpoint[0]
                         }
-                        console.log('queryResponsemailchimp',query)
                         callback(null, allObjects);
                     }
                     else
@@ -1312,7 +1309,6 @@ agenda.define('Update channel data', function (job, done) {
             };
 
             function callMailchimpForMetrics(result, callback){
-                console.log('result.profile.accessToken',result.profile.accessToken,result)
                 var actualFinalApiData=[];
                 request({
                     uri: result.query,
@@ -1321,7 +1317,6 @@ agenda.define('Update channel data', function (job, done) {
                         'Authorization': 'OAuth ' + result.profile.accessToken
                     }
                 }, function (err, response, body) {
-                    console.log('queryresponse',err,body)
                     var parsedResponse;
                     var storeMetric;
                     var tot_metric=[];
@@ -1336,11 +1331,9 @@ agenda.define('Update channel data', function (job, done) {
                         var item=result.widget.objectTypes[0].meta.mailChimpsMetricName;
                         if(result.endpoint==='campaign') {
                             if(result.metricCode==='emailSend') {
-                                console.log('insideoflogicif',item)
                                 storeMetric =parseInt(mailChimpResponse[item]);
                             }
                             else{
-                                console.log('insideoflogicelse',item);
                                 storeMetric =parseInt(mailChimpResponse.report_summary[item]);
                             }
                         }
@@ -1382,7 +1375,6 @@ agenda.define('Update channel data', function (job, done) {
                 if (err) {
                     return callback(err, null);
                 }
-                console.log('callback',results);
                 callback(null, results.get_linkedIn_data_from_remote);
             });
 
@@ -1391,15 +1383,12 @@ agenda.define('Update channel data', function (job, done) {
                 d = new Date();
                 var allObjects = {};
                 if (initialResults.data != null) {
-                    console.log('DataChecking',initialResults.data);
                     var updatedDb =initialResults.data.updated;
-                    console.log('DataChecking',updatedDb);
                     var updated = initialResults.data.updated;
                     var currentDate = new Date();
                     var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
                     updated.setTime(updated.getTime() + oneDay);
                     if (updatedDb < currentDate) {
-                        console.log('making call api');
                         if (initialResults.metric.objectTypes[0].meta.endpoint[0] === 'follwers') {
                             var query = 'https://api.linkedin.com/v1/companies/' + channelObjectId + '/num-followers?oauth2_access_token='+ initialResults.profile.accessToken + '&format=json';
                         }
@@ -1414,7 +1403,6 @@ agenda.define('Update channel data', function (job, done) {
                                 var oneDay = 24 * 60 * 60 * 1000;
                                 var endDate = +moment(closeDate);
                                 endDate = (endDate + oneDay);
-                                console.log('openDate', startDate);
                                 var query = 'https://api.linkedin.com/v1/companies/' + channelObjectId + '/historical-status-update-statistics:(time,like-count,impression-count,share-count,click-count,comment-count)?oauth2_access_token=' + initialResults.profile.accessToken + '&time-granularity=day&start-timestamp=' + startDate + '&end-timestamp=' + endDate + '&format=json';
                             }
                         }
@@ -1432,7 +1420,6 @@ agenda.define('Update channel data', function (job, done) {
                             metricCode:initialResults.metric.code,
                             endpoint: initialResults.metric.objectTypes[0].meta
                         }
-                        console.log('dataAllObjects', allObjects);
                         callback(null, allObjects);
                     }
                     else
@@ -1442,7 +1429,6 @@ agenda.define('Update channel data', function (job, done) {
             }
 
             function getLinkedInDataFromRemote(allObjects,callback){
-                console.log('hhaaaaaaaaaaaaaa', allObjects);
                 var actualFinalApiData = {};
                 if (allObjects.get_linkedIn_queries === 'DataFromDb') {
                     actualFinalApiData = {
@@ -1463,12 +1449,10 @@ agenda.define('Update channel data', function (job, done) {
                 var actualMetric=[];
                 request(result.query,
                     function (err, response, body) {
-                        console.log('object', body);
                         if (err || response.statusCode!=200) {
                             callback(err,null);
                         }
                         else {
-                            console.log('needs', result.endpoint);
                             storeMetric=JSON.parse(body);
                             if(storeMetric._total==0){
                                 var storeStartDate = new Date(req.body.startDate);
@@ -1479,7 +1463,6 @@ agenda.define('Update channel data', function (job, done) {
                                     var finalDate = formatDate(storeStartDate);
                                     tot_metric.push({date: finalDate, total: 0});
                                     storeStartDate.setDate(storeStartDate.getDate() + 1);
-                                    //console.log('response', storeMetric);
                                 }
                                 actualFinalApiData = {
                                     apiResponse: tot_metric,
@@ -1487,7 +1470,6 @@ agenda.define('Update channel data', function (job, done) {
                                     queryResults: initialResults,
                                     channelId: initialResults.metric[0].channelId
                                 }
-                                console.log(actualFinalApiData.apiResponse);
                                 callback(null, actualFinalApiData);
                             }
                             else
@@ -1502,7 +1484,6 @@ agenda.define('Update channel data', function (job, done) {
                                         var endDate=moment(result.endDate).format('YYYY-MM-DD');
                                         tot_metric.push({date: finalDate, total: 0});
                                         storeStartDate.setDate(storeStartDate.getDate() + 1);
-                                        console.log('response', storeMetric,endDate);
                                         if (endDate === tot_metric[i].date) {
                                             tot_metric[i] = {
                                                 total: storeMetric,
@@ -1516,12 +1497,10 @@ agenda.define('Update channel data', function (job, done) {
                                         queryResults: initialResults,
                                         channelId: initialResults.metric.channelId
                                     }
-                                    console.log(actualFinalApiData.apiResponse);
                                     callback(null, actualFinalApiData);
                                 }
                                 else {
                                     if (result.metricCode === 'highestEngagementUpdatesLinkedIn') {
-                                        //console.log('length', storeMetric.values.length);
                                         var loopCount=0;
                                         for (var i = 0; i < storeMetric.values.length; i++) {
                                             loopCount++;
@@ -1531,25 +1510,15 @@ agenda.define('Update channel data', function (job, done) {
                                             var endDate = +moment(closeDate);
                                             var updateKey = storeMetric.values[i].updateKey;
                                             var dataDate = storeMetric.values[i].timestamp;
-                                            console.log('changingDate',dataDate,startDate,dataDate,endDate);
-                                            if (dataDate >= startDate && dataDate <= endDate) {
-                                                console.log('length', storeMetric.values);
+                                            if (dataDate >= startDate && dataDate <= endDate)
                                                 tot_metric.push(storeMetric.values[i]);
-                                            }
-                                            else{
-                                                console.log('loopCount',loopCount);
-
-                                            }
-
                                         }
                                         if(tot_metric!=null && tot_metric.length>0){
                                             for (var m = 0; m < tot_metric.length; m++) {
                                                 var commentText = tot_metric[m].updateContent.companyStatusUpdate.share.comment;
                                                 var companyId = 'https://www.linkedin.com/company/' + tot_metric[m].updateContent.company.id;
                                                 var changeDate = moment.unix(dataDate / 1000).format("YYYY-MM-DD");
-                                                console.log('changeDate', changeDate);
                                                 var queryMakingForHistory = 'https://api.linkedin.com/v1/companies/' + result.objectId + '/historical-status-update-statistics:(time,like-count,impression-count,share-count,click-count,comment-count)?oauth2_access_token=' + result.profile.accessToken + '&time-granularity=day&start-timestamp=' + startDate + '&end-timestamp=' + endDate + '&update-key=' + updateKey + '&format=json&format=json-get&format=json';
-                                                console.log('queryMakingForHistory', queryMakingForHistory);
                                                 var store = callLinkedInCompanyHistory(queryMakingForHistory, changeDate, commentText, companyId);
                                             }
                                         }
@@ -1560,30 +1529,25 @@ agenda.define('Update channel data', function (job, done) {
                                                 queryResults: initialResults,
                                                 channelId: initialResults.metric.channelId
                                             }
-                                            console.log(actualFinalApiData.apiResponse);
                                             callback(null, actualFinalApiData);
                                         }
 
                                     }
                                     else {
                                         for (var i = 0; i < storeMetric.values.length; i++) {
-                                            console.log('storeMetric', storeMetric.values[i][result.metricMeta]);
                                             var dataDate = storeMetric.values[i].time;
                                             var changeDate = moment.unix(dataDate / 1000).format("YYYY-MM-DD");
-                                            console.log('changeDate', changeDate);
                                             actualMetric.push({
                                                 date: changeDate,
                                                 total: storeMetric.values[i][result.metricMeta]
                                             });
                                         }
-                                        console.log('tot_metric', actualMetric);
                                         actualFinalApiData = {
                                             apiResponse: actualMetric,
                                             metricId: result.metricId,
                                             queryResults: initialResults,
                                             channelId: initialResults.metric.channelId
                                         }
-                                        console.log(actualFinalApiData.apiResponse);
                                         callback(null, actualFinalApiData);
 
                                     }
@@ -1600,7 +1564,6 @@ agenda.define('Update channel data', function (job, done) {
                                     else {
                                         var linkedInHistory=JSON.parse(linkedIn);
                                         var likesCount=0, impressionsCount=0,commentsCount=0,sharesCount=0,clicksCount=0;
-                                        // console.log('queryMakingForHistoryResult',linkedInHistory._total, linkedInHistory.values);
                                         var companylength=linkedInHistory._total;
                                         for (var k = 0; k < companylength; k++) {
                                             likesCount+=linkedInHistory.values[k].likeCount;
@@ -1612,11 +1575,8 @@ agenda.define('Update channel data', function (job, done) {
                                         }
                                         actualMetric.push({date: changeDate,total:({url:companyId,text:commentText,likes:likesCount,comments:commentsCount,shares:sharesCount,clicks:clicksCount,impressions:impressionsCount})});
                                         likesCount=0; impressionsCount=0;commentsCount=0;sharesCount=0;clicksCount=0;
-                                        console.log('actualMetric',actualMetric);
-                                        console.log('checlkingLength',actualMetric.length,tot_metric.length);
                                         var metricArray = _.sortBy(actualMetric, ['total.clicks']);
                                         if(tot_metric.length==actualMetric.length){
-                                            // console.log('metricArray', metricArray);
                                             var metricArray = _.sortBy(actualMetric, ['total.clicks']);
                                             var collectionMetric= _.orderBy(metricArray, ['total.clicks','total.shares','total.likes','total.impressions'], ['desc','asc','asc','desc               ']);
                                             actualFinalApiData = {
@@ -1625,7 +1585,6 @@ agenda.define('Update channel data', function (job, done) {
                                                 queryResults: initialResults,
                                                 channelId: initialResults.metric.channelId
                                             }
-                                            console.log(actualFinalApiData.apiResponse);
                                             callback(null, actualFinalApiData);
 
                                         }
@@ -1939,7 +1898,6 @@ agenda.define('Update channel data', function (job, done) {
                                                 obj['total'] = dataFromRemote[j].data.data[i][resultCount].primitiveValue;
                                             }
                                             else if (metric[j].objectTypes[0].meta.api === configAuth.googleApiTypes.youtubeApi) {
-                                                console.log('dataFromRemote[j].data',dataFromRemote[j].data,i)
                                                 obj[dimensionList[m].storageName] = dataFromRemote[j].data.data[i][0];
                                                 obj['total'] = dataFromRemote[j].data.data[i][resultCount];
                                             }
@@ -2030,7 +1988,6 @@ agenda.define('Update channel data', function (job, done) {
                                 //merge the old data with new one and update it in db
                                 for (var key = 0; key < dataFromDb[j].data.length; key++) {
                                     if (dataFromDb[j].data[key].date === moment(new Date).format('YYYY-MM-DD')) {
-                                        console.log('findCurrentDate',findCurrentDate)
                                         if (findCurrentDate != -1) storeGoogleData[findCurrentDate] = dataFromDb[j].data[key];
                                         else storeGoogleData.push(dataFromDb[j].data[key]);
                                     }
@@ -2092,7 +2049,6 @@ agenda.define('Update channel data', function (job, done) {
                                 }
 
                             }
-                            console.log('finalData',finalData);
                             next(null, finalData)
 
                         }
@@ -2100,7 +2056,6 @@ agenda.define('Update channel data', function (job, done) {
                             next(null, 'DataFromDb')
                     }
                     else if (channel[j].code === configAuth.channels.linkedIn) {
-                        console.log('entering!!!!',dataFromRemote[j]);
                         var finalData = [];
                         if (dataFromRemote[j].apiResponse != 'DataFromDb') {
 
@@ -2123,7 +2078,6 @@ agenda.define('Update channel data', function (job, done) {
                                 }
 
                             }
-                            console.log('finalData',finalData);
                             next(null, finalData)
 
                         }
@@ -2356,7 +2310,6 @@ agenda.on('ready', function () {
     agenda.now('Update channel data')
     agenda.start();
     agenda.on('complete', function (job) {
-        console.log("Job %s finished", job.attrs.name);
         if (job) {
             //agenda.now('Send Alerts')
             agenda.processEvery('1.5 minutes', 'Send Alerts');

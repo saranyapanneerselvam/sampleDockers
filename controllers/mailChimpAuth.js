@@ -73,7 +73,6 @@ module.exports = function (app) {
                         req.profileName = parsedResponse.login.login_name;
                         req.dataCenter = parsedResponse.dc;
                         channels.findOne({code: configAuth.channels.mailChimp}, function (err, channelDetails) {
-                            console.log('channelDetails',channelDetails)
                             if (err)
                                 return res.status(500).json({error: err});
                             else if (!channelDetails)

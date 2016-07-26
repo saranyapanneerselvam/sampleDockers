@@ -55,7 +55,7 @@ exports.getUserPassword = function (req, res, next) {
                     user.pwdHash =  bcrypt.hashSync(req.body.newPassword, bcrypt.genSaltSync(8), null);
                     user.save(function(err){
                         if (!err){
-                            console.log('User saved....');
+                            console.log('User saved');
                         }
                     });
                 }

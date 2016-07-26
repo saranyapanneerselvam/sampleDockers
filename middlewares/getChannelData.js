@@ -3420,19 +3420,14 @@ exports.getChannelData = function (req, res, next) {
                                 storeMetric = parseInt(mailChimpResponse[item]);
                             }
                             else {
-                            if(!mailChimpResponse.report_summary){
-                                    console.log('report not available',tot_metric);
+                            if(!mailChimpResponse.report_summary)
                                 storeMetric = '';
-                                }
-                                else {
-                                    storeMetric = parseInt(mailChimpResponse.report_summary[item]);
-                                }
-
+                            else
+                                storeMetric = parseInt(mailChimpResponse.report_summary[item]);
                             }
                         }
-                        else {
-                                storeMetric = parseInt(mailChimpResponse.stats[item]);
-                        }
+                        else
+                            storeMetric = parseInt(mailChimpResponse.stats[item]);
                         if(storeMetric!='') {
                             for (var i = 0; i <= diffDays; i++) {
                                 var finalDate = formatDate(storeStartDate);

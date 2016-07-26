@@ -190,13 +190,11 @@ function minimalizaSidebar($timeout) {
                     $('#side-menu').hide();
                     setTimeout(
                         function () {
-                            console.log('Inside else if');
                             $('#side-menu').fadeIn(500);
                         }, 300);
                 } else {
                     // Remove all inline style from jquery fadeIn function to reset menu state
                     $('#side-menu').removeAttr('style');
-                    console.log('Inside else');
                     if ($('body').hasClass('mini-navbar')){
                         //document.getElementById('topNavbarList').setAttribute('style','padding-left: 71px;');
                             document.getElementById('tabs-container-desk-view').setAttribute('style','padding-left: 71px;');

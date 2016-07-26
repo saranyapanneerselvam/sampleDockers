@@ -5,6 +5,34 @@
  *   version 0.1
  *
 */
+.nav .dropdown-menu li a:hover{
+    background: #E6E3E3;
+    color: #04509B !important
+}
+.dropdown-menu{
+    color:#fff !important;
+    font-family: Heebo-Light;
+    font-weight: 500;
+    background-color: #04509B !important;
+}
+.dropdown{
+    background-color: transparent !important;
+}
+.nav .dropdown dropdown-toggle:hover{
+    background-color: transparent !important;
+}
+.fa-users{color:#fff !important;}
+
+.topnavbar-menu-icon{
+    font-size: 25px !important;
+    font-weight: bolder !important;
+    color: #ffffff !important;
+}
+.navigation-menu-icon{
+    font-size: 25px !important;
+    font-weight: bolder !important;
+    color: #000000 !important;
+}
 
 .fuse-widgets{padding: 0px;}
 .pull-push-widgets{text-align: center}
@@ -275,7 +303,7 @@ h5 {
 .nav .open > a,
 .nav .open > a:hover,
 .nav .open > a:focus {
-    background: #fff;
+   background: transparent;
 }
 .nav.navbar-top-links > li > a:hover,
 .nav.navbar-top-links > li > a:focus {
@@ -3734,6 +3762,13 @@ body.landing-page {
     .landing-page .navbar .navbar-header {
         display: block;
         float: none;
+    }
+    .open .dropdown-menu{
+        position: absolute !important;
+        float: left !important;
+    }
+    .navbar-nav {
+        margin:0px !important;
     }
     .landing-page .navbar .navbar-header .navbar-toggle {
         background-color: #ffffff;

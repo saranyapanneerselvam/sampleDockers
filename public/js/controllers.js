@@ -765,7 +765,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                 return d3.format('f')(d);},
                             showMaxMin: false
                         },
-                        interpolate: "basis",
+                        interpolate: "monotone",
                         axisLabelDistance: -10,
                         showLegend: false,
                         //forceY: [lowestLineValue,highestLineValue == 0? 10 : highestLineValue + 10],

@@ -5,7 +5,7 @@ module.exports = function (app, passport) {
     // HOME PAGE (with login links)
     app.get('/', function (req, res) {
         if (req.user) res.redirect('/profile')
-        else res.render('index.ejs'); // load the index.ejs file
+        else res.render('../public/home.ejs'); // load the index.ejs file
     });
 
 
@@ -15,13 +15,28 @@ module.exports = function (app, passport) {
         res.render('privacy.ejs'); // load the Privacy Policy file
     });
 
+    app.get('/pricing', function (req, res) {
+        res.render('../public/pricing.ejs');
+    });
 
+    app.get('/features', function (req, res) {
+        res.render('../public/productfeatures.ejs');
+    });
+
+    app.get('/faqs', function (req, res) {
+        res.render('../public/faqs.ejs');
+    });
+
+    app.get('/integrations', function (req, res) {
+        res.render('../public/integrations.ejs');
+    });
+    
     // show the login form
     app.get('/api/v1/login', function (req, res) {
         if (req.user) res.redirect('/profile')
         else
             // render the page and pass in any flash data if it exists
-            res.render('login', {message: req.flash('loginMessage')});
+            res.render('../public/login.ejs', {message: req.flash('loginMessage')});
     });
 
     // process the login form - app.post('/login', do all our passport stuff here);
@@ -35,7 +50,7 @@ module.exports = function (app, passport) {
     app.get('/api/v1/signup', function (req, res) {
 
         // render the page and pass in any flash data if it exists
-        res.render('signup.ejs', {message: req.flash('signupMessage')});
+        res.render('../public/signup.ejs', {message: req.flash('signupMessage')});
     });
 
     // process the signup form - app.post('/signup', do all our passport stuff here);

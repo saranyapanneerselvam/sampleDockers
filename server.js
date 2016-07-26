@@ -84,8 +84,6 @@ app.post('/getinvite', function(req,res){
 
     verifyRecaptcha(req.body['g-recaptcha-response'], function(success) {
         if (success) {
-            console.log('Success');
-
             // Email Setup
             var transporter = nodemailer.createTransport({
                 service: 'Zoho',
@@ -120,13 +118,10 @@ app.post('/getinvite', function(req,res){
             };
             // Send
             transporter.sendMail(mailOptions, function(error, info){
-                if(error){
-                    console.log(error);
+                if(error)
                     res.redirect('/');
-                }else{
-                    console.log('Invite details message sent: ' + info.response);
+                else
                     res.redirect('/');
-                }
             });
             transporter.sendMail(mailOptionsSubmitter, function(error, info){
                 if(error){
@@ -136,7 +131,6 @@ app.post('/getinvite', function(req,res){
                 }
             });
         } else {
-            console.log('Failure');
             res.redirect('/');
         }
     });

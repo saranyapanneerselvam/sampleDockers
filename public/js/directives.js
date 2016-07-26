@@ -190,13 +190,11 @@ function minimalizaSidebar($timeout) {
                     $('#side-menu').hide();
                     setTimeout(
                         function () {
-                            console.log('Inside else if');
                             $('#side-menu').fadeIn(500);
                         }, 300);
                 } else {
                     // Remove all inline style from jquery fadeIn function to reset menu state
                     $('#side-menu').removeAttr('style');
-                    console.log('Inside else');
                     if ($('body').hasClass('mini-navbar')){
                         //document.getElementById('topNavbarList').setAttribute('style','padding-left: 71px;');
                             document.getElementById('tabs-container-desk-view').setAttribute('style','padding-left: 71px;');
@@ -514,12 +512,6 @@ function sizeWatcher ($timeout){
                 $timeout( checkSize, 1000 );
             }
             checkSize();
-            scope.$on('gridster-item-transition-end',function(e,item){
-               scope.$emit('my-gridster-item-transition-end',item);
-            });
-            scope.$on('gridster-item-resized',function(e,item){
-                scope.$emit('my-gridster-item-resized',item);
-            });
         }
     };
 }

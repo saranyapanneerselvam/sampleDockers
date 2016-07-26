@@ -1,4 +1,11 @@
 /* nvd3 version 1.8.2 (https://github.com/novus/nvd3) 2016-01-24 */
+
+.nv-x .tick line { display: none; }
+.nv-y .tick line { display: none; }
+.nv-x .tick:first-child line {
+    visibility: visible;
+}
+
 .nvd3 .nv-axis {
     pointer-events:none;
     opacity: 1;

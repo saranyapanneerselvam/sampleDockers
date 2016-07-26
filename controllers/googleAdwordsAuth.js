@@ -86,7 +86,7 @@ module.exports = function (app) {
                                             req.canManageClients = clientResponse.rval.canManageClients;
                                             req.customerId = clientResponse.rval.customerId;
                                             //Calling the storeProfiles middleware to store the data
-                                            user.storeProfiles(req, function (err, response) {
+                                            user.storeProfiles(req,res, function (err, response) {
                                                 if (err)
                                                     res.json('Error');
                                                 else {

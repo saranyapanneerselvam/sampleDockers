@@ -38,7 +38,7 @@ exports.storeChannel = function (req, res, next) {
 
  */
 exports.getChannels = function (req, res, next) {
-
+    req.showMetric = {};
     /**Find list of channels from channel collection
      * @params err - is null if no error else will have error message details
      * @params channelDetails - response from collection(list of channels)

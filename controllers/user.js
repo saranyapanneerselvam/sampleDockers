@@ -1,5 +1,5 @@
 var userDetails = require('../middlewares/user');
-
+var userActivity = require('../helpers/user');
 module.exports = function (app, passport) {
 
     // HOME PAGE (with login links)
@@ -33,12 +33,6 @@ module.exports = function (app, passport) {
     
     // show the login form
     app.get('/api/v1/login', function (req, res) {
-        //console.log(req.connection,req.connection.remoteAddress);
-        var ip = req.headers['x-forwarded-for'] ||
-            req.connection.remoteAddress ||
-            req.socket.remoteAddress ||
-            req.connection.socket.remoteAddress;
-        //console.log('ipaddress',ip)
         if (req.user) res.redirect('/profile')
         else
             // render the page and pass in any flash data if it exists
@@ -81,17 +75,16 @@ module.exports = function (app, passport) {
     // we will want this protected so you have to be logged in to visit
     // we will use route middleware to verify this (the isLoggedIn function)
     app.get('/profile', function (req, res) {
-        if (req.user)
+        if (req.user){
+            userActivity.saveUserActivity(req,res,function(err,userReponse){});
             res.render('profile.ejs');
-        else
-            res.redirect('/api/v1/login');
-        //res.status(401).json({error:'Authentication required to perform this action'})
+        }
+        else res.redirect('/api/v1/login');
     });
 
     app.get('/signout', function (req, res) {
         req.logout();
         res.redirect('/');
-
     });
 
     app.post('/api/v1/updateLastDashboardId/:id', userDetails.updateLastDashboardId, function (req, res) {

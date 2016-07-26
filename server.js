@@ -55,12 +55,15 @@ var accessLogStream = FileStreamRotator.getStream({
     filename: logDirectory + '/errorLog-%DATE%.log',
     frequency: configAuth.dataFormat.frequency
 })
+app.use(morgan('dev')); // log every request to the console
+/*
 app.use(morgan({format:configAuth.dataFormat.logDataFormat,stream: {
     write: function(str)
     {
         accessLogStream.write(str);
     }
 },skip:function (req, res) { return res.statusCode < 400 }}));
+*/
 app.use(cookieParser()); // read cookies (needed for auth)
 app.use(bodyParser({limit: "50mb"})); // get information from html forms
 app.set('view engine', 'ejs'); // set up ejs for templating
@@ -81,8 +84,6 @@ app.post('/getinvite', function(req,res){
 
     verifyRecaptcha(req.body['g-recaptcha-response'], function(success) {
         if (success) {
-            console.log('Success');
-
             // Email Setup
             var transporter = nodemailer.createTransport({
                 service: 'Zoho',
@@ -117,13 +118,10 @@ app.post('/getinvite', function(req,res){
             };
             // Send
             transporter.sendMail(mailOptions, function(error, info){
-                if(error){
-                    console.log(error);
+                if(error)
                     res.redirect('/');
-                }else{
-                    console.log('Invite details message sent: ' + info.response);
+                else
                     res.redirect('/');
-                }
             });
             transporter.sendMail(mailOptionsSubmitter, function(error, info){
                 if(error){
@@ -133,7 +131,6 @@ app.post('/getinvite', function(req,res){
                 }
             });
         } else {
-            console.log('Failure');
             res.redirect('/');
         }
     });
@@ -162,6 +159,8 @@ require('./controllers/facebookAuth')(app);
 require('./controllers/googleAuth')(app);
 require('./controllers/twitterAuth')(app);
 require('./controllers/instaAuth')(app);
+require('./controllers/mailChimpAuth')(app);
+require('./controllers/linkedInAuth')(app);
 require('./controllers/channels')(app);
 require('./controllers/metrics')(app);
 require('./controllers/profiles')(app);

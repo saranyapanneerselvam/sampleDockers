@@ -59,7 +59,8 @@ module.exports = function (app) {
                             else {
                                 req.channelId = channelList._id;
                                 req.channelCode = '4';
-                                user.storeProfiles(req, function (err, response) {
+                                req.code = channelList.code;
+                                user.storeProfiles(req,res, function (err, response) {
                                     if (err) return res.status(500).json({error: err});
                                     else {
                                         //If response of the storeProfiles function is success then render the successAuthentication page

@@ -50,9 +50,10 @@ module.exports = function (app) {
                 channels.findOne({code: configAuth.channels.instagram}, function (err, channelDetails) {
                     req.channelId = channelDetails._id;
                     req.accessToken = token;
+                    req.code = channelDetails.code;
 
                     //Store profile details - dev
-                    user.storeProfiles(req, function (err, response) {
+                    user.storeProfiles(req,res, function (err, response) {
                         //If storage error occurs - dev
                         if (err)
                             res.json('Error', err);

@@ -9,6 +9,7 @@ var profilesSchema = mongoose.Schema({
     canManageClients:Boolean,
     name: String,
     orgId: String,
+    dataCenter:String,
     email: String,
     accessToken: String,
     refreshToken: String,

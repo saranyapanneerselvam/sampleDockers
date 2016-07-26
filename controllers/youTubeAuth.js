@@ -5,10 +5,7 @@ var Object = require('../models/objects');
 var ObjectType = require('../models/objectTypes');
 var configAuth = require('../config/auth');// load the auth variables
 var googleapis = require('googleapis');//To use google api'
-
-
 module.exports = function (app) {
-    var OAuth2 = googleapis.auth.OAuth2;
     var oauth2 = require('simple-oauth2')({
         clientID: configAuth.youTubeAuth.clientID,
         clientSecret: configAuth.youTubeAuth.clientSecret,
@@ -60,54 +57,65 @@ module.exports = function (app) {
                             //set token details to tokens
                             req.tokens = token.token;
                             channels.findOne({code: configAuth.channels.youtube}, function (err, channelDetails) {
-                                req.channelId = channelDetails._id;
-                                req.channelName = channelDetails.name;
-                                req.channelCode = channelDetails._id;
+                                if (err)
+                                    return res.status(500).json({error: err});
+                                else if (!channelDetails)
+                                    return res.status(204).json({error: 'No records found'});
+                                else {
+                                    req.channelId = channelDetails._id;
+                                    req.channelName = channelDetails.name;
+                                    req.channelCode = channelDetails._id;
+                                    req.code = channelDetails.code;
 
-                                //Calling the storeProfiles middleware to store the data
-                                user.storeProfiles(req, function (err, response) {
-                                    if (err)
-                                        return res.status(500).json({error: err});
-                                    else {
-                                        //If response of the storeProfiles function is success then render the successAuthentication page
-                                        Object.findOne({profileId:response._id} , function(err, object){
-                                            if (err)
-                                                return res.status(500).json({error: err});
-                                            else {
-                                                if(object != null)
-                                                    res.render('successAuthentication');
-                                                else{
-                                                    ObjectType.findOne({'channelId':response.channelId},function(err,objectTypeList){
-                                                        if (err)
-                                                            return res.status(500).json({error: err});
-                                                        else if (!objectTypeList)
-                                                            return res.status(204).json({error: 'No records found'});
-                                                        else{
-                                                            var  storeObject = new Object();
-                                                            storeObject.profileId = response._id;
-                                                            storeObject.channelObjectId=req.userId;
-                                                            storeObject.name=response.name;
-                                                            storeObject.objectTypeId=objectTypeList._id;
-                                                            storeObject.updated=new Date();
-                                                            storeObject.created=new Date();
-                                                            storeObject.save(function(err,objectListItem){
-                                                                if(!err)
-                                                                    res.render('successAuthentication');
-                                                                else
-                                                                    return res.status(500).json({error: err});
-                                                            });
-                                                        }
-                                                    });
+                                    //Calling the storeProfiles middleware to store the data
+                                    user.storeProfiles(req,res, function (err, response) {
+                                        if (err)
+                                            return res.status(500).json({error: err});
+                                        else {
+                                            //If response of the storeProfiles function is success then render the successAuthentication page
+                                            Object.findOne({profileId:response._id} , function(err, object){
+                                                if (err)
+                                                    return res.status(500).json({error: err});
+                                                else {
+                                                    if(object != null)
+                                                        res.render('successAuthentication');
+                                                    else{
+                                                        ObjectType.findOne({'channelId':response.channelId},function(err,objectTypeList){
+                                                            if (err)
+                                                                return res.status(500).json({error: err});
+                                                            else if (!objectTypeList)
+                                                                return res.status(204).json({error: 'No records found'});
+                                                            else{
+                                                                var  storeObject = new Object();
+                                                                storeObject.profileId = response._id;
+                                                                storeObject.channelObjectId=req.userId;
+                                                                storeObject.name=response.name;
+                                                                storeObject.objectTypeId=objectTypeList._id;
+                                                                storeObject.updated=new Date();
+                                                                storeObject.created=new Date();
+                                                                storeObject.save(function(err,objectListItem){
+                                                                    if(!err)
+                                                                        res.render('successAuthentication');
+                                                                    else if (!objectListItem)
+                                                                        return res.status(501).json({error: 'Not implemented'})
+                                                                    else
+                                                                        return res.status(500).json({error: err});
+                                                                });
+                                                            }
+                                                        });
+                                                    }
                                                 }
-                                            }
-                                        });
-                                    }
-                                });
+                                            });
+                                        }
+                                    });
+                                }
+
                             });
                         }
                         else return res.status(401).json({error: 'Authentication required to perform this action'});
                     })
                 }
+                else  res.status(401).json({error: 'Authentication required to perform this action'});
             })
         }
     })

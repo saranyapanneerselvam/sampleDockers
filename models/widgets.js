@@ -23,7 +23,8 @@ var widgetsSchema = mongoose.Schema({
     deleted: Date,
     widgets:Array,
     visibility:Boolean,
-    isAlert:Boolean
+    isAlert:Boolean,
+    channelName: String
 });
 
 // create the model for organization and expose it to our app

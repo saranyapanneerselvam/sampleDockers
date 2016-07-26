@@ -179,6 +179,7 @@ exports.saveWidgets = function (req, res, next) {
             var widgets = req.body;
             var widgetsForCustomFusion;
             var isAlert;
+            var channelName;
 
             async.concatSeries(widgets, saveAllWidgets, callback);
 
@@ -197,6 +198,7 @@ exports.saveWidgets = function (req, res, next) {
                 widgetName = result.name;
                 widgetType = result.widgetType;
                 isAlert = result.isAlert;
+                channelName = result.channelName;
                 userPermission.checkUserAccess(req, res, function (err, response) {
                     if (err)
                         return res.status(500).json({error: 'Internal server error'});
@@ -226,6 +228,7 @@ exports.saveWidgets = function (req, res, next) {
                             createWidget.updated = new Date();
                             createWidget.visibility = true;
                             createWidget.isAlert = isAlert;
+                            createWidget.channelName = channelName;
                             createWidget.save(function (err, widgetDetail) {
                                 if (err)
                                     return res.status(500).json({error: 'Internal server error'});
@@ -343,6 +346,7 @@ exports.saveCustomWidgets = function (req, res, next) {
     createCustomWidget.channelId = req.body.channelId;
     createCustomWidget.visibility = true;
     createCustomWidget.isAlert = false;
+    createCustomWidget.channelName = req.body.channelName;
     createCustomWidget.created = new Date();
     createCustomWidget.updated = new Date();
     createCustomWidget.save(function (err, customWidgetDetail) {

@@ -28,6 +28,7 @@
     "css-element-queries": "*",
     "angular-xeditable": "*",
     "jspdf": "*",
-    "angular-gridster": "*"
+    "angular-gridster": "*",
+    "lodash": "*"
   }
 }

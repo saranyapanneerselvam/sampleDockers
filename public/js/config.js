@@ -97,7 +97,6 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                         function successCallback(response){
                         },
                         function errorCallback (error){
-                            console.log('Failure in updating last dashboard id',error)
                         }
                     );
                 }
@@ -172,7 +171,6 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                 }
             },
             onEnter: function ($stateParams,$state) {
-                console.log($state.params,$stateParams);
             },
 
             resolve: {

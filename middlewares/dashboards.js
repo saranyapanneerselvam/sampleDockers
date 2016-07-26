@@ -1,4 +1,3 @@
-var mongoose = require('../node_modules/mongoose/lib');
 var dashboardList = require('../models/dashboards');
 var exports = module.exports = {};
 var dashboards = require('../models/profiles');
@@ -8,7 +7,7 @@ var userPermission = require('../helpers/utility');
 var Q = require("q");
 /**
  Function to get the profiles's details such as name,access token,refresh token..
- @params 1.req contains the app user details i.e. username,email,orgId etc
+ @params 1.req contains the facebook user details i.e. username,email etc
  2.res have the query response
 
  */
@@ -90,6 +89,7 @@ exports.storeDashboards = function (req, res, next) {
         return res.status(401).json({error: 'Authentication required to perform this action'})
     }
     else {
+        console.log('inside dashboard');
         var createDashboard = new dashboardList();
 
         //To check whether new dashboard or not

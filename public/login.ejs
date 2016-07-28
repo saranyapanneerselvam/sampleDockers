@@ -1,0 +1,234 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> 
+<html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <title>Datapoolt | Login</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<link rel="icon" href="/image/Favicon.png">
+        <link href="/css/flexslider.min.css" rel="stylesheet" type="text/css" media="all"/>
+        <link href="/css/line-icons.min.css" rel="stylesheet" type="text/css" media="all"/>
+        <link href="/css/elegant-icons.min.css" rel="stylesheet" type="text/css" media="all"/>
+        <link href="/css/lightbox.min.css" rel="stylesheet" type="text/css" media="all"/>
+        <link href="/css/bootstrap.min.css" rel="stylesheet" type="text/css" media="all"/>
+        <link href="/css/theme-blues.css" rel="stylesheet" type="text/css" media="all"/>
+        <link href="/css/custom.css" rel="stylesheet" type="text/css" media="all"/>
+        <!--[if gte IE 9]>
+        	<link rel="stylesheet" type="text/css" href="/css/ie9.css" />
+		<![endif]-->
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,400,300,600,700%7CRaleway:700' rel='stylesheet' type='text/css'>
+        <script src="/js/modernizr-2.6.2-respond-1.1.0.min.js"></script>
+		<script src="/js/hideShowPassword.min.js"></script>
+		<script>
+			$(function() {
+				// Example 1
+				$('#password-1').hideShowPassword({
+					// Creates a wrapper and toggle element with minimal styles.
+					innerToggle: true,
+					// Makes the toggle functional in touch browsers without
+					// the element losing focus.
+					touchSupport: Modernizr.touch
+				});
+			});
+		</script>
+		<script>
+			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+						(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+					m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+			})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+			ga('create', 'UA-79014424-1', 'auto');
+			ga('send', 'pageview');
+		</script>
+    </head>
+    <body class="boxed-layout">
+    	<div class="loader">
+    		<div class="spinner">
+			  <div class="double-bounce1"></div>
+			  <div class="double-bounce2"></div>
+			</div>
+    	</div>
+				
+		<div class="nav-container">
+			<nav class="centered-logo top-bar">
+				<div class="container">
+				
+					
+					
+					<div class="row">
+						<div class="col-sm-12 text-center">
+							<img class="logo logo-dark" alt="Logo" src="/image/Datapoolt-Logo.png">
+						</div>
+					</div>
+				
+				
+					<div class="row nav-menu">
+					
+						<div class="col-sm-12 columns text-center">
+							<ul class="menu">
+								<li><a href="/">Home</a></li>
+								<li class="has-dropdown" style="height:20px"><a href="#" style="padding-bottom: 0px;">Features</a>
+									<ul class="subnav">
+										<li><a href="/features">Product Features&nbsp;</a></li>
+										<li><a href="/integrations">Integrations</a></li>
+										<!--<li><a href="#">Use Cases</a></li>-->
+										<!--<li><a href="#">For Agencies</a></li>-->
+									</ul>
+								</li>
+								<li><a href="/pricing">Pricing</a></li>
+								<li class="has-dropdown" style="height:20px"><a href="#" style="padding-bottom: 0px;">Learn</a>
+									<ul class="subnav">
+										<li><a href="http://blog.datapoolt.co/tag/using-datapoolt/" target="_blank">Using Datapoolt</a></li>
+										<li><a href="http://blog.datapoolt.co/tag/digital-marketing/" target="_blank">Digital Marketing</a></li>
+										<li><a href="/faqs">FAQs</a></li>
+									</ul>
+								</li>
+								<li><a href="/api/v1/login">Use Datapoolt</a></li>
+							</ul>
+						</div>
+					</div>
+					
+					<div class="mobile-toggle">
+						<i class="icon icon_menu"></i>
+					</div>
+					
+				</div>
+				<div class="bottom-border"></div>
+			</nav>
+		
+		</div>
+		
+		<div class="main-container">
+		<section class="no-pad login-page fullscreen-element">
+			
+				<div class="background-image-holder">
+					<img class="background-image" alt="" src="/image/Header_2.jpeg">
+					<div class="overlay"></div>
+				</div>
+			
+				<div class="container align-vertical">
+					<div class="row">
+						<% if (message.length > 0) { %>
+						<div class="alert alert-danger"><%= message %></div>
+
+						<% } %>
+						<div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 text-center">
+							<h1 class="text-white">Login to start using Datapoolt</h1>
+							<div class="photo-form-wrapper clearfix">
+								<form role="form" action="/api/v1/login" method="post">
+									<input class="form-email" type="email" name="email" placeholder="Email Address">
+									<input class="form-password" type="password" name="password" id="password-1" placeholder="Password">
+									<input class="login-btn btn-filled" type="submit" value="Login">
+								</form>
+							</div>
+							<a href="/api/v1/signup" class="text-white">Create an account ➞</a><br>
+						</div>
+					</div>
+				</div>
+			</section>
+		</div>
+		
+		<div class="footer-container">
+					
+			
+		
+			<footer class="details">
+				<div class="container">
+					<div class="row">
+						<div class="col-sm-4">
+							<img alt="logo" class="logo" src="/image/Datapoolt-Logo.png">
+							<p>
+								Compare KPIs across channels. Marketing Analytics software from Datapoolt helps you measure the results of your marketing strategy.&nbsp;</p>
+						</div>
+						
+						<div class="col-sm-4">
+							<h1>Contact Us</h1>
+							<p>
+								hello@datapoolt.co<br>
+								+91 80561 38326<br>
+								<br>
+								140 Janaki Commercial Complex<br>LB Road Thiruvanmiyur<br>Chennai 600041</p>
+						</div>
+						
+						<div class="col-sm-4">
+							<h1>Get Social with us</h1>
+							<ul class="social-icons">
+								<li>
+									<a href="https://twitter.com/datapoolt" target="_blank">
+										<i class="icon social_twitter"></i>
+									</a>
+								</li>
+								
+								<li>
+									<a href="https://facebook.com/datapoolt" target="_blank">
+										<i class="icon social_facebook"></i>
+									</a>
+								</li>
+								
+								<li>
+									<a href="https://in.linkedin.com/company/datapoolt" target="_blank">
+										<i class="icon social_linkedin"></i>
+									</a>
+								</li>
+								
+								
+								
+								
+								
+								
+							</ul>
+						</div>
+					</div>
+					
+					<div class="row">
+						<div class="col-sm-12">
+							<span class="sub">© Copright 2016&nbsp;<b>Cormallen Digital</b>&nbsp;- All Rights Reserved</span>
+						</div>
+					</div>
+					
+				</div>
+			</footer>
+		</div>
+
+		<script src="https://www.youtube.com/iframe_api"></script>
+		<script src="/js/jquery/jquery-2.1.1.min.js"></script>
+		<script src="/js/jquery.plugin.min.js"></script>
+		<script src="/js/bootstrap/bootstrap.min.js"></script>
+		<script src="/js/jquery.flexslider-min.js"></script>
+		<script src="/js/smooth-scroll.min.js"></script>
+		<script src="/js/skrollr.min.js"></script>
+		<script src="/js/spectragram.min.js"></script>
+		<script src="/js/scrollReveal.min.js"></script>
+		<script src="/js/isotope.min.js"></script>
+		<!--<script src="js/twitterFetcher_v10_min.js"></script>-->
+		<!--<script src="js/lightbox.min.js"></script>-->
+		<!--<script src="js/jquery.countdown.min.js"></script>-->
+		<script src="/js/scripts.js"></script>
+		<script>
+			var elementExists = document.getElementsByClassName("alert-danger").length;
+			if(elementExists==1){
+				var el =  document.getElementById("animation_box");
+				el.classList.remove("pulse");
+				el.classList.add("shake");
+				console.log( document.getElementById("animation_box".className));
+
+			}
+		</script>
+
+		<!--For intercom messenger-->
+		<script>
+			window.intercomSettings = {
+				app_id: "uiizfwfc"
+			};
+		</script>
+		<script>(function(){var w=window;var ic=w.Intercom;if(typeof ic==="function"){ic('reattach_activator');ic('update',intercomSettings);}else{var d=document;var i=function(){i.c(arguments)};i.q=[];i.c=function(args){i.q.push(args)};w.Intercom=i;function l(){var s=d.createElement('script');s.type='text/javascript';s.async=true;s.src='https://widget.intercom.io/widget/is5esqu3';var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);}if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})()</script>
+
+	</body>
+</html>
+				

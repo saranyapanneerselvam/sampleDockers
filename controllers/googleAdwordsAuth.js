@@ -94,7 +94,7 @@ module.exports = function (app) {
                                                         //If response of the storeProfiles function is success then render the successAuthentication page
                                                         Object.findOne({'profileId': response._id}, function (err, object) {
                                                             if (object != null) {
-                                                                res.render('successAuthentication');
+                                                                res.render('../public/successAuthentication');
                                                             }
                                                             else {
                                                                 ObjectType.findOne({'channelId': response.channelId}, function (err, objectTypeList) {
@@ -108,7 +108,7 @@ module.exports = function (app) {
                                                                         storeObject.created = new Date();
                                                                         storeObject.save(function (err, objectListItem) {
                                                                             if (!err) {
-                                                                                res.render('successAuthentication');
+                                                                                res.render('../public/successAuthentication');
                                                                             }
                                                                         });
                                                                     }
@@ -116,7 +116,7 @@ module.exports = function (app) {
                                                             }
                                                         });
                                                     }
-                                                    else res.render('successAuthentication');
+                                                    else res.render('../public/successAuthentication');
                                                 }
                                             });
                                         }

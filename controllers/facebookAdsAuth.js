@@ -90,7 +90,7 @@ module.exports = function(app) {
                                         if (err)
                                             res.json('Error');
                                         else
-                                            res.render('successAuthentication');
+                                            res.render('../public/successAuthentication');
                                     });
                                 }
                             });

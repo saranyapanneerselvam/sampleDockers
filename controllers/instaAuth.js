@@ -43,7 +43,7 @@ module.exports = function (app) {
                 var profileId = req.userId;
                 req.profileName = result.user.full_name;
                 var profileName = req.profileName;
-                res.render('successAuthentication');
+                res.render('../public/successAuthentication');
                 var code = req.query.code;
 
                 //Query to find instagram channelId which is to be stored in profile table - dev
@@ -78,14 +78,14 @@ module.exports = function (app) {
                                         //Query to save profile details - dev
                                         objectList.save(function (err, user) {
                                             if (!err)
-                                                res.render('successAuthentication');
+                                                res.render('../public/successAuthentication');
                                             else
                                                 return res.status(500).json({error: err});
                                         });
                                     });
                                 }
                                 else
-                                    res.render('successAuthentication');
+                                    res.render('../public/successAuthentication');
                             });
                         }
                     });

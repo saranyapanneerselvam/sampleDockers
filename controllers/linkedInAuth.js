@@ -23,7 +23,7 @@ module.exports = function (app) {
         state: '4853uyFys'
     });
 
-    app.get('/api/auth/linkedIn', function (req, res) {
+    app.get('/api/auth/linkedin', function (req, res) {
         res.redirect(authorization_uri);
     });
     app.get('/auth/linkedin/callback', function (req, res) {
@@ -80,7 +80,7 @@ module.exports = function (app) {
                                         if (err)
                                             res.json('Error');
                                         else {
-                                            res.render('successAuthentication');
+                                            res.render('../public/successAuthentication');
                                         }
                                     });
                                 }

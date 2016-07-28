@@ -66,7 +66,7 @@ module.exports = function (app) {
                                         //If response of the storeProfiles function is success then render the successAuthentication page
                                         objects.findOne({'profileId': response._id}, function (err, object) {
                                             if (object != null) {
-                                                res.render('successAuthentication');
+                                                res.render('../public/successAuthentication');
                                             }
                                             else {
                                                 objectType.findOne({'channelId': response.channelId}, function (err, objectTypeList) {
@@ -86,7 +86,7 @@ module.exports = function (app) {
                                                                 return res.status(500).json({error: 'Internal server error'});
                                                             else if (!objectListItem)
                                                                 return res.status(204).json({error: 'No records found'});
-                                                            else res.render('successAuthentication');
+                                                            else res.render('../public/successAuthentication');
                                                         });
                                                     }
                                                 });

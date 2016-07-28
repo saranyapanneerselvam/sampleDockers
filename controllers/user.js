@@ -66,6 +66,9 @@ module.exports = function (app, passport) {
         }
         else res.redirect('/api/v1/login');
     });
+    app.get('/reports', function (req, res) {
+        res.render('reports.ejs');
+    });
 
     app.get('/signout', function (req, res) {
         req.logout();

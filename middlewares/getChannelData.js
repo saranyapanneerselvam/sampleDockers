@@ -138,6 +138,9 @@ exports.getChannelData = function (req, res, next) {
                     callEntireDataFunction();
             })
         }
+        else if (req.body.params){
+            callEntireDataFunction()
+        }
         else {
             return res.status(401).json({error: 'User must be logged in',id:req.params.widgetId})
         }

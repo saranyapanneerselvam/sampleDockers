@@ -21,7 +21,7 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
     $scope.closeExport = function(){
         var setJPEGOption = $("#exportOptionJpeg").prop("checked");
         var setPDFOption = $("#exportOptionPDF").prop("checked");
-        var dashboardLayout = document.getElementById('dashboardLayout');
+        var dashboardLayout = document.getElementById('dashLayout');
 
         if(setJPEGOption==false && setPDFOption==false){
             $(".errorExportMessage").text("* Select the option to export").show();
@@ -37,7 +37,7 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
         var setJPEGOption = $("#exportOptionJpeg").prop("checked");
         var setPDFOption = $("#exportOptionPDF").prop("checked");
         document.getElementById('dashboardTitleIcons').style.visibility = "hidden";
-        var dashboardLayout = document.getElementById('dashboardLayout');
+        var dashboardLayout = document.getElementById('dashLayout');
         console.log(dashboardLayout);
 
         if(setJPEGOption==true){

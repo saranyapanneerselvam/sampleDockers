@@ -2,7 +2,7 @@ var showMetricApp = angular.module('inspinia');
 
 showMetricApp.service('createWidgets',function($http,$q){
 
-    this.widgetHandler = function(widget,dateRange) {
+    this.widgetHandler = function (widget, dateRange,isPublic) {
 
         var deferredWidget = $q.defer();
         var tempWidget = JSON.parse(JSON.stringify(widget));
@@ -15,7 +15,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                     var widgetList = sourceWidgetList[0];
                     for(var subWidgets in widgetList) {
                         if(widgetList[subWidgets].widgetType == 'basic' || widgetList[subWidgets].widgetType == 'adv' || widgetList[subWidgets].widgetType == 'fusion')
-                            dataLoadedWidgetArray.push(getRegularWidgetElements(widgetList[subWidgets],dateRange));
+                            dataLoadedWidgetArray.push(getRegularWidgetElements(widgetList[subWidgets], dateRange,isPublic));
                         else if(widgetList[subWidgets].widgetType == 'custom')
                             dataLoadedWidgetArray.push(getCustomWidgetElements(widgetList[subWidgets],dateRange));
                     }
@@ -60,7 +60,7 @@ showMetricApp.service('createWidgets',function($http,$q){
             );
         }
         else if (widget.widgetType == 'basic' || widget.widgetType == 'adv' || widget.widgetType == 'fusion') {
-            var dataLoadedWidget = getRegularWidgetElements(tempWidget,dateRange);
+            var dataLoadedWidget = getRegularWidgetElements(tempWidget, dateRange,isPublic);
             dataLoadedWidget.then(
                 function successCallback(dataLoadedWidget) {
                     var widgetCharts = formulateRegularWidgetGraphs(dataLoadedWidget);
@@ -269,7 +269,7 @@ showMetricApp.service('createWidgets',function($http,$q){
         function getRegularWidgetElements(widget,dateRange) {
             var deferred = $q.defer();
             var updatedCharts;
-            updatedCharts = getRegularWidgetData(widget,dateRange);
+            updatedCharts = getRegularWidgetData(widget, dateRange,isPublic);
             updatedCharts.then(
                 function successCallback(updatedCharts) {
                     widget.charts = updatedCharts;
@@ -294,17 +294,32 @@ showMetricApp.service('createWidgets',function($http,$q){
             return deferred.promise;
         }
         
-        function getRegularWidgetData(widget,dateRange) {
+        function getRegularWidgetData(widget, dateRange, isPublic) {
+
             var deferred = $q.defer();
             var updatedCharts = [];
-            $http({
+            if (isPublic){
+                var dataUrl = {
                 method: 'POST',
                 url: '/api/v1/widgets/data/' + widget._id,
                 data: {
                     "startDate": dateRange.startDate,
-                    "endDate": dateRange.endDate
+                        "endDate": dateRange.endDate,
+                        "params":'public'
                 }
-            }).then(
+                };
+            }
+            else {
+                var dataUrl = {
+                    method: 'POST',
+                    url: '/api/v1/widgets/data/' + widget._id,
+                    data: {
+                        "startDate": dateRange.startDate,
+                        "endDate": dateRange.endDate,
+                    }
+                }
+            }
+            $http(dataUrl).then(
                 function successCallback(response) {
                     for(var chartObjects in widget.charts){
                         for(var datas in response.data){

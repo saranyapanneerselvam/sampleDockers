@@ -254,3 +254,25 @@ exports.removeDashboardFromUser = function (req, res, next) {
     }
     else return res.status(401).json({error: 'Authentication required to perform this action'});
 };
+
+//To get dashboard details based on reportid
+exports.getDashboardDetailsFromReportId = function (req, res, done) {
+    dashboardList.findOne({reportId: req.reportId}, function (err, dashboardDetails) {
+            if (err)
+                return res.status(500).json({error: 'Internal server error'});
+            else if (!dashboardDetails)
+                return res.status(204).json({error: 'No records found'});
+            else {
+                Widget.find({dashboardId: dashboardDetails._id}, function (err, widget) {
+                    if (err)
+                        return res.status(500).json({error: 'Internal server error'});
+                    else if (!widget.length)
+                        return res.status(204).json({error: 'No records found'});
+                    else {
+                        done(null,widget);
+                    }
+                })
+
+            }
+        })
+};

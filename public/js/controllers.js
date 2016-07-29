@@ -1192,7 +1192,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                     'data': finalCharts.highEngagementTweets[0].values
                 });
             }
-            if(finalChartData.length == 0 && widget.widgetType == 'custom') {
+            if(finalChartData.length == 0) {
                 if(widget.widgetType == 'custom') {
                     var customDataUrl = '';
                     if(window.location.hostname=="localhost")
@@ -1201,13 +1201,13 @@ showMetricApp.service('createWidgets',function($http,$q){
                         customDataUrl = window.location.hostname +"/api/v1/create/customdata/"+widget._id;
                     finalChartData.push({
                         'options': graphOptions.emptyCharts,
-                        'data': [{message:'Please send your data to: ' + customDataUrl}]
+                        'data': [{message:'No data for chosen date range. ' +'Please send your data to: ' + customDataUrl}]
                     });
                 }
                 else {
                     finalChartData.push({
                         'options': graphOptions.emptyCharts,
-                        'data': [{message:'Data unavailable for this metric'}]
+                        'data': [{message:'Data unavailable for chosen date range'}]
                     });
                 }
             }

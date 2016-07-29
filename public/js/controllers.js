@@ -1192,6 +1192,13 @@ showMetricApp.service('createWidgets',function($http,$q){
                     'data': finalCharts.highEngagementTweets[0].values
                 });
             }
+            if(finalCharts.highestEngagementLinkedIn.length > 0) {
+                chartsCount++;
+                finalChartData.push({
+                    'options': graphOptions.highestEngagementLinkedIn,
+                    'data': finalCharts.highestEngagementLinkedIn[0].values
+                });
+            }
             if(finalChartData.length == 0) {
                 if(widget.widgetType == 'custom') {
                     var customDataUrl = '';
@@ -1210,13 +1217,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                         'data': [{message:'Data unavailable for chosen date range'}]
                     });
                 }
-            }
-            if(finalCharts.highestEngagementLinkedIn.length > 0) {
-                chartsCount++;
-                finalChartData.push({
-                    'options': graphOptions.highestEngagementLinkedIn,
-                    'data': finalCharts.highestEngagementLinkedIn[0].values
-                });
             }
 
             var setLayoutOptions = function() {

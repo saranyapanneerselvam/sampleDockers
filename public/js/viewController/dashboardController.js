@@ -220,6 +220,15 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     data: inputParams
                 }).then(
                     function successCallback(response){
+                        for(var i=0;i<$scope.dashboard.widgetData.length;i++)
+                        {
+                            if($scope.dashboard.widgetData[i].chart.length===0){
+                                if($scope.dashboard.widgetData[i].visibility==false){
+                                    $("#widgetData-"+$scope.dashboard.widgetData[i].id).hide();
+                                    $("#errorWidgetData-"+$scope.dashboard.widgetData[i].id).show();
+                                }
+                            }
+                        }
                     },
                     function errorCallback (error){
                         swal({
@@ -361,11 +370,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                                     $("#errorWidgetData-"+error.data.id).show();
                                     isExportOptionSet=0;
                                 }
-                                swal({
-                                    title: '',
-                                    text: '<span style = "sweetAlertFont">Error in populating widgets! Please refresh the dashboard again</span>',
-                                    html: true
-                                });
                             }
                         );
                     }

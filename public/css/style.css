@@ -66,6 +66,12 @@ svg:hover #Calendar-Icon { fill: #04509B; }
 .nv-axis.nv-x .tick line {
     display:none;opacity: 0;
 }
+.nv-axis.nv-y1 .tick line {
+    display:none;opacity: 0;
+}
+.nv-axis.nv-y2 .tick line {
+    display:none;opacity: 0;
+}
 .tooltip{font-family: Heebo-Thin;}
 .tooltip-inner{background-color:#fff !important;border:1px solid #333 !important;color: #000000 !important}
 .contentName{display: flex;

@@ -11,7 +11,6 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
             if(response.status == '200'){
                 dashboardName =  response.data.name;
             }
-
         }, function errorCallback(error) {
             console.log('Error in fetching dashboard name', error);
         });

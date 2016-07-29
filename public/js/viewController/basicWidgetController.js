@@ -43,7 +43,6 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             }
             else {
                 storeChosenObject = [];
-                document.getElementById('basicWidgetFinishButton').disabled = true;
                 $scope.getReferenceWidgetsForChosenChannel();
                 $("#basicWidgetNextButton").show();
                 $("#basicWidgetFinishButtonCustom").hide();
@@ -51,6 +50,8 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         }
         else if ($scope.currentView === 'step_three') {
             document.getElementById('basicWidgetBackButton1').disabled = false;
+            document.getElementById('basicWidgetFinishButton').disabled = true;
+            $scope.getProfilesForDropdown();
         }
     };
 
@@ -565,7 +566,6 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             }
             $scope.uniqueObjectCount = _.uniq(totalObjectType);
         }
-        $scope.getProfilesForDropdown();
     };
 
     $scope.clearReferenceWidget = function () {

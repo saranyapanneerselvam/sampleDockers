@@ -434,11 +434,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 $("#errorWidgetData-"+widget._id).show();
                 $scope.loadedWidgetCount++;
                 isExportOptionSet=0;
-                swal({
-                    title: "",
-                    text: '<span style="sweetAlertFont">Error in displaying widget! Please refresh the dashboard</span>',
-                    html: true
-                });
             }
         );
     });

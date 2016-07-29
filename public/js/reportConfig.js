@@ -11,6 +11,9 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
             url: "/:id",
             templateUrl: "sharingDashboard.ejs",
             controller: 'SharedDashboardController'
+        })
+        .state('error', {
+            templateUrl: "dashboardTemplate.ejs"
         });
 }
 angular

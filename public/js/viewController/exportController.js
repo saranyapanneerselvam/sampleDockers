@@ -21,9 +21,10 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
     $scope.closeExport = function(){
         var setJPEGOption = $("#exportOptionJpeg").prop("checked");
         var setPDFOption = $("#exportOptionPDF").prop("checked");
+        var setUrlOption = $("#exportOptionUrl").prop("checked");
         var dashboardLayout = document.getElementById('dashLayout');
 
-        if(setJPEGOption==false && setPDFOption==false){
+        if(setJPEGOption==false && setPDFOption==false && setUrlOption==true){
             $(".errorExportMessage").text("* Select the option to export").show();
             return false;
         }
@@ -36,9 +37,9 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
     $scope.submitExport = function(){
         var setJPEGOption = $("#exportOptionJpeg").prop("checked");
         var setPDFOption = $("#exportOptionPDF").prop("checked");
-        document.getElementById('dashboardTitleIcons').style.visibility = "hidden";
+        var setUrlOption = $("#exportOptionUrl").prop("checked");
+        //document.getElementById('dashboardTitleIcons').style.visibility = "hidden";
         var dashboardLayout = document.getElementById('dashLayout');
-        console.log(dashboardLayout);
 
         if(setJPEGOption==true){
             $(".navbar").css('z-index','1');
@@ -121,6 +122,48 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
                 $(".pdfContentText").html('<b>Something went wrong. Please try again</b>');
 
             });
+        }
+
+        if(setUrlOption===true){
+
+                $http({
+                    method: 'GET',
+                    url: '/api/v1/get/dashboards/'+ $state.params.id
+                }).then(
+                    function successCallback(response) {
+                        var reportId = response.data.reportId;
+                        var sharingUrl = 'localhost:8080/reports#/'+reportId;
+                        $(".navbar").css('z-index','1');
+                        $("#exportModalContent").removeClass('md-show');
+                        $(".md-overlay").css("background","rgba(0,0,0,0.5)");
+                        $("#exportPDFModalContent").addClass('md-show');
+                        $(".loadingStatus").hide();
+                        $(".pdfHeadText").text('');
+                        $(".pdfContentText").html('<p id="butt"><b>You can check the dashboard here : ' +
+                            '</b>' +sharingUrl+ '</p>'+'<button class="btn" id="btnCopyLink" ' +
+                            'data-clipboard-text=sharingUrl ng-click="copyToClipboard()">' +
+                            '<img src="image/clippy.svg" width="13" alt="Copy to clipboard"></button>');
+                        $(".btn").attr('data-clipboard-text',sharingUrl);
+                        var clipboard = new Clipboard('.btn');
+                        clipboard.on('success', function(e) {
+                            console.info('Action:', e.action);
+                            console.info('Text:', e.text);
+                            console.info('Trigger:', e.trigger);
+                            e.clearSelection();
+                        });
+                        function copyToClipboard () {
+                            swal("Copied", "", "success");
+                        };
+                    },
+                    function errorCallback(error) {
+                        $scope.dashboard.dashboardName = null;
+                        swal({
+                            title: '',
+                            text: '<span style="sweetAlertFont">Something went wrong! Please reload the dashboard</span>',
+                            html: true
+                        });
+                    }
+                );
         }
     };
 }

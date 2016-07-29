@@ -418,9 +418,8 @@
                                                             <select class="form-control m-b choose-text"
                                                                     ng-model="profileOptionsModel"
                                                                     id="profileOptions"
-                                                                    ng-options="profiles as profiles.name for profiles in profileList"
+                                                                    ng-options="profiles.name for profiles in profileList"
                                                                     ng-change="getObjectsForChosenProfile()">
-                                                                <option value="">Select a Profile</option>
                                                             </select>
                                                             <div class="infont col-md-1 col-sm-2 background-color" ng-show = "tokenExpired==true">
                                                                 <a ng-click="addNewProfile()" class="link-img">

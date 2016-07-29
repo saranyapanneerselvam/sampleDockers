@@ -45,7 +45,6 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 storeChosenObject = [];
                 document.getElementById('basicWidgetFinishButton').disabled = true;
                 $scope.getReferenceWidgetsForChosenChannel();
-                $scope.getProfilesForDropdown();
                 $("#basicWidgetNextButton").show();
                 $("#basicWidgetFinishButtonCustom").hide();
             }
@@ -142,11 +141,15 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     };
 
     $scope.getProfilesForDropdown = function () {
+        document.getElementById('basicWidgetFinishButton').disabled = true;
         $http({
             method: 'GET', url: '/api/v1/get/profiles/' + $scope.storedChannelId
         }).then(
             function successCallback(response) {
                 $scope.profileList = response.data.profileList;
+                $scope.profileOptionsModel=$scope.profileList[0];
+                $scope.getObjectsForChosenProfile();
+
 
 /*
                 var newProfile;
@@ -173,6 +176,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     };
 
     $scope.getObjectsForChosenProfile = function () {
+        document.getElementById('basicWidgetFinishButton').disabled = true;
         $scope.checkExpiresIn = null;
         storeChosenObject = [];
         if (!this.profileOptionsModel) {
@@ -183,6 +187,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     $scope.objectForWidgetChosen([null, null, null,items]);
         }
         else {
+            console.log('INSIDE ELSE')
             storedProfile = this.profileOptionsModel;
 
             if($scope.storedChannelName == 'GoogleAdwords') {
@@ -216,6 +221,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     var k=0; var tempList = {};
 
                     if($scope.storedChannelName != 'Google Analytics') {
+                        console.log('INSIDE SECOND ELSE',response.data,$scope.uniqueObjectCount);
                         uniqueObject = _.groupBy(response.data.objectList, 'objectTypeId');
                         var sortedUniqueObject = {};
                         for(var objectIds in $scope.uniqueObjectCount) {
@@ -223,6 +229,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                                 if($scope.uniqueObjectCount[objectIds] == uniqueObjects)
                                     sortedUniqueObject[uniqueObjects] = uniqueObject[uniqueObjects];
                         }
+                        console.log(sortedUniqueObject);
                         for(var items in sortedUniqueObject) {
                             var tempObjectList = [];
                             for(var subItems in sortedUniqueObject[items])
@@ -233,6 +240,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                             k++;
                         }
                         $scope.objectList = tempList;
+                        console.log($scope.objectList);
                     }
                     else {
                         document.getElementById('basicWidgetFinishButton').disabled = true;
@@ -557,6 +565,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             }
             $scope.uniqueObjectCount = _.uniq(totalObjectType);
         }
+        $scope.getProfilesForDropdown();
     };
 
     $scope.clearReferenceWidget = function () {
@@ -583,6 +592,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     };
 
     $scope.objectForWidgetChosen = function (chosenObject) {
+        document.getElementById('basicWidgetFinishButton').disabled = true;
         var countChecker = false;
         if ($scope.storedChannelName === 'Google Analytics' && chosenObject) {
             if(chosenObject[0] != '') {

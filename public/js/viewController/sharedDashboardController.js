@@ -137,7 +137,10 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
         })
             .then(
                 function successCallback(response) {
-                    dashboardId = response.data.widgetsList._id;
+                    if(response.data ===''){
+                        $state.go('error');
+                    }
+                    else dashboardId = response.data.widgetsList._id;
                     $("#getLoadingModalContent").removeClass('md-show');
                     var widgets = [];
                     var dashboardWidgetList = [];

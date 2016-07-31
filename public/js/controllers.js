@@ -1219,7 +1219,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                 });
                 finalChartData[finalChartData.length -1].options.chart.forceY = forceY;
             }
-            if(finalCharts.barCharts.length == 1) {
+            if(finalCharts.barCharts.length > 0) {
                 chartsCount++;
 
                 for(var charts in finalCharts.barCharts) {
@@ -1241,7 +1241,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                 });
                 finalChartData[finalChartData.length -1].options.chart.forceY = forceY;
             }
-
+/*
             if(finalCharts.barCharts.length > 1) {
                 chartsCount++;
                 for(var charts in finalCharts.barCharts) {
@@ -1290,7 +1290,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                 });
                 //finalChartData[finalChartData.length -1].options.chart.forceY = forceY;
             }
-
+*/
             if(finalCharts.pieCharts.length > 0) {
                 chartsCount++;
 

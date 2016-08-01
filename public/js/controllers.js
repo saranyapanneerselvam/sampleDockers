@@ -1163,7 +1163,11 @@ showMetricApp.service('createWidgets',function($http,$q){
                 }
                 chartColorChecker = [];
 
-                var forceY = [lineDataLowValue,lineDataHighValue == 0? 10 : (lineDataHighValue>100 ? lineDataHighValue + 10 : lineDataHighValue + 1)];
+                var forceY;
+                if(lineDataLowValue == lineDataHighValue)
+                    forceY = [lineDataLowValue,lineDataHighValue == 0? 10 : (lineDataHighValue>100 ? lineDataHighValue + 10 : lineDataHighValue + 1)];
+                else
+                    forceY = [];
                 finalChartData.push({
                     'options': graphOptions.lineDataOptions,
                     'data': finalCharts.lineCharts,
@@ -1209,9 +1213,12 @@ showMetricApp.service('createWidgets',function($http,$q){
                         finalCharts.lineCharts[charts].yAxis = 1;
                 }
 
+                var forceY;
+                if(lineDataLowValue == lineDataHighValue)
+                    forceY = [lineDataLowValue,lineDataHighValue == 0? 10 : (lineDataHighValue>100 ? lineDataHighValue + 10 : lineDataHighValue + 1)];
+                else
+                    forceY = [];
 
-
-                var forceY = [lineDataLowValue,lineDataHighValue == 0? 10 : (lineDataHighValue>100 ? lineDataHighValue + 10 : lineDataHighValue + 1)];
                 finalChartData.push({
                     'options': graphOptions.multiDataOptions,
                     'data': finalCharts.lineCharts,

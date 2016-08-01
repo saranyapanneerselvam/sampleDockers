@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html ng-app="inspinia">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title page-title>Datapoolt</title>
+    <link rel="icon" href="image/Favicon.png">
+
+    <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link id="loadBefore" href="css/style.css" rel="stylesheet">
+    <link href="css/datePicker/application.css" rel="stylesheet">
+    <link href="css/sweetAlert/sweetalert.css" rel="stylesheet">
+    <link href="css/angular-ui-switch.css" rel="stylesheet">
+    <link  href="css/theme-dark/annotorious-dark.css" rel="stylesheet" />
+    <link href="css/modalEffects.css" rel="stylesheet" />
+    <link href="css/loaders.min.css" rel="stylesheet" />
+    <link href="css/plugins/steps/jquery.steps.css" rel="stylesheet" />
+  </head>
+
+<body ng-controller="MainCtrl as main" class="fixed-nav {{$state.current.data.specialClass}} mini-navbar" landing-scrollspy id="page-top">
+
+    <!-- Main view  -->
+    <div ui-view> </div>
+
+    <!-- jQuery and Bootstrap -->
+    <script src="js/jquery/jquery-2.1.1.min.js"></script>
+    <script src="js/plugins/jquery-ui/jquery-ui.min.js"></script>
+    <script src="js/bootstrap/bootstrap.min.js"></script>
+    <script src="js/plugins/metisMenu/jquery.metisMenu.js"></script>
+    <script src="js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="js/plugins/pace/pace.min.js"></script>
+    <script src="js/inspinia.js"></script>
+
+    <!-- Main Angular scripts-->
+    <!-- Adding templates for introducing angularjs-nvd3 functionalities -->
+    <script src="/bower_components/angular/angular.min.js"></script>
+    <script src="/bower_components/d3/d3.min.js"></script>
+    <script src="/bower_components/nvd3/build/nv.d3.min.js"></script> <!-- or use another assembly -->
+    <script src="/bower_components/angular-nvd3/dist/angular-nvd3.min.js"></script>
+    <script src="/bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+    <script src="/bower_components/angular-bootstrap/ui-bootstrap.min.js"></script>
+    <script src="/bower_components/lodash/dist/lodash.min.js"></script>
+    <link rel="stylesheet" href="/css/nv.d3.css">
+    <link rel="stylesheet" href="/bower_components/angular-bootstrap/ui-bootstrap-csp.css">
+    <link href="css/line-icons.min.css" rel="stylesheet" type="text/css" media="all"/>
+    <link href="css/elegant-icons.min.css" rel="stylesheet" type="text/css" media="all"/>
+    <script src="bower_components/moment/moment.js"></script>
+    <script src="js/toolTip.js"></script>
+    <link href="bower_components/angular-xeditable/dist/css/xeditable.min.css" rel="stylesheet">
+    <script src="bower_components/angular-xeditable/dist/js/xeditable.min.js"></script>
+    <script src="bower_components/jspdf/dist/jspdf.min.js"></script>
+    <script src="bower_components/angular-gridster/dist/angular-gridster.min.js"></script>
+    <script src="js/angular/angular-sanitize.min.js"></script>
+    <script src="js/plugins/oclazyload/dist/ocLazyLoad.min.js"></script>
+    <script src="js/angular-translate/angular-translate.min.js"></script>
+    <script src="js/ui-router/angular-ui-router.min.js"></script>
+    <script src="js/plugins/angular-idle/angular-idle.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.1/angular-animate.js"> </script>
+    <script src="js/clipboard.min.js"></script>
+    <script src="js/dom-to-image.js"></script>
+    <script src="js/FileSaver.js"></script>
+    <script src="js/sweetAlert/sweetalert.min.js"></script>
+    <script src="js/jspdf.min.js"></script>
+    <script src="js/angular-ui-switch.js"></script>
+    <script src="js/annotorious.min.js"></script>
+
+    <script src="js/modalEffectsClassie.js"></script>
+    <script src="js/modalEffects.js"></script>
+    <script>
+        $(function(){
+            $('body').tooltip({selector: '[data-toggle="tooltip"]'});
+        });
+    </script>
+
+    <!--
+     When using Google Maps on your own site you MUST signup for your own API key at: https://developers.google.com/maps/documentation/javascript/tutorial#api_key
+     After your sign up replace the key in the URL below..
+    -->
+    <!--
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDQTpXj82d8UpCi97wzo_nKXL7nYrd4G70"></script>
+    -->
+
+    <!-- Anglar App Script -->
+    <script src="js/app.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/translations.js"></script>
+    <script src="js/directives.js"></script>
+    <script src="js/controllers.js"></script>
+    <script src="js/viewController/mainController.js"></script>
+    <script src="js/viewController/appController.js"></script>
+    <script src="js/viewController/basicWidgetController.js"></script>
+    <script src="js/viewController/customWidgetController.js"></script>
+    <script src="js/viewController/gridviewController.js"></script>
+    <script src="js/viewController/widgetSettingsController.js"></script>
+    <script src="js/viewController/lightBoxController.js"></script>
+    <script src="js/viewController/dashboardController.js"></script>
+    <script src="js/viewController/modalInstanceController.js"></script>
+    <script src="js/viewController/fusionWidgetController.js"></script>
+    <script src="js/viewController/recommendedDashboardController.js"></script>
+    <script src="js/viewController/exportController.js"></script>
+    <script src="js/viewController/switchController.js"></script>
+    <script src="js/viewController/alertController.js"></script>
+    <script src="js/viewController/navigationController.js"></script>
+    <script src="js/viewController/topNavbarController.js"></script>
+    <script type="text/javascript" src="/js/sha256.js"></script>
+
+    <!--For Intercom Messenger-->
+    <script>
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET','/api/v1/me',true);
+        xhr.send();
+        xhr.addEventListener("readystatechange", processRequest, false);
+        function processRequest(e) {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                var response = JSON.parse(xhr.responseText);
+                var loggedInUserName = response.userDetails[0].name;
+                var loggedInUserEmail = response.userDetails[0].email;
+                var loggedInUserCreatedTime = response.userDetails[0].created;
+
+                var shaObj = new jsSHA("SHA-256", "TEXT");
+                shaObj.setHMACKey("Lij2mu0RJIcMM24D_osGz3Qc5M1MMTfL2v8JvVF9", "TEXT");
+                shaObj.update(loggedInUserEmail);
+                var hmac = shaObj.getHMAC("HEX");
+
+
+                window.intercomSettings = {
+                    app_id: "uiizfwfc",
+                    name: loggedInUserName, // Full name
+                    email: loggedInUserEmail, // Email address
+                    created_at: Math.floor(moment.utc(loggedInUserCreatedTime).valueOf()/1000),
+                    user_hash: hmac
+                };
+            }
+        }
+    </script>
+    <script>(function(){var w=window;var ic=w.Intercom;if(typeof ic==="function"){ic('reattach_activator');ic('update',intercomSettings);}else{var d=document;var i=function(){i.c(arguments)};i.q=[];i.c=function(args){i.q.push(args)};w.Intercom=i;function l(){var s=d.createElement('script');s.type='text/javascript';s.async=true;s.src='https://widget.intercom.io/widget/is5esqu3';var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);}if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})()</script>
+
+</body>
+</html>

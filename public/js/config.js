@@ -1,11 +1,3 @@
-/**
- * INSPINIA - Responsive Admin Theme
- *
- * Inspinia theme use AngularUI Router to manage routing and views
- * Each view are defined as state.
- * Initial there are written state for all view in theme.
- *
- */
 function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdleProvider, KeepaliveProvider) {
 
     // Configure Idle settings
@@ -15,7 +7,6 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
     $urlRouterProvider.otherwise("/reporting");
 
     $ocLazyLoadProvider.config({
-        // Set to true if you want to see what and when is dynamically loaded
         debug: false
     });
 
@@ -77,7 +68,8 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                 loadPlugin: function ($ocLazyLoad) {
                     return $ocLazyLoad.load([
                         {
-                            files: ['css/angular-gridster/angular-gridster.min.css',
+                            files: [
+                                'css/angular-gridster/angular-gridster.min.css',
                                 'css/angular-gridster/style_gridster.css',
                                 'js/angular-gridster/jquery.resize.js'
                             ]
@@ -110,15 +102,6 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                     templateUrl: "basicWidget.ejs",
                     controller: 'LightBoxController'
                 }
-            },
-            resolve: {
-                loadPlugin: function ($ocLazyLoad) {
-                    return $ocLazyLoad.load([
-                        {
-                            files: ['css/plugins/steps/jquery.steps.css']
-                        }
-                    ]);
-                }
             }
         })
 
@@ -129,15 +112,6 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                     templateUrl: "fusionWidget.ejs",
                     controller: 'LightBoxController'
                 }
-            },
-            resolve: {
-                loadPlugin: function ($ocLazyLoad) {
-                    return $ocLazyLoad.load([
-                        {
-                            files: ['css/plugins/steps/jquery.steps.css']
-                        }
-                    ]);
-                }
             }
         })
 
@@ -147,15 +121,6 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                 'lightbox@app.reporting.dashboard': {
                     templateUrl: "exportModal.ejs",
                     controller: 'LightBoxController'
-                }
-            },
-            resolve: {
-                loadPlugin: function ($ocLazyLoad) {
-                    return $ocLazyLoad.load([
-                        {
-                            files: ['css/plugins/steps/jquery.steps.css']
-                        }
-                    ]);
                 }
             }
         })
@@ -169,18 +134,6 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                     templateUrl: "alertModal.ejs",
                     controller: 'LightBoxController'
                 }
-            },
-            onEnter: function ($stateParams,$state) {
-            },
-
-            resolve: {
-                loadPlugin: function ($ocLazyLoad) {
-                    return $ocLazyLoad.load([
-                        {
-                            files: ['css/plugins/steps/jquery.steps.css']
-                        }
-                    ]);
-                }
             }
         })
 
@@ -191,15 +144,6 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                     templateUrl: "exportMessage.ejs",
                     controller: 'LightBoxController'
                 }
-            },
-            resolve: {
-                loadPlugin: function ($ocLazyLoad) {
-                    return $ocLazyLoad.load([
-                        {
-                            files: ['css/plugins/steps/jquery.steps.css']
-                        }
-                    ]);
-                }
             }
         })
 
@@ -209,15 +153,6 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                 'lightbox@app.reporting.dashboard': {
                     templateUrl: "recommendedDashboard.ejs",
                     controller: 'LightBoxController'
-                }
-            },
-            resolve: {
-                loadPlugin: function ($ocLazyLoad) {
-                    return $ocLazyLoad.load([
-                        {
-                            files: ['css/plugins/steps/jquery.steps.css']
-                        }
-                    ]);
                 }
             }
         })
@@ -236,8 +171,7 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
             url: "/changePassword",
             views: {
                 'main@app': {
-                    templateUrl: "changePassword.ejs",
-                    //controller: ''
+                    templateUrl: "changePassword.ejs"
                 }
             }
         });

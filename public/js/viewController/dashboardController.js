@@ -90,8 +90,31 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                         }
                     }
                     $timeout(updateCharts(widget),400);
+                    
+                    
+                    
                 }
             }
+        };
+
+        //Setting up grid configuration for widgets
+        $scope.expgridsterOptions = {
+            margins: [20, 20],
+            columns: 6,
+            rows:4,
+            defaultSizeX: 6,
+            defaultSizeY: 4,
+            minSizeX: 1,
+            minSizeY: 1,
+            swapping: true,
+            float: true,
+            pushing: true,
+            width: 'auto',
+           // colWidth:'auto',
+            outerMargin: true, // whether margins apply to outer edges of the grid
+            mobileBreakPoint: 700,
+            mobileModeEnabled: true, // whether or not to toggle mobile mode when screen width is less than mobileBreakPoint
+            /*isMobile: false, // stacks the grid items if true*/
         };
 
         //To fetch the name of the dashboard from database and display it when the dashboard is loaded
@@ -197,6 +220,15 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     data: inputParams
                 }).then(
                     function successCallback(response){
+                        for(var i=0;i<$scope.dashboard.widgetData.length;i++)
+                        {
+                            if($scope.dashboard.widgetData[i].chart.length===0){
+                                if($scope.dashboard.widgetData[i].visibility==false){
+                                    $("#widgetData-"+$scope.dashboard.widgetData[i].id).hide();
+                                    $("#errorWidgetData-"+$scope.dashboard.widgetData[i].id).show();
+                                }
+                            }
+                        }
                     },
                     function errorCallback (error){
                         swal({
@@ -338,11 +370,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                                     $("#errorWidgetData-"+error.data.id).show();
                                     isExportOptionSet=0;
                                 }
-                                swal({
-                                    title: '',
-                                    text: '<span style = "sweetAlertFont">Error in populating widgets! Please refresh the dashboard again</span>',
-                                    html: true
-                                });
                             }
                         );
                     }
@@ -407,11 +434,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 $("#errorWidgetData-"+widget._id).show();
                 $scope.loadedWidgetCount++;
                 isExportOptionSet=0;
-                swal({
-                    title: "",
-                    text: '<span style="sweetAlertFont">Error in displaying widget! Please refresh the dashboard</span>',
-                    html: true
-                });
             }
         );
     });
@@ -504,18 +526,168 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
     };
 
     //To export the dashboard into PDF format
-    $scope.printPDF = function () {
-        $http({
-            method: 'GET',
-            url: '/exportPDF/'+ $state.params.id+ '/'+ moment(moment.utc($scope.date.startDate._d).valueOf()).format('YYYY-MM-DD')+'/'+moment(moment.utc($scope.date.endDate._d).valueOf()).format('YYYY-MM-DD')
-        }).then(function successCallback(response) {
-            console.log(response);
-        },function errorCallback(error) {
-            console.log(error);
-        });
+    // $scope.printPDF = function () {
+    //     console.log("widget ID:"+$state.params.id);
+    //     //console.log($scope.dashboard.id);
+    //     var len= $scope.dashboard.widgets.length;
+    //     console.log(len);
+    //     var tempWid = $scope.dashboard.widgets;
+    //     var tempWidData = $scope.dashboard.widgetData;
+    //     var tempWidgetName = $scope.dashboard.dashboardName;
+    //     var tempWidgetList = [];
+    //     var tempWidgetDataList = [];
+    //     for(var m=0;m<len;m++)
+    //     {
+    //         tempWidgetList.push(tempWid[m]);
+    //         tempWidgetDataList.push(tempWidData[m]);
+    //     }
+    //     var otherPageWidget = new Array();
+    //     var widgetLen =  tempWidgetList.length;
+    //     console.log(tempWidgetName);
+    //     console.log(tempWidgetList);
+    //     console.log(tempWidgetDataList);
+    //      tempWidgetList[0] = null;
+    //      tempWidgetDataList[0] = null;
+    //     console.log(tempWidgetList);
+    //     console.log(tempWidgetDataList);
+    //     console.log($scope.dashboard.widgets);
+    //     console.log($scope.dashboard.widgetData);
+    //     // $http({
+    //     //     method: 'GET',
+    //     //     url: '/exportPDF/'+ $state.params.id+ '/'+ moment(moment.utc($scope.date.startDate._d).valueOf()).format('YYYY-MM-DD')+'/'+moment(moment.utc($scope.date.endDate._d).valueOf()).format('YYYY-MM-DD')
+    //     // }).then(function successCallback(response) {
+    //     //     console.log(response);
+    //     // },function errorCallback(error) {
+    //     //     console.log(error);
+    //     // });
+    //
+    // };
+
+    $scope.printpaperPDF = function () {
+        console.log("printpaperPDF function happening");
+        $scope.expPages = [];
+        $scope.exportActive =true;
+
+        var pages = new Array();
+        // var pageWidgets =  { sizeFilled: new Array(6),sizeLeft:new Array(6), widgets: [], widgetData: [] };
+        console.log("widget ID:"+$state.params.id);
+        //console.log($scope.dashboard.id);
+        var len= $scope.dashboard.widgets.length;
+        console.log(len);
+        var tempWid = $scope.dashboard.widgets;
+        var tempWidData = $scope.dashboard.widgetData;
+        var tempWidgetName = $scope.dashboard.dashboardName;
+        var tempWidgetList = [];
+        var tempWidgetDataList = [];
+        for(var m=0;m<len;m++)
+        {
+            tempWidgetList.push(tempWid[m]);
+            tempWidgetDataList.push(tempWidData[m]);
+        }
+        console.log(tempWidgetName);
+        console.log(tempWidgetList);
+        console.log(tempWidgetDataList);
+        console.log($scope.dashboard.widgets);
+        console.log($scope.dashboard.widgetData);
+        var n=0;
+
+        do
+        {
+            var caninsert = 1;
+            var pageWidgets =  { sizeFilled: new Array(6),sizeLeft:new Array(6), widgets: [], widgetData: [] };
+            pageWidgets.sizeFilled = [0,0,0,0,0,0];
+            pageWidgets.sizeLeft = [4,4,4,4,4,4];
+            for (var getWidgetInfo in tempWidgetList) {
+                var caninsert = 1;
+                console.log(getWidgetInfo);
+                var pos = tempWidgetList[getWidgetInfo].col;
+                console.log("Position:"+pos);
+                var checkpos = pos + tempWidgetList[getWidgetInfo].sizeX - 1;
+                console.log("Total Position"+checkpos);
+                for(var p=pos;p<=checkpos;p++){
+                    if (tempWidgetList[getWidgetInfo].sizeY <= pageWidgets.sizeLeft[p])
+                    {
+                        caninsert *= 1;
+                    }
+                    else
+                    {
+                        caninsert *= 0;
+                    }
+                }
+                if(caninsert == 1){
+                    pageWidgets.widgets.push({
+                        'row': (typeof tempWidgetList[getWidgetInfo].row != 'undefined'? tempWidgetList[getWidgetInfo].row : 0),
+                        'col': (typeof tempWidgetList[getWidgetInfo].col != 'undefined'? tempWidgetList[getWidgetInfo].col : 0),
+                        'sizeY': (typeof tempWidgetList[getWidgetInfo].sizeY != 'undefined' ? tempWidgetList[getWidgetInfo].sizeY : 2),
+                        'sizeX': (typeof tempWidgetList[getWidgetInfo].sizeX != 'undefined' ? tempWidgetList[getWidgetInfo].sizeX : 2),
+                        'minSizeY': (typeof tempWidgetList[getWidgetInfo].minSizeY != 'undefined' ? tempWidgetList[getWidgetInfo].minSizeY : 1),
+                        'minSizeX': (typeof tempWidgetList[getWidgetInfo].minSizeX != 'undefined' ? tempWidgetList[getWidgetInfo].minSizeX : 1),
+                        'maxSizeY': (typeof tempWidgetList[getWidgetInfo].maxSizeY != 'undefined' ? tempWidgetList[getWidgetInfo].maxSizeY : 3),
+                        'maxSizeX': (typeof tempWidgetList[getWidgetInfo].maxSizeX != 'undefined' ? tempWidgetList[getWidgetInfo].maxSizeX : 3),
+                        'name': (typeof tempWidgetList[getWidgetInfo].name != 'undefined' ? tempWidgetList[getWidgetInfo].name : ''),
+                        'widgetType': (typeof tempWidgetList[getWidgetInfo].widgetType != 'undefined' ? tempWidgetList[getWidgetInfo].widgetType : ''),
+                        'isAlert': (typeof tempWidgetList[getWidgetInfo].isAlert != 'undefined' ? tempWidgetList[getWidgetInfo].isAlert : false),
+                        'id': tempWidgetList[getWidgetInfo].id,
+                        'visibility': false
+                    });
+                    pageWidgets.widgetData.push(tempWidgetDataList[getWidgetInfo]);
+                    for(var j=0;j<tempWidgetList[getWidgetInfo].sizeX;j++) {
+                        pageWidgets.sizeFilled[pos+j] += tempWidgetList[getWidgetInfo].sizeY;
+                        pageWidgets.sizeLeft[pos+j] -= (pageWidgets.sizeFilled[pos+j]);
+                        console.log("Height Left"+pageWidgets.sizeLeft);
+                    }
+                    // pages[n]=pageWidgets;
+                    console.log("Inserting into Page"+pages);
+                    console.log("Deleting Index"+getWidgetInfo);
+                    tempWidgetList[getWidgetInfo]=null;
+                    tempWidgetDataList[getWidgetInfo]=null;
+                }
+                // else {
+                //     //otherPageWidget.push(tempWidgetDataList[getWidgetInfo]);
+                //     pages[n+1]= pageWidgets;
+                //     console.log("Inserting into Page"+(n+1));
+                // }
+            }
+            var len =tempWidgetList.length;
+            console.log("tempWidgetList"+tempWidgetList);
+            console.log("Length"+len);
+            var len1 =tempWidgetDataList.length;
+            console.log("tempWidgetDataList"+tempWidgetDataList);
+            console.log("Length"+len1);
+            var temp = new Array();
+            var tempData = new Array();
+            for(var k=0; k<len; k++){
+                if(tempWidgetList[k]!= null) {
+                    temp.push(tempWidgetList[k]);
+                    tempData.push(tempWidgetDataList[k]);
+                }
+            }
+            console.log("Updated List"+temp.length);
+            tempWidgetList = [];
+            tempWidgetList = temp;
+            console.log("Updated tempWidgetList"+tempWidgetList);
+            tempWidgetDataList = [];
+            tempWidgetDataList = tempData;
+            console.log("Updated tempWidgetDataList"+tempWidgetDataList);
+            var max = Math.max.apply(null, pageWidgets.sizeFilled);
+            console.log("Maximum Size"+max);
+            // if(max<4){
+            //     for(var notFull in )
+            // }
+            //
+            //     for(var c=0;c<6;c++){
+            //
+            //     }
+
+            pages[n]=pageWidgets;
+            ++n;
+        }
+        while(tempWidgetList.length>0);
+        console.log(pages);
+        $scope.expPages = pages;
+        console.log("Final page"+ $scope.expPages);
 
     };
-
     //To delete the dashboard
     $scope.deleteDashboard = function(){
         swal({

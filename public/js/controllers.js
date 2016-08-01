@@ -2,7 +2,7 @@ var showMetricApp = angular.module('inspinia');
 
 showMetricApp.service('createWidgets',function($http,$q){
 
-    this.widgetHandler = function(widget,dateRange) {
+    this.widgetHandler = function (widget, dateRange,isPublic) {
 
         var deferredWidget = $q.defer();
         var tempWidget = JSON.parse(JSON.stringify(widget));
@@ -15,7 +15,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                     var widgetList = sourceWidgetList[0];
                     for(var subWidgets in widgetList) {
                         if(widgetList[subWidgets].widgetType == 'basic' || widgetList[subWidgets].widgetType == 'adv' || widgetList[subWidgets].widgetType == 'fusion')
-                            dataLoadedWidgetArray.push(getRegularWidgetElements(widgetList[subWidgets],dateRange));
+                            dataLoadedWidgetArray.push(getRegularWidgetElements(widgetList[subWidgets], dateRange,isPublic));
                         else if(widgetList[subWidgets].widgetType == 'custom')
                             dataLoadedWidgetArray.push(getCustomWidgetElements(widgetList[subWidgets],dateRange));
                     }
@@ -60,7 +60,7 @@ showMetricApp.service('createWidgets',function($http,$q){
             );
         }
         else if (widget.widgetType == 'basic' || widget.widgetType == 'adv' || widget.widgetType == 'fusion') {
-            var dataLoadedWidget = getRegularWidgetElements(tempWidget,dateRange);
+            var dataLoadedWidget = getRegularWidgetElements(tempWidget, dateRange,isPublic);
             dataLoadedWidget.then(
                 function successCallback(dataLoadedWidget) {
                     var widgetCharts = formulateRegularWidgetGraphs(dataLoadedWidget);
@@ -269,7 +269,7 @@ showMetricApp.service('createWidgets',function($http,$q){
         function getRegularWidgetElements(widget,dateRange) {
             var deferred = $q.defer();
             var updatedCharts;
-            updatedCharts = getRegularWidgetData(widget,dateRange);
+            updatedCharts = getRegularWidgetData(widget, dateRange,isPublic);
             updatedCharts.then(
                 function successCallback(updatedCharts) {
                     widget.charts = updatedCharts;
@@ -294,17 +294,32 @@ showMetricApp.service('createWidgets',function($http,$q){
             return deferred.promise;
         }
         
-        function getRegularWidgetData(widget,dateRange) {
+        function getRegularWidgetData(widget, dateRange, isPublic) {
+
             var deferred = $q.defer();
             var updatedCharts = [];
-            $http({
+            if (isPublic){
+                var dataUrl = {
                 method: 'POST',
                 url: '/api/v1/widgets/data/' + widget._id,
                 data: {
                     "startDate": dateRange.startDate,
-                    "endDate": dateRange.endDate
+                        "endDate": dateRange.endDate,
+                        "params":'public'
                 }
-            }).then(
+                };
+            }
+            else {
+                var dataUrl = {
+                    method: 'POST',
+                    url: '/api/v1/widgets/data/' + widget._id,
+                    data: {
+                        "startDate": dateRange.startDate,
+                        "endDate": dateRange.endDate,
+                    }
+                }
+            }
+            $http(dataUrl).then(
                 function successCallback(response) {
                     for(var chartObjects in widget.charts){
                         for(var datas in response.data){
@@ -750,7 +765,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                 lineDataOptions: {
                     chart: {
                         type: 'lineChart',
-                        noData: 'Data unavailable for this metric',
+                        noData: 'No data for chosen date range',
                         margin : {top: 20, right: 25, bottom: 30, left: 35},
                         x: function(d){ return d.x; },
                         y: function(d){ return d.y; },
@@ -781,7 +796,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                 barDataOptions: {
                     chart: {
                         type: 'multiBarChart',
-                        noData: 'Data unavailable for this metric',
+                        noData: 'No data for chosen date range',
                         margin : {top: 20, right: 25, bottom: 30, left: 35},
                         x: function(d){ return d.x; },
                         y: function(d){ return d.y; },
@@ -810,7 +825,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                 pieDataOptions: {
                     chart: {
                         type: 'pieChart',
-                        noData: 'Data unavailable for this metric',
+                        noData: 'No data for chosen date range',
                         margin : {top: 0, right: 15, bottom: 15, left: 15},
                         x: function (d) {
                             return d.key;
@@ -852,6 +867,42 @@ showMetricApp.service('createWidgets',function($http,$q){
                 emptyCharts: {
                     chart: {
                         type: 'emptyCharts'
+                    }
+                },
+                multiDataOptions: {
+                    chart: {
+                        type: 'multiChart',
+                        noData: 'No data for chosen date range',
+                        margin : {top: 20, right: 30, bottom: 30, left: 35},
+                        x: function(d){ return d.x; },
+                        y: function(d){ return d.y; },
+                        useInteractiveGuideline: true,
+                        xAxis: {
+                            tickFormat: function(d) {
+                                return d3.time.format('%d/%m/%y')(new Date(d))},
+                            showMaxMin: false
+                        },
+                        yAxis1: {
+                            tickFormat: function(d) {
+                                return d3.format('f')(d);},
+                            showMaxMin: false
+                        },
+                        yAxis2: {
+                            tickFormat: function(d) {
+                                return d3.format('f')(d);},
+                            showMaxMin: false
+                        },
+                        interpolate: "monotone",
+                        axisLabelDistance: -10,
+                        showLegend: false,
+                        //forceY: [lowestLineValue,highestLineValue == 0? 10 : highestLineValue + 10],
+                        //yDomain: [lowestValue,highestValue],
+                        legend: {
+                            rightAlign: false,
+                            margin: {
+                                bottom: 25
+                            }
+                        }
                     }
                 }
             };
@@ -1099,9 +1150,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                 }
             }
 
-            if(finalCharts.lineCharts.length > 0) {
+            if(finalCharts.lineCharts.length == 1) {
                 chartsCount++;
-
                 for(var charts in finalCharts.lineCharts) {
                     for(var items in chartColorChecker) {
                         if(finalCharts.lineCharts[charts].color == chartColorChecker[items]) {
@@ -1113,9 +1163,64 @@ showMetricApp.service('createWidgets',function($http,$q){
                 }
                 chartColorChecker = [];
 
-                var forceY = [lineDataLowValue,lineDataHighValue == 0? 10 : (lineDataHighValue>100 ? lineDataHighValue + 10 : lineDataHighValue + 1)];
+                var forceY;
+                if(lineDataLowValue == lineDataHighValue)
+                    forceY = [lineDataLowValue,lineDataHighValue == 0? 10 : (lineDataHighValue>100 ? lineDataHighValue + 10 : lineDataHighValue + 1)];
+                else
+                    forceY = [];
                 finalChartData.push({
                     'options': graphOptions.lineDataOptions,
+                    'data': finalCharts.lineCharts,
+                    'api': {}
+                });
+                finalChartData[finalChartData.length -1].options.chart.forceY = forceY;
+            }
+            if(finalCharts.lineCharts.length > 1) {
+                chartsCount++;
+                for(var charts in finalCharts.lineCharts) {
+                    for(var items in chartColorChecker) {
+                        if(finalCharts.lineCharts[charts].color == chartColorChecker[items]) {
+                            var neededColour = fetchAColour(finalCharts.lineCharts[charts].color,chartColorChecker);
+                            finalCharts.lineCharts[charts].color = neededColour;
+                        }
+                    }
+                    chartColorChecker.push(finalCharts.lineCharts[charts].color);
+                }
+                chartColorChecker = [];
+
+                var individualGraphTotals = [];
+                for(var charts in finalCharts.lineCharts) {
+                    var summaryTotal = 0;
+                    for(values in finalCharts.lineCharts[charts].values) {
+                        summaryTotal += parseFloat(finalCharts.lineCharts[charts].values[values].y);
+                    }
+                    individualGraphTotals[charts] = summaryTotal;
+                }
+
+                var cumulativeTotal = 0;
+                for(items in individualGraphTotals)
+                    cumulativeTotal += parseInt(individualGraphTotals[items]);
+                var cumulativeAverage = cumulativeTotal/individualGraphTotals.length;
+
+                for(var charts in finalCharts.lineCharts) {
+                    var summaryTotal = 0;
+                    for(values in finalCharts.lineCharts[charts].values)
+                        summaryTotal += parseFloat(finalCharts.lineCharts[charts].values[values].y);
+
+                    if(summaryTotal > cumulativeAverage)
+                        finalCharts.lineCharts[charts].yAxis = 2;
+                    else
+                        finalCharts.lineCharts[charts].yAxis = 1;
+                }
+
+                var forceY;
+                if(lineDataLowValue == lineDataHighValue)
+                    forceY = [lineDataLowValue,lineDataHighValue == 0? 10 : (lineDataHighValue>100 ? lineDataHighValue + 10 : lineDataHighValue + 1)];
+                else
+                    forceY = [];
+
+                finalChartData.push({
+                    'options': graphOptions.multiDataOptions,
                     'data': finalCharts.lineCharts,
                     'api': {}
                 });
@@ -1143,6 +1248,56 @@ showMetricApp.service('createWidgets',function($http,$q){
                 });
                 finalChartData[finalChartData.length -1].options.chart.forceY = forceY;
             }
+/*
+            if(finalCharts.barCharts.length > 1) {
+                chartsCount++;
+                for(var charts in finalCharts.barCharts) {
+                    for(var items in chartColorChecker) {
+                        if(finalCharts.barCharts[charts].color == chartColorChecker[items]) {
+                            var neededColour = fetchAColour(finalCharts.barCharts[charts].color,chartColorChecker);
+                            finalCharts.barCharts[charts].color = neededColour;
+                        }
+                    }
+                    chartColorChecker.push(finalCharts.barCharts[charts].color);
+                }
+                chartColorChecker = [];
+
+                var individualGraphTotals = [];
+                for(var charts in finalCharts.barCharts) {
+                    var summaryTotal = 0;
+                    for(values in finalCharts.barCharts[charts].values) {
+                        summaryTotal += parseFloat(finalCharts.barCharts[charts].values[values].y);
+                    }
+                    individualGraphTotals[charts] = summaryTotal;
+                }
+
+                var cumulativeTotal = 0;
+                for(items in individualGraphTotals)
+                    cumulativeTotal += parseInt(individualGraphTotals[items]);
+                var cumulativeAverage = cumulativeTotal/individualGraphTotals.length;
+
+                for(var charts in finalCharts.barCharts) {
+                    var summaryTotal = 0;
+                    for(values in finalCharts.barCharts[charts].values)
+                        summaryTotal += parseFloat(finalCharts.barCharts[charts].values[values].y);
+
+                    if(summaryTotal > cumulativeAverage)
+                        finalCharts.barCharts[charts].yAxis = 2;
+                    else
+                        finalCharts.barCharts[charts].yAxis = 1;
+                }
+
+
+
+                //var forceY = [0,barDataHighValue == 0? 10 : (barDataHighValue>100 ? barDataHighValue + 10 : barDataHighValue + 1)];
+                finalChartData.push({
+                    'options': graphOptions.multiDataOptions,
+                    'data': finalCharts.barCharts,
+                    'api': {}
+                });
+                //finalChartData[finalChartData.length -1].options.chart.forceY = forceY;
+            }
+*/
             if(finalCharts.pieCharts.length > 0) {
                 chartsCount++;
 
@@ -1177,7 +1332,14 @@ showMetricApp.service('createWidgets',function($http,$q){
                     'data': finalCharts.highEngagementTweets[0].values
                 });
             }
-            if(finalChartData.length == 0 && widget.widgetType == 'custom') {
+            if(finalCharts.highestEngagementLinkedIn.length > 0) {
+                chartsCount++;
+                finalChartData.push({
+                    'options': graphOptions.highestEngagementLinkedIn,
+                    'data': finalCharts.highestEngagementLinkedIn[0].values
+                });
+            }
+            if(finalChartData.length == 0) {
                 if(widget.widgetType == 'custom') {
                     var customDataUrl = '';
                     if(window.location.hostname=="localhost")
@@ -1186,22 +1348,15 @@ showMetricApp.service('createWidgets',function($http,$q){
                         customDataUrl = window.location.hostname +"/api/v1/create/customdata/"+widget._id;
                     finalChartData.push({
                         'options': graphOptions.emptyCharts,
-                        'data': [{message:'Please send your data to: ' + customDataUrl}]
+                        'data': [{message:'No data for chosen date range. ' +'Please send your data to: ' + customDataUrl}]
                     });
                 }
                 else {
                     finalChartData.push({
                         'options': graphOptions.emptyCharts,
-                        'data': [{message:'Data unavailable for this metric'}]
+                        'data': [{message:'No data for chosen date range'}]
                     });
                 }
-            }
-            if(finalCharts.highestEngagementLinkedIn.length > 0) {
-                chartsCount++;
-                finalChartData.push({
-                    'options': graphOptions.highestEngagementLinkedIn,
-                    'data': finalCharts.highestEngagementLinkedIn[0].values
-                });
             }
 
             var setLayoutOptions = function() {

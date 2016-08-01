@@ -4,7 +4,7 @@ module.exports = function (app, passport) {
 
     // HOME PAGE (with login links)
     app.get('/', function (req, res) {
-        if (req.user) res.redirect('/profile')
+        if (req.user) res.redirect('profile');
         else res.render('../public/home.ejs'); // load the index.ejs file
     });
 
@@ -12,7 +12,7 @@ module.exports = function (app, passport) {
     // LOGIN ===============================
 
     app.get('/privacy', function (req, res) {
-        res.render('privacy.ejs'); // load the Privacy Policy file
+        res.render('../public/privacy.ejs'); // load the Privacy Policy file
     });
 
     app.get('/pricing', function (req, res) {
@@ -30,10 +30,10 @@ module.exports = function (app, passport) {
     app.get('/integrations', function (req, res) {
         res.render('../public/integrations.ejs');
     });
-    
+
     // show the login form
     app.get('/api/v1/login', function (req, res) {
-        if (req.user) res.redirect('/profile')
+        if (req.user) res.redirect('/profile');
         else
             // render the page and pass in any flash data if it exists
             res.render('../public/login.ejs', {message: req.flash('loginMessage')});
@@ -77,9 +77,12 @@ module.exports = function (app, passport) {
     app.get('/profile', function (req, res) {
         if (req.user){
             userActivity.saveUserActivity(req,res,function(err,userReponse){});
-            res.render('profile.ejs');
+            res.render('../public/profile.ejs');
         }
         else res.redirect('/api/v1/login');
+    });
+    app.get('/reports', function (req, res) {
+        res.render('../public/reports.ejs');
     });
 
     app.get('/signout', function (req, res) {

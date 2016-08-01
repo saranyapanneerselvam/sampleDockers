@@ -96,7 +96,7 @@ module.exports = function (app) {
                                                 res.json('Error', err);
                                             else {
                                                 //If response of the storeProfiles function is success then close the authentication window
-                                                res.render('successAuthentication');
+                                                res.render('../public/successAuthentication');
                                             }
                                         });
                                     }

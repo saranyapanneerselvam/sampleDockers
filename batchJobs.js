@@ -8,6 +8,8 @@ var spec = {host: 'https://adwords.google.com/api/adwords/reportdownload/v201601
 googleAds.GoogleAdwords(spec);
 var request = require('request');
 //To use google api's
+//importing pinterest node module
+var PDK = require('node-pinterest');
 var googleapis = require('googleapis');
 var semaphore = require('semaphore')(1);
 //Load the auth file
@@ -20,7 +22,7 @@ var oauth2Client = new OAuth2(configAuth.googleAuth.clientID, configAuth.googleA
 
 //load async module
 var async = require("async");
-var mongoConnectionString = "mongodb://admin:admin@ds015334.mlab.com:15334/datapoolt15062016";
+var mongoConnectionString = "mongodb://datapoolt:DAtaPOolT@ec2-52-76-6-41.ap-southeast-1.compute.amazonaws.com/Datapoolt";
 var FB = require('fb');
 //db connection for storing agenda jobs
 var agenda = new Agenda({db: {address: mongoConnectionString}});
@@ -70,6 +72,7 @@ var transporter = nodemailer.createTransport({
         pass: 'habile3238'
     }
 });
+var errorDataList = [];
 agenda.define('Update channel data', function (job, done) {
     init();
     function init() {
@@ -146,7 +149,7 @@ agenda.define('Update channel data', function (job, done) {
                 userId: 1,
                 email: 1,
                 name: 1,
-                dataCenter:1
+                dataCenter: 1
             }, checkNullObject(callback));
         }
 
@@ -200,7 +203,10 @@ agenda.define('Update channel data', function (job, done) {
                             initializeGa(allResultData, next);
                             break;
                         case configAuth.channels.linkedIn:
-                            selectLinkedInObjectType(allResultData,next);
+                            selectLinkedInObjectType(allResultData, next);
+                            break;
+                        case configAuth.channels.pinterest:
+                            selectPinterest(allResultData, next);
                             break;
                         default:
                             next('error')
@@ -217,6 +223,7 @@ agenda.define('Update channel data', function (job, done) {
                 get_tweet_data_from_remote: ['get_tweet_queries', getTweetDataFromRemote]
 
             }, function (err, results) {
+
                 if (err) {
                     return callback(err, null);
                 }
@@ -995,7 +1002,10 @@ agenda.define('Update channel data', function (job, done) {
                             'metrics': allObjects.metricName,
                             prettyPrint: true,
                         }
-                        var analytics = googleapis.analytics({version: 'v3', auth: allObjects.oauth2Client}).data.mcf.get;
+                        var analytics = googleapis.analytics({
+                            version: 'v3',
+                            auth: allObjects.oauth2Client
+                        }).data.mcf.get;
                         callGoogleApi(apiQuery);
                     }
                     else if (allObjects.api === configAuth.googleApiTypes.youtubeApi) {
@@ -1248,7 +1258,8 @@ agenda.define('Update channel data', function (job, done) {
                 }
             }
         }
-        function selectMailChimp (initialResults, callback){
+
+        function selectMailChimp(initialResults, callback) {
             async.auto({
                 get_mailChimp_queries: getMailChimpQueries,
                 get_mailChimp_data_from_remote: ['get_mailChimp_queries', getMailChimpDataFromRemote]
@@ -1261,20 +1272,53 @@ agenda.define('Update channel data', function (job, done) {
             });
 
             function getMailChimpQueries(callback) {
+                /* d = new Date();
+                 var allObjects = {};
+                 if (initialResults.data != null) {
+                 var updatedDb = moment(initialResults.data.updated).format('YYYY-MM-DD');
+                 if (initialResults.data.updated < new Date()) {
+                 var updated = initialResults.data.updated;
+                 updated.setDate(updated.getDate() + 1);
+                 updated = moment(updated).format('YYYY-MM-DD');
+                 var currentDate = moment(new Date()).format('YYYY-MM-DD');
+                 console.log('calling',initialResults.data.updated);
+                 if(initialResults.metric.objectTypes[0].meta.endpoint[0]=== 'lists'){
+                 var query = 'https://'+initialResults.profile.dataCenter+'.api.mailchimp.com/3.0/lists/'+initialResults.object.channelObjectId+'?count=100';
+                 }
+                 else{
+                 var query = 'https://'+initialResults.profile.dataCenter+'.api.mailchimp.com/3.0/campaigns/'+initialResults.object.channelObjectId+'?count=100';      }
+                 allObjects = {
+                 profile: initialResults.profile,
+                 query: query,
+                 widget: initialResults.metric,
+                 dataResult: initialResults.data.data,
+                 startDate: updated,
+                 endDate: currentDate,
+                 metricId: initialResults.metric._id,
+                 metricCode: initialResults.metric.code,
+                 endpoint: initialResults.metric.objectTypes[0].meta.endpoint[0]
+                 }
+                 console.log('queryResponsemailchimp',allObjects);
+                 callback(null, allObjects);
+                 }
+                 else
+                 callback(null, 'DataFromDb');
+                 }*/
                 d = new Date();
                 var allObjects = {};
                 if (initialResults.data != null) {
                     var updatedDb = moment(initialResults.data.updated).format('YYYY-MM-DD')
+                    var updated = initialResults.data.updated;
+                    var currentDate = moment(new Date()).format('YYYY-MM-DD');
+                    var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+                    updated.setTime(updated.getTime() + oneDay);
                     if (initialResults.data.updated < new Date()) {
-                        var updated = initialResults.data.updated;
-                        var currentDate = moment(new Date()).format('YYYY-MM-DD');
-                        var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
-                        updated.setTime(updated.getTime() + oneDay);
-                        if(initialResults.metric.objectTypes[0].meta.endpoint[0]=== 'lists'){
-                            var query = 'https://'+initialResults.profile.dataCenter+'.api.mailchimp.com/3.0/lists/'+initialResults.object.channelObjectId+'?count=100';
+                        if (initialResults.metric.objectTypes[0].meta.endpoint[0] === 'lists') {
+                            var query = 'https://' + initialResults.profile.dataCenter + '.api.mailchimp.com/3.0/lists/' + initialResults.object.channelObjectId + '?count=100';
                         }
-                        else{
-                            var query = 'https://'+initialResults.profile.dataCenter+'.api.mailchimp.com/3.0/campaigns/'+initialResults.object.channelObjectId+'?count=100';      }
+                        else {
+                            var query = 'https://' + initialResults.profile.dataCenter + '.api.mailchimp.com/3.0/campaigns/' + initialResults.object.channelObjectId + '?count=100';
+                        }
                         allObjects = {
                             profile: initialResults.profile,
                             query: query,
@@ -1283,6 +1327,7 @@ agenda.define('Update channel data', function (job, done) {
                             startDate: updated,
                             endDate: currentDate,
                             metricId: initialResults.metric._id,
+                            metricCode: initialResults.metric.code,
                             endpoint: initialResults.metric.objectTypes[0].meta.endpoint[0]
                         }
                         callback(null, allObjects);
@@ -1308,8 +1353,8 @@ agenda.define('Update channel data', function (job, done) {
 
             };
 
-            function callMailchimpForMetrics(result, callback){
-                var actualFinalApiData=[];
+            function callMailchimpForMetrics(result, callback) {
+                var actualFinalApiData = [];
                 request({
                     uri: result.query,
                     headers: {
@@ -1319,37 +1364,47 @@ agenda.define('Update channel data', function (job, done) {
                 }, function (err, response, body) {
                     var parsedResponse;
                     var storeMetric;
-                    var tot_metric=[];
+                    var tot_metric = [];
                     if (err) callback(err)
                     else {
-                        var mailChimpResponse=JSON.parse(body);
+                        var mailChimpResponse = JSON.parse(body);
                         var storeStartDate = new Date(result.startDate);
                         var storeEndDate = new Date(result.endDate);
                         var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
                         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); //adding plus one so that today also included
-                        var stats='stats';
-                        var item=result.widget.objectTypes[0].meta.mailChimpsMetricName;
-                        if(result.endpoint==='campaign') {
-                            if(result.metricCode==='emailSend') {
-                                storeMetric =parseInt(mailChimpResponse[item]);
+                        //var stats='stats';
+                        var item = result.widget.objectTypes[0].meta.mailChimpsMetricName;
+                        if (result.endpoint === 'campaign') {
+                            if (result.metricCode === 'emailSend') {
+                                storeMetric = parseInt(mailChimpResponse[item]);
                             }
-                            else{
-                                storeMetric =parseInt(mailChimpResponse.report_summary[item]);
-                            }
-                        }
-                        else{
-                            storeMetric = parseInt(mailChimpResponse.stats[item]);
-                        }
-                        for (var i = 0; i <= diffDays; i++) {
-                            var finalDate = moment(storeStartDate).format('YYYY-MM-DD');
-                            tot_metric.push({date: finalDate, total: 0});
-                            storeStartDate.setDate(storeStartDate.getDate() + 1);
+                            else {
+                                if (!mailChimpResponse.report_summary)
+                                    storeMetric = null;
+                                else
+                                    storeMetric = parseInt(mailChimpResponse.report_summary[item]);
 
-                            if (result.endDate === tot_metric[i].date) {
-                                tot_metric[i] = {
-                                    total: storeMetric,
-                                    date: result.endDate
-                                };
+                            }
+                        }
+                        else {
+                            if (!mailChimpResponse.stats)
+                                storeMetric = null;
+                            else
+                                storeMetric = parseInt(mailChimpResponse.stats[item]);
+                        }
+                        if (storeMetric != null) {
+                            for (var i = 0; i < diffDays; i++) {
+                                console.log('ival',i)
+                                var finalDate = moment(storeStartDate).format('YYYY-MM-DD');
+                                tot_metric.push({date: finalDate, total: 0});
+                                storeStartDate.setDate(storeStartDate.getDate() + 1);
+
+                                if (result.endDate === tot_metric[i].date) {
+                                    tot_metric[i] = {
+                                        total: storeMetric,
+                                        date: result.endDate
+                                    };
+                                }
                             }
                         }
                         actualFinalApiData = {
@@ -1358,7 +1413,7 @@ agenda.define('Update channel data', function (job, done) {
                             queryResults: initialResults,
                             channelId: initialResults.metric.channelId
                         }
-                        callback(null,actualFinalApiData)
+                        callback(null, actualFinalApiData)
                     }
                 });
 
@@ -1366,13 +1421,15 @@ agenda.define('Update channel data', function (job, done) {
             }
 
         }
-        function selectLinkedInObjectType(initialResults,callback){
+
+        function selectLinkedInObjectType(initialResults, callback) {
             async.auto({
                 get_linkedIn_queries: getLinkedInQueries,
                 get_linkedIn_data_from_remote: ['get_linkedIn_queries', getLinkedInDataFromRemote]
 
             }, function (err, results) {
                 if (err) {
+
                     return callback(err, null);
                 }
                 callback(null, results.get_linkedIn_data_from_remote);
@@ -1383,30 +1440,30 @@ agenda.define('Update channel data', function (job, done) {
                 d = new Date();
                 var allObjects = {};
                 if (initialResults.data != null) {
-                    var updatedDb =initialResults.data.updated;
+                    var updatedDb = initialResults.data.updated;
                     var updated = initialResults.data.updated;
                     var currentDate = new Date();
                     var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
                     updated.setTime(updated.getTime() + oneDay);
                     if (updatedDb < currentDate) {
                         if (initialResults.metric.objectTypes[0].meta.endpoint[0] === 'follwers') {
-                            var query = 'https://api.linkedin.com/v1/companies/' + channelObjectId + '/num-followers?oauth2_access_token='+ initialResults.profile.accessToken + '&format=json';
+                            var query = 'https://api.linkedin.com/v1/companies/' + channelObjectId + '/num-followers?oauth2_access_token=' + initialResults.profile.accessToken + '&format=json';
                         }
                         else {
                             if (initialResults.metric.code === 'highestEngagementUpdatesLinkedIn') {
                                 var query = 'https://api.linkedin.com/v1/companies/' + channelObjectId + '/updates?oauth2_access_token=' + initialResults.profile.accessToken + '&count=200&format=json';
                             }
                             else {
-                                var openDate = moment(updatedDb).format('YYYY-MM-DD');
+                                var openDate = moment(updated).format('YYYY-MM-DD');
                                 var startDate = +moment(openDate);
-                                var closeDate =moment(currentDate).format('YYYY-MM-DD');
+                                var closeDate = moment(currentDate).format('YYYY-MM-DD');
                                 var oneDay = 24 * 60 * 60 * 1000;
                                 var endDate = +moment(closeDate);
                                 endDate = (endDate + oneDay);
                                 var query = 'https://api.linkedin.com/v1/companies/' + channelObjectId + '/historical-status-update-statistics:(time,like-count,impression-count,share-count,click-count,comment-count)?oauth2_access_token=' + initialResults.profile.accessToken + '&time-granularity=day&start-timestamp=' + startDate + '&end-timestamp=' + endDate + '&format=json';
                             }
                         }
-                       
+
                         allObjects = {
                             profile: initialResults.profile,
                             query: query,
@@ -1415,9 +1472,9 @@ agenda.define('Update channel data', function (job, done) {
                             startDate: updated,
                             endDate: currentDate,
                             metricId: initialResults.metric._id,
-                            metricMeta:initialResults.metric.objectTypes[0].meta.linkedInMetricName,
-                            objectId:channelObjectId,
-                            metricCode:initialResults.metric.code,
+                            metricMeta: initialResults.metric.objectTypes[0].meta.linkedInMetricName,
+                            objectId: channelObjectId,
+                            metricCode: initialResults.metric.code,
                             endpoint: initialResults.metric.objectTypes[0].meta
                         }
                         callback(null, allObjects);
@@ -1428,7 +1485,7 @@ agenda.define('Update channel data', function (job, done) {
 
             }
 
-            function getLinkedInDataFromRemote(allObjects,callback){
+            function getLinkedInDataFromRemote(allObjects, callback) {
                 var actualFinalApiData = {};
                 if (allObjects.get_linkedIn_queries === 'DataFromDb') {
                     actualFinalApiData = {
@@ -1439,22 +1496,23 @@ agenda.define('Update channel data', function (job, done) {
                     callback(null, actualFinalApiData);
                 }
                 else {
-                    callLinkedInForMetrics(allObjects.get_linkedIn_queries,actualFinalApiData, callback);
+                    callLinkedInForMetrics(allObjects.get_linkedIn_queries, actualFinalApiData, callback);
                 }
 
             }
-            function callLinkedInForMetrics(result,actualFinalApiData, callback) {
+
+            function callLinkedInForMetrics(result, actualFinalApiData, callback) {
                 var storeMetric;
-                var tot_metric=[];
-                var actualMetric=[];
+                var tot_metric = [];
+                var actualMetric = [];
                 request(result.query,
                     function (err, response, body) {
-                        if (err || response.statusCode!=200) {
-                            callback(err,null);
+                        if (err || response.statusCode != 200) {
+                            callback(err, null);
                         }
                         else {
-                            storeMetric=JSON.parse(body);
-                            if(storeMetric._total==0){
+                            storeMetric = JSON.parse(body);
+                            if (storeMetric._total == 0) {
                                 var storeStartDate = new Date(req.body.startDate);
                                 var storeEndDate = new Date(req.body.endDate);
                                 var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
@@ -1472,16 +1530,15 @@ agenda.define('Update channel data', function (job, done) {
                                 }
                                 callback(null, actualFinalApiData);
                             }
-                            else
-                            {
+                            else {
                                 if (result.endpoint.endpoint[0] == 'follwers') {
                                     var storeStartDate = new Date(result.startDate);
                                     var storeEndDate = new Date(result.endDate);
                                     var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
                                     var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); //adding plus one so that today also included
-                                    for (var i = 0; i <= diffDays; i++) {
+                                    for (var i = 0; i < diffDays; i++) {
                                         var finalDate = moment(storeStartDate).format('YYYY-MM-DD');
-                                        var endDate=moment(result.endDate).format('YYYY-MM-DD');
+                                        var endDate = moment(result.endDate).format('YYYY-MM-DD');
                                         tot_metric.push({date: finalDate, total: 0});
                                         storeStartDate.setDate(storeStartDate.getDate() + 1);
                                         if (endDate === tot_metric[i].date) {
@@ -1501,7 +1558,7 @@ agenda.define('Update channel data', function (job, done) {
                                 }
                                 else {
                                     if (result.metricCode === 'highestEngagementUpdatesLinkedIn') {
-                                        var loopCount=0;
+                                        var loopCount = 0;
                                         for (var i = 0; i < storeMetric.values.length; i++) {
                                             loopCount++;
                                             var openDate = req.body.startDate;
@@ -1510,10 +1567,17 @@ agenda.define('Update channel data', function (job, done) {
                                             var endDate = +moment(closeDate);
                                             var updateKey = storeMetric.values[i].updateKey;
                                             var dataDate = storeMetric.values[i].timestamp;
-                                            if (dataDate >= startDate && dataDate <= endDate)
+                                            if (dataDate >= startDate && dataDate <= endDate) {
+                                                console.log('length', storeMetric.values);
                                                 tot_metric.push(storeMetric.values[i]);
+                                            }
+                                            else {
+                                                console.log('loopCount', loopCount);
+
+                                            }
+
                                         }
-                                        if(tot_metric!=null && tot_metric.length>0){
+                                        if (tot_metric != null && tot_metric.length > 0) {
                                             for (var m = 0; m < tot_metric.length; m++) {
                                                 var commentText = tot_metric[m].updateContent.companyStatusUpdate.share.comment;
                                                 var companyId = 'https://www.linkedin.com/company/' + tot_metric[m].updateContent.company.id;
@@ -1522,7 +1586,7 @@ agenda.define('Update channel data', function (job, done) {
                                                 var store = callLinkedInCompanyHistory(queryMakingForHistory, changeDate, commentText, companyId);
                                             }
                                         }
-                                        else{
+                                        else {
                                             actualFinalApiData = {
                                                 apiResponse: tot_metric,
                                                 metricId: result.metricId,
@@ -1554,7 +1618,7 @@ agenda.define('Update channel data', function (job, done) {
                                 }
                             }
                         }
-                        function callLinkedInCompanyHistory(queryMakingForHistory,changeDate,commentText,companyId){
+                        function callLinkedInCompanyHistory(queryMakingForHistory, changeDate, commentText, companyId) {
                             //actualMetric.push({date: changeDate,text:commentText, total:({likes:0,comments:0,shares:0,clicks:0,impressions:0})});
                             request(queryMakingForHistory,
                                 function (err, response, linkedIn) {
@@ -1562,23 +1626,40 @@ agenda.define('Update channel data', function (job, done) {
                                         return res.status(500).json({error: 'Internal server error'});
                                     }
                                     else {
-                                        var linkedInHistory=JSON.parse(linkedIn);
-                                        var likesCount=0, impressionsCount=0,commentsCount=0,sharesCount=0,clicksCount=0;
-                                        var companylength=linkedInHistory._total;
+                                        var linkedInHistory = JSON.parse(linkedIn);
+                                        var likesCount = 0, impressionsCount = 0, commentsCount = 0, sharesCount = 0, clicksCount = 0;
+                                        var companylength = linkedInHistory._total;
                                         for (var k = 0; k < companylength; k++) {
-                                            likesCount+=linkedInHistory.values[k].likeCount;
-                                            impressionsCount+=linkedInHistory.values[k].impressionCount;
-                                            commentsCount+=linkedInHistory.values[k].commentCount;
-                                            sharesCount+= linkedInHistory.values[k].shareCount;
-                                            clicksCount+= linkedInHistory.values[k].clickCount;
+                                            likesCount += linkedInHistory.values[k].likeCount;
+                                            impressionsCount += linkedInHistory.values[k].impressionCount;
+                                            commentsCount += linkedInHistory.values[k].commentCount;
+                                            sharesCount += linkedInHistory.values[k].shareCount;
+                                            clicksCount += linkedInHistory.values[k].clickCount;
 
                                         }
-                                        actualMetric.push({date: changeDate,total:({url:companyId,text:commentText,likes:likesCount,comments:commentsCount,shares:sharesCount,clicks:clicksCount,impressions:impressionsCount})});
-                                        likesCount=0; impressionsCount=0;commentsCount=0;sharesCount=0;clicksCount=0;
+                                        actualMetric.push({
+                                            date: changeDate,
+                                            total: ({
+                                                url: companyId,
+                                                text: commentText,
+                                                likes: likesCount,
+                                                comments: commentsCount,
+                                                shares: sharesCount,
+                                                clicks: clicksCount,
+                                                impressions: impressionsCount
+                                            })
+                                        });
+                                        likesCount = 0;
+                                        impressionsCount = 0;
+                                        commentsCount = 0;
+                                        sharesCount = 0;
+                                        clicksCount = 0;
+                                        console.log('actualMetric', actualMetric);
+                                        console.log('checlkingLength', actualMetric.length, tot_metric.length);
                                         var metricArray = _.sortBy(actualMetric, ['total.clicks']);
-                                        if(tot_metric.length==actualMetric.length){
+                                        if (tot_metric.length == actualMetric.length) {
                                             var metricArray = _.sortBy(actualMetric, ['total.clicks']);
-                                            var collectionMetric= _.orderBy(metricArray, ['total.clicks','total.shares','total.likes','total.impressions'], ['desc','asc','asc','desc               ']);
+                                            var collectionMetric = _.orderBy(metricArray, ['total.clicks', 'total.shares', 'total.likes', 'total.impressions'], ['desc', 'asc', 'asc', 'desc               ']);
                                             actualFinalApiData = {
                                                 apiResponse: collectionMetric,
                                                 metricId: result.metricId,
@@ -1590,7 +1671,6 @@ agenda.define('Update channel data', function (job, done) {
                                         }
 
 
-
                                     }
 
 
@@ -1599,6 +1679,313 @@ agenda.define('Update channel data', function (job, done) {
                         }
                     });
 
+            }
+        }
+
+        function selectPinterest(initialResults, callback) {
+            async.auto({
+                get_pinterest_queries: getPinterestQueries,
+                get_pinterest_data_from_remote: ['get_pinterest_queries', getPinterestDataFromRemote]
+
+            }, function (err, results) {
+                if (err) {
+                    return callback(err, null);
+                }
+                callback(null, results.get_pinterest_data_from_remote);
+            });
+
+            function getPinterestQueries(callback) {
+                var adAccountId = initialResults.object.channelObjectId;
+                /* d = new Date();
+                 var allObjects = {};
+                 if (initialResults.data != null) {
+                 var updatedDb = initialResults.data.updated;
+                 var updated = initialResults.data.updated;
+                 var currentDate = new Date();
+                 // d.setDate(d.getDate() + 1);
+                 var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+                 updated.setTime(updated.getTime() + oneDay);
+                 console.log(initialResults.data.updated ,new Date);
+                 if (initialResults.data.updated < new Date()) {
+                 var startDate = moment(updated).format('YYYY-MM-DD');
+                 var endDate =moment(new Date()).format('YYYY-MM-DD');
+                 var query = metric.objectTypes[0].meta.pinMetricName;
+                 allObjects = {
+                 profile: initialResults.get_profile[j],
+                 query: query,
+                 widget: initialResults.metric,
+                 dataResult: initialResults.data.data,
+                 startDate: startDate,
+                 endDate: endDate,
+                 metricId: initialResults.metric._id,
+                 endPoint: initialResults.metric.objectTypes[0].meta.endpoint
+                 }
+                 console.log('queryMacking',allObjects);
+                 callback(null, allObjects);
+                 }
+                 else
+                 callback(null, 'DataFromDb');
+                 }*/
+                d = new Date();
+                var allObjects = {};
+                if (initialResults.data != null) {
+                    var updatedDb = moment(initialResults.data.updated).format('YYYY-MM-DD')
+                    var updated = initialResults.data.updated;
+                    var currentDate = moment(new Date()).format('YYYY-MM-DD');
+                    var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+                    updated.setTime(updated.getTime() + oneDay);
+                    if (initialResults.data.updated < new Date()) {
+                        var query = metric.objectTypes[0].meta.pinMetricName;
+                        allObjects = {
+                            profile: initialResults.profile,
+                            query: query,
+                            widget: initialResults.metric,
+                            dataResult: initialResults.data.data,
+                            startDate: updated,
+                            endDate: currentDate,
+                            metricId: initialResults.metric._id,
+                            metricCode: initialResults.metric.code,
+                            endpoint: initialResults.metric.objectTypes[0].meta.endpoint[0]
+                        }
+                        console.log('allObjects', allObjects)
+                        callback(null, allObjects);
+                    }
+                    else
+                        callback(null, 'DataFromDb');
+                }
+
+
+            }
+
+            function getPinterestDataFromRemote(allObjects, callback) {
+                var actualFinalApiData = {};
+                console.log('allObjects', allObjects.get_pinterest_queries);
+                if (allObjects.get_pinterest_queries === 'DataFromDb') {
+                    actualFinalApiData = {
+                        apiResponse: 'DataFromDb',
+                        queryResults: initialResults,
+                        channelId: initialResults.metric.channelId
+                    }
+                    callback(null, actualFinalApiData);
+                }
+                else
+                    callPinterestApiForMetrics(allObjects.get_pinterest_queries, callback);
+            }
+
+            function callPinterestApiForMetrics(result, callback) {
+                var storeMetric;
+                var tot_metric = [];
+                var actualFinalApiData = [];
+                var arrayOfResponse = [];
+                var arrayOfBoards = [];
+                var storeBoard = [];
+                var removeDuplicateBoard = [];
+                var storePin = [];
+                var topTenBoard = [];
+                var pinterest = PDK.init(result.profile.accessToken);
+                if (result.metricCode === 'boardsleaderboard') {
+                    var params = {
+                        qs: {
+                            fields: "counts,id,name,created_at,url",
+                        }
+                    };
+                    pinterest.api(result.query, params).then(function (response) {
+                            console.log('boardLeaders', response.data)
+                            var endPointMetric = {}
+                            endPointMetric = {items: result.endPoint};
+                            if (endPointMetric.items.indexOf("/") > -1) {
+                                endPointMetric = endPointMetric.items.split("/");
+                            }
+                            var count = endPointMetric[0];
+                            var pins = endPointMetric[1];
+                            var collaborate = endPointMetric[2];
+                            var followers = endPointMetric[3];
+                            for (var key in response.data) {
+                                arrayOfResponse.push(response.data[key]);
+                            }
+                            for (var i = 0; i < arrayOfResponse.length; i++) {
+                                var temp = arrayOfResponse[i][count];
+                                arrayOfBoards.push({
+                                    date: response.data[i].name,
+                                    total: {pins: temp[pins], collaborators: temp[collaborate], followers: temp[followers]}
+                                })
+                            }
+                            var MediasArray = _.sortBy(arrayOfBoards, ['total.followers']);
+                            var collectionBoard = _.orderBy(MediasArray, ['total.followers', 'total.pins'], ['desc', 'asc']);
+                            for (var j = 0; j < 10; j++) {
+                                topTenBoard.push(collectionBoard[j]);
+                            }
+                            actualFinalApiData = {
+                                apiResponse: topTenBoard,
+                                metricId: result.metricId,
+                                queryResults: initialResults,
+                                channelId: initialResults.metric[0].channelId
+                            }
+
+                            callback(null, actualFinalApiData);
+
+                        })
+                        .catch(function (error) {
+                            callback(error, null);
+                        });
+                }
+                else if (result.metricCode === 'engagementRate') {
+                    var params = {
+                        qs: {
+                            limit: 100,
+                            fields: "id,board,created_at,counts",
+                        }
+                    };
+                    var query = result.query;
+                    console.log('queryParam', query);
+                    var date = new Date();
+                    var endDate = moment(date).unix();
+                    var d = new Date();
+                    d.setDate(d.getDate() - 31);
+                    var startDate = moment(d).unix();
+                    paginationCallApi(query, params);
+                    function paginationCallApi(query, params) {
+                        pinterest.api(query, params).then(function (response) {
+                            console.log(response);
+                            for (var index in response.data) {
+                                var dateString = response.data[index].created_at;
+                                var split = dateString.split('T');
+                                var createDate = moment(dateString).unix();
+                                console.log('pagination2', createDate, startDate, createDate, endDate);
+                                if (createDate > startDate && createDate < endDate) {
+                                    arrayOfResponse.push(response.data[index]);
+                                    console.log('pagination2', arrayOfResponse);
+                                }
+                                if (response.page.cursor != null && response.page.next != null) {
+                                    if (response.data.length === (parseInt(index) + 1) && createDate > startDate && createDate < endDate) {
+                                        console.log('pagination', response.page.cursor);
+                                        query = response.page.next;
+                                        paginationCallApi(query, params);
+                                    }
+                                    else if (response.data.length === (parseInt(index) + 1)) {
+                                        storeFinalData(arrayOfResponse);
+                                    }
+                                } else if (response.data.length === (parseInt(index) + 1)) {
+                                    storeFinalData(arrayOfResponse);
+                                }
+                            }
+                        }, function (error) {
+                            callback(error, null);
+                        })
+
+                    }
+
+                    function storeFinalData(arrayOfResponse) {
+                        console.log('storeFinalData', arrayOfResponse);
+                        var endPointMetric = {}
+                        endPointMetric = {items: result.endPoint};
+                        if (endPointMetric.items.indexOf("/") > -1) {
+                            endPointMetric = endPointMetric.items.split("/");
+                        }
+
+                        var count = endPointMetric[0];
+                        var board = endPointMetric[1];
+                        var name = endPointMetric[2];
+                        var id = endPointMetric[4]
+                        var like = endPointMetric[5];
+                        var comment = endPointMetric[6];
+                        var repin = endPointMetric[7];
+                        var removeDuplicate = _.groupBy(arrayOfBoards, 'board.name')
+                        for (var k = 0; k < arrayOfResponse.length; k++) {
+                            if (arrayOfResponse[k][board] != null) {
+                                var isUnique = true;
+                                for (items in arrayOfBoards) {
+                                    if (arrayOfBoards[items].boardId == arrayOfResponse[k][board][id]) {
+                                        isUnique = false;
+                                    }
+                                }
+                                if (isUnique == true) {
+                                    arrayOfBoards.push({
+                                        boardId: arrayOfResponse[k][board][id],
+                                        name: arrayOfResponse[k][board][name],
+                                        total: ({likes: 0, comments: 0, repins: 0})
+                                    });
+                                }
+                            }
+                        }
+                        for (var k = 0; k < arrayOfBoards.length; k++) {
+                            var likesCount = 0;
+                            var commentCount = 0;
+                            var repinsCount = 0;
+                            for (var j = 0; j < arrayOfResponse.length; j++) {
+                                if (arrayOfBoards[k].boardId === arrayOfResponse[j][board][id]) {
+
+                                    likesCount += arrayOfResponse[j][count][like];
+                                    commentCount += arrayOfResponse[j][count][comment];
+                                    repinsCount += arrayOfResponse[j][count][repin];
+
+
+                                }
+                            }
+                            arrayOfBoards[k].total = ({likes: likesCount, comments: commentCount, repins: repinsCount});
+
+                            var likesCount = 0;
+                            var commentCount = 0;
+                            var repinsCount = 0;
+
+                        }
+                        actualFinalApiData = {
+                            apiResponse: arrayOfBoards,
+                            metricId: result.metricId,
+                            queryResults: initialResults,
+                            channelId: initialResults.metric.channelId
+                        }
+                        callback(null, actualFinalApiData);
+
+                    }
+                }
+                else {
+                    var params = {
+                        qs: {
+                            fields: "id,first_name,created_at,username,counts,last_name",
+                        }
+                    };
+                    pinterest.api(result.query, params).then(function (response) {
+                        var endPointMetric = {}
+                        endPointMetric = {items: result.endPoint};
+                        var storeStartDate = new Date(result.startDate);
+                        var storeEndDate = new Date(result.endDate);
+                        var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
+                        var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                        if (endPointMetric.items.indexOf("/") > -1) {
+                            endPointMetric = endPointMetric.items.split("/");
+                        }
+                        var count = endPointMetric[0];
+                        var item = endPointMetric[1];
+                        var temp = response.data[count];
+                        storeMetric = temp[item];
+                        for (var i = 0; i <= diffDays; i++) {
+                            var finalDate = formatDate(storeStartDate);
+                            tot_metric.push({date: finalDate, total: 0});
+                            storeStartDate.setDate(storeStartDate.getDate() + 1);
+
+                            if (result.endDate === tot_metric[i].date) {
+                                tot_metric[i] = {
+                                    total: storeMetric,
+                                    date: result.endDate
+                                };
+                            }
+
+
+                        }
+                        console.log('finalData', tot_metric);
+                        actualFinalApiData = {
+                            apiResponse: tot_metric,
+                            metricId: result.metricId,
+                            queryResults: initialResults,
+                            channelId: initialResults.metric.channelId
+                        }
+                        callback(null, actualFinalApiData);
+
+                    }, function (error) {
+                        callback(error, null);
+                    });
+                }
             }
         }
 
@@ -1615,7 +2002,15 @@ agenda.define('Update channel data', function (job, done) {
                         var storeRemoteData = [];
                         var wholeTweetResponse = [];
                         var uniqueChannelArray = [];
-                        if (dataFromRemote[j].data === 'DataFromDb') next(null, 'DataFromDb')
+                        if (dataFromRemote[j] === null) {
+                            next(null, {
+                                'error': {
+                                    'metricId': dataFromDb[j].metricId,
+                                    'objectId': dataFromDb[j].objectId
+                                }
+                            })
+                        }
+                        else if (dataFromRemote[j].data === 'DataFromDb') next(null, 'DataFromDb')
                         else {
                             if (metric[j].code === configAuth.twitterMetric.tweets || metric[j].code === configAuth.twitterMetric.followers || metric[j].code == configAuth.twitterMetric.following || metric[j].code === configAuth.twitterMetric.favourites || metric[j].code === configAuth.twitterMetric.listed || metric[j].code === configAuth.twitterMetric.retweets_of_your_tweets) {
                                 if (dataFromRemote.length != 0) {
@@ -1736,10 +2131,18 @@ agenda.define('Update channel data', function (job, done) {
                     }
                     else if (channel[j].code === configAuth.channels.instagram) {
                         var finalData = [];
-                        if (metric[j].objectTypes[0].meta.endpoint === 'user_media_recent')
+                        if (metric[j].code === 'Recent Posts')
                             next(null, dataFromRemote[j])
                         else {
-                            if (dataFromRemote[j].apiResponse != 'DataFromDb') {
+                            if (dataFromRemote[j] === null) {
+                                next(null, {
+                                    'error': {
+                                        'metricId': dataFromDb[j].metricId,
+                                        'objectId': dataFromDb[j].objectId
+                                    }
+                                })
+                            }
+                            else if (dataFromRemote[j].apiResponse != 'DataFromDb') {
 
                                 //Array to hold the final result
                                 for (var key in dataFromRemote) {
@@ -1769,7 +2172,15 @@ agenda.define('Update channel data', function (job, done) {
                         var beforeReplaceEmptyData = [];
                         var finalData = [];
                         var finalData1 = [];
-                        if (dataFromRemote[j].res != 'DataFromDb') {
+                        if (dataFromRemote[j] === null) {
+                            next(null, {
+                                'error': {
+                                    'metricId': dataFromDb[j].metricId,
+                                    'objectId': dataFromDb[j].objectId
+                                }
+                            })
+                        }
+                        else if (dataFromRemote[j].res != 'DataFromDb') {
                             if (dataFromRemote[j].res.data.length) {
 
                                 //Array to hold the final result
@@ -1832,7 +2243,15 @@ agenda.define('Update channel data', function (job, done) {
                     }
                     else if (channel[j].code === configAuth.channels.facebookAds) {
                         var finalData = [];
-                        if (dataFromRemote[j].data != 'DataFromDb') {
+                        if (dataFromRemote[j] === null) {
+                            next(null, {
+                                'error': {
+                                    'metricId': dataFromDb[j].metricId,
+                                    'objectId': dataFromDb[j].objectId
+                                }
+                            })
+                        }
+                        else if (dataFromRemote[j].data != 'DataFromDb') {
 
                             //Array to hold the final result
                             for (var data in dataFromRemote[j].data) {
@@ -1858,10 +2277,18 @@ agenda.define('Update channel data', function (job, done) {
                         else next(null, 'DataFromDb')
                     }
                     else if (channel[j].code === configAuth.channels.googleAnalytics || channel[j].code == configAuth.channels.youtube) {
-                        if (dataFromRemote[j].data.data != 'DataFromDb') {
+                        if (dataFromRemote[j] === null) {
+                            next(null, {
+                                'error': {
+                                    'metricId': dataFromDb[j].metricId,
+                                    'objectId': dataFromDb[j].objectId
+                                }
+                            })
+                        }
+                        else if (dataFromRemote[j].data.data != 'DataFromDb') {
                             var storeGoogleData = [];
                             var dimensionList = metric[j].objectTypes[0].meta.dimension;
-                            if (dimensionList[0].name === "ga:date" || dimensionList[0].name === "mcf:conversionDate"  || dimensionList[0].name === 'day') {
+                            if (dimensionList[0].name === "ga:date" || dimensionList[0].name === "mcf:conversionDate" || dimensionList[0].name === 'day') {
                                 if (dataFromRemote[j].data.metric.objectTypes[0].meta.endpoint.length)
                                     finalData = findDaysDifference(dataFromRemote[j].data.startDate, dataFromRemote[j].data.endDate, dataFromRemote[j].data.metric.objectTypes[0].meta.endpoint);
                                 else {
@@ -1995,7 +2422,7 @@ agenda.define('Update channel data', function (job, done) {
                                 }
                             }
 
-                            if (finalData.length>storeGoogleData.length)
+                            if (finalData.length > storeGoogleData.length)
                                 storeGoogleData = replaceEmptyData(finalData, storeGoogleData);
                             next(null, storeGoogleData)
                         }
@@ -2003,7 +2430,15 @@ agenda.define('Update channel data', function (job, done) {
                     }
                     else if (channel[j].code === configAuth.channels.googleAdwords) {
                         var finalData = [];
-                        if (dataFromRemote[j].apiResponse != 'DataFromDb') {
+                        if (dataFromRemote[j] === null) {
+                            next(null, {
+                                'error': {
+                                    'metricId': dataFromDb[j].metricId,
+                                    'objectId': dataFromDb[j].objectId
+                                }
+                            })
+                        }
+                        else if (dataFromRemote[j].apiResponse != 'DataFromDb') {
                             if (String(metric[j]._id) == String(dataFromRemote[j].metricId))
                                 finalData = dataFromRemote[j].apiResponse;
                             var findCurrentDate = _.findIndex(finalData, function (o) {
@@ -2028,7 +2463,16 @@ agenda.define('Update channel data', function (job, done) {
                     }
                     else if (channel[j].code === configAuth.channels.mailChimp) {
                         var finalData = [];
-                        if (dataFromRemote[j].apiResponse != 'DataFromDb') {
+                        if (dataFromRemote[j] === null) {
+                            next(null, {
+                                'error': {
+                                    'metricId': dataFromDb[j].metricId,
+                                    'objectId': dataFromDb[j].objectId
+                                }
+                            })
+                        }
+                        else if (dataFromRemote[j].apiResponse != 'DataFromDb') {
+
 
                             //Array to hold the final result
                             for (var key in dataFromRemote) {
@@ -2056,27 +2500,46 @@ agenda.define('Update channel data', function (job, done) {
                             next(null, 'DataFromDb')
                     }
                     else if (channel[j].code === configAuth.channels.linkedIn) {
+                        var loopFinalData = [];
                         var finalData = [];
-                        if (dataFromRemote[j].apiResponse != 'DataFromDb') {
+                        if (dataFromRemote[j] === null) {
+                            next(null, {
+                                'error': {
+                                    'metricId': dataFromDb[j].metricId,
+                                    'objectId': dataFromDb[j].objectId
+                                }
+                            })
+                        }
+                        else if (dataFromRemote[j].apiResponse != 'DataFromDb') {
 
                             //Array to hold the final result
                             for (var key in dataFromRemote) {
                                 if (String(metric[j]._id) == String(dataFromRemote[key].metricId))
                                     finalData = dataFromRemote[key].apiResponse;
+                                loopFinalData = dataFromRemote[key].apiResponse;
                             }
                             var findCurrentDate = _.findIndex(finalData, function (o) {
                                 return o.date == moment(new Date).format('YYYY-MM-DD');
                             });
                             if (dataFromDb[j].data != null) {
+                                var DbData = dataFromDb[j].data;
+                                for (var n = 0; n < dataFromDb[j].data.length; n++) {
+                                    var findCurrentDate = _.findIndex(finalData, function (o) {
+                                        return o.date == dataFromDb[j].data[n].date;
+                                    });
 
-                                //merge the old data with new one and update it in db
-                                for (var key = 0; key < dataFromDb[j].data.length; key++) {
-                                    if (dataFromDb[j].data[key].date === moment(new Date).format('YYYY-MM-DD'))
-                                        finalData[findCurrentDate] = dataFromDb[j].data[key];
+                                    if (findCurrentDate != -1) {
+                                        if (dataFromDb[j].data[n].date === loopFinalData[findCurrentDate].date) {
+                                            console.log('findCurrentDate', dataFromDb[j].data[key].date, loopFinalData[findCurrentDate].date);
+                                            finalData[findCurrentDate] = dataFromDb[j].data[n];
+                                        }
+                                        else
+                                            finalData.push(dataFromDb[j].data[n]);
+
+                                    }
                                     else
-                                        finalData.push(dataFromDb[j].data[key]);
+                                        finalData.push(dataFromDb[j].data[n]);
                                 }
-
                             }
                             next(null, finalData)
 
@@ -2098,7 +2561,27 @@ agenda.define('Update channel data', function (job, done) {
             //set the update parameters for query
             bulkExecute = false;
             for (var i = 0; i < updatedFinalData.length; i++) {
-                if (results.merge_all_final_data[i] != 'DataFromDb') {
+
+                //next(null,{'error':{'metricId':dataFromDb[j].data.metricId,'objectId':dataFromDb[j].data.objectId}})
+                if (results.merge_all_final_data[i].error) {
+                    console.log('results.merge_all_final_data[i].error', results.merge_all_final_data[i].error)
+                    //bulkExecute = false;
+                    var mailOptions = {
+                        from: 'Datapoolt Team <rajalakshmi.c@habile.in>',
+                        to: 'rajalakshmi.c@habile.in',
+                        subject: 'Error alert for the metric' + results.merge_all_final_data[i].error.metricId + 'and object id' + results.merge_all_final_data[i].error.objectId,
+
+                        // HTML Version
+                        // html: '<span>The data has crossed the limit of <b>' + thresholdValue + '</b></span>' + '<span> for the metric  <b>' + metric.name + '</b></span>' + '<span> in  <b>' + object.name + '</b></span>'
+
+                    };
+                    utility.sendEmail(mailOptions, '', function (err, response) {
+                        //callback(null, 'success');
+                        console.log('errormail', response)
+                    });
+                    errorDataList.push(results.merge_all_final_data[i].error)
+                }
+                else if (results.merge_all_final_data[i] != 'DataFromDb' && !results.merge_all_final_data[i].error) {
                     bulkExecute = true;
 
                     //set query condition
@@ -2151,6 +2634,7 @@ agenda.define('Update channel data', function (job, done) {
             }
             return storeDefaultValues;
         }
+
         function replaceEmptyData(daysDifference, finalData) {
             var defaultArrayLength = daysDifference.length;
             var dataLength = finalData.length;
@@ -2185,12 +2669,15 @@ agenda.define('Send Alerts', function (job, done) {
                 callback(null, object);
         }
     }
+
     function getAlert(callback) {
         Alert.find({}, checkNullObject(callback));
     }
+
     function getData(results, callback) {
         async.concatSeries(results.get_alert, evaluateData, callback)
     }
+
     function evaluateData(results, callback) {
         var alert = results;
         var weekday = [];
@@ -2212,30 +2699,6 @@ agenda.define('Send Alerts', function (job, done) {
                 return a < b
             }
         };
-
-        function sendEmail(mail, thresholdValue, metric, object, alertName, alertId) {
-
-            // Email Setup
-            var mailOptions = {
-                from: 'Datapoolt Team <rajalakshmi.c@habile.in>',
-                to: mail,
-                subject: 'The alert ' + alertName + ' has been triggered',
-
-                // HTML Version
-                html: '<span>The data has crossed the limit of <b>' + thresholdValue + '</b></span>' + '<span> for the metric  <b>' + metric + '</b></span>' + '<span> in  <b>' + object + '</b></span>'
-
-            };
-
-            // Send
-            transporter.sendMail(mailOptions, function (error, info) {
-                if (error) callback(null, 'success')
-                else {
-                    Alert.update({_id: alertId}, {$set: {lastEvaluatedTime: now}}, function (err, alertUpdate) {
-                        callback(null, 'success')
-                    })
-                }
-            });
-        }
 
         //check interval if,daily check threshold,else check today is friday
         if (utcTime < time) {
@@ -2279,16 +2742,16 @@ agenda.define('Send Alerts', function (job, done) {
 
                                     };
                                     if (alert.interval === configAuth.interval.setDaily) {
-                                        if (checkingThreshold === true){
-                                            utility.sendEmail(mailOptions, alert._id,function(err,response){
+                                        if (checkingThreshold === true) {
+                                            utility.sendEmail(mailOptions, alert._id, function (err, response) {
                                                 callback(null, 'success');
                                             });
                                         }
 
                                     }
                                     else if (alert.interval === configAuth.interval.setWeekly) {
-                                        if (checkingThreshold === true && currentDayName === configAuth.dayNames.Friday){
-                                            utility.sendEmail(mailOptions, alert._id,function(err,response){
+                                        if (checkingThreshold === true && currentDayName === configAuth.dayNames.Friday) {
+                                            utility.sendEmail(mailOptions, alert._id, function (err, response) {
                                                 callback(null, 'success');
                                             });
                                         }
@@ -2304,6 +2767,7 @@ agenda.define('Send Alerts', function (job, done) {
         }
         else callback(null, 'success')
     }
+
     done();
 })
 agenda.on('ready', function () {

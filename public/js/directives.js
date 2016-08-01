@@ -502,7 +502,7 @@ function sizeWatcher ($timeout){
         link: function( scope, elem, attrs ){
             function initsize(){
                 scope.sizeWatcherHeight = elem.prop('offsetHeight');
-                scope.sizeWatcherWidth = elem.prop('clientWidth');
+                /*scope.sizeWatcherWidth = elem.prop('clientWidth');*/
             }
             scope.$watch( function() {
                 initsize();

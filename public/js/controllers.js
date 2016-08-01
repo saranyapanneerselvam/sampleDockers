@@ -633,11 +633,15 @@ showMetricApp.service('createWidgets',function($http,$q){
                         if(typeof widget.charts[charts].chartData[0] != 'undefined') {
                             if(widget.charts[charts].chartData[0].x){
                                 var summaryValue = 0;
-                                for(var datas in widget.charts[charts].chartData)
-                                    summaryValue += parseInt(widget.charts[charts].chartData[datas].y);
+                                var nonZeroPoints = 0;
+                                for(var datas in widget.charts[charts].chartData) {
+                                    summaryValue += parseFloat(widget.charts[charts].chartData[datas].y);
+                                    if(parseFloat(widget.charts[charts].chartData[datas].y) > 0)
+                                        nonZeroPoints++;
+                                }
                                 if(typeof widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType != 'undefined') {
                                     if(widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType == 'avg') {
-                                        summaryValue = parseFloat(summaryValue/widget.charts[charts].chartData.length).toFixed(2);
+                                        summaryValue = parseFloat(summaryValue/nonZeroPoints).toFixed(2);
                                     }
                                     else if(widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType == 'snapshot') {
                                         var latestDate = '';
@@ -656,7 +660,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                         'values': widget.charts[charts].chartData,      //values - represents the array of {x,y} data points
                                         'key': widget.charts[charts].metricDetails.name, //key  - the name of the series.
                                         'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
-                                        'summaryDisplay': parseFloat(summaryValue)
+                                        'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(summaryValue)) > 0 ? parseFloat(summaryValue).toFixed(2): parseInt(summaryValue)
                                     });
                                 }
                                 else if(chartType == 'area') {
@@ -665,7 +669,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                         'values': widget.charts[charts].chartData,      //values - represents the array of {x,y} data points
                                         'key': widget.charts[charts].metricDetails.name, //key  - the name of the series.
                                         'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
-                                        'summaryDisplay': parseFloat(summaryValue),
+                                        'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(summaryValue)) > 0 ? parseFloat(summaryValue).toFixed(2): parseInt(summaryValue),
                                         'area': true
                                     });
                                 }
@@ -675,18 +679,21 @@ showMetricApp.service('createWidgets',function($http,$q){
                                         'y': parseFloat(summaryValue),      //values - represents the array of {x,y} data points
                                         'key': widget.charts[charts].metricDetails.name, //key  - the name of the series.
                                         'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
-                                        'summaryDisplay': parseFloat(summaryValue)
+                                        'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(summaryValue)) > 0 ? parseFloat(summaryValue).toFixed(2): parseInt(summaryValue)
                                     });
                                 }
                             }
                             else {
                                 for(var items in widget.charts[charts].chartData) {
                                     var summaryValue = 0;
+                                    var nonZeroPoints = 0;
                                     for(var datas in widget.charts[charts].chartData[items]) {
-                                        summaryValue += parseInt(widget.charts[charts].chartData[items][datas].y);
+                                        summaryValue += parseFloat(widget.charts[charts].chartData[items][datas].y);
+                                        if(parseFloat(widget.charts[charts].chartData[items][datas].y != 0))
+                                            nonZeroPoints++;
                                         if(typeof widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType != 'undefined') {
                                             if(widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType == 'avg')
-                                                summaryValue = parseFloat(summaryValue/widget.charts[charts].chartData[items].length).toFixed(2);
+                                                summaryValue = parseFloat(summaryValue/nonZeroPoints).toFixed(2);
                                             else if(widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType == 'snapshot') {
                                                 var latestDate = '';
                                                 for(var data in widget.charts[charts].chartData[items]) {
@@ -707,7 +714,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                             'values': widget.charts[charts].chartData[items],      //values - represents the array of {x,y} data points
                                             'key': typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName != 'undefined'? (typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode] != 'undefined'? widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode]: widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items]) : widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items],
                                             'color': typeof widget.charts[charts].chartColour != 'undefined' ? (typeof widget.charts[charts].chartColour[items] != 'undefined'? widget.charts[charts].chartColour[items] : '') : '',  //color - optional: choose your own line color.
-                                            'summaryDisplay': parseFloat(summaryValue)
+                                            'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(summaryValue)) > 0 ? parseFloat(summaryValue).toFixed(2): parseInt(summaryValue)
                                         });
                                     }
                                     else if(chartType == 'area') {
@@ -716,7 +723,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                             'values': widget.charts[charts].chartData[items],      //values - represents the array of {x,y} data points
                                             'key': typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName != 'undefined'? (typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode] != 'undefined'? widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode]: widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items]) : widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items],
                                             'color': typeof widget.charts[charts].chartColour != 'undefined' ? (typeof widget.charts[charts].chartColour[items] != 'undefined'? widget.charts[charts].chartColour[items] : '') : '',  //color - optional: choose your own line color.
-                                            'summaryDisplay': parseFloat(summaryValue),
+                                            'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(summaryValue)) > 0 ? parseFloat(summaryValue).toFixed(2): parseInt(summaryValue),
                                             'area': true
                                         });
                                     }
@@ -726,7 +733,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                             'y': parseFloat(summaryValue),      //values - represents the array of {x,y} data points
                                             'key': typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName != 'undefined'? (typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode] != 'undefined'? widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode]: widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items]) : widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items],
                                             'color': typeof widget.charts[charts].chartColour != 'undefined' ? (typeof widget.charts[charts].chartColour[items] != 'undefined'? widget.charts[charts].chartColour[items] : '') : '',  //color - optional: choose your own line color.
-                                            'summaryDisplay': parseFloat(summaryValue)
+                                            'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(summaryValue)) > 0 ? parseFloat(summaryValue).toFixed(2): parseInt(summaryValue)
                                         });
                                     }
                                 }
@@ -1164,16 +1171,15 @@ showMetricApp.service('createWidgets',function($http,$q){
                 chartColorChecker = [];
 
                 var forceY;
-                if(lineDataLowValue == lineDataHighValue)
-                    forceY = [lineDataLowValue,lineDataHighValue == 0? 10 : (lineDataHighValue>100 ? lineDataHighValue + 10 : lineDataHighValue + 1)];
-                else
-                    forceY = [];
                 finalChartData.push({
                     'options': graphOptions.lineDataOptions,
                     'data': finalCharts.lineCharts,
                     'api': {}
                 });
-                finalChartData[finalChartData.length -1].options.chart.forceY = forceY;
+                //if(lineDataLowValue == lineDataHighValue) {
+                forceY = [lineDataLowValue,lineDataHighValue == 0? 10 : (lineDataHighValue>100 ? lineDataHighValue + 10 : lineDataHighValue + 1)];
+                finalChartData[finalChartData.length -1].options.chart.yDomain = forceY;
+                //}
             }
             if(finalCharts.lineCharts.length > 1) {
                 chartsCount++;
@@ -1207,10 +1213,10 @@ showMetricApp.service('createWidgets',function($http,$q){
                     for(values in finalCharts.lineCharts[charts].values)
                         summaryTotal += parseFloat(finalCharts.lineCharts[charts].values[values].y);
 
-                    if(summaryTotal > cumulativeAverage)
-                        finalCharts.lineCharts[charts].yAxis = 2;
-                    else
+                    if(summaryTotal < cumulativeAverage)
                         finalCharts.lineCharts[charts].yAxis = 1;
+                    else
+                        finalCharts.lineCharts[charts].yAxis = 2;
                 }
 
                 var forceY;
@@ -1224,7 +1230,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                     'data': finalCharts.lineCharts,
                     'api': {}
                 });
-                finalChartData[finalChartData.length -1].options.chart.forceY = forceY;
+                finalChartData[finalChartData.length -1].options.chart.forceY1 = [0,50];
+                finalChartData[finalChartData.length -1].options.chart.forceY2 = [50,100];
             }
             if(finalCharts.barCharts.length > 0) {
                 chartsCount++;

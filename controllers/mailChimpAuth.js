@@ -85,7 +85,7 @@ module.exports = function (app) {
                                 user.storeProfiles(req,res,function (err, responses) {
                                     if (err)
                                         return res.status(500).json({error: err});
-                                    else res.render('successAuthentication');
+                                    else res.render('../public/successAuthentication');
 
                                 });
                             }

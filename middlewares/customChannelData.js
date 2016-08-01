@@ -9,8 +9,6 @@ exports.saveCustomChannelData = function (req, res, next) {
     customData.find({widgetId: req.params.widgetId}, function (err, result) {
         if (err)
             return res.status(500).json({error: err});
-        else if (!result.length)
-            return res.status(204).json({error: 'No records found'});
         else if (result == "" || result == "[]") {
             var isSendPost = 1;
             var sendMessage = "";

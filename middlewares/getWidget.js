@@ -1,6 +1,7 @@
 var async = require("async");
 var configAuth = require('../config/auth');
 var exports = module.exports = {};
+var getDashboards = require('../middlewares/dashboards');
 var mongoose = require('mongoose');
 var userPermission = require('../helpers/utility');
 var widgetsList = require('../models/widgets');
@@ -20,7 +21,7 @@ exports.widgets = function (req, res, next) {
      * @params metrics - query response
      * callback next which returns response to controller
      */
-    if (req.user) {
+    if (req.user && req.query.reportId===undefined) {
         req.dashboardId = req.params.dashboardId;
         userPermission.checkUserAccess(req, res, function (err, response) {
             widgetsList.find({dashboardId: req.params.dashboardId}, function (err, widget) {
@@ -35,6 +36,15 @@ exports.widgets = function (req, res, next) {
             })
         })
 
+    }
+    else if (String(req.params.dashboardId) === String(null)) {
+        console.log('else if')
+        req.reportId = req.query.reportId;
+        getDashboards.getDashboardDetailsFromReportId(req,res,function (err,dashboardDetails) {
+            console.log('dashboard',req.app.result)
+            req.app.result = dashboardDetails
+            next();
+        });
     }
     else
         res.status(401).json({error: 'Authentication required to perform this action'})

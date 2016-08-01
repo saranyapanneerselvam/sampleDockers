@@ -138,6 +138,9 @@ exports.getChannelData = function (req, res, next) {
                     callEntireDataFunction();
             })
         }
+        else if (req.body.params){
+            callEntireDataFunction()
+        }
         else {
             return res.status(401).json({error: 'User must be logged in',id:req.params.widgetId})
         }
@@ -1001,7 +1004,7 @@ exports.getChannelData = function (req, res, next) {
                 function storeDataForInstagram(dataFromRemote, dataFromDb, widget, metric, done) {
                     async.times(metric.length, function (j, next) {
                         var finalData = [];
-                        if (metric[j].objectTypes[0].meta.endpoint[0] === 'user_media_recent')
+                        if (metric[j].code === 'Recent Posts')
                             callback(null, dataFromRemote[j]);
                         else {
 
@@ -1353,7 +1356,7 @@ exports.getChannelData = function (req, res, next) {
                     }
                     next(null, wholeData)
                 }
-                else if (metric[k].objectTypes[0].meta.endpoint[0] === 'user_media_recent') {
+                else if (metric[k].code === 'Recent Posts') {
                     wholeData = {
                         "data": results.store_final_data[0].apiResponse,
                         "metricId": results.store_final_data[0].metricId,

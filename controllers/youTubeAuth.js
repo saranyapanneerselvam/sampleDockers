@@ -78,7 +78,7 @@ module.exports = function (app) {
                                                     return res.status(500).json({error: err});
                                                 else {
                                                     if(object != null)
-                                                        res.render('successAuthentication');
+                                                        res.render('../public/successAuthentication');
                                                     else{
                                                         ObjectType.findOne({'channelId':response.channelId},function(err,objectTypeList){
                                                             if (err)
@@ -95,9 +95,9 @@ module.exports = function (app) {
                                                                 storeObject.created=new Date();
                                                                 storeObject.save(function(err,objectListItem){
                                                                     if(!err)
-                                                                        res.render('successAuthentication');
+                                                                        res.render('../public/successAuthentication');
                                                                     else if (!objectListItem)
-                                                                        return res.status(501).json({error: 'Not implemented'})
+                                                                        return res.status(501).json({error: 'Not implemented'});
                                                                     else
                                                                         return res.status(500).json({error: err});
                                                                 });

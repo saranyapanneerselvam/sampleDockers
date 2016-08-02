@@ -3432,8 +3432,8 @@ exports.getChannelData = function (req, res, next) {
                         else {
                             if (!mailChimpResponse.stats)
                                 storeMetric = null;
-                        else
-                            storeMetric = parseInt(mailChimpResponse.stats[item]);
+                            else
+                                storeMetric = parseInt(mailChimpResponse.stats[item]);
                         }
                         if(storeMetric!=null) {
                             for (var i = 0; i <= diffDays; i++) {

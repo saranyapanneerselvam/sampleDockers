@@ -3424,14 +3424,18 @@ exports.getChannelData = function (req, res, next) {
                             }
                             else {
                             if(!mailChimpResponse.report_summary)
-                                storeMetric = '';
+                                storeMetric = null;
                             else
                                 storeMetric = parseInt(mailChimpResponse.report_summary[item]);
                             }
                         }
-                        else
-                            storeMetric = parseInt(mailChimpResponse.stats[item]);
-                        if(storeMetric!='') {
+                        else {
+                            if (!mailChimpResponse.stats)
+                                storeMetric = null;
+                            else
+                                storeMetric = parseInt(mailChimpResponse.stats[item]);
+                        }
+                        if(storeMetric!=null) {
                             for (var i = 0; i <= diffDays; i++) {
                                 var finalDate = formatDate(storeStartDate);
                                 tot_metric.push({date: finalDate, total: 0});

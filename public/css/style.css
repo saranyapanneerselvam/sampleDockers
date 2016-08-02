@@ -174,7 +174,7 @@ svg:hover #Calendar-Icon { fill: #04509B; }
 .remove-profile{float: right;margin: 0px ;text-align: right;}
 .refresh{margin-left: -10px;}
 .infont{
-    padding: 6px 14px 0px 12px !important;
+    padding: 0px 14px 0px 12px !important;
     margin-bottom: 15px !important;
     margin-left: 4px;}
 .link-img{vertical-align: super;
@@ -184,7 +184,12 @@ svg:hover #Calendar-Icon { fill: #04509B; }
     white-space: nowrap;}
 .link-span{vertical-align: top;font-size: 8px;
     font-family: Heebo-Regular;}
-.button-mode{border: 1px solid #f5f5f5;
+.fusionButton-mode{border: 1px solid #f5f5f5 !important;
+    width: 25%;
+    background-color: #04509B !important;
+    border-radius: 5px !important;
+    color:#fff !important;}
+.button-mode{border: 1px solid #f5f5f5 !important;
     width: 10%;
     background-color: #04509B !important;
     border-radius: 5px !important;
@@ -303,7 +308,7 @@ h5 {
 }
 .navbar-default .nav > li > a:hover,
 .navbar-default .nav > li > a:focus {
-    background-color: #FFFFFF;
+
     color: #000000;
 }
 .nav .open > a,
@@ -4123,6 +4128,9 @@ body.rtls.top-navigation .footer.fixed {
     .button-mode{width: 25% !important;}
     .daterange{width: 100% !important;margin-left:0px !important;padding-bottom: 7px;}
     .svg-line1{width:280px }.svg-line2{width:280px ;}
+    #page-wrapper{margin-top:63px !important;}
+
+
 
 
 }
@@ -4138,6 +4146,9 @@ body.rtls.top-navigation .footer.fixed {
 
 }
 @media(max-width : 1020px) and (min-width:800px){.daterange{width: 280px !important; margin-left:0px !important;}}
+@media(max-width: 1000px) and (min-width : 768px)  {
+    #page-wrapper{margin-top:60px !important;} .fixed-nav #wrapper {margin-top: -6px;}
+}
 
 @media(max-width : 386px){
     .widget-icons { width: 80% !important; margin-left: 30px; !important}
@@ -4158,11 +4169,12 @@ body.rtls.top-navigation .footer.fixed {
 @media(max-width : 560px) and (min-width : 384px) {.svg-line1{width: 80px;} .errorWidgetData{position: relative}.sessionName{display:none}.box-header h3{width: 65%;}.svg-line2{width: 80px;} .fusion-svgLine1{width: 215px} .fusion-tab{padding-left: 0px !important;} .triangle-topright {margin: -13px 0px 0px 90px !important;}}
 @media(max-width: 667px)and (min-width:  568px){.svg-line1{width:160px } .errorWidgetData{position: relative}.sessionName{display:none}.box-header h3{width: 65%;}.svg-line2{width:160px } .fusion-tab{padding-left: 100px !important;} .ibox-title{padding: 7px 200px 0px !important} .triangle-topright {margin: -13px 0px 0px 185px !important;}}
 @media(max-width : 736px) and (min-width : 600px) {.svg-line1{width: 180px;}  .errorWidgetData{position: relative}.sessionName{display:none}.box-header h3{width: 65%;}.svg-line2{width: 180px;}  .fusion-tab{padding-left:75px !important;} .fusion-svgLine1{width: 310px} .ibox-title{padding: 7px 200px 0px !important}}
-@media(max-width : 1040px) and (min-width : 768px){.daterange {width: 300px !important; margin-left: 0px !important;padding-bottom: 7px;} .errorWidgetData{position: relative}.sessionName{display:none}.box-header h3{width: 65%;} .fusion-tab{padding-left: 166px !important;} .ibox-title{padding: 7px 280px 0px !important}}
+@media(max-width : 1040px) and (min-width : 768px){.daterange {width: 300px !important; margin-left: 0px !important;padding-bottom: 7px;} .errorWidgetData{position: relative}.box-header h3{width: 65%;} .fusion-tab{padding-left: 166px !important;} .ibox-title{padding: 7px 280px 0px !important} }
 @media(max-width:920px) and (min-width: 650px){.grid-text{width:35%}.dashboards{width: 100%;}}
 @media(max-width:645px) and (min-width: 480px){.grid-text{width:85%}.dashboards{width: 100%;}}
 @media(max-width:482px) and (min-width: 320px){.grid-text{width:100%}.dashboards{width: 100%;}}
 @media(max-width:1200px) and (min-width: 480px){.dashboards{width: 100%;}.grid-text{margin-left: 7%}}
+@media(max-width:320px){.sessionName{display:none}}
 
 @media screen and (max-width: 32em){
     .triangle-topright {
@@ -4228,3 +4240,6 @@ body.rtls.top-navigation .footer.fixed {
 }
 
 
+.nav>li>a:focus{
+    background-color: transparent !important;
+}

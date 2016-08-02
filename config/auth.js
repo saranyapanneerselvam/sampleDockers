@@ -184,7 +184,8 @@ module.exports = {
     },
 
     expire:{
-        FBAccessExpire:5097600
+        FBAccessExpire:5097600,
+        linkedInAccessExpire:60
     },
 
     apiVersions:{

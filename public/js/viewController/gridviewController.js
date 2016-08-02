@@ -53,11 +53,6 @@ function GridviewController($scope,$http) {
                         $(".md-overlay").css("background","rgba(0,0,0,0.5)");
                         $("#somethingWentWrongModalContent").addClass('md-show');
                         $("#somethingWentWrongText").text("Unable to delete dashboard.Please try again");
-                        swal({
-                            title: "",
-                            text: "<span style='sweetAlertFont'>Unable to delete dashboard.Please try again</span> .",
-                            html: true
-                        });
                     }
                 );
             }

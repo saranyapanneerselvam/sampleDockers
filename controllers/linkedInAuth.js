@@ -48,6 +48,11 @@ module.exports = function (app) {
             if(!parsedBodyResult.error) {
                 req.tokens = parsedBodyResult.access_token;
                 var access_token = parsedBodyResult.access_token;
+                var getExpiresInValue =parsedBodyResult.expires_in;
+                var numdays = configAuth.expire.linkedInAccessExpire;
+                var currentdate = new Date();
+                currentdate.setDate(currentdate.getDate() + numdays);
+                req.expiresIn = currentdate;
                 request({
                     uri: 'https://api.linkedin.com/v1/people/~?format=json',
                     headers: {

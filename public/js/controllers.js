@@ -1112,7 +1112,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                 }
             }
 
-            if(finalCharts.lineCharts.length == 1) {
+            if(finalCharts.lineCharts.length > 1) {
                 chartsCount++;
                 for(var charts in finalCharts.lineCharts) {
                     for(var items in chartColorChecker) {
@@ -1136,6 +1136,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                 finalChartData[finalChartData.length -1].options.chart.yDomain = forceY;
                 //}
             }
+/*
             if(finalCharts.lineCharts.length > 1) {
                 chartsCount++;
                 for(var charts in finalCharts.lineCharts) {
@@ -1206,6 +1207,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                 finalChartData[finalChartData.length -1].options.chart.yDomain1 = [firstChartLowValue,firstChartHighValue > 0 ? firstChartHighValue : 1];
                 finalChartData[finalChartData.length -1].options.chart.yDomain2 = [secondChartLowValue,secondChartHighValue > 0 ? secondChartHighValue : 1];
             }
+*/
             if(finalCharts.barCharts.length > 0) {
                 chartsCount++;
 

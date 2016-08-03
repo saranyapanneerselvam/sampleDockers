@@ -223,8 +223,8 @@ module.exports = {
         scope:'read_public,read_relationships'
     },
     'linkedIn':{
-        clientID :'81665zttd0yozd',
-        clientSecret :'KUlhe3rR1ZoV3V2o',
+        clientID :'81rzqsz9vo6vk4',
+        clientSecret :'qWo9LU2s6KJ9EnNI',
         redirect_uri:'http://localhost:8080/auth/linkedin/callback',
         scope : [["r_basicprofile","r_emailaddress","rw_company_admin"]],
         tokenPath:'https://www.linkedin.com/oauth/v2/accessToken',

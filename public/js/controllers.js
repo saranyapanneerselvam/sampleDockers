@@ -321,6 +321,7 @@ showMetricApp.service('createWidgets',function($http,$q){
             }
             $http(dataUrl).then(
                 function successCallback(response) {
+                    console.log(response);
                     for(var chartObjects in widget.charts){
                         for(var datas in response.data){
                             if(String(widget.charts[chartObjects].metrics[0].metricId) === String(response.data[datas].metricId)){
@@ -1112,7 +1113,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                 }
             }
 
-            if(finalCharts.lineCharts.length > 1) {
+            if(finalCharts.lineCharts.length > 0) {
                 chartsCount++;
                 for(var charts in finalCharts.lineCharts) {
                     for(var items in chartColorChecker) {

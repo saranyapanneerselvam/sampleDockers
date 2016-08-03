@@ -43,7 +43,6 @@ module.exports = function (app) {
                 var profileId = req.userId;
                 req.profileName = result.user.full_name;
                 var profileName = req.profileName;
-                res.render('../public/successAuthentication');
                 var code = req.query.code;
 
                 //Query to find instagram channelId which is to be stored in profile table - dev

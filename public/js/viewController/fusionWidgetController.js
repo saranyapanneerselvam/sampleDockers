@@ -371,7 +371,8 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
             "minSize": $scope.storedReferenceWidget.minSize,
             "maxSize": $scope.storedReferenceWidget.maxSize,
             "isAlert": $scope.storedReferenceWidget.isAlert,
-            "visibility": true
+            "visibility": true,
+            "channelName": "custom"
         };
         inputParams.push(jsonData);
         $http({

@@ -174,7 +174,22 @@ function minimalizaSidebar($timeout) {
         controller: function ($scope, $element) {
             $scope.minimalize = function () {
                 $("body").toggleClass("mini-navbar");
+                var screenWidth=$( window ).width();
+                if(screenWidth==768){
+                        if (!$('body').hasClass('mini-navbar')) {
+                            $("#side-menu").css("display", "none");
+                        }
+                        else {
+                            $("#side-menu").css("display", "block");
+                            //$('#side-menu').show();
+                        }
+
+                }
                 if (!$('body').hasClass('mini-navbar') || $('body').hasClass('body-small')) {
+                    var width = document.getElementById('CustomTemplate').offsetWidth;
+                    if(width<900){
+                        $('#dashboardTitleIcons').hide();
+                    }
                     // Hide menu in order to smoothly turn on when maximize menu
                     $('#side-menu').hide();
                     // For smoothly turn on menu
@@ -182,8 +197,12 @@ function minimalizaSidebar($timeout) {
                         function () {
                             $('#side-menu').fadeIn(500);
                             if (!$('body').hasClass('body-small')){
-                                    document.getElementById('tabs-container-desk-view').setAttribute('style','padding-left: 221px;');
-                                    document.getElementById('tabs-container-response-view').setAttribute('style','padding-left: 221px;');
+                                    /*document.getElementById('tabs-container-desk-view').setAttribute('style','padding-left: 221px;');
+                                    document.getElementById('tabs-container-response-view').setAttribute('style','padding-left: 221px;');*/
+                            }
+                            else{
+                                $('#dashboardTitleIcons').hide()
+
                             }
                         }, 100);
                 } else if ($('body').hasClass('fixed-sidebar')){
@@ -196,10 +215,12 @@ function minimalizaSidebar($timeout) {
                     // Remove all inline style from jquery fadeIn function to reset menu state
                     $('#side-menu').removeAttr('style');
                     if ($('body').hasClass('mini-navbar')){
-                        //document.getElementById('topNavbarList').setAttribute('style','padding-left: 71px;');
-                            document.getElementById('tabs-container-desk-view').setAttribute('style','padding-left: 71px;');
-                            document.getElementById('tabs-container-response-view').setAttribute('style','padding-left: 71px;');
+                        $('#dashboardTitleIcons').show();
+                           /* document.getElementById('tabs-container-desk-view').setAttribute('style','padding-left: 71px;');
+                            document.getElementById('tabs-container-response-view').setAttribute('style','padding-left: 71px;');*/
+
                     }
+
                 }
             }
         }

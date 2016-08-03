@@ -321,7 +321,6 @@ showMetricApp.service('createWidgets',function($http,$q){
             }
             $http(dataUrl).then(
                 function successCallback(response) {
-                    console.log(response);
                     for(var chartObjects in widget.charts){
                         for(var datas in response.data){
                             if(String(widget.charts[chartObjects].metrics[0].metricId) === String(response.data[datas].metricId)){

@@ -41,7 +41,8 @@ function GridviewController($scope,$http) {
                 $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
                 $("#getLoadingModalContent").addClass('md-show');
                 $http({
-                    method: 'POST', url: '/api/v1/delete/userDashboards/' + dashboard._id
+                    method: 'POST',
+                    url: '/api/v1/delete/userDashboards/' + dashboard._id
                 }).then(
                     function successCallback(response) {
                         $("#getLoadingModalContent").removeClass('md-show');
@@ -53,11 +54,6 @@ function GridviewController($scope,$http) {
                         $(".md-overlay").css("background","rgba(0,0,0,0.5)");
                         $("#somethingWentWrongModalContent").addClass('md-show');
                         $("#somethingWentWrongText").text("Unable to delete dashboard.Please try again");
-                        swal({
-                            title: "",
-                            text: "<span style='sweetAlertFont'>Unable to delete dashboard.Please try again</span> .",
-                            html: true
-                        });
                     }
                 );
             }

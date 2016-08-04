@@ -23,7 +23,7 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
         var setUrlOption = $("#exportOptionUrl").prop("checked");
         var dashboardLayout = document.getElementById('dashLayout');
 
-        if(setJPEGOption==false && setPDFOption==false && setUrlOption==true){
+        if(setJPEGOption==false && setPDFOption==false && setUrlOption==false){
             $(".errorExportMessage").text("* Select the option to export").show();
             return false;
         }
@@ -131,17 +131,15 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,ge
                 }).then(
                     function successCallback(response) {
                         var reportId = response.data.reportId;
-                        var sharingUrl = 'localhost:8080/reports#/'+reportId;
+                        var sharingDomain = window.location.hostname == 'localhost' ? "localhost:8080/reports" : window.location.hostname + "/reports";
+                        var sharingUrl =  sharingDomain + '#/' + reportId;
                         $(".navbar").css('z-index','1');
                         $("#exportModalContent").removeClass('md-show');
                         $(".md-overlay").css("background","rgba(0,0,0,0.5)");
                         $("#exportPDFModalContent").addClass('md-show');
                         $(".loadingStatus").hide();
                         $(".pdfHeadText").text('');
-                        $(".pdfContentText").html('<p id="butt"><b>You can check the dashboard here : ' +
-                            '</b>' +sharingUrl+ '</p>'+'<button class="btn" id="btnCopyLink" ' +
-                            'data-clipboard-text=sharingUrl ng-click="copyToClipboard()">' +
-                            '<img src="image/clippy.svg" width="13" alt="Copy to clipboard"></button>');
+                        $(".pdfContentText").html('<p id="butt"><b>Check your dashboard here : ' + '</b>' + sharingUrl+ '</p>'+'<button class="btn" id="btnCopyLink" ' + 'data-clipboard-text=sharingUrl ng-click="copyToClipboard()">' + '<img src="image/clippy.svg" width="13" alt="Copy to clipboard"></button>');
                         $(".btn").attr('data-clipboard-text',sharingUrl);
                         var clipboard = new Clipboard('.btn');
                         clipboard.on('success', function(e) {

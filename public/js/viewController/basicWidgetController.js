@@ -7,7 +7,11 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     $scope.tokenExpired = false;
     $scope.channelList;
     $scope.currentView = 'step_one';
-
+    $scope.weburl='';
+    $scope.mozObjectdetails={};
+   // var mozObjectId="";
+   //  var mozObjectname="";
+   //   var mozObjecttypeid="";
     var widgetType = $stateParams.widgetType;
     var storedProfile = {};
     var getChannelName = "";
@@ -43,7 +47,9 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             }
             else {
                 storeChosenObject = [];
+                document.getElementById('basicWidgetFinishButton').disabled = true;
                 $scope.getReferenceWidgetsForChosenChannel();
+                $scope.getProfilesForDropdown();
                 $("#basicWidgetNextButton").show();
                 $("#basicWidgetFinishButtonCustom").hide();
             }
@@ -54,6 +60,11 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             $scope.getProfilesForDropdown();
         }
     };
+
+    $scope.mozobject=function(url){
+        $scope.weburl=url;
+        document.getElementById('basicWidgetFinishButton').disabled = false;
+    }
 
     $scope.listChannels = function () {
         $http({
@@ -416,6 +427,10 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     };
 
     $scope.createAndFetchBasicWidget = function () {
+	
+        var mozObjectId="";
+        var mozObjectname="";
+        var mozObjecttypeid="";
         var chartColors = [], widgetName;
         $(".navbar").css('z-index', '1');
         $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
@@ -428,6 +443,100 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             // final function after custom api url creation goes here
             $rootScope.$broadcast('populateWidget', getCustomWidgetObj);
         }
+
+
+//for moz
+            else if(getChannelName == "Moz"){
+            var mozData = {
+                "channelId": $scope.storedChannelId,
+                "mozObject": $scope.weburl,
+                "mozObjectTypeId":$scope.uniqueObjectCount[0]
+            }
+//creating object for moz
+            var httpPromise=$http({
+                method: 'POST',
+                url: '/api/v1/objects',
+                data: mozData
+            }).then(
+                function successCallback(response) {
+                    $scope.mozObjectdetails=response.data.objectList;
+                    return $scope.mozObjectdetails;
+                },
+                function errorCallback(error) {
+                }
+            );
+            httpPromise.then (function (mozObjectdetails) {
+//creating widget for moz
+                  for (var getData in getReferenceWidgetsArr) {
+                      var matchingMetric = [];
+                      var matchingMetricName = '';
+                      var inputParams = [];
+                      var widgetColor = generateChartColours.fetchWidgetColor($scope.storedChannelName);
+
+                      for (var i = 0; i < getReferenceWidgetsArr[getData].charts.length; i++) {
+                          matchingMetric = [];
+                          matchingMetricName = '';
+
+                          for (var j = 0; j < getReferenceWidgetsArr[getData].charts[i].metrics.length; j++) {
+
+                              matchingMetric.push(getReferenceWidgetsArr[getData].charts[i].metrics[j]);
+                              matchingMetric[0].objectId = mozObjectdetails[0]._id;
+                              matchingMetricName = mozObjectdetails[0].name;
+                          }
+                          getReferenceWidgetsArr[getData].charts[i].metrics = matchingMetric;
+                          getReferenceWidgetsArr[getData].charts[i].objectName = matchingMetricName;
+                      }
+                   
+                          widgetName = getReferenceWidgetsArr[getData].name + ' - ' + matchingMetricName;
+
+                      var jsonData = {
+                          "dashboardId": $state.params.id,
+                          "widgetType": widgetType,
+                          "name": widgetName,
+                          "description": getReferenceWidgetsArr[getData].description,
+                          "charts": getReferenceWidgetsArr[getData].charts,
+                          "order": getReferenceWidgetsArr[getData].order,
+                          "offset": getReferenceWidgetsArr[getData].offset,
+                          "size": getReferenceWidgetsArr[getData].size,
+                          "minSize": getReferenceWidgetsArr[getData].minSize,
+                          "maxSize": getReferenceWidgetsArr[getData].maxSize,
+                          "color": widgetColor,
+                          "visibility": true,
+                          "isAlert": getReferenceWidgetsArr[getData].isAlert,
+                          "channelName": $scope.storedChannelName
+                      };
+                      inputParams.push(jsonData);
+                      $http({
+                          method: 'POST',
+                          url: '/api/v1/widgets',
+                          data: inputParams
+                      }).then(
+                          function successCallback(response) {
+                              $("#getLoadingModalContent").removeClass('md-show');
+                              for (var widgetObjects in response.data.widgetsList) {
+                                  $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
+                              }
+                          },
+                          function errorCallback(error) {
+                              $("#getLoadingModalContent").removeClass('md-show');
+                              $(".navbar").css('z-index', '1');
+                              $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
+                              $("#somethingWentWrongModalContent").addClass('md-show');
+                              $("#somethingWentWrongText").text("Something went wrong! Please try again");
+                              swal({
+                                  title: "",
+                                  text: "<span style='sweetAlertFont'>Something went wrong! Please try again!</span> .",
+                                  html: true
+                              });
+                          }
+                      );
+                  }
+                  getReferenceWidgetsArr = [];
+
+            });
+        }
+
+
         else {
             // function for saving other widgets goes here
             for (var getData in getReferenceWidgetsArr) {

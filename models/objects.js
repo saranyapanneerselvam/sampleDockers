@@ -14,7 +14,7 @@ var objectsSchema = mongoose.Schema({
         adSetId: String
     },
     objectTypeId: mongoose.Schema.Types.ObjectId,
-    meta: Object,
+    channelId: mongoose.Schema.Types.ObjectId,
     created: Date,
     updated: Date,
     deleted: Date

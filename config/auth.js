@@ -105,7 +105,8 @@ module.exports = {
         youtube: 'youtube',
         pinterest: 'pinterest',
         mailChimp: 'mailchimp',
-        linkedIn: 'linkedin'
+        linkedIn: 'linkedin',
+        moz:'moz'
     },
 
     'objectType':{

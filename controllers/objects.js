@@ -13,4 +13,9 @@ module.exports = function (app) {
     app.get('/api/v1/get/objectTypeDetail/:objectTypeId', objectList.objectTypes, function (req, res) {
         res.json({objectType: req.app.result});
     });
+
+    app.post('/api/v1/objects',objectList.mozObjectstore, function (req, res) {
+        res.json({objectList:req.app.result});
+    });
+
 };

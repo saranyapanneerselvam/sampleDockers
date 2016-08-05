@@ -365,7 +365,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     url = '/api/auth/mailchimp';
                     title = $scope.storedChannelName;
                     break;
-                case 'LinkedIn':
+                case 'linkedin':
                     url = '/api/auth/linkedIn';
                     title = $scope.storedChannelName;
                     break;

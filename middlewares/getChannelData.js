@@ -79,7 +79,6 @@ exports.getChannelData = function (req, res, next) {
             if(moment(storeStartDate).format('YYYY-MM-DD')<=moment(new Date).format('YYYY-MM-DD')){
                 var finalDate = calculateDate(storeStartDate);
                 if (endPoint != undefined) {
-                    console.log('endpoint')
                     var totalObject = {};
                     for (var j = 0; j < endPoint.length; j++) {
                         totalObject[endPoint[j]] = 0;

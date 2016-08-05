@@ -28,7 +28,7 @@
                                         </svg>
                                     </div>
                                 </a>
-                                <a class="md-trigger md-setperspective md-effect-19" ng-click="exportModal('app.reporting.dashboard.exportModal')"> <!-- ng-click="exportModal('app.reporting.dashboard.exportModal')" -->
+                                <a class="md-trigger md-setperspective md-effect-19" ng-click="exportModal('app.reporting.dashboard.exportModal')" ng-show="loadedWidgetCount == dashboard.widgets.length"> <!-- ng-click="exportModal('app.reporting.dashboard.exportModal')" -->
                                     <div class="title-icons navigation-menu-icon">
                                         <i class="icon icon-download" style="color:#2f4050;font-size: 25px !important;" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Export"></i>
                                     </div>
@@ -171,6 +171,23 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div ng-repeat="chart in dashboard.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'gaTopPagesByVisit'" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/dashboard.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/dashboard.widgetData[widgetIndex].layoutOptionsX)+'%'}">
+                                        <div class="row" style="margin: 0px;height: 100%">
+                                            <div events="events" style="height: 99%" ng-if="dashboard.widgetData[widgetIndex].visibility == true">
+                                                <div class="scrollbar scrollInWidget" id="scroller">
+                                                    <div class="col-lg-12 listed" ng-repeat="data in chart.data" ng-if="data.pagePath">
+                                                        <div class="col-sm-12">
+                                                                <div class="col-sm-11"min-width="90%">{{data.pagePath}}</div>
+                                                                <div class="col-sm-1"min-width="10%">{{data.pageVisits}}</div>
+                                                        </div>
+                                                        </div>
+                                                    <div class="col-lg-12" style="position: relative;top:40%;text-align: center;" ng-if="!chart.data.pagePath">
+                                                        <span >No Updates available</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                                 <!--<div class="context widgetTransparentImage" id="widgetTransparentImage-{{widget.id}}" ng-hide="tempDashboard" ng-click="callThePosition($event,widget.id)" style="width: 100%;height: 100%;"></div>-->
                             </div>
@@ -192,144 +209,4 @@
         </div>
         <script src="js/datePicker/Calendar.js"></script>
     </div>
-
-    <div id="dashLayout" class="dashboardLayout">
-        <div class="white-bg dashboardContent" style="border: 1px solid greenyellow; min-height: 1300px" ng-repeat="aexppage in expPages">
-            <div class="border-bottom dashboardTitle white-bg">
-                <div class="row">
-                    <div class="col col-sm-12">
-                        <div class="dashboardTemplate-items">
-                            <div class="col-sm-3 dashboardName">
-                                <a href="#" ng-model="dashboardName" editable-text="dashboard.dashboardName" onaftersave="changeDashboardName()" buttons="no" e-maxlength="35">
-                                    <pre ng-style="!dashboard.dashboardName  && {'color':'#999'}  || dashboard.dashboardName && {'color':'#000'}">Hi,{{dashboard.dashboardName || 'Name your dashboard'}}</pre>
-                                </a>
-                            </div >
-                            <div class="col-sm-4">
-                                <div class="daterange daterange--double three"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!--{{aexppage}}-->
-            <div gridster="expgridsterOptions" class="row" style="border: 1px solid lightgrey;min-height:500px"><!--ng-switch-when="true"-->
-                <ul>
-                    <li id="gridsterItems" gridster-item="widget" ng-repeat="(widgetIndex,widget) in aexppage.widgets">
-                        <!--{{ widgetIndex + widget }}-->
-                        <div class="box getBox-{{widget.id}}" ng-controller="CustomWidgetController" id="{{widget.id}}">
-
-                            <div class="box-header" id="getWidgetColor-{{widget.id}}" ref="{{aexppage.widgetData[widgetIndex].color}}" ng-style="{'background-color': aexppage.widgetData[widgetIndex].color}">
-                                <h3 style="color: #ffffff;">{{aexppage.widgetData[widgetIndex].name}}</h3>
-                                <div class="graph-icon">
-                                    <a title="alerts" ng-click="alertModal('app.reporting.dashboard.alertModal',widget)" ng-hide="widget.widgetType == 'customFusion' || widget.isAlert == false"><i class="fa fa-bell-o"></i></a>
-                                    <a title="settings" ng-click="openSettings(widget)"><i class="fa fa-cog"></i></a>
-                                    <a title="Toggle Legends" ng-click="toggleLegends(widget.id)"><i class="fa fa-filter"></i></a>
-                                </div>
-                            </div>
-
-                            <div class="box-content" style="vertical-align: middle" ng-style="{position:(isMobile?'static':'absolute')}">
-
-                                <div ng-if="aexppage.widgetData[widgetIndex].visibility == false">
-                                    <div class="spiner-example" id="widgetData-{{widget.id}}">
-                                        <div class="sk-spinner sk-spinner-double-bounce">
-                                            <div class="sk-double-bounce1"></div>
-                                            <div class="sk-double-bounce2"></div>
-                                        </div>
-                                    </div>
-                                    <div class="errorWidgetData" id="errorWidgetData-{{widget.id}}">
-                                        Account not authorized to fetch Data
-                                    </div>
-                                </div>
-                                <div class="row getWidgetGraph" style="height: 100%;margin:0px;" ng-if="aexppage.widgetData[widgetIndex].visibility == true">
-                                    <div ng-repeat="chart in aexppage.widgetData[widgetIndex].chart track by $index" ng-if="chart.options.chart.type=== 'lineChart'  || chart.options.chart.type=== 'pieChart' || chart.options.chart.type=== 'multiBarChart' " style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/aexppage.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/aexppage.widgetData[widgetIndex].layoutOptionsX)+'%'}">
-
-                                        <div class="row" style="margin: 0px;height: 20%">
-                                            <ul style="height:100%;font-size:14px; padding-left: 5px;">
-                                                <li  ng-repeat="data in chart.data track by $index" style="text-align: center;padding-top: 1px;padding-left:0px;padding-right: 2px;float:left;" ng-style="{'height':data.myheight,'width':data.mywidth}">
-                                                    <div style="margin: 0px;height: 100%;overflow: hidden;white-space: nowrap;color: #000000;text-align: center" >
-                                                        <p ng-style="{'color': '#000000', 'font-family' : 'Bebas Neue'}" style="font-weight: bold;">{{data.key}} - <b ng-style="{'color':data.color, 'font-family' : 'Bebas Neue'}"> {{data.summaryDisplay}} </b> </p>
-                                                    </div>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        <div class="row" style="margin: 0px;height: 80%">
-                                            <nvd3 options="chart.options" data="chart.data" api="chart.api" config="{refreshDataOnly:true, deepWatchDataDepth: 0}" events="events" ng-if="aexppage.widgetData[widgetIndex].visibility == true"></nvd3>
-                                        </div>
-                                    </div>
-                                    <div ng-repeat="chart in aexppage.widgetData[widgetIndex].chart track by $index" ng-if="chart.options.chart.type=== 'instagramPosts'" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/aexppage.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/aexppage.widgetData[widgetIndex].layoutOptionsX)+'%'}">
-                                        <div class="row" style="margin: 0px;height: 100%">
-                                            <div events="events" style="height: 99%" ng-if="aexppage.widgetData[widgetIndex].visibility == true">
-                                                <div class="scrollbar scrollInWidget" id="scroller">
-                                                    <div class="col-lg-12 listed" ng-repeat="data in chart.data track by $index">
-                                                        <div class="col-lg-1 listed-image" >
-                                                            <a  href="{{data.links}}" target="_blank"><img src="{{data.image}}" height="50px" widget="50px"/></a>
-                                                        </div>
-                                                        <div class="col-lg-11 aside">
-                                                            <div class="postComment"><a class="apiLink" href="{{data.links}} " target="_blank">{{data.postComment}}</a></div>
-                                                            <div class="impression">
-                                                                <div class="likes"><span>likes:{{data.likes}}</span></div>
-                                                                <div class="comment"><span>Comments:{{data.comments}}</span></div>
-                                                                <div class="date"><span>{{data.date}}</span></div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div ng-repeat="chart in aexppage.widgetData[widgetIndex].chart track by $index" ng-if="chart.options.chart.type=== 'highEngagementTweets'" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/aexppage.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/aexppage.widgetData[widgetIndex].layoutOptionsX)+'%'}">
-                                        <div class="row" style="margin: 0px;height: 100%">
-                                            <div events="events" style="height: 99%" ng-if="aexppage.widgetData[widgetIndex].visibility == true">
-                                                <div class="scrollbar scrollInWidget" id="scroller">
-                                                    <div class="col-lg-12 listed" ng-repeat="data in chart.data track by $index" ng-if="data.postComment">
-                                                        <div class="col-lg-12">
-                                                            <div class="postComment"><a class="apiLink" href="{{data.links.media[0].expanded_url}} " target="_blank">{{data.postComment}}</a></div>
-                                                            <div class="impression">
-                                                                <div class="likes"><span>Likes: {{data.likes}}</span></div>
-                                                                <div class="comment"><span>Retweets: {{data.reTweet}}</span></div>
-                                                                <div class="date"><span>{{data.date}}</span></div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div ng-repeat="chart in dashboard.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'highestEngagementLinkedIn'" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/dashboard.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/dashboard.widgetData[widgetIndex].layoutOptionsX)+'%'}">
-                                        <div class="row" style="margin: 0px;height: 100%">
-                                            <div events="events" style="height: 99%" ng-if="dashboard.widgetData[widgetIndex].visibility == true">
-                                                <div class="scrollbar scrollInWidget" id="scroller">
-                                                    <div class="col-lg-12 listed" ng-repeat="data in chart.data" ng-if="data.postComment">
-                                                        <div class="col-lg-12">
-                                                            <div class="postComment"><a class="apiLink" href="{{data.link}} " target="_blank">{{data.postComment}}</a></div>
-                                                            <div class="impression">
-                                                                <div class="likes"><span>Likes: {{data.likes}}</span></div>
-                                                                <div class="comment"><span>comments: {{data.comments}}</span></div>
-                                                                <div class="comment"><span>shares: {{data.shares}}</span></div>
-                                                                <div class="comment"><span>clicks: {{data.clicks}}</span></div>
-                                                                <div class="comment"><span>impressions: {{data.impressions}}</span></div>
-                                                                <div class="date"><span>{{data.date}}</span></div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-12" style="position: relative;top:40%;text-align: center;" ng-if="!chart.data.postComment">
-                                                        <span >No Updates available</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-            <div style="min-height:5px"></div>
-        </div>
-        <script src="js/datePicker/Calendar.js"></script>
-    </div>
-
-
 </div>

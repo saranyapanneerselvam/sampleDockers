@@ -49,7 +49,6 @@ exports.listAccounts = function (req, res, next) {
         store_channel_objects: ['get_channel_objects_remote', storeChannelObjects],
         get_channel_objects_db: ['store_channel_objects', getChannelObjectsDB]
     }, function (err, results) {
-        console.log('err', err)
         if (err)
             return res.status(500).json({});
 

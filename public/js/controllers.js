@@ -740,7 +740,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                         yAxis: {
                             tickFormat: function(d) {
                                 return d3.format('f')(d);},
-                            showMaxMin: false
+                            showMaxMin: false,
                         },
                         interpolate: "monotone",
                         axisLabelDistance: -10,
@@ -1112,7 +1112,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                 }
             }
 
-            if(finalCharts.lineCharts.length > 1) {
+            if(finalCharts.lineCharts.length > 0) {
                 chartsCount++;
                 for(var charts in finalCharts.lineCharts) {
                     for(var items in chartColorChecker) {
@@ -1131,10 +1131,10 @@ showMetricApp.service('createWidgets',function($http,$q){
                     'data': finalCharts.lineCharts,
                     'api': {}
                 });
-                //if(lineDataLowValue == lineDataHighValue) {
                 forceY = [lineDataLowValue,lineDataHighValue == 0? 10 : (lineDataHighValue>100 ? lineDataHighValue + 10 : lineDataHighValue + 1)];
                 finalChartData[finalChartData.length -1].options.chart.yDomain = forceY;
-                //}
+                if(lineDataHighValue < 10)
+                    finalChartData[finalChartData.length -1].options.chart.yAxis.tickValues =  d3.range(graphOptions.lineDataOptions.chart.yDomain[0],graphOptions.lineDataOptions.chart.yDomain[1]);
             }
 /*
             if(finalCharts.lineCharts.length > 1) {

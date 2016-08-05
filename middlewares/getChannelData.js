@@ -76,17 +76,21 @@ exports.getChannelData = function (req, res, next) {
         var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
         for (var i = 0; i <= diffDays; i++) {
-            var finalDate = calculateDate(storeStartDate);
-            if (endPoint != undefined) {
-                var totalObject = {};
-                for (var j = 0; j < endPoint.length; j++) {
-                    totalObject[endPoint[j]] = 0;
+            if(moment(storeStartDate).format('YYYY-MM-DD')<=moment(new Date).format('YYYY-MM-DD')){
+                var finalDate = calculateDate(storeStartDate);
+                if (endPoint != undefined) {
+                    console.log('endpoint')
+                    var totalObject = {};
+                    for (var j = 0; j < endPoint.length; j++) {
+                        totalObject[endPoint[j]] = 0;
+                    }
+                    storeDefaultValues.push({date: finalDate, total: totalObject});
                 }
-                storeDefaultValues.push({date: finalDate, total: totalObject});
+                else if (noEndPoint) storeDefaultValues.push({date: finalDate, total: {}});
+                else storeDefaultValues.push({date: finalDate, total: 0});
+                storeStartDate.setDate(storeStartDate.getDate() + 1);
             }
-            else if (noEndPoint) storeDefaultValues.push({date: finalDate, total: {}});
-            else storeDefaultValues.push({date: finalDate, total: 0});
-            storeStartDate.setDate(storeStartDate.getDate() + 1);
+
         }
         return storeDefaultValues;
     }

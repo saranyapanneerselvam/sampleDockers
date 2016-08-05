@@ -49,6 +49,7 @@ exports.listAccounts = function (req, res, next) {
         store_channel_objects: ['get_channel_objects_remote', storeChannelObjects],
         get_channel_objects_db: ['store_channel_objects', getChannelObjectsDB]
     }, function (err, results) {
+        console.log('err', err)
         if (err)
             return res.status(500).json({});
 
@@ -84,7 +85,7 @@ exports.listAccounts = function (req, res, next) {
             name: 1,
             email: 1,
             canManageClients: 1,
-            dataCenter:1,
+            dataCenter: 1,
             customerId: 1
         }, checkNullObject(callback));
     }
@@ -105,7 +106,7 @@ exports.listAccounts = function (req, res, next) {
                 selectFbObjectType(results.get_profile, channel);
                 break;
             case configAuth.channels.facebookAds:
-                selectFbadsObjectType(results.get_profile, channel);
+                selectFbadsObjectType(results, callback);
                 break;
             case configAuth.channels.twitter:
                 selectTweetObjectType(results.get_profile, channel);
@@ -245,6 +246,7 @@ exports.listAccounts = function (req, res, next) {
 
     //To store the channel objects in db
     function storeChannelObjects(results, callback) {
+
         //get_channel_objects
         var views = results.get_channel_objects_remote;
         var bulk = Object.collection.initializeOrderedBulkOp();
@@ -252,26 +254,67 @@ exports.listAccounts = function (req, res, next) {
 
         //set the update parameters for query
         for (var i = 0; i < views.length; i++) {
-
-            //set query condition
-            var query = {
-                profileId: results.get_profile._id,
-                channelObjectId: views[i].channelObjectId
-            };
-
-            //set the values
-            var update = {
-                $setOnInsert: {created: now},
-                $set: {
-                    name: views[i].viewName,
-                    objectTypeId: results.get_objectType._id,
-                    meta: {
-                        'webPropertyName': views[i].meta.webPropertyName,
-                        'webPropertyId': views[i].meta.webPropertyId
-                    },
-                    updated: now
+            if (results.get_channel.code === configAuth.channels.facebookAds) {
+                //set the values
+                var update = {
+                    $setOnInsert: {created: now},
+                    $set: {
+                        profileId: results.get_profile._id,
+                        name: views[i].name,
+                        objectTypeId: results.get_objectType._id,
+                        updated: now
+                    }
+                };
+                if (req.query.objectType === configAuth.objectType.facebookAdCampaign) {
+                    //set query condition
+                    var query = {
+                        'meta.accountId': req.query.accountId,
+                        channelObjectId: views[i].channelObjectId
+                    };
                 }
-            };
+                else if (req.query.objectType === configAuth.objectType.facebookAdSet) {
+                    //set query condition
+                    var query = {
+                        'meta.campaignId': req.query.campaignId,
+                        channelObjectId: views[i].channelObjectId
+                    };
+                }
+                else if (req.query.objectType === configAuth.objectType.facebookAds) {
+                    //set query condition
+                    var query = {
+                        profileId: results.get_profile._id,
+                        channelObjectId: views[i].channelObjectId
+                    };
+                }
+                else {
+                    //set query condition
+                    var query = {
+                        'meta.adSetId': req.query.adSetId,
+                        channelObjectId: views[i].channelObjectId
+                    };
+                }
+            }
+            else if (results.get_channel.code === configAuth.channels.googleAnalytics) {
+                //set query condition
+                var query = {
+                    profileId: results.get_profile._id,
+                    channelObjectId: views[i].channelObjectId
+                };
+                //set the values
+                var update = {
+                    $setOnInsert: {created: now},
+                    $set: {
+                        name: views[i].viewName,
+                        objectTypeId: results.get_objectType._id,
+                        meta: {
+                            'webPropertyName': views[i].meta.webPropertyName,
+                            'webPropertyId': views[i].meta.webPropertyId
+                        },
+                        updated: now
+                    }
+                };
+            }
+
 
             //form the query
             bulk.find(query).upsert().update(update);
@@ -296,75 +339,92 @@ exports.listAccounts = function (req, res, next) {
         });
     }
 
-    function getFbAdAccountList(profile, channel, query) {
-        var channelObjectDetails = [];
-        //To get the object type id from database
-        ObjectType.findOne({
-            'type': req.query.objectType,
-            'channelId': profile.channelId
-        }, function (err, objecttype) {
-            if (err)
-                return res.status(500).json({error: err});
-            else if (!objecttype)
-                return res.status(204).json({error: 'No records found'});
-            else {
-                FB.setAccessToken(profile.accessToken);
-                FB.api(query,
-                    function (adAccount) {
-                        var adslength = adAccount.data.length;
-                        req.app.result = adAccount;
-                        for (var i = 0; i < adslength; i++) {
-                            var objectsResult = new Object();
-                            var profileId = profile._id;
-                            var objectTypeId = objecttype._id;
-                            var channelObjectId = adAccount.data[i].id;
-                            var name = adAccount.data[i].name;
-                            var created = new Date();
-                            var updated = new Date();
-                            //To store once
-                            Object.update({
-                                profileId: profile._id,
-                                channelObjectId: adAccount.data[i].id
-                            }, {
-                                $setOnInsert: {created: created},
-                                $set: {name: name, objectTypeId: objectTypeId, updated: updated}
-                            }, {upsert: true}, function (err, res) {
-                                if (err)
-                                    return res.status(500).json({error: 'Internal server error'})
-                                else if (res == 0)
-                                    return res.status(501).json({error: 'Not implemented'})
-                                else {
-                                    Object.find({'profileId': profile._id}, function (err, objectList) {
-                                        if (err)
-                                            return res.status(500).json({error: err});
-                                        else if (!objectList.length)
-                                            return res.status(204).json({error: 'No records found'});
-                                        else {
-                                            channelObjectDetails.push({
-                                                'result': objectList
-                                            });
-                                            if (adAccount.data.length == channelObjectDetails.length) {
-                                                req.app.result = objectList;
-                                                next();
-                                            }
-                                        }
-                                    })
-                                }
+    function getFbAdAccountList(results, query, callback) {
+        FB.setAccessToken(results.get_profile.accessToken);
+        FB.api(query,
+            function (adAccount) {
+                var adsLength = adAccount.data.length;
+                var adAccountList = [];
+                for (var i = 0; i < adsLength; i++) {
+                    adAccountList.push({
+                        objectTypeId: results.get_objectType._id, profileId: results.get_profile._id,
+                        channelObjectId: adAccount.data[i].id, name: adAccount.data[i].name
+                    })
+                }
+                callback(null, adAccountList)
+            }
+        );
+    }
+
+    function getFbAdObjectList(results, query, callback) {
+        FB.setAccessToken(results.get_profile.accessToken);
+        var objectList = [];
+        getObjectList(query);
+        function getObjectList(query) {
+            FB.api(query,
+                function (objects) {
+                    if (objects.error) {
+                        if (objects.error.code === 190)
+                            return res.status(401).json({
+                                error: 'Authentication required to perform this action',
+                                id: req.params.widgetId
                             })
+                        else if (objects.error.code === 4)
+                            return res.status(4).json({error: 'Forbidden Error', id: req.params.widgetId})
+                        else
+                            return res.status(500).json({error: 'Internal server error', id: req.params.widgetId})
+
+                    }
+                    else {
+                        if (objects.data.length != 0) {
+                            if (objects.paging && objects.paging.next) {
+                                var objectLength = objects.data.length;
+                                for (var key=0;key<objectLength;key++){
+                                    objectList.push({
+                                        objectTypeId: results.get_objectType._id, profileId: results.get_profile._id,
+                                        channelObjectId: objects.data[key].id, name: objects.data[key].name
+                                    });
+                                }
+                                var nextPage = objects.paging.next;
+                                var str = nextPage;
+                                var recallApi = str.replace("https://graph.facebook.com/", " ").trim();
+                                getObjectList(recallApi);
+                            }
+                            else {
+                                var objectLength = objects.data.length;
+                                for (var key=0;key<objectLength;key++){
+                                    objectList.push({
+                                        objectTypeId: results.get_objectType._id,
+                                        channelObjectId: objects.data[key].id, name: objects.data[key].name
+                                    });
+                                }
+                                callback(null, objectList)
+                            }
                         }
                     }
-                );
-            }
-        })
+                });
+        }
     }
 
     // This function to get adaccounts who login user
-    function selectFbadsObjectType(profile, channel) {
+    function selectFbadsObjectType(results, callback) {
         //To select which object type
         switch (req.query.objectType) {
             case configAuth.objectType.facebookAds:
-                var query = configAuth.apiVersions.FBADs + "/" + profile.userId + "/adaccounts?fields=name";
-                getFbAdAccountList(profile, channel, query);
+                var query = configAuth.apiVersions.FBADs + "/" + results.get_profile.userId + "/adaccounts?fields=name";
+                getFbAdObjectList(results, query, callback);
+                break;
+            case configAuth.objectType.facebookAdCampaign:
+                var query = configAuth.apiVersions.FBADs + "/" + req.query.accountId + "/campaigns?fields=name&limit=100";
+                getFbAdObjectList(results, query, callback);
+                break;
+            case configAuth.objectType.facebookAdSet:
+                var query = configAuth.apiVersions.FBADs + "/" + req.query.campaignId + "/adsets?fields=name&limit=100";
+                getFbAdObjectList(results, query, callback);
+                break;
+            case configAuth.objectType.facebookAdSetAds:
+                var query = configAuth.apiVersions.FBADs + "/" + req.query.adSetId + "/ads?fields=name&limit=100";
+                getFbAdObjectList(results, query, callback);
                 break;
         }
     }
@@ -382,7 +442,6 @@ exports.listAccounts = function (req, res, next) {
                 var query = "/" + profile.userId + "/accounts";
                 getFbPageList(profile, channel, query);
                 break;
-
         }
     }
 
@@ -400,8 +459,8 @@ exports.listAccounts = function (req, res, next) {
                 return res.status(204).json({error: 'No records found'});
             else {
                 Object.find({'profileId': profile._id}).sort({updated: -1}).exec(function (err, objectList) {
-                    if (err)
-                        return res.status(500).json({error: 'Internal server error'})
+                        if (err)
+                            return res.status(500).json({error: 'Internal server error'})
                         else {
                             //Set access token
                             FB.setAccessToken(profile.accessToken);
@@ -615,10 +674,11 @@ exports.listAccounts = function (req, res, next) {
                     }
                 });
             }
-            else next(null,'success');
+            else next(null, 'success');
         }
     }
-    function selectLinkedInPages(results, callback){
+
+    function selectLinkedInPages(results, callback) {
         switch (req.query.objectType) {
             case configAuth.objectType.linkedIn:
                 getLinkedInPages(results, callback);
@@ -626,80 +686,81 @@ exports.listAccounts = function (req, res, next) {
         }
     }
 
-    function  getLinkedInPages(results, callback){
-        var channelObjectDetails=[];
+    function getLinkedInPages(results, callback) {
+        var channelObjectDetails = [];
         //To get the object type id from database
         ObjectType.findOne({
             'type': req.query.objectType,
             'channelId': results.channelId
         }, function (err, objectTypeId) {
             if (!err) {
-                var objectsType=objectTypeId;
+                var objectsType = objectTypeId;
                 var parseObject;
-                var query='https://api.linkedin.com/v1/companies?oauth2_access_token='+results.accessToken+'&format=json&is-company-admin=true';
+                var query = 'https://api.linkedin.com/v1/companies?oauth2_access_token=' + results.accessToken + '&format=json&is-company-admin=true';
                 request(query,
-                function(err,response,body){
-                    if(err)
-                        return res.status(500).json({error: 'Internal server error'});
-                    else{
-                        parseObject=JSON.parse(body);
-                        if(parseObject._total!=0) {
-                            for (var i in parseObject.values) {
-                                var objectsResult = new Object();
-                                var profileId = results._id;
-                                var objectTypeId = objectsType._id;
-                                var channelObjectId = parseObject.values[i].id;
-                                var name = parseObject.values[i].name;
-                                var created = new Date();
-                                var updated = new Date();
-                                //To store once
-                                Object.update({
-                                    profileId: results._id,
-                                    channelObjectId: parseObject.values[i].id
-                                }, {
-                                    $setOnInsert: {created: created},
-                                    $set: {name: name, objectTypeId: objectTypeId, updated: updated}
-                                }, {upsert: true}, function (err, object) {
-                                    if (err)
-                                        return res.status(500).json({error: 'Internal server error'})
-                                    else if (object == 0)
-                                        return res.status(501).json({error: 'Not implemented'})
-                                    else {
-                                        Object.find({'profileId': results._id}, function (err, objectList) {
-                                            if (err)
-                                                return res.status(500).json({error: err});
-                                            else if (!objectList.length)
-                                                return res.status(204).json({error: 'No records found'});
-                                            else {
-                                                channelObjectDetails.push({
-                                                    'result': objectList
-                                                });
-                                                if (parseObject.values.length == channelObjectDetails.length) {
-                                                    req.app.result = objectList;
-                                                    next();
+                    function (err, response, body) {
+                        if (err)
+                            return res.status(500).json({error: 'Internal server error'});
+                        else {
+                            parseObject = JSON.parse(body);
+                            if (parseObject._total != 0) {
+                                for (var i in parseObject.values) {
+                                    var objectsResult = new Object();
+                                    var profileId = results._id;
+                                    var objectTypeId = objectsType._id;
+                                    var channelObjectId = parseObject.values[i].id;
+                                    var name = parseObject.values[i].name;
+                                    var created = new Date();
+                                    var updated = new Date();
+                                    //To store once
+                                    Object.update({
+                                        profileId: results._id,
+                                        channelObjectId: parseObject.values[i].id
+                                    }, {
+                                        $setOnInsert: {created: created},
+                                        $set: {name: name, objectTypeId: objectTypeId, updated: updated}
+                                    }, {upsert: true}, function (err, object) {
+                                        if (err)
+                                            return res.status(500).json({error: 'Internal server error'})
+                                        else if (object == 0)
+                                            return res.status(501).json({error: 'Not implemented'})
+                                        else {
+                                            Object.find({'profileId': results._id}, function (err, objectList) {
+                                                if (err)
+                                                    return res.status(500).json({error: err});
+                                                else if (!objectList.length)
+                                                    return res.status(204).json({error: 'No records found'});
+                                                else {
+                                                    channelObjectDetails.push({
+                                                        'result': objectList
+                                                    });
+                                                    if (parseObject.values.length == channelObjectDetails.length) {
+                                                        req.app.result = objectList;
+                                                        next();
+                                                    }
                                                 }
-                                            }
-                                        })
-                                    }
-                                })
+                                            })
+                                        }
+                                    })
 
 
+                                }
+                            }
+                            else {
+                                req.app.result = [];
+                                next();
                             }
                         }
-                        else{
-                            req.app.result = [];
-                            next();
-                        }
-                    }
 
-                })
+                    })
             }
-            else{
+            else {
                 return res.status(500).json({error: 'Internal server error'})
             }
         });
     }
-        function selectMailchimpObject(results, callback){
+
+    function selectMailchimpObject(results, callback) {
         ObjectType.findOne({
             'type': req.query.objectType,
             'channelId': results.channelId
@@ -709,17 +770,17 @@ exports.listAccounts = function (req, res, next) {
             else if (!objectTypeId)
                 return res.status(204).json({error: 'No records found'});
             else {
-               if(objectTypeId.type=== configAuth.objectType.mailChimpList){
-                   var query = 'https://' + results.dataCenter + '.api.mailchimp.com/3.0/lists?count=100&fields=lists.name,lists.id,lists.stats,lists.date_created';
-                   getObjectLists(query, results, callback);
-               }
-                else{
-                   var query = 'https://' + results.dataCenter + '.api.mailchimp.com/3.0/campaigns?count=100&fields=campaigns.id,campaigns.settings,campaigns.create_time';
-                   getObjectLists(query, results, callback);
-               }
+                if (objectTypeId.type === configAuth.objectType.mailChimpList) {
+                    var query = 'https://' + results.dataCenter + '.api.mailchimp.com/3.0/lists?count=100&fields=lists.name,lists.id,lists.stats,lists.date_created';
+                    getObjectLists(query, results, callback);
+                }
+                else {
+                    var query = 'https://' + results.dataCenter + '.api.mailchimp.com/3.0/campaigns?count=100&fields=campaigns.id,campaigns.settings,campaigns.create_time';
+                    getObjectLists(query, results, callback);
+                }
                 function getObjectLists(query) {
                     var objectsName = objectTypeId.type;
-                    var objectIds =objectTypeId._id;
+                    var objectIds = objectTypeId._id;
                     var channelObjectDetails = [];
                     request({
                         uri: query,
@@ -729,12 +790,12 @@ exports.listAccounts = function (req, res, next) {
                         }
                     }, function (err, response, body) {
                         var parsedResponse;
-                        if (response.statusCode!=200)
+                        if (response.statusCode != 200)
                             return res.status(500).json({error: err});
                         else {
                             var objectStoreDetails = JSON.parse(body);
-                            if(objectStoreDetails[objectsName].length===0){
-                                req.app.result=objectStoreDetails[objectsName];
+                            if (objectStoreDetails[objectsName].length === 0) {
+                                req.app.result = objectStoreDetails[objectsName];
                                 next();
                             }
                             else {

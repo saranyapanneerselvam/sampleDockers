@@ -119,8 +119,17 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
             url: "",
             views: {
                 'lightbox@app.reporting.dashboard': {
-                    templateUrl: "exportModal.ejs",
+                    templateUrl: "exportTemplate.ejs",
                     controller: 'LightBoxController'
+                }
+            },
+            resolve: {
+                loadPlugin: function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        {
+                            files: ['css/plugins/steps/jquery.steps.css']
+                        }
+                    ]);
                 }
             }
         })
@@ -133,6 +142,15 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                     params: {selectedWidget: null},
                     templateUrl: "alertModal.ejs",
                     controller: 'LightBoxController'
+                }
+            },
+            resolve: {
+                loadPlugin: function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        {
+                            files: ['css/plugins/steps/jquery.steps.css']
+                        }
+                    ]);
                 }
             }
         })

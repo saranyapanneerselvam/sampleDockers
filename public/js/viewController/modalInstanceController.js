@@ -37,4 +37,14 @@ function ModalInstanceController($scope, $rootScope, $http, $uibModalInstance) {
             $uibModalInstance.close();
         }
     };
+
+    $scope.closeExportModal = function(){
+        $uibModalInstance.close();
+    };
+
+    $rootScope.closePdfModal = function(){
+        $uibModalInstance.close();
+    };
+
+
 }

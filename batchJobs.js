@@ -1747,7 +1747,7 @@ agenda.define('Update channel data', function (job, done) {
 
             }
 
-//getting data for moz from api
+            //getting data for moz from api
             function callMozApi(queries, callback) {
                 var query = queries.get_moz_queries.query;
                 moz.send(query, function (err, result) {
@@ -1797,36 +1797,6 @@ agenda.define('Update channel data', function (job, done) {
 
             function getPinterestQueries(callback) {
                 var adAccountId = initialResults.object.channelObjectId;
-                /* d = new Date();
-                 var allObjects = {};
-                 if (initialResults.data != null) {
-                 var updatedDb = initialResults.data.updated;
-                 var updated = initialResults.data.updated;
-                 var currentDate = new Date();
-                 // d.setDate(d.getDate() + 1);
-                 var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
-                 updated.setTime(updated.getTime() + oneDay);
-                 console.log(initialResults.data.updated ,new Date);
-                 if (initialResults.data.updated < new Date()) {
-                 var startDate = moment(updated).format('YYYY-MM-DD');
-                 var endDate =moment(new Date()).format('YYYY-MM-DD');
-                 var query = metric.objectTypes[0].meta.pinMetricName;
-                 allObjects = {
-                 profile: initialResults.get_profile[j],
-                 query: query,
-                 widget: initialResults.metric,
-                 dataResult: initialResults.data.data,
-                 startDate: startDate,
-                 endDate: endDate,
-                 metricId: initialResults.metric._id,
-                 endPoint: initialResults.metric.objectTypes[0].meta.endpoint
-                 }
-                 console.log('queryMacking',allObjects);
-                 callback(null, allObjects);
-                 }
-                 else
-                 callback(null, 'DataFromDb');
-                 }*/
                 d = new Date();
                 var allObjects = {};
                 if (initialResults.data != null) {
@@ -1847,14 +1817,12 @@ agenda.define('Update channel data', function (job, done) {
                             metricId: initialResults.metric._id,
                             metricCode: initialResults.metric.code,
                             endpoint: initialResults.metric.objectTypes[0].meta.endpoint[0]
-                        }
+                        };
                         callback(null, allObjects);
                     }
                     else
                         callback(null, 'DataFromDb');
                 }
-
-
             }
 
             function getPinterestDataFromRemote(allObjects, callback) {
@@ -1864,7 +1832,7 @@ agenda.define('Update channel data', function (job, done) {
                         apiResponse: 'DataFromDb',
                         queryResults: initialResults,
                         channelId: initialResults.metric.channelId
-                    }
+                    };
                     callback(null, actualFinalApiData);
                 }
                 else
@@ -1885,11 +1853,10 @@ agenda.define('Update channel data', function (job, done) {
                 if (result.metricCode === 'boardsleaderboard') {
                     var params = {
                         qs: {
-                            fields: "counts,id,name,created_at,url",
+                            fields: "counts,id,name,created_at,url"
                         }
                     };
                     pinterest.api(result.query, params).then(function (response) {
-                        console.log('boardLeaders', response.data)
                         var endPointMetric = {}
                         endPointMetric = {items: result.endPoint};
                         if (endPointMetric.items.indexOf("/") > -1) {
@@ -1919,7 +1886,7 @@ agenda.define('Update channel data', function (job, done) {
                             metricId: result.metricId,
                             queryResults: initialResults,
                             channelId: initialResults.metric[0].channelId
-                        }
+                        };
 
                         callback(null, actualFinalApiData);
 
@@ -1932,11 +1899,10 @@ agenda.define('Update channel data', function (job, done) {
                     var params = {
                         qs: {
                             limit: 100,
-                            fields: "id,board,created_at,counts",
+                            fields: "id,board,created_at,counts"
                         }
                     };
                     var query = result.query;
-                    console.log('queryParam', query);
                     var date = new Date();
                     var endDate = moment(date).unix();
                     var d = new Date();
@@ -1945,19 +1911,15 @@ agenda.define('Update channel data', function (job, done) {
                     paginationCallApi(query, params);
                     function paginationCallApi(query, params) {
                         pinterest.api(query, params).then(function (response) {
-                            console.log(response);
                             for (var index in response.data) {
                                 var dateString = response.data[index].created_at;
                                 var split = dateString.split('T');
                                 var createDate = moment(dateString).unix();
-                                console.log('pagination2', createDate, startDate, createDate, endDate);
                                 if (createDate > startDate && createDate < endDate) {
                                     arrayOfResponse.push(response.data[index]);
-                                    console.log('pagination2', arrayOfResponse);
                                 }
                                 if (response.page.cursor != null && response.page.next != null) {
                                     if (response.data.length === (parseInt(index) + 1) && createDate > startDate && createDate < endDate) {
-                                        console.log('pagination', response.page.cursor);
                                         query = response.page.next;
                                         paginationCallApi(query, params);
                                     }
@@ -1975,7 +1937,6 @@ agenda.define('Update channel data', function (job, done) {
                     }
 
                     function storeFinalData(arrayOfResponse) {
-                        console.log('storeFinalData', arrayOfResponse);
                         var endPointMetric = {}
                         endPointMetric = {items: result.endPoint};
                         if (endPointMetric.items.indexOf("/") > -1) {
@@ -2072,13 +2033,12 @@ agenda.define('Update channel data', function (job, done) {
 
 
                         }
-                        console.log('finalData', tot_metric);
                         actualFinalApiData = {
                             apiResponse: tot_metric,
                             metricId: result.metricId,
                             queryResults: initialResults,
                             channelId: initialResults.metric.channelId
-                        }
+                        };
                         callback(null, actualFinalApiData);
 
                     }, function (error) {
@@ -2730,7 +2690,6 @@ agenda.define('Update channel data', function (job, done) {
 
                 //next(null,{'error':{'metricId':dataFromDb[j].data.metricId,'objectId':dataFromDb[j].data.objectId}})
                 if (results.merge_all_final_data[i].error) {
-                    console.log('results.merge_all_final_data[i].error', results.merge_all_final_data[i].error)
                     //bulkExecute = false;
                     var mailOptions = {
                         from: 'Datapoolt Team <rajalakshmi.c@habile.in>',
@@ -2743,7 +2702,6 @@ agenda.define('Update channel data', function (job, done) {
                     };
                     utility.sendEmail(mailOptions, '', function (err, response) {
                         //callback(null, 'success');
-                        console.log('errormail', response)
                     });
                     errorDataList.push(results.merge_all_final_data[i].error)
                 }
@@ -2937,7 +2895,7 @@ agenda.define('Send Alerts', function (job, done) {
     done();
 })
 agenda.on('ready', function () {
-    agenda.now('Update channel data')
+    agenda.now('Update channel data');
     agenda.start();
     agenda.on('complete', function (job) {
         if (job) {

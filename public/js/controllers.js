@@ -581,6 +581,86 @@ showMetricApp.service('createWidgets',function($http,$q){
                             }
                         }
                     }
+                    else if(chartType == "gaTopPagesByVisit"){
+
+                                  var topPages={};
+                        if(typeof widget.charts[charts].chartData[0] != 'undefined') {
+                            if(typeof(widget.charts[charts].chartData[0].total) === 'object') {
+                                var pagePath = 'pagePath';
+                                var total ='total';
+                                var arrSize = widget.charts[charts].chartData.length;
+                                // console.log("Chart Data Size",arrSize);
+                                for(var datas in widget.charts[charts].chartData) {
+                                    var size = Object.keys(widget.charts[charts].chartData[datas].total).length;
+                                  //  console.log("Size",size);
+                                    for(var i=0;i<size;i++){
+                                        topPages[widget.charts[charts].chartData[datas].total[i][pagePath]] = topPages[widget.charts[charts].chartData[datas].total[i][pagePath]] || 0;
+                                        topPages[widget.charts[charts].chartData[datas].total[i][pagePath]]+= parseInt(widget.charts[charts].chartData[datas].total[i][total]);
+                                    }
+                                }
+                                // console.log("Top Pages",topPages);
+                                var size = Object.keys(topPages).length;
+                                // console.log("Size",size);
+                                var sortedData = [];
+                                for (var key in topPages)
+                                    sortedData.push([key, topPages[key]])
+                                sortedData.sort(
+                                    function(a, b) {
+                                        return b[1] - a[1]
+                                    }
+                                )
+                              // console.log(sortedData);
+                                var formattedChartDataArray = [];
+                                 for(datas in sortedData) {
+                                    var formattedChartData = {
+                                        pagePath: sortedData[datas][0],
+                                        pageVisits : sortedData[datas][1]
+                                    };
+                                    formattedChartDataArray.push(formattedChartData);
+                                 }
+                                widget.charts[charts].chartData = formattedChartDataArray;
+                            }
+                        }
+                    }
+                    else if(chartType == "fbReachByGender") {
+                        var genderReach = {Male:0,Female:0,Unspecified:0};
+                        if (typeof widget.charts[charts].chartData[0] != 'undefined') {
+                            if (typeof(widget.charts[charts].chartData[0].total) === 'object') {
+                                for (var datas in widget.charts[charts].chartData) {
+                                    for (var keys in widget.charts[charts].chartData[datas].total) {
+                                        var genderAge = keys.split('/');
+                                         var gender = String(genderAge[0]);
+                                        if(gender == 'F')
+                                            gender= 'Female';
+                                        if(gender == 'M')
+                                            gender= 'Male';
+                                        if(gender == 'U')
+                                            gender= 'Unspecified';
+                                        genderReach[gender] = genderReach[gender] || 0;
+                                        genderReach[gender] += parseInt(widget.charts[charts].chartData[datas].total[keys]);
+                                    }
+                                }
+                            }
+                        }
+                        widget.charts[charts].chartData = genderReach;
+                    }
+                    else if(chartType == "fbReachByAge") {
+                        var ageReach = {'13-17':0,'18-24':0,'25-34':0,'35-44':0,'45-54':0,'55-64':0,'65+':0};
+                        if (typeof widget.charts[charts].chartData[0] != 'undefined') {
+                            if (typeof(widget.charts[charts].chartData[0].total) === 'object') {
+                                for (var datas in widget.charts[charts].chartData) {
+                                    for (var keys in widget.charts[charts].chartData[datas].total) {
+                                        var genderAge = keys.split('/');
+                                        var gender = String(genderAge[0])
+                                        var age = String(genderAge[1]);
+                                        ageReach[age] = ageReach[age] || 0;
+                                        ageReach[age] += parseInt(widget.charts[charts].chartData[datas].total[keys]);
+                                    }
+                                }
+                            }
+                        }
+                        widget.charts[charts].chartData = ageReach;
+                    }
                 }
                 for(var charts in widget.charts) {
                     var chartType = widget.charts[charts].chartType;
@@ -713,6 +793,38 @@ showMetricApp.service('createWidgets',function($http,$q){
                             'values': widget.charts[charts].chartData
                         });
                     }
+                    else if(chartType == 'gaTopPagesByVisit'){
+                        widgetCharts.push({
+                            'type': widget.charts[charts].chartType,
+                            'values': widget.charts[charts].chartData
+                        });
+                    }
+                    else  if(chartType == "fbReachByGender") {
+                        var colorIndex = 0;
+                        for(var index in widget.charts[charts].chartData) {
+                            widgetCharts.push({
+                                'type': 'pie',
+                                'y': parseFloat(widget.charts[charts].chartData[index]),      //values - represents the array of {x,y} data points
+                                'key': index,
+                                'color': typeof widget.charts[charts].chartColour != 'undefined' ? (typeof widget.charts[charts].chartColour[colorIndex] != 'undefined' ? widget.charts[charts].chartColour[colorIndex] : '') : '',  //color - optional: choose your own line color.
+                                'summaryDisplay': (parseFloat(widget.charts[charts].chartData[index]).toFixed(2) % Math.floor(widget.charts[charts].chartData[index])) > 0 ? parseFloat(widget.charts[charts].chartData[index]).toFixed(2) : parseInt(widget.charts[charts].chartData[index])
+                            });
+                            ++colorIndex;
+                        }
+                    }
+                    else  if(chartType == "fbReachByAge") {
+                        var colorIndex = 0;
+                        for(var index in widget.charts[charts].chartData) {
+                            widgetCharts.push({
+                                'type': 'pie',
+                                'y': parseFloat(widget.charts[charts].chartData[index]),      //values - represents the array of {x,y} data points
+                                'key': index,
+                                'color': typeof widget.charts[charts].chartColour != 'undefined' ? (typeof widget.charts[charts].chartColour[colorIndex] != 'undefined' ? widget.charts[charts].chartColour[colorIndex] : '') : '',  //color - optional: choose your own line color.
+                                'summaryDisplay': (parseFloat(widget.charts[charts].chartData[index]).toFixed(2) % Math.floor(widget.charts[charts].chartData[index])) > 0 ? parseFloat(widget.charts[charts].chartData[index]).toFixed(2) : parseInt(widget.charts[charts].chartData[index])
+                            });
+                            ++colorIndex;
+                        }
+                    }
                 }
             }
             deferred.resolve(widgetCharts);
@@ -723,6 +835,7 @@ showMetricApp.service('createWidgets',function($http,$q){
             var deferred = $q.defer();
             var finalCharts = [];
             finalCharts.lineCharts = [], finalCharts.barCharts = [], finalCharts.pieCharts = [], finalCharts.instagramPosts = [], finalCharts.highEngagementTweets = [],finalCharts.highestEngagementLinkedIn=[];
+            finalCharts.gaTopPagesByVisit=[],finalCharts.fbReachByGender = [],finalCharts.fbReachByAge = [];
             var graphOptions = {
                 lineDataOptions: {
                     chart: {
@@ -824,6 +937,11 @@ showMetricApp.service('createWidgets',function($http,$q){
                 highestEngagementLinkedIn: {
                     chart: {
                         type: 'highestEngagementLinkedIn'
+                    }
+                },
+                gaTopPagesByVisit: {
+                    chart: {
+                        type: 'gaTopPagesByVisit'
                     }
                 },
                 emptyCharts: {
@@ -1094,7 +1212,9 @@ showMetricApp.service('createWidgets',function($http,$q){
                 else if(widgetCharts[charts].type == 'instagramPosts') finalCharts.instagramPosts.push(widgetCharts[charts]);
                 else if(widgetCharts[charts].type == 'highEngagementTweets') finalCharts.highEngagementTweets.push(widgetCharts[charts]);
                 else if(widgetCharts[charts].type == 'highestEngagementLinkedIn') finalCharts.highestEngagementLinkedIn.push(widgetCharts[charts]);
-
+                else if(widgetCharts[charts].type == 'gaTopPagesByVisit') finalCharts.gaTopPagesByVisit.push(widgetCharts[charts]);
+                else if(widgetCharts[charts].type == 'fbReachByGender') finalCharts.fbReachByGender.push(widgetCharts[charts]);
+                else if(widgetCharts[charts].type == 'fbReachByAge') finalCharts.fbReachByAge.push(widgetCharts[charts]);
             }
 
             var chartColorChecker = [];
@@ -1319,6 +1439,53 @@ showMetricApp.service('createWidgets',function($http,$q){
                 finalChartData.push({
                     'options': graphOptions.highestEngagementLinkedIn,
                     'data': finalCharts.highestEngagementLinkedIn[0].values
+                });
+            }
+            if(finalCharts.gaTopPagesByVisit.length > 0) {
+                chartsCount++;
+                finalChartData.push({
+                    'options': graphOptions.gaTopPagesByVisit,
+                    'data': finalCharts.gaTopPagesByVisit[0].values
+                });
+            }
+            if(finalCharts.fbReachByGender.length > 0) {
+                chartsCount++;
+
+                for(var charts in finalCharts.fbReachByGender) {
+                    for(var items in chartColorChecker) {
+                        if(finalCharts.fbReachByGender[charts].color == chartColorChecker[items]) {
+                            var neededColour = fetchAColour(finalCharts.fbReachByGender[charts].color,chartColorChecker);
+                            finalCharts.fbReachByGender[charts].color = neededColour;
+                        }
+                    }
+                    chartColorChecker.push(finalCharts.fbReachByGender[charts].color);
+                }
+                chartColorChecker = [];
+
+                finalChartData.push({
+                    'options': graphOptions.pieDataOptions,
+                    'data': finalCharts.fbReachByGender,
+                    'api': {}
+                });
+            }
+            if(finalCharts.fbReachByAge.length > 0) {
+                chartsCount++;
+
+                for(var charts in finalCharts.fbReachByAge) {
+                    for(var items in chartColorChecker) {
+                        if(finalCharts.fbReachByAge[charts].color == chartColorChecker[items]) {
+                            var neededColour = fetchAColour(finalCharts.fbReachByGender[charts].color,chartColorChecker);
+                            finalCharts.fbReachByAge[charts].color = neededColour;
+                        }
+                    }
+                    chartColorChecker.push(finalCharts.fbReachByAge[charts].color);
+                }
+                chartColorChecker = [];
+
+                finalChartData.push({
+                    'options': graphOptions.pieDataOptions,
+                    'data': finalCharts.fbReachByAge,
+                    'api': {}
                 });
             }
             if(finalChartData.length == 0) {

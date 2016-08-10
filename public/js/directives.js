@@ -514,28 +514,64 @@ function channelDiv(){
     }
 }
 
-function sizeWatcher ($timeout){
+function chartHeight() {
     return {
-        scope: {
-            sizeWatcherHeight: '=',
-            sizeWatcherWidth: '='
-        },
-        link: function( scope, elem, attrs ){
-            function initsize(){
-                scope.sizeWatcherHeight = elem.prop('offsetHeight');
-                /*scope.sizeWatcherWidth = elem.prop('clientWidth');*/
-            }
-            scope.$watch( function() {
-                initsize();
-            } );
-            function checkSize(){
-                initsize();
-                $timeout( checkSize, 1000 );
-            }
-            checkSize();
+        controller: function($scope, $element){
+            this.chartHeight = $element[0].offsetHeight;
         }
     };
 }
+function sizeWatcher (){
+    return {
+        require : "^chartHeight",
+        scope: {
+            sizeWatcherHeight: '=',
+            sizeWatcherWidth: '=',
+        },
+        link: function( scope, elem, attrs,chartSizeCtrl) {
+            // function initsize(){
+            var noOfItems = scope.sizeWatcherWidth.length;
+            var cols;
+            if (noOfItems <= 2)
+                cols = 1;
+            else if (noOfItems > 2 && noOfItems <= 4)
+                cols = 2;
+            else
+                cols = 3;
+
+            //var cols = $window.innerWidth>=768 ? 2 : 1;
+            var rows = Math.ceil(noOfItems / cols);
+            if (chartSizeCtrl.chartHeight != undefined && chartSizeCtrl.chartHeight != 0) {
+                if (scope.sizeWatcherHeight == undefined || scope.sizeWatcherHeight == 0) {
+                    var chartHeight = chartSizeCtrl.chartHeight;
+                    scope.sizeWatcherHeight = Math.ceil((chartHeight * 0.2) / rows);
+                }
+            }
+            else {
+                if (scope.sizeWatcherHeight == undefined && scope.sizeWatcherHeight == 0) {
+                scope.sizeWatcherHeight = elem.prop('offsetHeight');
+            }
+            }
+        }
+    };
+}
+
+function expSizeWatcher (){
+    return {
+        scope: {
+            expSizeWatcherHeight:'='
+        },
+        link: function( scope, elem, attrs,expChartSizeCtrl) {
+                if(scope.expSizeWatcherHeight == undefined && scope.expSizeWatcherHeight == 0){
+                scope.expSizeWatcherHeight = elem.prop('offsetHeight');
+            }
+        }
+    };
+}
+
+
+
+
 
 
 /**
@@ -564,4 +600,6 @@ angular
     .directive('iboxToolsFullScreen', iboxToolsFullScreen)
     .directive('slimScroll', slimScroll)
     .directive('channelDiv',channelDiv)
-    .directive('sizeWatcher',sizeWatcher);
+    .directive('chartHeight',chartHeight)
+    .directive('sizeWatcher',sizeWatcher)
+    .directive('expSizeWatcher',expSizeWatcher);

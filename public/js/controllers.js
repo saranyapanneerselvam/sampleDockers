@@ -589,18 +589,14 @@ showMetricApp.service('createWidgets',function($http,$q){
                                 var pagePath = 'pagePath';
                                 var total ='total';
                                 var arrSize = widget.charts[charts].chartData.length;
-                                // console.log("Chart Data Size",arrSize);
                                 for(var datas in widget.charts[charts].chartData) {
                                     var size = Object.keys(widget.charts[charts].chartData[datas].total).length;
-                                  //  console.log("Size",size);
                                     for(var i=0;i<size;i++){
                                         topPages[widget.charts[charts].chartData[datas].total[i][pagePath]] = topPages[widget.charts[charts].chartData[datas].total[i][pagePath]] || 0;
                                         topPages[widget.charts[charts].chartData[datas].total[i][pagePath]]+= parseInt(widget.charts[charts].chartData[datas].total[i][total]);
                                     }
                                 }
-                                // console.log("Top Pages",topPages);
                                 var size = Object.keys(topPages).length;
-                                // console.log("Size",size);
                                 var sortedData = [];
                                 for (var key in topPages)
                                     sortedData.push([key, topPages[key]])
@@ -609,9 +605,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                                         return b[1] - a[1]
                                     }
                                 )
-                              // console.log(sortedData);
                                 var formattedChartDataArray = [];
-                                 for(datas in sortedData) {
+                                 for(var datas=0; datas<100;datas++) {
                                     var formattedChartData = {
                                         pagePath: sortedData[datas][0],
                                         pageVisits : sortedData[datas][1]
@@ -676,7 +671,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                                 }
                                 if(typeof widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType != 'undefined') {
                                     if(widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType == 'avg') {
-                                        summaryValue = parseFloat(summaryValue/nonZeroPoints).toFixed(2);
+                                        if(nonZeroPoints == 0 && summaryValue == 0) summaryValue = 0;
+                                        else summaryValue = parseFloat(summaryValue/nonZeroPoints).toFixed(2);
                                     }
                                     else if(widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType == 'snapshot') {
                                         var latestDate = '';
@@ -727,8 +723,10 @@ showMetricApp.service('createWidgets',function($http,$q){
                                         if(parseFloat(widget.charts[charts].chartData[items][datas].y != 0))
                                             nonZeroPoints++;
                                         if(typeof widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType != 'undefined') {
-                                            if(widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType == 'avg')
-                                                summaryValue = parseFloat(summaryValue/nonZeroPoints).toFixed(2);
+                                            if(widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType == 'avg') {
+                                                if(nonZeroPoints == 0 && summaryValue == 0) summaryValue = 0;
+                                                else summaryValue = parseFloat(summaryValue/nonZeroPoints).toFixed(2);
+                                            }
                                             else if(widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType == 'snapshot') {
                                                 var latestDate = '';
                                                 for(var data in widget.charts[charts].chartData[items]) {
@@ -1192,11 +1190,32 @@ showMetricApp.service('createWidgets',function($http,$q){
             for(var charts in widgetCharts) {
                 if(widgetCharts[charts].type == 'line' || widgetCharts[charts].type == 'area') {
                     finalCharts.lineCharts.push(widgetCharts[charts]);
+/*
+                    if(finalCharts.lineCharts.length == 1) {
+                        lineDataLowValue = _.minBy(widgetCharts[charts].values,function (o){return o.y}).y;
+                        lineDataHighValue = _.maxBy(widgetCharts[charts].values,function (o){return o.y}).y;
+                    }
+                    else {
+                        lineDataLowValue = lineDataLowValue > _.minBy(widgetCharts[charts].values,function (o){return o.y}).y ? _.minBy(widgetCharts[charts].values,function (o){return o.y}).y : lineDataHighValue;
+                        lineDataHighValue = lineDataHighValue < _.maxBy(widgetCharts[charts].values,function (o){return o.y}).y ? _.maxBy(widgetCharts[charts].values,function (o){return o.y}).y : lineDataHighValue;
+                    }
+*/
+
                     for(var values in widgetCharts[charts].values) {
-                        if(widgetCharts[charts].values[values].y < lineDataLowValue)
-                            lineDataLowValue = parseFloat(widgetCharts[charts].values[values].y);
-                        if(widgetCharts[charts].values[values].y > lineDataHighValue)
-                            lineDataHighValue = parseFloat(widgetCharts[charts].values[values].y);
+/*
+                        if(finalCharts.lineCharts.length == 1) {
+                            lineDataLowValue = parseFloat(_.minBy(widgetCharts[charts].values,function (o){return o.y}).y);
+                            lineDataHighValue = parseFloat(_.maxBy(widgetCharts[charts].values,function (o){return o.y}).y);
+                        }
+                        else if(finalCharts.lineCharts.length > 1) {
+*/
+                            if(parseFloat(widgetCharts[charts].values[values].y) < lineDataLowValue)
+                                lineDataLowValue = parseFloat(widgetCharts[charts].values[values].y);
+                            if(parseFloat(widgetCharts[charts].values[values].y) > lineDataHighValue)
+                                lineDataHighValue = parseFloat(widgetCharts[charts].values[values].y);
+/*
+                        }
+*/
                     }
                 }
                 else if(widgetCharts[charts].type == 'bar') {
@@ -1251,9 +1270,10 @@ showMetricApp.service('createWidgets',function($http,$q){
                     'data': finalCharts.lineCharts,
                     'api': {}
                 });
+                console.log(lineDataLowValue,lineDataHighValue)
                 forceY = [lineDataLowValue,lineDataHighValue == 0? 10 : (lineDataHighValue>100 ? lineDataHighValue + 10 : lineDataHighValue + 1)];
                 finalChartData[finalChartData.length -1].options.chart.yDomain = forceY;
-                if(lineDataHighValue < 10)
+                if(lineDataHighValue < 5)
                     finalChartData[finalChartData.length -1].options.chart.yAxis.tickValues =  d3.range(graphOptions.lineDataOptions.chart.yDomain[0],graphOptions.lineDataOptions.chart.yDomain[1]);
             }
 /*

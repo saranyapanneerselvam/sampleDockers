@@ -7,7 +7,7 @@
                     <a href="{{siteUrl}}" target="_blank"><img alt="Datapoolt" src="image/logo.png"/></a>
                 </div>
             </li>
-            <li data-toggle="tooltip" data-placement="right" title="Insights" >
+            <li data-toggle="tooltip" data-placement="right" title="Add Empty Dashboard" >
                 <a ng-click="createNewDashboard()">
                     <i class="icon icon-edit navigation-menu-icon"></i>
                     <span class="nav-label"> Add Empty Dashboard</span>
@@ -31,13 +31,13 @@
                     <span class="nav-label"> Add Widgets</span>
                 </a>
             </li>
-            <li data-toggle="tooltip" data-placement="right" title="Fusions" ng-show="$state.includes('app.reporting.dashboard')">
+            <li data-toggle="tooltip" data-placement="right" title="Add Fusion widgets" ng-show="$state.includes('app.reporting.dashboard')">
                 <a ui-sref="app.reporting.dashboard.fusionWidget">
                     <i class="icon icon-expand navigation-menu-icon"></i>
                     <span class="nav-label"> Fusions</span>
                 </a>
             </li>
-            <li  data-toggle="tooltip" data-placement="right" title="Insights" ng-show="$state.includes('app.reporting.dashboard')"class="md-trigger md-setperspective md-effect-19 addRemoveModalContent" data-modal="addRemoveModalContent">
+            <li  data-toggle="tooltip" data-placement="right" title="Insights" ng-show="$state.includes('app.reporting.dashboard')" class="md-trigger md-setperspective md-effect-19 addRemoveModalContent" data-modal="addRemoveModalContent">
                 <a>
                     <i class="icon icon-megaphone navigation-menu-icon"></i>
                     <span class="nav-label"> Insights</span>

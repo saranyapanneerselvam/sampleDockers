@@ -92,6 +92,13 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     function updateCharts(widget){
                         return function(){
                             var ind = $scope.dashboard.widgets.indexOf(widget);
+                            for(var i=0;i<$scope.dashboard.widgetData[ind].chart.length;i++) {
+                                for (var j = 0; j < $scope.dashboard.widgetData[ind].chart[i].data.length; j++) {
+                                    var elemHeight = document.getElementById('li-' + widget.id + '-' + String(j)).offsetHeight;
+                                    $scope.dashboard.widgetData[ind].chart[i].data[j].myheight = elemHeight;
+                                }
+                            }
+                            var ind = $scope.dashboard.widgets.indexOf(widget);
                             for(var i=0;i<$scope.dashboard.widgetData[ind].chart.length;i++){
                                 if ($scope.dashboard.widgetData[ind].chart[i].api)
                                     $scope.dashboard.widgetData[ind].chart[i].api.update();
@@ -157,7 +164,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             );
         };
 
-        $scope.$on('gridster-resized', function(sizes, gridster) {
+        $scope.$on('gridster-resized', function(sizes, gridster,$element) {
             for(var i=0;i<$scope.dashboard.widgets.length;i++){
                 $timeout(resizeWidget(i), 100);
             }
@@ -273,8 +280,8 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             //var cols = $window.innerWidth>=768 ? 2 : 1;
             var rows = Math.ceil(noOfItems/cols);
             var heightPercent = 100/rows;
-            var fontSizeEm = availableHeight/100*4.5;
-            var minSize = 0.8, maxSize=1.5;
+            var fontSizeEm = availableHeight/100*5;
+            var minSize = 0.7, maxSize=1.35;
             if(fontSizeEm<minSize)
                 fontSizeEm=minSize;
             if(fontSizeEm>maxSize)

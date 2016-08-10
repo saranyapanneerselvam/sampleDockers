@@ -16,7 +16,7 @@
                             <form class="dashboardIcons">
                                 <a>
                                     <div class="title-icons" ng-click="deleteDashboard()">
-                                        <svg width="28px" height="28px" viewBox="12 4 76 92" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                        <svg width="28px" height="28px" viewBox="12 4 76 92" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Delete">
                                             <g id="Group" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(12.000000, 4.000000)">
                                                 <path d="M45.822,6.715 C45.546,6.715 45.322,6.491 45.322,6.215 L45.322,2.06 C45.322,1.751 45.071,1.5 44.762,1.5 L31.238,1.5 C30.929,1.5 30.678,1.751 30.678,2.06 L30.678,6.215 C30.678,6.491 30.454,6.715 30.178,6.715 C29.902,6.715 29.678,6.491 29.678,6.215 L29.678,2.06 C29.678,1.2 30.378,0.5 31.238,0.5 L44.762,0.5 C45.622,0.5 46.322,1.2 46.322,2.06 L46.322,6.215 C46.322,6.491 46.099,6.715 45.822,6.715 L45.822,6.715 Z" id="Shape" fill="#000000"></path>
                                                 <path d="M75.094,6.715 L0.906,6.715 C0.63,6.715 0.406,6.491 0.406,6.215 C0.406,5.939 0.63,5.715 0.906,5.715 L75.094,5.715 C75.37,5.715 75.594,5.939 75.594,6.215 C75.594,6.491 75.37,6.715 75.094,6.715 L75.094,6.715 Z" id="Shape" fill="#000000"></path>
@@ -84,11 +84,11 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row getWidgetGraph" style="height: 100%;margin:0px;" ng-if="dashboard.widgetData[widgetIndex].visibility == true">
-                                    <div ng-repeat="chart in dashboard.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'lineChart'  || chart.options.chart.type=== 'pieChart' || chart.options.chart.type=== 'multiBarChart' || chart.options.chart.type=== 'multiChart'" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/dashboard.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/dashboard.widgetData[widgetIndex].layoutOptionsX)+'%'}">
+                                <div class="row getWidgetGraph" style="height: 100%;margin:0px;" ng-if="dashboard.widgetData[widgetIndex].visibility == true" chart-height>
+                                    <div ng-repeat="(chartIndex,chart) in dashboard.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'lineChart'  || chart.options.chart.type=== 'pieChart' || chart.options.chart.type=== 'multiBarChart' || chart.options.chart.type=== 'multiChart'" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/dashboard.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/dashboard.widgetData[widgetIndex].layoutOptionsX)+'%'}">
                                         <div class="row" style="margin: 0px;height: 20%">
-                                            <ul style="height:100%;font-size:14px; padding-left: 5px;">
-                                                <li  ng-repeat="data in chart.data" size-watcher size-watcher-height="data.myheight" ng-class="calculateColumnWidth(chart.data.length)" ng-style="calculateRowHeight(data.myheight,chart.data.length)" style="text-align: center;padding-top: 1px;padding-left:0px;padding-right: 2px;" id="li-{{widget.id}}-{{$index}}"><!--size-watcher-width="data.mywidth"-->
+                                            <ul style="height:100%;font-size:12px;padding-left: 5px;">
+                                                <li  ng-repeat="data in chart.data" size-watcher size-watcher-height="data.myheight" size-Watcher-Width="chart.data" ng-class="calculateColumnWidth(chart.data.length)" ng-style="calculateRowHeight(data.myheight,chart.data.length)" style="text-align: center;padding-top: 1px;padding-left:0px;padding-right: 2px;" id="li-{{widget.id}}-{{$index}}" ><!--size-watcher-width="data.mywidth"-->
                                                     <div style="margin: 0px;height: 100%;overflow: hidden;white-space: nowrap;color: #000000;text-align: center" >
                                                         <p ng-style="{'color': '#979797', 'font-family' : 'Bebas Neue'}" style="font-weight: bold;">{{data.key}} - <b ng-style="{'color':data.color, 'font-family' : 'Bebas Neue'}"> {{data.summaryDisplay}} </b> </p>
                                                     </div>
@@ -164,28 +164,26 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div class="col-lg-12" style="position: relative;top:40%;text-align: center;" ng-if="!chart.data.postComment">
-                                                       <span >No Updates available</span>
-                                                    </div>
+                                                    <!--<div class="col-lg-12" style="position: relative;top:40%;text-align: center;" ng-if="!chart.data.postComment">-->
+                                                       <!--<span >No Updates available</span>-->
+                                                    <!--</div>-->
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div ng-repeat="chart in dashboard.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'gaTopPagesByVisit'" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/dashboard.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/dashboard.widgetData[widgetIndex].layoutOptionsX)+'%'}">
                                         <div class="row" style="margin: 0px;height: 100%">
-                                            <div events="events" style="height: 99%" ng-if="dashboard.widgetData[widgetIndex].visibility == true">
+                                            <div events="events" style="height: 99%" ng-if="dashboard.widgetData[widgetIndex].visibility == true" ng-init="limitScroll=20">
                                                 <div class="scrollbar scrollInWidget" id="scroller">
-                                                    <div class="col-lg-12 listed" ng-repeat="data in chart.data" ng-if="data.pagePath">
-                                                        <div class="col-sm-12">
-                                                                <div class="col-sm-11"min-width="90%">{{data.pagePath}}</div>
-                                                                <div class="col-sm-1"min-width="10%">{{data.pageVisits}}</div>
+                                                    <div class="col-xs-12 toplisted" ng-repeat="data in chart.data | limitTo: limitScroll" ng-if="data.pagePath">
+                                                        <div class="col-xs-10" style="float:left;overflow: hidden" >{{data.pagePath}}</div>
+                                                        <div class="col-xs-2" style="float:left;text-align: right">{{data.pageVisits}}</div>
                                                         </div>
+                                                    <div style="text-align:center" ng-show="chart.data.length>20">
+                                                    <a href ng-click="limitScroll=(limitScroll+10)" ng-show="limitScroll<chart.data.length">Show More</a>
+                                                        <span ng-show="limitScroll>20&&limitScroll<chart.data.length">|</span>
+                                                    <a href ng-click="limitScroll=(limitScroll-10)" ng-show="limitScroll>20">Show Less</a>
                                                     </div>
-<!--
-                                                    <div class="col-lg-12" style="position: relative;top:40%;text-align: center;" ng-if="!chart.data.pagePath">
-                                                        <span >No Updates available</span>
-                                                    </div>
--->
                                                 </div>
                                             </div>
                                         </div>

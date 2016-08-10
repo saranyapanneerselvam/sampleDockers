@@ -5,16 +5,16 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,$t
     var dashboardRepId = null;
     $rootScope.showExport = true;
     $scope.expAct = false;
-    $scope.expDashboard = { widgets: [], widgetData: []};
-    $scope.expDashboard.dashboardName='';
+    $scope.expDashboard = {widgets: [], widgetData: []};
+    $scope.expDashboard.dashboardName = '';
     $scope.expPages = [];
-    $scope.exportObject = { widgets: [], widgetData: []};
-    $scope.exportObject.dashboardName='';
-    if($rootScope.expObj!= undefined) {
+    $scope.exportObject = {widgets: [], widgetData: []};
+    $scope.exportObject.dashboardName = '';
+    if ($rootScope.expObj != undefined) {
         var tWid = $rootScope.expObj.widgets;
         var tWidData = $rootScope.expObj.widgetData;
         $scope.exportObject.dashboardName = $rootScope.expObj.dashboardName;
-        if($scope.exportObject.dashboardName != undefined || $scope.exportObject.dashboardName != null) {
+        if ($scope.exportObject.dashboardName != undefined || $scope.exportObject.dashboardName != null) {
             dashboardName = $scope.exportObject.dashboardName;
         }
         delete $rootScope.expObj;
@@ -24,7 +24,6 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,$t
             $scope.exportObject.widgetData.push(tWidData[m]);
         }
     }
-
     $scope.expgridsterOptions = {
         margins: [20, 20],
         columns: 6,
@@ -34,11 +33,65 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,$t
         minSizeX: 1,
         minSizeY: 1,
         width: 'auto',
+        resizable: {
+            enabled: false,
+        },
+        draggable: {
+            enabled: false,
+        },
         outerMargin: true, // whether margins apply to outer edges of the grid
         mobileBreakPoint: 700,
         mobileModeEnabled: true // whether or not to toggle mobile mode when screen width is less than mobileBreakPoint
     };
 
+    angular.element($window).on('resize', function (e) {
+        $scope.$broadcast('resize');
+    });
+
+    $scope.$on('resize',function(e){
+        $timeout(function(){var len = $scope.expPages.length;
+            for (var j = 0; j < len; j++) {
+                var widLen = $scope.expPages[j].widgets.length;
+                for (var ind = 0; ind < widLen; ind++) {
+                    for (var i = 0; i < $scope.expPages[j].widgetData[ind].chart.length; i++) {
+                        if ($scope.expPages[j].widgetData[ind].chart[i].api)
+                            $scope.expPages[j].widgetData[ind].chart[i].api.update();
+                    }
+                }
+            }},800);
+    });
+        $scope.calcColumnWidth = function (x) {
+
+            if (x <= 2)
+                return ('col-sm-' + 12 + ' col-md-' + 12 + ' col-lg-' + 12);
+            else if (x > 2 && x <= 4)
+                return ('col-sm-' + 6 + ' col-md-' + 6 + ' col-lg-' + 6);
+            else
+                return ('col-sm-' + 4 + ' col-md-' + 4 + ' col-lg-' + 4);
+        };
+
+        $scope.calcRowHeight = function (availableHeight, noOfItems) {
+            var cols;
+            if (noOfItems <= 2)
+                cols = 1;
+            else if (noOfItems > 2 && noOfItems <= 4)
+                cols = 2;
+            else
+                cols = 3;
+            //var cols = $window.innerWidth>=768 ? 2 : 1;
+            var rows = Math.ceil(noOfItems / cols);
+            var heightPercent = 100 / rows;
+            // var rowHeight = document.getElementById('chartRowHeight-'+widgetId).offsetHeight;
+            // var rHeight = rowHeight;
+            //  var availableHeight = Math.floor(rHeight/rows);
+            var fontSizeEm = availableHeight / 100 * 3.5;
+            var minSize = 0.7, maxSize = 1.2;
+            if (fontSizeEm < minSize)
+                fontSizeEm = minSize;
+            if (fontSizeEm > maxSize)
+                fontSizeEm = maxSize;
+            return {'height': (heightPercent + '%'), 'font-size': (fontSizeEm + 'em')};
+        };
     var vm = this;
     $scope.pdfPrintPreview = function (opt) {
         $scope.expAct = opt;
@@ -60,7 +113,6 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,$t
         for(var m=0;m<len;m++)
             rowSize.push(vm.dashboard.widgets[m].row);
         var maxRow = Math.max.apply(null,rowSize);
-
         loop1:   for (var rs=0;rs <= maxRow;rs++) {
             loop2:  for(var cs = 0;cs <=5;cs++) {
                 loop3: for(var sortPos= 0;sortPos<tempWid1.length;sortPos+=1) {
@@ -73,9 +125,8 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,$t
             }
         }
 
-        tempWidgetList1 = JSON.parse(JSON.stringify(tempSortWidgetList1));
-        for(var m=0;m<len;m++)
-            tempWidgetDataList1.push(tempSortWidgetDataList1[m]);
+        angular.copy(tempSortWidgetDataList1, tempWidgetDataList1);
+        angular.copy(tempSortWidgetList1, tempWidgetList1);
         var n=0;
 
         do
@@ -86,6 +137,9 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,$t
             pageWidgets.sizeLeft = [4,4,4,4,4,4];
             loop4: for (var getWidgetInfo in tempWidgetList1) {
                 var caninsert = 1;
+                if(tempWidgetList1[getWidgetInfo].sizeY<2){
+                    tempWidgetList1[getWidgetInfo].sizeY =2;
+                }
                 var pos = tempWidgetList1[getWidgetInfo].col;
                 var checkpos = pos + tempWidgetList1[getWidgetInfo].sizeX - 1;
                 for(var p=pos;p<=checkpos;p++){
@@ -100,8 +154,8 @@ function ExportController($scope,$http,$state,$rootScope,$window,$stateParams,$t
                         'col':  tempWidgetList1[getWidgetInfo].col,
                         'sizeY': (typeof tempWidgetList1[getWidgetInfo].sizeY != 'undefined' ? tempWidgetList1[getWidgetInfo].sizeY : 2),
                         'sizeX': (typeof tempWidgetList1[getWidgetInfo].sizeX != 'undefined' ? tempWidgetList1[getWidgetInfo].sizeX : 2),
-                        'minSizeY': (typeof tempWidgetList1[getWidgetInfo].minSizeY != 'undefined' ? tempWidgetList1[getWidgetInfo].minSizeY : 1),
-                        'minSizeX': (typeof tempWidgetList1[getWidgetInfo].minSizeX != 'undefined' ? tempWidgetList1[getWidgetInfo].minSizeX : 1),
+                        'minSizeY': (typeof tempWidgetList1[getWidgetInfo].minSizeY != 'undefined' ? tempWidgetList1[getWidgetInfo].minSizeY : 2),
+                        'minSizeX':(typeof tempWidgetList1[getWidgetInfo].minSizeX != 'undefined' ? tempWidgetList1[getWidgetInfo].minSizeX : 2),
                         'maxSizeY': (typeof tempWidgetList1[getWidgetInfo].maxSizeY != 'undefined' ? tempWidgetList1[getWidgetInfo].maxSizeY : 3),
                         'maxSizeX': (typeof tempWidgetList1[getWidgetInfo].maxSizeX != 'undefined' ? tempWidgetList1[getWidgetInfo].maxSizeX : 3),
                         'name': (typeof tempWidgetList1[getWidgetInfo].name != 'undefined' ? tempWidgetList1[getWidgetInfo].name : ''),

@@ -10,6 +10,7 @@ var objectsSchema = mongoose.Schema({
     channelObjectId: String,
     objectTypeId: mongoose.Schema.Types.ObjectId,
     channelId: mongoose.Schema.Types.ObjectId,
+    meta:Object,
     created: Date,
     updated: Date,
     deleted: Date

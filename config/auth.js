@@ -13,6 +13,34 @@ module.exports = {
         localCallbackURL:'/auth/facebook/callback',
         accessTokenURL:'https://graph.facebook.com/me?access_token='
     },
+    'aweberAuth': {
+        clientID: 'AkREQGDPsoHjCN2mdF3qY4YM',
+        clientSecret: 'ibqzrt5XWBUhZf6jrN65Gr9nPDLanh1mq9Yel1uK',
+        callbackURL:  'http://localhost:8080/callback',
+        scope: ['onescope', 'twoscope', 'redscope', 'bluescope'],
+        site:'https://api.aweber.com/1.0/',
+        tokenPath:'https://auth.aweber.com/1.0/oauth/access_token',
+        authorizationPath:'oauth',
+        localCallingURL:'/api/v1/auth/aweber',
+        localCallbackURL:'/callback',
+        requestTokenURL: 'https://auth.aweber.com/1.0/oauth/request_token',
+        accessTokenURL: 'https://auth.aweber.com/1.0/oauth/access_token',
+    },
+    'vimeoAuth':{
+        clientID: 'a974e4016ef940afbc49dbad33fc509e86a13dd2',
+        clientSecret: 'BDFtraHrIncCWl3mGVm8emXQ/hZA5b6S/gsDNIqpFZdOOiizYNRS5dPOiAJhpDSDOfuPCh7FleHCM0c7tw4NMj9uhEvP+3F33YfHPzpLWysHyeeWGQUeKe2qs+GTGeoE',
+        site: 'https://api.vimeo.com',
+        tokenPath: '/oauth/access_token',
+        authorizationPath: '/oauth/authorize',
+        redirect_uri:'http://localhost:8080/auth/vimeo/callback',
+        scope: 'public',
+        state: '3(#0/!~',
+        localCallingURL: '/api/auth/vimeo',
+        localCallbackURL: '/auth/vimeo/callback',
+        accessTokenURL:'https://api.vimeo.com/me?access_token=',
+        common:'https://api.vimeo.com'
+    },
+
 
     'twitterAuth': {
         consumerKey: 'mZ5GHKtuVoSanQzbMMiVCezXQ',
@@ -106,7 +134,9 @@ module.exports = {
         pinterest: 'pinterest',
         mailChimp: 'mailchimp',
         linkedIn: 'linkedin',
-        moz:'moz'
+        moz:'moz',
+        vimeo:'vimeo',
+        aweber:'aweber'
     },
 
     'objectType':{
@@ -124,7 +154,11 @@ module.exports = {
         youtubeChannel:'youtubeChannel',
         mailChimpCampaign:'campaigns',
         mailChimpList:'lists',
-        linkedIn:'companyPage'
+        linkedIn:'companyPage',
+        vimeochannel:'vimeochannel',
+        vimeovideos:' vimeovideos',
+        aweberList:"aweberlists",
+        aweberCampaign:'awebercampaigns'
     },
 
     'twitterMetric':{

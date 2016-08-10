@@ -51,6 +51,11 @@ var configAuth = require('../config/auth');
 var googleAds = require('../lib/googleAdwords');
 var spec = {host: 'https://adwords.google.com/api/adwords/reportdownload/v201601'};
 googleAds.GoogleAdwords(spec);
+//aweber
+var NodeAweber = require('aweber-api-nodejs');
+var NA = new NodeAweber(configAuth.aweberAuth.clientID, configAuth.aweberAuth.clientSecret,'http://localhost:8080/callback');
+
+
 
 //set credentials in OAuth2
 //var oauth2Client = new OAuth2(configAuth.googleAuth.clientID, configAuth.googleAuth.clientSecret, configAuth.googleAuth.callbackURL);
@@ -245,7 +250,8 @@ exports.getChannelData = function (req, res, next) {
             channelObjectId: 1,
             objectTypeId: 1,
             name:1,
-            channelId:1
+            channelId:1,
+            meta:1
         }, checkNullObject(callback));
     }
 
@@ -271,6 +277,7 @@ exports.getChannelData = function (req, res, next) {
             userId: 1,
             email: 1,
             dataCenter:1,
+            tokenSecret: 1,
             name: 1
         }, checkNullObject(callback));
     }
@@ -404,6 +411,15 @@ exports.getChannelData = function (req, res, next) {
                             selectLinkedInObjectType(result, callback);
                     });
                     break;
+                case configAuth.channels.aweber:
+                    setDataBasedChannelCode(results, function (err, result) {
+                        if (err)
+                            return res.status(500).json({error: 'Internal server error'});
+                        else
+                            selectaweber(result, callback);
+                    });
+                    break;
+
                 case configAuth.channels.moz:
                     setDataBasedChannelCode(results, function (err, result) {
                         if (err)
@@ -411,6 +427,14 @@ exports.getChannelData = function (req, res, next) {
                         else
 
                             getMozData(result, callback);
+                    });
+                    break;
+                case configAuth.channels.vimeo:
+                    setDataBasedChannelCode(results, function (err, result) {
+                        if (err)
+                            return res.status(500).json({error: 'Internal server error', id: req.params.widgetId})
+                        else
+                            selectVimeoObjectType(result, callback);
                     });
                     break;
                 default:
@@ -1405,6 +1429,76 @@ exports.getChannelData = function (req, res, next) {
                     }, done);
                 }
             }
+            else if (allQueryResult.channel.code == configAuth.channels.pinterest) {
+                storeDataForpinterest(groupAllChannelData[allQueryResult.channel._id], allQueryResult.allData.data, allQueryResult.allData.widget[0].charts, allQueryResult.allData.metric, callback);
+                function storeDataForpinterest(dataFromRemote, dataFromDb, widget, metric, done) {
+                    //console.log('storingProcess',dataFromRemote);
+                    async.times(metric.length, function (j, next) {
+                        var finalData = [];
+                        if(metric[j].code==='boardsleaderboard' || metric[j].code==='engagementRate'){
+                            console.log('insideof boardsleaderboard')
+                            callback(null,dataFromRemote[j])
+
+                        }
+                        else{
+                            //Array to hold the final result
+                            for (var key in dataFromRemote) {
+                                if (dataFromRemote[key].apiResponse === 'DataFromDb') {
+                                }
+                                else {
+                                    if (String(metric[j]._id) == String(dataFromRemote[key].metricId)) {
+                                        console.log('satisfied metric conditions');
+                                        finalData = dataFromRemote[key].apiResponse;
+                                    }
+                                }
+                            }
+
+                            if (dataFromRemote[j].apiResponse != 'DataFromDb') {
+                                if (dataFromDb[j].data != null) {
+                                    if (dataFromRemote[j].metricId == dataFromDb[j].metricId) {
+                                        console.log('satisfied data conditions');
+                                        //merge the old data with new one and update it in db
+                                        for (var key = 0; key < dataFromDb[j].data.data.length; key++) {
+                                            finalData.push(dataFromDb[j].data.data[key]);
+                                        }
+                                        var metricId = metric._id;
+                                    }
+
+                                }
+                                console.log('storingFinalData',finalData)
+                                var now = new Date();
+
+                                //Updating the old data with new one
+                                Data.update({
+                                    'objectId': widget[j].metrics[0].objectId,
+                                    'metricId': metric[j]._id
+                                }, {
+                                    $setOnInsert: {created: now},
+                                    $set: {
+                                        data: finalData,
+                                        updated: now,
+                                        bgFetch: metric[j].bgFetch,
+                                        fetchPeriod: metric[j].fetchPeriod
+                                    }
+                                }, {upsert: true}, function (err,data) {
+                                    if (err)
+                                        return res.status(500).json({error: 'Internal server error',id:req.params.widgetId});
+                                    else if (data == 0)
+                                        return res.status(501).json({error: 'Not implemented',id:req.params.widgetId});
+                                    else next(null, 'success')
+                                });
+                            }
+
+                            else
+                                next(null, 'success')
+                        }
+
+                    }, done);
+
+
+                }
+
+            }
             else if (allQueryResult.channel.code == configAuth.channels.linkedIn) {
                 storeDataForlinkedIn(groupAllChannelData[allQueryResult.channel._id], allQueryResult.allData.data, allQueryResult.allData.widget[0].charts, allQueryResult.allData.metric, callback);
                 function storeDataForlinkedIn(dataFromRemote, dataFromDb, widget, metric, done) {
@@ -1464,6 +1558,121 @@ exports.getChannelData = function (req, res, next) {
                     }, done);
                 }
             }
+            else if (allQueryResult.channel.code == configAuth.channels.vimeo) {
+                console.log("storeing in db")
+                storeDataForVimeo(groupAllChannelData[allQueryResult.channel._id], allQueryResult.allData.data, allQueryResult.allData.widget[0].charts, allQueryResult.allData.metric, callback);
+                function storeDataForVimeo(dataFromRemote, dataFromDb, widget, metric, done) {
+                    async.times(metric.length, function (j, next) {
+                        var finalData = [];
+                        if (metric[j].name === 'highengagement')
+                            callback(null, dataFromRemote[j]);
+                        else {
+                            //Array to hold the final result
+                            for (var key in dataFromRemote) {
+                                if (dataFromRemote[key].apiResponse === 'DataFromDb') {
+                                }
+                                else {
+                                    if (String(metric[j]._id) == String(dataFromRemote[key].metricId))
+                                        finalData = dataFromRemote[key].apiResponse;
+                                }
+                            }
+                            if (dataFromRemote[j].apiResponse != 'DataFromDb') {
+                                if (dataFromDb[j].data != null) {
+                                    if (dataFromRemote[j].metricId == dataFromDb[j].metricId) {
+
+                                        //merge the old data with new one and update it in db
+                                        for (var key = 0; key < dataFromDb[j].data.data.length; key++) {
+                                            finalData.push(dataFromDb[j].data.data[key]);
+                                        }
+                                    }
+                                }
+                                var now = new Date();
+                                console.log("finalData", finalData)
+                                //Updating the old data with new one
+                                Data.update({
+                                    'objectId': widget[j].metrics[0].objectId,
+                                    'metricId': metric[j]._id
+                                }, {
+                                    $setOnInsert: {created: now},
+                                    $set: {
+                                        data: finalData,
+                                        updated: now,
+                                        bgFetch: metric[j].bgFetch,
+                                        fetchPeriod: metric[j].fetchPeriod
+                                    }
+                                }, {upsert: true}, function (err, data) {
+                                    if (err)
+                                        return res.status(500).json({
+                                            error: 'Internal server error',
+                                            id: req.params.widgetId
+                                        })
+                                    else if (data == 0)
+                                        return res.status(501).json({error: 'Not implemented', id: req.params.widgetId})
+                                    else next(null, 'success');
+                                });
+                            }
+                            else
+                                next(null, 'success')
+
+                        }
+                    }, done);
+                }
+            }
+            else if (allQueryResult.channel.code == configAuth.channels.aweber) {
+                storeDataForaweber(groupAllChannelData[allQueryResult.channel._id], allQueryResult.allData.data, allQueryResult.allData.widget[0].charts, allQueryResult.allData.metric, callback);
+                function storeDataForaweber(dataFromRemote, dataFromDb, widget, metric, done) {
+                    async.times(metric.length, function (j, next) {
+                        var finalData = [];
+
+                        //Array to hold the final result
+                        for (var key in dataFromRemote) {
+                            if (dataFromRemote[key].apiResponse === 'DataFromDb') {
+                            }
+                            else {
+                                if (String(metric[j]._id) == String(dataFromRemote[key].metricId))
+                                    finalData = dataFromRemote[key].apiResponse;
+
+                            }
+                        }
+                        if (dataFromRemote[j].apiResponse != 'DataFromDb') {
+                            if (dataFromDb[j].data != null) {
+                                if (dataFromRemote[j].metricId == dataFromDb[j].metricId) {
+
+                                    //merge the old data with new one and update it in db
+                                    for (var key = 0; key < dataFromDb[j].data.data.length; key++) {
+                                        finalData.push(dataFromDb[j].data.data[key]);
+                                    }
+                                }
+                            }
+                            var now = new Date();
+
+                            //Updating the old data with new one
+                            Data.update({
+                                'objectId': widget[j].metrics[0].objectId,
+                                'metricId': metric[j]._id
+                            }, {
+                                $setOnInsert: {created: now},
+                                $set: {
+                                    data: finalData,
+                                    updated: now,
+                                    bgFetch: metric[j].bgFetch,
+                                    fetchPeriod: metric[j].fetchPeriod
+                                }
+                            }, {upsert: true}, function (err, data) {
+                                if (err)
+                                    return res.status(500).json({
+                                        error: 'Internal server error'
+                                    })
+                                else if (data == 0)
+                                    return res.status(501).json({error: 'Not implemented'})
+                                else next(null, 'success')
+                            });
+                        }
+                        else
+                            next(null, 'success')
+                    }, done);
+                }
+            }
         }
     }
 
@@ -1506,6 +1715,17 @@ exports.getChannelData = function (req, res, next) {
                     next(null, wholeData);
 
                 }
+                else if (metric[k].code === 'vimeohighengagement') {
+                    console.log("vimeohighengagement")
+                    wholeData = {
+                        "data": results.store_final_data[0].apiResponse,
+                        "metricId": results.store_final_data[0].metricId,
+                        "objectId": results.store_final_data[0].queryResults.object[0]._id
+                    };
+                    next(null, wholeData);
+                   // console.log("wholeData",wholeData)
+
+                }
 
 
                 else {
@@ -1543,8 +1763,8 @@ exports.getChannelData = function (req, res, next) {
                             }]
                         , function (err, response) {
                             var finalDataArray = [];
-                            if (err){
-                                return res.status(500).json({error: 'Internal server error',id:req.params.widgetId});
+                            if (err) {
+                                return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
                             }
                             else if (!response.length) {
                                 finalDataArray.push({
@@ -3174,7 +3394,7 @@ exports.getChannelData = function (req, res, next) {
                                 startDate: updated,
                                 endDate: currentDate,
                                 metricId: metric[j]._id,
-                                endPoint: metric[j].objectTypes[0].meta.endpoint
+                                endPoint: metric[j].objectTypes[0].meta.endpoint[0]
                             }
                             next(null, allObjects);
                         }
@@ -3197,7 +3417,7 @@ exports.getChannelData = function (req, res, next) {
                             endDate: endDate,
                             metricId: metric[j]._id,
                             metricCode:metric[j].code,
-                            endPoint: metric[j].objectTypes[0].meta.endpoint
+                            endPoint: metric[j].objectTypes[0].meta.endpoint[0]
                         };
                         next(null, allObjects);
 
@@ -3256,7 +3476,7 @@ exports.getChannelData = function (req, res, next) {
                         }
                         for(var i=0;i<arrayOfResponse.length;i++){
                             var temp = arrayOfResponse[i][count];
-                            arrayOfBoards.push({date: response.data[i].name, total:{pins:temp[pins],collaborators:temp[collaborate],followers:temp[followers]}})
+                            arrayOfBoards.push({date:arrayOfResponse[i].created_at,url:arrayOfResponse[i].url,name: response.data[i].name, total:{pins:temp[pins],collaborators:temp[collaborate],followers:temp[followers]}})
                         }
                         var MediasArray = _.sortBy(arrayOfBoards, ['total.followers']);
                         var collectionBoard= _.orderBy(MediasArray, ['total.followers', 'total.pins'], ['desc','asc']);
@@ -3273,9 +3493,7 @@ exports.getChannelData = function (req, res, next) {
                         callback(null, actualFinalApiData);
 
                     })
-                    .catch(function (error) {
-                        callback(error, null);
-                    });
+
             }
             else if (result.metricCode === 'engagementRate') {
                 var params = {
@@ -3286,10 +3504,10 @@ exports.getChannelData = function (req, res, next) {
                 };
                 var query = result.query;
                 var date = new Date();
-                var endDate = moment(date).unix();
+                var endDate = moment.utc(date).unix();
                 var d = new Date();
                 d.setDate(d.getDate() - 31);
-                var startDate = moment(d).unix();
+                var startDate = moment.utc(d).unix();
                 paginationCallApi(query, params);
                 function paginationCallApi(query, params) {
                     pinterest.api(query, params).then(function (response) {
@@ -3312,9 +3530,7 @@ exports.getChannelData = function (req, res, next) {
                                 }
                             }
                         })
-                        .catch(function (error) {
-                            callback(error, null);
-                        });
+
                 }
 
                 function storeFinalData(arrayOfResponse) {
@@ -3331,6 +3547,7 @@ exports.getChannelData = function (req, res, next) {
                     var like = endPointMetric[5];
                     var comment = endPointMetric[6];
                     var repin = endPointMetric[7];
+                    var url=endPointMetric[8];
                     var removeDuplicate= _.groupBy(arrayOfBoards,'board.name')
                     for (var k = 0; k < arrayOfResponse.length; k++) {
                         if (arrayOfResponse[k][board] != null) {
@@ -3341,8 +3558,13 @@ exports.getChannelData = function (req, res, next) {
                                 }
                             }
                             if(isUnique == true) {
+                                var created_at=arrayOfResponse[k].created_at
+                                var split = created_at.split('T');
+                                var createDate = moment.unix(created_at).format('YYYY-MM-DD');
                                 arrayOfBoards.push({
+                                    date:created_at,
                                     boardId: arrayOfResponse[k][board][id],
+                                    url:arrayOfResponse[k][board][url],
                                     name:arrayOfResponse[k][board][name],
                                     total: ({likes: 0, comments: 0, repins: 0})
                                 });
@@ -3422,9 +3644,7 @@ exports.getChannelData = function (req, res, next) {
                         callback(null, actualFinalApiData);
 
                     })
-                    .catch(function (error) {
-                        callback(error, null);
-                    });
+
             }
         }
     }
@@ -3584,6 +3804,231 @@ exports.getChannelData = function (req, res, next) {
                     }
                 }
             });
+        }
+    }
+
+    function selectaweber(initialResults, callback) {
+
+
+        async.auto({
+            get_aweber_queries: getAweberQueries,
+            get_aweber_data_from_remote: ['get_aweber_queries', getaweberDataFromRemote]
+
+        }, function (err, results) {
+            if (err)
+                return callback(err, null);
+            callback(null, results.get_aweber_data_from_remote);
+        });
+
+        function getAweberQueries(callback) {
+
+            work(initialResults.data, initialResults.object, initialResults.metric, callback);
+
+            function work(data, object, metric, done) {
+
+
+                async.timesSeries(metric.length, function (j, next) {
+                    var channelObjectId = initialResults.object[j].channelObjectId;
+                    var channellistId =initialResults.object[j].listId ;
+                    d = new Date();
+                    var allObjects = {};
+                    if (data[j].data != null) {
+                        var updatedDb = calculateDate(data[j].data.updated);
+                        var updated = data[j].data.updated;
+                        var currentDate = calculateDate(new Date());
+                        var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+                        updated.setTime(updated.getTime() + oneDay);
+                        var startDate = calculateDate(updated);
+                        if (updatedDb < currentDate) {
+                            console.log('initialResults.object[j].listId',initialResults.object)
+                            if(metric[j].objectTypes[0].meta.endpoint[0] === 'mainlists'){
+                                var query = 'accounts/' + initialResults.get_profile[j].userId + '/lists/' +object[j].channelObjectId;
+
+                            }
+
+                            else if(metric[j].objectTypes[0].meta.endpoint[0] === 'lists'){
+                                var query = 'accounts/' + initialResults.get_profile[j].userId + '/lists/' + object[j].channelObjectId + '/campaigns' ;
+
+                            }
+
+                            else if(metric[j].objectTypes[0].meta.endpoint[0] === 'campaigns')
+                            {
+                                var query = 'accounts/' + initialResults.get_profile[j].userId + '/lists/' + object[j].meta.listId + '/campaigns/' + initialResults.object[j].meta.campaignType + initialResults.object[j].channelObjectId;
+
+                            }
+
+
+
+
+                            allObjects = {
+                                profile: initialResults.get_profile[j],
+                                query: query,
+                                widget: metric[j],
+                                dataResult: data[j].data,
+                                startDate: updated,
+                                endDate: currentDate,
+                                metricId: metric[j]._id,
+                                endpoint: metric[j].objectTypes[0].meta.endpoint[0]
+                            }
+                            next(null, allObjects);
+                        }
+                        else
+                            next(null, 'DataFromDb');
+                    }
+                    else {
+                        //call google api
+                        d.setDate(d.getDate() - 365);
+                        var startDate = formatDate(d);
+                        var endDate = formatDate(new Date());
+                        console.log('initialResults.object[j].listId',initialResults.object)
+                        if(metric[j].objectTypes[0].meta.endpoint[0] === 'mainlists'){
+                            var query = 'accounts/' + initialResults.get_profile[j].userId + '/lists/' + initialResults.object[j].channelObjectId;
+
+                        }
+
+                        else if(metric[j].objectTypes[0].meta.endpoint[0] === 'lists'){
+                            var query = 'accounts/' + initialResults.get_profile[j].userId + '/lists/' + initialResults.object[j].channelObjectId + '/campaigns' ;
+
+                        }
+                        else if(metric[j].objectTypes[0].meta.endpoint[0] === 'campaigns')
+                        {
+                            var query = 'accounts/' + initialResults.get_profile[j].userId + '/lists/' + initialResults.object[j].meta.listId + '/campaigns/' + initialResults.object[j].meta.campaignType + initialResults.object[j].channelObjectId;
+
+                        }
+
+
+                        allObjects = {
+                            profile: initialResults.get_profile[j],
+                            query: query,
+                            widget: metric[j],
+                            dataResult: data[j].data,
+                            startDate: startDate,
+                            endDate: endDate,
+                            metricId: metric[j]._id,
+                            metricCode: metric[j].code,
+                            endpoint: metric[j].objectTypes[0].meta.endpoint[0]
+                        };
+                        next(null, allObjects);
+                    }
+                }, done)
+            }
+        }
+
+        function getaweberDataFromRemote(allObjects, callback) {
+            var actualFinalApiData = {};
+
+            async.concatSeries(allObjects.get_aweber_queries, checkDbData, callback);
+            function checkDbData(result, callback) {
+                if (result === 'DataFromDb') {
+                    actualFinalApiData = {
+                        apiResponse: 'DataFromDb',
+                        queryResults: initialResults,
+                        channelId: initialResults.metric[0].channelId
+                    }
+                    callback(null, actualFinalApiData);
+                }
+
+                else
+                    callaweberForMetrics(result, actualFinalApiData, callback);
+            }
+
+        };
+
+        function callaweberForMetrics(result, actualFinalApiData, callback) {
+            var token = result.profile.accessToken;
+            var tokenSecret = result.profile.tokenSecret;
+            var query = result.query;
+
+            var apiClient = NA.api(token, tokenSecret);
+            apiClient.request('get', query, {}, function (err, response) {
+                if (err) {
+                    return res.status(500).json({error: 'Internal server error'});
+                }
+                else {
+
+                    var storeMetric;
+                    var tot_metric = [];
+                    var storeStartDate = new Date(result.startDate);
+                    var storeEndDate = new Date(result.endDate);
+                    var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
+
+                    var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); //adding plus one so that today also included
+                    if (result.metricCode === 'subscribers_count') {
+                        storeMetric = response.total_subscribed_subscribers;
+                    }
+                    else  if (result.metricCode === 'unsubscribers_count') {
+                        storeMetric = response.total_unsubscribed_subscribers;
+                    }
+                    else if (result.metricCode === 'open_rate/lists') {
+                        var total_opens = 0, total_sent = 0, open_rate;
+                        for (var i = 0; i < response.total_size; i++) {
+                            if (response.entries[i].campaign_type == 'b') {
+                                total_opens = total_opens + response.entries[i].total_opens;
+                                total_sent = total_sent + response.entries[i].total_sent;
+                            }
+                        }
+                        open_rate = Math.round(total_opens / total_sent);
+                        storeMetric = open_rate;
+                    }
+                    else if (result.metricCode === 'click_rate/lists') {
+                        var total_clicks = 0, total_sent = 0, click_rate;
+                        for (var i = 0; i < response.total_size; i++) {
+                            if (response.entries[i].campaign_type == 'b') {
+                                total_clicks = total_clicks + response.entries[i].total_clicks;
+                                total_sent = total_sent + response.entries[i].total_sent;
+                            }
+                        }
+                        click_rate = Math.round(total_clicks / total_sent);
+                        storeMetric = click_rate;
+                    }
+                    else if(result.metricCode === 'open_rate/campaigns'){
+                        storeMetric= Math.round(response.total_opens/response.total_sent);
+                        console.log("storeMetric",storeMetric);
+                    }
+                    else if(result.metricCode === 'click_rate/campaigns'){
+                        storeMetric= Math.round(response.total_clicks/response.total_sent);
+                    }
+                    else if(result.metricCode === 'total_opens/campaigns'){
+                        storeMetric= response.total_opens;
+                    }
+                    else if(result.metricCode === 'total_clicks/campaigns'){
+                        storeMetric= response.total_clicks;
+                    }
+                    else if(result.metricCode === 'total_sent/campaigns'){
+                        storeMetric= response.total_sent;
+                    }
+
+
+
+
+
+
+                    for (var i = 0; i <= diffDays; i++) {
+                        var finalDate = formatDate(storeStartDate);
+                        tot_metric.push({date: finalDate, total: 0});
+                        storeStartDate.setDate(storeStartDate.getDate() + 1);
+
+                        if (result.endDate === tot_metric[i].date) {
+                            tot_metric[i] = {
+                                total: storeMetric,
+                                date: result.endDate
+                            };
+                        }
+                    }
+
+                    actualFinalApiData = {
+                        apiResponse: tot_metric,
+                        metricId: result.metricId,
+                        queryResults: initialResults,
+                        channelId: initialResults.metric[0].channelId
+                    }
+                    callback(null, actualFinalApiData)
+
+                }
+
+            });
+
+
         }
     }
 
@@ -3994,5 +4439,241 @@ exports.getChannelData = function (req, res, next) {
         }
 
     }
+    function selectVimeoObjectType(initialResults, callback) {
+        async.auto({
+            get_vimeo_queries: getVimeoQueries,
+            get_vimeo_data_from_remote: ['get_vimeo_queries', getVimeoDataFromRemote]
+
+        }, function (err, results) {
+            if (err) {
+                return callback(err, null);
+            }
+            console.log("results. get_vimeo_data_from_remote"+ results. get_vimeo_data_from_remote)
+            callback(null, results. get_vimeo_data_from_remote);
+        });
+
+
+        function getVimeoQueries(callback) {
+            work(initialResults.data, initialResults.object, initialResults.metric, callback);
+            function work(data, object, metric, done) {
+
+                async.timesSeries(metric.length, function (j, next) {
+                    var id = initialResults.object[j].channelObjectId;
+                    var play=metric[j].objectTypes[0].meta.play;
+
+
+                    var  query= configAuth.vimeoAuth.common+'/'+metric[j].objectTypes[0].meta.endpoint[0]+'/'+initialResults.object[j].channelObjectId+'/'+metric[j].objectTypes[0].meta.endpoint[1];
+
+
+                    d = new Date();
+                    var allObjects = {};
+                    if (data[j].data != null) {
+                        var updatedDb = calculateDate(data[j].data.updated);
+                        var updated = data[j].data.updated;
+                        var currentDate = calculateDate(new Date());
+                        // d.setDate(d.getDate() + 1);
+                        var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+                        updated.setTime(updated.getTime() + oneDay);
+                        var startDate = calculateDate(updated);
+                        if (updatedDb < currentDate) {
+                            console.log('testing!!!!!')
+                            allObjects = {
+                                profile: initialResults.get_profile[j],
+                                query: query,
+                                widget: metric[j],
+                                dataResult: data[j].data,
+                                startDate: updated,
+                                endDate: currentDate,
+                                metricId: metric[j]._id,
+
+                            }
+                            next(null, allObjects);
+                        }
+                        else
+                            next(null, 'DataFromDb');
+                    }
+                    else {
+
+                        //call google api
+                        d.setDate(d.getDate() - 365);
+                        var startDate = formatDate(d);
+                        var endDate = formatDate(new Date());
+                        var query = configAuth.vimeoAuth.common+'/'+metric[j].objectTypes[0].meta.endpoint[0]+'/'+id+'/'+metric[j].objectTypes[0].meta.endpoint[1];
+                        allObjects = {
+                            profile: initialResults.get_profile[j],
+                            query: query,
+
+                            widget: metric[j],
+                            dataResult: data[j].data,
+                            startDate: startDate,
+                            endDate: endDate,
+                            metricId: metric[j]._id,
+                            metricCode: metric[j].code,
+
+                        };
+                        next(null, allObjects);
+
+                    }
+
+                }, done)
+            }
+
+        }
+
+
+        function getVimeoDataFromRemote(allObjects, callback) {
+            var actualFinalApiData = {};
+
+            async.concatSeries(allObjects.get_vimeo_queries, checkDbData, callback);
+            function checkDbData(result, callback) {
+                if (result == 'DataFromDb') {
+                    actualFinalApiData = {
+                        apiResponse: 'DataFromDb',
+                        queryResults: initialResults,
+                        channelId: initialResults.metric[0].channelId
+                    }
+                    callback(null, actualFinalApiData);
+                }
+                else {
+                    callVimeoApiForMetrics(result, callback);
+
+                }
+            }
+        }
+
+
+
+
+        function callVimeoApiForMetrics(result, callback) {
+            //Set access token for hitting api access - dev
+            var storeMetric;
+            var tot_metric = [];
+            var page=1
+            var sampledata = [];
+
+            var actualFinalApiData = [];
+
+
+            var access_token= result.profile.accessToken;
+
+
+            callrequest();
+
+            function callrequest() {
+                request( result.query + '?access_token=' + access_token + '&page=' + page+'&per_page=2', function (err, results, body) {
+                    //  console.log('results',results)
+                    var parsedData = JSON.parse(body);
+
+
+                    if (results.statusCode != 200) {
+                        return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
+                    }
+                    else {
+
+                        var Tempstore = [];
+                        if ("vimeohighengagement" == result.metricCode) {
+                            for (var i = 0; i < parsedData.data.length; i++) {
+                                // console.log("date",parsedData.data[i].created_time)
+                                // console.log("details",parsedData.data[i].metadata.connections)
+                                var datadate = formatDate(new Date(Date.parse(parsedData.data[i].created_time.replace(/( +)/, ' UTC$1'))))
+                                var lastCreatedAt = formatDate(new Date(Date.parse(datadate)));
+                                var changeFormatCreateAt = moment.utc(lastCreatedAt).unix();
+                                var startDate = moment.utc(req.body.startDate).unix();
+                                var endDate = moment.utc(req.body.endDate).unix();
+
+                                if (changeFormatCreateAt >= startDate && changeFormatCreateAt <= endDate) {
+                                    // console.log("inside date condition")
+                                    sampledata.push({
+                                        date: datadate,
+                                        data: parsedData.data[i],
+                                        likes: parsedData.data[i].metadata.connections.likes.total,
+                                        comments: parsedData.data[i].metadata.connections.comments.total,
+                                        views: parsedData.data[i].stats.plays
+                                    });
+                                }
+
+                            }
+                            if(parsedData.paging.next != null){
+                                page++;
+                                callrequest();
+                            }
+                            else {
+
+                                Tempstore = _.sortBy(sampledata, ['likes', 'comments']);
+                                Tempstore = _.reverse(Tempstore)
+                                for (var t = 0; t < Tempstore.length; t++) {
+                                    console.log("sorting array")
+                                    tot_metric.push({date: Tempstore[t].date, total: Tempstore[t].data});
+
+                                }
+                                actualFinalApiData = {
+                                    apiResponse: tot_metric,
+                                    metricId: result.metricId,
+                                    queryResults: initialResults,
+                                    channelId: initialResults.metric[0].channelId
+                                }
+                                console.log("tot_metric", tot_metric)
+                                callback(null, actualFinalApiData);
+                            }
+
+
+                        }
+                        else {
+                            var storeStartDate = new Date(result.startDate);
+                            var storeEndDate = new Date(result.endDate);
+                            var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
+                            var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+                            if ("vimeoviews" == result.metricCode) {
+                                storeMetric = parsedData.stats.plays;
+                            }
+                            else {
+                                storeMetric = parsedData.total;
+                            }
+
+
+                            for (var i = 0; i <= diffDays; i++) {
+                                var finalDate = formatDate(storeStartDate);
+                                tot_metric.push({date: finalDate, total: 0});
+                                storeStartDate.setDate(storeStartDate.getDate() + 1);
+
+                                if (result.endDate === tot_metric[i].date) {
+                                    tot_metric[i] = {
+                                        total: storeMetric,
+                                        date: result.endDate
+                                    };
+                                }
+                            }
+                            actualFinalApiData = {
+                                apiResponse: tot_metric,
+                                metricId: result.metricId,
+                                queryResults: initialResults,
+                                channelId: initialResults.metric[0].channelId
+                            }
+
+                            callback(null, actualFinalApiData);
+                        }
+
+
+
+
+                    }
+
+                    /* if (pagination) {
+                     if (pagination.next) {
+                     pagination.next(callVimeoApi); // Will get second page results
+                     }
+                     }*/
+
+                })
+            }
+
+
+        }
+
+
+    };
+
+
 
 };

@@ -158,6 +158,10 @@ require('./controllers/facebookAdsAuth')(app);
 require('./controllers/facebookAuth')(app);
 require('./controllers/googleAuth')(app);
 require('./controllers/twitterAuth')(app);
+require('./controllers/aweberAuth')(app);
+require('./controllers/vimeoAuth')(app);
+require('./controllers/instaAuth')(app);
+require('./controllers/pinterestAuth')(app);
 require('./controllers/instaAuth')(app);
 require('./controllers/mailChimpAuth')(app);
 require('./controllers/linkedInAuth')(app);
@@ -188,4 +192,10 @@ router.use(function (req, res, next) {
 
 // launch ======================================================================
 app.listen(port);
+/*
+https.createServer({
+    key: fs.readFileSync('./key.pem', 'utf8'),
+    cert: fs.readFileSync('./server.crt', 'utf8')
+}, app).listen(port);
+*/
 console.log('The magic happens on port ' + port);

@@ -12,6 +12,7 @@ var profilesSchema = mongoose.Schema({
     dataCenter:String,
     email: String,
     accessToken: String,
+    tokenSecret:String,
     refreshToken: String,
     userId: String,
     channelId: String,

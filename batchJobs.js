@@ -40,6 +40,11 @@ var client = new Twitter({
     access_token_key: configAuth.twitterAuth.AccessToken,
     access_token_secret: configAuth.twitterAuth.AccessTokenSecret
 });
+//load aweber node module
+var NodeAweber = require('aweber-api-nodejs');
+//set credentials in NodeAweber
+var NA = new NodeAweber(configAuth.aweberAuth.clientID, configAuth.aweberAuth.clientSecret,configAuth.aweberAuth.callbackURL);
+
 //set moz module
 var moz = require('mozscape-request')({
     accessId: 'mozscape-d79bd6e88f',
@@ -138,7 +143,8 @@ agenda.define('Update channel data', function (job, done) {
                 channelObjectId: 1,
                 objectTypeId: 1,
                 name: 1,
-                channelId: 1
+                channelId: 1,
+                meta:1,
             }, checkNullObject(callback));
         }
 
@@ -157,6 +163,7 @@ agenda.define('Update channel data', function (job, done) {
                         channelId: 1,
                         userId: 1,
                         email: 1,
+                        tokenSecret:1,
                         name: 1,
                         dataCenter: 1
                     }, checkNullObject(callback));
@@ -233,8 +240,14 @@ agenda.define('Update channel data', function (job, done) {
                         case configAuth.channels.pinterest:
                             selectPinterest(allResultData, next);
                             break;
+                        case configAuth.channels.aweber:
+                            selectAweber(allResultData, next);
+                            break;
                         case configAuth.channels.moz:
                             getMozData(allResultData, next);
+                            break;
+                        case configAuth.channels.vimeo:
+                            selectVimeo(allResultData,next);
                             break;
                         default:
                             next('error')
@@ -245,7 +258,158 @@ agenda.define('Update channel data', function (job, done) {
 
         }
 
-        function getTweetData(results, callback) {
+
+
+
+        function selectVimeo(initialResults, callback) {
+            async.auto({
+                get_vimeo_queries: getVimeoQueries,
+                get_vimeo_data_from_remote: ['get_vimeo_queries', getVimeoDataFromRemote]
+
+            }, function (err, results) {
+                if (err) {
+                    return callback(err, null);
+                }
+                callback(null, results.get_vimeo_data_from_remote);
+            });
+
+
+            function getVimeoQueries(callback) {
+                d = new Date();
+                var allObjects = {};
+
+
+
+
+                var updatedDb = moment(initialResults.data.updated).format('YYYY-MM-DD')
+                        if (initialResults.data != null) {
+                            var updated = initialResults.data.updated
+
+                            if (updated < new Date()) {
+                                var currentDate = moment(new Date()).format('YYYY-MM-DD')
+                                updated=moment(updated).format('YYYY-MM-DD');
+                                if (updated == currentDate) {
+                                    updated = updatedDb;
+                                }
+                                else {
+                                    updated = moment(initialResults.data.updated).add(1, 'days').format('YYYY-MM-DD');
+                                }
+                                var  query= configAuth.vimeoAuth.common+'/'+initialResults.metric.objectTypes[0].meta.endpoint[0]+'/'+initialResults.object.channelObjectId+'/'+initialResults.metric.objectTypes[0].meta.endpoint[1];
+
+                                allObjects = {
+                                    profile: initialResults.get_profile,
+                                    query: query,
+                                    widget:initialResults.metric,
+                                    dataResult: initialResults.data.data,
+                                    startDate: updated,
+                                    endDate: currentDate,
+                                    metricId:initialResults.metric._id,
+                                    endpoint: initialResults.metric.objectTypes[0].meta.endpoint
+
+                                }
+                                callback(null, allObjects);
+                            }
+                            else
+                                callback(null, 'DataFromDb');
+                        }
+
+
+
+
+            }
+
+
+            function getVimeoDataFromRemote(allObjects, callback) {
+                var actualFinalApiData = {};
+
+
+                    if (allObjects. get_vimeo_queries == 'DataFromDb') {
+                        actualFinalApiData = {
+                            apiResponse: 'DataFromDb',
+                            queryResults: initialResults,
+                            channelId: initialResults.metric.channelId
+                        }
+                        callback(null, actualFinalApiData);
+                    }
+                    else {
+                        callVimeoApiForMetrics(allObjects. get_vimeo_queries, callback);
+
+                    }
+
+            }
+
+
+            function callVimeoApiForMetrics(result, callback) {
+
+                //Set access token for hitting api access - dev
+                var storeMetric;
+                var tot_metric = [];
+                var page = 1
+
+                var actualFinalApiData = [];
+
+
+                var access_token = initialResults.profile.accessToken;
+
+
+                console.log(result.query + '?access_token=' + access_token)
+                request(result.query + '?access_token=' + access_token + '&page=' + page, function (err, results, body) {
+
+                        var parsedData = JSON.parse(body);
+
+
+                        if (results.statusCode != 200) {
+                            return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
+                        }
+                        else {
+                            var storeStartDate = new Date(result.startDate);
+                            var storeEndDate = new Date(result.endDate);
+                            console.log("storeStartDate",result.startDate,result.endDate)
+                            var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
+                            var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                            console.log('diffDays',diffDays);
+
+                            if ("vimeoviews" == result.metricCode) {
+                                storeMetric = parsedData.stats.plays;
+                            }
+                            else {
+                                storeMetric = parsedData.total;
+                            }
+
+
+                            for (var i = 0; i <= diffDays; i++) {
+                                var finalDate =  moment(storeStartDate).format('YYYY-MM-DD');
+                                tot_metric.push({date: finalDate, total: storeMetric});
+                                storeStartDate.setDate(storeStartDate.getDate() + 1);
+
+                               /* if (result.endDate === tot_metric[i].date) {
+                                    tot_metric[i] = {
+                                        total: storeMetric,
+                                        date: result.endDate
+                                    };
+                                }*/
+                            }
+                        }
+
+
+                        actualFinalApiData = {
+                            apiResponse: tot_metric,
+                            metricId: result.metricId,
+                            queryResults: initialResults,
+                            channelId: initialResults.metric.channelId
+                        }
+                        console.log("tot_metric", tot_metric)
+                        callback(null, actualFinalApiData);
+
+                    }
+
+
+                )
+
+
+            }
+        }
+            function getTweetData(results, callback) {
             async.auto({
                 get_tweet_queries: getTweetQueries,
                 get_tweet_data_from_remote: ['get_tweet_queries', getTweetDataFromRemote]
@@ -1402,6 +1566,175 @@ agenda.define('Update channel data', function (job, done) {
 
         }
 
+        function selectAweber(initialResults, callback) {
+
+            async.auto({
+                get_aweber_queries: getAweberQueries,
+                get_aweber_data_from_remote: ['get_aweber_queries', getAweberDataFromRemote]
+
+            }, function (err, results) {
+                if (err) {
+                    return callback(err, null);
+                }
+                callback(null, results.get_aweber_data_from_remote);
+            });
+
+            function getAweberQueries(callback) {
+                d = new Date();
+                var allObjects = {};
+                if (initialResults.data != null) {
+                    var updatedDb = moment(initialResults.data.updated).format('YYYY-MM-DD');
+                    var updated = initialResults.data.updated;
+                    var currentDate = moment(new Date()).format('YYYY-MM-DD');
+                    var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+                    updated.setTime(updated.getTime() + oneDay);
+                    updated=moment(updated).format('YYYY-MM-DD');
+                    if (initialResults.data.updated < new Date()) {
+                        // query for getting subscribers and unsubscribers count in all the lists in a profile
+
+                        if (initialResults.metric.objectTypes[0].meta.endpoint[0] === 'mainlists')
+                            var query = 'accounts/' + initialResults.profile.userId + '/lists/' + initialResults.object.channelObjectId;
+                        //query for getting open rate & click rates in listwise
+
+                        else if (initialResults.metric.objectTypes[0].meta.endpoint[0] === 'lists')
+                            var query = 'accounts/' + initialResults.profile.userId + '/lists/' + initialResults.object.channelObjectId + '/campaigns';
+
+                        //query for getting open rate & click rates in campaignwise
+
+
+                        else if (initialResults.metric.objectTypes[0].meta.endpoint[0] === 'campaigns')
+                            var query = 'accounts/' + initialResults.profile.userId + '/lists/' + initialResults.object.meta.listId + '/campaigns/' + initialResults.object.meta.campaignType + initialResults.object.channelObjectId;
+
+
+
+                        allObjects = {
+                            profile: initialResults.profile,
+                            query: query,
+                            widget: initialResults.metric,
+                            dataResult: initialResults.data.data,
+                            startDate: updated,
+                            endDate: currentDate,
+                            metricId: initialResults.metric._id,
+                            metricCode: initialResults.metric.code,
+                            endpoint: initialResults.metric.objectTypes[0].meta.endpoint[0]
+                        }
+                        callback(null, allObjects);
+                    }
+                    else
+                        callback(null, 'DataFromDb');
+                }
+            }
+
+            function getAweberDataFromRemote(allObjects, callback) {
+                console.log('allObjects',allObjects);
+                var actualFinalApiData = {};
+                if (allObjects.get_aweber_queries === 'DataFromDb') {
+                    actualFinalApiData = {
+                        apiResponse: 'DataFromDb',
+                        queryResults: initialResults,
+                        channelId: initialResults.metric.channelId
+                    }
+                    callback(null, actualFinalApiData);
+                }
+                else {
+                    callAweberForMetrics(allObjects.get_aweber_queries, actualFinalApiData, callback);
+                }
+
+            };
+
+            function callAweberForMetrics(result, actualFinalApiData, callback) {
+                var token = result.profile.accessToken;
+                var tokenSecret = result.profile.tokenSecret;
+                var query = result.query;
+
+                var apiClient = NA.api(token, tokenSecret);
+                apiClient.request('get', query, {}, function (err, response) {
+                    if (err) {
+                        console.log('err',err);
+                       callback(err,null);
+                    }
+                    else {
+
+                        var storeMetric;
+                        var tot_metric = [];
+                        var storeStartDate = new Date(result.startDate);
+                        var storeEndDate = new Date(result.endDate);
+                        var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
+                        
+                        var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); //adding plus one so that today also included
+                        if (result.metricCode === 'subscribers_count')
+                            storeMetric = response.total_subscribed_subscribers;
+
+                        else if (result.metricCode === 'unsubscribers_count')
+                            storeMetric = response.total_unsubscribed_subscribers;
+
+                        else if (result.metricCode === 'open_rate/lists') {
+                            var total_opens = 0, total_sent = 0, open_rate;
+                            for (var i = 0; i < response.total_size; i++) {
+                                if (response.entries[i].campaign_type == 'b') {
+                                    total_opens = total_opens + response.entries[i].total_opens;
+                                    total_sent = total_sent + response.entries[i].total_sent;
+                                }
+                            }
+                            open_rate = Math.round(total_opens / total_sent);
+                            storeMetric = open_rate;
+                        }
+                        else if (result.metricCode === 'click_rate/lists') {
+                            var total_clicks = 0, total_sent = 0, click_rate;
+                            for (var i = 0; i < response.total_size; i++) {
+                                if (response.entries[i].campaign_type == 'b') {
+                                    total_clicks = total_clicks + response.entries[i].total_clicks;
+                                    total_sent = total_sent + response.entries[i].total_sent;
+                                }
+                            }
+                            click_rate = Math.round(total_clicks / total_sent);
+                            storeMetric = click_rate;
+                        }
+                        else if (result.metricCode === 'open_rate/campaigns')
+                            storeMetric = Math.round(response.total_opens / response.total_sent);
+
+                        else if (result.metricCode === 'click_rate/campaigns')
+                            storeMetric = Math.round(response.total_clicks / response.total_sent);
+
+                        else if (result.metricCode === 'total_opens/campaigns')
+                            storeMetric = response.total_opens;
+
+                        else if (result.metricCode === 'total_clicks/campaigns')
+                            storeMetric = response.total_clicks;
+
+                        else if (result.metricCode === 'total_sent/campaigns')
+                            storeMetric = response.total_sent;
+
+
+
+                        for (var i = 0; i <= diffDays; i++) {
+                            var finalDate = moment(storeStartDate).format('YYYY-MM-DD');
+                            tot_metric.push({date: finalDate, total: storeMetric});
+                            storeStartDate.setDate(storeStartDate.getDate() + 1);
+
+                            /* if (result.endDate === tot_metric[i].date) {
+                             tot_metric[i] = {
+                             total: storeMetric,
+                             date: result.endDate
+                             };
+                             }*/
+                        }
+
+
+                        actualFinalApiData = {
+                            apiResponse: tot_metric,
+                            metricId: result.metricId,
+                            queryResults: initialResults,
+                            channelId: initialResults.metric.channelId
+                        }
+                        callback(null, actualFinalApiData)
+
+                    }
+
+                });
+            }
+        }
+
         function selectLinkedInObjectType(initialResults, callback) {
             async.auto({
                 get_linkedIn_queries: getLinkedInQueries,
@@ -1803,10 +2136,15 @@ agenda.define('Update channel data', function (job, done) {
                     var updatedDb = moment(initialResults.data.updated).format('YYYY-MM-DD')
                     var updated = initialResults.data.updated;
                     var currentDate = moment(new Date()).format('YYYY-MM-DD');
-                    var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
-                    updated.setTime(updated.getTime() + oneDay);
+                    updated= moment(updated).format('YYYY-MM-DD');
                     if (initialResults.data.updated < new Date()) {
-                        var query = metric.objectTypes[0].meta.pinMetricName;
+                        if (updated == currentDate) {
+                            updated = updatedDb;
+                        }
+                        else {
+                            updated = moment(initialResults.data.updated).add(1, 'days').format('YYYY-MM-DD');
+                        }
+                        var query = initialResults.metric.objectTypes[0].meta.pinMetricName;
                         allObjects = {
                             profile: initialResults.profile,
                             query: query,
@@ -1857,9 +2195,9 @@ agenda.define('Update channel data', function (job, done) {
                         }
                     };
                     pinterest.api(result.query, params).then(function (response) {
-                        var endPointMetric = {}
-                        endPointMetric = {items: result.endPoint};
-                        if (endPointMetric.items.indexOf("/") > -1) {
+                        var endPointMetric ;
+                        endPointMetric =  result.endPoint;
+                        if (endPointMetric.indexOf("/") > -1) {
                             endPointMetric = endPointMetric.items.split("/");
                         }
                         var count = endPointMetric[0];
@@ -2006,30 +2344,30 @@ agenda.define('Update channel data', function (job, done) {
                         }
                     };
                     pinterest.api(result.query, params).then(function (response) {
-                        var endPointMetric = {}
-                        endPointMetric = {items: result.endPoint};
+                        var endPointMetric;
                         var storeStartDate = new Date(result.startDate);
                         var storeEndDate = new Date(result.endDate);
                         var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
                         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
-                        if (endPointMetric.items.indexOf("/") > -1) {
-                            endPointMetric = endPointMetric.items.split("/");
+                        endPointMetric = result.endpoint;
+                        if (endPointMetric.indexOf("/") > -1) {
+                            endPointMetric = endPointMetric.split("/");
                         }
                         var count = endPointMetric[0];
                         var item = endPointMetric[1];
                         var temp = response.data[count];
                         storeMetric = temp[item];
                         for (var i = 0; i <= diffDays; i++) {
-                            var finalDate = formatDate(storeStartDate);
-                            tot_metric.push({date: finalDate, total: 0});
+                            var finalDate = moment(storeStartDate).format('YYYY-MM-DD');
+                            tot_metric.push({date: finalDate, total: storeMetric});
                             storeStartDate.setDate(storeStartDate.getDate() + 1);
 
-                            if (result.endDate === tot_metric[i].date) {
+                           /* if (result.endDate === tot_metric[i].date) {
                                 tot_metric[i] = {
                                     total: storeMetric,
                                     date: result.endDate
                                 };
-                            }
+                            }*/
 
 
                         }
@@ -2621,6 +2959,49 @@ agenda.define('Update channel data', function (job, done) {
                         else
                             next(null, 'DataFromDb')
                     }
+                    else if (channel[j].code === configAuth.channels.aweber) {
+                        var finalDbData = [];
+                        var finalApiData=[];
+                        if (dataFromRemote[j] === null) {
+                            next(null, {
+                                'error': {
+                                    'metricId': dataFromDb[j].metricId,
+                                    'objectId': dataFromDb[j].objectId
+                                }
+                            })
+                        }
+                        else if (dataFromRemote[j].apiResponse != 'DataFromDb') {
+                            //Array to hold the final result
+                            for (var key in dataFromRemote) {
+                                if (String(metric[j]._id) == String(dataFromRemote[key].metricId))
+                                    finalApiData = dataFromRemote[key].apiResponse;
+                            }
+
+                            if (dataFromDb[j].data != null) {
+
+                                //merge the old data with new one and update it in db
+                                finalDbData=dataFromDb[j].data
+                                for (var key = 0; key < finalApiData.length; key++) {
+                                    var findCurrentDate = _.findIndex(finalDbData, function (o) {
+                                        return o.date == finalApiData[key].date;
+                                    });
+                                    if(findCurrentDate !=-1){
+                                        finalDbData[findCurrentDate]=finalApiData[key];
+                                    }
+                                    else{
+                                        finalDbData.push(finalApiData[key]);
+                                    }
+
+                                }
+
+                            }
+                            console.log('finalDbData',finalDbData);
+                            next(null, finalDbData)
+
+                        }
+                        else
+                            next(null, 'DataFromDb')
+                    }
                     else if (channel[j].code === configAuth.channels.linkedIn) {
 
                         var finalApiData = [];
@@ -2661,6 +3042,100 @@ agenda.define('Update channel data', function (job, done) {
                         else
                             next(null, 'DataFromDb')
                     }
+                    else if( channel[j].code === configAuth.channels.vimeo){
+                        var apiData = [];
+                        if (dataFromRemote[j].apiResponse != 'DataFromDb') {
+
+                            for (var key in dataFromRemote) {
+                                if (String(metric[j]._id) == String(dataFromRemote[key].metricId))
+                                    apiData = dataFromRemote[key].apiResponse;
+                            }
+
+
+                            if (dataFromDb[j].data != null) {
+                                var dbData=dataFromDb[j].data
+                                for (var key in apiData) {
+
+                                    var findSameIndex = _.findIndex(dataFromDb[j].data, function (o) {
+                                        return o.date == moment( apiData[key].date).format('YYYY-MM-DD');
+                                    });
+
+
+                                    if( findSameIndex != -1){
+
+                                        dbData[findSameIndex]=apiData[key];
+
+
+
+                                    }
+                                    else{
+                                        dbData.push(apiData[key]);
+                                    }
+
+                                }
+
+
+                                //merge the old data with new one and update it in db
+                                ;
+
+
+                            }
+
+
+
+
+
+
+                            next(null,  dbData)
+                        }
+                        else
+                            next(null, 'DataFromDb')
+
+                    }
+                    else if (channel[j].code === configAuth.channels.pinterest) {
+                        var finalDbData = [];
+                        var finalApiData = [];
+                        if (dataFromRemote[j] === null) {
+                            next(null, {
+                                'error': {
+                                    'metricId': dataFromDb[j].metricId,
+                                    'objectId': dataFromDb[j].objectId
+                                }
+                            })
+                        }
+                        else if (dataFromRemote[j].apiResponse != 'DataFromDb') {
+
+
+                            //Array to hold the final result
+                            for (var key in dataFromRemote) {
+                                if (String(metric[j]._id) == String(dataFromRemote[key].metricId))
+                                    finalApiData = dataFromRemote[key].apiResponse;
+                            }
+
+                            if (dataFromDb[j].data != null) {
+
+                                //merge the old data with new one and update it in db
+                                finalDbData = dataFromDb[j].data
+                                for (var key = 0; key < finalApiData.length; key++) {
+                                    var findCurrentDate = _.findIndex(finalDbData, function (o) {
+                                        return o.date == finalApiData[key].date;
+                                    });
+                                    if (findCurrentDate != -1) {
+                                        finalDbData[findCurrentDate] = finalApiData[key];
+                                    }
+                                    else {
+                                        finalDbData.push(finalApiData[key]);
+                                    }
+
+                                }
+
+                            }
+                            next(null, finalDbData)
+
+                        }
+                        else
+                            next(null, 'DataFromDb')
+                    }
                 }, callback)
             }
         }
@@ -2672,6 +3147,10 @@ agenda.define('Update channel data', function (job, done) {
                 for (var k = 0; k < dataLength; k++) {
                     if (daysDifference[i].date === finalData[k].date)
                         daysDifference[i] = finalData[k]
+                    else {
+                        daysDifference[i].total= finalData[k].total;
+                    }
+
                 }
             }
             return daysDifference;

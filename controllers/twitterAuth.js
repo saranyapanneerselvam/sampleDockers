@@ -45,7 +45,7 @@ module.exports = function (app) {
                     }
                     else {
                         req.session.oauth.access_token = oauth_access_token;
-                        req.session.oauth, access_token_secret = oauth_access_token_secret;
+                        req.session.oauth.access_token_secret = oauth_access_token_secret;
                         req.tokens = oauth_access_token;
                         req.userId = results.user_id;
                         req.profileName = results.screen_name;

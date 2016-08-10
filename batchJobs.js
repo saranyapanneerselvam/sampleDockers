@@ -22,7 +22,7 @@ var oauth2Client = new OAuth2(configAuth.googleAuth.clientID, configAuth.googleA
 
 //load async module
 var async = require("async");
-var mongoConnectionString = "mongodb://datapoolt:DAtaPOolT@ec2-52-76-6-41.ap-southeast-1.compute.amazonaws.com/Datapoolt";
+var mongoConnectionString = "mongodb://admin:admin@ds015334.mlab.com:15334/datapoolt15062016";
 var FB = require('fb');
 //db connection for storing agenda jobs
 var agenda = new Agenda({db: {address: mongoConnectionString}});
@@ -345,14 +345,9 @@ agenda.define('Update channel data', function (job, done) {
                 var storeMetric;
                 var tot_metric = [];
                 var page = 1
-
                 var actualFinalApiData = [];
 
-
                 var access_token = initialResults.profile.accessToken;
-
-
-                console.log(result.query + '?access_token=' + access_token)
                 request(result.query + '?access_token=' + access_token + '&page=' + page, function (err, results, body) {
 
                         var parsedData = JSON.parse(body);
@@ -364,10 +359,8 @@ agenda.define('Update channel data', function (job, done) {
                         else {
                             var storeStartDate = new Date(result.startDate);
                             var storeEndDate = new Date(result.endDate);
-                            console.log("storeStartDate",result.startDate,result.endDate)
                             var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
                             var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
-                            console.log('diffDays',diffDays);
 
                             if ("vimeoviews" == result.metricCode) {
                                 storeMetric = parsedData.stats.plays;
@@ -398,7 +391,6 @@ agenda.define('Update channel data', function (job, done) {
                             queryResults: initialResults,
                             channelId: initialResults.metric.channelId
                         }
-                        console.log("tot_metric", tot_metric)
                         callback(null, actualFinalApiData);
 
                     }
@@ -1626,7 +1618,6 @@ agenda.define('Update channel data', function (job, done) {
             }
 
             function getAweberDataFromRemote(allObjects, callback) {
-                console.log('allObjects',allObjects);
                 var actualFinalApiData = {};
                 if (allObjects.get_aweber_queries === 'DataFromDb') {
                     actualFinalApiData = {
@@ -1650,8 +1641,7 @@ agenda.define('Update channel data', function (job, done) {
                 var apiClient = NA.api(token, tokenSecret);
                 apiClient.request('get', query, {}, function (err, response) {
                     if (err) {
-                        console.log('err',err);
-                       callback(err,null);
+                        callback(err,null);
                     }
                     else {
 
@@ -2995,7 +2985,6 @@ agenda.define('Update channel data', function (job, done) {
                                 }
 
                             }
-                            console.log('finalDbData',finalDbData);
                             next(null, finalDbData)
 
                         }
@@ -3350,7 +3339,6 @@ agenda.define('Send Alerts', function (job, done) {
                                                 callback(null, 'success');
                                             });
                                         }
-
                                     }
                                     else if (alert.interval === configAuth.interval.setWeekly) {
                                         if (checkingThreshold === true && currentDayName === configAuth.dayNames.Friday) {
@@ -3363,16 +3351,15 @@ agenda.define('Send Alerts', function (job, done) {
                                 }
                             })
                         }
-
                     })
                 }
             })
         }
         else callback(null, 'success')
     }
-
     done();
-})
+});
+
 agenda.on('ready', function () {
     agenda.now('Update channel data');
     agenda.start();
@@ -3384,6 +3371,7 @@ agenda.on('ready', function () {
         }
     });
 });
+
 agenda.on('start', function (job) {
     console.log("Job %s starting", job.attrs.name);
 });

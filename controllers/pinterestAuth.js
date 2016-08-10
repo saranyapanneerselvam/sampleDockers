@@ -37,18 +37,15 @@ module.exports = function (app) {
         }, saveToken);
 
         function saveToken(error, result) {
-            console.log('token')
             if (error) {
                 console.log('Access Token Error', error);
             }
             else {
                 token = oauth2.accessToken.create(result);
                 var accessToken = token.token.access_token;
-                // console.log('access token', accessToken);
                 var expires = token.token.expires;
                 var pinterest = PDK.init(accessToken);
                 pinterest.api('me').then(function (response) {
-                    // console.log('response',response);
                     if (response) {
                         //parse the body data
                         var parsedData = response.data;
@@ -60,31 +57,24 @@ module.exports = function (app) {
                         //set token details to tokens
                         req.tokens = accessToken;
                         channels.findOne({code: configAuth.channels.pinterest}, function (err, channelDetails) {
-                            console.log('parse', req.userId, channelDetails);
                             req.channelId = channelDetails._id;
                             req.channelName = channelDetails.name;
                             req.code=channelDetails.code;
                             user.storeProfiles(req,res, function (err, responseUser) {
-                                console.log('responseUser', responseUser);
                                 //If storage error occurs - dev
                                 if (err)
                                     res.json('Error');
 
                                 else {
-                                    console.log('respone id', responseUser._id);
                                     //Find objects in objects table based on profileId which is to be stored in profile table - dev
                                     objects.findOne({profileId: responseUser._id}, function (err, object) {
-                                        console.log('objectCreated', object);
                                         //If object find error for profileId occurs - dev
                                         if (object) {
-                                            console.log('Object available for this user');
                                             res.render('../public/successAuthentication');
                                         }
                                         else {
-                                            console.log('responseChannel', responseUser.channelId);
                                             //Find objectType in objectType table based on channelId - dev
                                             objectType.find({'channelId': responseUser.channelId}, function (err, objectType) {
-                                                console.log('objectType find response', objectType);
                                                 //Create an object for channel and Insert object in profile table - dev
                                                 var objectList = new objects();
                                                 var objectList = new objects();
@@ -97,23 +87,17 @@ module.exports = function (app) {
                                                 //Query to save profile details - dev
                                                 objectList.save(function (err, user) {
                                                     if (!err) {
-                                                        console.log('ObjectList Created', user);
                                                         res.render('../public/successAuthentication');
                                                     }
                                                 });
-
                                             });
-
                                         }
                                     });
-
                                 }
                             });
-
                         })
                     }
                 });
-
             }
         }
     });

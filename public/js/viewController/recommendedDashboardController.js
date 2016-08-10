@@ -287,9 +287,11 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
             data: jsonData
         }).then(
             function successCallback(response) {
+                console.log(response);
                 var inputParams = [];
                 var dashboardId = response.data;
 
+                console.log($scope.referenceWidgetsList);
                 for (var widget = 0; widget < $scope.referenceWidgetsList.length; widget++) {
                     for (var chart = 0; chart < $scope.referenceWidgetsList[widget].charts.length; chart++) {
                         for (var j = 0; j < $scope.storedUserChosenValues.length; j++) {

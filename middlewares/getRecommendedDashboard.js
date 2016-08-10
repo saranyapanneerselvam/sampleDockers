@@ -56,14 +56,20 @@ exports.recommendDashboard = function (req, res, next) {
 
         async.times(dashboard.widgets.length, function(n,next) {
             referenceWidget.findOne({_id: dashboard.widgets[n]}, function(err,referenceWidgets){
-                if (err ||!referenceWidgets)
-                    next('error',null);
+                if (err) {
+                    next('error', null);
+                }
+                    else if(!referenceWidgets){
+                    next('nodata', null);
+                }
                 else{
                     groupByDashboard[index].referenceWidgets[n] = referenceWidgets;
                     next(null,referenceWidgets);
                 }
             });
-        },callback);
+        },function (err,res) {
+            callback(null,res);
+        });
     }
 
 
@@ -73,12 +79,14 @@ exports.recommendDashboard = function (req, res, next) {
             uniqueChannel[i] = [];
             groupByDashboard[i].channels = [];
             for(var j=0;j<groupByDashboard[i].referenceWidgets.length;j++){
-                for(var k=0;k<groupByDashboard[i].referenceWidgets[j].charts.length;k++){
-                    if (uniqueChannel[i].indexOf(groupByDashboard[i].referenceWidgets[j].charts[k].channelId) == -1) {
-                        uniqueChannel[i].push(groupByDashboard[i].referenceWidgets[j].charts[k].channelId);
-                    }
-                    if (channelsToBeFetched.indexOf(groupByDashboard[i].referenceWidgets[j].charts[k].channelId) == -1) {
-                        channelsToBeFetched.push(groupByDashboard[i].referenceWidgets[j].charts[k].channelId);
+                if(groupByDashboard[i].referenceWidgets[j] !=undefined) {
+                    for (var k = 0; k < groupByDashboard[i].referenceWidgets[j].charts.length; k++) {
+                        if (uniqueChannel[i].indexOf(groupByDashboard[i].referenceWidgets[j].charts[k].channelId) == -1) {
+                            uniqueChannel[i].push(groupByDashboard[i].referenceWidgets[j].charts[k].channelId);
+                        }
+                        if (channelsToBeFetched.indexOf(groupByDashboard[i].referenceWidgets[j].charts[k].channelId) == -1) {
+                            channelsToBeFetched.push(groupByDashboard[i].referenceWidgets[j].charts[k].channelId);
+                        }
                     }
                 }
             }

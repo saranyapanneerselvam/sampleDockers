@@ -22,7 +22,7 @@ var oauth2Client = new OAuth2(configAuth.googleAuth.clientID, configAuth.googleA
 
 //load async module
 var async = require("async");
-var mongoConnectionString = "mongodb://admin:admin@ds015334.mlab.com:15334/datapoolt15062016";
+var mongoConnectionString = "mongodb://admin:admin@localhost:27017/datapoolt_10082016";
 var FB = require('fb');
 //db connection for storing agenda jobs
 var agenda = new Agenda({db: {address: mongoConnectionString}});
@@ -623,11 +623,15 @@ agenda.define('Update channel data', function (job, done) {
                 var allObjects = {};
                 if (initialResults.data != null) {
                     var updatedDb = moment(initialResults.data.updated).format('YYYY-MM-DD')
-                    var updated = initialResults.data.updated;
-                    var currentDate = moment(new Date()).format('YYYY-MM-DD');
-                    var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
-                    updated.setTime(updated.getTime() + oneDay);
+
                     if (initialResults.data.updated < new Date()) {
+                        var updated = moment(initialResults.data.updated).format('YYYY-MM-DD');
+                    var currentDate = moment(new Date()).format('YYYY-MM-DD');
+                        if (updated !== currentDate) {
+                            var updated = initialResults.data.updated;
+                            var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+                            updated.setTime(updated.getTime() + oneDay);
+                        }
                         var query = initialResults.metric.objectTypes[0].meta.igMetricName;
                         allObjects = {
                             profile: initialResults.profile,
@@ -775,9 +779,11 @@ agenda.define('Update channel data', function (job, done) {
                     d.setDate(d.getDate());
                     if (initialResults.data.updated < new Date()) {
                         var endDate = initialResults.data.updated;
+                        if (moment(endDate).format('YYYY-MM-DD') == moment(new Date()).format('YYYY-MM-DD')) endDate.setDate(endDate.getDate());
+                        else
                         endDate.setDate(endDate.getDate() + 1);
                         var updated = moment(endDate).format('YYYY-MM-DD');
-                        d.setDate(d.getDate() + 1);
+                        d.setDate(d.getDate() + 2);
                         var now = moment(d).format('YYYY-MM-DD');
                         var query = initialResults.object.channelObjectId + "/insights/" + initialResults.metric.objectTypes[0].meta.fbMetricName + "?since=" + updated + "&until=" + now;
                         queryObject = {
@@ -791,7 +797,7 @@ agenda.define('Update channel data', function (job, done) {
                         var endDate = initialResults.data.updated;
                         endDate.setDate(endDate.getDate() + 1);
                         var updated = moment(endDate).format('YYYY-MM-DD');
-                        d.setDate(d.getDate() + 1);
+                        d.setDate(d.getDate());
                         var now = moment(d).format('YYYY-MM-DD');
                         queryObject = {
                             query: 'DataFromDb', metricId: initialResults.metric._id, metric: initialResults.metric,
@@ -828,14 +834,7 @@ agenda.define('Update channel data', function (job, done) {
                 }
                 else {
                     graph.get(query.query, function (err, fbQueryRes) {
-                        if (err) {
-                            if (err.code === 190)
-                                return res.status(401).json({error: 'Authentication required to perform this action'})
-                            else if (err.code === 4)
-                                return res.status(4).json({error: 'Forbidden Error'})
-                            else
-                                return res.status(500).json({error: 'Internal server error'})
-                        }
+                        if (err) callback(err, null)
 
                         else {
                             queryResponse = {
@@ -870,27 +869,37 @@ agenda.define('Update channel data', function (job, done) {
                 d = new Date();
                 var allObjects = {};
                 if (initialResults.data.data != null) {
+
+                    if (initialResults.data.updated < new Date()) {
                     var updated = initialResults.data.updated;
-                    updated.setDate(updated.getDate() + 1);
+                        if (moment(updated).format('YYYY-MM-DD') === moment(new Date).format('YYYY-MM-DD'))
+                            updated.setDate(updated.getDate());
+                        else
+                            updated.setDate(updated.getDate() + 1);
                     updated = moment(updated).format('YYYY-MM-DD');
                     var currentDate = moment(new Date()).format('YYYY-MM-DD');
                     d.setDate(d.getDate() + 1);
                     var startDate = moment(d).format('YYYY-MM-DD');
-                    if (initialResults.data.updated < new Date()) {
-                        var query = "v2.5/" + adAccountId + "/insights?limit=365&time_increment=1&fields=" + initialResults.metric.objectTypes[0].meta.fbAdsMetricName + '&time_range[since]=' + updated + '&time_range[until]=' + startDate;
-                        allObjects = {
-                            profile: initialResults.profile,
-                            query: query,
-                            widget: initialResults.metric,
-                            dataResult: initialResults.data.data,
-                            startDate: updated,
-                            endDate: currentDate,
-                            metricId: initialResults.metric._id,
-                            metricName: initialResults.metric.objectTypes[0].meta.fbAdsMetricName
-                        };
-                        callback(null, [allObjects]);
+                    var query = configAuth.apiVersions.FBADs + "/" + adAccountId + "/insights?limit=365&time_increment=1&fields=" + initialResults.metric.objectTypes[0].meta.fbAdsMetricName + '&time_range[since]=' + updated + '&time_range[until]=' + startDate;
+                    allObjects = {
+                        profile: initialResults.profile,
+                        query: query,
+                        widget: initialResults.metric,
+                        dataResult: initialResults.data.data,
+                        startDate: updated,
+                        endDate: currentDate,
+                        metricId: initialResults.metric._id,
+                        metricName: initialResults.metric.objectTypes[0].meta.fbAdsMetricName
+                    };
+                    callback(null, [allObjects]);
                     }
                     else {
+                        var updated = initialResults.data.updated;
+                        updated.setDate(updated.getDate() + 1);
+                        updated = moment(updated).format('YYYY-MM-DD');
+                        var currentDate = moment(new Date()).format('YYYY-MM-DD');
+                        d.setDate(d.getDate() + 1);
+                        var startDate = moment(d).format('YYYY-MM-DD');
                         allObjects = {
                             profile: initialResults.profile,
                             query: query,
@@ -950,30 +959,24 @@ agenda.define('Update channel data', function (job, done) {
                     function Adsinsights(query) {
                         var metricId = results.metricId;
                         FB.api(query, function (apiResult) {
-                            if (apiResult.error) {
-                                if (apiResult.error.code === 190)
-                                    return res.status(401).json({error: 'Authentication required to perform this action'})
-                                else if (apiResult.error.code === 4)
-                                    return res.status(4).json({error: 'Forbidden Error'})
-                                else
-                                    return res.status(500).json({error: 'Internal server error'})
-                            }
+                            if (apiResult.error) callback(apiResult.error)
                             else {
                                 var wholeData = [];
                                 var storeMetricName = results.metricName;
                                 var storeStartDate = new Date(results.startDate);
                                 var storeEndDate = new Date(results.endDate);
                                 var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
-                                if (results.widget.objectTypes[0].meta.endpoint.length)
-                                    var storeDefaultValues = findDaysDifference(storeStartDate, storeEndDate, results.metric.objectTypes[0].endpoint);
-                                else {
-                                    if (results.widget.objectTypes[0].meta.responseType === 'object')
-                                        var storeDefaultValues = findDaysDifference(storeStartDate, storeEndDate, undefined, 'noEndPoint');
-                                    else var storeDefaultValues = findDaysDifference(storeStartDate, storeEndDate, undefined);
-                                }
+
 
                                 //controlled pagination Data
                                 if (apiResult.data.length != 0) {
+                                    if (results.widget.objectTypes[0].meta.endpoint.length)
+                                        var storeDefaultValues = findDaysDifference(storeStartDate, storeEndDate, results.metric.objectTypes[0].endpoint);
+                                    else {
+                                        if (results.widget.objectTypes[0].meta.responseType === 'object')
+                                            var storeDefaultValues = findDaysDifference(storeStartDate, storeEndDate, undefined, 'noEndPoint');
+                                        else var storeDefaultValues = findDaysDifference(storeStartDate, storeEndDate, undefined);
+                                    }
                                     if (apiResult.paging && apiResult.paging.next) {
                                         for (var key in apiResult.data)
                                             tot_metric.push({
@@ -1000,17 +1003,53 @@ agenda.define('Update channel data', function (job, done) {
                                         //To replace the missing dates in whole data with empty values
                                         var validData = wholeData.length;
                                         for (var j = 0; j < validData; j++) {
-                                            for (var k = 0; k < storeDefaultValues.length; k++) {
-                                                if (wholeData[j].date === storeDefaultValues[k].date)
-                                                    storeDefaultValues[k].total = wholeData[j].total;
+                                            if(storeDefaultValues.length){
+                                                for (var k = 0; k < storeDefaultValues.length; k++) {
+                                                    if (wholeData[j].date === storeDefaultValues[k].date)
+                                                        storeDefaultValues[k].total = wholeData[j].total;
+                                                }
                                             }
+                                            else storeDefaultValues = wholeData;
+
                                         }
                                     }
                                 }
                                 else {
-                                    if (results.widget.objectTypes[0].responseType === 'object')
-                                        var storeDefaultValues = findDaysDifference(storeStartDate, storeEndDate, undefined, 'noEndPoint');
-                                    else var storeDefaultValues = findDaysDifference(storeStartDate, storeEndDate, undefined);
+                                    if (results.widget.objectTypes[0].meta.endpoint.length) {
+                                        if (results.startDate === results.endDate) {
+                                            var totalObject = {};
+                                            var storeDefaultValues=[];
+                                            for (var j = 0; j < endPoint.length; j++) {
+                                                totalObject[endPoint[j]] = 0;
+                                            }
+                                            storeDefaultValues.push({date: results.startDate, total: totalObject});
+                                        }
+
+                                        else var storeDefaultValues = findDaysDifference(storeStartDate, storeEndDate, results.metric.objectTypes[0].endpoint);
+                                    }
+                                    else {
+                                        if (results.widget.objectTypes[0].responseType === 'object') {
+                                            if (results.startDate === results.endDate) {
+                                                storeDefaultValues.push({
+                                                    date: results.startDate,
+                                                    total: {}
+                                                })
+                                            }
+                                            else
+                                                var storeDefaultValues = findDaysDifference(storeStartDate, storeEndDate, undefined, 'noEndPoint');
+                                        }
+                                        else {
+                                            if (results.startDate === results.endDate) {
+                                                var storeDefaultValues=[];
+                                                storeDefaultValues.push({
+                                                    date: results.startDate,
+                                                    total: 0
+                                                })
+                                            }
+                                            else
+                                                var storeDefaultValues = findDaysDifference(storeStartDate, storeEndDate, undefined);
+                                        }
+                                    }
                                 }
                             }
                             finalData = {
@@ -1363,9 +1402,9 @@ agenda.define('Update channel data', function (job, done) {
                         .from('ACCOUNT_PERFORMANCE_REPORT')
                         .during(during)
                         .send().then(function (response) {
-                        storeAdwordsFinalData(results, response.data);
-                        semaphore.leave();
-                    })
+                            storeAdwordsFinalData(results, response.data);
+                            semaphore.leave();
+                        })
                         .catch(function (error) {
                             semaphore.leave();
                             callback(error, null);
@@ -1510,7 +1549,6 @@ agenda.define('Update channel data', function (job, done) {
                         var storeEndDate = new Date(result.endDate);
                         var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
                         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); //adding plus one so that today also included
-                        //var stats='stats';
                         var item = result.widget.objectTypes[0].meta.mailChimpsMetricName;
                         if (result.endpoint === 'campaign') {
                             if (result.metricCode === 'emailSend') {
@@ -2429,7 +2467,6 @@ agenda.define('Update channel data', function (job, done) {
                                     else
                                         param.push('retweet_count', 'favorite_count');
                                     var dataFromRemoteLength = dataFromRemote[j].data.length;
-                                    var total
                                     if (dataFromRemoteLength != 0) {
                                         var totalArray = [];
                                         for (var index = 0; index < param.length; index++) {
@@ -2447,7 +2484,7 @@ agenda.define('Update channel data', function (job, done) {
                                                 }
                                             }
                                             else {
-                                                total = dataFromRemote[j].data[0].user[param[index]];
+                                                var total = dataFromRemote[j].data[0].user[param[index]];
                                                 totalArray.push({total: total, date: currentDate});
                                                 storeRemoteData.push({total: total, date: currentDate})
                                                 storeTweetDetails.push({
@@ -2467,7 +2504,6 @@ agenda.define('Update channel data', function (job, done) {
                                         if (dataFromDb[j].updated < new Date()) {
                                             if (moment(dataFromDb[j].updated).format('YYYY-MM-DD') != moment(new Date()).format('YYYY-MM-DD')) {
                                                 startDate.setDate(startDate.getDate() + 1);
-                                                startDate = moment(startDate).format('YYYY-MM-DD');
                                                 var daysDifference = populateDefaultData(startDate, currentDate, 1);
                                             }
                                         }
@@ -2574,6 +2610,12 @@ agenda.define('Update channel data', function (job, done) {
                             })
                         }
                         else if (dataFromRemote[j].res != 'DataFromDb') {
+                            var startDate = new Date(dataFromRemote[j].startDate);
+                            startDate.setDate(startDate.getDate());
+                            startDate = moment(startDate).format('YYYY-MM-DD');
+                            var endDate = new Date(dataFromRemote[j].endDate);
+                            endDate.setDate(endDate.getDate() - 2);
+                            endDate = moment(endDate).format('YYYY-MM-DD');
                             if (dataFromRemote[j].res.data.length) {
 
                                 //Array to hold the final result
@@ -2583,16 +2625,18 @@ agenda.define('Update channel data', function (job, done) {
                                         total: dataFromRemote[j].res.data[0].values[index].value,
                                         date: dataFromRemote[j].res.data[0].values[index].end_time.substr(0, 10)
                                     };
-                                    if (String(metric[j]._id) === String(dataFromRemote[j].metricId))
-                                        beforeReplaceEmptyData.push(value);
+                                    if (String(metric[j]._id) === String(dataFromRemote[j].metricId)) {
+                                        if (dataFromRemote[j].res.data[0].values[index].end_time.substr(0, 10) > endDate)
+                                            beforeReplaceEmptyData.push(value);
+                                    }
                                 }
                                 if (dataFromRemote[j].metric.objectTypes[0].meta.endpoint.length)
-                                    finalData1 = findDaysDifference(dataFromRemote[j].startDate, dataFromRemote[j].endDate, dataFromRemote[j].metric.objectTypes[0].meta.endpoint);
+                                    finalData1 = findDaysDifference(startDate, endDate, dataFromRemote[j].metric.objectTypes[0].meta.endpoint);
                                 else {
                                     if (dataFromRemote[j].metric.objectTypes[0].meta.responseType === 'object')
-                                        finalData1 = findDaysDifference(dataFromRemote[j].startDate, dataFromRemote[j].endDate, undefined, 'noEndPoint');
+                                        finalData1 = findDaysDifference(startDate, endDate, undefined, 'noEndPoint');
                                     else
-                                        finalData1 = findDaysDifference(dataFromRemote[j].startDate, dataFromRemote[j].endDate, undefined);
+                                        finalData1 = findDaysDifference(startDate, endDate, undefined);
                                 }
                                 var finalReplacedData = replaceEmptyData(finalData1, beforeReplaceEmptyData);
                                 finalReplacedData.forEach(function (value) {
@@ -2601,12 +2645,12 @@ agenda.define('Update channel data', function (job, done) {
                             }
                             else {
                                 if (dataFromRemote[j].metric.objectTypes[0].meta.endpoint.length)
-                                    finalData = findDaysDifference(dataFromRemote[j].startDate, dataFromRemote[j].endDate, dataFromRemote[j].metric.objectTypes[0].meta.endpoint);
+                                    finalData = findDaysDifference(startDate, endDate, dataFromRemote[j].metric.objectTypes[0].meta.endpoint);
                                 else {
                                     if (dataFromRemote[j].metric.objectTypes[0].meta.responseType === 'object')
-                                        finalData = findDaysDifference(dataFromRemote[j].startDate, dataFromRemote[j].endDate, undefined, 'noEndPoint');
+                                        finalData = findDaysDifference(startDate, endDate, undefined, 'noEndPoint');
                                     else
-                                        finalData = findDaysDifference(dataFromRemote[j].startDate, dataFromRemote[j].endDate, undefined);
+                                        finalData = findDaysDifference(startDate, endDate, undefined);
                                 }
                             }
                             var findCurrentDate = _.findIndex(finalData, function (o) {
@@ -2617,7 +2661,7 @@ agenda.define('Update channel data', function (job, done) {
                                 //merge the old data with new one and update it in db
                                 for (var key = 0; key < dataFromDb[j].data.length; key++) {
                                     if (dataFromDb[j].data[key].date === moment(new Date).format('YYYY-MM-DD'))
-                                        finalData[findCurrentDate] = dataFromDb[j].data[key];
+                                        finalData[findCurrentDate] = finalData[findCurrentDate];
                                     else
                                         finalData.push(dataFromDb[j].data[key]);
                                 }
@@ -2706,12 +2750,11 @@ agenda.define('Update channel data', function (job, done) {
                                 return o.date == moment(new Date).format('YYYY-MM-DD');
                             });
                             if (dataFromDb[j].data != null) {
-
-                                //merge the old data with new one and update it in db
+                               //merge the old data with new one and update it in db
                                 for (var key = 0; key < dataFromDb[j].data.length; key++) {
                                     if (dataFromDb[j].data[key].date === moment(new Date).format('YYYY-MM-DD')) {
-                                        if (findCurrentDate != -1) finalData[findCurrentDate] = dataFromDb[j].data[key];
-                                        else finalData.push(dataFromDb[j].data[key]);
+                                        // if (findCurrentDate != -1) finalData[findCurrentDate] = finalData[findCurrentDate];
+                                        if (findCurrentDate === -1) finalData.push(dataFromDb[j].data[key]);
                                     }
                                     else finalData.push(dataFromDb[j].data[key]);
                                 }
@@ -2850,24 +2893,25 @@ agenda.define('Update channel data', function (job, done) {
                                     }
                                     storeGoogleData = daysDifference;
                                 }
-                                var findCurrentDate = _.findIndex(storeGoogleData, function (o) {
-                                    return o.date == moment(new Date).format('YYYY-MM-DD');
-                                });
+
 
                             }
                             if (dataFromDb[j].data != null) {
+                                var dataArray = dataFromDb[j].data;
                                 //merge the old data with new one and update it in db
-                                for (var key = 0; key < dataFromDb[j].data.length; key++) {
-                                    if (dataFromDb[j].data[key].date === moment(new Date).format('YYYY-MM-DD')) {
-                                        if (findCurrentDate != -1) storeGoogleData[findCurrentDate] = dataFromDb[j].data[key];
-                                        else storeGoogleData.push(dataFromDb[j].data[key]);
-                                    }
-                                    else storeGoogleData.push(dataFromDb[j].data[key]);
+                                for (var key = 0; key < storeGoogleData.length; key++) {
+                                    var findCurrentDate = _.findIndex(dataArray, function (o) {
+                                        return o.date == storeGoogleData[key].date;
+                                    });
+
+                                    if (findCurrentDate === -1) dataArray.push(storeGoogleData[key]);
+                                    else dataArray[findCurrentDate] = storeGoogleData[key];
                                 }
+                                storeGoogleData = dataArray
                             }
 
-                            if (finalData.length > storeGoogleData.length)
-                                storeGoogleData = replaceEmptyData(finalData, storeGoogleData);
+                            //if (finalData.length > storeGoogleData.length)
+                            storeGoogleData = replaceEmptyData(finalData, storeGoogleData);
                             next(null, storeGoogleData)
                         }
                         else next(null, 'DataFromDb')
@@ -2892,13 +2936,17 @@ agenda.define('Update channel data', function (job, done) {
                                 if (dataFromRemote[j].metricId == dataFromDb[j].metricId) {
 
                                     //merge the old data with new one and update it in db
-                                    for (var key = 0; key < dataFromDb[j].data.length; key++) {
-                                        if (dataFromDb[j].data[key].date === moment(new Date).format('YYYY-MM-DD')) {
-                                            if (findCurrentDate != -1) finalData[findCurrentDate] = dataFromDb[j].data[key];
-                                            else finalData.push(dataFromDb[j].data[key]);
-                                        }
-                                        else finalData.push(dataFromDb[j].data[key]);
+                                    var dataArray = dataFromDb[j].data[key];
+                                    for (var key = 0; key < finalData.length; key++) {
+                                        var findCurrentDate = _.findIndex(dataArray, function (o) {
+                                            return o.date == finalData[key].date;
+                                        });
+
+
+                                        if (findCurrentDate === -1) dataArray.push(finalData[key]);
+                                        else dataArray[findCurrentDate] = finalData[key];
                                     }
+
                                 }
                             }
                             next(null, finalData)
@@ -3202,6 +3250,7 @@ agenda.define('Update channel data', function (job, done) {
                     callback(err, 'success');
                 });
             }
+            else  callback(null, 'success');
         }
 
         //Function to find days difference
@@ -3211,7 +3260,7 @@ agenda.define('Update channel data', function (job, done) {
             var storeEndDate = new Date(endDate);
             var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
             var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
-            for (var i = 0; i <= diffDays; i++) {
+            for (var i = 0; i < diffDays; i++) {
                 var finalDate = moment(storeStartDate).format('YYYY-MM-DD');
                 if (endPoint != undefined) {
                     var totalObject = {};
@@ -3228,8 +3277,17 @@ agenda.define('Update channel data', function (job, done) {
         }
 
         function replaceEmptyData(daysDifference, finalData) {
-            var defaultArrayLength = daysDifference.length;
-            var dataLength = finalData.length;
+            if (daysDifference < finalData) {
+                var defaultArrayLength = daysDifference.length;
+                var dataLength = finalData.length;
+                daysDifference = finalData;
+                finalData = daysDifference;
+            }
+            else {
+                var dataLength = daysDifference.length;
+                var defaultArrayLength = finalData.length;
+            }
+
             for (var i = 0; i < defaultArrayLength; i++) {
                 for (var k = 0; k < dataLength; k++) {
                     if (daysDifference[i].date === finalData[k].date) daysDifference[i] = finalData[k]
@@ -3239,7 +3297,7 @@ agenda.define('Update channel data', function (job, done) {
         }
     }
 });
-agenda.define('Send Alerts', function (job, done) {
+agenda.define('Send Alert', function (job, done) {
     var now = new Date();
     var storeOperator;
     var thresholdValue;
@@ -3247,7 +3305,7 @@ agenda.define('Send Alerts', function (job, done) {
         get_alert: getAlert,
         data: ['get_alert', getData]
     }, function (err, results) {
-        if (err) done(err)
+        done(err)
     });
 
     //Function to handle all queries result here
@@ -3280,7 +3338,7 @@ agenda.define('Send Alerts', function (job, done) {
         weekday[4] = configAuth.dayNames.Thursday;
         weekday[5] = configAuth.dayNames.Friday;
         weekday[6] = configAuth.dayNames.Saturday;
-        var utcTime = moment(alert.lastEvaluatedTime).format('YYYY-MM-DD');
+        var utcTime = alert.lastEvaluatedTime === null ? null : moment(alert.lastEvaluatedTime).format('YYYY-MM-DD');
         var time = moment(now).format('YYYY-MM-DD');
         var currentDayName = weekday[now.getDay()];
         var operators = {
@@ -3291,9 +3349,8 @@ agenda.define('Send Alerts', function (job, done) {
                 return a < b
             }
         };
-
         //check interval if,daily check threshold,else check today is friday
-        if (utcTime < time) {
+        if (utcTime < time || utcTime === null) {
             Data.findOne({
                 'objectId': alert.objectId,
                 'metricId': alert.metricId,
@@ -3357,21 +3414,24 @@ agenda.define('Send Alerts', function (job, done) {
         }
         else callback(null, 'success')
     }
-    done();
-});
-
+})
 agenda.on('ready', function () {
-    agenda.now('Update channel data');
+    //agenda.processEvery('0.5 minutes', 'Update channel data');
+    agenda.now('Update channel data')
     agenda.start();
-    agenda.on('complete', function (job) {
+    agenda.on('success:Update channel data', function (job) {
         if (job) {
-            //agenda.now('Send Alerts')
-            agenda.processEvery('1.5 minutes', 'Send Alerts');
+            agenda.now('Send Alert')
+            //agenda.processEvery('1 minutes', 'Send Alert');
             agenda.start();
+            agenda.on('success:Send Alert', function (job) {
+                console.log("Job %s finished", job.attrs.name);
+                /*agenda.processEvery('1 minutes', 'Send Alerts');
+                 agenda.start();*/
+            });
         }
     });
 });
-
 agenda.on('start', function (job) {
     console.log("Job %s starting", job.attrs.name);
 });

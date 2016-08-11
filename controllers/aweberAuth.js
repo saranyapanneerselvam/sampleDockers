@@ -11,7 +11,7 @@ module.exports = function(app) {
 //In a real app, you'd store this in the user's session or via a websocket client, or something. This is just a global variable, and won't scale past a single user.
     var tokens, tokenSecret;
 
-    app.get('/api/v1/auth/aweber', function (req, res) {
+    app.get('/api/auth/aweber', function (req, res) {
         var requestToken = NA.requestToken(function (err, response) {
             tokenSecret = response.oauth_token_secret;
             res.redirect('https://auth.aweber.com/1.0/oauth/authorize?oauth_token=' + response.oauth_token);

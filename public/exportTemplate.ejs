@@ -222,6 +222,37 @@
                                                                         </div>
                                                                     </div>
                                                                 </div>
+
+
+                                                                <div ng-repeat="chart in aexppage.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'vimeoTopVideos'" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/aexppage.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/aexppage.widgetData[widgetIndex].layoutOptionsX)+'%'}">
+                                                                    <div class="row" style="margin: 0px;height: 100%">
+                                                                        <div events="events" style="height: 99%" ng-if="aexppage.widgetData[widgetIndex].visibility == true">
+                                                                            <div class="scrollbar scrollInWidget" id="scroller">
+                                                                                <div class="col-lg-12 listed" ng-repeat="data in chart.data">
+                                                                                    <div class="col-lg-1 listed-image" >
+                                                                                        <a  href="{{data.link }}" target="_blank"><img src="{{data.picture}}" height="50px" widget="50px" /></a>
+                                                                                    </div>
+                                                                                    <div class="col-lg-11 aside">
+                                                                                        <div class="postComment"> <a  class="apiLink" href="{{data.link }}" target="_blank">  {{data.title}}</a></div>
+                                                                                        <div class="impression">
+                                                                                            <div class="likes"><span>Likes: {{data.likes}}</span></div>
+                                                                                            <div class="comment"><span>comments: {{data.comments}}</span></div>
+                                                                                            <div class="likes"><span>Views: {{data.views}}</span></div>
+                                                                                            <div class="date"><span>{{data.date}}</span></div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+
+
+
+
+
+
                                                             </div>
                                                             <!--<div class="context widgetTransparentImage" id="widgetTransparentImage-{{widget.id}}" ng-hide="tempDashboard" ng-click="callThePosition($event,widget.id)" style="width: 100%;height: 100%;"></div>-->
                                                         </div>

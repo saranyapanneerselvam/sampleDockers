@@ -583,7 +583,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                     }
                     else if(chartType == "gaTopPagesByVisit"){
 
-                                  var topPages={};
+                        var topPages={};
                         if(typeof widget.charts[charts].chartData[0] != 'undefined') {
                             if(typeof(widget.charts[charts].chartData[0].total) === 'object') {
                                 var pagePath = 'pagePath';
@@ -606,13 +606,15 @@ showMetricApp.service('createWidgets',function($http,$q){
                                     }
                                 )
                                 var formattedChartDataArray = [];
-                                 for(var datas=0; datas<100;datas++) {
-                                    var formattedChartData = {
-                                        pagePath: sortedData[datas][0],
-                                        pageVisits : sortedData[datas][1]
-                                    };
-                                    formattedChartDataArray.push(formattedChartData);
-                                 }
+                                if(sortedData.length > 0) {
+                                    for(var datas=0; datas<100;datas++) {
+                                        var formattedChartData = {
+                                            pagePath: sortedData[datas][0] != undefined ? sortedData[datas][0] : [],
+                                            pageVisits : sortedData[datas][1]
+                                        };
+                                        formattedChartDataArray.push(formattedChartData);
+                                    }
+                                }
                                 widget.charts[charts].chartData = formattedChartDataArray;
                             }
                         }
@@ -726,8 +728,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                     }
                     else if(chartType == "vimeoTopVideos"){
                         if(typeof(widget.charts[charts].chartData[0].total) === 'object') {
-
-
                             var likes = "likes";
                             var comments = "comments";
                             var views = "views";
@@ -763,14 +763,10 @@ showMetricApp.service('createWidgets',function($http,$q){
                                     /*links: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
                                      (typeof widget.charts[charts].chartData[datas].total[link] != 'undefined' ? widget.charts[charts].chartData[datas].total[link] : '') : ''),*/
                                 };
-                                console.log('formattedChartData',formattedChartData);
                                 formattedChartDataArray.push(formattedChartData);
                             }
-
-
                             widget.charts[charts].chartData = formattedChartDataArray;
                         }
-
                     }
                 }
                 for(var charts in widget.charts) {
@@ -1592,6 +1588,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                     'api': {}
                 });
             }
+
             if(finalCharts.instagramPosts.length > 0) {
                 chartsCount++;
                 finalChartData.push({
@@ -1599,6 +1596,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                     'data': finalCharts.instagramPosts[0].values
                 });
             }
+
             if(finalCharts.vimeoTopVideos.length > 0) {
                 chartsCount++;
                 finalChartData.push({
@@ -1614,6 +1612,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                     'data': finalCharts.highEngagementTweets[0].values
                 });
             }
+
             if(finalCharts.highestEngagementLinkedIn.length > 0) {
                 chartsCount++;
                 finalChartData.push({
@@ -1621,12 +1620,14 @@ showMetricApp.service('createWidgets',function($http,$q){
                     'data': finalCharts.highestEngagementLinkedIn[0].values
                 });
             }
+
             if(finalCharts.gaTopPagesByVisit.length > 0) {
                 chartsCount++;
-                finalChartData.push({
-                    'options': graphOptions.gaTopPagesByVisit,
-                    'data': finalCharts.gaTopPagesByVisit[0].values
-                });
+                if(finalCharts.gaTopPagesByVisit[0].values.length > 0)
+                    finalChartData.push({
+                        'options': graphOptions.gaTopPagesByVisit,
+                        'data': finalCharts.gaTopPagesByVisit[0].values
+                    });
             }
 
             if(finalCharts.pinterestEngagementRate.length >0){
@@ -1636,6 +1637,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                     'data': finalCharts.pinterestEngagementRate[0].values
                 });
             }
+
             if(finalCharts.pinterestLeaderboard.length>0){
                 chartsCount++;
                 finalChartData.push({
@@ -1643,6 +1645,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                     'data': finalCharts.pinterestLeaderboard[0].values
                 });
             }
+
             if(finalCharts.fbReachByGender.length > 0) {
                 chartsCount++;
 
@@ -1663,6 +1666,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                     'api': {}
                 });
             }
+
             if(finalCharts.fbReachByAge.length > 0) {
                 chartsCount++;
 
@@ -1683,6 +1687,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                     'api': {}
                 });
             }
+
             if(finalChartData.length == 0) {
                 if(widget.widgetType == 'custom') {
                     var customDataUrl = '';

@@ -199,7 +199,6 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     $scope.objectForWidgetChosen([null, null, null,items]);
         }
         else {
-            console.log('INSIDE ELSE')
             storedProfile = this.profileOptionsModel;
 
             if($scope.storedChannelName == 'GoogleAdwords') {
@@ -233,7 +232,6 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     var k=0; var tempList = {};
 
                     if($scope.storedChannelName != 'Google Analytics') {
-                        console.log('INSIDE SECOND ELSE',response.data,$scope.uniqueObjectCount);
                         uniqueObject = _.groupBy(response.data.objectList, 'objectTypeId');
                         var sortedUniqueObject = {};
                         for(var objectIds in $scope.uniqueObjectCount) {
@@ -241,7 +239,6 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                                 if($scope.uniqueObjectCount[objectIds] == uniqueObjects)
                                     sortedUniqueObject[uniqueObjects] = uniqueObject[uniqueObjects];
                         }
-                        console.log(sortedUniqueObject);
                         for(var items in sortedUniqueObject) {
                             var tempObjectList = [];
                             for(var subItems in sortedUniqueObject[items])
@@ -252,7 +249,6 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                             k++;
                         }
                         $scope.objectList = tempList;
-                        console.log($scope.objectList);
                     }
                     else {
                         document.getElementById('basicWidgetFinishButton').disabled = true;
@@ -378,6 +374,18 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     break;
                 case 'LinkedIn':
                     url = '/api/auth/linkedIn';
+                    title = $scope.storedChannelName;
+                    break;
+                case 'Aweber':
+                    url = '/api/auth/aweber';
+                    title = $scope.storedChannelName;
+                    break;
+                case 'Vimeo':
+                    url = '/api/auth/vimeo';
+                    title = $scope.storedChannelName;
+                    break;
+                case 'Pinterest':
+                    url = '/api/auth/pinterest';
                     title = $scope.storedChannelName;
                     break;
             }

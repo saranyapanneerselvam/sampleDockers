@@ -30,7 +30,6 @@ module.exports = function (app) {
     });
     app.get('/auth/pinterest/callback', function (req, res) {
         var code = req.query.code;
-        console.log('code', code);
         oauth2.authCode.getToken({
             code: code,
             redirect_uri: configAuth.pinterest.redirect_uri
@@ -38,7 +37,7 @@ module.exports = function (app) {
 
         function saveToken(error, result) {
             if (error) {
-                console.log('Access Token Error', error);
+                return res.status(401).json({error: 'Authentication required to perform this action'});
             }
             else {
                 token = oauth2.accessToken.create(result);
@@ -76,28 +75,41 @@ module.exports = function (app) {
                                             //Find objectType in objectType table based on channelId - dev
                                             objectType.find({'channelId': responseUser.channelId}, function (err, objectType) {
                                                 //Create an object for channel and Insert object in profile table - dev
-                                                var objectList = new objects();
-                                                var objectList = new objects();
-                                                objectList.profileId = responseUser._id;
-                                                objectList.objectTypeId = objectType[0]._id;
-                                                objectList.name = "pinterest";
-                                                objectList.updated = new Date();
-                                                objectList.created = new Date();
+                                                if(!err) {
+                                                    var objectList = new objects();
+                                                    var objectList = new objects();
+                                                    objectList.profileId = responseUser._id;
+                                                    objectList.objectTypeId = objectType[0]._id;
+                                                    objectList.name = "pinterest";
+                                                    objectList.updated = new Date();
+                                                    objectList.created = new Date();
 
-                                                //Query to save profile details - dev
-                                                objectList.save(function (err, user) {
-                                                    if (!err) {
-                                                        res.render('../public/successAuthentication');
-                                                    }
-                                                });
+                                                    //Query to save profile details - dev
+                                                    objectList.save(function (err, user) {
+                                                        if (!err) {
+                                                            res.render('../public/successAuthentication');
+                                                        }
+                                                        else {
+                                                            return res.status(401).json({error: 'Authentication required to perform this action'});
+                                                        }
+                                                    });
+                                                }
+                                                else{
+                                                    return res.status(401).json({error: 'Authentication required to perform this action'});
+                                                }
+
                                             });
+
                                         }
                                     });
+
                                 }
                             });
+
                         })
                     }
                 });
+
             }
         }
     });

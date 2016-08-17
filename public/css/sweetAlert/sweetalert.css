@@ -18,7 +18,7 @@ body.stop-scrolling {
 
 .sweet-alert {
   background-color: white;
-  font-family: Brandon Grotesque;
+  font-family: Heebo-Thin;
   width: 478px;
   padding: 17px;
   border-radius: 5px;
@@ -49,7 +49,7 @@ body.stop-scrolling {
     padding: 0;
     line-height: 40px;
     display: block;
-    font-family: Brandon Grotesque;}
+    font-family: Heebo-Thin;}
   .sweet-alert p {
     color: #797979;
     font-size: 16px;
@@ -58,6 +58,7 @@ body.stop-scrolling {
     position: relative;
     text-align: inherit;
     float: none;
+    font-family: Heebo-Medium;
     margin: 0;
     padding: 0;
     line-height: normal; }
@@ -181,6 +182,7 @@ body.stop-scrolling {
     border-radius: 5px;
     padding: 10px 32px;
     margin: 26px 5px 0 5px;
+    font-family: Heebo-Medium;
     cursor: pointer; }
     .sweet-alert button:focus {
       outline: none;

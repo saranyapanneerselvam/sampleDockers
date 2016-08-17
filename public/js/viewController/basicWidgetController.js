@@ -159,8 +159,12 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         }).then(
             function successCallback(response) {
                 $scope.profileList = response.data.profileList;
-                $scope.profileOptionsModel=$scope.profileList[0];
-                $scope.getObjectsForChosenProfile();
+                if( $scope.profileList != undefined){
+                    $scope.profileOptionsModel=$scope.profileList[0];
+                    $scope.getObjectsForChosenProfile();
+
+                }
+
 
 
 /*
@@ -257,7 +261,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                         $scope.objectList = uniqueObjectTypeWithIndex;
                     }
 
-                    if ($scope.storedChannelName === 'Twitter' || $scope.storedChannelName === 'Instagram' || ($scope.storedChannelName === 'GoogleAdwords' && $scope.canManageClients === true)) {
+                    if ($scope.storedChannelName === 'Twitter' || $scope.storedChannelName === 'Instagram' || ($scope.storedChannelName === 'GoogleAdwords' && $scope.canManageClients === true) || $scope.storedChannelName === "Pinterest" ) {
                         document.getElementById('basicWidgetFinishButton').disabled = true;
                         for(var items in $scope.uniqueObjectCount)
                             $scope.objectForWidgetChosen([$scope.objectList[0][0][0].name, $scope.objectList[0][0][0]._id, $scope.objectList[0][0][0].objectTypeId,items]);
@@ -442,7 +446,8 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         var chartColors = [], widgetName;
         $(".navbar").css('z-index', '1');
         $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
-        $("#getLoadingModalContent").addClass('md-show');
+
+
         if (getChannelName == "CustomData") {
             getCustomWidgetObj = {
                 '_id': getCustomWidgetId,
@@ -520,13 +525,13 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                           data: inputParams
                       }).then(
                           function successCallback(response) {
-                              $("#getLoadingModalContent").removeClass('md-show');
+
                               for (var widgetObjects in response.data.widgetsList) {
                                   $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
                               }
                           },
                           function errorCallback(error) {
-                              $("#getLoadingModalContent").removeClass('md-show');
+
                               $(".navbar").css('z-index', '1');
                               $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
                               $("#somethingWentWrongModalContent").addClass('md-show');
@@ -567,7 +572,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     getReferenceWidgetsArr[getData].charts[i].metrics = matchingMetric;
                     getReferenceWidgetsArr[getData].charts[i].objectName = matchingMetricName;
                 }
-                if ($scope.storedChannelName === 'Twitter' || $scope.storedChannelName === 'Instagram' || $scope.storedChannelName === 'Google Analytics')
+                if ($scope.storedChannelName === 'Twitter' || $scope.storedChannelName === 'Instagram' || $scope.storedChannelName === 'Google Analytics' ||  $scope.storedChannelName === 'Pinterest')
                     widgetName = getReferenceWidgetsArr[getData].name + ' - ' + storedProfile.name;
                 else
                     widgetName = getReferenceWidgetsArr[getData].name + ' - ' + matchingMetricName;
@@ -595,13 +600,13 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     data: inputParams
                 }).then(
                     function successCallback(response) {
-                        $("#getLoadingModalContent").removeClass('md-show');
+
                         for (var widgetObjects in response.data.widgetsList) {
                             $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
                         }
                     },
                     function errorCallback(error) {
-                        $("#getLoadingModalContent").removeClass('md-show');
+
                         $(".navbar").css('z-index', '1');
                         $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
                         $("#somethingWentWrongModalContent").addClass('md-show');

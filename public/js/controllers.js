@@ -727,45 +727,47 @@ showMetricApp.service('createWidgets',function($http,$q){
                         }
                     }
                     else if(chartType == "vimeoTopVideos"){
-                        if(typeof(widget.charts[charts].chartData[0].total) === 'object') {
-                            var likes = "likes";
-                            var comments = "comments";
-                            var views = "views";
+                        if(typeof widget.charts[charts].chartData[0] != 'undefined') {
+                            if (typeof(widget.charts[charts].chartData[0].total) === 'object') {
+                                var likes = "likes";
+                                var comments = "comments";
+                                var views = "views";
 
-                            var formattedChartDataArray = [];
-                            for (datas in widget.charts[charts].chartData) {
-                                var formattedChartData = {
-                                    date: widget.charts[charts].chartData[datas].date,
-                                    link: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0) ?
-                                        (widget.charts[charts].chartData[datas].total.link != null ?
-                                            (typeof widget.charts[charts].chartData[datas].total.link != 'undefined' ? widget.charts[charts].chartData[datas].total.link : '') : '') : ''),
+                                var formattedChartDataArray = [];
+                                for (datas in widget.charts[charts].chartData) {
+                                    var formattedChartData = {
+                                        date: widget.charts[charts].chartData[datas].date,
+                                        link: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0) ?
+                                            (widget.charts[charts].chartData[datas].total.link != null ?
+                                                (typeof widget.charts[charts].chartData[datas].total.link != 'undefined' ? widget.charts[charts].chartData[datas].total.link : '') : '') : ''),
 
-                                    Comment: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0) ?
-                                        (widget.charts[charts].chartData[datas].total.metadata.connections.comments.total != null ?
-                                            (typeof widget.charts[charts].chartData[datas].total.metadata.connections.comments.total != 'undefined' ? widget.charts[charts].chartData[datas].total.metadata.connections.comments.total : '') : '') : ''),
+                                        Comment: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0) ?
+                                            (widget.charts[charts].chartData[datas].total.metadata.connections.comments.total != null ?
+                                                (typeof widget.charts[charts].chartData[datas].total.metadata.connections.comments.total != 'undefined' ? widget.charts[charts].chartData[datas].total.metadata.connections.comments.total : '') : '') : ''),
 
-                                    likes: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0) ?
-                                        (widget.charts[charts].chartData[datas].total.metadata.connections.likes.total != null ?
-                                            (typeof widget.charts[charts].chartData[datas].total.metadata.connections.likes.total != 'undefined' ? widget.charts[charts].chartData[datas].total.metadata.connections.likes.total : 0) : 0) : 0),
+                                        likes: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0) ?
+                                            (widget.charts[charts].chartData[datas].total.metadata.connections.likes.total != null ?
+                                                (typeof widget.charts[charts].chartData[datas].total.metadata.connections.likes.total != 'undefined' ? widget.charts[charts].chartData[datas].total.metadata.connections.likes.total : 0) : 0) : 0),
 
-                                    views: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0) ?
-                                        (widget.charts[charts].chartData[datas].total.stats.plays != null ?
-                                            (typeof widget.charts[charts].chartData[datas].total.stats.plays != 'undefined' ?
-                                                widget.charts[charts].chartData[datas].total.stats.plays : 0) : 0) : 0),
-                                    picture: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0) ?
-                                        (widget.charts[charts].chartData[datas].total.pictures.sizes[0].link != null ?
-                                            (typeof widget.charts[charts].chartData[datas].total.pictures.sizes[0].link != 'undefined' ? widget.charts[charts].chartData[datas].total.pictures.sizes[0].link: 0) : 0) : 0),
+                                        views: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0) ?
+                                            (widget.charts[charts].chartData[datas].total.stats.plays != null ?
+                                                (typeof widget.charts[charts].chartData[datas].total.stats.plays != 'undefined' ?
+                                                    widget.charts[charts].chartData[datas].total.stats.plays : 0) : 0) : 0),
+                                        picture: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0) ?
+                                            (widget.charts[charts].chartData[datas].total.pictures.sizes[0].link != null ?
+                                                (typeof widget.charts[charts].chartData[datas].total.pictures.sizes[0].link != 'undefined' ? widget.charts[charts].chartData[datas].total.pictures.sizes[0].link : 0) : 0) : 0),
 
-                                    title: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0) ?
-                                        (widget.charts[charts].chartData[datas].total.name != null ?
-                                            (typeof widget.charts[charts].chartData[datas].total.name != 'undefined' ? widget.charts[charts].chartData[datas].total.name : 0) : 0) : 0),
+                                        title: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0) ?
+                                            (widget.charts[charts].chartData[datas].total.name != null ?
+                                                (typeof widget.charts[charts].chartData[datas].total.name != 'undefined' ? widget.charts[charts].chartData[datas].total.name : 0) : 0) : 0),
 
-                                    /*links: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
-                                     (typeof widget.charts[charts].chartData[datas].total[link] != 'undefined' ? widget.charts[charts].chartData[datas].total[link] : '') : ''),*/
-                                };
-                                formattedChartDataArray.push(formattedChartData);
+                                        /*links: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
+                                         (typeof widget.charts[charts].chartData[datas].total[link] != 'undefined' ? widget.charts[charts].chartData[datas].total[link] : '') : ''),*/
+                                    };
+                                    formattedChartDataArray.push(formattedChartData);
+                                }
+                                widget.charts[charts].chartData = formattedChartDataArray;
                             }
-                            widget.charts[charts].chartData = formattedChartDataArray;
                         }
                     }
                 }
@@ -1418,7 +1420,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                     'data': finalCharts.lineCharts,
                     'api': {}
                 });
-                console.log(lineDataLowValue,lineDataHighValue)
                 forceY = [lineDataLowValue,lineDataHighValue == 0? 10 : (lineDataHighValue>100 ? lineDataHighValue + 10 : lineDataHighValue + 1)];
                 finalChartData[finalChartData.length -1].options.chart.yDomain = forceY;
                 if(lineDataHighValue < 5)
@@ -1589,61 +1590,87 @@ showMetricApp.service('createWidgets',function($http,$q){
                 });
             }
 
-            if(finalCharts.instagramPosts.length > 0) {
-                chartsCount++;
-                finalChartData.push({
-                    'options': graphOptions.instagramPosts,
-                    'data': finalCharts.instagramPosts[0].values
-                });
+            if(finalCharts.instagramPosts.length > 0  ) {
+                if(finalCharts.instagramPosts[0].values.length > 0){
+                    chartsCount++;
+                    finalChartData.push({
+                        'options': graphOptions.instagramPosts,
+                        'data': finalCharts.instagramPosts[0].values
+                    });}
+
             }
 
-            if(finalCharts.vimeoTopVideos.length > 0) {
-                chartsCount++;
-                finalChartData.push({
-                    'options': graphOptions.vimeoTopVideos,
-                    'data': finalCharts.vimeoTopVideos[0].values
-                });
+            if(finalCharts.vimeoTopVideos.length > 0  ) {
+                if(finalCharts.vimeoTopVideos[0].values.length > 0){
+                    chartsCount++;
+                    finalChartData.push({
+                        'options': graphOptions.vimeoTopVideos,
+                        'data': finalCharts.vimeoTopVideos[0].values
+                    });
+                }
+
             }
 
             if(finalCharts.highEngagementTweets.length > 0) {
-                chartsCount++;
-                finalChartData.push({
-                    'options': graphOptions.highEngagementTweets,
-                    'data': finalCharts.highEngagementTweets[0].values
-                });
+                if(finalCharts.highEngagementTweets[0].values.length > 0){
+                    chartsCount++;
+                    finalChartData.push({
+                        'options': graphOptions.highEngagementTweets,
+                        'data': finalCharts.highEngagementTweets[0].values
+                    });
+
+                }
+
             }
 
-            if(finalCharts.highestEngagementLinkedIn.length > 0) {
-                chartsCount++;
-                finalChartData.push({
-                    'options': graphOptions.highestEngagementLinkedIn,
-                    'data': finalCharts.highestEngagementLinkedIn[0].values
-                });
+            if(finalCharts.highestEngagementLinkedIn.length > 0 ) {
+                if(finalCharts.highestEngagementLinkedIn[0].values.length > 0){
+
+
+                    chartsCount++;
+                    finalChartData.push({
+                        'options': graphOptions.highestEngagementLinkedIn,
+                        'data': finalCharts.highestEngagementLinkedIn[0].values
+                    });
+
+                }
+
             }
 
-            if(finalCharts.gaTopPagesByVisit.length > 0) {
-                chartsCount++;
-                if(finalCharts.gaTopPagesByVisit[0].values.length > 0)
+            if(finalCharts.gaTopPagesByVisit.length > 0 ) {
+
+                if(finalCharts.gaTopPagesByVisit[0].values.length > 0){
+
+                    chartsCount++;
                     finalChartData.push({
                         'options': graphOptions.gaTopPagesByVisit,
                         'data': finalCharts.gaTopPagesByVisit[0].values
                     });
+
+                }
+
             }
 
-            if(finalCharts.pinterestEngagementRate.length >0){
-                chartsCount++;
-                finalChartData.push({
-                    'options': graphOptions.pinterestEngagementRate,
-                    'data': finalCharts.pinterestEngagementRate[0].values
-                });
+            if(finalCharts.pinterestEngagementRate.length >0 ) {
+                if (finalCharts.pinterestEngagementRate[0].values.length > 0) {
+                    chartsCount++;
+                    finalChartData.push({
+                        'options': graphOptions.pinterestEngagementRate,
+                        'data': finalCharts.pinterestEngagementRate[0].values
+                    });
+
+                }
             }
 
             if(finalCharts.pinterestLeaderboard.length>0){
-                chartsCount++;
-                finalChartData.push({
-                    'options': graphOptions.pinterestLeaderboard,
-                    'data': finalCharts.pinterestLeaderboard[0].values
-                });
+                if(finalCharts.pinterestLeaderboard[0].values.length > 0){
+                    chartsCount++;
+                    finalChartData.push({
+                        'options': graphOptions.pinterestLeaderboard,
+                        'data': finalCharts.pinterestLeaderboard[0].values
+                    });
+
+                }
             }
 
             if(finalCharts.fbReachByGender.length > 0) {

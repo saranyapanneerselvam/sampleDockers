@@ -19,21 +19,16 @@ module.exports = function(app) {
     });
 
     app.get('/callback', function (req, res) {
-        console.log(res)
         var q = req.query;
 
         if (q.oauth_token && q.oauth_verifier) {
             var accessToken = NA.accessToken(q.oauth_token, q.oauth_verifier, tokenSecret, function (err, response) {
                 tokens = response.oauth_token;
                 tokenSecret = response.oauth_token_secret;
-                console.log('Noderesponse',response);
                 var apiClient = NA.api(tokens,tokenSecret);
 
                 apiClient.request('get', 'accounts', {}, function (err, response) {
-                    console.log('response',response);
-
                     var accounts = response.entries;
-
                     if (!err ) {
 
                         req.userId =response.entries[0].id;
@@ -59,8 +54,14 @@ module.exports = function(app) {
 
                         })
                     }
+                    else{
+                        return res.status(401).json({error: 'Authentication required to perform this action'});
+                    }
                 });
             })
+        }
+        else{
+            return res.status(401).json({error: 'Authentication required to perform this action'});
         }
     });
 

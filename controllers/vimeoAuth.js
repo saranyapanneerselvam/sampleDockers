@@ -64,97 +64,14 @@ module.exports = function(app) {
                             req.channelId = channelDetails._id;
                             req.channelName = channelDetails.name;
                             req.channelCode = channelDetails.code;
-                            req.code=channelDetails.code;
+                            req.code = channelDetails.code;
                             // req.userEmail = profile.email;
                            // req.userId = profile.id;
 
-                           user.storeProfiles(req,res, function (err,response) {
-
+                            user.storeProfiles(req, res, function (err, response) {
                                 if (err) res.json('Error');
                                 else {
-                                            /*objectType.find({'channelId': response.channelId}, function (err, objectTypeList) {
-
-                                                if (err)
-                                                    return res.status(500).json({error: err});
-                                                else if (!objectTypeList.length)
-                                                    return res.status(204).json({error: 'No records found'});
-                                                else {
-                                                    for (var key = 0; key < objectTypeList.length; key++) {
-                                                        var objectIds = objectTypeList[key]._id;
-                                                        if (objectTypeList[key].type === configAuth.objectType.vimeochannel) {
-                                                            var query = 'https://api.vimeo.com/users/' + response.userId + '/channels?access_token='
-                                                            getObjectLists(query,objectIds);
-
-                                                        }
-                                                        else {
-                                                            var query = 'https://api.vimeo.com/users/' + response.userId + '/videos?access_token='
-
-                                                            getObjectLists(query,objectIds);
-                                                        }
-                                                    }
-                                                        function getObjectLists(query,objectIds) {
-                                                            var objectsName = objectTypeList[key].type;
-
-
-                                                            // var acurl='https://api.vimeo.com/users/'+response.userId+'/channels?access_token='
-
-                                                            request(query  + result.access_token, function (error, result, body) {
-
-                                                                var parsedData = JSON.parse(body);
-
-
-                                                                if (!parsedData.data) {
-
-                                                                    res.render('successAuthentication');
-                                                                }
-                                                                else {
-                                                                    for (var i = 0; i < parsedData.total;i++) {
-
-
-
-
-                                                                    var objectItem = new objects();
-                                                                    var profileId = response._id;
-                                                                    var name = parsedData.data[i].name;
-                                                                    var objectTypeId = objectIds;
-                                                                    var channelObjectId = parsedData.data[i].uri.split("/")[2]
-                                                                    var updated = new Date();
-                                                                    var created = new Date();
-
-                                                                    objects.update({
-                                                                        profileId: response._id,
-                                                                        channelObjectId: channelObjectId
-                                                                    }, {
-                                                                        $setOnInsert: {created: created},
-                                                                        $set: {
-                                                                            name: name,
-                                                                            objectTypeId: objectTypeId,
-                                                                            updated: updated
-                                                                        }
-                                                                    }, {upsert: true}, function (err, objectListItem) {
-
-                                                                        console.log(objectListItem);
-                                                                        if (err)
-                                                                            return res.status(500).json({error: 'Internal server error'});
-                                                                        else if (!objectListItem)
-                                                                            return res.status(204).json({error: 'No records found'});
-
-                                                                    })
-                                                                }
-                                                                }
-
-                                                            })
-
-
-                                                        }
-                                                        res.render('../public/successAuthentication');
-
-                                                }
-
-                                            })*/
                                     res.render('../public/successAuthentication');
-
-
                                 }
                             });
 
@@ -163,18 +80,9 @@ module.exports = function(app) {
 
                     })
 
-                  /* console.log('req.tokens',req.tokens);
-                  //  res.render('successAuthentication');
-                  // user.storeProfiles(req, function (err) {
-
-                        if (err)
-                            res.json('Error');
-                        else
-                            res.render('successAuthentication');
-
-                    })*/
-
-
+                }
+                else {
+                    return res.status(401).json({error: 'Authentication required to perform this action'});
                 }
 
 

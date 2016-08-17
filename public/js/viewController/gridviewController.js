@@ -5,7 +5,7 @@ function GridviewController($scope,$http) {
 
     $(".navbar").css('z-index','1');
     $(".md-overlay").css("background","rgba(0,0,0,0.5)");
-    $("#getLoadingModalContent").addClass('md-show');
+
 
     $scope.fetchAllDashboards = function(){
         $http({
@@ -15,9 +15,9 @@ function GridviewController($scope,$http) {
                 $scope.dashboardList = response.data.dashboardList;
             else
                 $scope.dashboardList = null;
-            $("#getLoadingModalContent").removeClass('md-show');
+
         },function errorCallback(error){
-            $("#getLoadingModalContent").removeClass('md-show');
+
             $scope.dashboardList = null;
             $(".navbar").css('z-index','1');
             $(".md-overlay").css("background","rgba(0,0,0,0.5)");
@@ -39,17 +39,17 @@ function GridviewController($scope,$http) {
             function () {
                 $(".navbar").css('z-index', '1');
                 $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
-                $("#getLoadingModalContent").addClass('md-show');
+
                 $http({
                     method: 'POST',
                     url: '/api/v1/delete/userDashboards/' + dashboard._id
                 }).then(
                     function successCallback(response) {
-                        $("#getLoadingModalContent").removeClass('md-show');
+
                         $scope.fetchAllDashboards();
                     },
                     function errorCallback(error) {
-                        $("#getLoadingModalContent").removeClass('md-show');
+
                         $(".navbar").css('z-index','1');
                         $(".md-overlay").css("background","rgba(0,0,0,0.5)");
                         $("#somethingWentWrongModalContent").addClass('md-show');

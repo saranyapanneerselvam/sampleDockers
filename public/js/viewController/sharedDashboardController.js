@@ -137,11 +137,14 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
         })
             .then(
                 function successCallback(response) {
-                    if(response.data ===''){
+                    if(!response.data){
                         $state.go('error');
                     }
                     else dashboardId = response.data.widgetsList._id;
-                    $("#getLoadingModalContent").removeClass('md-show');
+
+                   $scope.dashboard.dashboardName = response.data.dashboardDetails.name
+
+
                     var widgets = [];
                     var dashboardWidgetList = [];
                     var initialWidgetList = response.data.widgetsList;
@@ -157,6 +160,28 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
                         $scope.widgetsPresent = false;
                     var widgetID=0;
                     var dashboardWidgets = [];
+
+
+
+
+                    $scope.fetchDashboardName = function () {
+                        $http({
+                            method: 'GET', url: '/api/v1/get/dashboards/'+ dashboardId
+                        }).then(function successCallback(response) {
+                            console.log("dashboard response",response)
+
+
+                            $scope.dashboard.dashboardName =  response.data.data.name;
+                        }, function errorCallback(error) {
+                            $scope.dashboard.dashboardName =   null;
+                        });
+                    };
+                    $scope.fetchDashboardName();
+
+
+
+
+
 
                     for(var getWidgetInfo in dashboardWidgetList){
                         dashboardWidgets.push(createWidgets.widgetHandler(dashboardWidgetList[getWidgetInfo],{

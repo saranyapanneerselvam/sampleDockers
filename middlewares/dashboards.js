@@ -269,7 +269,7 @@ exports.getDashboardDetailsFromReportId = function (req, res, done) {
                     else if (!widget.length)
                         return res.status(204).json({error: 'No records found'});
                     else {
-                        done(null,widget);
+                        done(null,{widget:widget,dashboardDetails:dashboardDetails});
                     }
                 })
 

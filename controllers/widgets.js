@@ -9,7 +9,8 @@ module.exports = function (app) {
      * @callback dashboard - result from db call
      */
     app.get('/api/v1/dashboards/widgets/:dashboardId', widgetsList.widgets, function (req, res) {
-            res.json({widgetsList: req.app.result});
+            res.json({widgetsList: req.app.result.widget || req.app.result,
+                dashboardDetails:req.app.result.dashboardDetails});
     });
 
     app.get('/api/v1/widget/:widgetId', widgetsList.widgetDetails, function (req, res) {

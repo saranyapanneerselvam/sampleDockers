@@ -16,7 +16,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
     var isExportOptionSet = '';
     $(".navbar").css('z-index','1');
     $(".md-overlay").css('background','rgba(0,0,0,0.5)');
-    $('#getLoadingModalContent').addClass('md-show');
+
 
     //Sets up all the required parameters for the dashboard to function properly when it is initially loaded. This is called in the ng-init function of the dashboard template
     $scope.dashboardConfiguration = function () {
@@ -92,10 +92,37 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     function updateCharts(widget){
                         return function(){
                             var ind = $scope.dashboard.widgets.indexOf(widget);
-                            for(var i=0;i<$scope.dashboard.widgetData[ind].chart.length;i++) {
-                                for (var j = 0; j < $scope.dashboard.widgetData[ind].chart[i].data.length; j++) {
-                                    var elemHeight = document.getElementById('li-' + widget.id + '-' + String(j)).offsetHeight;
-                                    $scope.dashboard.widgetData[ind].chart[i].data[j].myheight = elemHeight;
+                            for (var i = 0; i < $scope.dashboard.widgetData[ind].chart.length; i++) {
+                                if ($scope.dashboard.widgetData[ind].chart[i].options.chart.type === 'lineChart' || $scope.dashboard.widgetData[ind].chart[i].options.chart.type === 'pieChart' || $scope.dashboard.widgetData[ind].chart[i].options.chart.type === 'multiBarChart' || $scope.dashboard.widgetData[ind].chart[i].options.chart.type === 'multiChart') {
+
+                                    for (var j = 0; j < $scope.dashboard.widgetData[ind].chart[i].data.length; j++) {
+                                            var elemHeight = document.getElementById('li-' + widget.id + '-' + String(j)).offsetHeight;
+                                            $scope.dashboard.widgetData[ind].chart[i].data[j].myheight = elemHeight;
+                                        }
+                                    }
+
+                                else{
+                                    var getWigetId='#getWidgetColor-' + widget.id
+                                    var listed = $('#chartTable-'+widget.id).width();
+                                    if (listed <= 350){
+                                        $('#chartTable-'+widget.id).find('.date').addClass('responsiveDate').removeClass('date');
+                                        $('#chartTable-'+widget.id).find('.listed').addClass('responsiveListed');
+                                        $('#chartTable-'+widget.id).find('.aside').css('padding-left','75px');
+                                        $('#chartTable-'+widget.id).find('.impression').css('padding-top','0px');
+                                        $('#chartTable-'+widget.id).find('.likes').css('float','none');
+                                        $('#chartTable-'+widget.id).find('.comment').css('float','none');
+                                        $('#chartTable-'+widget.id).find('.comment').css('margin-left','0px');
+                                    }
+                                    else {
+                                        $('#chartTable-'+widget.id).find('.responsiveDate').addClass('date').removeClass('responsiveDate');
+                                        $('#chartTable-'+widget.id).find('.listed').removeClass('responsiveListed');
+                                        $('#chartTable-'+widget.id).find('.comment').css('float','left');
+                                        $('#chartTable-'+widget.id).find('.comment').css('margin-left','5px');
+                                        $('#chartTable-'+widget.id).find('.likes').css('float','left');
+                                        $('#chartTable-'+widget.id).find('.impression').css('padding-top','15px');
+                                        $('#chartTable-'+widget.id).find('.aside').css('padding-left','83px');
+
+                                    }
                                 }
                             }
                             var ind = $scope.dashboard.widgets.indexOf(widget);
@@ -163,7 +190,33 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 }
             );
         };
+        $scope.changeWidgetName = function (widgetInfo,widgetdata) {
+            var inputParams = [];
+            var jsonData = {
+                "dashboardId": $state.params.id,
+                "widgetId": widgetInfo.id,
+                "name": widgetdata
+            };
+            inputParams.push(jsonData);
 
+            $http({
+                method: 'POST',
+                url: '/api/v1/update/widgets',
+                data: inputParams
+            }).then(
+                function successCallback(response) {
+                    if(response.status == '200')
+                        console.log(response);
+                },
+                function errorCallback(error) {
+                    swal({
+                        title: "",
+                        text: "<span style='sweetAlertFont'>Error in changing the name! Please try again</span> .",
+                        html: true
+                    });
+                }
+            );
+        };
         $scope.$on('gridster-resized', function(sizes, gridster,$element) {
             for(var i=0;i<$scope.dashboard.widgets.length;i++){
                 $timeout(resizeWidget(i), 100);
@@ -295,7 +348,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
         $(".navbar").css('z-index','1');
         $(".md-overlay").css("background","rgba(0,0,0,0.5)");
-        $("#getLoadingModalContent").addClass('md-show');
+
         isExportOptionSet=0;
 
         $scope.dashboard.widgets = [];
@@ -306,7 +359,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         })
             .then(
                 function successCallback(response) {
-                    $("#getLoadingModalContent").removeClass('md-show');
+
                     var widgets = [];
                     var dashboardWidgetList = [];
                     var initialWidgetList = response.data.widgetsList;
@@ -420,10 +473,10 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         //Fetching the promise that contains all the data for all the widgets in the dashboard
         $q.all(inputWidget).then(
             function successCallback(inputWidget){
-                $("#getLoadingModalContent").removeClass('md-show');
                 $scope.loadedWidgetCount++;
                 var widgetIndex = $scope.dashboard.widgets.map(function(el) {return el.id;}).indexOf(inputWidget[0].id);
                 $scope.dashboard.widgetData[widgetIndex] = inputWidget[0];
+                isExportOptionSet=1;
             },
             function errorCallback(error){
                 $("#widgetData-"+widget._id).hide();
@@ -451,6 +504,10 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
     };
 
     //To delete a widget from the dashboard
+    $scope.removeWid = function (widget) {
+        $scope.dashboard.widgets.splice($scope.dashboard.widgets.indexOf(widget), 1);
+    };
+
     $scope.deleteWidget = function(widget){
         var widgetType = widget.widgetType;
         var widgetId = widget.id;
@@ -491,7 +548,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
     $scope.reArrangeWidgets = function(){
         $(".navbar").css('z-index','1');
         $(".md-overlay").css("background","rgba(0,0,0,0.5)");
-        $("#getLoadingModalContent").addClass('md-show');
         isExportOptionSet=0;
 
         $scope.gridsterOptions.autogenerate_stylesheet = true;
@@ -519,7 +575,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         }
         $scope.autoArrangeGrid = false;
         $scope.gridsterOptions.autogenerate_stylesheet = false;
-        $("#getLoadingModalContent").removeClass('md-show');
         isExportOptionSet=1;
         $rootScope.$broadcast('storeGridStructure',{});
     };
@@ -559,6 +614,24 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         $scope.autoArrangeGrid = true;
         $scope.reArrangeWidgets();
     };
+    $scope.showSettings=function(id) {
+        var dropDwn = "settingsDropdown-"+id;
+        document.getElementById(String(dropDwn)).classList.toggle("shw");
+    }
+
+// Close the dropdown if the user clicks outside of it
+    window.onclick = function(event) {
+        if (!event.target.matches('.fa.fa-cog')){
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            var i;
+            for (i = 0; i < dropdowns.length; i++) {
+                var openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('shw')) {
+                    openDropdown.classList.remove('shw');
+                }
+            }
+        }
+    }
 
     $scope.toggleLegends = function (widgetId) {
         for(var widgetData in $scope.dashboard.widgetData) {

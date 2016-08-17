@@ -3475,8 +3475,11 @@ exports.getChannelData = function (req, res, next) {
                             arrayOfResponse.push(response.data[key]);
                         }
                         for(var i=0;i<arrayOfResponse.length;i++){
+                            var created_at=arrayOfResponse[i].created_at
+                            var split = created_at.split('T');
+                            var createDate = split[0];
                             var temp = arrayOfResponse[i][count];
-                            arrayOfBoards.push({date:arrayOfResponse[i].created_at,url:arrayOfResponse[i].url,name: response.data[i].name, total:{pins:temp[pins],collaborators:temp[collaborate],followers:temp[followers]}})
+                            arrayOfBoards.push({date:createDate,url:arrayOfResponse[i].url,name: response.data[i].name, total:{pins:temp[pins],collaborators:temp[collaborate],followers:temp[followers]}})
                         }
                         var MediasArray = _.sortBy(arrayOfBoards, ['total.followers']);
                         var collectionBoard= _.orderBy(MediasArray, ['total.followers', 'total.pins'], ['desc','asc']);
@@ -3492,7 +3495,9 @@ exports.getChannelData = function (req, res, next) {
 
                         callback(null, actualFinalApiData);
 
-                    })
+                    },function(error){
+                    return res.status(500).json({error: 'Internal server error',id:req.params.widgetId});
+                })
 
             }
             else if (result.metricCode === 'engagementRate') {
@@ -3504,10 +3509,10 @@ exports.getChannelData = function (req, res, next) {
                 };
                 var query = result.query;
                 var date = new Date();
-                var endDate = moment.utc(date).unix();
+                var endDate = moment.utc(req.body.endDate).unix();
                 var d = new Date();
                 d.setDate(d.getDate() - 31);
-                var startDate = moment.utc(d).unix();
+                var startDate = moment.utc(req.body.startDate).unix();
                 paginationCallApi(query, params);
                 function paginationCallApi(query, params) {
                     pinterest.api(query, params).then(function (response) {
@@ -3529,7 +3534,9 @@ exports.getChannelData = function (req, res, next) {
                                     storeFinalData(arrayOfResponse);
                                 }
                             }
-                        })
+                        },function(error){
+                        return res.status(500).json({error: 'Internal server error',id:req.params.widgetId});
+                    })
 
                 }
 
@@ -3560,7 +3567,7 @@ exports.getChannelData = function (req, res, next) {
                             if(isUnique == true) {
                                 var created_at=arrayOfResponse[k].created_at
                                 var split = created_at.split('T');
-                                var createDate = moment.unix(created_at).format('YYYY-MM-DD');
+                                var createDate = split[0];
                                 arrayOfBoards.push({
                                     date:created_at,
                                     boardId: arrayOfResponse[k][board][id],
@@ -3643,7 +3650,9 @@ exports.getChannelData = function (req, res, next) {
                         }
                         callback(null, actualFinalApiData);
 
-                    })
+                    },function(error){
+                    return res.status(500).json({error: 'Internal server error',id:req.params.widgetId});
+                })
 
             }
         }

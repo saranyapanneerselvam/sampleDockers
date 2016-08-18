@@ -15,6 +15,9 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
         $scope.widgetsPresent = false;
         $scope.loadedWidgetCount = 0;
         $scope.populateDashboardWidgets();
+
+
+
         //To define the calendar in dashboard header
         $scope.dashboardCalendar = new Calendar({
             element: $('.daterange--double').attr( 'readOnly' , 'true' ),
@@ -142,7 +145,9 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
                     }
                     else dashboardId = response.data.widgetsList._id;
 
-                   $scope.dashboard.dashboardName = response.data.dashboardDetails.name
+
+
+                    $scope.dashboard.dashboardName = response.data.dashboardDetails.name
 
 
                     var widgets = [];

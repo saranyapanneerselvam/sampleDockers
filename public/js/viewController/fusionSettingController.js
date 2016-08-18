@@ -122,10 +122,12 @@ function FusionSettingsController($scope, $uibModalInstance, widget, $http, $sta
     };
 
     $scope.pushSelectedWidgets = function (selectedItem,from,to) {
-        var idx=from.indexOf(selectedItem);
-        if (idx != -1) {
-            from.splice(idx, 1);
-            to.push(selectedItem);
+        for(var i=0;i<selectedItem.length;i++) {
+            var idx = from.indexOf(selectedItem[i]);
+            if (idx != -1) {
+                from.splice(idx, 1);
+                to.push(selectedItem[i]);
+            }
         }
     };
 }

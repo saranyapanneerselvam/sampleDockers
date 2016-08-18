@@ -606,8 +606,18 @@ showMetricApp.service('createWidgets',function($http,$q){
                                     }
                                 )
                                 var formattedChartDataArray = [];
-                                if(sortedData.length > 0) {
+
+                                if(sortedData.length > 100) {
                                     for(var datas=0; datas<100;datas++) {
+                                        var formattedChartData = {
+                                            pagePath: sortedData[datas][0] != undefined ? sortedData[datas][0] : [],
+                                            pageVisits : sortedData[datas][1]
+                                        };
+                                        formattedChartDataArray.push(formattedChartData);
+                                    }
+                                }
+                                else if(sortedData.length >0){
+                                    for(var datas in sortedData) {
                                         var formattedChartData = {
                                             pagePath: sortedData[datas][0] != undefined ? sortedData[datas][0] : [],
                                             pageVisits : sortedData[datas][1]

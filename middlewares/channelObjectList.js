@@ -114,7 +114,7 @@ exports.listAccounts = function (req, res, next) {
                 selectTweetObjectType(results.get_profile, channel);
                 break;
             case configAuth.channels.googleAdwords:
-                selectgoogleAdwords(results.get_profile, channel);
+                selectgoogleAdwords(results, callback);
                 break;
             case configAuth.channels.linkedIn:
                 selectLinkedInPages(results.get_profile, channel);
@@ -123,17 +123,17 @@ exports.listAccounts = function (req, res, next) {
                 selectMailchimpObject(results.get_profile, channel);
                 break;
             case configAuth.channels.vimeo:
-                getVimeoChannelList(results.get_profile, channel,callback);
+                getVimeoChannelList(results.get_profile, channel, callback);
                 break;
             case configAuth.channels.aweber:
-                selectaweberObject(results,callback );
+                selectaweberObject(results, callback);
                 break;
             default:
                 callback('Bad Channel Code', null);
         }
     }
 
-    function getVimeoChannelList(profile,channel,callback) {
+    function getVimeoChannelList(profile, channel, callback) {
         var channelObjectDetails = [];
 
         //To get the object type id from database
@@ -142,7 +142,7 @@ exports.listAccounts = function (req, res, next) {
             'channelId': profile.channelId
         }, function (err, objecttype) {
 
-            var channelObject=[];
+            var channelObject = [];
             if (err) {
                 return res.status(500).json({error: err});
             }
@@ -156,28 +156,29 @@ exports.listAccounts = function (req, res, next) {
                         }
                         else {
                             //Set access token
-                        if(req.query.objectType===configAuth.objectType.vimeochannel){
-                            var query = "/users/" + profile.userId + "/channels?access_token=";
-                        }
-                            else{
-                            var query = "/users/" +profile.userId + "/videos?access_token=";
-                        }
-                           var accessToken = profile.accessToken;
-                            request(configAuth.vimeoAuth.common+
-                                query+accessToken,
+                            if (req.query.objectType === configAuth.objectType.vimeochannel) {
+                                var query = "/users/" + profile.userId + "/channels?access_token=";
+                            }
+                            else {
+                                var query = "/users/" + profile.userId + "/videos?access_token=";
+                            }
+                            var accessToken = profile.accessToken;
+                            request(configAuth.vimeoAuth.common +
+                                query + accessToken,
                                 function (err, result, body) {
-                                   // var vimeoObject=[];
+                                    console.log('vimeo objects',result)
+                                    // var vimeoObject=[];
                                     var parsedData = JSON.parse(body);
-                                    var length =parsedData.data.length;
+                                    var length = parsedData.data.length;
                                     console.log(parsedData.data)
 
-                                   // req.app.result = parsedData.data;
+                                    // req.app.result = parsedData.data;
                                     for (var i = 0; i < length; i++) {
                                         var objectItem = {
-                                            profileId : profile._id,
-                                            name : parsedData.data[i].name,
-                                            objectTypeId :objecttype._id,
-                                            channelObjectId : parsedData.data[i].uri.split("/")[2]
+                                            profileId: profile._id,
+                                            name: parsedData.data[i].name,
+                                            objectTypeId: objecttype._id,
+                                            channelObjectId: parsedData.data[i].uri.split("/")[2]
                                         };
                                         channelObject.push(objectItem);
                                     }
@@ -194,13 +195,6 @@ exports.listAccounts = function (req, res, next) {
         })
 
     }
-
-
-
-
-
-
-
 
 
     //Call the function based on object type
@@ -325,202 +319,288 @@ exports.listAccounts = function (req, res, next) {
     //To store the channel objects in db
     function storeChannelObjects(results, callback) {
 
-        var channel = results.get_channel;
-        if (channel.code === configAuth.channels.vimeo) {
-            var channelObjectDetails = [];
-            console.log('object',results.get_channel_objects_remote);
-            var objectArray = results.get_channel_objects_remote;
-            for(var i in objectArray){
-                var profileId = objectArray[i].profileId;
-                var channelObjectId = objectArray[i].channelObjectId;
-                var name = objectArray[i].name;
-                var objectTypeId = objectArray[i].objectTypeId;
-                var created = new Date();
-                var updated = new Date();
-                Object.update({
-                    profileId: profileId,
-                    channelObjectId: channelObjectId
-                }, {
-                    $setOnInsert: {created: created},
-                    $set: {name: name, objectTypeId: objectTypeId, updated: updated}
-                }, {upsert: true}, function (err, object) {
-                    console.log(object)
-                    if (err) {
-                        console.log("first" + err)
-                        return res.status(500).json({error: 'Internal server error'});
-                    }
-                    else if (object == 0)
-                        return res.status(501).json({error: 'Not implemented'});
-                    else {
-                        Object.find({
-                            'profileId': profileId,
-                            'objectTypeId': objectTypeId
-                        }, function (err, objectList) {
-                            console.log(objectList)
-                            if (err) {
-                                console.log("second" + err)
-                                return res.status(500).json({error: err});
-                            }
-                            else if (!objectList.length)
-                                return res.status(204).json({error: 'No records found'});
-                            else {
-                                channelObjectDetails.push({
-                                    'result': objectList
-                                });
-                                console.log("objectList", objectList);
-                                req.app.result = objectList;
-                                console.log('length',channelObjectDetails.length,objectArray.length)
-                                if(channelObjectDetails.length==objectArray.length){
-                                    // return callback( null,req.app.result );
-                                    callback(null, 'success')
-                                }
+        //get_channel_objects
+        var views = results.get_channel_objects_remote;
+        var bulk = Object.collection.initializeOrderedBulkOp();
+        var now = new Date();
+        var metaCondition = {};
 
-                            }
-                        })
-                    }
-                })
-
-            }
-
-        }
-        else {
-            //get_channel_objects
-            var views = results.get_channel_objects_remote;
-            var bulk = Object.collection.initializeOrderedBulkOp();
-            var now = new Date();
-
-            //set the update parameters for query
-            for (var i = 0; i < views.length; i++) {
-
-                if (results.get_channel.code === configAuth.channels.facebookAds) {
-                    //set the values
-                    var update = {
-                        $setOnInsert: {created: now},
-                        $set: {
-                            profileId: results.get_profile._id,
-                            name: views[i].name,
-                            objectTypeId: results.get_objectType._id,
-                            updated: now
-                        }
-                    };
-                    if (req.query.objectType === configAuth.objectType.facebookAdCampaign) {
-                        //set query condition
-                        var query = {
-                            'meta.accountId': req.query.accountId,
-                            channelObjectId: views[i].channelObjectId
-                        };
-                    }
-                    else if (req.query.objectType === configAuth.objectType.facebookAdSet) {
-                        //set query condition
-                        var query = {
-                            'meta.campaignId': req.query.campaignId,
-                            channelObjectId: views[i].channelObjectId
-                        };
-                    }
-                    else if (req.query.objectType === configAuth.objectType.facebookAds) {
-                        //set query condition
-                        var query = {
-                            profileId: results.get_profile._id,
-                            channelObjectId: views[i].channelObjectId
-                        };
-                    }
-                    else {
-                        //set query condition
-                        var query = {
-                            'meta.adSetId': req.query.adSetId,
-                            channelObjectId: views[i].channelObjectId
-                        };
-                    }
+        //set the update parameters for query
+        for (var i = 0; i < views.length; i++) {
+            if (results.get_channel.code === configAuth.channels.facebookAds) {
+                var query = {};
+                console.log('req.query.objectType', req.query.objectType)
+                if (req.query.objectType === configAuth.objectType.facebookAdCampaign) {
+                    query.meta = {'accountId': req.query.accountId};
+                    query.channelObjectId = views[i].channelObjectId;
+                    metaCondition.condition = {'accountId': req.query.accountId};
+                    console.log('query', query)
                 }
-                else if (results.get_channel.code === configAuth.channels.googleAnalytics) {
+                else if (req.query.objectType === configAuth.objectType.facebookAdSet) {
+                    query.meta = {'campaignId': req.query.campaignId};
+                    query.channelObjectId = views[i].channelObjectId;
+
+                    metaCondition.condition = {campaignId: req.query.campaignId};
+                }
+                else if (req.query.objectType === configAuth.objectType.facebookAds) {
                     //set query condition
                     var query = {
                         profileId: results.get_profile._id,
                         channelObjectId: views[i].channelObjectId
                     };
+                    metaCondition.objectTypeId = results.get_objectType._id;
+                    //metaCondition.condition = null;
+                }
+                else {
+                    query.meta = {'adSetId': req.query.adSetId};
+                    query.channelObjectId = views[i].channelObjectId;
+                    metaCondition.condition = {adSetId: req.query.adSetId};
+                }
+                //set the values
+                var update = {
+                    $setOnInsert: {created: now},
+                    $set: {
+                        profileId: results.get_profile._id,
+                        name: views[i].name,
+                        objectTypeId: results.get_objectType._id,
+                        updated: now,
+                        meta: query.meta
+                    }
+                };
+                console.log('update', update)
+            }
+            else if (results.get_channel.code === configAuth.channels.googleAnalytics) {
+                //set query condition
+                var query = {
+                    profileId: results.get_profile._id,
+                    channelObjectId: views[i].channelObjectId
+                };
+                //set the values
+                var update = {
+                    $setOnInsert: {created: now},
+                    $set: {
+                        name: views[i].viewName,
+                        objectTypeId: results.get_objectType._id,
+                        meta: {
+                            'webPropertyName': views[i].meta.webPropertyName,
+                            'webPropertyId': views[i].meta.webPropertyId
+                        },
+                        updated: now
+                    }
+                };
+            }
+            else if (results.get_channel.code === configAuth.channels.googleAdwords) {
+                var channelObjectDetails = [];
+                var list = results.get_channel_objects_remote;
+                var now = new Date();
+                var query = {
+                    profileId: views[i].profileId,
+                    channelObjectId: views[i].id
+                };
+                var update = {
+                    $setOnInsert: {created: now},
+                    $set: {
+                        name: views[i].Name,
+                        objectTypeId: views[i].objectTypeId,
+                        meta: views[i].meta,
+                        updated: now
+                    }
+                };
+                metaCondition.condition = views[0].filter;
+                metaCondition.objectTypeId = views[0].objectTypeId;
+
+            }
+
+            //form the query
+            bulk.find(query).upsert().update(update);
+        }
+        console.log('out', metaCondition)
+        //Doing the bulk update
+        bulk.execute(function (err) {
+            console.log('metaCondition', metaCondition);
+            callback(err, metaCondition);
+            /*if(metaCondition!==null) return callback(err, metaCondition);
+             else callback(err, 'success');*/
+        });
+    }
+
+    //To store the channel objects in db
+    function storeChannelObjects(results, callback) {
+        console.log('query request',req.query.objectType)
+        var channel = results.get_channel;
+        //get_channel_objects
+        var views = results.get_channel_objects_remote;
+        var bulk = Object.collection.initializeOrderedBulkOp();
+        var now = new Date();
+        var metaCondition = {};
+console.log('views',views,results.get_channel_objects_remote)
+        //set the update parameters for query
+        for (var i = 0; i < views.length; i++) {
+            console.log('results.get_channel.code',results.get_channel.code)
+            if (results.get_channel.code === configAuth.channels.facebookAds) {
+                var query = {};
+                console.log('req.query.objectType', req.query.objectType)
+                if (req.query.objectType === configAuth.objectType.facebookAdCampaign) {
+                    query.meta = {'accountId': req.query.accountId};
+                    query.channelObjectId = views[i].channelObjectId;
+                    metaCondition.condition = {'accountId': req.query.accountId};
+                    console.log('query', query)
+                }
+                else if (req.query.objectType === configAuth.objectType.facebookAdSet) {
+                    query.meta = {'campaignId': req.query.campaignId};
+                    query.channelObjectId = views[i].channelObjectId;
+
+                    metaCondition.condition = {campaignId: req.query.campaignId};
+                }
+                else if (req.query.objectType === configAuth.objectType.facebookAds) {
+                    //set query condition
+                    var query = {
+                        profileId: results.get_profile._id,
+                        channelObjectId: views[i].channelObjectId
+                    };
+                    metaCondition.objectTypeId = results.get_objectType._id;
+                    //metaCondition.condition = null;
+                }
+                else {
+                    query.meta = {'adSetId': req.query.adSetId};
+                    query.channelObjectId = views[i].channelObjectId;
+                    metaCondition.condition = {adSetId: req.query.adSetId};
+                }
+                //set the values
+                var update = {
+                    $setOnInsert: {created: now},
+                    $set: {
+                        profileId: results.get_profile._id,
+                        name: views[i].name,
+                        objectTypeId: results.get_objectType._id,
+                        updated: now,
+                        meta: query.meta
+                    }
+                };
+                console.log('update', update)
+            }
+            else if (results.get_channel.code === configAuth.channels.googleAnalytics) {
+                //set query condition
+                var query = {
+                    profileId: results.get_profile._id,
+                    channelObjectId: views[i].channelObjectId
+                };
+                //set the values
+                var update = {
+                    $setOnInsert: {created: now},
+                    $set: {
+                        name: views[i].viewName,
+                        objectTypeId: results.get_objectType._id,
+                        meta: {
+                            'webPropertyName': views[i].meta.webPropertyName,
+                            'webPropertyId': views[i].meta.webPropertyId
+                        },
+                        updated: now
+                    }
+                };
+            }
+            else if (results.get_channel.code === configAuth.channels.aweber) {
+                if (results.get_objectType.type === 'aweberlists') {
+
+                        //set query condition
+                        var query = {
+                            profileId: results.get_profile._id,
+                            channelObjectId: views[i].objectid
+                        };
+
+                        //set the values
+                        var update = {
+                            $setOnInsert: {created: now},
+                            $set: {
+                                name: views[i].name,
+                                objectTypeId: results.get_objectType._id,
+                                updated: now
+                            }
+                        };
+                }
+                else {
+                    var query = {
+                        profileId: results.get_profile._id,
+                        channelObjectId: views[i].campaignid,
+                        // listId: views[i].unique_id,
+                    };
+
                     //set the values
                     var update = {
                         $setOnInsert: {created: now},
                         $set: {
-                            name: views[i].viewName,
+                            name: views[i].subject,
                             objectTypeId: results.get_objectType._id,
                             meta: {
-                                'webPropertyName': views[i].meta.webPropertyName,
-                                'webPropertyId': views[i].meta.webPropertyId
+                                'listId': views[i].unique_id,
+                                'campaignType': views[i].campaignType,
                             },
                             updated: now
                         }
                     };
                 }
-                else if (results.get_channel.code === configAuth.channels.aweber) {
-                    if (results.get_objectType.type === 'aweberlists') {
-
-                        for (var i = 0; i < views.length; i++) {
-
-                            //set query condition
-                            var query = {
-                                profileId: results.get_profile._id,
-                                channelObjectId: views[i].objectid
-                            };
-
-                            //set the values
-                            var update = {
-                                $setOnInsert: {created: now},
-                                $set: {
-                                    name: views[i].name,
-                                    objectTypeId: results.get_objectType._id,
-                                    updated: now
-                                }
-                            };
-
-                            //form the query
-                            bulk.find(query).upsert().update(update);
-
-                        }
-                    }
-                    else {
-                            var query = {
-                                profileId: results.get_profile._id,
-                                channelObjectId: views[i].campaignid,
-                                // listId: views[i].unique_id,
-                            };
-
-                            //set the values
-                            var update = {
-                                $setOnInsert: {created: now},
-                                $set: {
-                                    name: views[i].subject,
-                                    objectTypeId: results.get_objectType._id,
-                                    meta: {
-                                        'listId': views[i].unique_id,
-                                        'campaignType': views[i].campaignType,
-                                    },
-
-                                    updated: now
-                                }
-                            };
-
-                            //form the query
-                            bulk.find(query).upsert().update(update);
-
-                    }
-                }
-
-
-                //form the query
-                bulk.find(query).upsert().update(update);
             }
+            else if (channel.code === configAuth.channels.vimeo) {
+                //set query condition
+                var query = {
+                    profileId: results.get_profile._id,
+                    channelObjectId: views[i].channelObjectId
+                };
+                //set the values
+                var update = {
+                    $setOnInsert: {created: now},
+                    $set: {
+                        name: views[i].name,
+                        objectTypeId: views[i].objectTypeId,
+                        updated: now
+                    }
+                };
+                console.log('views[i].name',views[i])
+            }
+            else if (results.get_channel.code === configAuth.channels.googleAdwords) {
+                console.log('googleadwords')
+                var channelObjectDetails = [];
+                var list = results.get_channel_objects_remote;
+                var now = new Date();
+                var query = {
+                    profileId: views[i].profileId,
+                    channelObjectId: views[i].id
+                };
+                var update = {
+                    $setOnInsert: {created: now},
+                    $set: {
+                        name: views[i].Name,
+                        objectTypeId: views[i].objectTypeId,
+                        meta: views[i].meta,
+                        updated: now
+                    }
+                };
+                metaCondition.condition = views[0].filter;
+                metaCondition.objectTypeId = views[0].objectTypeId;
+console.log('update',update)
+            }
+            console.log('query',query)
+            //form the query
+            bulk.find(query).upsert().update(update);
+        }
 
+        console.log('bulk',bulk)
+        if(views.length){
             //Doing the bulk update
             bulk.execute(function (err) {
                 callback(err, 'success');
             });
         }
+
     }
 
     //To get the objects from db
     function getChannelObjectsDB(results, callback) {
         req.params.profileID = req.params.profileId;
+
+        console.log('storeChannelObjects', results)
+        req.query.metaCondition = results.store_channel_objects.condition;
+        req.query.objectTypeId = results.store_channel_objects.objectTypeId;
         getObjects.findObjectsForProfile(req, res, function (err, object) {
             if (err)
                 callback(err, null);
@@ -555,6 +635,7 @@ exports.listAccounts = function (req, res, next) {
         function getObjectList(query) {
             FB.api(query,
                 function (objects) {
+                    console.log('objects.error',objects.error,query)
                     if (objects.error) {
                         if (objects.error.code === 190)
                             return res.status(401).json({
@@ -571,7 +652,7 @@ exports.listAccounts = function (req, res, next) {
                         if (objects.data.length != 0) {
                             if (objects.paging && objects.paging.next) {
                                 var objectLength = objects.data.length;
-                                for (var key=0;key<objectLength;key++){
+                                for (var key = 0; key < objectLength; key++) {
                                     objectList.push({
                                         objectTypeId: results.get_objectType._id, profileId: results.get_profile._id,
                                         channelObjectId: objects.data[key].id, name: objects.data[key].name
@@ -584,7 +665,7 @@ exports.listAccounts = function (req, res, next) {
                             }
                             else {
                                 var objectLength = objects.data.length;
-                                for (var key=0;key<objectLength;key++){
+                                for (var key = 0; key < objectLength; key++) {
                                     objectList.push({
                                         objectTypeId: results.get_objectType._id,
                                         channelObjectId: objects.data[key].id, name: objects.data[key].name
@@ -600,6 +681,7 @@ exports.listAccounts = function (req, res, next) {
 
     // This function to get adaccounts who login user
     function selectFbadsObjectType(results, callback) {
+        console.log('req.query.objectType',req.query.objectType)
         //To select which object type
         switch (req.query.objectType) {
             case configAuth.objectType.facebookAds:
@@ -784,8 +866,8 @@ exports.listAccounts = function (req, res, next) {
     }
 
     //Get clientCustomerId from managerservices
-    function getAdwordsCustomerId(results, callback) {
-
+    function selectgoogleAdwords(results, callback) {
+        results = results.get_profile
         //To get the object type id from database
         ObjectType.findOne({
             'type': req.query.objectType,
@@ -797,34 +879,157 @@ exports.listAccounts = function (req, res, next) {
                 return res.status(204).json({error: 'No records found'});
             else {
                 if (results.canManageClients === true) {
-                    var service = new AdWords.ManagedCustomerService({
-                        ADWORDS_CLIENT_ID: configAuth.googleAdwordsAuth.clientID,
-                        ADWORDS_CLIENT_CUSTOMER_ID: results.customerId,
-                        ADWORDS_DEVELOPER_TOKEN: configAuth.googleAdwordsAuth.developerToken,
-                        ADWORDS_REFRESH_TOKEN: results.refreshToken,
-                        ADWORDS_SECRET: configAuth.googleAdwordsAuth.clientSecret,
-                        ADWORDS_USER_AGENT: configAuth.googleAdwordsAuth.userAgent
-                    });
-                    var clientCustomerId = results.customerId;
-                    var selector = new AdWords.Selector.model({
-                        fields: service.selectable,
-                        ordering: [{field: 'Name', sortOrder: 'ASCENDING'}],
-                        paging: {startIndex: 0, numberResults: 100},
-                        predicates: []
-                    });
-                    service.get(clientCustomerId, selector, function (err, response) {
-                        if (err)
-                            return res.status(401).json({error: 'Authentication required to perform this action'});
-                        else {
-                            queryExec(objectTypeId, results, callback, response);
+
+
+                    if (configAuth.objectType.googleAdword == req.query.objectType) {
+
+                        var service = new AdWords.ManagedCustomerService({
+                            ADWORDS_CLIENT_ID: configAuth.googleAdwordsAuth.clientID,
+                            ADWORDS_CLIENT_CUSTOMER_ID: results.customerId,
+                            ADWORDS_DEVELOPER_TOKEN: configAuth.googleAdwordsAuth.developerToken,
+                            ADWORDS_REFRESH_TOKEN: results.refreshToken,
+                            ADWORDS_SECRET: configAuth.googleAdwordsAuth.clientSecret,
+                            ADWORDS_USER_AGENT: configAuth.googleAdwordsAuth.userAgent
+                        });
+                        var clientCustomerId = results.customerId;
+                        var selector = new AdWords.Selector.model({
+                            fields: service.selectable,
+                            ordering: [{field: 'Name', sortOrder: 'ASCENDING'}],
+                            paging: {startIndex: 0, numberResults: 100}
+                        });
+
+                    }
+
+                    if (req.query.accountId) {
+
+
+                        if (configAuth.objectType.googleAdwordAdGroup == req.query.objectType) {
+                            var service = new AdWords.AdGroupService({
+                                ADWORDS_CLIENT_ID: configAuth.googleAdwordsAuth.clientID,
+                                ADWORDS_CLIENT_CUSTOMER_ID: req.query.accountId,
+                                ADWORDS_DEVELOPER_TOKEN: configAuth.googleAdwordsAuth.developerToken,
+                                ADWORDS_REFRESH_TOKEN: results.refreshToken,
+                                ADWORDS_SECRET: configAuth.googleAdwordsAuth.clientSecret,
+                                ADWORDS_USER_AGENT: configAuth.googleAdwordsAuth.userAgent
+                            });
+                            var clientCustomerId = req.query.accountId;
+                            var selector = new AdWords.Selector.model({
+                                fields: service.selectable,
+                                ordering: [{field: 'AdGroupId', sortOrder: 'ASCENDING'}],
+                                paging: {startIndex: 0, numberResults: 100}
+                            });
+
                         }
-                    });
+                        else if (configAuth.objectType.googleAdwordCampaign == req.query.objectType) {
+
+                            var service = new AdWords.CampaignService({
+                                ADWORDS_CLIENT_ID: configAuth.googleAdwordsAuth.clientID,
+                                ADWORDS_CLIENT_CUSTOMER_ID: req.query.accountId,
+                                ADWORDS_DEVELOPER_TOKEN: configAuth.googleAdwordsAuth.developerToken,
+                                ADWORDS_REFRESH_TOKEN: results.refreshToken,
+                                ADWORDS_SECRET: configAuth.googleAdwordsAuth.clientSecret,
+                                ADWORDS_USER_AGENT: configAuth.googleAdwordsAuth.userAgent
+                            });
+                            var clientCustomerId = req.query.accountId;
+                            var selector = new AdWords.Selector.model({
+                                fields: service.selectable,
+                                ordering: [{field: 'Name', sortOrder: 'ASCENDING'}],
+                                paging: {startIndex: 0, numberResults: 100}
+                            });
+                        }
+                        else {
+
+                            var service = new AdWords.AdGroupAdService({
+                                ADWORDS_CLIENT_ID: configAuth.googleAdwordsAuth.clientID,
+                                ADWORDS_CLIENT_CUSTOMER_ID: req.query.accountId,
+                                ADWORDS_DEVELOPER_TOKEN: configAuth.googleAdwordsAuth.developerToken,
+                                ADWORDS_REFRESH_TOKEN: results.refreshToken,
+                                ADWORDS_SECRET: configAuth.googleAdwordsAuth.clientSecret,
+                                ADWORDS_USER_AGENT: configAuth.googleAdwordsAuth.userAgent
+                            });
+                            var clientCustomerId = req.query.accountId;
+                            var selector = new AdWords.Selector.model({
+                                fields: service.selectable,
+                                ordering: [{field: 'Id', sortOrder: 'ASCENDING'}],
+                                paging: {startIndex: 0, numberResults: 100}
+                            });
+
+
+                        }
+                    }
+
                 }
+                else {
+
+                    if (configAuth.objectType.googleAdwordAdGroup == req.query.objectType) {
+                        var service = new AdWords.AdGroupService({
+                            ADWORDS_CLIENT_ID: configAuth.googleAdwordsAuth.clientID,
+                            ADWORDS_CLIENT_CUSTOMER_ID: results.customerId,
+                            ADWORDS_DEVELOPER_TOKEN: configAuth.googleAdwordsAuth.developerToken,
+                            ADWORDS_REFRESH_TOKEN: results.refreshToken,
+                            ADWORDS_SECRET: configAuth.googleAdwordsAuth.clientSecret,
+                            ADWORDS_USER_AGENT: configAuth.googleAdwordsAuth.userAgent
+                        });
+                        var clientCustomerId = results.customerId;
+                        var selector = new AdWords.Selector.model({
+                            fields: service.selectable,
+                            ordering: [{field: 'AdGroupId', sortOrder: 'ASCENDING'}],
+                            paging: {startIndex: 0, numberResults: 100}
+                        });
+                    }
+                    else if (configAuth.objectType.googleAdwordCampaign == req.query.objectType) {
+
+                        var service = new AdWords.CampaignService({
+                            ADWORDS_CLIENT_ID: configAuth.googleAdwordsAuth.clientID,
+                            ADWORDS_CLIENT_CUSTOMER_ID: results.customerId,
+                            ADWORDS_DEVELOPER_TOKEN: configAuth.googleAdwordsAuth.developerToken,
+                            ADWORDS_REFRESH_TOKEN: results.refreshToken,
+                            ADWORDS_SECRET: configAuth.googleAdwordsAuth.clientSecret,
+                            ADWORDS_USER_AGENT: configAuth.googleAdwordsAuth.userAgent
+                        });
+                        var clientCustomerId = results.customerId;
+                        var selector = new AdWords.Selector.model({
+                            fields: service.selectable,
+                            ordering: [{field: 'Name', sortOrder: 'ASCENDING'}],
+                            paging: {startIndex: 0, numberResults: 100}
+                        });
+                    }
+                    else {
+
+                        var service = new AdWords.AdGroupAdService({
+                            ADWORDS_CLIENT_ID: configAuth.googleAdwordsAuth.clientID,
+                            ADWORDS_CLIENT_CUSTOMER_ID: results.customerId,
+                            ADWORDS_DEVELOPER_TOKEN: configAuth.googleAdwordsAuth.developerToken,
+                            ADWORDS_REFRESH_TOKEN: results.refreshToken,
+                            ADWORDS_SECRET: configAuth.googleAdwordsAuth.clientSecret,
+                            ADWORDS_USER_AGENT: configAuth.googleAdwordsAuth.userAgent
+                        });
+                        var clientCustomerId = results.customerId;
+                        var selector = new AdWords.Selector.model({
+                            fields: service.selectable,
+                            ordering: [{field: 'Id', sortOrder: 'ASCENDING'}],
+                            paging: {startIndex: 0, numberResults: 100}
+                        });
+
+
+                    }
+
+
+                }
+                service.get(clientCustomerId, selector, function (err, response) {
+                    console.log('manager response',response)
+                    if (err)
+                        return res.status(401).json({error: 'Authentication required to perform this action'});
+                    else {
+                        queryExec(clientCustomerId, objectTypeId, results, response, callback);
+                    }
+                });
             }
-        });
+        })
     }
 
-    function queryExec(objectTypeId, results, callback, response) {
+    function queryExec(clientCustomerId, objectTypeId, results, response, callback) {
+        var channelList = [];
         var model = response.entries.models;
         var lengthOfModel = 0;
         for (var i = 0; i < model.length; i++) {
@@ -832,44 +1037,80 @@ exports.listAccounts = function (req, res, next) {
                 lengthOfModel++;
         }
         for (var i = 0; i < model.length; i++) {
-            var modelResult = model[i].attributes.canManageClients;
-            if (modelResult) {
-                var accountName = model[i].attributes.name;
-                var customerId = model[i].attributes.customerId;
-                var channelObjectDetails = [];
-                var name = accountName;
-                var created = new Date();
-                var updated = new Date();
+            var modelResult = results.canManageClients;
+            if (modelResult && configAuth.objectType.googleAdword == req.query.objectType ) {
 
-                //To store once
-                Object.update({
-                    profileId: results._id,
-                    channelObjectId: customerId
-                }, {
-                    $setOnInsert: {created: created},
-                    $set: {name: name, objectTypeId: objectTypeId._id, updated: updated}
-                }, {upsert: true}, function (err, res) {
-                    if (err)
-                        return res.status(500).json({error: err});
-                    else if (!res)
-                        return res.status(204).json({error: 'No records found'});
-                    else {
-                        Object.find({'profileId': results._id}, function (err, objectList) {
-                            channelObjectDetails.push({
-                                'result': objectList
-                            });
-                            if (lengthOfModel == channelObjectDetails.length) {
-                                req.app.result = objectList;
-                                next();
-                            }
-                        })
-                    }
-                });
+                if(!model[i].attributes.canManageClients ) {
+                    var name = model[i].attributes.name;
+                    var customerId = model[i].attributes.customerId;
+
+
+                    //To store once
+                    channelList.push({
+                        profileId: results._id,
+                        Name: name,
+                        id: customerId,
+                        meta: {},
+                        objectTypeId: objectTypeId._id
+                    })
+                }
+
+
             }
-            else next(null, 'success');
-        }
-    }
+            else {
+                //console.log(model[i].attributes.name)
 
+                var meta = {};
+                var filter = {};
+
+                if (configAuth.objectType.googleAdwordAdGroup == req.query.objectType) {
+                    var name = model[i].attributes.name;
+                    var Id = model[i].attributes.id;
+                    meta.accountId=String(clientCustomerId);
+                    filter.accountId=String(clientCustomerId);
+
+                    meta.campaignId=model[i].attributes.campaignId;
+
+                    filter.campaignId=req.query.campaignId;
+                }
+                else if (configAuth.objectType.googleAdwordCampaign == req.query.objectType) {
+                    var name = model[i].attributes.name;
+                    var Id = model[i].attributes.id;
+                    meta.accountId=String(clientCustomerId);
+                    filter.accountId=String(clientCustomerId);
+
+
+                }
+                else {
+                    if (typeof(model[i].attributes.ad.headline) === 'string') {
+
+                        var name = model[i].attributes.ad.headline;
+                    }
+                    else {
+                        var name = ""
+                    }
+
+                    var Id = model[i].attributes.ad.id;
+                    meta.accountId=String(clientCustomerId);
+                    meta.adSetId=model[i].attributes.adGroupId;
+
+                    filter.accountId=String(clientCustomerId);
+                    filter.adSetId=req.query.adSetId;
+
+                }
+                
+                channelList.push({
+                    profileId: results._id,
+                    Name: name,
+                    id: Id,
+                    meta: meta,
+                    objectTypeId: objectTypeId._id,
+                    filter: filter
+                })
+            }
+        }
+        callback(null, channelList)
+    }
     function selectLinkedInPages(results, callback) {
         switch (req.query.objectType) {
             case configAuth.objectType.linkedIn:
@@ -1046,7 +1287,7 @@ exports.listAccounts = function (req, res, next) {
     }
 
     function selectaweberObject(results, callback) {
-
+console.log('aweber')
         if (req.query.objectType === configAuth.objectType.aweberList) {
             getaweber(results, callback);
 
@@ -1075,8 +1316,9 @@ exports.listAccounts = function (req, res, next) {
 
 
             var apiClient = NA.api(token, tokenSecret);
+            console.log('list',listUrl)
             apiClient.request('get', listUrl, {}, function (err, response) {
-
+console.log('err',err,token,response)
                 if (err)
                     return res.status(500).json({error: "internal server Error"});
 

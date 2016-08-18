@@ -56,6 +56,16 @@ exports.storeProfiles = function (req, res, done) {
                     "expiresIn": req.expiresIn ? req.expiresIn : ''
                 }
             }
+            else if (req.code === configAuth.channels.aweber) {
+                setData = {
+                    "accessToken": newAccessToken,
+                  //  "refreshToken": newRefreshToken,
+                    'updated': updated,
+                    tokenSecret:req.tokenSecret,
+                    //'dataCenter': req.dataCenter,
+                    "expiresIn": req.expiresIn ? req.expiresIn : ''
+                }
+            }
             else {
                 setData = {
                     "accessToken": newAccessToken,
@@ -119,6 +129,12 @@ exports.storeProfiles = function (req, res, done) {
                 newProfile.canManageClients = req.canManageClients;
                 newProfile.customerId = req.customerId;
             }
+            if (req.code === configAuth.channels.aweber) {
+                newProfile.token =tokens.access_token;
+
+                newProfile.tokenSecret = req.tokenSecret;
+            }
+
 
             // save the user
             newProfile.save(function (err, user) {
@@ -134,6 +150,7 @@ exports.storeProfiles = function (req, res, done) {
                             if (!err) {
                                 if(req.canManageClients===false) done(null,profileDetail)
                                 else if (req.code != configAuth.channels.instagram && req.code !== configAuth.channels.youtube  && req.code !== configAuth.channels.twitter) {
+                                    console.log('else')
                                     async.auto({
                                         object_types: getObjectType,
                                         get_remote_objects: ['object_types', getRemoteObjects]
@@ -147,6 +164,7 @@ exports.storeProfiles = function (req, res, done) {
                                         objectType.find({
                                             'channelId': user.channelId, autoSave: true
                                         }, function (err, objectType) {
+                                            console.log('objectType',objectType,err)
                                             if (err)
                                                 return res.status(500).json({error: err});
                                             else if (!objectType.length)
@@ -160,6 +178,7 @@ exports.storeProfiles = function (req, res, done) {
                                     }
 
                                     function getObjectsForEachObjectType(eachObjectType, callback) {
+                                        console.log('getObjectsForEachObjectType',req.query,eachObjectType.type)
                                         req.params.profileId = profileDetail._id;
                                         req.query.objectType = eachObjectType.type;
                                         getChannelPageList.listAccounts(req, res, function (err, getObjectList) {

@@ -80,11 +80,13 @@ exports.getChannelData = function (req, res, next) {
 
     //Function to find days difference
     function findDaysDifference(startDate, endDate, endPoint, noEndPoint) {
+        console.log('start date',startDate,endDate)
         var storeDefaultValues = [];
         var storeStartDate = new Date(startDate);
         var storeEndDate = new Date(endDate);
         var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+        console.log('diffdays',diffDays);
         for (var i = 0; i <= diffDays; i++) {
             if(moment(storeStartDate).format('YYYY-MM-DD')<=moment(new Date).format('YYYY-MM-DD')){
                 var finalDate = calculateDate(storeStartDate);
@@ -99,7 +101,6 @@ exports.getChannelData = function (req, res, next) {
                 else storeDefaultValues.push({date: finalDate, total: 0});
                 storeStartDate.setDate(storeStartDate.getDate() + 1);
             }
-
         }
         return storeDefaultValues;
     }
@@ -172,6 +173,7 @@ exports.getChannelData = function (req, res, next) {
             store_final_data: ['get_channel_data_remote', storeFinalData],
             get_channel_objects_db: ['store_final_data', 'get_channel_data_remote', getChannelDataDB]
         }, function (err, results) {
+            console.log('err getchanneldata',err,results)
             if (err)
                 return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
             req.app.result = results.get_channel_objects_db;
@@ -278,7 +280,8 @@ exports.getChannelData = function (req, res, next) {
             email: 1,
             dataCenter:1,
             tokenSecret: 1,
-            name: 1
+            name: 1,
+            customerId:1
         }, checkNullObject(callback));
     }
 
@@ -308,6 +311,7 @@ exports.getChannelData = function (req, res, next) {
         async.auto({
             get_each_channel_data: getEachChannelData
         }, function (err, results) {
+            console.log('each channel',err)
             if (err) {
                 return callback(err, null);
             }
@@ -381,6 +385,7 @@ exports.getChannelData = function (req, res, next) {
                     break;
                 case configAuth.channels.youtube:
                     setDataBasedChannelCode(results, function (err, result) {
+                        console.log('databasedcode',err)
                         if (err)
                             return res.status(500).json({error: 'Internal server error'})
                         else
@@ -570,15 +575,21 @@ exports.getChannelData = function (req, res, next) {
                 async.timesSeries(Math.min(data.length, metric.length), function (j, next) {
                     var d = new Date();
                     d.setDate(d.getDate() + 1);
+                    console.log('end date',d)
                     var queryObject = {};
 
                     //check already there is one year data in db
                     if (data[j].data != null) {
                         data[j].data.updated.setDate(data[j].data.updated.getDate());
-                        d.setDate(d.getDate());
                         var updated = formatDate(data[j].data.updated);
                         var now = formatDate(new Date());
                         if (updated < now) {
+                            data[j].data.updated.setDate(data[j].data.updated.getDate()+1);
+                            var updated = formatDate(data[j].data.updated);
+                            var now = new Date();
+                            now.setDate(now.getDate()+1);
+                            now = moment(now).format('YYYY-MM-DD')
+                            console.log('start',updated,now)
                             var query = initialResults.object[0].channelObjectId + "/insights/" + metric[j].objectTypes[0].meta.fbMetricName + "?since=" + updated + "&until=" + now;
                             queryObject = {
                                 query: query,
@@ -659,6 +670,7 @@ exports.getChannelData = function (req, res, next) {
             }
             else {
                 graph.get(query.query, function (err, fbQueryRes) {
+                    console.log('fbQueryRes',err)
                     if (err) {
                         if (err.code === 190)
                             return res.status(401).json({error: 'Authentication required to perform this action',id:req.params.widgetId})
@@ -713,6 +725,7 @@ exports.getChannelData = function (req, res, next) {
             if (allQueryResult.channel.code == configAuth.channels.googleAnalytics || allQueryResult.channel.code == configAuth.channels.youtube) {
                 function storeDataForGA(dataFromRemote, dataFromDb, widget, metric, done) {
                     async.times(dataFromDb.length, function (j, next) {
+                        var finalData;
                         if (dataFromRemote[j].data === 'DataFromDb')
                             next(null, 'DataFromDb');
                         else {
@@ -731,7 +744,7 @@ exports.getChannelData = function (req, res, next) {
                                         finalData = findDaysDifference(dataFromRemote[j].startDate, dataFromRemote[j].endDate, undefined);
                                 }
                             }
-
+console.log('finaldat',finalData)
                             //Check empty data from query response
                             if (dataFromRemote[j].data === 'No Data')
                                 storeGoogleData = finalData;
@@ -828,19 +841,22 @@ exports.getChannelData = function (req, res, next) {
                                 }
                                 var now = new Date();
                                 var wholeResponse = [];
-                                if (dataFromDb[j].data != null) {
-                                    var metricId;
-                                    for (var r = 0; r < dataFromDb[j].data.data.length; r++) {
-                                        if (dataFromRemote[j].metricId === dataFromDb[j].metricId) {
 
-                                            //merge old data with new one
-                                            storeGoogleData.push(dataFromDb[j].data.data[r]);
-                                        }
+                            }
+                            console.log('finaldata afer else',finalData,storeGoogleData.length)
+                            if (dataFromDb[j].data != null) {
+                                var metricId;
+                                for (var r = 0; r < dataFromDb[j].data.data.length; r++) {
+                                    if (dataFromRemote[j].metricId === dataFromDb[j].metricId) {
+                                        //merge old data with new one
+                                        storeGoogleData.push(dataFromDb[j].data.data[r]);
                                     }
                                 }
                             }
-                            if (finalData.length>storeGoogleData.length)
+                            console.log('storeGoogleData',storeGoogleData.length,'finaldata',finalData.length);
+                            //if (finalData.length>storeGoogleData.length)
                                 storeGoogleData = replaceEmptyData(finalData, storeGoogleData);
+                            console.log('storeGoogleData',storeGoogleData.length,'finaldata',finalData.length);
                             var now = new Date();
 
                             //Updating the old data with new one
@@ -883,7 +899,11 @@ exports.getChannelData = function (req, res, next) {
 
                                 }
                                 else {
+                                    var d = new Date(dataFromRemote[key].endDate);
+                                    d.setDate(d.getDate() - 1);
+                                    d = moment(d).format('YYYY-MM-DD');
                                     if (dataFromRemote[key].res.data.length) {
+                                        console.log('d',d,dataFromRemote[key].res.data[0].values)
                                         var dataLength = dataFromRemote[key].res.data[0].values.length;
                                         var fbDataLength = dataFromRemote[key].res.data[0].values.length;
                                         for (var index in dataFromRemote[key].res.data[0].values) {
@@ -897,9 +917,6 @@ exports.getChannelData = function (req, res, next) {
                                                 var metricId = dataFromRemote[key].metricId;
                                             }
                                         }
-                                        var d = new Date(dataFromRemote[key].endDate);
-                                        d.setDate(d.getDate() - 1);
-                                        d = moment(d).format('YYYY-MM-DD');
                                         if (String(metric[j]._id) === String(dataFromRemote[key].metricId)) {
                                             if (dataFromRemote[key].metric.objectTypes[0].meta.endpoint.length)
                                                 finalData1 = findDaysDifference(dataFromRemote[key].startDate, d, dataFromRemote[key].metric.objectTypes[0].meta.endpoint);
@@ -913,6 +930,7 @@ exports.getChannelData = function (req, res, next) {
                                             finalReplacedData.forEach(function (value) {
                                                 finalData.push(value)
                                             })
+                                            console.log('finaldata',finalData,finalData1)
                                         }
                                     }
                                     else {
@@ -927,6 +945,7 @@ exports.getChannelData = function (req, res, next) {
                                             }
                                         }
                                     }
+                                    console.log('beforeReplaceEmptyData',beforeReplaceEmptyData,finalData,dataFromRemote[key].startDate, d)
                                 }
                             }
                         }
@@ -1153,8 +1172,9 @@ exports.getChannelData = function (req, res, next) {
                 function storeDataForInstagram(dataFromRemote, dataFromDb, widget, metric, done) {
                     async.times(metric.length, function (j, next) {
                         var finalData = [];
-                        if (metric[j].code === 'Recent Posts')
+                        if (metric[j].code === 'Recent Posts') {
                             callback(null, dataFromRemote[j]);
+                        }
                         else {
 
                             //Array to hold the final result
@@ -1877,6 +1897,7 @@ exports.getChannelData = function (req, res, next) {
                 refresh_token: results.get_profile[0].refreshToken
             });
             oauth2Client.refreshAccessToken(function (err, tokens) {
+                console.log('refreshtoken error',err,oauth2Client)
                 if (err) {
                     if (err.code === 400)
                         return res.status(401).json({error: 'Authentication required to perform this action',id:req.params.widgetId})
@@ -1921,6 +1942,9 @@ exports.getChannelData = function (req, res, next) {
                                 var startDate = formatDate(data[i].data.updated);
                                 var endDate = formatDate(d);
                                 if (startDate < endDate) {
+                                    startDate = data[i].data.updated;
+                                    startDate.setDate(startDate.getDate()+1);
+                                     startDate = moment(startDate).format('YYYY-MM-DD');
                                     allObjects = {
                                         oauth2Client: oauth2Client,
                                         object: object[i],
@@ -2049,6 +2073,7 @@ exports.getChannelData = function (req, res, next) {
 
                 function callGoogleApi(apiQuery) {
                     analytics(apiQuery, function (err, result) {
+                        console.log('youtube result',err,result)
                         if (err) {
                             if (err.code === 400)
                                 return res.status(401).json({error: 'Authentication required to perform this action',id:req.params.widgetId})
@@ -2268,6 +2293,7 @@ exports.getChannelData = function (req, res, next) {
             function Adsinsights(query) {
                 var metricId = results.metricId;
                 FB.api(query, function (apiResult) {
+                    console.log('apiresult',apiResult.error,query,results.profile.accessToken)
                     if (apiResult.error) {
                         if (apiResult.error.code === 190)
                             return res.status(401).json({error: 'Authentication required to perform this action',id:req.params.widgetId})
@@ -2367,7 +2393,7 @@ exports.getChannelData = function (req, res, next) {
             work(initialResults.data, initialResults.object, initialResults.metric, callback);
             function work(data, object, metric, done) {
                 async.timesSeries(metric.length, function (j, next) {
-                    var adAccountId = initialResults.object[j].channelObjectId;
+                    var adAccountId = initialResults.object[j].channelObjectId
                     d = new Date();
                     var allObjects = {};
                     if (data[j].data != null) {
@@ -2382,7 +2408,30 @@ exports.getChannelData = function (req, res, next) {
                         startDate = newEndDate;
                         var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
                         if (calculateDate(data[j].data.updated) < currentDate) {
-                            var query = 'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
+                            if(configAuth.objectType.googleAdwordAdGrouptypeId == String(initialResults.object[j].objectTypeId)){
+                                var query ='AdGroupId,' +'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
+                                var performance='ADGROUP_PERFORMANCE_REPORT';
+                                var clientId=initialResults.object[j]. meta.customerId;
+                                var objects="AdGroupId="+initialResults.object[j].channelObjectId;
+                            }
+                            else if(configAuth.objectType.googleAdwordCampaigntypeId == String(initialResults.object[j].objectTypeId)){
+                                var query ='CampaignId' +'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
+                                var performance='CAMPAIGN_PERFORMANCE_REPORT';
+                                var clientId=initialResults.object[j]. meta.customerId;
+                                var objects="CampaignId="+initialResults.object[j].channelObjectId;
+                            }
+                            else if(configAuth.objectType.googleAdwordsAdtypeId == String(initialResults.object[j].objectTypeId)){
+                                var query = 'Id,'+'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
+                                var performance='AD_PERFORMANCE_REPORT';
+                                var clientId=initialResults.object[j].meta.customerId;
+                                var objects="Id="+initialResults.object[j].channelObjectId;
+                            }
+                            else{
+                                var query = 'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
+                                var performance='ACCOUNT_PERFORMANCE_REPORT';
+                                var clientId=initialResults.object[j].channelObjectId;
+                                var objects=""
+                            }
                             allObjects = {
                                 profile: initialResults.get_profile[j],
                                 query: query,
@@ -2410,14 +2459,43 @@ exports.getChannelData = function (req, res, next) {
                         var endDate = formatDate(new Date());
                         var newEndDate = endDate.replace(/-/g, "");
                         var endDate = newEndDate;
-                        var query = 'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
+                        console.log(initialResults.object[j])
+                        if(configAuth.objectType.googleAdwordAdGrouptypeId == String(initialResults.object[j].objectTypeId)){
+                            var query ='AdGroupId,' +'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
+                            var performance='ADGROUP_PERFORMANCE_REPORT';
+                            var clientId=initialResults.object[j]. meta.accountId;
+                            var objects="AdGroupId="+initialResults.object[j].channelObjectId;
+                        }
+                        else if(configAuth.objectType.googleAdwordCampaigntypeId == String(initialResults.object[j].objectTypeId)){
+                            var query ='CampaignId,' +'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
+                            var performance='CAMPAIGN_PERFORMANCE_REPORT';
+                            var clientId=initialResults.object[j]. meta.accountId;
+                            var objects="CampaignId="+initialResults.object[j].channelObjectId;
+                        }
+                        else if(configAuth.objectType.googleAdwordtypeId == String(initialResults.object[j].objectTypeId) ){
+
+                            var query = 'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
+                            var performance='ACCOUNT_PERFORMANCE_REPORT';
+                            var clientId=initialResults.object[j].channelObjectId;
+                            var objects=""
+                        }
+                        else{
+                            var query = 'Id,'+'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
+                            var performance='AD_PERFORMANCE_REPORT';
+                            var clientId=initialResults.object[j].meta.accountId;
+                            var objects="Id="+initialResults.object[j].channelObjectId;
+
+                        }
+
                         allObjects = {
                             profile: initialResults.get_profile[j],
                             query: query,
                             widget: metric[j],
                             dataResult: data[j].data,
-                            objects: object[j].channelObjectId,
+                            clientId:clientId,
+                            objects: objects,
                             startDate: startDate,
+                            performance:performance,
                             endDate: endDate,
                             metricId: metric[j]._id,
                             metricCode: metric[j].code
@@ -2466,12 +2544,14 @@ exports.getChannelData = function (req, res, next) {
                     accessToken: results.profile.accessToken,
                     //tokenExpires: 1424716834341, // Integer: Unix Timestamp of expiration time
                     refreshToken: results.profile.refreshToken,
-                    clientCustomerID: results.objects
+                    clientCustomerID: results.clientId
+
                 });
-                googleAds.awql()
-                    .select(results.query)
-                    .from('ACCOUNT_PERFORMANCE_REPORT')
-                    .during(during)
+                googleAds.awql({
+                        select:results.query,
+                        from:results.performance,
+                        where:results.objects,
+                        during:during})
                     .send().then(function (response) {
                         storeAdwordsFinalData(results, response.data);
                         semaphore.leave();
@@ -2513,9 +2593,9 @@ exports.getChannelData = function (req, res, next) {
                 var totalValue;
                 for (var prop = 0; prop < data.length; prop++) {
                     if (results.metricCode === configAuth.googleAdwordsMetric.costPerConversion || results.metricCode === configAuth.googleAdwordsMetric.costPerClick || results.metricCode === configAuth.googleAdwordsMetric.costPerThousandImpressions || results.metricCode === configAuth.googleAdwordsMetric.cost)
-                        totalValue = parseFloat((data[prop][param] / 1000000).toFixed(6));
+                        totalValue = parseFloat((data[prop][param] / 1000000).toFixed(2));
                     else
-                        totalValue = parseFloat(data[prop][param]);
+                        totalValue = parseFloat(data[prop][param]).toFixed(2);
                     var value = {};
                     value = {
                         total: totalValue,
@@ -3142,8 +3222,9 @@ exports.getChannelData = function (req, res, next) {
                                 query: query,
                                 widget: metric[j],
                                 dataResult: data[j].data,
-                                startDate: updated,
+                                startDate: startDate,
                                 endDate: currentDate,
+                                metricCode: metric[j].code,
                                 metricId: metric[j]._id,
                                 endpoint: metric[j].objectTypes[0].meta.endpoint
                             }
@@ -3159,17 +3240,33 @@ exports.getChannelData = function (req, res, next) {
                         var startDate = formatDate(d);
                         var endDate = formatDate(new Date());
                         var query = metric[j].objectTypes[0].meta.igMetricName;
-                        allObjects = {
-                            profile: initialResults.get_profile[j],
-                            query: query,
-                            widget: metric[j],
-                            dataResult: data[j].data,
-                            startDate: startDate,
-                            endDate: endDate,
-                            metricId: metric[j]._id,
-                            metricCode: metric[j].code,
-                            endpoint: metric[j].objectTypes[0].meta.endpoint
-                        };
+                        if (metric[j].code === 'likes' || metric[j].code === 'comments') {
+                            console.log('likes')
+                            allObjects = {
+                                profile: initialResults.get_profile[j],
+                                query: query,
+                                widget: metric[j],
+                                dataResult: data[j].data,
+                                startDate: req.body.startDate,
+                                endDate: req.body.endDate,
+                                metricId: metric[j]._id,
+                                metricCode: metric[j].code,
+                                endpoint: metric[j].objectTypes[0].meta.endpoint
+                            };
+                        }
+                        else {
+                            allObjects = {
+                                profile: initialResults.get_profile[j],
+                                query: query,
+                                widget: metric[j],
+                                dataResult: data[j].data,
+                                startDate: startDate,
+                                endDate: endDate,
+                                metricId: metric[j]._id,
+                                metricCode: metric[j].code,
+                                endpoint: metric[j].objectTypes[0].meta.endpoint
+                            };
+                        }
                         next(null, allObjects);
 
                     }
@@ -3228,15 +3325,17 @@ exports.getChannelData = function (req, res, next) {
                         var temp = results[count];
                         storeMetric = temp[item];
                         for (var i = 0; i <= diffDays; i++) {
-                            var finalDate = formatDate(storeStartDate);
-                            tot_metric.push({date: finalDate, total: 0});
-                            storeStartDate.setDate(storeStartDate.getDate() + 1);
+                            var finalDate = moment(storeStartDate).format('YYYY-MM-DD');
+                            if(finalDate<=moment(new Date()).format('YYYY-MM-DD')) {
+                                tot_metric.push({date: finalDate, total: 0});
+                                storeStartDate.setDate(storeStartDate.getDate() + 1);
 
-                            if (result.endDate === tot_metric[i].date) {
-                                tot_metric[i] = {
-                                    total: storeMetric,
-                                    date: result.endDate
-                                };
+                                if (result.endDate === tot_metric[i].date) {
+                                    tot_metric[i] = {
+                                        total: storeMetric,
+                                        date: result.endDate
+                                    };
+                                }
                             }
                         }
                         actualFinalApiData = {
@@ -3262,8 +3361,8 @@ exports.getChannelData = function (req, res, next) {
                             else {
                                 for (var i = 0; i < userMediaRecent.length; i++) {
                                     var storeDate = userMediaRecent[i].created_time;
-                                    var startDate = moment(req.body.startDate).unix();
-                                    var endDate = moment(req.body.endDate).unix();
+                                    var startDate = moment(result.startDate).unix();
+                                    var endDate = moment(result.endDate).unix();
                                     if (storeDate >= startDate && storeDate <= endDate) {
                                         var formateDate = moment.unix(storeDate).format('YYYY-MM-DD');
                                         storeData.push({date: formateDate, total: userMediaRecent[i]})
@@ -3290,8 +3389,8 @@ exports.getChannelData = function (req, res, next) {
                                     tempLikes = 0;
                                     tempComments = 0;
                                 }
-                                var storeStartDate = new Date(req.body.startDate);
-                                var storeEndDate = new Date(req.body.endDate);
+                                var storeStartDate = new Date(result.startDate);
+                                var storeEndDate = new Date(result.endDate);
                                 var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
                                 var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
                                 for (var i = 0; i <= diffDays; i++) {
@@ -3330,7 +3429,7 @@ exports.getChannelData = function (req, res, next) {
                             else {
                                 for (var i = 0; i < userMediaRecent.length; i++) {
                                     var storeDate = userMediaRecent[i].created_time;
-                                    var dateString = moment.unix(storeDate).format("YYYY-MM-DD");
+                                    var dateString = moment(storeDate).format("YYYY-MM-DD");
                                     storeData.push({date: dateString, total: userMediaRecent[i]})
                                 }
                                 storeData.forEach(function (value, index) {
@@ -4006,22 +4105,18 @@ exports.getChannelData = function (req, res, next) {
                     else if(result.metricCode === 'total_sent/campaigns'){
                         storeMetric= response.total_sent;
                     }
-
-
-
-
-
-
                     for (var i = 0; i <= diffDays; i++) {
                         var finalDate = formatDate(storeStartDate);
-                        tot_metric.push({date: finalDate, total: 0});
-                        storeStartDate.setDate(storeStartDate.getDate() + 1);
-
-                        if (result.endDate === tot_metric[i].date) {
-                            tot_metric[i] = {
-                                total: storeMetric,
-                                date: result.endDate
-                            };
+                        console.log('finaldata',finalDate)
+                        if(finalDate<=moment(new Date).format('YYYY-MM-DD')){
+                            tot_metric.push({date: finalDate, total: 0});
+                            storeStartDate.setDate(storeStartDate.getDate() + 1);
+                            if (result.endDate === tot_metric[i].date) {
+                                tot_metric[i] = {
+                                    total: storeMetric,
+                                    date: result.endDate
+                                };
+                            }
                         }
                     }
 
@@ -4172,6 +4267,7 @@ exports.getChannelData = function (req, res, next) {
             var actualMetric=[];
             request(result.query,
                 function (err, response, body) {
+                    console.log('response linked in',response.statusCode,body)
                     if (err || response.statusCode!==200) {
                         return res.status(500).json({error: 'Internal server error'});
                     }

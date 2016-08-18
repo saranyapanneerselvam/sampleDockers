@@ -44,7 +44,12 @@ var self = module.exports = {
         })
     },
     findObjectsForProfile: function (req, res, done) {
-        objectList.find({profileId: req.params.profileID}, function (err, objects) {
+        if(req.query.metaCondition === undefined && req.query.objectTypeId!=undefined){var condition = {profileId: req.params.profileID,objectTypeId:req.query.objectTypeId};}
+        else if(req.query.metaCondition!=undefined) {var condition={profileId: req.params.profileID,meta:req.query.metaCondition};}
+        else {var condition = {profileId: req.params.profileID};}
+
+
+        objectList.find(condition, function (err, objects) {
             if(err) done(err);
             else if (objects != null && objects.length > 0) {
                 req.profileId = objects[0].profileId;
@@ -65,7 +70,7 @@ var self = module.exports = {
                             done(null, result);
                         }
                         else {
-                            req.app.objects = objects;
+                            req.app.objcets = objects;
                             done(null, objects);
                         }
                     }

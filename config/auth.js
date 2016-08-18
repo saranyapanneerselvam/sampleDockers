@@ -149,6 +149,13 @@ module.exports = {
         googleView:'gaview',
         twitter :'tweet',
         googleAdword :'adwordaccount',
+        googleAdwordtypeId:'570e251ae4b0cbcd095d6ef0',
+        googleAdwordAdGrouptypeId:'57a480cbed5dca13b01bf081',
+        googleAdwordCampaigntypeId:'57a480b6ed5dca13b01bf07f',
+        googleAdwordsAdtypeId:'57a5ec21ed5dca1cc08b4728',
+        googleAdwordCampaign:'adwordCampaign',
+        googleAdwordAdGroup:'adwordAdgroup',
+        googleAdwordAd:'adwordsAd',
         googleProperty: 'gaproperty',
         googleAccount: 'gaaccount',
         youtubeChannel:'youtubeChannel',
@@ -207,8 +214,8 @@ module.exports = {
     },
 
     youTubeAuth: {
-        clientID: '697605351302-cm90a20idvq2gcu3qju0oaab88ik6peg.apps.googleusercontent.com',
-        clientSecret: 'DkUY5XrdcWDQM_7tEI9xNAC6',
+        clientID: '365268185780-vti6ft53qpjml2c5qsaqn0du99omeo3j.apps.googleusercontent.com',
+        clientSecret: 'EZN3KKEuikOjX7sAv75l6sbV',
         callbackURL: 'http://localhost:8080/auth/youtube/callback',
         site: 'https://accounts.google.com/o/',
         tokenPath: 'https://accounts.google.com/o/oauth2/token',
@@ -228,7 +235,8 @@ module.exports = {
 
     apiVersions:{
         FBInsights:'v2.6',
-        FBADs:'v2.6'
+        FBADs:'v2.6',
+        FBInsightsUpdated:'v2.7'
     },
 
     widgetType:{

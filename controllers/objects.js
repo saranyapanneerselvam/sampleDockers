@@ -13,8 +13,10 @@ module.exports = function (app) {
     app.get('/api/v1/get/objectTypeDetail/:objectTypeId', objectList.objectTypes, function (req, res) {
         res.json({objectType: req.app.result});
     });
-
-    app.post('/api/v1/objects',objectList.mozObjectstore, function (req, res) {
+    app.get('/api/v1/get/objectType/:channelId', objectList.objectTypesForChannel, function (req, res) {
+        res.json({objectType: req.app.result});
+    });
+    app.post('/api/v1/objects',objectList.mozObjectStore, function (req, res) {
         res.json({objectList:req.app.result});
     });
 

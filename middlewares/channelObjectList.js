@@ -166,11 +166,9 @@ exports.listAccounts = function (req, res, next) {
                             request(configAuth.vimeoAuth.common +
                                 query + accessToken,
                                 function (err, result, body) {
-                                    console.log('vimeo objects',result)
                                     // var vimeoObject=[];
                                     var parsedData = JSON.parse(body);
                                     var length = parsedData.data.length;
-                                    console.log(parsedData.data)
 
                                     // req.app.result = parsedData.data;
                                     for (var i = 0; i < length; i++) {
@@ -318,133 +316,20 @@ exports.listAccounts = function (req, res, next) {
 
     //To store the channel objects in db
     function storeChannelObjects(results, callback) {
-
-        //get_channel_objects
-        var views = results.get_channel_objects_remote;
-        var bulk = Object.collection.initializeOrderedBulkOp();
-        var now = new Date();
-        var metaCondition = {};
-
-        //set the update parameters for query
-        for (var i = 0; i < views.length; i++) {
-            if (results.get_channel.code === configAuth.channels.facebookAds) {
-                var query = {};
-                console.log('req.query.objectType', req.query.objectType)
-                if (req.query.objectType === configAuth.objectType.facebookAdCampaign) {
-                    query.meta = {'accountId': req.query.accountId};
-                    query.channelObjectId = views[i].channelObjectId;
-                    metaCondition.condition = {'accountId': req.query.accountId};
-                    console.log('query', query)
-                }
-                else if (req.query.objectType === configAuth.objectType.facebookAdSet) {
-                    query.meta = {'campaignId': req.query.campaignId};
-                    query.channelObjectId = views[i].channelObjectId;
-
-                    metaCondition.condition = {campaignId: req.query.campaignId};
-                }
-                else if (req.query.objectType === configAuth.objectType.facebookAds) {
-                    //set query condition
-                    var query = {
-                        profileId: results.get_profile._id,
-                        channelObjectId: views[i].channelObjectId
-                    };
-                    metaCondition.objectTypeId = results.get_objectType._id;
-                    //metaCondition.condition = null;
-                }
-                else {
-                    query.meta = {'adSetId': req.query.adSetId};
-                    query.channelObjectId = views[i].channelObjectId;
-                    metaCondition.condition = {adSetId: req.query.adSetId};
-                }
-                //set the values
-                var update = {
-                    $setOnInsert: {created: now},
-                    $set: {
-                        profileId: results.get_profile._id,
-                        name: views[i].name,
-                        objectTypeId: results.get_objectType._id,
-                        updated: now,
-                        meta: query.meta
-                    }
-                };
-                console.log('update', update)
-            }
-            else if (results.get_channel.code === configAuth.channels.googleAnalytics) {
-                //set query condition
-                var query = {
-                    profileId: results.get_profile._id,
-                    channelObjectId: views[i].channelObjectId
-                };
-                //set the values
-                var update = {
-                    $setOnInsert: {created: now},
-                    $set: {
-                        name: views[i].viewName,
-                        objectTypeId: results.get_objectType._id,
-                        meta: {
-                            'webPropertyName': views[i].meta.webPropertyName,
-                            'webPropertyId': views[i].meta.webPropertyId
-                        },
-                        updated: now
-                    }
-                };
-            }
-            else if (results.get_channel.code === configAuth.channels.googleAdwords) {
-                var channelObjectDetails = [];
-                var list = results.get_channel_objects_remote;
-                var now = new Date();
-                var query = {
-                    profileId: views[i].profileId,
-                    channelObjectId: views[i].id
-                };
-                var update = {
-                    $setOnInsert: {created: now},
-                    $set: {
-                        name: views[i].Name,
-                        objectTypeId: views[i].objectTypeId,
-                        meta: views[i].meta,
-                        updated: now
-                    }
-                };
-                metaCondition.condition = views[0].filter;
-                metaCondition.objectTypeId = views[0].objectTypeId;
-
-            }
-
-            //form the query
-            bulk.find(query).upsert().update(update);
-        }
-        console.log('out', metaCondition)
-        //Doing the bulk update
-        bulk.execute(function (err) {
-            console.log('metaCondition', metaCondition);
-            callback(err, metaCondition);
-            /*if(metaCondition!==null) return callback(err, metaCondition);
-             else callback(err, 'success');*/
-        });
-    }
-
-    //To store the channel objects in db
-    function storeChannelObjects(results, callback) {
-        console.log('query request',req.query.objectType)
         var channel = results.get_channel;
         //get_channel_objects
         var views = results.get_channel_objects_remote;
         var bulk = Object.collection.initializeOrderedBulkOp();
         var now = new Date();
         var metaCondition = {};
-console.log('views',views,results.get_channel_objects_remote)
         //set the update parameters for query
         for (var i = 0; i < views.length; i++) {
-            console.log('results.get_channel.code',results.get_channel.code)
             if (results.get_channel.code === configAuth.channels.facebookAds) {
                 var query = {};
-                console.log('req.query.objectType', req.query.objectType)
                 if (req.query.objectType === configAuth.objectType.facebookAdCampaign) {
                     query.meta = {'accountId': req.query.accountId};
                     query.channelObjectId = views[i].channelObjectId;
                     metaCondition.condition = {'accountId': req.query.accountId};
-                    console.log('query', query)
                 }
                 else if (req.query.objectType === configAuth.objectType.facebookAdSet) {
                     query.meta = {'campaignId': req.query.campaignId};
@@ -477,7 +362,6 @@ console.log('views',views,results.get_channel_objects_remote)
                         meta: query.meta
                     }
                 };
-                console.log('update', update)
             }
             else if (results.get_channel.code === configAuth.channels.googleAnalytics) {
                 //set query condition
@@ -502,21 +386,21 @@ console.log('views',views,results.get_channel_objects_remote)
             else if (results.get_channel.code === configAuth.channels.aweber) {
                 if (results.get_objectType.type === 'aweberlists') {
 
-                        //set query condition
-                        var query = {
-                            profileId: results.get_profile._id,
-                            channelObjectId: views[i].objectid
-                        };
+                    //set query condition
+                    var query = {
+                        profileId: results.get_profile._id,
+                        channelObjectId: views[i].objectid
+                    };
 
-                        //set the values
-                        var update = {
-                            $setOnInsert: {created: now},
-                            $set: {
-                                name: views[i].name,
-                                objectTypeId: results.get_objectType._id,
-                                updated: now
-                            }
-                        };
+                    //set the values
+                    var update = {
+                        $setOnInsert: {created: now},
+                        $set: {
+                            name: views[i].name,
+                            objectTypeId: results.get_objectType._id,
+                            updated: now
+                        }
+                    };
                 }
                 else {
                     var query = {
@@ -555,10 +439,8 @@ console.log('views',views,results.get_channel_objects_remote)
                         updated: now
                     }
                 };
-                console.log('views[i].name',views[i])
             }
             else if (results.get_channel.code === configAuth.channels.googleAdwords) {
-                console.log('googleadwords')
                 var channelObjectDetails = [];
                 var list = results.get_channel_objects_remote;
                 var now = new Date();
@@ -577,18 +459,14 @@ console.log('views',views,results.get_channel_objects_remote)
                 };
                 metaCondition.condition = views[0].filter;
                 metaCondition.objectTypeId = views[0].objectTypeId;
-console.log('update',update)
             }
-            console.log('query',query)
             //form the query
             bulk.find(query).upsert().update(update);
         }
-
-        console.log('bulk',bulk)
-        if(views.length){
+        if (views.length) {
             //Doing the bulk update
             bulk.execute(function (err) {
-                callback(err, 'success');
+                callback(err, metaCondition);
             });
         }
 
@@ -597,8 +475,6 @@ console.log('update',update)
     //To get the objects from db
     function getChannelObjectsDB(results, callback) {
         req.params.profileID = req.params.profileId;
-
-        console.log('storeChannelObjects', results)
         req.query.metaCondition = results.store_channel_objects.condition;
         req.query.objectTypeId = results.store_channel_objects.objectTypeId;
         getObjects.findObjectsForProfile(req, res, function (err, object) {
@@ -635,7 +511,6 @@ console.log('update',update)
         function getObjectList(query) {
             FB.api(query,
                 function (objects) {
-                    console.log('objects.error',objects.error,query)
                     if (objects.error) {
                         if (objects.error.code === 190)
                             return res.status(401).json({
@@ -681,7 +556,7 @@ console.log('update',update)
 
     // This function to get adaccounts who login user
     function selectFbadsObjectType(results, callback) {
-        console.log('req.query.objectType',req.query.objectType)
+
         //To select which object type
         switch (req.query.objectType) {
             case configAuth.objectType.facebookAds:
@@ -1017,7 +892,6 @@ console.log('update',update)
 
                 }
                 service.get(clientCustomerId, selector, function (err, response) {
-                    console.log('manager response',response)
                     if (err)
                         return res.status(401).json({error: 'Authentication required to perform this action'});
                     else {
@@ -1038,9 +912,9 @@ console.log('update',update)
         }
         for (var i = 0; i < model.length; i++) {
             var modelResult = results.canManageClients;
-            if (modelResult && configAuth.objectType.googleAdword == req.query.objectType ) {
+            if (modelResult && configAuth.objectType.googleAdword == req.query.objectType) {
 
-                if(!model[i].attributes.canManageClients ) {
+                if (!model[i].attributes.canManageClients) {
                     var name = model[i].attributes.name;
                     var customerId = model[i].attributes.customerId;
 
@@ -1058,26 +932,24 @@ console.log('update',update)
 
             }
             else {
-                //console.log(model[i].attributes.name)
-
                 var meta = {};
                 var filter = {};
 
                 if (configAuth.objectType.googleAdwordAdGroup == req.query.objectType) {
                     var name = model[i].attributes.name;
                     var Id = model[i].attributes.id;
-                    meta.accountId=String(clientCustomerId);
-                    filter.accountId=String(clientCustomerId);
+                    meta.accountId = String(clientCustomerId);
+                    filter.accountId = String(clientCustomerId);
 
-                    meta.campaignId=model[i].attributes.campaignId;
+                    meta.campaignId = model[i].attributes.campaignId;
 
-                    filter.campaignId=req.query.campaignId;
+                    filter.campaignId = req.query.campaignId;
                 }
                 else if (configAuth.objectType.googleAdwordCampaign == req.query.objectType) {
                     var name = model[i].attributes.name;
                     var Id = model[i].attributes.id;
-                    meta.accountId=String(clientCustomerId);
-                    filter.accountId=String(clientCustomerId);
+                    meta.accountId = String(clientCustomerId);
+                    filter.accountId = String(clientCustomerId);
 
 
                 }
@@ -1091,14 +963,14 @@ console.log('update',update)
                     }
 
                     var Id = model[i].attributes.ad.id;
-                    meta.accountId=String(clientCustomerId);
-                    meta.adSetId=model[i].attributes.adGroupId;
+                    meta.accountId = String(clientCustomerId);
+                    meta.adSetId = model[i].attributes.adGroupId;
 
-                    filter.accountId=String(clientCustomerId);
-                    filter.adSetId=req.query.adSetId;
+                    filter.accountId = String(clientCustomerId);
+                    filter.adSetId = req.query.adSetId;
 
                 }
-                
+
                 channelList.push({
                     profileId: results._id,
                     Name: name,
@@ -1111,6 +983,7 @@ console.log('update',update)
         }
         callback(null, channelList)
     }
+
     function selectLinkedInPages(results, callback) {
         switch (req.query.objectType) {
             case configAuth.objectType.linkedIn:
@@ -1287,7 +1160,6 @@ console.log('update',update)
     }
 
     function selectaweberObject(results, callback) {
-console.log('aweber')
         if (req.query.objectType === configAuth.objectType.aweberList) {
             getaweber(results, callback);
 
@@ -1316,9 +1188,7 @@ console.log('aweber')
 
 
             var apiClient = NA.api(token, tokenSecret);
-            console.log('list',listUrl)
             apiClient.request('get', listUrl, {}, function (err, response) {
-console.log('err',err,token,response)
                 if (err)
                     return res.status(500).json({error: "internal server Error"});
 

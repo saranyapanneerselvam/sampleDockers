@@ -53,8 +53,7 @@ var spec = {host: 'https://adwords.google.com/api/adwords/reportdownload/v201601
 googleAds.GoogleAdwords(spec);
 //aweber
 var NodeAweber = require('aweber-api-nodejs');
-var NA = new NodeAweber(configAuth.aweberAuth.clientID, configAuth.aweberAuth.clientSecret,'http://localhost:8080/callback');
-
+var NA = new NodeAweber(configAuth.aweberAuth.clientID, configAuth.aweberAuth.clientSecret, 'http://localhost:8080/callback');
 
 
 //set credentials in OAuth2
@@ -80,15 +79,15 @@ exports.getChannelData = function (req, res, next) {
 
     //Function to find days difference
     function findDaysDifference(startDate, endDate, endPoint, noEndPoint) {
-        console.log('start date',startDate,endDate)
+        console.log('start date', startDate, endDate)
         var storeDefaultValues = [];
         var storeStartDate = new Date(startDate);
         var storeEndDate = new Date(endDate);
         var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
-        console.log('diffdays',diffDays);
+        console.log('diffdays', diffDays);
         for (var i = 0; i <= diffDays; i++) {
-            if(moment(storeStartDate).format('YYYY-MM-DD')<=moment(new Date).format('YYYY-MM-DD')){
+            if (moment(storeStartDate).format('YYYY-MM-DD') <= moment(new Date).format('YYYY-MM-DD')) {
                 var finalDate = calculateDate(storeStartDate);
                 if (endPoint != undefined) {
                     var totalObject = {};
@@ -145,18 +144,18 @@ exports.getChannelData = function (req, res, next) {
                 dashboards: {$elemMatch: {dashboardId: dashboardId}}
             }, function (err, user) {
                 if (err)
-                    return res.status(500).json({error: 'Internal Server Error',id:req.params.widgetId});
+                    return res.status(500).json({error: 'Internal Server Error', id: req.params.widgetId});
                 else if (!user)
-                    return res.status(401).json({error: 'User not found',id:req.params.widgetId});
+                    return res.status(401).json({error: 'User not found', id: req.params.widgetId});
                 else
                     callEntireDataFunction();
             })
         }
-        else if (req.body.params){
+        else if (req.body.params) {
             callEntireDataFunction()
         }
         else {
-            return res.status(401).json({error: 'User must be logged in',id:req.params.widgetId})
+            return res.status(401).json({error: 'User must be logged in', id: req.params.widgetId})
         }
     });
 
@@ -173,9 +172,9 @@ exports.getChannelData = function (req, res, next) {
             store_final_data: ['get_channel_data_remote', storeFinalData],
             get_channel_objects_db: ['store_final_data', 'get_channel_data_remote', getChannelDataDB]
         }, function (err, results) {
-            console.log('err getchanneldata',err,results)
+            console.log('err getchanneldata', err, results)
             if (err)
-                return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
+                return res.status(500).json({error: 'Internal server error', id: req.params.widgetId})
             req.app.result = results.get_channel_objects_db;
             next();
         });
@@ -251,16 +250,16 @@ exports.getChannelData = function (req, res, next) {
             profileId: 1,
             channelObjectId: 1,
             objectTypeId: 1,
-            name:1,
-            channelId:1,
-            meta:1
+            name: 1,
+            channelId: 1,
+            meta: 1
         }, checkNullObject(callback));
     }
 
     //Function to get the data in profile collection
     function getProfile(results, callback) {
 //skipping profile for moz
-        if(results.object[0].channelId==results.metric[0].channelId) {
+        if (results.object[0].channelId == results.metric[0].channelId) {
 
             callback(null);
         }
@@ -278,21 +277,21 @@ exports.getChannelData = function (req, res, next) {
             channelId: 1,
             userId: 1,
             email: 1,
-            dataCenter:1,
+            dataCenter: 1,
             tokenSecret: 1,
             name: 1,
-            customerId:1
+            customerId: 1
         }, checkNullObject(callback));
     }
 
     //Function to get the data in channel collection
     function getChannel(results, callback) {
-        if(results.object[0].channelId==results.metric[0].channelId) {
+        if (results.object[0].channelId == results.metric[0].channelId) {
 
             async.concatSeries(results.object, getEachChannel, callback);
         }
         else
-        async.concatSeries(results.get_profile, getEachChannel, callback);
+            async.concatSeries(results.get_profile, getEachChannel, callback);
     }
 
     //Function to get all channels detail
@@ -311,7 +310,7 @@ exports.getChannelData = function (req, res, next) {
         async.auto({
             get_each_channel_data: getEachChannelData
         }, function (err, results) {
-            console.log('each channel',err)
+            console.log('each channel', err)
             if (err) {
                 return callback(err, null);
             }
@@ -338,7 +337,7 @@ exports.getChannelData = function (req, res, next) {
                 case configAuth.channels.googleAnalytics:
                     setDataBasedChannelCode(results, function (err, result) {
                         if (err)
-                            return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
+                            return res.status(500).json({error: 'Internal server error', id: req.params.widgetId})
                         else
                             initializeGa(result, callback);
                     });
@@ -346,7 +345,7 @@ exports.getChannelData = function (req, res, next) {
                 case configAuth.channels.facebook:
                     setDataBasedChannelCode(results, function (err, result) {
                         if (err)
-                            return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
+                            return res.status(500).json({error: 'Internal server error', id: req.params.widgetId})
                         else
                             getFBPageData(result, callback);
                     });
@@ -354,7 +353,7 @@ exports.getChannelData = function (req, res, next) {
                 case configAuth.channels.facebookAds:
                     setDataBasedChannelCode(results, function (err, result) {
                         if (err)
-                            return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
+                            return res.status(500).json({error: 'Internal server error', id: req.params.widgetId})
                         else
                             getFBadsinsightsData(result, callback);
                     });
@@ -362,7 +361,7 @@ exports.getChannelData = function (req, res, next) {
                 case configAuth.channels.twitter:
                     setDataBasedChannelCode(results, function (err, result) {
                         if (err)
-                            return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
+                            return res.status(500).json({error: 'Internal server error', id: req.params.widgetId})
                         else
                             getTweetData(result, callback);
                     });
@@ -370,7 +369,7 @@ exports.getChannelData = function (req, res, next) {
                 case configAuth.channels.googleAdwords:
                     setDataBasedChannelCode(results, function (err, result) {
                         if (err)
-                            return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
+                            return res.status(500).json({error: 'Internal server error', id: req.params.widgetId})
                         else
                             selectAdwordsObjectType(result, callback);
                     });
@@ -378,14 +377,14 @@ exports.getChannelData = function (req, res, next) {
                 case configAuth.channels.instagram:
                     setDataBasedChannelCode(results, function (err, result) {
                         if (err)
-                            return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
+                            return res.status(500).json({error: 'Internal server error', id: req.params.widgetId})
                         else
                             selectInstagram(result, callback);
                     });
                     break;
                 case configAuth.channels.youtube:
                     setDataBasedChannelCode(results, function (err, result) {
-                        console.log('databasedcode',err)
+                        console.log('databasedcode', err)
                         if (err)
                             return res.status(500).json({error: 'Internal server error'})
                         else
@@ -411,7 +410,7 @@ exports.getChannelData = function (req, res, next) {
                 case configAuth.channels.linkedIn:
                     setDataBasedChannelCode(results, function (err, result) {
                         if (err)
-                            return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
+                            return res.status(500).json({error: 'Internal server error', id: req.params.widgetId})
                         else
                             selectLinkedInObjectType(result, callback);
                     });
@@ -428,7 +427,7 @@ exports.getChannelData = function (req, res, next) {
                 case configAuth.channels.moz:
                     setDataBasedChannelCode(results, function (err, result) {
                         if (err)
-                            return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
+                            return res.status(500).json({error: 'Internal server error', id: req.params.widgetId})
                         else
 
                             getMozData(result, callback);
@@ -475,7 +474,7 @@ exports.getChannelData = function (req, res, next) {
             function groupProfile(callback) {
                 var profile = [];
                 var profilesList = initialResults.get_profile;
-                if(profilesList==null) {
+                if (profilesList == null) {
 
                     callback(null);
                 }
@@ -494,7 +493,7 @@ exports.getChannelData = function (req, res, next) {
                 var channelObjects = [];
                 var objects = initialResults.object;
 
-                if(results.group_profile==null){
+                if (results.group_profile == null) {
 
                     for (var i = 0; i < objects.length; i++) {
                         if (String(initialResults.get_channel[0]._id) === String(objects[i].channelId))
@@ -575,7 +574,7 @@ exports.getChannelData = function (req, res, next) {
                 async.timesSeries(Math.min(data.length, metric.length), function (j, next) {
                     var d = new Date();
                     d.setDate(d.getDate() + 1);
-                    console.log('end date',d)
+                    console.log('end date', d)
                     var queryObject = {};
 
                     //check already there is one year data in db
@@ -584,12 +583,12 @@ exports.getChannelData = function (req, res, next) {
                         var updated = formatDate(data[j].data.updated);
                         var now = formatDate(new Date());
                         if (updated < now) {
-                            data[j].data.updated.setDate(data[j].data.updated.getDate()+1);
+                            data[j].data.updated.setDate(data[j].data.updated.getDate() + 1);
                             var updated = formatDate(data[j].data.updated);
                             var now = new Date();
-                            now.setDate(now.getDate()+1);
+                            now.setDate(now.getDate() + 1);
                             now = moment(now).format('YYYY-MM-DD')
-                            console.log('start',updated,now)
+                            console.log('start', updated, now)
                             var query = initialResults.object[0].channelObjectId + "/insights/" + metric[j].objectTypes[0].meta.fbMetricName + "?since=" + updated + "&until=" + now;
                             queryObject = {
                                 query: query,
@@ -670,14 +669,17 @@ exports.getChannelData = function (req, res, next) {
             }
             else {
                 graph.get(query.query, function (err, fbQueryRes) {
-                    console.log('fbQueryRes',err)
+                    console.log('fbQueryRes', err)
                     if (err) {
                         if (err.code === 190)
-                            return res.status(401).json({error: 'Authentication required to perform this action',id:req.params.widgetId})
+                            return res.status(401).json({
+                                error: 'Authentication required to perform this action',
+                                id: req.params.widgetId
+                            })
                         else if (err.code === 4)
-                            return res.status(4).json({error: 'Forbidden Error',id:req.params.widgetId})
+                            return res.status(4).json({error: 'Forbidden Error', id: req.params.widgetId})
                         else
-                            return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
+                            return res.status(500).json({error: 'Internal server error', id: req.params.widgetId})
                     }
                     else {
                         queryResponse = {
@@ -744,7 +746,7 @@ exports.getChannelData = function (req, res, next) {
                                         finalData = findDaysDifference(dataFromRemote[j].startDate, dataFromRemote[j].endDate, undefined);
                                 }
                             }
-console.log('finaldat',finalData)
+                            console.log('finaldat', finalData)
                             //Check empty data from query response
                             if (dataFromRemote[j].data === 'No Data')
                                 storeGoogleData = finalData;
@@ -843,7 +845,7 @@ console.log('finaldat',finalData)
                                 var wholeResponse = [];
 
                             }
-                            console.log('finaldata afer else',finalData,storeGoogleData.length)
+                            console.log('finaldata afer else', finalData, storeGoogleData.length)
                             if (dataFromDb[j].data != null) {
                                 var metricId;
                                 for (var r = 0; r < dataFromDb[j].data.data.length; r++) {
@@ -853,10 +855,10 @@ console.log('finaldat',finalData)
                                     }
                                 }
                             }
-                            console.log('storeGoogleData',storeGoogleData.length,'finaldata',finalData.length);
+                            console.log('storeGoogleData', storeGoogleData.length, 'finaldata', finalData.length);
                             //if (finalData.length>storeGoogleData.length)
-                                storeGoogleData = replaceEmptyData(finalData, storeGoogleData);
-                            console.log('storeGoogleData',storeGoogleData.length,'finaldata',finalData.length);
+                            storeGoogleData = replaceEmptyData(finalData, storeGoogleData);
+                            console.log('storeGoogleData', storeGoogleData.length, 'finaldata', finalData.length);
                             var now = new Date();
 
                             //Updating the old data with new one
@@ -873,9 +875,12 @@ console.log('finaldat',finalData)
                                 }
                             }, {upsert: true}, function (err, data) {
                                 if (err)
-                                    return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
+                                    return res.status(500).json({
+                                        error: 'Internal server error',
+                                        id: req.params.widgetId
+                                    })
                                 else if (data == 0)
-                                    return res.status(501).json({error: 'Not implemented',id:req.params.widgetId})
+                                    return res.status(501).json({error: 'Not implemented', id: req.params.widgetId})
                                 else next(null, 'success')
                             })
                         }
@@ -903,7 +908,7 @@ console.log('finaldat',finalData)
                                     d.setDate(d.getDate() - 1);
                                     d = moment(d).format('YYYY-MM-DD');
                                     if (dataFromRemote[key].res.data.length) {
-                                        console.log('d',d,dataFromRemote[key].res.data[0].values)
+                                        console.log('d', d, dataFromRemote[key].res.data[0].values)
                                         var dataLength = dataFromRemote[key].res.data[0].values.length;
                                         var fbDataLength = dataFromRemote[key].res.data[0].values.length;
                                         for (var index in dataFromRemote[key].res.data[0].values) {
@@ -930,7 +935,7 @@ console.log('finaldat',finalData)
                                             finalReplacedData.forEach(function (value) {
                                                 finalData.push(value)
                                             })
-                                            console.log('finaldata',finalData,finalData1)
+                                            console.log('finaldata', finalData, finalData1)
                                         }
                                     }
                                     else {
@@ -945,7 +950,7 @@ console.log('finaldat',finalData)
                                             }
                                         }
                                     }
-                                    console.log('beforeReplaceEmptyData',beforeReplaceEmptyData,finalData,dataFromRemote[key].startDate, d)
+                                    console.log('beforeReplaceEmptyData', beforeReplaceEmptyData, finalData, dataFromRemote[key].startDate, d)
                                 }
                             }
                         }
@@ -982,9 +987,12 @@ console.log('finaldat',finalData)
                                 }
                             }, {upsert: true}, function (err, data) {
                                 if (err)
-                                    return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
+                                    return res.status(500).json({
+                                        error: 'Internal server error',
+                                        id: req.params.widgetId
+                                    })
                                 else if (data == 0)
-                                    return res.status(501).json({error: 'Not implemented',id:req.params.widgetId})
+                                    return res.status(501).json({error: 'Not implemented', id: req.params.widgetId})
                                 else next(null, 'success')
                             });
                         }
@@ -1008,11 +1016,11 @@ console.log('finaldat',finalData)
                             if (String(dataFromRemote[key].channelId) === String(metric[0].channelId)) {
 
                                 if (dataFromRemote[key].data.length) {
-                                            var value = {};
-                                            value = {
-                                                total: parseFloat(dataFromRemote[key].data[0].total).toFixed(2),
-                                                date: dataFromRemote[key].data[0].date
-                                            };
+                                    var value = {};
+                                    value = {
+                                        total: parseFloat(dataFromRemote[key].data[0].total).toFixed(2),
+                                        date: dataFromRemote[key].data[0].date
+                                    };
                                     if (String(metric[j]._id) === String(dataFromRemote[key].metricId)) {
                                         beforeReplaceEmptyData.push(value);
                                         var metricId = dataFromRemote[key].metricId;
@@ -1025,10 +1033,10 @@ console.log('finaldat',finalData)
 
                                     }
 
-                                    }
+                                }
                             }
                         }
-                        if (dataFromRemote[j].data!= 'DataFromDb') {
+                        if (dataFromRemote[j].data != 'DataFromDb') {
                             if (dataFromDb[j].data != null) {
                                 //merge the old data with new one and update it in db
                                 for (var key = 0; key < dataFromDb[j].data.data.length; key++) {
@@ -1052,9 +1060,12 @@ console.log('finaldat',finalData)
                                 }
                             }, {upsert: true}, function (err, data) {
                                 if (err)
-                                    return res.status(500).json({error: 'Internal server error',id:req.params.widgetId});
+                                    return res.status(500).json({
+                                        error: 'Internal server error',
+                                        id: req.params.widgetId
+                                    });
                                 else if (data == 0)
-                                    return res.status(501).json({error: 'Not implemented',id:req.params.widgetId});
+                                    return res.status(501).json({error: 'Not implemented', id: req.params.widgetId});
                                 else
                                     next(null, 'success');
 
@@ -1102,11 +1113,14 @@ console.log('finaldat',finalData)
                                     bgFetch: metric[j].bgFetch,
                                     fetchPeriod: metric[j].fetchPeriod
                                 }
-                            }, {upsert: true}, function (err,data) {
+                            }, {upsert: true}, function (err, data) {
                                 if (err)
-                                    return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
+                                    return res.status(500).json({
+                                        error: 'Internal server error',
+                                        id: req.params.widgetId
+                                    })
                                 else if (data == 0)
-                                    return res.status(501).json({error: 'Not implemented',id:req.params.widgetId})
+                                    return res.status(501).json({error: 'Not implemented', id: req.params.widgetId})
                                 else next(null, 'success');
                             });
                         }
@@ -1154,11 +1168,14 @@ console.log('finaldat',finalData)
                                     bgFetch: metric[j].bgFetch,
                                     fetchPeriod: metric[j].fetchPeriod
                                 }
-                            }, {upsert: true}, function (err,data) {
+                            }, {upsert: true}, function (err, data) {
                                 if (err)
-                                    return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
+                                    return res.status(500).json({
+                                        error: 'Internal server error',
+                                        id: req.params.widgetId
+                                    })
                                 else if (data == 0)
-                                    return res.status(501).json({error: 'Not implemented',id:req.params.widgetId})
+                                    return res.status(501).json({error: 'Not implemented', id: req.params.widgetId})
                                 else next(null, 'success')
                             });
                         }
@@ -1210,11 +1227,14 @@ console.log('finaldat',finalData)
                                         bgFetch: metric[j].bgFetch,
                                         fetchPeriod: metric[j].fetchPeriod
                                     }
-                                }, {upsert: true}, function (err,data) {
+                                }, {upsert: true}, function (err, data) {
                                     if (err)
-                                        return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
+                                        return res.status(500).json({
+                                            error: 'Internal server error',
+                                            id: req.params.widgetId
+                                        })
                                     else if (data == 0)
-                                        return res.status(501).json({error: 'Not implemented',id:req.params.widgetId})
+                                        return res.status(501).json({error: 'Not implemented', id: req.params.widgetId})
                                     else next(null, 'success');
                                 });
                             }
@@ -1326,7 +1346,7 @@ console.log('finaldat',finalData)
                                 }
                             }
                             else {
-                                return res.status(500).json({error: 'Internal server error',id:req.params.widgetId});
+                                return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
                             }
                             if (dataFromDb[j].data != null) {
                                 dataFromDb[j].data.data.forEach(function (value, index) {
@@ -1379,11 +1399,14 @@ console.log('finaldat',finalData)
                                         bgFetch: metric[j].bgFetch,
                                         fetchPeriod: metric[j].fetchPeriod
                                     }
-                                }, {upsert: true}, function (err,data) {
+                                }, {upsert: true}, function (err, data) {
                                     if (err)
-                                        return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
+                                        return res.status(500).json({
+                                            error: 'Internal server error',
+                                            id: req.params.widgetId
+                                        })
                                     else if (data == 0)
-                                        return res.status(501).json({error: 'Not implemented',id:req.params.widgetId})
+                                        return res.status(501).json({error: 'Not implemented', id: req.params.widgetId})
                                     else next(null, 'success')
                                 });
                             }
@@ -1436,11 +1459,14 @@ console.log('finaldat',finalData)
                                     bgFetch: metric[j].bgFetch,
                                     fetchPeriod: metric[j].fetchPeriod
                                 }
-                            }, {upsert: true}, function (err,data) {
+                            }, {upsert: true}, function (err, data) {
                                 if (err)
-                                    return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
+                                    return res.status(500).json({
+                                        error: 'Internal server error',
+                                        id: req.params.widgetId
+                                    })
                                 else if (data == 0)
-                                    return res.status(501).json({error: 'Not implemented',id:req.params.widgetId})
+                                    return res.status(501).json({error: 'Not implemented', id: req.params.widgetId})
                                 else next(null, 'success')
                             });
                         }
@@ -1455,12 +1481,12 @@ console.log('finaldat',finalData)
                     //console.log('storingProcess',dataFromRemote);
                     async.times(metric.length, function (j, next) {
                         var finalData = [];
-                        if(metric[j].code==='boardsleaderboard' || metric[j].code==='engagementRate'){
+                        if (metric[j].code === 'boardsleaderboard' || metric[j].code === 'engagementRate') {
                             console.log('insideof boardsleaderboard')
-                            callback(null,dataFromRemote[j])
+                            callback(null, dataFromRemote[j])
 
                         }
-                        else{
+                        else {
                             //Array to hold the final result
                             for (var key in dataFromRemote) {
                                 if (dataFromRemote[key].apiResponse === 'DataFromDb') {
@@ -1485,7 +1511,7 @@ console.log('finaldat',finalData)
                                     }
 
                                 }
-                                console.log('storingFinalData',finalData)
+                                console.log('storingFinalData', finalData)
                                 var now = new Date();
 
                                 //Updating the old data with new one
@@ -1500,11 +1526,17 @@ console.log('finaldat',finalData)
                                         bgFetch: metric[j].bgFetch,
                                         fetchPeriod: metric[j].fetchPeriod
                                     }
-                                }, {upsert: true}, function (err,data) {
+                                }, {upsert: true}, function (err, data) {
                                     if (err)
-                                        return res.status(500).json({error: 'Internal server error',id:req.params.widgetId});
+                                        return res.status(500).json({
+                                            error: 'Internal server error',
+                                            id: req.params.widgetId
+                                        });
                                     else if (data == 0)
-                                        return res.status(501).json({error: 'Not implemented',id:req.params.widgetId});
+                                        return res.status(501).json({
+                                            error: 'Not implemented',
+                                            id: req.params.widgetId
+                                        });
                                     else next(null, 'success')
                                 });
                             }
@@ -1524,7 +1556,7 @@ console.log('finaldat',finalData)
                 function storeDataForlinkedIn(dataFromRemote, dataFromDb, widget, metric, done) {
                     async.times(metric.length, function (j, next) {
                         var finalData = [];
-                        if (metric[j].code==='highestEngagementUpdatesLinkedIn') {
+                        if (metric[j].code === 'highestEngagementUpdatesLinkedIn') {
                             callback(null, dataFromRemote[j]);
                         }
                         else {
@@ -1726,7 +1758,7 @@ console.log('finaldat',finalData)
                     };
                     next(null, wholeData);
                 }
-                else if(metric[k].code==='highestEngagementUpdatesLinkedIn'){
+                else if (metric[k].code === 'highestEngagementUpdatesLinkedIn') {
                     wholeData = {
                         "data": results.store_final_data[0].apiResponse,
                         "metricId": results.store_final_data[0].metricId,
@@ -1743,7 +1775,7 @@ console.log('finaldat',finalData)
                         "objectId": results.store_final_data[0].queryResults.object[0]._id
                     };
                     next(null, wholeData);
-                   // console.log("wholeData",wholeData)
+                    // console.log("wholeData",wholeData)
 
                 }
 
@@ -1897,14 +1929,17 @@ console.log('finaldat',finalData)
                 refresh_token: results.get_profile[0].refreshToken
             });
             oauth2Client.refreshAccessToken(function (err, tokens) {
-                console.log('refreshtoken error',err,oauth2Client)
+                console.log('refreshtoken error', err, oauth2Client)
                 if (err) {
                     if (err.code === 400)
-                        return res.status(401).json({error: 'Authentication required to perform this action',id:req.params.widgetId})
+                        return res.status(401).json({
+                            error: 'Authentication required to perform this action',
+                            id: req.params.widgetId
+                        })
                     else if (err.code === 403)
-                        return res.status(403).json({error: 'Forbidden Error',id:req.params.widgetId})
+                        return res.status(403).json({error: 'Forbidden Error', id: req.params.widgetId})
                     else
-                        return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
+                        return res.status(500).json({error: 'Internal server error', id: req.params.widgetId})
                 }
                 else {
                     profile.token = tokens.access_token;
@@ -1943,8 +1978,8 @@ console.log('finaldat',finalData)
                                 var endDate = formatDate(d);
                                 if (startDate < endDate) {
                                     startDate = data[i].data.updated;
-                                    startDate.setDate(startDate.getDate()+1);
-                                     startDate = moment(startDate).format('YYYY-MM-DD');
+                                    startDate.setDate(startDate.getDate() + 1);
+                                    startDate = moment(startDate).format('YYYY-MM-DD');
                                     allObjects = {
                                         oauth2Client: oauth2Client,
                                         object: object[i],
@@ -2073,12 +2108,15 @@ console.log('finaldat',finalData)
 
                 function callGoogleApi(apiQuery) {
                     analytics(apiQuery, function (err, result) {
-                        console.log('youtube result',err,result)
+                        console.log('youtube result', err, result)
                         if (err) {
                             if (err.code === 400)
-                                return res.status(401).json({error: 'Authentication required to perform this action',id:req.params.widgetId})
+                                return res.status(401).json({
+                                    error: 'Authentication required to perform this action',
+                                    id: req.params.widgetId
+                                })
                             else
-                                return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
+                                return res.status(500).json({error: 'Internal server error', id: req.params.widgetId})
                         }
                         else {
                             if (result.rows != undefined) {
@@ -2293,14 +2331,17 @@ console.log('finaldat',finalData)
             function Adsinsights(query) {
                 var metricId = results.metricId;
                 FB.api(query, function (apiResult) {
-                    console.log('apiresult',apiResult.error,query,results.profile.accessToken)
+                    console.log('apiresult', apiResult.error, query, results.profile.accessToken)
                     if (apiResult.error) {
                         if (apiResult.error.code === 190)
-                            return res.status(401).json({error: 'Authentication required to perform this action',id:req.params.widgetId})
+                            return res.status(401).json({
+                                error: 'Authentication required to perform this action',
+                                id: req.params.widgetId
+                            })
                         else if (apiResult.error.code === 4)
-                            return res.status(4).json({error: 'Forbidden Error',id:req.params.widgetId})
+                            return res.status(4).json({error: 'Forbidden Error', id: req.params.widgetId})
                         else
-                            return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
+                            return res.status(500).json({error: 'Internal server error', id: req.params.widgetId})
 
                     }
                     else {
@@ -2406,31 +2447,33 @@ console.log('finaldat',finalData)
                         var startDate = calculateDate(d);
                         var newEndDate = startDate.replace(/-/g, "");
                         startDate = newEndDate;
+                        console.log('data[j].data.updated', data[j].data.updated)
                         var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
                         if (calculateDate(data[j].data.updated) < currentDate) {
-                            if(configAuth.objectType.googleAdwordAdGrouptypeId == String(initialResults.object[j].objectTypeId)){
-                                var query ='AdGroupId,' +'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
-                                var performance='ADGROUP_PERFORMANCE_REPORT';
-                                var clientId=initialResults.object[j]. meta.customerId;
-                                var objects="AdGroupId="+initialResults.object[j].channelObjectId;
+                            console.log('initialResults.object[j]', initialResults.object[j].meta.accountId, 'initialResults.object[j]. meta.accountId', initialResults.object[j])
+                            if (configAuth.objectType.googleAdwordAdGrouptypeId == String(initialResults.object[j].objectTypeId)) {
+                                var query = 'AdGroupId,' + 'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
+                                var performance = 'ADGROUP_PERFORMANCE_REPORT';
+                                var clientId = initialResults.object[j].meta.accountId;
+                                var objects = "AdGroupId=" + initialResults.object[j].channelObjectId;
                             }
-                            else if(configAuth.objectType.googleAdwordCampaigntypeId == String(initialResults.object[j].objectTypeId)){
-                                var query ='CampaignId' +'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
-                                var performance='CAMPAIGN_PERFORMANCE_REPORT';
-                                var clientId=initialResults.object[j]. meta.customerId;
-                                var objects="CampaignId="+initialResults.object[j].channelObjectId;
+                            else if (configAuth.objectType.googleAdwordCampaigntypeId == String(initialResults.object[j].objectTypeId)) {
+                                var query = 'CampaignId,' + 'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
+                                var performance = 'CAMPAIGN_PERFORMANCE_REPORT';
+                                var clientId = initialResults.object[j].meta.accountId;
+                                var objects = "CampaignId=" + initialResults.object[j].channelObjectId;
                             }
-                            else if(configAuth.objectType.googleAdwordsAdtypeId == String(initialResults.object[j].objectTypeId)){
-                                var query = 'Id,'+'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
-                                var performance='AD_PERFORMANCE_REPORT';
-                                var clientId=initialResults.object[j].meta.customerId;
-                                var objects="Id="+initialResults.object[j].channelObjectId;
+                            else if (configAuth.objectType.googleAdwordsAdtypeId == String(initialResults.object[j].objectTypeId)) {
+                                var query = 'Id,' + 'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
+                                var performance = 'AD_PERFORMANCE_REPORT';
+                                var clientId = initialResults.object[j].meta.accountId;
+                                var objects = "Id=" + initialResults.object[j].channelObjectId;
                             }
-                            else{
+                            else {
                                 var query = 'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
-                                var performance='ACCOUNT_PERFORMANCE_REPORT';
-                                var clientId=initialResults.object[j].channelObjectId;
-                                var objects=""
+                                var performance = 'ACCOUNT_PERFORMANCE_REPORT';
+                                var clientId = initialResults.object[j].channelObjectId;
+                                var objects = ""
                             }
                             allObjects = {
                                 profile: initialResults.get_profile[j],
@@ -2438,10 +2481,12 @@ console.log('finaldat',finalData)
                                 widget: metric[j],
                                 dataResult: data[j].data,
                                 startDate: updated,
-                                objects: object[j].channelObjectId,
+                                objects: objects,
                                 endDate: startDate,
                                 metricId: metric[j]._id,
-                                metricCode: metric[j].code
+                                metricCode: metric[j].code,
+                                clientId: clientId,
+                                performance: performance
                             }
 
                             next(null, allObjects);
@@ -2460,42 +2505,41 @@ console.log('finaldat',finalData)
                         var newEndDate = endDate.replace(/-/g, "");
                         var endDate = newEndDate;
                         console.log(initialResults.object[j])
-                        if(configAuth.objectType.googleAdwordAdGrouptypeId == String(initialResults.object[j].objectTypeId)){
-                            var query ='AdGroupId,' +'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
-                            var performance='ADGROUP_PERFORMANCE_REPORT';
-                            var clientId=initialResults.object[j]. meta.accountId;
-                            var objects="AdGroupId="+initialResults.object[j].channelObjectId;
+                        if (configAuth.objectType.googleAdwordAdGrouptypeId == String(initialResults.object[j].objectTypeId)) {
+                            var query = 'AdGroupId,' + 'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
+                            var performance = 'ADGROUP_PERFORMANCE_REPORT';
+                            var clientId = initialResults.object[j].meta.accountId;
+                            var objects = "AdGroupId=" + initialResults.object[j].channelObjectId;
                         }
-                        else if(configAuth.objectType.googleAdwordCampaigntypeId == String(initialResults.object[j].objectTypeId)){
-                            var query ='CampaignId,' +'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
-                            var performance='CAMPAIGN_PERFORMANCE_REPORT';
-                            var clientId=initialResults.object[j]. meta.accountId;
-                            var objects="CampaignId="+initialResults.object[j].channelObjectId;
+                        else if (configAuth.objectType.googleAdwordCampaigntypeId == String(initialResults.object[j].objectTypeId)) {
+                            var query = 'CampaignId,' + 'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
+                            var performance = 'CAMPAIGN_PERFORMANCE_REPORT';
+                            var clientId = initialResults.object[j].meta.accountId;
+                            var objects = "CampaignId=" + initialResults.object[j].channelObjectId;
                         }
-                        else if(configAuth.objectType.googleAdwordtypeId == String(initialResults.object[j].objectTypeId) ){
+                        else if (configAuth.objectType.googleAdwordtypeId == String(initialResults.object[j].objectTypeId)) {
 
                             var query = 'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
-                            var performance='ACCOUNT_PERFORMANCE_REPORT';
-                            var clientId=initialResults.object[j].channelObjectId;
-                            var objects=""
+                            var performance = 'ACCOUNT_PERFORMANCE_REPORT';
+                            var clientId = initialResults.object[j].channelObjectId;
+                            var objects = ""
                         }
-                        else{
-                            var query = 'Id,'+'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
-                            var performance='AD_PERFORMANCE_REPORT';
-                            var clientId=initialResults.object[j].meta.accountId;
-                            var objects="Id="+initialResults.object[j].channelObjectId;
+                        else {
+                            var query = 'Id,' + 'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
+                            var performance = 'AD_PERFORMANCE_REPORT';
+                            var clientId = initialResults.object[j].meta.accountId;
+                            var objects = "Id=" + initialResults.object[j].channelObjectId;
 
                         }
-
                         allObjects = {
                             profile: initialResults.get_profile[j],
                             query: query,
                             widget: metric[j],
                             dataResult: data[j].data,
-                            clientId:clientId,
+                            clientId: clientId,
                             objects: objects,
                             startDate: startDate,
-                            performance:performance,
+                            performance: performance,
                             endDate: endDate,
                             metricId: metric[j]._id,
                             metricCode: metric[j].code
@@ -2534,6 +2578,7 @@ console.log('finaldat',finalData)
         function getAdwordsDataForEachMetric(results, callback) {
             semaphore.take(function () {
                 var errorCount = 0;
+                console.log('results.clientId', results)
                 var during = results.startDate + ',' + results.endDate;
                 googleAds.use({
                     clientID: configAuth.googleAdwordsAuth.clientID,
@@ -2547,16 +2592,19 @@ console.log('finaldat',finalData)
                     clientCustomerID: results.clientId
 
                 });
+                console.log('awql', results.query, 'performance', results.performance, 'objects', results.objects, 'during', during, 'access token', results.profile, 'results.clientId', results.clientId)
                 googleAds.awql({
-                        select:results.query,
-                        from:results.performance,
-                        where:results.objects,
-                        during:during})
+                        select: results.query,
+                        from: results.performance,
+                        where: results.objects,
+                        during: during
+                    })
                     .send().then(function (response) {
                         storeAdwordsFinalData(results, response.data);
                         semaphore.leave();
                     })
                     .catch(function (error) {
+                        console.log('catc error ', error)
                         semaphore.leave();
                         callback(error, null);
                     });
@@ -2566,7 +2614,7 @@ console.log('finaldat',finalData)
             function storeAdwordsFinalData(results, data) {
                 var actualFinalApiData = {};
                 if (data.error) {
-                    return res.status(500).json({error: 'Internal server error',id:req.params.widgetId});
+                    return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
                 }
 
                 //Array to hold the final result
@@ -2724,7 +2772,7 @@ console.log('finaldat',finalData)
                 else {
                     callTwitterApi(queries, j, wholeTweetObjects, oldMaxId, index, function (err, response) {
                         if (err)
-                            return res.status(500).json({error: 'Internal server error',id:req.params.widgetId});
+                            return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
                         else {
                             next(null, response);
                         }
@@ -2748,7 +2796,7 @@ console.log('finaldat',finalData)
 
             client.get(query, inputs, function (error, tweets, response) {
                 if (error) {
-                    return res.status(500).json({error: 'Internal server error',id:req.params.widgetId});
+                    return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
                 }
                 else {
                     if (queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.tweets || queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.followers || queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.following || queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.favourites || queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.listed || queries.get_tweet_queries[j].metricCode === configAuth.twitterMetric.retweets_of_your_tweets) {
@@ -2977,17 +3025,17 @@ console.log('finaldat',finalData)
             $set: {data: storeDefaultValues, updated: now}
         }, {upsert: true}, function (err, data) {
             if (err)
-                return res.status(500).json({error: 'Internal server error',id:req.params.widgetId})
+                return res.status(500).json({error: 'Internal server error', id: req.params.widgetId})
             else if (data == 0)
-                return res.status(501).json({error: 'Not implemented',id:req.params.widgetId})
+                return res.status(501).json({error: 'Not implemented', id: req.params.widgetId})
             else {
                 Data.findOne({
                     'objectId': results.widget.charts[0].metrics[0].objectId,
                     'metricId': results.widget.charts[0].metrics[0].metricId
                 }, function (err, response) {
-                    if (err) return res.status(500).json({error: 'Internal server error',id:req.params.widgetId});
+                    if (err) return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
                     else if (!response)
-                        return res.status(204).json({error: 'No records found',id:req.params.widgetId});
+                        return res.status(204).json({error: 'No records found', id: req.params.widgetId});
                     else sendFinalData(response, metric);
                 })
             }
@@ -3079,7 +3127,7 @@ console.log('finaldat',finalData)
     function callTweetApiBasedCondition(query, profile, totalCount, wholetweetData, widget, metric, data, results, until, tweets, createdAt, inputs) {
         client.get(query, inputs, function (error, tweets, response) {
             if (error)
-                return res.status(500).json({error: 'Internal server error',id:req.params.widgetId});
+                return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
             else if (tweets.length == 0)
                 storeTweetData(wholetweetData, results, metric, 1);
             else {
@@ -3182,8 +3230,8 @@ console.log('finaldat',finalData)
                 }
             }
         }
-        else{
-            return res.status(500).json({error: 'Internal server error',id:req.params.widgetId});
+        else {
+            return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
         }
 
     }
@@ -3307,8 +3355,8 @@ console.log('finaldat',finalData)
             ig.use({access_token: result.profile.accessToken});
             if (result.query === 'user') {
                 ig.user(result.profile.userId, function (err, results, remaining, limit) {
-                    if (err){
-                        return res.status(500).json({error: 'Internal server error',id:req.params.widgetId});
+                    if (err) {
+                        return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
                     }
                     else {
                         var endPointMetric = {};
@@ -3326,7 +3374,7 @@ console.log('finaldat',finalData)
                         storeMetric = temp[item];
                         for (var i = 0; i <= diffDays; i++) {
                             var finalDate = moment(storeStartDate).format('YYYY-MM-DD');
-                            if(finalDate<=moment(new Date()).format('YYYY-MM-DD')) {
+                            if (finalDate <= moment(new Date()).format('YYYY-MM-DD')) {
                                 tot_metric.push({date: finalDate, total: 0});
                                 storeStartDate.setDate(storeStartDate.getDate() + 1);
 
@@ -3456,7 +3504,7 @@ console.log('finaldat',finalData)
     }
 
 
-    function selectPinterest(initialResults, callback){
+    function selectPinterest(initialResults, callback) {
         async.auto({
             get_pinterest_queries: getPinterestQueries,
             get_pinterest_data_from_remote: ['get_pinterest_queries', getPinterestDataFromRemote]
@@ -3468,7 +3516,7 @@ console.log('finaldat',finalData)
             callback(null, results.get_pinterest_data_from_remote);
         });
 
-        function getPinterestQueries(callback){
+        function getPinterestQueries(callback) {
             work(initialResults.data, initialResults.object, initialResults.metric, callback);
             function work(data, object, metric, done) {
                 async.timesSeries(metric.length, function (j, next) {
@@ -3476,7 +3524,7 @@ console.log('finaldat',finalData)
                     d = new Date();
                     var allObjects = {};
                     if (data[j].data != null) {
-                        var updatedDb =calculateDate(data[j].data.updated);
+                        var updatedDb = calculateDate(data[j].data.updated);
                         var updated = data[j].data.updated;
                         var currentDate = calculateDate(new Date());
                         // d.setDate(d.getDate() + 1);
@@ -3506,7 +3554,7 @@ console.log('finaldat',finalData)
                         d.setDate(d.getDate() - 365);
                         var startDate = formatDate(d);
                         var endDate = formatDate(new Date());
-                        var query =  metric[j].objectTypes[0].meta.pinMetricName;
+                        var query = metric[j].objectTypes[0].meta.pinMetricName;
                         allObjects = {
                             profile: initialResults.get_profile[j],
                             query: query,
@@ -3515,7 +3563,7 @@ console.log('finaldat',finalData)
                             startDate: startDate,
                             endDate: endDate,
                             metricId: metric[j]._id,
-                            metricCode:metric[j].code,
+                            metricCode: metric[j].code,
                             endPoint: metric[j].objectTypes[0].meta.endpoint[0]
                         };
                         next(null, allObjects);
@@ -3526,7 +3574,7 @@ console.log('finaldat',finalData)
             }
         }
 
-        function getPinterestDataFromRemote (allObjects,callback){
+        function getPinterestDataFromRemote(allObjects, callback) {
             var actualFinalApiData = {};
             async.concatSeries(allObjects.get_pinterest_queries, checkDbData, callback);
             function checkDbData(result, callback) {
@@ -3543,59 +3591,64 @@ console.log('finaldat',finalData)
             }
         }
 
-        function  callPinterestApiForMetrics(result, callback){
+        function callPinterestApiForMetrics(result, callback) {
             var storeMetric;
-            var tot_metric=[];
-            var actualFinalApiData=[];
-            var arrayOfResponse=[];
-            var arrayOfBoards=[];
+            var tot_metric = [];
+            var actualFinalApiData = [];
+            var arrayOfResponse = [];
+            var arrayOfBoards = [];
             var storeBoard = [];
-            var removeDuplicateBoard =[];
-            var storePin=[];
-            var topTenBoard =[];
+            var removeDuplicateBoard = [];
+            var storePin = [];
+            var topTenBoard = [];
             var pinterest = PDK.init(result.profile.accessToken);
-            if(result.metricCode === 'boardsleaderboard'){
+            if (result.metricCode === 'boardsleaderboard') {
                 var params = {
                     qs: {
                         fields: "counts,id,name,created_at,url",
                     }
                 };
-                pinterest.api(result.query,params).then(function(response) {
-                        var endPointMetric = {}
-                        endPointMetric = {items: result.endPoint};
-                        if (endPointMetric.items.indexOf("/") > -1) {
-                            endPointMetric = endPointMetric.items.split("/");
-                        }
-                        var count = endPointMetric[0];
-                        var pins = endPointMetric[1];
-                        var collaborate = endPointMetric[2];
-                        var followers = endPointMetric[3];
-                        for(var key in response.data){
-                            arrayOfResponse.push(response.data[key]);
-                        }
-                        for(var i=0;i<arrayOfResponse.length;i++){
-                            var created_at=arrayOfResponse[i].created_at
-                            var split = created_at.split('T');
-                            var createDate = split[0];
-                            var temp = arrayOfResponse[i][count];
-                            arrayOfBoards.push({date:createDate,url:arrayOfResponse[i].url,name: response.data[i].name, total:{pins:temp[pins],collaborators:temp[collaborate],followers:temp[followers]}})
-                        }
-                        var MediasArray = _.sortBy(arrayOfBoards, ['total.followers']);
-                        var collectionBoard= _.orderBy(MediasArray, ['total.followers', 'total.pins'], ['desc','asc']);
-                        for(var j=0; j<10;j++){
-                            topTenBoard.push(collectionBoard[j]);
-                        }
-                        actualFinalApiData = {
-                            apiResponse: topTenBoard,
-                            metricId: result.metricId,
-                            queryResults: initialResults,
-                            channelId: initialResults.metric[0].channelId
-                        }
+                pinterest.api(result.query, params).then(function (response) {
+                    var endPointMetric = {}
+                    endPointMetric = {items: result.endPoint};
+                    if (endPointMetric.items.indexOf("/") > -1) {
+                        endPointMetric = endPointMetric.items.split("/");
+                    }
+                    var count = endPointMetric[0];
+                    var pins = endPointMetric[1];
+                    var collaborate = endPointMetric[2];
+                    var followers = endPointMetric[3];
+                    for (var key in response.data) {
+                        arrayOfResponse.push(response.data[key]);
+                    }
+                    for (var i = 0; i < arrayOfResponse.length; i++) {
+                        var created_at = arrayOfResponse[i].created_at
+                        var split = created_at.split('T');
+                        var createDate = split[0];
+                        var temp = arrayOfResponse[i][count];
+                        arrayOfBoards.push({
+                            date: createDate,
+                            url: arrayOfResponse[i].url,
+                            name: response.data[i].name,
+                            total: {pins: temp[pins], collaborators: temp[collaborate], followers: temp[followers]}
+                        })
+                    }
+                    var MediasArray = _.sortBy(arrayOfBoards, ['total.followers']);
+                    var collectionBoard = _.orderBy(MediasArray, ['total.followers', 'total.pins'], ['desc', 'asc']);
+                    for (var j = 0; j < 10; j++) {
+                        topTenBoard.push(collectionBoard[j]);
+                    }
+                    actualFinalApiData = {
+                        apiResponse: topTenBoard,
+                        metricId: result.metricId,
+                        queryResults: initialResults,
+                        channelId: initialResults.metric[0].channelId
+                    }
 
-                        callback(null, actualFinalApiData);
+                    callback(null, actualFinalApiData);
 
-                    },function(error){
-                    return res.status(500).json({error: 'Internal server error',id:req.params.widgetId});
+                }, function (error) {
+                    return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
                 })
 
             }
@@ -3615,26 +3668,26 @@ console.log('finaldat',finalData)
                 paginationCallApi(query, params);
                 function paginationCallApi(query, params) {
                     pinterest.api(query, params).then(function (response) {
-                            for (var index in response.data) {
-                                var dateString = response.data[index].created_at;
-                                var split = dateString.split('T');
-                                var createDate = moment(dateString).unix();
-                                if (createDate > startDate && createDate < endDate)
-                                    arrayOfResponse.push(response.data[index]);
-                                if (response.page.cursor != null && response.page.next != null) {
-                                    if (response.data.length === (parseInt(index) + 1) && createDate > startDate && createDate < endDate) {
-                                        query = response.page.next;
-                                        paginationCallApi(query, params);
-                                    }
-                                    else if (response.data.length === (parseInt(index) + 1)) {
-                                        storeFinalData(arrayOfResponse);
-                                    }
-                                } else if (response.data.length === (parseInt(index) + 1)) {
+                        for (var index in response.data) {
+                            var dateString = response.data[index].created_at;
+                            var split = dateString.split('T');
+                            var createDate = moment(dateString).unix();
+                            if (createDate > startDate && createDate < endDate)
+                                arrayOfResponse.push(response.data[index]);
+                            if (response.page.cursor != null && response.page.next != null) {
+                                if (response.data.length === (parseInt(index) + 1) && createDate > startDate && createDate < endDate) {
+                                    query = response.page.next;
+                                    paginationCallApi(query, params);
+                                }
+                                else if (response.data.length === (parseInt(index) + 1)) {
                                     storeFinalData(arrayOfResponse);
                                 }
+                            } else if (response.data.length === (parseInt(index) + 1)) {
+                                storeFinalData(arrayOfResponse);
                             }
-                        },function(error){
-                        return res.status(500).json({error: 'Internal server error',id:req.params.widgetId});
+                        }
+                    }, function (error) {
+                        return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
                     })
 
                 }
@@ -3653,45 +3706,45 @@ console.log('finaldat',finalData)
                     var like = endPointMetric[5];
                     var comment = endPointMetric[6];
                     var repin = endPointMetric[7];
-                    var url=endPointMetric[8];
-                    var removeDuplicate= _.groupBy(arrayOfBoards,'board.name')
+                    var url = endPointMetric[8];
+                    var removeDuplicate = _.groupBy(arrayOfBoards, 'board.name')
                     for (var k = 0; k < arrayOfResponse.length; k++) {
                         if (arrayOfResponse[k][board] != null) {
                             var isUnique = true;
-                            for(items in arrayOfBoards) {
-                                if(arrayOfBoards[items].boardId == arrayOfResponse[k][board][id]){
+                            for (items in arrayOfBoards) {
+                                if (arrayOfBoards[items].boardId == arrayOfResponse[k][board][id]) {
                                     isUnique = false;
                                 }
                             }
-                            if(isUnique == true) {
-                                var created_at=arrayOfResponse[k].created_at
+                            if (isUnique == true) {
+                                var created_at = arrayOfResponse[k].created_at
                                 var split = created_at.split('T');
                                 var createDate = split[0];
                                 arrayOfBoards.push({
-                                    date:created_at,
+                                    date: created_at,
                                     boardId: arrayOfResponse[k][board][id],
-                                    url:arrayOfResponse[k][board][url],
-                                    name:arrayOfResponse[k][board][name],
+                                    url: arrayOfResponse[k][board][url],
+                                    name: arrayOfResponse[k][board][name],
                                     total: ({likes: 0, comments: 0, repins: 0})
                                 });
                             }
                         }
                     }
-                    for (var k = 0; k < arrayOfBoards.length; k++){
+                    for (var k = 0; k < arrayOfBoards.length; k++) {
                         var likesCount = 0;
                         var commentCount = 0;
                         var repinsCount = 0;
-                        for (var j = 0; j < arrayOfResponse.length; j++){
-                            if(arrayOfBoards[k].boardId === arrayOfResponse[j][board][id]){
+                        for (var j = 0; j < arrayOfResponse.length; j++) {
+                            if (arrayOfBoards[k].boardId === arrayOfResponse[j][board][id]) {
 
-                                likesCount+= arrayOfResponse[j][count][like];
-                                commentCount+=arrayOfResponse[j][count][comment];
-                                repinsCount+=arrayOfResponse[j][count][repin];
+                                likesCount += arrayOfResponse[j][count][like];
+                                commentCount += arrayOfResponse[j][count][comment];
+                                repinsCount += arrayOfResponse[j][count][repin];
 
 
                             }
                         }
-                        arrayOfBoards[k].total=({likes: likesCount, comments: commentCount, repins: repinsCount});
+                        arrayOfBoards[k].total = ({likes: likesCount, comments: commentCount, repins: repinsCount});
 
                         var likesCount = 0;
                         var commentCount = 0;
@@ -3714,50 +3767,50 @@ console.log('finaldat',finalData)
                         fields: "id,first_name,created_at,username,counts,last_name",
                     }
                 };
-                pinterest.api(result.query , params).then(function (response) {
-                        var endPointMetric = {}
-                        endPointMetric = {items: result.endPoint};
-                        var storeStartDate = new Date(result.startDate);
-                        var storeEndDate = new Date(result.endDate);
-                        var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
-                        var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
-                        if (endPointMetric.items.indexOf("/") > -1) {
-                            endPointMetric = endPointMetric.items.split("/");
-                        }
-                        var count = endPointMetric[0];
-                        var item = endPointMetric[1];
-                        var temp = response.data[count];
-                        storeMetric = temp[item];
-                        for (var i = 0; i <= diffDays; i++) {
-                            var finalDate = formatDate(storeStartDate);
-                            tot_metric.push({date: finalDate, total: 0});
-                            storeStartDate.setDate(storeStartDate.getDate() + 1);
+                pinterest.api(result.query, params).then(function (response) {
+                    var endPointMetric = {}
+                    endPointMetric = {items: result.endPoint};
+                    var storeStartDate = new Date(result.startDate);
+                    var storeEndDate = new Date(result.endDate);
+                    var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
+                    var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                    if (endPointMetric.items.indexOf("/") > -1) {
+                        endPointMetric = endPointMetric.items.split("/");
+                    }
+                    var count = endPointMetric[0];
+                    var item = endPointMetric[1];
+                    var temp = response.data[count];
+                    storeMetric = temp[item];
+                    for (var i = 0; i <= diffDays; i++) {
+                        var finalDate = formatDate(storeStartDate);
+                        tot_metric.push({date: finalDate, total: 0});
+                        storeStartDate.setDate(storeStartDate.getDate() + 1);
 
-                            if (result.endDate === tot_metric[i].date) {
-                                tot_metric[i] = {
-                                    total: storeMetric,
-                                    date: result.endDate
-                                };
-                            }
-
+                        if (result.endDate === tot_metric[i].date) {
+                            tot_metric[i] = {
+                                total: storeMetric,
+                                date: result.endDate
+                            };
                         }
-                        actualFinalApiData = {
-                            apiResponse: tot_metric,
-                            metricId: result.metricId,
-                            queryResults: initialResults,
-                            channelId: initialResults.metric[0].channelId
-                        }
-                        callback(null, actualFinalApiData);
 
-                    },function(error){
-                    return res.status(500).json({error: 'Internal server error',id:req.params.widgetId});
+                    }
+                    actualFinalApiData = {
+                        apiResponse: tot_metric,
+                        metricId: result.metricId,
+                        queryResults: initialResults,
+                        channelId: initialResults.metric[0].channelId
+                    }
+                    callback(null, actualFinalApiData);
+
+                }, function (error) {
+                    return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
                 })
 
             }
         }
     }
 
-    function selectMailChimp (initialResults, callback){
+    function selectMailChimp(initialResults, callback) {
         async.auto({
             get_mailChimp_queries: getMailChimpQueries,
             get_mailChimp_data_from_remote: ['get_mailChimp_queries', getMailChimpDataFromRemote]
@@ -3783,10 +3836,10 @@ console.log('finaldat',finalData)
                         updated.setTime(updated.getTime() + oneDay);
                         var startDate = calculateDate(updated);
                         if (updatedDb < currentDate) {
-                            if(metric[j].objectTypes[0].meta.endpoint[0]=== 'lists')
-                                var query = 'https://'+initialResults.get_profile[j].dataCenter+'.api.mailchimp.com/3.0/lists/'+channelObjectId+'/?count=100';
+                            if (metric[j].objectTypes[0].meta.endpoint[0] === 'lists')
+                                var query = 'https://' + initialResults.get_profile[j].dataCenter + '.api.mailchimp.com/3.0/lists/' + channelObjectId + '/?count=100';
                             else
-                                var query = 'https://'+initialResults.get_profile[j].dataCenter+'.api.mailchimp.com/3.0/campaigns/'+channelObjectId+'/?count=100';
+                                var query = 'https://' + initialResults.get_profile[j].dataCenter + '.api.mailchimp.com/3.0/campaigns/' + channelObjectId + '/?count=100';
                             allObjects = {
                                 profile: initialResults.get_profile[j],
                                 query: query,
@@ -3808,10 +3861,10 @@ console.log('finaldat',finalData)
                         d.setDate(d.getDate() - 365);
                         var startDate = formatDate(d);
                         var endDate = formatDate(new Date());
-                        if(metric[j].objectTypes[0].meta.endpoint[0]=== 'lists')
-                            var query = 'https://'+initialResults.get_profile[j].dataCenter+'.api.mailchimp.com/3.0/lists/'+channelObjectId+'/?count=100';
+                        if (metric[j].objectTypes[0].meta.endpoint[0] === 'lists')
+                            var query = 'https://' + initialResults.get_profile[j].dataCenter + '.api.mailchimp.com/3.0/lists/' + channelObjectId + '/?count=100';
                         else
-                            var query = 'https://'+initialResults.get_profile[j].dataCenter+'.api.mailchimp.com/3.0/campaigns/'+channelObjectId+'/?count=100';
+                            var query = 'https://' + initialResults.get_profile[j].dataCenter + '.api.mailchimp.com/3.0/campaigns/' + channelObjectId + '/?count=100';
                         allObjects = {
                             profile: initialResults.get_profile[j],
                             query: query,
@@ -3828,6 +3881,7 @@ console.log('finaldat',finalData)
                 }, done)
             }
         }
+
         function getMailChimpDataFromRemote(allObjects, callback) {
             var actualFinalApiData = {};
             async.concatSeries(allObjects.get_mailChimp_queries, checkDbData, callback);
@@ -3846,8 +3900,8 @@ console.log('finaldat',finalData)
 
         };
 
-        function callMailchimpForMetrics(result, callback){
-            var actualFinalApiData=[];
+        function callMailchimpForMetrics(result, callback) {
+            var actualFinalApiData = [];
             request({
                 uri: result.query,
                 headers: {
@@ -3857,18 +3911,18 @@ console.log('finaldat',finalData)
             }, function (err, response, body) {
                 var parsedResponse;
                 var storeMetric;
-                var tot_metric=[];
-                if (response.statusCode!=200) callback(response.statusCode);
+                var tot_metric = [];
+                if (response.statusCode != 200) callback(response.statusCode);
                 else {
-                    var mailChimpResponse=JSON.parse(body);
+                    var mailChimpResponse = JSON.parse(body);
                     var storeStartDate = new Date(result.startDate);
                     var storeEndDate = new Date(result.endDate);
                     var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
                     var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); //adding plus one so that today also included
-                    var stats='stats';
-                    var item=result.widget.objectTypes[0].meta.mailChimpsMetricName;
-                    if(!mailChimpResponse.id)
-                        return res.status(500).json({error: 'Internal server error',id:req.params.widgetId});
+                    var stats = 'stats';
+                    var item = result.widget.objectTypes[0].meta.mailChimpsMetricName;
+                    if (!mailChimpResponse.id)
+                        return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
 
                     else {
                         if (result.endpoint === 'campaign') {
@@ -3876,7 +3930,7 @@ console.log('finaldat',finalData)
                                 storeMetric = parseInt(mailChimpResponse[item]);
                             }
                             else {
-                                if(!mailChimpResponse.report_summary)
+                                if (!mailChimpResponse.report_summary)
                                     storeMetric = null;
                                 else
                                     storeMetric = parseInt(mailChimpResponse.report_summary[item]);
@@ -3888,7 +3942,7 @@ console.log('finaldat',finalData)
                             else
                                 storeMetric = parseInt(mailChimpResponse.stats[item]);
                         }
-                        if(storeMetric!=null) {
+                        if (storeMetric != null) {
                             for (var i = 0; i <= diffDays; i++) {
                                 var finalDate = formatDate(storeStartDate);
                                 tot_metric.push({date: finalDate, total: 0});
@@ -3937,7 +3991,7 @@ console.log('finaldat',finalData)
 
                 async.timesSeries(metric.length, function (j, next) {
                     var channelObjectId = initialResults.object[j].channelObjectId;
-                    var channellistId =initialResults.object[j].listId ;
+                    var channellistId = initialResults.object[j].listId;
                     d = new Date();
                     var allObjects = {};
                     if (data[j].data != null) {
@@ -3948,24 +4002,21 @@ console.log('finaldat',finalData)
                         updated.setTime(updated.getTime() + oneDay);
                         var startDate = calculateDate(updated);
                         if (updatedDb < currentDate) {
-                            console.log('initialResults.object[j].listId',initialResults.object)
-                            if(metric[j].objectTypes[0].meta.endpoint[0] === 'mainlists'){
-                                var query = 'accounts/' + initialResults.get_profile[j].userId + '/lists/' +object[j].channelObjectId;
+                            console.log('initialResults.object[j].listId', initialResults.object)
+                            if (metric[j].objectTypes[0].meta.endpoint[0] === 'mainlists') {
+                                var query = 'accounts/' + initialResults.get_profile[j].userId + '/lists/' + object[j].channelObjectId;
 
                             }
 
-                            else if(metric[j].objectTypes[0].meta.endpoint[0] === 'lists'){
-                                var query = 'accounts/' + initialResults.get_profile[j].userId + '/lists/' + object[j].channelObjectId + '/campaigns' ;
+                            else if (metric[j].objectTypes[0].meta.endpoint[0] === 'lists') {
+                                var query = 'accounts/' + initialResults.get_profile[j].userId + '/lists/' + object[j].channelObjectId + '/campaigns';
 
                             }
 
-                            else if(metric[j].objectTypes[0].meta.endpoint[0] === 'campaigns')
-                            {
+                            else if (metric[j].objectTypes[0].meta.endpoint[0] === 'campaigns') {
                                 var query = 'accounts/' + initialResults.get_profile[j].userId + '/lists/' + object[j].meta.listId + '/campaigns/' + initialResults.object[j].meta.campaignType + initialResults.object[j].channelObjectId;
 
                             }
-
-
 
 
                             allObjects = {
@@ -3988,18 +4039,17 @@ console.log('finaldat',finalData)
                         d.setDate(d.getDate() - 365);
                         var startDate = formatDate(d);
                         var endDate = formatDate(new Date());
-                        console.log('initialResults.object[j].listId',initialResults.object)
-                        if(metric[j].objectTypes[0].meta.endpoint[0] === 'mainlists'){
+                        console.log('initialResults.object[j].listId', initialResults.object)
+                        if (metric[j].objectTypes[0].meta.endpoint[0] === 'mainlists') {
                             var query = 'accounts/' + initialResults.get_profile[j].userId + '/lists/' + initialResults.object[j].channelObjectId;
 
                         }
 
-                        else if(metric[j].objectTypes[0].meta.endpoint[0] === 'lists'){
-                            var query = 'accounts/' + initialResults.get_profile[j].userId + '/lists/' + initialResults.object[j].channelObjectId + '/campaigns' ;
+                        else if (metric[j].objectTypes[0].meta.endpoint[0] === 'lists') {
+                            var query = 'accounts/' + initialResults.get_profile[j].userId + '/lists/' + initialResults.object[j].channelObjectId + '/campaigns';
 
                         }
-                        else if(metric[j].objectTypes[0].meta.endpoint[0] === 'campaigns')
-                        {
+                        else if (metric[j].objectTypes[0].meta.endpoint[0] === 'campaigns') {
                             var query = 'accounts/' + initialResults.get_profile[j].userId + '/lists/' + initialResults.object[j].meta.listId + '/campaigns/' + initialResults.object[j].meta.campaignType + initialResults.object[j].channelObjectId;
 
                         }
@@ -4064,7 +4114,7 @@ console.log('finaldat',finalData)
                     if (result.metricCode === 'subscribers_count') {
                         storeMetric = response.total_subscribed_subscribers;
                     }
-                    else  if (result.metricCode === 'unsubscribers_count') {
+                    else if (result.metricCode === 'unsubscribers_count') {
                         storeMetric = response.total_unsubscribed_subscribers;
                     }
                     else if (result.metricCode === 'open_rate/lists') {
@@ -4089,26 +4139,26 @@ console.log('finaldat',finalData)
                         click_rate = Math.round(total_clicks / total_sent);
                         storeMetric = click_rate;
                     }
-                    else if(result.metricCode === 'open_rate/campaigns'){
-                        storeMetric= Math.round(response.total_opens/response.total_sent);
-                        console.log("storeMetric",storeMetric);
+                    else if (result.metricCode === 'open_rate/campaigns') {
+                        storeMetric = Math.round(response.total_opens / response.total_sent);
+                        console.log("storeMetric", storeMetric);
                     }
-                    else if(result.metricCode === 'click_rate/campaigns'){
-                        storeMetric= Math.round(response.total_clicks/response.total_sent);
+                    else if (result.metricCode === 'click_rate/campaigns') {
+                        storeMetric = Math.round(response.total_clicks / response.total_sent);
                     }
-                    else if(result.metricCode === 'total_opens/campaigns'){
-                        storeMetric= response.total_opens;
+                    else if (result.metricCode === 'total_opens/campaigns') {
+                        storeMetric = response.total_opens;
                     }
-                    else if(result.metricCode === 'total_clicks/campaigns'){
-                        storeMetric= response.total_clicks;
+                    else if (result.metricCode === 'total_clicks/campaigns') {
+                        storeMetric = response.total_clicks;
                     }
-                    else if(result.metricCode === 'total_sent/campaigns'){
-                        storeMetric= response.total_sent;
+                    else if (result.metricCode === 'total_sent/campaigns') {
+                        storeMetric = response.total_sent;
                     }
                     for (var i = 0; i <= diffDays; i++) {
                         var finalDate = formatDate(storeStartDate);
-                        console.log('finaldata',finalDate)
-                        if(finalDate<=moment(new Date).format('YYYY-MM-DD')){
+                        console.log('finaldata', finalDate)
+                        if (finalDate <= moment(new Date).format('YYYY-MM-DD')) {
                             tot_metric.push({date: finalDate, total: 0});
                             storeStartDate.setDate(storeStartDate.getDate() + 1);
                             if (result.endDate === tot_metric[i].date) {
@@ -4136,7 +4186,7 @@ console.log('finaldat',finalData)
         }
     }
 
-    function selectLinkedInObjectType(initialResults,callback){
+    function selectLinkedInObjectType(initialResults, callback) {
         async.auto({
             get_linkedIn_queries: getLinkedInQueries,
             get_linkedIn_data_from_remote: ['get_linkedIn_queries', getLinkedInDataFromRemote]
@@ -4148,7 +4198,7 @@ console.log('finaldat',finalData)
             callback(null, results.get_linkedIn_data_from_remote);
         });
 
-        function getLinkedInQueries(callback){
+        function getLinkedInQueries(callback) {
             work(initialResults.data, initialResults.object, initialResults.metric, callback);
             function work(data, object, metric, done) {
                 async.timesSeries(metric.length, function (j, next) {
@@ -4164,18 +4214,18 @@ console.log('finaldat',finalData)
                         updated.setTime(updated.getTime() + oneDay);
                         var startDate = calculateDate(updated);
                         if (updatedDb < currentDate) {
-                            if(metric[j].objectTypes[0].meta.endpoint[0]=== 'follwers'){
-                                var query = 'https://api.linkedin.com/v1/companies/' + channelObjectId + '/num-followers?oauth2_access_token='+ initialResults.get_profile[j].accessToken + '&format=json';
+                            if (metric[j].objectTypes[0].meta.endpoint[0] === 'follwers') {
+                                var query = 'https://api.linkedin.com/v1/companies/' + channelObjectId + '/num-followers?oauth2_access_token=' + initialResults.get_profile[j].accessToken + '&format=json';
 
                             }
-                            else{
-                                if( metric[j].code==='highestEngagementUpdatesLinkedIn'){
-                                    var query='https://api.linkedin.com/v1/companies/'+channelObjectId+'/updates?oauth2_access_token=' + initialResults.get_profile[j].accessToken +'&count=200&format=json';
+                            else {
+                                if (metric[j].code === 'highestEngagementUpdatesLinkedIn') {
+                                    var query = 'https://api.linkedin.com/v1/companies/' + channelObjectId + '/updates?oauth2_access_token=' + initialResults.get_profile[j].accessToken + '&count=200&format=json';
                                 }
                                 else {
                                     var openDate = moment(data[j].data.updated).format('YYYY-MM-DD');
                                     var startDate = +moment(openDate);
-                                    var closeDate =moment(new Date()).format('YYYY-MM-DD');
+                                    var closeDate = moment(new Date()).format('YYYY-MM-DD');
                                     var oneDay = 24 * 60 * 60 * 1000;
                                     var endDate = +moment(closeDate);
                                     endDate = (endDate + oneDay);
@@ -4190,9 +4240,9 @@ console.log('finaldat',finalData)
                                 startDate: updatedDb,
                                 endDate: currentDate,
                                 metricId: metric[j]._id,
-                                objectId:channelObjectId,
+                                objectId: channelObjectId,
                                 metricCode: metric[j].code,
-                                metricMeta:metric[j].objectTypes[0].meta.linkedInMetricName,
+                                metricMeta: metric[j].objectTypes[0].meta.linkedInMetricName,
                                 endpoint: metric[j].objectTypes[0].meta.endpoint
                             }
                             next(null, allObjects);
@@ -4206,12 +4256,12 @@ console.log('finaldat',finalData)
                         d.setDate(d.getDate() - 365);
                         var startDate = formatDate(d);
                         var endDate = formatDate(new Date());
-                        if(metric[j].objectTypes[0].meta.endpoint[0]=== 'follwers'){
-                            var query = 'https://api.linkedin.com/v1/companies/'+channelObjectId+'/num-followers?oauth2_access_token='+initialResults.get_profile[j].accessToken+'&format=json';
+                        if (metric[j].objectTypes[0].meta.endpoint[0] === 'follwers') {
+                            var query = 'https://api.linkedin.com/v1/companies/' + channelObjectId + '/num-followers?oauth2_access_token=' + initialResults.get_profile[j].accessToken + '&format=json';
                         }
-                        else{
-                            if( metric[j].code==='highestEngagementUpdatesLinkedIn'){
-                                var query='https://api.linkedin.com/v1/companies/'+channelObjectId+'/updates?oauth2_access_token=' + initialResults.get_profile[j].accessToken +'&count=200&format=json';
+                        else {
+                            if (metric[j].code === 'highestEngagementUpdatesLinkedIn') {
+                                var query = 'https://api.linkedin.com/v1/companies/' + channelObjectId + '/updates?oauth2_access_token=' + initialResults.get_profile[j].accessToken + '&count=200&format=json';
                             }
                             else {
                                 var openDate = req.body.startDate;
@@ -4219,7 +4269,7 @@ console.log('finaldat',finalData)
                                 var closeDate = req.body.endDate;
                                 var oneDay = 24 * 60 * 60 * 1000;
                                 var endDate = +moment(closeDate);
-                                endDate=(endDate+oneDay);
+                                endDate = (endDate + oneDay);
                                 var query = 'https://api.linkedin.com/v1/companies/' + channelObjectId + '/historical-status-update-statistics:(time,like-count,impression-count,share-count,click-count,comment-count)?oauth2_access_token=' + initialResults.get_profile[j].accessToken + '&time-granularity=day&start-timestamp=' + startDate + '&end-timestamp=' + endDate + '&format=json';
                             }
                         }
@@ -4231,9 +4281,9 @@ console.log('finaldat',finalData)
                             startDate: startDate,
                             endDate: endDate,
                             metricId: metric[j]._id,
-                            objectId:channelObjectId,
+                            objectId: channelObjectId,
                             metricCode: metric[j].code,
-                            metricMeta:metric[j].objectTypes[0].meta.linkedInMetricName,
+                            metricMeta: metric[j].objectTypes[0].meta.linkedInMetricName,
                             endpoint: metric[j].objectTypes[0].meta.endpoint
                         };
                         next(null, allObjects);
@@ -4244,7 +4294,7 @@ console.log('finaldat',finalData)
             }
         }
 
-        function getLinkedInDataFromRemote(allObjects,callback){
+        function getLinkedInDataFromRemote(allObjects, callback) {
             var actualFinalApiData = {};
             async.concatSeries(allObjects.get_linkedIn_queries, checkDbData, callback);
             function checkDbData(result, callback) {
@@ -4257,23 +4307,24 @@ console.log('finaldat',finalData)
                     callback(null, actualFinalApiData);
                 }
                 else {
-                    callLinkedInForMetrics(result,actualFinalApiData, callback);
+                    callLinkedInForMetrics(result, actualFinalApiData, callback);
                 }
             }
         }
-        function callLinkedInForMetrics(result,actualFinalApiData, callback) {
+
+        function callLinkedInForMetrics(result, actualFinalApiData, callback) {
             var storeMetric;
-            var tot_metric=[];
-            var actualMetric=[];
+            var tot_metric = [];
+            var actualMetric = [];
             request(result.query,
                 function (err, response, body) {
-                    console.log('response linked in',response.statusCode,body)
-                    if (err || response.statusCode!==200) {
+                    console.log('response linked in', response.statusCode, body)
+                    if (err || response.statusCode !== 200) {
                         return res.status(500).json({error: 'Internal server error'});
                     }
                     else {
-                        storeMetric=JSON.parse(body);
-                        if(storeMetric._total==0){
+                        storeMetric = JSON.parse(body);
+                        if (storeMetric._total == 0) {
                             var storeStartDate = new Date(req.body.startDate);
                             var storeEndDate = new Date(req.body.endDate);
                             var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
@@ -4291,8 +4342,7 @@ console.log('finaldat',finalData)
                             }
                             callback(null, actualFinalApiData);
                         }
-                        else
-                        {
+                        else {
                             if (result.endpoint[0] == 'follwers') {
                                 var storeStartDate = new Date(result.startDate);
                                 var storeEndDate = new Date(result.endDate);
@@ -4319,7 +4369,7 @@ console.log('finaldat',finalData)
                             }
                             else {
                                 if (result.metricCode === 'highestEngagementUpdatesLinkedIn') {
-                                    var loopCount=0;
+                                    var loopCount = 0;
                                     for (var i = 0; i < storeMetric.values.length; i++) {
                                         loopCount++;
                                         var openDate = req.body.startDate;
@@ -4331,7 +4381,7 @@ console.log('finaldat',finalData)
                                         if (dataDate >= startDate && dataDate <= endDate)
                                             tot_metric.push(storeMetric.values[i]);
                                     }
-                                    if(tot_metric!=null && tot_metric.length>0){
+                                    if (tot_metric != null && tot_metric.length > 0) {
                                         for (var m = 0; m < tot_metric.length; m++) {
                                             var commentText = tot_metric[m].updateContent.companyStatusUpdate.share.comment;
                                             var companyId = 'https://www.linkedin.com/company/' + tot_metric[m].updateContent.company.id;
@@ -4340,7 +4390,7 @@ console.log('finaldat',finalData)
                                             var store = callLinkedInCompanyHistory(queryMakingForHistory, changeDate, commentText, companyId);
                                         }
                                     }
-                                    else{
+                                    else {
                                         actualFinalApiData = {
                                             apiResponse: tot_metric,
                                             metricId: result.metricId,
@@ -4372,7 +4422,7 @@ console.log('finaldat',finalData)
                             }
                         }
                     }
-                    function callLinkedInCompanyHistory(queryMakingForHistory,changeDate,commentText,companyId){
+                    function callLinkedInCompanyHistory(queryMakingForHistory, changeDate, commentText, companyId) {
                         //actualMetric.push({date: changeDate,text:commentText, total:({likes:0,comments:0,shares:0,clicks:0,impressions:0})});
                         request(queryMakingForHistory,
                             function (err, response, linkedIn) {
@@ -4380,23 +4430,38 @@ console.log('finaldat',finalData)
                                     return res.status(500).json({error: 'Internal server error'});
                                 }
                                 else {
-                                    var linkedInHistory=JSON.parse(linkedIn);
-                                    var likesCount=0, impressionsCount=0,commentsCount=0,sharesCount=0,clicksCount=0;
-                                    var companylength=linkedInHistory._total;
+                                    var linkedInHistory = JSON.parse(linkedIn);
+                                    var likesCount = 0, impressionsCount = 0, commentsCount = 0, sharesCount = 0, clicksCount = 0;
+                                    var companylength = linkedInHistory._total;
                                     for (var k = 0; k < companylength; k++) {
-                                        likesCount+=linkedInHistory.values[k].likeCount;
-                                        impressionsCount+=linkedInHistory.values[k].impressionCount;
-                                        commentsCount+=linkedInHistory.values[k].commentCount;
-                                        sharesCount+= linkedInHistory.values[k].shareCount;
-                                        clicksCount+= linkedInHistory.values[k].clickCount;
+                                        likesCount += linkedInHistory.values[k].likeCount;
+                                        impressionsCount += linkedInHistory.values[k].impressionCount;
+                                        commentsCount += linkedInHistory.values[k].commentCount;
+                                        sharesCount += linkedInHistory.values[k].shareCount;
+                                        clicksCount += linkedInHistory.values[k].clickCount;
 
                                     }
-                                    actualMetric.push({date: changeDate,total:({url:companyId,text:commentText,likes:likesCount,comments:commentsCount,shares:sharesCount,clicks:clicksCount,impressions:impressionsCount})});
-                                    likesCount=0; impressionsCount=0;commentsCount=0;sharesCount=0;clicksCount=0;
+                                    actualMetric.push({
+                                        date: changeDate,
+                                        total: ({
+                                            url: companyId,
+                                            text: commentText,
+                                            likes: likesCount,
+                                            comments: commentsCount,
+                                            shares: sharesCount,
+                                            clicks: clicksCount,
+                                            impressions: impressionsCount
+                                        })
+                                    });
+                                    likesCount = 0;
+                                    impressionsCount = 0;
+                                    commentsCount = 0;
+                                    sharesCount = 0;
+                                    clicksCount = 0;
                                     var metricArray = _.sortBy(actualMetric, ['total.clicks']);
-                                    if(tot_metric.length==actualMetric.length){
+                                    if (tot_metric.length == actualMetric.length) {
                                         var metricArray = _.sortBy(actualMetric, ['total.clicks']);
-                                        var collectionMetric= _.orderBy(metricArray, ['total.clicks','total.shares','total.likes','total.impressions'], ['desc','asc','asc','desc               ']);
+                                        var collectionMetric = _.orderBy(metricArray, ['total.clicks', 'total.shares', 'total.likes', 'total.impressions'], ['desc', 'asc', 'asc', 'desc               ']);
                                         actualFinalApiData = {
                                             apiResponse: collectionMetric,
                                             metricId: result.metricId,
@@ -4412,6 +4477,7 @@ console.log('finaldat',finalData)
                 });
         }
     }
+
     function getMozData(results, callback) {
         async.auto({
             get_moz_queries: getMozQueries,
@@ -4423,7 +4489,7 @@ console.log('finaldat',finalData)
             }
             callback(null, results.get_moz_data_from_remote);
         });
-		//creating queries for moz
+        //creating queries for moz
         function getMozQueries(callback) {
             var queries = {};
             formMozQuery(results.metric, results.data, results.object, callback);
@@ -4434,7 +4500,7 @@ console.log('finaldat',finalData)
                     if (data[j].data != null) {
                         var updated = moment(data[j].data.updated).format("YYYY-MM-DD");
                         var endDate = moment(new Date).format("YYYY-MM-DD");
-                        if (updated <endDate) {
+                        if (updated < endDate) {
                             var newDate = moment(updated, "DD-MM-YYYY").add(1, 'days');
                             var query = moz.newQuery('url-metrics')
                                 .target(object[0].name)
@@ -4444,8 +4510,8 @@ console.log('finaldat',finalData)
                                 metricId: metric[j]._id,
                                 channelId: metric[j].channelId,
                                 metricCode: metricType,
-                                startDate:newDate,
-                                endDate:endDate,
+                                startDate: newDate,
+                                endDate: endDate,
                             };
                             next(null, queries);
                         }
@@ -4461,8 +4527,7 @@ console.log('finaldat',finalData)
                         }
 
                     }
-                    else
-                    {
+                    else {
                         var query = moz.newQuery('url-metrics')
                             .target(object[0].name)
                             .cols([metric[j].code]);
@@ -4473,8 +4538,8 @@ console.log('finaldat',finalData)
                             metricId: metric[j]._id,
                             channelId: metric[j].channelId,
                             metricCode: metricType,
-                            startDate:startDate,
-                            endDate:endDate
+                            startDate: startDate,
+                            endDate: endDate
                         };
 
                         next(null, queries);
@@ -4485,7 +4550,8 @@ console.log('finaldat',finalData)
             }
 
         }
-        function  getMozDataFromRemote(queries, callback) {
+
+        function getMozDataFromRemote(queries, callback) {
             var finalMozResponse = [];
             async.timesSeries(queries.get_moz_queries.length, function (j, next) {
                 if (queries.get_moz_queries[j].data === 'DataFromDb') {
@@ -4500,7 +4566,7 @@ console.log('finaldat',finalData)
                 else {
                     callMozApi(queries, j, function (err, response) {
                         if (err)
-                            return res.status(500).json({error: 'Internal server error',id:req.params.widgetId});
+                            return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
                         else {
                             next(null, response);
                         }
@@ -4509,41 +4575,43 @@ console.log('finaldat',finalData)
 
             }, callback)
         }
+
 //getting moz data from api
-       function callMozApi(queries,j,callback){
+        function callMozApi(queries, j, callback) {
             var query = queries.get_moz_queries[j].query;
-            moz.send(query, function(err, result){
+            moz.send(query, function (err, result) {
                 if (err) {
                     return res.status(500).json({error: 'Internal server error'});
                 }
                 else {
-                    var storeMetric=[];
+                    var storeMetric = [];
                     var finalMozResponse;
-                    if(queries.get_moz_queries[j].metricCode==='moz_rank_url')
-                        storeMetric.push({date:queries.get_moz_queries[j].endDate,total:result.umrp});
-                    else if(queries.get_moz_queries[j].metricCode==='links')
-                        storeMetric.push({date: queries.get_moz_queries[j].endDate,total:result.uid});
-                    else if(queries.get_moz_queries[j].metricCode==='page_authority')
-                        storeMetric.push({date:queries.get_moz_queries[j].endDate,total:result.upa});
-                    else if(queries.get_moz_queries[j].metricCode==='domain_authority')
-                        storeMetric.push({date: queries.get_moz_queries[j].endDate,total:result.pda});
+                    if (queries.get_moz_queries[j].metricCode === 'moz_rank_url')
+                        storeMetric.push({date: queries.get_moz_queries[j].endDate, total: result.umrp});
+                    else if (queries.get_moz_queries[j].metricCode === 'links')
+                        storeMetric.push({date: queries.get_moz_queries[j].endDate, total: result.uid});
+                    else if (queries.get_moz_queries[j].metricCode === 'page_authority')
+                        storeMetric.push({date: queries.get_moz_queries[j].endDate, total: result.upa});
+                    else if (queries.get_moz_queries[j].metricCode === 'domain_authority')
+                        storeMetric.push({date: queries.get_moz_queries[j].endDate, total: result.pda});
                     else
-                        storeMetric.push({date:queries.get_moz_queries[j].endDate,total:result.ueid});
+                        storeMetric.push({date: queries.get_moz_queries[j].endDate, total: result.ueid});
 
-                    finalMozResponse={
-                        metricId:queries.get_moz_queries[j].metricId,
+                    finalMozResponse = {
+                        metricId: queries.get_moz_queries[j].metricId,
                         data: storeMetric,
                         queryResults: results,
                         channelId: queries.get_moz_queries[j].channelId,
                         startDate: queries.get_moz_queries[j].startDate,
-                        endDate:queries.get_moz_queries[j].endDate
+                        endDate: queries.get_moz_queries[j].endDate
                     };
-                        callback(null, finalMozResponse);
+                    callback(null, finalMozResponse);
                 }
             });
         }
 
     }
+
     function selectVimeoObjectType(initialResults, callback) {
         async.auto({
             get_vimeo_queries: getVimeoQueries,
@@ -4553,8 +4621,8 @@ console.log('finaldat',finalData)
             if (err) {
                 return callback(err, null);
             }
-            console.log("results. get_vimeo_data_from_remote"+ results. get_vimeo_data_from_remote)
-            callback(null, results. get_vimeo_data_from_remote);
+            console.log("results. get_vimeo_data_from_remote" + results.get_vimeo_data_from_remote)
+            callback(null, results.get_vimeo_data_from_remote);
         });
 
 
@@ -4564,10 +4632,10 @@ console.log('finaldat',finalData)
 
                 async.timesSeries(metric.length, function (j, next) {
                     var id = initialResults.object[j].channelObjectId;
-                    var play=metric[j].objectTypes[0].meta.play;
+                    var play = metric[j].objectTypes[0].meta.play;
 
 
-                    var  query= configAuth.vimeoAuth.common+'/'+metric[j].objectTypes[0].meta.endpoint[0]+'/'+initialResults.object[j].channelObjectId+'/'+metric[j].objectTypes[0].meta.endpoint[1];
+                    var query = configAuth.vimeoAuth.common + '/' + metric[j].objectTypes[0].meta.endpoint[0] + '/' + initialResults.object[j].channelObjectId + '/' + metric[j].objectTypes[0].meta.endpoint[1];
 
 
                     d = new Date();
@@ -4603,7 +4671,7 @@ console.log('finaldat',finalData)
                         d.setDate(d.getDate() - 365);
                         var startDate = formatDate(d);
                         var endDate = formatDate(new Date());
-                        var query = configAuth.vimeoAuth.common+'/'+metric[j].objectTypes[0].meta.endpoint[0]+'/'+id+'/'+metric[j].objectTypes[0].meta.endpoint[1];
+                        var query = configAuth.vimeoAuth.common + '/' + metric[j].objectTypes[0].meta.endpoint[0] + '/' + id + '/' + metric[j].objectTypes[0].meta.endpoint[1];
                         allObjects = {
                             profile: initialResults.get_profile[j],
                             query: query,
@@ -4647,25 +4715,23 @@ console.log('finaldat',finalData)
         }
 
 
-
-
         function callVimeoApiForMetrics(result, callback) {
             //Set access token for hitting api access - dev
             var storeMetric;
             var tot_metric = [];
-            var page=1
+            var page = 1
             var sampledata = [];
 
             var actualFinalApiData = [];
 
 
-            var access_token= result.profile.accessToken;
+            var access_token = result.profile.accessToken;
 
 
             callrequest();
 
             function callrequest() {
-                request( result.query + '?access_token=' + access_token + '&page=' + page+'&per_page=2', function (err, results, body) {
+                request(result.query + '?access_token=' + access_token + '&page=' + page + '&per_page=2', function (err, results, body) {
                     //  console.log('results',results)
                     var parsedData = JSON.parse(body);
 
@@ -4698,7 +4764,7 @@ console.log('finaldat',finalData)
                                 }
 
                             }
-                            if(parsedData.paging.next != null){
+                            if (parsedData.paging.next != null) {
                                 page++;
                                 callrequest();
                             }
@@ -4760,8 +4826,6 @@ console.log('finaldat',finalData)
                         }
 
 
-
-
                     }
 
                     /* if (pagination) {
@@ -4778,7 +4842,6 @@ console.log('finaldat',finalData)
 
 
     };
-
 
 
 };

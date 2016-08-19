@@ -983,7 +983,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                         noData: 'No data for chosen date range',
                         margin : {top: 20, right: 25, bottom: 30, left: 35},
                         x: function(d){ return d.x; },
-                        y: function(d){ return d.y; },
+                        y: function(d){ return parseFloat(d.y); },
                         useInteractiveGuideline: true,
                         xAxis: {
                             tickFormat: function(d) {
@@ -1014,7 +1014,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                         noData: 'No data for chosen date range',
                         margin : {top: 20, right: 25, bottom: 30, left: 35},
                         x: function(d){ return d.x; },
-                        y: function(d){ return d.y; },
+                        y: function(d){ return parseFloat(d.y); },
                         useInteractiveGuideline: true,
                         xAxis: {
                             tickFormat: function(d) {
@@ -1110,7 +1110,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                         noData: 'No data for chosen date range',
                         margin : {top: 20, right: 30, bottom: 30, left: 35},
                         x: function(d){ return d.x; },
-                        y: function(d){ return d.y; },
+                        y: function(d){ return parseFloat(d.y); },
                         useInteractiveGuideline: true,
                         xAxis: {
                             tickFormat: function(d) {
@@ -1430,10 +1430,12 @@ showMetricApp.service('createWidgets',function($http,$q){
                     'data': finalCharts.lineCharts,
                     'api': {}
                 });
+/*
                 forceY = [lineDataLowValue,lineDataHighValue == 0? 10 : (lineDataHighValue>100 ? lineDataHighValue + 10 : lineDataHighValue + 1)];
                 finalChartData[finalChartData.length -1].options.chart.yDomain = forceY;
                 if(lineDataHighValue < 5)
                     finalChartData[finalChartData.length -1].options.chart.yAxis.tickValues =  d3.range(graphOptions.lineDataOptions.chart.yDomain[0],graphOptions.lineDataOptions.chart.yDomain[1]);
+*/
             }
 /*
             if(finalCharts.lineCharts.length > 1) {
@@ -1527,7 +1529,9 @@ showMetricApp.service('createWidgets',function($http,$q){
                     'data': finalCharts.barCharts,
                     'api': {}
                 });
+/*
                 finalChartData[finalChartData.length -1].options.chart.forceY = forceY;
+*/
             }
 /*
             if(finalCharts.barCharts.length > 1) {

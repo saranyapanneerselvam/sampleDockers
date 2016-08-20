@@ -237,12 +237,12 @@
                                                                 </select>
                                                                 <select class="form-control m-b col-md-6"
                                                                         ng-model="objectOptionsModel[$index]"
-                                                                        ng-hide = "listChannel.name=== 'Twitter' || listChannel.name=== 'Google Analytics'"
+                                                                        ng-hide = "listChannel.name=== 'Twitter' || listChannel.name=== 'Google Analytics'||(canManage==false&&listChannel.name === 'GoogleAdwords')"
                                                                         ng-options="objects as objects.name for objects in objectList[$index]"
                                                                         ng-change="objectForWidgetChosen(objectOptionsModel[$index], $index)" >
                                                                     <option value="" selected="selected">Select an item</option>
                                                                 </select>
-                                                                <div class="infont col-md-1 col-sm-2" ng-hide = "listChannel.name=== 'Twitter'">
+                                                                <div class="infont col-md-1 col-sm-2" ng-hide = "listChannel.name=== 'Twitter'|| (canManage==false&&listChannel.name === 'GoogleAdwords')">
                                                                     <a ng-click="refreshObjectsForChosenProfile($index)"
                                                                        class="link-img">
                                                                         <svg width="7px" height="7px"

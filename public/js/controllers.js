@@ -293,20 +293,20 @@ showMetricApp.service('createWidgets',function($http,$q){
             );
             return deferred.promise;
         }
-        
+
         function getRegularWidgetData(widget, dateRange, isPublic) {
 
             var deferred = $q.defer();
             var updatedCharts = [];
             if (isPublic){
                 var dataUrl = {
-                method: 'POST',
-                url: '/api/v1/widgets/data/' + widget._id,
-                data: {
-                    "startDate": dateRange.startDate,
+                    method: 'POST',
+                    url: '/api/v1/widgets/data/' + widget._id,
+                    data: {
+                        "startDate": dateRange.startDate,
                         "endDate": dateRange.endDate,
                         "params":'public'
-                }
+                    }
                 };
             }
             else {
@@ -398,7 +398,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                             if(keyValuePairs.search('/') > -1) {
                                                 endpointArray = keyValuePairs.split('/');
                                                 for(var splittedValues in endpointArray) {
-                                                    //console.log(splittedValues, endpointArray[splittedValues]);
+
                                                 }
                                             }
                                             else if(keyValuePairs == currentItem) {
@@ -407,8 +407,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                                         }
                                     }
                                     formattedChartData.push({
-                                            x: moment(widget.charts[charts].chartData[datas].date),
-                                            y: yValue
+                                        x: moment(widget.charts[charts].chartData[datas].date),
+                                        y: yValue
                                     });
                                 }
                                 formattedChartDataArray.push(formattedChartData);
@@ -419,8 +419,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                             var formattedChartData = [];
                             for(var datas in widget.charts[charts].chartData) {
                                 formattedChartData.push({
-                                        x: moment(widget.charts[charts].chartData[datas].date),
-                                        y: widget.charts[charts].chartData[datas].total != null ? widget.charts[charts].chartData[datas].total : 0
+                                    x: moment(widget.charts[charts].chartData[datas].date),
+                                    y: widget.charts[charts].chartData[datas].total != null ? widget.charts[charts].chartData[datas].total : 0
                                 });
                             }
                             widget.charts[charts].chartData = formattedChartData;
@@ -466,68 +466,68 @@ showMetricApp.service('createWidgets',function($http,$q){
                     else if(chartType == "instagramPosts"){
                         if(typeof widget.charts[charts].chartData[0] != 'undefined') {
                             if(typeof(widget.charts[charts].chartData[0].total) === 'object') {
-                            var images = 'images';
-                            var thumbnail='thumbnail';
-                            var likes ='likes';
-                            var comments='comments'
-                            var count='count';
-                            var caption='caption';
-                            var post='text';
-                            var link='link';
-                            var url='url';
+                                var images = 'images';
+                                var thumbnail='thumbnail';
+                                var likes ='likes';
+                                var comments='comments'
+                                var count='count';
+                                var caption='caption';
+                                var post='text';
+                                var link='link';
+                                var url='url';
 
-                            var formattedChartDataArray = [];
-                            for(datas in widget.charts[charts].chartData) {
-                                var formattedChartData = {
-                                    date: widget.charts[charts].chartData[datas].date,
-                                    image: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
-                                        (widget.charts[charts].chartData[datas].total[images] != null?
-                                            (widget.charts[charts].chartData[datas].total[images][thumbnail] != null?
-                                                (typeof widget.charts[charts].chartData[datas].total[images][thumbnail][url] != 'undefined' ? widget.charts[charts].chartData[datas].total[images][thumbnail][url] : ''):''):''):''),
+                                var formattedChartDataArray = [];
+                                for(datas in widget.charts[charts].chartData) {
+                                    var formattedChartData = {
+                                        date: widget.charts[charts].chartData[datas].date,
+                                        image: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
+                                            (widget.charts[charts].chartData[datas].total[images] != null?
+                                                (widget.charts[charts].chartData[datas].total[images][thumbnail] != null?
+                                                    (typeof widget.charts[charts].chartData[datas].total[images][thumbnail][url] != 'undefined' ? widget.charts[charts].chartData[datas].total[images][thumbnail][url] : ''):''):''):''),
 
-                                    postComment: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
-                                        (widget.charts[charts].chartData[datas].total[caption] != null ?
-                                            (typeof widget.charts[charts].chartData[datas].total[caption][post] != 'undefined'?
-                                                widget.charts[charts].chartData[datas].total[caption][post] : ''): '') : ''),
-                                    likes: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
-                                        (widget.charts[charts].chartData[datas].total[likes] != null?
-                                            (typeof widget.charts[charts].chartData[datas].total[likes][count] != 'undefined' ? widget.charts[charts].chartData[datas].total[likes][count] : 0):0):0),
+                                        postComment: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
+                                            (widget.charts[charts].chartData[datas].total[caption] != null ?
+                                                (typeof widget.charts[charts].chartData[datas].total[caption][post] != 'undefined'?
+                                                    widget.charts[charts].chartData[datas].total[caption][post] : ''): '') : ''),
+                                        likes: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
+                                            (widget.charts[charts].chartData[datas].total[likes] != null?
+                                                (typeof widget.charts[charts].chartData[datas].total[likes][count] != 'undefined' ? widget.charts[charts].chartData[datas].total[likes][count] : 0):0):0),
 
-                                    comments: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
-                                        (widget.charts[charts].chartData[datas].total[comments] != null?
-                                            (typeof widget.charts[charts].chartData[datas].total[comments][count] != 'undefined' ? widget.charts[charts].chartData[datas].total[comments][count] : 0):0):0),
-                                    links: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
-                                        (typeof widget.charts[charts].chartData[datas].total[link] != 'undefined' ? widget.charts[charts].chartData[datas].total[link] : '') : ''),
-                                };
-                                formattedChartDataArray.push(formattedChartData);
+                                        comments: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
+                                            (widget.charts[charts].chartData[datas].total[comments] != null?
+                                                (typeof widget.charts[charts].chartData[datas].total[comments][count] != 'undefined' ? widget.charts[charts].chartData[datas].total[comments][count] : 0):0):0),
+                                        links: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
+                                            (typeof widget.charts[charts].chartData[datas].total[link] != 'undefined' ? widget.charts[charts].chartData[datas].total[link] : '') : ''),
+                                    };
+                                    formattedChartDataArray.push(formattedChartData);
+                                }
+                                widget.charts[charts].chartData = formattedChartDataArray;
                             }
-                            widget.charts[charts].chartData = formattedChartDataArray;
-                        }
                         }
                     }
                     else if(chartType == "highEngagementTweets"){
                         if(typeof widget.charts[charts].chartData[0] != 'undefined') {
                             if(typeof(widget.charts[charts].chartData[0].total) === 'object') {
-                            var likes ='favorite_count';
-                            var reTweet='retweet_count'
-                            var entities='entities';
-                            var media='media';
-                            var post='text';
-                            var link='expanded_url';
+                                var likes ='favorite_count';
+                                var reTweet='retweet_count'
+                                var entities='entities';
+                                var media='media';
+                                var post='text';
+                                var link='expanded_url';
 
-                            var formattedChartDataArray = [];
-                            for(datas in widget.charts[charts].chartData) {
-                                var formattedChartData = {
-                                    date: widget.charts[charts].chartData[datas].date,
-                                    likes: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )? (typeof widget.charts[charts].chartData[datas].total[likes] != 'undefined' ? widget.charts[charts].chartData[datas].total[likes] : 0) : 0),
-                                    reTweet: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )? (typeof widget.charts[charts].chartData[datas].total[reTweet] != 'undefined' ? widget.charts[charts].chartData[datas].total[reTweet] : 0) : 0),
-                                    postComment: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )? (typeof widget.charts[charts].chartData[datas].total[post] != 'undefined' ? widget.charts[charts].chartData[datas].total[post] : 0) : 0),
-                                    links: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )? (typeof widget.charts[charts].chartData[datas].total.entities!= 'undefined' ? widget.charts[charts].chartData[datas].total.entities  : 0) : 0),
-                                };
-                                formattedChartDataArray.push(formattedChartData);
+                                var formattedChartDataArray = [];
+                                for(datas in widget.charts[charts].chartData) {
+                                    var formattedChartData = {
+                                        date: widget.charts[charts].chartData[datas].date,
+                                        likes: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )? (typeof widget.charts[charts].chartData[datas].total[likes] != 'undefined' ? widget.charts[charts].chartData[datas].total[likes] : 0) : 0),
+                                        reTweet: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )? (typeof widget.charts[charts].chartData[datas].total[reTweet] != 'undefined' ? widget.charts[charts].chartData[datas].total[reTweet] : 0) : 0),
+                                        postComment: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )? (typeof widget.charts[charts].chartData[datas].total[post] != 'undefined' ? widget.charts[charts].chartData[datas].total[post] : 0) : 0),
+                                        links: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )? (typeof widget.charts[charts].chartData[datas].total.entities!= 'undefined' ? widget.charts[charts].chartData[datas].total.entities  : 0) : 0),
+                                    };
+                                    formattedChartDataArray.push(formattedChartData);
+                                }
+                                widget.charts[charts].chartData = formattedChartDataArray;
                             }
-                            widget.charts[charts].chartData = formattedChartDataArray;
-                        }
                         }
                     }
                     else if(chartType == "highestEngagementLinkedIn"){
@@ -636,7 +636,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                 for (var datas in widget.charts[charts].chartData) {
                                     for (var keys in widget.charts[charts].chartData[datas].total) {
                                         var genderAge = keys.split('/');
-                                         var gender = String(genderAge[0]);
+                                        var gender = String(genderAge[0]);
                                         if(gender == 'F')
                                             gender= 'Female';
                                         if(gender == 'M')
@@ -983,7 +983,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                         noData: 'No data for chosen date range',
                         margin : {top: 20, right: 25, bottom: 30, left: 35},
                         x: function(d){ return d.x; },
-                        y: function(d){ return d.y; },
+                        y: function(d){ return parseFloat(d.y); },
                         useInteractiveGuideline: true,
                         xAxis: {
                             tickFormat: function(d) {
@@ -1014,7 +1014,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                         noData: 'No data for chosen date range',
                         margin : {top: 20, right: 25, bottom: 30, left: 35},
                         x: function(d){ return d.x; },
-                        y: function(d){ return d.y; },
+                        y: function(d){ return parseFloat(d.y); },
                         useInteractiveGuideline: true,
                         xAxis: {
                             tickFormat: function(d) {
@@ -1110,7 +1110,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                         noData: 'No data for chosen date range',
                         margin : {top: 20, right: 30, bottom: 30, left: 35},
                         x: function(d){ return d.x; },
-                        y: function(d){ return d.y; },
+                        y: function(d){ return parseFloat(d.y); },
                         useInteractiveGuideline: true,
                         xAxis: {
                             tickFormat: function(d) {
@@ -1347,32 +1347,32 @@ showMetricApp.service('createWidgets',function($http,$q){
             for(var charts in widgetCharts) {
                 if(widgetCharts[charts].type == 'line' || widgetCharts[charts].type == 'area') {
                     finalCharts.lineCharts.push(widgetCharts[charts]);
-/*
-                    if(finalCharts.lineCharts.length == 1) {
-                        lineDataLowValue = _.minBy(widgetCharts[charts].values,function (o){return o.y}).y;
-                        lineDataHighValue = _.maxBy(widgetCharts[charts].values,function (o){return o.y}).y;
-                    }
-                    else {
-                        lineDataLowValue = lineDataLowValue > _.minBy(widgetCharts[charts].values,function (o){return o.y}).y ? _.minBy(widgetCharts[charts].values,function (o){return o.y}).y : lineDataHighValue;
-                        lineDataHighValue = lineDataHighValue < _.maxBy(widgetCharts[charts].values,function (o){return o.y}).y ? _.maxBy(widgetCharts[charts].values,function (o){return o.y}).y : lineDataHighValue;
-                    }
-*/
+                    /*
+                     if(finalCharts.lineCharts.length == 1) {
+                     lineDataLowValue = _.minBy(widgetCharts[charts].values,function (o){return o.y}).y;
+                     lineDataHighValue = _.maxBy(widgetCharts[charts].values,function (o){return o.y}).y;
+                     }
+                     else {
+                     lineDataLowValue = lineDataLowValue > _.minBy(widgetCharts[charts].values,function (o){return o.y}).y ? _.minBy(widgetCharts[charts].values,function (o){return o.y}).y : lineDataHighValue;
+                     lineDataHighValue = lineDataHighValue < _.maxBy(widgetCharts[charts].values,function (o){return o.y}).y ? _.maxBy(widgetCharts[charts].values,function (o){return o.y}).y : lineDataHighValue;
+                     }
+                     */
 
                     for(var values in widgetCharts[charts].values) {
-/*
-                        if(finalCharts.lineCharts.length == 1) {
-                            lineDataLowValue = parseFloat(_.minBy(widgetCharts[charts].values,function (o){return o.y}).y);
-                            lineDataHighValue = parseFloat(_.maxBy(widgetCharts[charts].values,function (o){return o.y}).y);
-                        }
-                        else if(finalCharts.lineCharts.length > 1) {
-*/
-                            if(parseFloat(widgetCharts[charts].values[values].y) < lineDataLowValue)
-                                lineDataLowValue = parseFloat(widgetCharts[charts].values[values].y);
-                            if(parseFloat(widgetCharts[charts].values[values].y) > lineDataHighValue)
-                                lineDataHighValue = parseFloat(widgetCharts[charts].values[values].y);
-/*
-                        }
-*/
+                        /*
+                         if(finalCharts.lineCharts.length == 1) {
+                         lineDataLowValue = parseFloat(_.minBy(widgetCharts[charts].values,function (o){return o.y}).y);
+                         lineDataHighValue = parseFloat(_.maxBy(widgetCharts[charts].values,function (o){return o.y}).y);
+                         }
+                         else if(finalCharts.lineCharts.length > 1) {
+                         */
+                        if(parseFloat(widgetCharts[charts].values[values].y) < lineDataLowValue)
+                            lineDataLowValue = parseFloat(widgetCharts[charts].values[values].y);
+                        if(parseFloat(widgetCharts[charts].values[values].y) > lineDataHighValue)
+                            lineDataHighValue = parseFloat(widgetCharts[charts].values[values].y);
+                        /*
+                         }
+                         */
                     }
                 }
                 else if(widgetCharts[charts].type == 'bar') {
@@ -1430,83 +1430,85 @@ showMetricApp.service('createWidgets',function($http,$q){
                     'data': finalCharts.lineCharts,
                     'api': {}
                 });
-                forceY = [lineDataLowValue,lineDataHighValue == 0? 10 : (lineDataHighValue>100 ? lineDataHighValue + 10 : lineDataHighValue + 1)];
-                finalChartData[finalChartData.length -1].options.chart.yDomain = forceY;
-                if(lineDataHighValue < 5)
-                    finalChartData[finalChartData.length -1].options.chart.yAxis.tickValues =  d3.range(graphOptions.lineDataOptions.chart.yDomain[0],graphOptions.lineDataOptions.chart.yDomain[1]);
+                /*
+                 forceY = [lineDataLowValue,lineDataHighValue == 0? 10 : (lineDataHighValue>100 ? lineDataHighValue + 10 : lineDataHighValue + 1)];
+                 finalChartData[finalChartData.length -1].options.chart.yDomain = forceY;
+                 if(lineDataHighValue < 5)
+                 finalChartData[finalChartData.length -1].options.chart.yAxis.tickValues =  d3.range(graphOptions.lineDataOptions.chart.yDomain[0],graphOptions.lineDataOptions.chart.yDomain[1]);
+                 */
             }
-/*
-            if(finalCharts.lineCharts.length > 1) {
-                chartsCount++;
-                for(var charts in finalCharts.lineCharts) {
-                    for(var items in chartColorChecker) {
-                        if(finalCharts.lineCharts[charts].color == chartColorChecker[items]) {
-                            var neededColour = fetchAColour(finalCharts.lineCharts[charts].color,chartColorChecker);
-                            finalCharts.lineCharts[charts].color = neededColour;
-                        }
-                    }
-                    chartColorChecker.push(finalCharts.lineCharts[charts].color);
-                }
-                chartColorChecker = [];
+            /*
+             if(finalCharts.lineCharts.length > 1) {
+             chartsCount++;
+             for(var charts in finalCharts.lineCharts) {
+             for(var items in chartColorChecker) {
+             if(finalCharts.lineCharts[charts].color == chartColorChecker[items]) {
+             var neededColour = fetchAColour(finalCharts.lineCharts[charts].color,chartColorChecker);
+             finalCharts.lineCharts[charts].color = neededColour;
+             }
+             }
+             chartColorChecker.push(finalCharts.lineCharts[charts].color);
+             }
+             chartColorChecker = [];
 
-                var individualGraphTotals = [];
-                for(var charts in finalCharts.lineCharts) {
-                    var summaryTotal = 0, lowValue = 0, highValue = 0;
-                    for(values in finalCharts.lineCharts[charts].values) {
-                        summaryTotal += parseFloat(finalCharts.lineCharts[charts].values[values].y);
-                        if(lowValue > parseFloat(finalCharts.lineCharts[charts].values[values].y))
-                            lowValue = parseFloat(finalCharts.lineCharts[charts].values[values].y);
-                        if(highValue < parseFloat(finalCharts.lineCharts[charts].values[values].y))
-                            highValue = parseFloat(finalCharts.lineCharts[charts].values[values].y);
-                    }
-                    individualGraphTotals[charts] =  {
-                        summaryTotal: summaryTotal,
-                        lowValue: lowValue,
-                        highValue: highValue
-                    };
-                }
+             var individualGraphTotals = [];
+             for(var charts in finalCharts.lineCharts) {
+             var summaryTotal = 0, lowValue = 0, highValue = 0;
+             for(values in finalCharts.lineCharts[charts].values) {
+             summaryTotal += parseFloat(finalCharts.lineCharts[charts].values[values].y);
+             if(lowValue > parseFloat(finalCharts.lineCharts[charts].values[values].y))
+             lowValue = parseFloat(finalCharts.lineCharts[charts].values[values].y);
+             if(highValue < parseFloat(finalCharts.lineCharts[charts].values[values].y))
+             highValue = parseFloat(finalCharts.lineCharts[charts].values[values].y);
+             }
+             individualGraphTotals[charts] =  {
+             summaryTotal: summaryTotal,
+             lowValue: lowValue,
+             highValue: highValue
+             };
+             }
 
-                var cumulativeTotal = 0;
-                for(items in individualGraphTotals)
-                    cumulativeTotal += parseInt(individualGraphTotals[items].summaryTotal);
-                var cumulativeAverage = cumulativeTotal/individualGraphTotals.length;
+             var cumulativeTotal = 0;
+             for(items in individualGraphTotals)
+             cumulativeTotal += parseInt(individualGraphTotals[items].summaryTotal);
+             var cumulativeAverage = cumulativeTotal/individualGraphTotals.length;
 
-                var firstChartLowValue = 0, firstChartHighValue = 0, secondChartLowValue = 0, secondChartHighValue = 0;
-                for(var charts in finalCharts.lineCharts) {
-                    var summaryTotal = 0, lowValue = 0, highValue = 0;
-                    for(values in finalCharts.lineCharts[charts].values) {
-                        summaryTotal += parseFloat(finalCharts.lineCharts[charts].values[values].y);
-                        if(lowValue > parseFloat(finalCharts.lineCharts[charts].values[values].y))
-                            lowValue = parseFloat(finalCharts.lineCharts[charts].values[values].y);
-                        if(highValue < parseFloat(finalCharts.lineCharts[charts].values[values].y))
-                            highValue = parseFloat(finalCharts.lineCharts[charts].values[values].y);
-                    }
+             var firstChartLowValue = 0, firstChartHighValue = 0, secondChartLowValue = 0, secondChartHighValue = 0;
+             for(var charts in finalCharts.lineCharts) {
+             var summaryTotal = 0, lowValue = 0, highValue = 0;
+             for(values in finalCharts.lineCharts[charts].values) {
+             summaryTotal += parseFloat(finalCharts.lineCharts[charts].values[values].y);
+             if(lowValue > parseFloat(finalCharts.lineCharts[charts].values[values].y))
+             lowValue = parseFloat(finalCharts.lineCharts[charts].values[values].y);
+             if(highValue < parseFloat(finalCharts.lineCharts[charts].values[values].y))
+             highValue = parseFloat(finalCharts.lineCharts[charts].values[values].y);
+             }
 
-                    if(summaryTotal < cumulativeAverage) {
-                        if(firstChartLowValue > lowValue)
-                            firstChartLowValue = lowValue;
-                        if(firstChartHighValue < highValue)
-                            firstChartHighValue = highValue;
-                        finalCharts.lineCharts[charts].yAxis = 1;
-                    }
-                    else {
-                        if(secondChartLowValue > lowValue)
-                            secondChartLowValue = lowValue;
-                        if(secondChartHighValue < highValue)
-                            secondChartHighValue = highValue;
-                        finalCharts.lineCharts[charts].yAxis = 2;
-                    }
-                }
+             if(summaryTotal < cumulativeAverage) {
+             if(firstChartLowValue > lowValue)
+             firstChartLowValue = lowValue;
+             if(firstChartHighValue < highValue)
+             firstChartHighValue = highValue;
+             finalCharts.lineCharts[charts].yAxis = 1;
+             }
+             else {
+             if(secondChartLowValue > lowValue)
+             secondChartLowValue = lowValue;
+             if(secondChartHighValue < highValue)
+             secondChartHighValue = highValue;
+             finalCharts.lineCharts[charts].yAxis = 2;
+             }
+             }
 
-                finalChartData.push({
-                    'options': graphOptions.multiDataOptions,
-                    'data': finalCharts.lineCharts,
-                    'api': {}
-                });
-                finalChartData[finalChartData.length -1].options.chart.yDomain1 = [firstChartLowValue,firstChartHighValue > 0 ? firstChartHighValue : 1];
-                finalChartData[finalChartData.length -1].options.chart.yDomain2 = [secondChartLowValue,secondChartHighValue > 0 ? secondChartHighValue : 1];
-            }
-*/
+             finalChartData.push({
+             'options': graphOptions.multiDataOptions,
+             'data': finalCharts.lineCharts,
+             'api': {}
+             });
+             finalChartData[finalChartData.length -1].options.chart.yDomain1 = [firstChartLowValue,firstChartHighValue > 0 ? firstChartHighValue : 1];
+             finalChartData[finalChartData.length -1].options.chart.yDomain2 = [secondChartLowValue,secondChartHighValue > 0 ? secondChartHighValue : 1];
+             }
+             */
             if(finalCharts.barCharts.length > 0) {
                 chartsCount++;
 
@@ -1527,58 +1529,60 @@ showMetricApp.service('createWidgets',function($http,$q){
                     'data': finalCharts.barCharts,
                     'api': {}
                 });
-                finalChartData[finalChartData.length -1].options.chart.forceY = forceY;
+                /*
+                 finalChartData[finalChartData.length -1].options.chart.forceY = forceY;
+                 */
             }
-/*
-            if(finalCharts.barCharts.length > 1) {
-                chartsCount++;
-                for(var charts in finalCharts.barCharts) {
-                    for(var items in chartColorChecker) {
-                        if(finalCharts.barCharts[charts].color == chartColorChecker[items]) {
-                            var neededColour = fetchAColour(finalCharts.barCharts[charts].color,chartColorChecker);
-                            finalCharts.barCharts[charts].color = neededColour;
-                        }
-                    }
-                    chartColorChecker.push(finalCharts.barCharts[charts].color);
-                }
-                chartColorChecker = [];
+            /*
+             if(finalCharts.barCharts.length > 1) {
+             chartsCount++;
+             for(var charts in finalCharts.barCharts) {
+             for(var items in chartColorChecker) {
+             if(finalCharts.barCharts[charts].color == chartColorChecker[items]) {
+             var neededColour = fetchAColour(finalCharts.barCharts[charts].color,chartColorChecker);
+             finalCharts.barCharts[charts].color = neededColour;
+             }
+             }
+             chartColorChecker.push(finalCharts.barCharts[charts].color);
+             }
+             chartColorChecker = [];
 
-                var individualGraphTotals = [];
-                for(var charts in finalCharts.barCharts) {
-                    var summaryTotal = 0;
-                    for(values in finalCharts.barCharts[charts].values) {
-                        summaryTotal += parseFloat(finalCharts.barCharts[charts].values[values].y);
-                    }
-                    individualGraphTotals[charts] = summaryTotal;
-                }
+             var individualGraphTotals = [];
+             for(var charts in finalCharts.barCharts) {
+             var summaryTotal = 0;
+             for(values in finalCharts.barCharts[charts].values) {
+             summaryTotal += parseFloat(finalCharts.barCharts[charts].values[values].y);
+             }
+             individualGraphTotals[charts] = summaryTotal;
+             }
 
-                var cumulativeTotal = 0;
-                for(items in individualGraphTotals)
-                    cumulativeTotal += parseInt(individualGraphTotals[items]);
-                var cumulativeAverage = cumulativeTotal/individualGraphTotals.length;
+             var cumulativeTotal = 0;
+             for(items in individualGraphTotals)
+             cumulativeTotal += parseInt(individualGraphTotals[items]);
+             var cumulativeAverage = cumulativeTotal/individualGraphTotals.length;
 
-                for(var charts in finalCharts.barCharts) {
-                    var summaryTotal = 0;
-                    for(values in finalCharts.barCharts[charts].values)
-                        summaryTotal += parseFloat(finalCharts.barCharts[charts].values[values].y);
+             for(var charts in finalCharts.barCharts) {
+             var summaryTotal = 0;
+             for(values in finalCharts.barCharts[charts].values)
+             summaryTotal += parseFloat(finalCharts.barCharts[charts].values[values].y);
 
-                    if(summaryTotal > cumulativeAverage)
-                        finalCharts.barCharts[charts].yAxis = 2;
-                    else
-                        finalCharts.barCharts[charts].yAxis = 1;
-                }
+             if(summaryTotal > cumulativeAverage)
+             finalCharts.barCharts[charts].yAxis = 2;
+             else
+             finalCharts.barCharts[charts].yAxis = 1;
+             }
 
 
 
-                //var forceY = [0,barDataHighValue == 0? 10 : (barDataHighValue>100 ? barDataHighValue + 10 : barDataHighValue + 1)];
-                finalChartData.push({
-                    'options': graphOptions.multiDataOptions,
-                    'data': finalCharts.barCharts,
-                    'api': {}
-                });
-                //finalChartData[finalChartData.length -1].options.chart.forceY = forceY;
-            }
-*/
+             //var forceY = [0,barDataHighValue == 0? 10 : (barDataHighValue>100 ? barDataHighValue + 10 : barDataHighValue + 1)];
+             finalChartData.push({
+             'options': graphOptions.multiDataOptions,
+             'data': finalCharts.barCharts,
+             'api': {}
+             });
+             //finalChartData[finalChartData.length -1].options.chart.forceY = forceY;
+             }
+             */
             if(finalCharts.pieCharts.length > 0) {
                 chartsCount++;
 

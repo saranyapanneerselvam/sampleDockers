@@ -32,7 +32,7 @@ var https = require('https');
 
 // configuration ===============================================================
 mongoose.connect(configDB.url); // connect to our database
-mongoose.set('debug',false);
+mongoose.set('debug',true);
 
 require('./helpers/passport')(passport); // pass passport for configuration
 
@@ -192,10 +192,8 @@ router.use(function (req, res, next) {
 
 // launch ======================================================================
 app.listen(port);
-/*
-https.createServer({
+/*https.createServer({
     key: fs.readFileSync('./key.pem', 'utf8'),
     cert: fs.readFileSync('./server.crt', 'utf8')
-}, app).listen(port);
-*/
+}, app).listen(port);*/
 console.log('The magic happens on port ' + port);

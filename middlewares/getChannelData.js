@@ -4,7 +4,6 @@ var async = require("async");
 var channels = require('../models/channels');
 var FB = require('fb');
 var exports = module.exports = {};
-
 var request = require('request');
 
 //To use google api's
@@ -43,24 +42,16 @@ var ig = require('instagram-node').instagram();
 //importing pinterest node module
 var PDK = require('node-pinterest');
 
-
 //Load the auth file
 var configAuth = require('../config/auth');
 
 //set googleAdwords node module
 var googleAds = require('../lib/googleAdwords');
-var spec = {host: 'https://adwords.google.com/api/adwords/reportdownload/v201601'};
+var spec = {host: configAuth.googleAdwordsStatic.host};
 googleAds.GoogleAdwords(spec);
 //aweber
 var NodeAweber = require('aweber-api-nodejs');
-var NA = new NodeAweber(configAuth.aweberAuth.clientID, configAuth.aweberAuth.clientSecret, 'http://localhost:8080/callback');
-
-
-//set credentials in OAuth2
-//var oauth2Client = new OAuth2(configAuth.googleAuth.clientID, configAuth.googleAuth.clientSecret, configAuth.googleAuth.callbackURL);
-
-// set auth as a global default
-//var analytics = googleapis.analytics({version: 'v3', auth: oauth2Client});
+var NA = new NodeAweber(configAuth.aweberAuth.clientID, configAuth.aweberAuth.clientSecret, configAuth.aweberAuth.callbackURL);
 var Widget = require('../models/widgets');
 var client = new Twitter({
     consumer_key: configAuth.twitterAuth.consumerKey,
@@ -70,22 +61,20 @@ var client = new Twitter({
 });
 //set moz module
 var moz = require('mozscape-request')({
-    accessId: 'mozscape-d79bd6e88f',
-    secret: 'e093b821ca077d42fd113db646c22487',
-    expires: 300
+    accessId: configAuth.batchJobsMoz.accessId,
+    secret: configAuth.batchJobsMoz.secret,
+    expires: configAuth.batchJobsMoz.expires
 });
 //To get the channel data
 exports.getChannelData = function (req, res, next) {
 
     //Function to find days difference
     function findDaysDifference(startDate, endDate, endPoint, noEndPoint) {
-        console.log('start date', startDate, endDate)
         var storeDefaultValues = [];
         var storeStartDate = new Date(startDate);
         var storeEndDate = new Date(endDate);
         var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
-        console.log('diffdays', diffDays);
         for (var i = 0; i <= diffDays; i++) {
             if (moment(storeStartDate).format('YYYY-MM-DD') <= moment(new Date).format('YYYY-MM-DD')) {
                 var finalDate = calculateDate(storeStartDate);
@@ -154,11 +143,9 @@ exports.getChannelData = function (req, res, next) {
         else if (req.body.params) {
             callEntireDataFunction()
         }
-        else {
+        else
             return res.status(401).json({error: 'User must be logged in', id: req.params.widgetId})
-        }
     });
-
     function callEntireDataFunction() {
         //async's one of the method to run tasks ,one task may or may not depend on the other
         async.auto({
@@ -172,7 +159,6 @@ exports.getChannelData = function (req, res, next) {
             store_final_data: ['get_channel_data_remote', storeFinalData],
             get_channel_objects_db: ['store_final_data', 'get_channel_data_remote', getChannelDataDB]
         }, function (err, results) {
-            console.log('err getchanneldata', err, results)
             if (err)
                 return res.status(500).json({error: 'Internal server error', id: req.params.widgetId})
             req.app.result = results.get_channel_objects_db;
@@ -223,7 +209,6 @@ exports.getChannelData = function (req, res, next) {
     //Function to get the data in metric collection
     function getMetric(results, callback) {
         async.concatSeries(results.widget.charts, findEachMetrics, callback);
-
     }
 
     //Function to get each metric details
@@ -258,15 +243,9 @@ exports.getChannelData = function (req, res, next) {
 
     //Function to get the data in profile collection
     function getProfile(results, callback) {
-//skipping profile for moz
-        if (results.object[0].channelId == results.metric[0].channelId) {
-
-            callback(null);
-        }
-        else {
-
-            async.concatSeries(results.object, getEachProfile, callback)
-        }
+        //skipping profile for moz
+        if (results.object[0].channelId == results.metric[0].channelId) return callback(null);
+        else async.concatSeries(results.object, getEachProfile, callback)
     }
 
     //Function to get all profile details
@@ -310,7 +289,6 @@ exports.getChannelData = function (req, res, next) {
         async.auto({
             get_each_channel_data: getEachChannelData
         }, function (err, results) {
-            console.log('each channel', err)
             if (err) {
                 return callback(err, null);
             }
@@ -384,7 +362,6 @@ exports.getChannelData = function (req, res, next) {
                     break;
                 case configAuth.channels.youtube:
                     setDataBasedChannelCode(results, function (err, result) {
-                        console.log('databasedcode', err)
                         if (err)
                             return res.status(500).json({error: 'Internal server error'})
                         else
@@ -423,13 +400,11 @@ exports.getChannelData = function (req, res, next) {
                             selectaweber(result, callback);
                     });
                     break;
-
                 case configAuth.channels.moz:
                     setDataBasedChannelCode(results, function (err, result) {
                         if (err)
                             return res.status(500).json({error: 'Internal server error', id: req.params.widgetId})
                         else
-
                             getMozData(result, callback);
                     });
                     break;
@@ -455,7 +430,6 @@ exports.getChannelData = function (req, res, next) {
                 group_metrics: ['group_channel_objects', groupMetrics],
                 group_data: ['group_metrics', groupData],
                 group_charts: ['group_data', groupCharts]
-
             }, function (err, results) {
                 if (err)
                     return callback(err, null);
@@ -476,7 +450,7 @@ exports.getChannelData = function (req, res, next) {
                 var profilesList = initialResults.get_profile;
                 if (profilesList == null) {
 
-                    callback(null);
+                    return callback(null);
                 }
                 else {
                     for (var i = 0; i < profilesList.length; i++) {
@@ -489,18 +463,14 @@ exports.getChannelData = function (req, res, next) {
 
             //function to group the channel objects based on profile id
             function groupChannelObjects(results, callback) {
-
                 var channelObjects = [];
                 var objects = initialResults.object;
-
                 if (results.group_profile == null) {
-
                     for (var i = 0; i < objects.length; i++) {
                         if (String(initialResults.get_channel[0]._id) === String(objects[i].channelId))
                             channelObjects.push(objects[i]);
                     }
                     callback(null, channelObjects)
-
                 }
                 else {
                     for (var i = 0; i < objects.length; i++) {
@@ -574,7 +544,6 @@ exports.getChannelData = function (req, res, next) {
                 async.timesSeries(Math.min(data.length, metric.length), function (j, next) {
                     var d = new Date();
                     d.setDate(d.getDate() + 1);
-                    console.log('end date', d)
                     var queryObject = {};
 
                     //check already there is one year data in db
@@ -588,7 +557,6 @@ exports.getChannelData = function (req, res, next) {
                             var now = new Date();
                             now.setDate(now.getDate() + 1);
                             now = moment(now).format('YYYY-MM-DD')
-                            console.log('start', updated, now)
                             var query = initialResults.object[0].channelObjectId + "/insights/" + metric[j].objectTypes[0].meta.fbMetricName + "?since=" + updated + "&until=" + now;
                             queryObject = {
                                 query: query,
@@ -635,7 +603,6 @@ exports.getChannelData = function (req, res, next) {
                         callback('', queryObject);
                     }
                 }, done);
-
             }
         }
 
@@ -669,7 +636,6 @@ exports.getChannelData = function (req, res, next) {
             }
             else {
                 graph.get(query.query, function (err, fbQueryRes) {
-                    console.log('fbQueryRes', err)
                     if (err) {
                         if (err.code === 190)
                             return res.status(401).json({
@@ -694,7 +660,6 @@ exports.getChannelData = function (req, res, next) {
                         callback('', queryResponse);
                     }
                 })
-
             }
         }
     }
@@ -732,6 +697,7 @@ exports.getChannelData = function (req, res, next) {
                             next(null, 'DataFromDb');
                         else {
                             var storeGoogleData = [];
+                            var replacedGoogleData = [];
                             var dimensionList = [];
                             var dimension;
                             var dimensionArray = [];
@@ -746,7 +712,6 @@ exports.getChannelData = function (req, res, next) {
                                         finalData = findDaysDifference(dataFromRemote[j].startDate, dataFromRemote[j].endDate, undefined);
                                 }
                             }
-                            console.log('finaldat', finalData)
                             //Check empty data from query response
                             if (dataFromRemote[j].data === 'No Data')
                                 storeGoogleData = finalData;
@@ -845,22 +810,20 @@ exports.getChannelData = function (req, res, next) {
                                 var wholeResponse = [];
 
                             }
-                            console.log('finaldata afer else', finalData, storeGoogleData.length)
+                            var finalReplacedData = replaceEmptyData(finalData, storeGoogleData);
+                            finalReplacedData.forEach(function (value) {
+                                replacedGoogleData.push(value)
+                            })
                             if (dataFromDb[j].data != null) {
                                 var metricId;
                                 for (var r = 0; r < dataFromDb[j].data.data.length; r++) {
                                     if (dataFromRemote[j].metricId === dataFromDb[j].metricId) {
                                         //merge old data with new one
-                                        storeGoogleData.push(dataFromDb[j].data.data[r]);
+                                        replacedGoogleData.push(dataFromDb[j].data.data[r]);
                                     }
                                 }
                             }
-                            console.log('storeGoogleData', storeGoogleData.length, 'finaldata', finalData.length);
-                            //if (finalData.length>storeGoogleData.length)
-                            storeGoogleData = replaceEmptyData(finalData, storeGoogleData);
-                            console.log('storeGoogleData', storeGoogleData.length, 'finaldata', finalData.length);
                             var now = new Date();
-
                             //Updating the old data with new one
                             Data.update({
                                 'objectId': widget[j].metrics[0].objectId,
@@ -868,7 +831,7 @@ exports.getChannelData = function (req, res, next) {
                             }, {
                                 $setOnInsert: {created: now},
                                 $set: {
-                                    data: storeGoogleData,
+                                    data: replacedGoogleData,
                                     updated: now,
                                     bgFetch: metric[j].bgFetch,
                                     fetchPeriod: metric[j].fetchPeriod
@@ -908,7 +871,6 @@ exports.getChannelData = function (req, res, next) {
                                     d.setDate(d.getDate() - 1);
                                     d = moment(d).format('YYYY-MM-DD');
                                     if (dataFromRemote[key].res.data.length) {
-                                        console.log('d', d, dataFromRemote[key].res.data[0].values)
                                         var dataLength = dataFromRemote[key].res.data[0].values.length;
                                         var fbDataLength = dataFromRemote[key].res.data[0].values.length;
                                         for (var index in dataFromRemote[key].res.data[0].values) {
@@ -935,7 +897,6 @@ exports.getChannelData = function (req, res, next) {
                                             finalReplacedData.forEach(function (value) {
                                                 finalData.push(value)
                                             })
-                                            console.log('finaldata', finalData, finalData1)
                                         }
                                     }
                                     else {
@@ -950,7 +911,6 @@ exports.getChannelData = function (req, res, next) {
                                             }
                                         }
                                     }
-                                    console.log('beforeReplaceEmptyData', beforeReplaceEmptyData, finalData, dataFromRemote[key].startDate, d)
                                 }
                             }
                         }
@@ -972,7 +932,6 @@ exports.getChannelData = function (req, res, next) {
                                 }
                             }
                             var now = new Date();
-
                             //Updating the old data with new one
                             Data.update({
                                 'objectId': widget[j].metrics[0].objectId,
@@ -1002,11 +961,8 @@ exports.getChannelData = function (req, res, next) {
                 }
             }
             else if (allQueryResult.channel.code == configAuth.channels.moz) {
-
                 storeDataForMoz(groupAllChannelData[allQueryResult.channel._id], allQueryResult.allData.data, allQueryResult.allData.widget[0].charts, allQueryResult.allData.metric, callback);
-
                 function storeDataForMoz(dataFromRemote, dataFromDb, widget, metric, done) {
-
                     async.timesSeries(Math.min(widget.length, dataFromDb.length), function (j, next) {
                         var beforeReplaceEmptyData = [];
                         var finalData1 = [];
@@ -1014,7 +970,6 @@ exports.getChannelData = function (req, res, next) {
                         //Array to hold the final result
                         for (var key in dataFromRemote) {
                             if (String(dataFromRemote[key].channelId) === String(metric[0].channelId)) {
-
                                 if (dataFromRemote[key].data.length) {
                                     var value = {};
                                     value = {
@@ -1025,14 +980,10 @@ exports.getChannelData = function (req, res, next) {
                                         beforeReplaceEmptyData.push(value);
                                         var metricId = dataFromRemote[key].metricId;
                                     }
-
                                     if (String(metric[j]._id) === String(dataFromRemote[key].metricId)) {
                                         finalData1 = findDaysDifference(dataFromRemote[key].startDate, dataFromRemote[key].endDate, undefined);
                                         var finalData = replaceEmptyData(finalData1, beforeReplaceEmptyData);
-
-
                                     }
-
                                 }
                             }
                         }
@@ -1478,14 +1429,9 @@ exports.getChannelData = function (req, res, next) {
             else if (allQueryResult.channel.code == configAuth.channels.pinterest) {
                 storeDataForpinterest(groupAllChannelData[allQueryResult.channel._id], allQueryResult.allData.data, allQueryResult.allData.widget[0].charts, allQueryResult.allData.metric, callback);
                 function storeDataForpinterest(dataFromRemote, dataFromDb, widget, metric, done) {
-                    //console.log('storingProcess',dataFromRemote);
                     async.times(metric.length, function (j, next) {
                         var finalData = [];
-                        if (metric[j].code === 'boardsleaderboard' || metric[j].code === 'engagementRate') {
-                            console.log('insideof boardsleaderboard')
-                            callback(null, dataFromRemote[j])
-
-                        }
+                        if (metric[j].code === configAuth.pinterestMetrics.boardsLeaderBoard || metric[j].code === configAuth.pinterestMetrics.engagementRate) return callback(null, dataFromRemote[j])
                         else {
                             //Array to hold the final result
                             for (var key in dataFromRemote) {
@@ -1493,7 +1439,6 @@ exports.getChannelData = function (req, res, next) {
                                 }
                                 else {
                                     if (String(metric[j]._id) == String(dataFromRemote[key].metricId)) {
-                                        console.log('satisfied metric conditions');
                                         finalData = dataFromRemote[key].apiResponse;
                                     }
                                 }
@@ -1502,16 +1447,13 @@ exports.getChannelData = function (req, res, next) {
                             if (dataFromRemote[j].apiResponse != 'DataFromDb') {
                                 if (dataFromDb[j].data != null) {
                                     if (dataFromRemote[j].metricId == dataFromDb[j].metricId) {
-                                        console.log('satisfied data conditions');
                                         //merge the old data with new one and update it in db
                                         for (var key = 0; key < dataFromDb[j].data.data.length; key++) {
                                             finalData.push(dataFromDb[j].data.data[key]);
                                         }
                                         var metricId = metric._id;
                                     }
-
                                 }
-                                console.log('storingFinalData', finalData)
                                 var now = new Date();
 
                                 //Updating the old data with new one
@@ -1540,23 +1482,18 @@ exports.getChannelData = function (req, res, next) {
                                     else next(null, 'success')
                                 });
                             }
-
                             else
                                 next(null, 'success')
                         }
-
                     }, done);
-
-
                 }
-
             }
             else if (allQueryResult.channel.code == configAuth.channels.linkedIn) {
                 storeDataForlinkedIn(groupAllChannelData[allQueryResult.channel._id], allQueryResult.allData.data, allQueryResult.allData.widget[0].charts, allQueryResult.allData.metric, callback);
                 function storeDataForlinkedIn(dataFromRemote, dataFromDb, widget, metric, done) {
                     async.times(metric.length, function (j, next) {
                         var finalData = [];
-                        if (metric[j].code === 'highestEngagementUpdatesLinkedIn') {
+                        if (metric[j].code === configAuth.linkedInMetrics.highestEngagementUpdatesLinkedIn) {
                             callback(null, dataFromRemote[j]);
                         }
                         else {
@@ -1611,12 +1548,11 @@ exports.getChannelData = function (req, res, next) {
                 }
             }
             else if (allQueryResult.channel.code == configAuth.channels.vimeo) {
-                console.log("storeing in db")
                 storeDataForVimeo(groupAllChannelData[allQueryResult.channel._id], allQueryResult.allData.data, allQueryResult.allData.widget[0].charts, allQueryResult.allData.metric, callback);
                 function storeDataForVimeo(dataFromRemote, dataFromDb, widget, metric, done) {
                     async.times(metric.length, function (j, next) {
                         var finalData = [];
-                        if (metric[j].name === 'highengagement')
+                        if (metric[j].name === configAuth.vimeoMetric.highEngagement)
                             callback(null, dataFromRemote[j]);
                         else {
                             //Array to hold the final result
@@ -1639,7 +1575,6 @@ exports.getChannelData = function (req, res, next) {
                                     }
                                 }
                                 var now = new Date();
-                                console.log("finalData", finalData)
                                 //Updating the old data with new one
                                 Data.update({
                                     'objectId': widget[j].metrics[0].objectId,
@@ -1683,7 +1618,6 @@ exports.getChannelData = function (req, res, next) {
                             else {
                                 if (String(metric[j]._id) == String(dataFromRemote[key].metricId))
                                     finalData = dataFromRemote[key].apiResponse;
-
                             }
                         }
                         if (dataFromRemote[j].apiResponse != 'DataFromDb') {
@@ -1750,7 +1684,7 @@ exports.getChannelData = function (req, res, next) {
                     };
                     next(null, wholeData);
                 }
-                else if (metric[k].code === 'boardsleaderboard' || metric[k].code === 'engagementRate') {
+                else if (metric[k].code === configAuth.pinterestMetrics.boardsLeaderBoard || metric[k].code === configAuth.pinterestMetrics.engagementRate) {
                     wholeData = {
                         "data": results.store_final_data[0].apiResponse,
                         "metricId": results.store_final_data[0].metricId,
@@ -1758,7 +1692,7 @@ exports.getChannelData = function (req, res, next) {
                     };
                     next(null, wholeData);
                 }
-                else if (metric[k].code === 'highestEngagementUpdatesLinkedIn') {
+                else if (metric[k].code === configAuth.linkedInMetrics.highestEngagementUpdatesLinkedIn) {
                     wholeData = {
                         "data": results.store_final_data[0].apiResponse,
                         "metricId": results.store_final_data[0].metricId,
@@ -1768,18 +1702,13 @@ exports.getChannelData = function (req, res, next) {
 
                 }
                 else if (metric[k].code === 'vimeohighengagement') {
-                    console.log("vimeohighengagement")
                     wholeData = {
                         "data": results.store_final_data[0].apiResponse,
                         "metricId": results.store_final_data[0].metricId,
                         "objectId": results.store_final_data[0].queryResults.object[0]._id
                     };
                     next(null, wholeData);
-                    // console.log("wholeData",wholeData)
-
                 }
-
-
                 else {
                     Data.aggregate([
 
@@ -1890,9 +1819,6 @@ exports.getChannelData = function (req, res, next) {
             //Array to hold the final google data
             if (req.body.dimensionList != undefined) {
                 dimensionList = req.body.dimensionList;
-
-                //This is for testing now hard coded
-                // dimensionList.push({'name': 'ga:date'}, {'name': 'ga:year'}, {'name': 'ga:month'}, {'name': 'ga:day'}, {'name': 'ga:year'}, {'name': 'ga:week'});
                 var getDimension = dimensionList[0].name;
                 var dimensionListLength = dimensionList.length;
 
@@ -1929,7 +1855,6 @@ exports.getChannelData = function (req, res, next) {
                 refresh_token: results.get_profile[0].refreshToken
             });
             oauth2Client.refreshAccessToken(function (err, tokens) {
-                console.log('refreshtoken error', err, oauth2Client)
                 if (err) {
                     if (err.code === 400)
                         return res.status(401).json({
@@ -2108,7 +2033,6 @@ exports.getChannelData = function (req, res, next) {
 
                 function callGoogleApi(apiQuery) {
                     analytics(apiQuery, function (err, result) {
-                        console.log('youtube result', err, result)
                         if (err) {
                             if (err.code === 400)
                                 return res.status(401).json({
@@ -2242,6 +2166,9 @@ exports.getChannelData = function (req, res, next) {
                         var startDate = calculateDate(d);
                         var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
                         if (updated < currentDate) {
+                            updated = data[j].data.updated;
+                            updated.setDate(updated.getDate() + 1);
+                            updated = moment(updated).format('YYYY-MM-DD')
                             var query = configAuth.apiVersions.FBADs + "/" + adAccountId + "/insights?limit=365&time_increment=1&fields=" + initialResults.metric[j].objectTypes[0].meta.fbAdsMetricName + '&time_range[since]=' + updated + '&time_range[until]=' + startDate;
                             allObjects = {
                                 profile: initialResults.get_profile[j],
@@ -2331,7 +2258,6 @@ exports.getChannelData = function (req, res, next) {
             function Adsinsights(query) {
                 var metricId = results.metricId;
                 FB.api(query, function (apiResult) {
-                    console.log('apiresult', apiResult.error, query, results.profile.accessToken)
                     if (apiResult.error) {
                         if (apiResult.error.code === 190)
                             return res.status(401).json({
@@ -2369,7 +2295,7 @@ exports.getChannelData = function (req, res, next) {
                                     });
                                 var nextPage = apiResult.paging.next;
                                 var str = nextPage;
-                                var recallApi = str.replace("https://graph.facebook.com/", " ").trim();
+                                var recallApi = str.replace(configAuth.facebookSite.site, " ").trim();
                                 Adsinsights(recallApi);
                             }
                             else {
@@ -2378,7 +2304,6 @@ exports.getChannelData = function (req, res, next) {
                                         total: apiResult.data[key][storeMetricName],
                                         date: apiResult.data[key].date_start
                                     });
-
                                 var obj_metric = tot_metric.length;
                                 for (var j = 0; j < obj_metric; j++) {
                                     wholeData.push({date: tot_metric[j].date, total: tot_metric[j].total});
@@ -2439,39 +2364,39 @@ exports.getChannelData = function (req, res, next) {
                     var allObjects = {};
                     if (data[j].data != null) {
                         var updated = calculateDate(data[j].data.updated);
-                        var newStartDate = updated.replace(/-/g, "");
-                        updated = newStartDate;
-
                         var currentDate = calculateDate(new Date());
                         d.setDate(d.getDate() + 1);
-                        var startDate = calculateDate(d);
+                        var startDate = moment(new Date()).format('YYYY-MM-DD');
                         var newEndDate = startDate.replace(/-/g, "");
                         startDate = newEndDate;
-                        console.log('data[j].data.updated', data[j].data.updated)
-                        var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
                         if (calculateDate(data[j].data.updated) < currentDate) {
-                            console.log('initialResults.object[j]', initialResults.object[j].meta.accountId, 'initialResults.object[j]. meta.accountId', initialResults.object[j])
+                            var updated = data[j].data.updated;
+                            var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+                            updated.setTime(updated.getTime() + oneDay);
+                            updated = moment(updated).format('YYYY-MM-DD');
+                            var newStartDate = updated.replace(/-/g, "");
+                            updated = newStartDate;
                             if (configAuth.objectType.googleAdwordAdGrouptypeId == String(initialResults.object[j].objectTypeId)) {
-                                var query = 'AdGroupId,' + 'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
-                                var performance = 'ADGROUP_PERFORMANCE_REPORT';
+                                var query = configAuth.googleAdwordsStatic.adGroupId + configAuth.googleAdwordsStatic.date + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
+                                var performance = configAuth.googleAdwordsStatic.ADGROUP_PERFORMANCE_REPORT;
                                 var clientId = initialResults.object[j].meta.accountId;
-                                var objects = "AdGroupId=" + initialResults.object[j].channelObjectId;
+                                var objects = configAuth.googleAdwordsStatic.adGroupIdEqual + initialResults.object[j].channelObjectId;
                             }
                             else if (configAuth.objectType.googleAdwordCampaigntypeId == String(initialResults.object[j].objectTypeId)) {
-                                var query = 'CampaignId,' + 'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
-                                var performance = 'CAMPAIGN_PERFORMANCE_REPORT';
+                                var query = configAuth.googleAdwordsStatic.campaignId + configAuth.googleAdwordsStatic.date + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
+                                var performance = configAuth.googleAdwordsStatic.CAMPAIGN_PERFORMANCE_REPORT;
                                 var clientId = initialResults.object[j].meta.accountId;
-                                var objects = "CampaignId=" + initialResults.object[j].channelObjectId;
+                                var objects = configAuth.googleAdwordsStatic.campaignEqual + initialResults.object[j].channelObjectId;
                             }
                             else if (configAuth.objectType.googleAdwordsAdtypeId == String(initialResults.object[j].objectTypeId)) {
-                                var query = 'Id,' + 'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
-                                var performance = 'AD_PERFORMANCE_REPORT';
+                                var query = configAuth.googleAdwordsStatic.id + configAuth.googleAdwordsStatic.date + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
+                                var performance = configAuth.googleAdwordsStatic.AD_PERFORMANCE_REPORT;
                                 var clientId = initialResults.object[j].meta.accountId;
-                                var objects = "Id=" + initialResults.object[j].channelObjectId;
+                                var objects = configAuth.googleAdwordsStatic.idEquals + initialResults.object[j].channelObjectId;
                             }
                             else {
-                                var query = 'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
-                                var performance = 'ACCOUNT_PERFORMANCE_REPORT';
+                                var query = configAuth.googleAdwordsStatic.date + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
+                                var performance = configAuth.googleAdwordsStatic.ACCOUNT_PERFORMANCE_REPORT;
                                 var clientId = initialResults.object[j].channelObjectId;
                                 var objects = ""
                             }
@@ -2504,31 +2429,30 @@ exports.getChannelData = function (req, res, next) {
                         var endDate = formatDate(new Date());
                         var newEndDate = endDate.replace(/-/g, "");
                         var endDate = newEndDate;
-                        console.log(initialResults.object[j])
                         if (configAuth.objectType.googleAdwordAdGrouptypeId == String(initialResults.object[j].objectTypeId)) {
-                            var query = 'AdGroupId,' + 'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
-                            var performance = 'ADGROUP_PERFORMANCE_REPORT';
+                            var query = configAuth.googleAdwordsStatic.adGroupId + configAuth.googleAdwordsStatic.date + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
+                            var performance = configAuth.googleAdwordsStatic.ADGROUP_PERFORMANCE_REPORT;
                             var clientId = initialResults.object[j].meta.accountId;
-                            var objects = "AdGroupId=" + initialResults.object[j].channelObjectId;
+                            var objects = configAuth.googleAdwordsStatic.adGroupIdEqual + initialResults.object[j].channelObjectId;
                         }
                         else if (configAuth.objectType.googleAdwordCampaigntypeId == String(initialResults.object[j].objectTypeId)) {
-                            var query = 'CampaignId,' + 'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
-                            var performance = 'CAMPAIGN_PERFORMANCE_REPORT';
+                            var query = configAuth.googleAdwordsStatic.campaignId + configAuth.googleAdwordsStatic.date + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
+                            var performance = configAuth.googleAdwordsStatic.CAMPAIGN_PERFORMANCE_REPORT;
                             var clientId = initialResults.object[j].meta.accountId;
-                            var objects = "CampaignId=" + initialResults.object[j].channelObjectId;
+                            var objects = configAuth.googleAdwordsStatic.campaignEqual + initialResults.object[j].channelObjectId;
                         }
                         else if (configAuth.objectType.googleAdwordtypeId == String(initialResults.object[j].objectTypeId)) {
 
-                            var query = 'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
-                            var performance = 'ACCOUNT_PERFORMANCE_REPORT';
+                            var query = configAuth.googleAdwordsStatic.date + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
+                            var performance = configAuth.googleAdwordsStatic.ACCOUNT_PERFORMANCE_REPORT;
                             var clientId = initialResults.object[j].channelObjectId;
                             var objects = ""
                         }
                         else {
-                            var query = 'Id,' + 'Date,' + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
-                            var performance = 'AD_PERFORMANCE_REPORT';
+                            var query = configAuth.googleAdwordsStatic.id + configAuth.googleAdwordsStatic.date + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
+                            var performance = configAuth.googleAdwordsStatic.AD_PERFORMANCE_REPORT;
                             var clientId = initialResults.object[j].meta.accountId;
-                            var objects = "Id=" + initialResults.object[j].channelObjectId;
+                            var objects = configAuth.googleAdwordsStatic.idEquals + initialResults.object[j].channelObjectId;
 
                         }
                         allObjects = {
@@ -2578,7 +2502,6 @@ exports.getChannelData = function (req, res, next) {
         function getAdwordsDataForEachMetric(results, callback) {
             semaphore.take(function () {
                 var errorCount = 0;
-                console.log('results.clientId', results)
                 var during = results.startDate + ',' + results.endDate;
                 googleAds.use({
                     clientID: configAuth.googleAdwordsAuth.clientID,
@@ -2587,12 +2510,10 @@ exports.getChannelData = function (req, res, next) {
                 });
                 googleAds.use({
                     accessToken: results.profile.accessToken,
-                    //tokenExpires: 1424716834341, // Integer: Unix Timestamp of expiration time
                     refreshToken: results.profile.refreshToken,
                     clientCustomerID: results.clientId
 
                 });
-                console.log('awql', results.query, 'performance', results.performance, 'objects', results.objects, 'during', during, 'access token', results.profile, 'results.clientId', results.clientId)
                 googleAds.awql({
                         select: results.query,
                         from: results.performance,
@@ -2604,7 +2525,6 @@ exports.getChannelData = function (req, res, next) {
                         semaphore.leave();
                     })
                     .catch(function (error) {
-                        console.log('catc error ', error)
                         semaphore.leave();
                         callback(error, null);
                     });
@@ -2643,7 +2563,7 @@ exports.getChannelData = function (req, res, next) {
                     if (results.metricCode === configAuth.googleAdwordsMetric.costPerConversion || results.metricCode === configAuth.googleAdwordsMetric.costPerClick || results.metricCode === configAuth.googleAdwordsMetric.costPerThousandImpressions || results.metricCode === configAuth.googleAdwordsMetric.cost)
                         totalValue = parseFloat((data[prop][param] / 1000000).toFixed(2));
                     else
-                        totalValue = parseFloat(data[prop][param]).toFixed(2);
+                        totalValue = parseFloat(data[prop][param]);
                     var value = {};
                     value = {
                         total: totalValue,
@@ -3289,7 +3209,6 @@ exports.getChannelData = function (req, res, next) {
                         var endDate = formatDate(new Date());
                         var query = metric[j].objectTypes[0].meta.igMetricName;
                         if (metric[j].code === 'likes' || metric[j].code === 'comments') {
-                            console.log('likes')
                             allObjects = {
                                 profile: initialResults.get_profile[j],
                                 query: query,
@@ -3353,7 +3272,7 @@ exports.getChannelData = function (req, res, next) {
             var userMediaRecent = [];
             var recentMedia = [];
             ig.use({access_token: result.profile.accessToken});
-            if (result.query === 'user') {
+            if (result.query === configAuth.instagramStaticVariables.user) {
                 ig.user(result.profile.userId, function (err, results, remaining, limit) {
                     if (err) {
                         return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
@@ -3398,7 +3317,7 @@ exports.getChannelData = function (req, res, next) {
             }
             else {
                 var callApi = function (err, medias, pagination, remaining, limit) {
-                    if (result.metricCode === 'likes' || result.metricCode === 'comments') {
+                    if (result.metricCode === configAuth.instagramStaticVariables.likes || result.metricCode === configAuth.instagramStaticVariables.comments) {
                         for (var key in medias) {
                             userMediaRecent.push(medias[key])
                         }
@@ -3418,9 +3337,9 @@ exports.getChannelData = function (req, res, next) {
                                 }
                                 var uniqueDate = _.groupBy(storeData, 'date')
                                 for (var key in uniqueDate) {
-                                    var like = 'likes';
-                                    var count = 'count';
-                                    var comments = 'comments';
+                                    var like = configAuth.instagramStaticVariables.likes;
+                                    var count = configAuth.instagramStaticVariables.count;
+                                    var comments = configAuth.instagramStaticVariables.comments;
                                     var tempLikes = 0;
                                     var tempComments = 0;
                                     for (var j = 0; j < uniqueDate[key].length; j++) {
@@ -3428,7 +3347,7 @@ exports.getChannelData = function (req, res, next) {
                                         tempLikes += uniqueDate[key][j].total[like][count];
                                         tempComments += uniqueDate[key][j].total[comments][count];
                                     }
-                                    if (result.metricCode === 'likes') {
+                                    if (result.metricCode === configAuth.instagramStaticVariables.likes) {
                                         recentMedia.push({date: date, total: tempLikes})
                                     }
                                     else {
@@ -3652,7 +3571,7 @@ exports.getChannelData = function (req, res, next) {
                 })
 
             }
-            else if (result.metricCode === 'engagementRate') {
+            else if (result.metricCode === configAuth.pinterestMetrics.engagementRate) {
                 var params = {
                     qs: {
                         limit: 100,
@@ -3861,10 +3780,10 @@ exports.getChannelData = function (req, res, next) {
                         d.setDate(d.getDate() - 365);
                         var startDate = formatDate(d);
                         var endDate = formatDate(new Date());
-                        if (metric[j].objectTypes[0].meta.endpoint[0] === 'lists')
-                            var query = 'https://' + initialResults.get_profile[j].dataCenter + '.api.mailchimp.com/3.0/lists/' + channelObjectId + '/?count=100';
+                        if (metric[j].objectTypes[0].meta.endpoint[0] === configAuth.mailChimpQueryVariables.lists)
+                            var query = 'https://' + initialResults.get_profile[j].dataCenter + configAuth.mailChimpQueryVariables.listQuery + channelObjectId + '/?count=100';
                         else
-                            var query = 'https://' + initialResults.get_profile[j].dataCenter + '.api.mailchimp.com/3.0/campaigns/' + channelObjectId + '/?count=100';
+                            var query = 'https://' + initialResults.get_profile[j].dataCenter + configAuth.mailChimpQueryVariables.campaignQuery + channelObjectId + '/?count=100';
                         allObjects = {
                             profile: initialResults.get_profile[j],
                             query: query,
@@ -3919,14 +3838,14 @@ exports.getChannelData = function (req, res, next) {
                     var storeEndDate = new Date(result.endDate);
                     var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
                     var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); //adding plus one so that today also included
-                    var stats = 'stats';
+                    var stats = configAuth.mailChimpQueryVariables.stats;
                     var item = result.widget.objectTypes[0].meta.mailChimpsMetricName;
                     if (!mailChimpResponse.id)
                         return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
 
                     else {
-                        if (result.endpoint === 'campaign') {
-                            if (result.metricCode === 'emailSend') {
+                        if (result.endpoint === configAuth.mailChimpQueryVariables.campaign) {
+                            if (result.metricCode === configAuth.mailChimpQueryVariables.emailSend) {
                                 storeMetric = parseInt(mailChimpResponse[item]);
                             }
                             else {
@@ -4002,8 +3921,7 @@ exports.getChannelData = function (req, res, next) {
                         updated.setTime(updated.getTime() + oneDay);
                         var startDate = calculateDate(updated);
                         if (updatedDb < currentDate) {
-                            console.log('initialResults.object[j].listId', initialResults.object)
-                            if (metric[j].objectTypes[0].meta.endpoint[0] === 'mainlists') {
+                            if (metric[j].objectTypes[0].meta.endpoint[0] === configAuth.aweberStatic.aweberMainList) {
                                 var query = 'accounts/' + initialResults.get_profile[j].userId + '/lists/' + object[j].channelObjectId;
 
                             }
@@ -4039,7 +3957,6 @@ exports.getChannelData = function (req, res, next) {
                         d.setDate(d.getDate() - 365);
                         var startDate = formatDate(d);
                         var endDate = formatDate(new Date());
-                        console.log('initialResults.object[j].listId', initialResults.object)
                         if (metric[j].objectTypes[0].meta.endpoint[0] === 'mainlists') {
                             var query = 'accounts/' + initialResults.get_profile[j].userId + '/lists/' + initialResults.object[j].channelObjectId;
 
@@ -4141,7 +4058,6 @@ exports.getChannelData = function (req, res, next) {
                     }
                     else if (result.metricCode === 'open_rate/campaigns') {
                         storeMetric = Math.round(response.total_opens / response.total_sent);
-                        console.log("storeMetric", storeMetric);
                     }
                     else if (result.metricCode === 'click_rate/campaigns') {
                         storeMetric = Math.round(response.total_clicks / response.total_sent);
@@ -4157,7 +4073,6 @@ exports.getChannelData = function (req, res, next) {
                     }
                     for (var i = 0; i <= diffDays; i++) {
                         var finalDate = formatDate(storeStartDate);
-                        console.log('finaldata', finalDate)
                         if (finalDate <= moment(new Date).format('YYYY-MM-DD')) {
                             tot_metric.push({date: finalDate, total: 0});
                             storeStartDate.setDate(storeStartDate.getDate() + 1);
@@ -4318,7 +4233,6 @@ exports.getChannelData = function (req, res, next) {
             var actualMetric = [];
             request(result.query,
                 function (err, response, body) {
-                    console.log('response linked in', response.statusCode, body)
                     if (err || response.statusCode !== 200) {
                         return res.status(500).json({error: 'Internal server error'});
                     }
@@ -4621,7 +4535,6 @@ exports.getChannelData = function (req, res, next) {
             if (err) {
                 return callback(err, null);
             }
-            console.log("results. get_vimeo_data_from_remote" + results.get_vimeo_data_from_remote)
             callback(null, results.get_vimeo_data_from_remote);
         });
 
@@ -4649,7 +4562,6 @@ exports.getChannelData = function (req, res, next) {
                         updated.setTime(updated.getTime() + oneDay);
                         var startDate = calculateDate(updated);
                         if (updatedDb < currentDate) {
-                            console.log('testing!!!!!')
                             allObjects = {
                                 profile: initialResults.get_profile[j],
                                 query: query,
@@ -4732,10 +4644,7 @@ exports.getChannelData = function (req, res, next) {
 
             function callrequest() {
                 request(result.query + '?access_token=' + access_token + '&page=' + page + '&per_page=2', function (err, results, body) {
-                    //  console.log('results',results)
                     var parsedData = JSON.parse(body);
-
-
                     if (results.statusCode != 200) {
                         return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
                     }
@@ -4744,8 +4653,6 @@ exports.getChannelData = function (req, res, next) {
                         var Tempstore = [];
                         if ("vimeohighengagement" == result.metricCode) {
                             for (var i = 0; i < parsedData.data.length; i++) {
-                                // console.log("date",parsedData.data[i].created_time)
-                                // console.log("details",parsedData.data[i].metadata.connections)
                                 var datadate = formatDate(new Date(Date.parse(parsedData.data[i].created_time.replace(/( +)/, ' UTC$1'))))
                                 var lastCreatedAt = formatDate(new Date(Date.parse(datadate)));
                                 var changeFormatCreateAt = moment.utc(lastCreatedAt).unix();
@@ -4753,7 +4660,6 @@ exports.getChannelData = function (req, res, next) {
                                 var endDate = moment.utc(req.body.endDate).unix();
 
                                 if (changeFormatCreateAt >= startDate && changeFormatCreateAt <= endDate) {
-                                    // console.log("inside date condition")
                                     sampledata.push({
                                         date: datadate,
                                         data: parsedData.data[i],
@@ -4773,7 +4679,6 @@ exports.getChannelData = function (req, res, next) {
                                 Tempstore = _.sortBy(sampledata, ['likes', 'comments']);
                                 Tempstore = _.reverse(Tempstore)
                                 for (var t = 0; t < Tempstore.length; t++) {
-                                    console.log("sorting array")
                                     tot_metric.push({date: Tempstore[t].date, total: Tempstore[t].data});
 
                                 }
@@ -4783,7 +4688,6 @@ exports.getChannelData = function (req, res, next) {
                                     queryResults: initialResults,
                                     channelId: initialResults.metric[0].channelId
                                 }
-                                console.log("tot_metric", tot_metric)
                                 callback(null, actualFinalApiData);
                             }
 

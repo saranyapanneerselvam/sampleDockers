@@ -55,11 +55,14 @@ exports.getUserPassword = function (req, res, next) {
                     user.pwdHash =  bcrypt.hashSync(req.body.newPassword, bcrypt.genSaltSync(8), null);
                     user.save(function(err){
                         if (!err){
-                            console.log('User saved');
+                            return res.status(200).json({});
                         }
                     });
                 }
-                next();
+                else{
+                    return res.status(204).json({error: 'No records found'});
+
+                }
             }
         });
     }

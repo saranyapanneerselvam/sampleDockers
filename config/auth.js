@@ -191,7 +191,20 @@ module.exports = {
         costPerClick:'costPerClick',
         costPerThousandImpressions:'costPerThousandImpressions'
     },
-
+    googleAdwordsStatic:{
+        host:'https://adwords.google.com/api/adwords/reportdownload/v201601',
+        ADGROUP_PERFORMANCE_REPORT:'ADGROUP_PERFORMANCE_REPORT',
+        adGroupId:'AdGroupId,',
+        date:'Date,',
+        adGroupIdEqual:"AdGroupId=",
+        campaignId:'CampaignId,',
+        CAMPAIGN_PERFORMANCE_REPORT:'CAMPAIGN_PERFORMANCE_REPORT',
+        campaignEqual:"CampaignId=",
+        id:'Id,',
+        idEquals:"Id=",
+        AD_PERFORMANCE_REPORT:'AD_PERFORMANCE_REPORT',
+        ACCOUNT_PERFORMANCE_REPORT:'ACCOUNT_PERFORMANCE_REPORT'
+    },
     googleApiTypes:{
         mcfApi:'mcf',
         gaApi:'ga',
@@ -276,7 +289,54 @@ module.exports = {
         tokenPath:'https://www.linkedin.com/oauth/v2/accessToken',
         site:'https://www.linkedin.com/oauth/',
         authorizationPath: 'v2/authorization'
+    },
+    'batchJobs':{
+        dataBase:"mongodb://saranya:saranya@ds031975.mlab.com:31975/datapooltlocal",
+        mail:{
+            user: 'rajalakshmi.c@habile.in',
+            password: 'habile3238'
+        },
+        alertName:'Send Alert',
+        alertJobName:'Update channel data',
+        successBatchJobMessage:'success:Update channel data',
+        successAlertMessage:'success:Send Alert'
+    },
+    'batchJobsMoz':{
+        accessId: 'mozscape-d79bd6e88f',
+        secret: 'e093b821ca077d42fd113db646c22487',
+        expires: 300
+    },
+    pinterestMetrics:{
+        boardsLeaderBoard:'boardsleaderboard',
+        engagementRate:'engagementRate'
+    },
+    linkedInMetrics:{
+        highestEngagementUpdatesLinkedIn:'highestEngagementUpdatesLinkedIn'
+    },
+    vimeoMetric:{
+        highEngagement:'highengagement'
+    },
+    facebookSite:{
+        site:'https://graph.facebook.com/'
+    },
+    instagramStaticVariables:{
+        user:'user',
+        likes:'likes',
+        comments:'comments',
+        count:'count',
+    },
+    mailChimpQueryVariables:{
+        lists:'lists',
+        listQuery:'.api.mailchimp.com/3.0/lists/',
+        campaignQuery:'.api.mailchimp.com/3.0/campaigns/',
+        stats:'stats',
+        campaign:'campaign',
+        emailSend:'emailSend',
+    },
+    aweberStatic:{
+        aweberMainList:'mainlists',
     }
+
 
 };
 

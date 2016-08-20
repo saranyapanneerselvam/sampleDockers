@@ -149,8 +149,7 @@ exports.storeProfiles = function (req, res, done) {
                         }, function (err, profileDetail) {
                             if (!err) {
                                 if(req.canManageClients===false) done(null,profileDetail)
-                                else if (req.code != configAuth.channels.instagram && req.code !== configAuth.channels.youtube  && req.code !== configAuth.channels.twitter) {
-                                    console.log('else')
+                                else if (req.code != configAuth.channels.pinterest && req.code != configAuth.channels.instagram && req.code !== configAuth.channels.youtube  && req.code !== configAuth.channels.twitter) {
                                     async.auto({
                                         object_types: getObjectType,
                                         get_remote_objects: ['object_types', getRemoteObjects]
@@ -164,7 +163,6 @@ exports.storeProfiles = function (req, res, done) {
                                         objectType.find({
                                             'channelId': user.channelId, autoSave: true
                                         }, function (err, objectType) {
-                                            console.log('objectType',objectType,err)
                                             if (err)
                                                 return res.status(500).json({error: err});
                                             else if (!objectType.length)
@@ -178,7 +176,6 @@ exports.storeProfiles = function (req, res, done) {
                                     }
 
                                     function getObjectsForEachObjectType(eachObjectType, callback) {
-                                        console.log('getObjectsForEachObjectType',req.query,eachObjectType.type)
                                         req.params.profileId = profileDetail._id;
                                         req.query.objectType = eachObjectType.type;
                                         getChannelPageList.listAccounts(req, res, function (err, getObjectList) {

@@ -7,14 +7,13 @@ var Object = require('../models/objects');
  */
 
 exports.objects = function (req, res, next) {
-
     if (req.query.campaignId != undefined) {
         if (req.query.accountId != undefined)  req.query.metaCondition = {accountId:req.query.accountId,campaignId: req.query.campaignId}
         else  req.query.metaCondition = {campaignId: req.query.campaignId}
     }
     else if (req.query.adSetId != undefined) {
         if (req.query.accountId != undefined)  req.query.metaCondition = {accountId:req.query.accountId,adSetId:req.query.adSetId}
-        else  req.query.metaCondition = {campaignId: req.query.campaignId}
+        else  req.query.metaCondition = {adSetId: req.query.adSetId}
     }
 
     else if(req.query.accountId!=undefined) req.query.metaCondition = {accountId:req.query.accountId}

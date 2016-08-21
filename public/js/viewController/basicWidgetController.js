@@ -1476,7 +1476,8 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         if (getChannelName == "CustomData") {
             getCustomWidgetObj = {
                 '_id': getCustomWidgetId,
-                'widgetType': 'custom'
+                'widgetType': 'custom',
+                "channelName": 'custom'
             };
             // final function after custom api url creation goes here
             $rootScope.$broadcast('populateWidget', getCustomWidgetObj);

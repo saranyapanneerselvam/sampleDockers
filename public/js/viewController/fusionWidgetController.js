@@ -11,7 +11,10 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
     $scope.widgetType = 'fusion';
     $scope.storedUserChosenValues = [];
     $scope.profileOptionsModel = [];
-
+    $scope.objectTypeList =[];
+    $scope.fbAdObjId='';
+    $scope.gaAdObjId='';
+    $scope.canManage = true;
     $scope.changeViewsInBasicWidget = function (obj) {
         $scope.currentView = obj;
         if ($scope.currentView === 'step_one') {
@@ -163,6 +166,26 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
                     profiles: response.data.profileList
                 });
                 $scope.objectList = [];
+                $http({
+                    method: 'GET', url: '/api/v1/get/objectType/' + channel
+                }).then(
+                    function successCallback(response) {
+                        $scope.objectTypeList=response.data.objectType;
+                        for(var i=0;i<$scope.objectTypeList.length;i++){
+                            if($scope.objectTypeList[i].type =='fbadaccount')
+                                $scope.fbAdObjId = $scope.objectTypeList[i]._id;
+                            else if($scope.objectTypeList[i].type =='adwordaccount')
+                                $scope.gaAdObjId = $scope.objectTypeList[i]._id;
+                        }
+                    },
+                    function errorCallback(error) {
+                        swal({
+                            title: "",
+                            text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                            html: true
+                        });
+                    }
+                );
             },
             function errorCallback(error) {
                 deferred.reject(error);
@@ -173,6 +196,12 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
 
     $scope.getObjectsForChosenProfile = function (profileObj, index) {
         $scope.checkExpiresIn = null;
+        if ((profileObj.canManageClients === false)&&($scope.uniquechannelNames[index] === 'GoogleAdwords')){
+            $scope.canManage = false;
+        }
+        if (profileObj.canManageClients === true){
+            $scope.canManage = true;
+        }
         if (!profileObj) {
             $scope.objectList[index] = null;
             if ($scope.uniquechannelNames[index] === 'Twitter' || $scope.uniquechannelNames[$index] === 'Instagram') {
@@ -203,8 +232,30 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
                 url: '/api/v1/get/objects/' + profileObj._id
             }).then(
                 function successCallback(response) {
-                    $scope.objectList[index] = response.data.objectList;
+                    if ($scope.uniquechannelNames[index] === 'FacebookAds'){
+                        $scope.objectList[index] = [];
+                        for(var j=0;j<response.data.objectList.length;j++) {
+                            if(response.data.objectList[j].objectTypeId == $scope.fbAdObjId) {
+                                $scope.objectList[index].push(response.data.objectList[j]);
+                            }
+                        }
+
+                    }
+                    else if($scope.uniquechannelNames[index] === 'GoogleAdwords'){
+                        $scope.objectList[index] = [];
+                        for(var j=0;j<response.data.objectList.length;j++) {
+                            if (response.data.objectList[j].objectTypeId == $scope.gaAdObjId) {
+                                $scope.objectList[index].push(response.data.objectList[j]);
+                            }
+                        }
+                    }
+                    else {
+                        $scope.objectList[index] = response.data.objectList;
+                    }
                     if ($scope.uniquechannelNames[index] === 'Twitter' || $scope.uniquechannelNames[index] === 'Instagram') {
+                        $scope.objectForWidgetChosen($scope.objectList[index][0], index);
+                    }
+                    if ((profileObj.canManageClients === false)&&($scope.uniquechannelNames[index] === 'GoogleAdwords')){
                         $scope.objectForWidgetChosen($scope.objectList[index][0], index);
                     }
                 },
@@ -338,11 +389,11 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
         var inputParams = [];
 
         var widgetName = $scope.storedReferenceWidget.name;
-/*
-        for(items in $scope.storedUserChosenValues) {
-            widgetName += ' - ' + $scope.storedUserChosenValues[items].profile.name + '(' + $scope.storedUserChosenValues[items].object.name + ')'
-        }
-*/
+        /*
+         for(items in $scope.storedUserChosenValues) {
+         widgetName += ' - ' + $scope.storedUserChosenValues[items].profile.name + '(' + $scope.storedUserChosenValues[items].object.name + ')'
+         }
+         */
         for (var i = 0; i < $scope.storedReferenceCharts.length; i++) {
             for (var j = 0; j < $scope.storedUserChosenValues.length; j++) {
                 if ($scope.storedReferenceCharts[i].channelId === $scope.storedUserChosenValues[j].profile.channelId) {

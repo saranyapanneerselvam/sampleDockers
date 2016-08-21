@@ -1,7 +1,7 @@
 <div class="modal-dialog modal-lg"  ng-init="open()">
     <script type="text/ng-template" id="modal.ejs">
         <div class="modal-content" ng-controller="FusionWidgetController" ng-init="changeViewsInBasicWidget('step_one')">
-           <div class="modal-header">
+            <div class="modal-header">
 
                 <div class="row">
                     <div class="col-lg-12">
@@ -153,7 +153,7 @@
 
                     </div>
                 </div>
-           </div>
+            </div>
             <div class="modal-body">
                 <div class="wrapper wrapper-content">
                     <div class="scrollbar" id="scroller">
@@ -162,9 +162,9 @@
                             <div class="col-lg-12">
                                 <div ng-repeat="referenceWidgets in referenceWidgetsList" name="{{referenceWidgets.name}}" class="col-lg-2 widget-icons showReferenceWidgets" ng-click="storeReferenceWidget();changeViewsInBasicWidget('step_two');">
                                     <p class="metricNames">{{referenceWidgets.name}}</p>
-<!--
-                                    <P class="metricDescription" >{{referenceWidgets.description}}</P>
--->
+                                    <!--
+                                                                        <P class="metricDescription" >{{referenceWidgets.description}}</P>
+                                    -->
                                 </div>
                             </div>
                         </div>
@@ -248,12 +248,12 @@
                                                                     </optgroup>
                                                                 </select>
                                                                 <select class="form-control m-b col-md-6"
-                                                                        ng-model="objectOptionsModel[$index]" ng-hide = "uniquechannelNames[$index]=== 'Twitter'||uniquechannelNames[$index]=== 'Google Analytics' || uniquechannelNames[$index] === 'Instagram'"
+                                                                        ng-model="objectOptionsModel[$index]" ng-hide = "uniquechannelNames[$index]=== 'Twitter'||uniquechannelNames[$index]=== 'Google Analytics' || uniquechannelNames[$index] === 'Instagram'||(canManage==false&& uniquechannelNames[$index] === 'GoogleAdwords')"
                                                                         ng-options="objects as objects.name for objects in objectList[$index]"
                                                                         ng-change="objectForWidgetChosen(objectOptionsModel[$index], $index)" >
                                                                     <option value="" selected="selected">Select an item</option>
                                                                 </select>
-                                                                <div class="infont col-md-1 col-sm-2" ng-hide = "uniquechannelNames[$index]=== 'Twitter' || uniquechannelNames[$index] === 'Instagram'">
+                                                                <div class="infont col-md-1 col-sm-2" ng-hide = "uniquechannelNames[$index]=== 'Twitter' || uniquechannelNames[$index] === 'Instagram' ||(canManage==false&& uniquechannelNames[$index] === 'GoogleAdwords')">
                                                                     <a ng-click="refreshObjectsForChosenProfile($index)"
                                                                        class="link-img">
                                                                         <svg width="7px" height="7px"

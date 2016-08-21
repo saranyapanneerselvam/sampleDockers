@@ -862,9 +862,9 @@
                                                                 <select class="form-control m-b choose-text"
                                                                         ng-show="((storedChannelName=== 'FacebookAds')&&(selectEnable==true))"
                                                                         ng-model="objectTypeOptionsModel"
-                                                                        ng-options="objectType.type for objectType in objectTypeList"
+                                                                        ng-options="objectType.name for objectType in objectTypeList"
                                                                         ng-change="selectLevelChosen('level')">
-                                                                    <option value="">Select an account</option>
+                                                                    <option value="">Choose the Granularity</option>
                                                                 </select>
                                                             </div>
                                                         </div>
@@ -877,7 +877,7 @@
                                                                             ng-model="campaignOptionsModel"
                                                                             ng-options="campaign.name for campaign in campaignList"
                                                                             ng-change="fbAdsCheck('campaign')">
-                                                                        <option value="">Select a fb AD Campaign
+                                                                        <option value="">Select an Ad Campaign
                                                                         </option>
                                                                     </select>
                                                                 </div>
@@ -912,7 +912,7 @@
                                                                             ng-model="adSetOptionsModel"
                                                                             ng-options="adSet.name for adSet in adSetList"
                                                                             ng-change="fbAdsCheck('adset')">
-                                                                        <option value="">Select a fb AD set</option>
+                                                                        <option value="">Select an Ad set</option>
                                                                     </select>
                                                                 </div>
                                                                 <div class="col-lg-2">
@@ -946,7 +946,7 @@
                                                                             ng-model="adSetAdsOptionsModel"
                                                                             ng-options="adSetAds.name for adSetAds in adSetAdsList"
                                                                             ng-change="fbAdsCheck('adsetads')">
-                                                                        <option value="">Select a fb AD set Ads</option>
+                                                                        <option value="">Select an Ad</option>
                                                                     </select>
                                                                 </div>
                                                                 <div class="col-lg-2">
@@ -976,9 +976,9 @@
                                                                 <select class="form-control m-b choose-text"
                                                                         ng-show="((storedChannelName=='GoogleAdwords')&&(selectEnable==true))"
                                                                         ng-model="objectTypeOptionsModel"
-                                                                        ng-options="objectType.type for objectType in googleObjectTypeList"
+                                                                        ng-options="objectType.name for objectType in googleObjectTypeList"
                                                                         ng-change="googleSelectLevelChosen('level')">
-                                                                    <option value="">Select an account</option>
+                                                                    <option value="">Choose the Granularity</option>
                                                                 </select>
                                                             </div>
                                                         </div>
@@ -991,7 +991,7 @@
                                                                             ng-model="googleCampaignOptionsModel"
                                                                             ng-options="campaign.name for campaign in googleCampaignList"
                                                                             ng-change="googleAdsCheck('campaign')">
-                                                                        <option value="">Select a google AD Campaign
+                                                                        <option value="">Select an Ad Campaign
                                                                         </option>
                                                                     </select>
                                                                 </div>
@@ -1026,7 +1026,7 @@
                                                                             ng-model="groupOptionsModel"
                                                                             ng-options="group.name for group in groupList"
                                                                             ng-change="googleAdsCheck('group')">
-                                                                        <option value="">Select a google group</option>
+                                                                        <option value="">Select an Ad group</option>
                                                                     </select>
                                                                 </div>
                                                                 <div class="col-lg-2">
@@ -1060,7 +1060,7 @@
                                                                             ng-model="adOptionsModel"
                                                                             ng-options="ad.name for ad in adList"
                                                                             ng-change="googleAdsCheck('ads')">
-                                                                        <option value="">Select a google AD</option>
+                                                                        <option value="">Select an Ad</option>
                                                                     </select>
                                                                 </div>
                                                                 <div class="col-lg-2">

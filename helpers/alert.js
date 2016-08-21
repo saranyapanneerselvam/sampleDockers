@@ -24,7 +24,7 @@ exports.createUpdateAlert = function (req, done) {
         createAlert.lastEvaluatedTime = req.body.lastEvaluatedTime;
         createAlert.created = now;
         createAlert.updated = now;
-        createAlert.lastEvaluatedTime = now;
+        createAlert.lastEvaluatedTime = null;
         req.body.updated = now;
         for(var index in req.body){
             if(req.body[index] !=undefined)
@@ -46,7 +46,7 @@ exports.createUpdateAlert = function (req, done) {
     //To update already existing database
     else {
         req.body.updated = now;
-        req.body.lastEvaluatedTime = now;
+        req.body.lastEvaluatedTime = null;
         for(var index in req.body){
             if(req.body[index] !=undefined)
                 updateValue[index] = req.body[index];

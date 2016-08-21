@@ -9,7 +9,9 @@ var objectTypesSchema = mongoose.Schema({
     channelId: String,
     created: Date,
     updated: Date,
-    deleted: Date
+    deleted: Date,
+    name: String,
+    autoSave : Boolean
 });
 
 // create the model for organization and expose it to our app

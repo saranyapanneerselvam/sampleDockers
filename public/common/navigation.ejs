@@ -37,24 +37,24 @@
                     <span class="nav-label"> Fusions</span>
                 </a>
             </li>
-            <li class="tool" data-toggle="tooltip" data-placement="right" title="Insights" ng-show="$state.includes('app.reporting.dashboard')" class="md-trigger md-setperspective md-effect-19 addRemoveModalContent" data-modal="addRemoveModalContent">
+            <li class="tool soonModel" data-toggle="tooltip" data-placement="right" title="Insights" ng-show="$state.includes('app.reporting.dashboard')" class="md-trigger md-setperspective md-effect-19 addRemoveModalContent" data-modal="addRemoveModalContent">
                 <a>
                     <i class="icon icon-megaphone navigation-menu-icon"></i>
                     <span class="nav-label"> Insights</span>
                 </a>
             </li>
         </ul>
-<!--
-        &lt;!&ndash;List to be displayed in the sidebar when the 'adReporting' state is active&ndash;&gt;
-        <ul side-navigation class="nav metismenu" id="side-menu" ng-class="{active: $state.includes('adReporting')}" ng-show="$state.includes('adReporting')">
-            <li ng-class="{active: $state.includes('adReporting')}">
-                <a><i class="fa fa-th-large"></i> <span class="nav-label">Sample for AdReporting</span> <span class="fa arrow"></span></a>
-                <ul class="nav nav-second-level collapse" ng-class="{in: $state.includes('adReporting')}">
-                    <li><a>Ad reporting</a></li>
+        <!--
+                &lt;!&ndash;List to be displayed in the sidebar when the 'adReporting' state is active&ndash;&gt;
+                <ul side-navigation class="nav metismenu" id="side-menu" ng-class="{active: $state.includes('adReporting')}" ng-show="$state.includes('adReporting')">
+                    <li ng-class="{active: $state.includes('adReporting')}">
+                        <a><i class="fa fa-th-large"></i> <span class="nav-label">Sample for AdReporting</span> <span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level collapse" ng-class="{in: $state.includes('adReporting')}">
+                            <li><a>Ad reporting</a></li>
+                        </ul>
+                    </li>
                 </ul>
-            </li>
-        </ul>
--->
+        -->
     </div>
     <div class="slimScrollBar" style="width: 7px; position: absolute; top: 0px; opacity: 0.4; display: none; border-radius: 7px; z-index: 99; right: 1px; height: 344.828px; background: rgb(0, 0, 0);"></div><div class="slimScrollRail" style="width: 7px; height: 100%; position: absolute; top: 0px; display: none; border-radius: 7px; opacity: 0.9; z-index: 90; right: 1px; background: rgb(51, 51, 51);"></div>
 
@@ -65,13 +65,13 @@
 <script>
     $('.tool').mouseenter(function() {
         var minibar = $("#page-top").hasClass("mini-navbar");
-         if (minibar == true)
-             $('.tool').tooltip('enable');
+        if (minibar == true)
+            $('.tool').tooltip('enable');
         else
-             $('.tool').tooltip('disable');
+            $('.tool').tooltip('disable');
     });
     $('.tool').click(function() {
-            $('.tool').tooltip('disable');
+        $('.tool').tooltip('disable');
     });
     $('.tool').mouseleave(function() {
         $('.tool').tooltip('disable');

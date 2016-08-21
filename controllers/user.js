@@ -61,7 +61,7 @@ module.exports = function (app, passport) {
     }));
 
     app.post('/api/v1/changePassword', userDetails.getUserPassword, function (req, res) {
-        res.redirect('/api/v1/login');
+
     });
 
     //Get the details of logged in user

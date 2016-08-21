@@ -91,7 +91,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         $scope.weburl=url;
 
         if($scope.weburl!=''&& $scope.weburl!=null)
-          document.getElementById('basicWidgetFinishButton').disabled = false;
+            document.getElementById('basicWidgetFinishButton').disabled = false;
         else
             document.getElementById('basicWidgetFinishButton').disabled =true;
     };
@@ -234,19 +234,19 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 $scope.selectedId = null;
             }
             else{
-                    document.getElementById('basicWidgetFinishButton').disabled = true;
-                    $scope.campaignChosen = false;
-                    $scope.adSetChosen = false;
-                    $scope.adSetAdsChosen = false;
-                    $scope.campaignEnable = false;
-                    $scope.adSetEnable = false;
-                    $scope.adSetAdsEnable = false;
-                    $scope.campaign = null;
-                    $scope.adSet = null;
-                    $scope.adSetAds = null;
-                    $scope.selectedObjectType = this.objectTypeOptionsModel;
-                    $scope.selectedLevel = this.objectTypeOptionsModel.type;
-                    $scope.selectedId = this.objectTypeOptionsModel._id;
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+                $scope.campaignChosen = false;
+                $scope.adSetChosen = false;
+                $scope.adSetAdsChosen = false;
+                $scope.campaignEnable = false;
+                $scope.adSetEnable = false;
+                $scope.adSetAdsEnable = false;
+                $scope.campaign = null;
+                $scope.adSet = null;
+                $scope.adSetAds = null;
+                $scope.selectedObjectType = this.objectTypeOptionsModel;
+                $scope.selectedLevel = this.objectTypeOptionsModel.type;
+                $scope.selectedId = this.objectTypeOptionsModel._id;
             }
         }
         //   else
@@ -273,12 +273,12 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         }
         else if($scope.selectedLevel=='fbAdSet'){
             if(($scope.campaignChosen==true)&&($scope.adSetChosen==true)){
-               if(($scope.profileId!=null)&&($scope.accountId!=null)&&($scope.campaign!=null)&&($scope.adSet!=null))
-                   document.getElementById('basicWidgetFinishButton').disabled =false;
-               else {
-                   //   $scope.clearSelectLevel();
-                   document.getElementById('basicWidgetFinishButton').disabled = true;
-               }
+                if(($scope.profileId!=null)&&($scope.accountId!=null)&&($scope.campaign!=null)&&($scope.adSet!=null))
+                    document.getElementById('basicWidgetFinishButton').disabled =false;
+                else {
+                    //   $scope.clearSelectLevel();
+                    document.getElementById('basicWidgetFinishButton').disabled = true;
+                }
             }
             else if(($scope.campaignChosen==false)&&($scope.adSetChosen==false)){
                 $scope.campaignEnable=true;
@@ -299,7 +299,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 if(($scope.profileId!=null)&&($scope.accountId!=null)&&($scope.campaign!=null)&&($scope.adSet!=null)&&($scope.adSetAds!=null))
                     document.getElementById('basicWidgetFinishButton').disabled =false;
                 else {
-                  //  $scope.clearSelectLevel();
+                    //  $scope.clearSelectLevel();
                     document.getElementById('basicWidgetFinishButton').disabled = true;
                 }
             }
@@ -626,7 +626,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 if((this.profileOptionsModel!=null)&&($scope.googleAccountId!=null)&&($scope.googleCampaign!=null)&&($scope.googleGroup!=null))
                     document.getElementById('basicWidgetFinishButton').disabled =false;
                 else {
-                  //  $scope.clearGoogleSelectLevel();
+                    //  $scope.clearGoogleSelectLevel();
                     document.getElementById('basicWidgetFinishButton').disabled = true;
                 }
             }
@@ -642,14 +642,14 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             }
             else
                 document.getElementById('basicWidgetFinishButton').disabled = true;
-              //  $scope.clearGoogleSelectLevel();
+            //  $scope.clearGoogleSelectLevel();
         }
         else if($scope.selectedGoogleLevel=='adwordsAd'){
             if(($scope.googleCampaignChosen==true)&&($scope.groupChosen==true)&&($scope.adChosen==true)){
                 if((this.profileOptionsModel!=null)&&($scope.googleAccountId!=null)&&($scope.googleCampaign!=null)&&($scope.googleGroup!=null)&&($scope.googleAd!=null))
                     document.getElementById('basicWidgetFinishButton').disabled =false;
                 else {
-                  //  $scope.clearGoogleSelectLevel();
+                    //  $scope.clearGoogleSelectLevel();
                     document.getElementById('basicWidgetFinishButton').disabled = true;
                 }
             }
@@ -1339,9 +1339,9 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                                 else if ($scope.storedChannelName == 'Vimeo')
                                     $scope.vimeoObjectList[k] = tempList;
                                 else if ($scope.storedChannelName == 'FacebookAds')
-                                     $scope.facebookAdsObjectList[k] = tempList;
+                                    $scope.facebookAdsObjectList[k] = tempList;
                                 else if ($scope.storedChannelName == 'GoogleAdwords')
-                                     $scope.googleAdwordsObjectList[k] = tempList;
+                                    $scope.googleAdwordsObjectList[k] = tempList;
                             }
                             else {
                                 uniqueObjectTypeWithIndex[k] = response.data;
@@ -1483,8 +1483,8 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         }
 
 
-            //for moz
-            else if(getChannelName == "Moz"){
+        //for moz
+        else if(getChannelName == "Moz"){
             var mozData = {
                 "channelId": $scope.storedChannelId,
                 "mozObject": $scope.weburl,
@@ -1565,7 +1565,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                                 $("#somethingWentWrongText").text("Something went wrong! Please try again");
                             }
                         );
-                      }
+                    }
                     getReferenceWidgetsArr = [];
                 },
                 function errorCallback() {
@@ -1612,7 +1612,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     getReferenceWidgetsArr[getData].charts[i].metrics = matchingMetric;
                     getReferenceWidgetsArr[getData].charts[i].objectName = matchingMetricName;
                 }
-                    widgetName = getReferenceWidgetsArr[getData].name + ' - ' + matchingMetricName;
+                widgetName = getReferenceWidgetsArr[getData].name + ' - ' + matchingMetricName;
 
                 var jsonData = {
                     "dashboardId": $state.params.id,
@@ -1961,40 +1961,40 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 document.getElementById('basicWidgetFinishButton').disabled = false;
             }
             else if((countChecker == true)&&($scope.storedChannelName=='FacebookAds')){
-              //  $scope.clearSelectLevel();
-                    $scope.selectedObjectType = null;
-                    $scope.selectedLevel = null;
-                    $scope.selectedId = null;
-                    $scope.campaignChosen = false;
-                    $scope.adSetChosen = false;
-                    $scope.adSetAdsChosen = false;
-                    $scope.campaignEnable = false;
-                    $scope.adSetEnable = false;
-                    $scope.adSetAdsEnable = false;
-                    $scope.campaign = null;
-                    $scope.adSet = null;
-                    $scope.adSetAds = null;
-                    $scope.accountId = chosenObject[4];
-                    $scope.selectEnable = true;
-                    $http({
-                        method: 'GET', url: '/api/v1/get/objectType/' + $scope.storedChannelId
-                    }).then(
-                        function successCallback(response) {
-                            $scope.objectTypeList = response.data.objectType;
-                            //$scope.objectTypeOptionsModel=$scope.objectTypeList;
-                        },
-                        function errorCallback(error) {
-                            swal({
-                                title: "",
-                                text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
-                                html: true
-                            });
-                        }
-                    );
-                    document.getElementById('basicWidgetFinishButton').disabled = true;
-                }
+                //  $scope.clearSelectLevel();
+                $scope.selectedObjectType = null;
+                $scope.selectedLevel = null;
+                $scope.selectedId = null;
+                $scope.campaignChosen = false;
+                $scope.adSetChosen = false;
+                $scope.adSetAdsChosen = false;
+                $scope.campaignEnable = false;
+                $scope.adSetEnable = false;
+                $scope.adSetAdsEnable = false;
+                $scope.campaign = null;
+                $scope.adSet = null;
+                $scope.adSetAds = null;
+                $scope.accountId = chosenObject[4];
+                $scope.selectEnable = true;
+                $http({
+                    method: 'GET', url: '/api/v1/get/objectType/' + $scope.storedChannelId
+                }).then(
+                    function successCallback(response) {
+                        $scope.objectTypeList = response.data.objectType;
+                        //$scope.objectTypeOptionsModel=$scope.objectTypeList;
+                    },
+                    function errorCallback(error) {
+                        swal({
+                            title: "",
+                            text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                            html: true
+                        });
+                    }
+                );
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+            }
             else if((countChecker == true)&&($scope.storedChannelName=='GoogleAdwords')){
-              // $scope.clearGoogleSelectLevel();
+                // $scope.clearGoogleSelectLevel();
                 $scope.googleCampaignChosen = false;
                 $scope.adChosen = false;
                 $scope.groupChosen = false;
@@ -2029,11 +2029,11 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
 
                 document.getElementById('basicWidgetFinishButton').disabled =true;
             }
-            }
+        }
         else {
             document.getElementById('basicWidgetFinishButton').disabled = true;
         }
-        };
+    };
 
     $scope.errorMessage = true;
 

@@ -6,6 +6,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
     $scope.getChannelList = {};
     $scope.profileList = [];
     $scope.objectList = [];
+    $scope.tempList = [];
     $scope.metricList = {};
     $scope.referenceWidgetsList = [];
     $scope.storedObjects = {};
@@ -13,6 +14,10 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
     $scope.storedUserChosenValues = [];
     $scope.profileOptionsModel = [];
     $scope.dashboard = {};
+    $scope.objectTypeList =[];
+    $scope.fbAdObjId='';
+    $scope.gaAdObjId='';
+    $scope.canManage = true;
     $scope.changeViewsInBasicWidget = function (obj) {
         $scope.currentView = obj;
         if ($scope.currentView === 'step_one') {
@@ -84,6 +89,30 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
                     profiles: response.data.profileList
                 });
                 $scope.objectList = [];
+                $http({
+                    method: 'GET', url: '/api/v1/get/objectType/' + profileId
+                }).then(
+                    function successCallback(response) {
+                        $scope.objectTypeList=response.data.objectType;
+
+                        //console.log("$scope.objectTypeList",$scope.objectTypeList);
+                        //$scope.objectTypeOptionsModel=$scope.objectTypeList;
+                        for(var i=0;i<$scope.objectTypeList.length;i++){
+                            if($scope.objectTypeList[i].type =='fbadaccount')
+                                $scope.fbAdObjId = $scope.objectTypeList[i]._id;
+                            else if($scope.objectTypeList[i].type =='adwordaccount')
+                                $scope.gaAdObjId = $scope.objectTypeList[i]._id;
+                        }
+                        //    console.log("$scope.fbAdObjId",$scope.fbAdObjId,'$scope.gaAdObjId',$scope.gaAdObjId)
+                    },
+                    function errorCallback(error) {
+                        swal({
+                            title: "",
+                            text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                            html: true
+                        });
+                    }
+                );
             },
             function errorCallback(error) {
                 deferred.reject(error);
@@ -98,6 +127,13 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
     };
 
     $scope.getObjectsForChosenProfile = function (profileObj, index) {
+        if ((profileObj.canManageClients === false)&&($scope.getChannelList[index].name === 'GoogleAdwords')){
+            $scope.canManage = false;
+        }
+        if (profileObj.canManageClients === true){
+            $scope.canManage = true;
+        }
+        //  console.log("$scope.fbAdObjId",$scope.fbAdObjId,'$scope.gaAdObjId',$scope.gaAdObjId)
         if (!profileObj) {
             $scope.objectList[index] = null;
             if ($scope.getChannelList[index].name === 'Twitter') {
@@ -110,8 +146,35 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
                 url: '/api/v1/get/objects/' + profileObj._id
             }).then(
                 function successCallback(response) {
-                    $scope.objectList[index] = response.data.objectList;
+                    if ($scope.getChannelList[index].name === 'FacebookAds'){
+                        $scope.objectList[index] = [];
+                        for(var j=0;j<response.data.objectList.length;j++) {
+                            if(response.data.objectList[j].objectTypeId == $scope.fbAdObjId) {
+                                $scope.objectList[index].push(response.data.objectList[j]);
+                                // console.log("Respone for Objects inside if fb", $scope.objectList[index]);
+                            }
+                        }
+
+                    }
+                    else if($scope.getChannelList[index].name === 'GoogleAdwords'){
+                        $scope.objectList[index] = [];
+                        for(var j=0;j<response.data.objectList.length;j++) {
+                            if (response.data.objectList[j].objectTypeId == $scope.gaAdObjId) {
+                                //     console.log(typeof(response.data.objectList[j].objectTypeId))
+                                //     console.log(typeof($scope.gaAdObjId))
+                                $scope.objectList[index].push(response.data.objectList[j]);
+                                //      console.log("Respone for Objects inside if ga", $scope.objectList[index]);
+                            }
+                        }
+                    }
+                    else {
+                        $scope.objectList[index] = response.data.objectList;
+                        //console.log("Respone for Objects else", $scope.objectList[index]);
+                    }
                     if ($scope.getChannelList[index].name === 'Twitter') {
+                        $scope.objectForWidgetChosen($scope.objectList[index][0], index);
+                    }
+                    if ((profileObj.canManageClients === false)&&($scope.getChannelList[index].name === 'GoogleAdwords')){
                         $scope.objectForWidgetChosen($scope.objectList[index][0], index);
                     }
                 },
@@ -215,7 +278,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
             },
             function () {
                 if($scope.profileOptionsModel[index]) {
-                    console.log('HTTP BEING CALLED')
+
                     $http({
                         method: 'POST',
                         url: '/api/v1/post/removeProfiles/' + $scope.profileOptionsModel[index]._id
@@ -287,8 +350,10 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
             data: jsonData
         }).then(
             function successCallback(response) {
+
                 var inputParams = [];
                 var dashboardId = response.data;
+
 
                 for (var widget = 0; widget < $scope.referenceWidgetsList.length; widget++) {
                     for (var chart = 0; chart < $scope.referenceWidgetsList[widget].charts.length; chart++) {
@@ -302,13 +367,14 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
                                     }
                                 }
                                 for (var n = 0; n < $scope.getChannelList.length; n++) {
-                                    var widgetName;
+                                    var widgetName, channelName;
                                     if ($scope.storedUserChosenValues[j].profile.channelId === $scope.getChannelList[n]._id) {
                                         var widgetColor = generateChartColours.fetchWidgetColor($scope.getChannelList[n].name);
                                         if ($scope.getChannelList[n].name === 'Twitter' || $scope.getChannelList[n].name === 'Instagram' || $scope.storedChannelName === 'Google Analytics')
                                             widgetName = $scope.referenceWidgetsList[widget].name + ' - ' + $scope.storedUserChosenValues[j].profile.name;
                                         else
                                             widgetName = $scope.referenceWidgetsList[widget].name + ' - ' + $scope.storedUserChosenValues[j].object.name;
+                                        channelName = $scope.getChannelList[n].name;
                                     }
 
                                 }
@@ -330,7 +396,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
                         "maxSize": $scope.referenceWidgetsList[widget].maxSize,
                         "isAlert": $scope.referenceWidgetsList[widget].isAlert,
                         "color": widgetColor,
-                        "channelName": "custom"
+                        "channelName": channelName
                     };
                     inputParams.push(jsonData);
                 }

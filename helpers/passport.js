@@ -139,7 +139,6 @@ module.exports = function (passport) {
                 if (!user.validPassword(req.body.password))
                     return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.')); // create the loginMessage and save it to session as flashdata
                 req.session.user = user;
-
                 //Update the last login time
                 var date = new Date();
                 User.update({

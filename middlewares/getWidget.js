@@ -5,7 +5,7 @@ var getDashboards = require('../middlewares/dashboards');
 var mongoose = require('mongoose');
 var userPermission = require('../helpers/utility');
 var widgetsList = require('../models/widgets');
-
+var objectList=require('../models/objects');
 /**
  Function to get the widgets's details such as channel id,name,desciption ..
  @params 1.req contains the  user details i.e. username,token,email etc
@@ -99,7 +99,7 @@ exports.deleteWidgets = function (req, res, next) {
                     else if (!widgetDetail)
                         return res.status(501).json({error: 'Not implemented'});
                     else{
-                        widgetsList.remove({_id: req.params.widgetId}, function (err, widget) {
+                        var removal=function(){   widgetsList.remove({_id: req.params.widgetId}, function (err, widget) {
                             if (err)
                                 return res.status(500).json({error: 'Internal server error'});
                             else if (!widget)
@@ -146,8 +146,33 @@ exports.deleteWidgets = function (req, res, next) {
                                     next();
                                 }
                             }
-                        })
+                        })}
+                        if(widgetDetail.channelName=='Moz') {
+                            var objectid=widgetDetail.charts[0].metrics[0].objectId;
+                            var objectlength;
+                            //finding object length for removal
+                            widgetsList.find({'charts.metrics.objectId': objectid},function(err,objects) {
+                                if (err)
+                                    return res.status(500).json({error: 'Internal server error'});
+                                else {
+                                    objectlength = objects.length;
+                                    if(objectlength==1){
+                                        //deleting objects for moz
+                                       objectList.remove({_id:objectid},function(err){
+                                           if (err)
+                                               return res.status(500).json({error: 'Internal server error'});
+                                       })
+                                        removal();
+                                    }
+                                    else
+                                        removal();
+                                }
+                            })
 
+
+                        }
+                        else
+                            removal();
                     }
                 })
             }

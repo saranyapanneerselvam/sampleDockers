@@ -4,10 +4,25 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     $scope.objectList = {};
     $scope.referenceWidgetsList = [];
     $scope.profileList = {};
+    $scope.objectTypeList={};
     $scope.tokenExpired = false;
     $scope.channelList;
     $scope.currentView = 'step_one';
-
+    $scope.weburl='';
+    $scope.mozObjectDetails={};
+    $scope.selectEnable=false;
+    $scope.campaignEnable=false;
+    $scope.adSetEnable=false;
+    $scope.adSetAdsEnable=false;
+    $scope.campaignChosen=false;
+    $scope.adSetChosen=false;
+    $scope.adSetAdsChosen=false;
+    $scope.googleCampaignEnable = false;
+    $scope.adEnable = false;
+    $scope.groupEnable = false;
+    $scope.googleCampaignChosen = false;
+    $scope.groupChosen = false;
+    $scope.adChosen = false;
     var widgetType = $stateParams.widgetType;
     var storedProfile = {};
     var getChannelName = "";
@@ -30,6 +45,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             getReferenceWidgetsArr = [];
             storeChosenObject = [];
             $scope.profileList = {};
+            $scope.objectTypeList={};
             $scope.canManageClients = null;
         }
         else if ($scope.currentView === 'step_two') {
@@ -43,7 +59,9 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             }
             else {
                 storeChosenObject = [];
+                document.getElementById('basicWidgetFinishButton').disabled = true;
                 $scope.getReferenceWidgetsForChosenChannel();
+                $scope.getProfilesForDropdown();
                 $("#basicWidgetNextButton").show();
                 $("#basicWidgetFinishButtonCustom").hide();
             }
@@ -52,7 +70,30 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             document.getElementById('basicWidgetBackButton1').disabled = false;
             document.getElementById('basicWidgetFinishButton').disabled = true;
             $scope.getProfilesForDropdown();
+            if ($scope.storedChannelName=='FacebookAds'){
+                $scope.selectedObjectType = null;
+                $scope.selectedLevel = null;
+                $scope.selectedId = null;
+                $scope.campaignChosen = false;
+                $scope.adSetChosen = false;
+                $scope.adSetAdsChosen = false;
+                $scope.campaignEnable = false;
+                $scope.adSetEnable = false;
+                $scope.adSetAdsEnable = false;
+                $scope.campaign = null;
+                $scope.adSet = null;
+                $scope.adSetAds = null;
+            }
         }
+    };
+
+    $scope.mozobject=function(url){
+        $scope.weburl=url;
+
+        if($scope.weburl!=''&& $scope.weburl!=null)
+            document.getElementById('basicWidgetFinishButton').disabled = false;
+        else
+            document.getElementById('basicWidgetFinishButton').disabled =true;
     };
 
     $scope.listChannels = function () {
@@ -150,21 +191,20 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 $scope.profileList = response.data.profileList;
                 $scope.profileOptionsModel=$scope.profileList[0];
                 $scope.getObjectsForChosenProfile();
-
-
-/*
-                var newProfile;
-                for(var newItems in $scope.profileList) {
-                    var checker = false;
-                    for(var oldItems in profileListBeforeAddition) {
-                        if(String($scope.profileList[newItems]) == String(profileListBeforeAddition[oldItems]))
-                            checker = true;
-                    }
-                    if(checker == true)
-                        $scope.profileOptionsModel = $scope.profileList[newItems];
-                }
-*/
                 $scope.objectList = [];
+                $scope.facebookObjectList = [];
+                $scope.googleAnalyticsObjectList = [];
+                $scope.facebookAdsObjectList = [];
+                $scope.googleAdwordsObjectList = [];
+                $scope.mailchimpObjectList = [];
+                $scope.aweberObjectList = [];
+                $scope.linkedInObjectList = [];
+                $scope.youtubeObjectList = [];
+                $scope.vimeoObjectList = [];
+                $scope.twitterObjectList=[];
+                $scope.instagramObjectList=[];
+                $scope.pinterestObjectList=[];
+
             },
             function errorCallback(error) {
                 swal({
@@ -176,98 +216,1083 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         );
     };
 
+    $scope.selectLevelChosen = function (level) {
+        if(level) {
+            if(!this.objectTypeOptionsModel){
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+                $scope.campaignChosen = false;
+                $scope.adSetChosen = false;
+                $scope.adSetAdsChosen = false;
+                $scope.campaignEnable = false;
+                $scope.adSetEnable = false;
+                $scope.adSetAdsEnable = false;
+                $scope.campaign = null;
+                $scope.adSet = null;
+                $scope.adSetAds = null;
+                $scope.selectedObjectType = this.objectTypeOptionsModel;
+                $scope.selectedLevel =null;
+                $scope.selectedId = null;
+            }
+            else{
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+                $scope.campaignChosen = false;
+                $scope.adSetChosen = false;
+                $scope.adSetAdsChosen = false;
+                $scope.campaignEnable = false;
+                $scope.adSetEnable = false;
+                $scope.adSetAdsEnable = false;
+                $scope.campaign = null;
+                $scope.adSet = null;
+                $scope.adSetAds = null;
+                $scope.selectedObjectType = this.objectTypeOptionsModel;
+                $scope.selectedLevel = this.objectTypeOptionsModel.type;
+                $scope.selectedId = this.objectTypeOptionsModel._id;
+            }
+        }
+        //   else
+        if($scope.selectedLevel=='fbadaccount'){
+            if(($scope.profileId!=null)&&($scope.accountId!=null))
+                document.getElementById('basicWidgetFinishButton').disabled =false;
+            else
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+        }
+        else if($scope.selectedLevel=='fbAdcampaign'){
+            if($scope.campaignChosen==false){
+                document.getElementById('basicWidgetFinishButton').disabled =true;
+                $scope.campaignEnable=true;
+                $scope.getCampaigns();
+            }
+            else {
+                if(($scope.profileId!=null)&&($scope.accountId!=null)&&($scope.campaign!=null))
+                    document.getElementById('basicWidgetFinishButton').disabled =false;
+                else{
+                    //  $scope.clearSelectLevel();
+                    document.getElementById('basicWidgetFinishButton').disabled =true;
+                }
+            }
+        }
+        else if($scope.selectedLevel=='fbAdSet'){
+            if(($scope.campaignChosen==true)&&($scope.adSetChosen==true)){
+                if(($scope.profileId!=null)&&($scope.accountId!=null)&&($scope.campaign!=null)&&($scope.adSet!=null))
+                    document.getElementById('basicWidgetFinishButton').disabled =false;
+                else {
+                    //   $scope.clearSelectLevel();
+                    document.getElementById('basicWidgetFinishButton').disabled = true;
+                }
+            }
+            else if(($scope.campaignChosen==false)&&($scope.adSetChosen==false)){
+                $scope.campaignEnable=true;
+                $scope.getCampaigns();
+            }
+            else if(($scope.campaignChosen==true)&&($scope.adSetChosen==false)){
+                $scope.campaignEnable=true;
+                $scope.adSetEnable=true;
+                $scope.getAdSet();
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+            }
+            else
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+            //  $scope.clearSelectLevel();
+        }
+        else if($scope.selectedLevel=='fbAdSetAds'){
+            if(($scope.campaignChosen==true)&&($scope.adSetChosen==true)&&($scope.adSetAdsChosen==true)){
+                if(($scope.profileId!=null)&&($scope.accountId!=null)&&($scope.campaign!=null)&&($scope.adSet!=null)&&($scope.adSetAds!=null))
+                    document.getElementById('basicWidgetFinishButton').disabled =false;
+                else {
+                    //  $scope.clearSelectLevel();
+                    document.getElementById('basicWidgetFinishButton').disabled = true;
+                }
+            }
+            else if((($scope.campaignChosen==false)&&($scope.adSetChosen==false))&&($scope.adSetAdsChosen==true)){
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+                $scope.campaignEnable=true;
+                $scope.getCampaigns();
+                $scope.adSetAdsChosen=false;
+                $scope.adSetAds=null;
+            }
+            else if(($scope.campaignChosen==true)&&($scope.adSetChosen==true)&&($scope.adSetAdsChosen==false)){
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+                $scope.adSetAdsEnable=true;
+                $scope.getAdSetAds();
+            }
+            else if(($scope.campaignChosen==false)&&($scope.adSetChosen==false)&&($scope.adSetAdsChosen==false)){
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+                $scope.campaignEnable=true;
+                $scope.getCampaigns();
+            }
+            else if(($scope.campaignChosen==true)&&($scope.adSetChosen==false)&&($scope.adSetAdsChosen==false)){
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+                $scope.adSetEnable=true;
+                $scope.getAdSet();
+            }
+            else if(($scope.campaignChosen==true)&&($scope.adSetChosen==false)&&($scope.adSetAdsChosen==true)){
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+                $scope.adSetEnable=true;
+                $scope.getAdSet();
+                $scope.adSetAdsChosen=false;
+                $scope.adSetAds=null;
+            }
+            else if(($scope.campaignChosen==false)&&($scope.adSetChosen==true)&&($scope.adSetAdsChosen==true)){
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+                $scope.campaignEnable=true;
+                $scope.getCampaigns();
+                $scope.adSetAdsChosen=false;
+                $scope.adSetAds=null;
+                $scope.adSetChosen=false;
+                $scope.adSet=null;
+            }
+            else if(($scope.campaignChosen==false)&&($scope.adSetChosen==true)&&($scope.adSetAdsChosen==false)){
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+                $scope.campaignEnable=true;
+                $scope.getCampaigns();
+                $scope.adSetAdsChosen=false;
+                $scope.adSetAds=null;
+                $scope.adSetChosen=false;
+                $scope.adSet=null;
+            }
+        }
+    };
+
+    $scope.fbAdsCheck=function(level){
+        var value=0;
+        document.getElementById('basicWidgetFinishButton').disabled = true;
+        if(level=='campaign'){
+            $scope.adSet=null;
+            $scope.adSetChosen=false;
+            $scope.adSetAds=null;
+            $scope.adSetAdsChosen=false;
+            $scope.adSetEnable=false;
+            $scope.adSetAdsEnable=false;
+            $scope.campaign=this.campaignOptionsModel;
+            if($scope.campaign)
+                $scope.campaignChosen = true;
+            else
+                $scope.campaignChosen=false;
+            value=1;
+        }
+        else if(level=='adset'){
+            $scope.adSetAds=null;
+            $scope.adSetAdsChosen=false;
+            $scope.adSetAdsEnable=false;
+            $scope.adSet=this.adSetOptionsModel;
+            if($scope.adSet)
+                $scope.adSetChosen=true;
+            else
+                $scope.adSetChosen=false;
+            value=1;
+        }
+        else if(typeof(level=='adsetads')){
+            $scope.adSetAds=this.adSetAdsOptionsModel;
+            if($scope.adSetAds)
+                $scope.adSetAdsChosen=true;
+            else
+                $scope.adSetAdsChosen=false;
+            value=1;
+        }
+        if(value==1)
+            $scope.selectLevelChosen();
+    };
+
+    // $scope.clearSelectLevel=function(){
+    //
+    //     if($scope.profileId==this.profileOptionsModel._id){
+    //
+    //         $scope.selectedLevel=null;
+    //         document.getElementById('basicWidgetFinishButton').disabled = true;
+    //         $scope.campaignEnable=false;
+    //         $scope.adSetAdsEnable=false;
+    //         $scope.adSetEnable=false;
+    //         $scope.campaign=null;
+    //         $scope.adSetAds=null;
+    //         $scope.adSet=null;
+    //         $scope.campaignChosen=false;
+    //         $scope.adSetChosen=false;
+    //         $scope.adSetAdsChosen=false;
+    //     }
+    //     else {
+    //         $scope.profileId=this.profileOptionsModel._id;
+    //
+    //         $scope.selectedLevel=null;
+    //         document.getElementById('basicWidgetFinishButton').disabled = true;
+    //         $scope.campaignEnable=false;
+    //         $scope.adSetAdsEnable=false;
+    //         $scope.adSetEnable=false;
+    //         $scope.campaign=null;
+    //         $scope.adSetAds=null;
+    //         $scope.adSet=null;
+    //         $scope.campaignChosen=false;
+    //         $scope.adSetChosen=false;
+    //         $scope.adSetAdsChosen=false;
+    //         $scope.getObjectsForChosenProfile();
+    //     }
+    //     $scope.selectLevelChosen();
+    // };
+
+    $scope.getCampaigns=function(){
+        var objectTypeId = $scope.selectedId;
+        var accountId = $scope.accountId
+        var profileId = $scope.profileId;
+        $http({
+            method: 'GET',
+            url: '/api/v1/get/objects/' + profileId + '?objectTypeId=' + objectTypeId + '&accountId=' + accountId
+        }).then(
+            function successCallback(response) {
+                $scope.campaignList = response.data.objectList;
+                $scope.campaignOptionsModel = $scope.campaignList;
+            },
+            function errorCallback(error) {
+                swal({
+                    title: "",
+                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                    html: true
+                });
+            }
+        )
+    };
+
+    $scope.getAdSet=function(){
+        var objectTypeId = $scope.selectedId;
+        var campaignId = $scope.campaign.channelObjectId;
+        var profileId = $scope.profileId;
+        $http({
+            method: 'GET',
+            url: '/api/v1/get/objects/' + profileId + '?objectTypeId=' + objectTypeId + '&campaignId=' + campaignId
+        }).then(
+            function successCallback(response) {
+                $scope.adSetList = response.data.objectList;
+                $scope.adSetOptionsModel = $scope.adSetList;
+            },
+            function errorCallback(error) {
+                swal({
+                    title: "",
+                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                    html: true
+                });
+            }
+        )
+    };
+
+    $scope.getAdSetAds=function() {
+        var objectTypeId = $scope.selectedId;
+        var adSetId = $scope.adSet.channelObjectId;
+        var profileId = $scope.profileId;
+        $http({
+            method: 'GET',
+            url: '/api/v1/get/objects/' + profileId + '?objectTypeId=' + objectTypeId + '&adSetId=' + adSetId
+        }).then(
+            function successCallback(response) {
+                $scope.adSetAdsList = response.data.objectList;
+                $scope.adSetAdsOptionsModel = $scope.adSetAdsList;
+            },
+            function errorCallback(error) {
+                swal({
+                    title: "",
+                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                    html: true
+                });
+            }
+        )
+    };
+
+    $scope.refreshAdCampaign=function(level){
+        var objectTypeId = level;
+        var accountId = $scope.accountId;
+        var profileId = $scope.profileId;
+        $http({
+            method: 'GET',
+            url: '/api/v1/channel/profiles/objectsList/' + profileId + '?objectType=' + objectTypeId + '&accountId=' + accountId
+        }).then(
+            function successCallback(response) {
+                $scope.campaignList = response.data;
+                $scope.campaignOptionsModel = $scope.campaignList;
+            },
+            function errorCallback(error) {
+                swal({
+                    title: "",
+                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                    html: true
+                });
+            }
+        )
+    };
+
+    $scope.refreshAdSet=function(level){
+        var objectTypeId = level;
+        var accountId = $scope.campaign.channelObjectId;
+        var profileId = $scope.profileId;
+        $http({
+            method: 'GET',
+            url: '/api/v1/channel/profiles/objectsList/' + profileId + '?objectType=' + objectTypeId + '&campaignId=' + accountId
+        }).then(
+            function successCallback(response) {
+                $scope.adSetList = response.data;
+                $scope.adSetOptionsModel = $scope.adSetList;
+            },
+            function errorCallback(error) {
+                swal({
+                    title: "",
+                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                    html: true
+                });
+            }
+        )
+    };
+
+    $scope.refreshAdSetAds=function(level){
+        var objectTypeId = level;
+        var accountId = $scope.adSet.channelObjectId;
+        var profileId = $scope.profileId;
+        $http({
+            method: 'GET',
+            url: '/api/v1/channel/profiles/objectsList/' + profileId + '?objectType=' + objectTypeId + '&adSetId=' + accountId
+        }).then(
+            function successCallback(response) {
+
+                $scope.adSetAdsList = response.data;
+                $scope.adSetAdsOptionsModel = $scope.adSetAdsList;
+            },
+            function errorCallback(error) {
+                swal({
+                    title: "",
+                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                    html: true
+                });
+            }
+        )
+    };
+
+    $scope.googleSelectLevelChosen = function (level) {
+        if(level) {
+            if(this.objectTypeOptionsModel) {
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+                $scope.selectedGoogleObjectType =null;
+                $scope.selectedGoogleLevel = null;
+                $scope.selectedGoogleId = null;
+                $scope.googleCampaignChosen = false;
+                $scope.adChosen = false;
+                $scope.groupChosen = false;
+                $scope.googleCampaignEnable = false;
+                $scope.adEnable = false;
+                $scope.groupEnable = false;
+                $scope.googleCampaign = null;
+                $scope.googleAd = null;
+                $scope.googleGroup = null;
+                $scope.selectedGoogleObjectType = this.objectTypeOptionsModel;
+                $scope.selectedGoogleLevel = this.objectTypeOptionsModel.type;
+                $scope.selectedGoogleId = this.objectTypeOptionsModel._id;
+            }
+            else{
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+                $scope.selectedGoogleObjectType =null;
+                $scope.selectedGoogleLevel = null;
+                $scope.selectedGoogleId = null;
+                $scope.googleCampaignChosen = false;
+                $scope.adChosen = false;
+                $scope.groupChosen = false;
+                $scope.googleCampaignEnable = false;
+                $scope.adEnable = false;
+                $scope.groupEnable = false;
+                $scope.googleCampaign = null;
+                $scope.googleAd = null;
+                $scope.googleGroup = null;
+                $scope.selectedGoogleObjectType = this.objectTypeOptionsModel;
+                $scope.selectedGoogleLevel = null;
+                $scope.selectedGoogleId = null;
+            }
+        }
+        if($scope.selectedGoogleLevel=='adwordaccount'){
+            if((this.profileOptionsModel!=null)&&($scope.googleAccountId!=null))
+                document.getElementById('basicWidgetFinishButton').disabled =false;
+            else
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+        }
+        else if($scope.selectedGoogleLevel=='adwordCampaign'){
+            if($scope.googleCampaignChosen==false){
+                document.getElementById('basicWidgetFinishButton').disabled =true;
+                $scope.googleCampaignEnable=true;
+                $scope.getGoogleCampaigns();
+            }
+            else{
+                if(($scope.googleProfileId!=null)&&($scope.googleAccountId!=null)&&($scope.googleCampaign!=null))
+                    document.getElementById('basicWidgetFinishButton').disabled =false;
+                else{
+                    //  $scope.clearGoogleSelectLevel();
+                    document.getElementById('basicWidgetFinishButton').disabled =true;
+                }
+            }
+        }
+        else if($scope.selectedGoogleLevel=='adwordAdgroup'){
+            if(($scope.googleCampaignChosen==true)&&($scope.groupChosen==true)){
+                if((this.profileOptionsModel!=null)&&($scope.googleAccountId!=null)&&($scope.googleCampaign!=null)&&($scope.googleGroup!=null))
+                    document.getElementById('basicWidgetFinishButton').disabled =false;
+                else {
+                    //  $scope.clearGoogleSelectLevel();
+                    document.getElementById('basicWidgetFinishButton').disabled = true;
+                }
+            }
+            else if(($scope.googleCampaignChosen==false)&&($scope.groupChosen==false)){
+                $scope.googleCampaignEnable=true;
+                $scope.getGoogleCampaigns();
+            }
+            else if(($scope.googleCampaignChosen==true)&&($scope.groupChosen==false)){
+                $scope.googleCampaignEnable=true;
+                $scope.groupEnable=true;
+                $scope.getGoogleGroup();
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+            }
+            else
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+            //  $scope.clearGoogleSelectLevel();
+        }
+        else if($scope.selectedGoogleLevel=='adwordsAd'){
+            if(($scope.googleCampaignChosen==true)&&($scope.groupChosen==true)&&($scope.adChosen==true)){
+                if((this.profileOptionsModel!=null)&&($scope.googleAccountId!=null)&&($scope.googleCampaign!=null)&&($scope.googleGroup!=null)&&($scope.googleAd!=null))
+                    document.getElementById('basicWidgetFinishButton').disabled =false;
+                else {
+                    //  $scope.clearGoogleSelectLevel();
+                    document.getElementById('basicWidgetFinishButton').disabled = true;
+                }
+            }
+            else if((($scope.googleCampaignChosen==false)&&($scope.groupChosen==false))&&($scope.adChosen==true)){
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+                $scope.googleCampaignEnable=true;
+                $scope.getGoogleCampaigns();
+                $scope.adChosen=false;
+                $scope.googleAd=null;
+            }
+            else if(($scope.googleCampaignChosen==true)&&($scope.groupChosen==true)&&($scope.adChosen==false)){
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+                $scope.adEnable=true;
+                $scope.getGoogleAd();
+            }
+            else if(($scope.googleCampaignChosen==false)&&($scope.groupChosen==false)&&($scope.adChosen==false)){
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+                $scope.googleCampaignEnable=true;
+                $scope.getGoogleCampaigns();
+            }
+            else if(($scope.googleCampaignChosen==true)&&($scope.groupChosen==false)&&($scope.adChosen==false)){
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+                $scope.groupEnable=true;
+                $scope.getGoogleGroup();
+            }
+            else if(($scope.googleCampaignChosen==true)&&($scope.groupChosen==false)&&($scope.adChosen==true)){
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+                $scope.groupEnable=true;
+                $scope.getGoogleGroup();
+                $scope.adChosen=false;
+                $scope.googleAd=null;
+            }
+            else if(($scope.googleCampaignChosen==false)&&($scope.groupChosen==true)&&($scope.adChosen==true)){
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+                $scope.googleCampaignEnable=true;
+                $scope.getGoogleCampaigns();
+                $scope.adChosen=false;
+                $scope.googleAd=null;
+                $scope.groupChosen=false;
+                $scope.googleGroup=null;
+            }
+            else if(($scope.googleCampaignChosen==false)&&($scope.groupChosen==true)&&($scope.adChosen==false)){
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+                $scope.googleCampaignEnable=true;
+                $scope.getGoogleCampaigns();
+                $scope.adChosen=false;
+                $scope.googleAds=null;
+                $scope.groupChosen=false;
+                $scope.googleGroup=null;
+            }
+        }
+    };
+
+    $scope.googleAdsCheck=function(level){
+        var value=0;
+        document.getElementById('basicWidgetFinishButton').disabled = true;
+        if(level=='campaign'){
+            $scope.googleGroup=null;
+            $scope.groupChosen=false;
+            $scope.googleAd=null;
+            $scope.adChosen=false;
+            $scope.adEnable=false;
+            $scope.groupEnable=false;
+            $scope.googleCampaign=this.googleCampaignOptionsModel;
+            if($scope.googleCampaign)
+                $scope.googleCampaignChosen = true;
+            else
+                $scope.googleCampaignChosen=false;
+            value=1;
+        }
+        else if(level=='group'){
+            $scope.googleAd=null;
+            $scope.adChosen=false;
+            $scope.adEnable=false;
+            $scope.googleGroup=this.groupOptionsModel;
+            if($scope.googleGroup)
+                $scope.groupChosen=true;
+            else
+                $scope.groupChosen=false;
+            value=1;
+        }
+        else if(typeof(level=='ads')){
+            $scope.googleAd=this.adOptionsModel;
+            if($scope.googleAd)
+                $scope.adChosen=true;
+            else
+                $scope.adChosen=false;
+            value=1;
+        }
+        if(value==1)
+            $scope.googleSelectLevelChosen();
+    };
+
+    $scope.getGoogleCampaigns=function(){
+        var objectTypeId = $scope.selectedGoogleId;
+        var accountId = $scope.googleAccountId;
+        var profileId = $scope.googleProfileId;
+        $http({
+            method: 'GET',
+            url: '/api/v1/get/objects/' + profileId + '?objectTypeId=' + objectTypeId + '&accountId=' + accountId
+        }).then(
+            function successCallback(response) {
+                $scope.googleCampaignList = response.data.objectList;
+                $scope.googleCampaignOptionsModel = $scope.googleCampaignList;
+            },
+            function errorCallback(error) {
+                swal({
+                    title: "",
+                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                    html: true
+                });
+            }
+        )
+    };
+
+    $scope.getGoogleGroup=function(){
+        var objectTypeId = $scope.selectedGoogleId;
+        var campaignId = $scope.googleCampaign.channelObjectId;
+        var profileId = $scope.googleProfileId;
+        var accountId= $scope.googleAccountId;
+        var url='';
+        if($scope.canManageClients==true)
+            url='/api/v1/get/objects/' + profileId + '?objectTypeId=' + objectTypeId + '&campaignId=' + campaignId+'&accountId='+accountId;
+        else
+            url='/api/v1/get/objects/' + profileId + '?objectTypeId=' + objectTypeId + '&campaignId=' + campaignId+'&accountId='+accountId;
+        $http({
+            method: 'GET',
+            url: url
+        }).then(
+            function successCallback(response) {
+                $scope.groupList = response.data.objectList;
+                $scope.groupOptionsModel = $scope.groupList;
+            },
+            function errorCallback(error) {
+                swal({
+                    title: "",
+                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                    html: true
+                });
+            }
+        )
+    };
+
+    $scope.getGoogleAd=function() {
+        var objectTypeId = $scope.selectedGoogleId;
+        var adSetId = $scope.googleGroup.channelObjectId;
+        var profileId = $scope.googleProfileId;
+        var accountId= $scope.googleAccountId;
+        var url='';
+        if($scope.canManageClients==true)
+            url='/api/v1/get/objects/' + profileId + '?objectTypeId=' + objectTypeId + '&adSetId=' + adSetId +'&accountId='+accountId;
+        else
+            url='/api/v1/get/objects/' + profileId + '?objectTypeId=' + objectTypeId + '&adSetId=' + adSetId +'&accountId='+accountId;
+        $http({
+            method: 'GET',
+            url: url
+        }).then(
+            function successCallback(response) {
+                $scope.adList = response.data.objectList;
+                $scope.adOptionsModel = $scope.adList;
+            },
+            function errorCallback(error) {
+                swal({
+                    title: "",
+                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                    html: true
+                });
+            }
+        )
+    };
+
+    $scope.refreshGoogleCampaign=function(level){
+        var objectTypeId = level;
+        var accountId = $scope.googleAccountId;
+        var profileId = $scope.googleProfileId;
+        $http({
+            method: 'GET',
+            url: '/api/v1/channel/profiles/objectsList/' + profileId + '?objectType=' + objectTypeId + '&accountId=' + accountId
+        }).then(
+            function successCallback(response) {
+                $scope.googleCampaignList = response.data;
+                $scope.googleCampaignOptionsModel = $scope.googleCampaignList;
+            },
+            function errorCallback(error) {
+                swal({
+                    title: "",
+                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                    html: true
+                });
+            }
+        )
+    };
+
+    $scope.refreshGroup=function(level){
+        var objectTypeId = level;
+        var campaignId = $scope.googleCampaign.channelObjectId;
+        var profileId = $scope.googleProfileId;
+        var accountId= $scope.googleAccountId;
+        var url='';
+        if($scope.canManageClients==true)
+            url='/api/v1/channel/profiles/objectsList/' + profileId + '?objectType=' + objectTypeId + '&campaignId=' + campaignId +'&accountId='+accountId;
+        else
+            url='/api/v1/channel/profiles/objectsList/' + profileId + '?objectType=' + objectTypeId + '&campaignId=' + campaignId
+        $http({
+            method: 'GET',
+            url: url
+        }).then(
+            function successCallback(response) {
+                $scope.groupList = response.data;
+                $scope.groupOptionsModel = $scope.groupList;
+            },
+            function errorCallback(error) {
+                swal({
+                    title: "",
+                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                    html: true
+                });
+            }
+        )
+    };
+
+    $scope.refreshAd=function(level){
+        var objectTypeId = level;
+        var adSetId = $scope.googleGroup.channelObjectId;
+        var profileId = $scope.googleProfileId;
+        var accountId= $scope.googleAccountId;
+        var url='';
+        if($scope.canManageClients==true)
+            url='/api/v1/channel/profiles/objectsList/' + profileId + '?objectType=' + objectTypeId + '&adSetId=' + adSetId +'&accountId='+accountId;
+        else
+            url='/api/v1/channel/profiles/objectsList/' + profileId + '?objectType=' + objectTypeId + '&adSetId=' + adSetId
+        $http({
+            method: 'GET',
+            url: url
+        }).then(
+            function successCallback(response) {
+                $scope.adList = response.data;
+                $scope.adOptionsModel = $scope.adList;
+            },
+            function errorCallback(error) {
+                swal({
+                    title: "",
+                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                    html: true
+                });
+            }
+        )
+    };
+
+    // $scope.clearGoogleSelectLevel=function(){
+    //     if($scope.canManageClients==false) {
+    //         var value=0;
+    //         if ($scope.googleProfileId != this.profileOptionsModel._id) {
+    //             $scope.selectedGoogleLevel = null;
+    //             document.getElementById('basicWidgetFinishButton').disabled = true;
+    //             $scope.googleCampaignEnable = false;
+    //             $scope.adEnable = false;
+    //             $scope.groupEnable = false;
+    //             $scope.googleCampaign = null;
+    //             $scope.googleGroup = null;
+    //             $scope.googleAd = null;
+    //             $scope.googleCampaignChosen = false;
+    //             $scope.groupChosen = false;
+    //             $scope.adChosen = false;
+    //             value=1;
+    //         }
+    //         if(value==1)
+    //         $scope.googleSelectLevelChosen();
+    //     }
+    //     else{
+    //         var value=0;
+    //         if ($scope.googleProfileId == this.profileOptionsModel._id) {
+    //             $scope.selectedGoogleLevel = null;
+    //             document.getElementById('basicWidgetFinishButton').disabled = true;
+    //             $scope.googleCampaignEnable = false;
+    //             $scope.adEnable = false;
+    //             $scope.groupEnable = false;
+    //             $scope.googleCampaign = null;
+    //             $scope.googleGroup = null;
+    //             $scope.googleAd = null;
+    //             $scope.googleCampaignChosen = false;
+    //             $scope.groupChosen = false;
+    //             $scope.adChosen = false;
+    //             value=1;
+    //         }
+    //         else
+    //         {
+    //             $scope.selectedGoogleLevel = null;
+    //             document.getElementById('basicWidgetFinishButton').disabled = true;
+    //             $scope.googleCampaignEnable = false;
+    //             $scope.adEnable = false;
+    //             $scope.groupEnable = false;
+    //             $scope.googleCampaign = null;
+    //             $scope.googleGroup = null;
+    //             $scope.googleAd = null;
+    //             $scope.googleCampaignChosen = false;
+    //             $scope.groupChosen = false;
+    //             $scope.adChosen = false;
+    //             value=1;
+    //         }
+    //         if(value==1)
+    //             $scope.googleSelectLevelChosen();
+    //     }
+    // };
+
     $scope.getObjectsForChosenProfile = function () {
         document.getElementById('basicWidgetFinishButton').disabled = true;
         $scope.checkExpiresIn = null;
         storeChosenObject = [];
         if (!this.profileOptionsModel) {
-            $scope.objectList = null;
+            $scope.facebookObjectList = null;
+            $scope.googleAnalyticsObjectList = null;
+            $scope.facebookAdsObjectList = null;
+            $scope.googleAdwordsObjectList = null;
+            $scope.mailchimpObjectList = null;
+            $scope.aweberObjectList = null;
+            $scope.linkedInObjectList = null;
+            $scope.youtubeObjectList = null;
+            $scope.vimeoObjectList = null;
+            $scope.twitterObjectList=null;
+            $scope.instagramObjectList=null;
+            $scope.pinterestObjectList=null;
             storeChosenObject = [];
             if ($scope.storedChannelName === 'Twitter' || $scope.storedChannelName === 'Instagram' || $scope.storedChannelName === 'GoogleAdwords')
                 for(var items in $scope.uniqueObjectCount)
                     $scope.objectForWidgetChosen([null, null, null,items]);
+            if($scope.storedChannelName == 'FacebookAds'){
+                $scope.selectedLevel = null;
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+                $scope.campaignEnable = false;
+                $scope.adSetAdsEnable = false;
+                $scope.adSetEnable = false;
+                $scope.campaign = null;
+                $scope.adSetAds = null;
+                $scope.adSet = null;
+                $scope.campaignChosen = false;
+                $scope.adSetChosen = false;
+                $scope.adSetAdsChosen = false;
+            }
+            if(($scope.storedChannelName == 'GoogleAdwords')) {
+                $scope.googleCampaignEnable = false;
+                $scope.adEnable = false;
+                $scope.groupEnable = false;
+                $scope.googleCampaign = null;
+                $scope.googleGroup = null;
+                $scope.googleAd = null;
+                $scope.googleCampaignChosen = false;
+                $scope.groupChosen = false;
+                $scope.adChosen = false;
+                $scope.selectEnable = false;
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+
+            }
         }
         else {
-            console.log('INSIDE ELSE')
             storedProfile = this.profileOptionsModel;
 
             if($scope.storedChannelName == 'GoogleAdwords') {
                 if (this.profileOptionsModel.canManageClients === false)
-                    $scope.canManageClients = true;
+                    $scope.canManageClients =false;
                 else
-                    $scope.canManageClients = false;
+                    $scope.canManageClients =true;
             }
-
-            if (this.profileOptionsModel.expiresIn != undefined)
-                $scope.checkExpiresIn = new Date(this.profileOptionsModel.expiresIn);
-            $scope.tokenExpired = false;
-
-            var profileId = this.profileOptionsModel._id;
-            var expiresIn = this.profileOptionsModel.expiresIn;
-            var currentDate = new Date();
-            var newExpiresIn = new Date(expiresIn);
-            if (currentDate <= newExpiresIn && expiresIn != null)
-                $scope.tokenExpired = false;
-            else if (expiresIn === undefined || expiresIn === null)
-                $scope.tokenExpired = false;
-            else
-                $scope.tokenExpired = true;
-
-            $http({
-                method: 'GET',
-                url: '/api/v1/get/objects/' + profileId
-            }).then(
-                function successCallback(response) {
-                    var uniqueObject;
-                    var k=0; var tempList = {};
-
-                    if($scope.storedChannelName != 'Google Analytics') {
-                        console.log('INSIDE SECOND ELSE',response.data,$scope.uniqueObjectCount);
-                        uniqueObject = _.groupBy(response.data.objectList, 'objectTypeId');
-                        var sortedUniqueObject = {};
-                        for(var objectIds in $scope.uniqueObjectCount) {
-                            for(var uniqueObjects in uniqueObject)
-                                if($scope.uniqueObjectCount[objectIds] == uniqueObjects)
-                                    sortedUniqueObject[uniqueObjects] = uniqueObject[uniqueObjects];
+            if($scope.storedChannelName == 'FacebookAds'){
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+                if(this.profileOptionsModel) {
+                    $scope.selectedLevel = null;
+                    document.getElementById('basicWidgetFinishButton').disabled = true;
+                    $scope.campaignEnable = false;
+                    $scope.adSetAdsEnable = false;
+                    $scope.adSetEnable = false;
+                    $scope.campaign = null;
+                    $scope.adSetAds = null;
+                    $scope.adSet = null;
+                    $scope.campaignChosen = false;
+                    $scope.adSetChosen = false;
+                    $scope.adSetAdsChosen = false;
+                    $scope.profileId = storedProfile._id;
+                    if (this.profileOptionsModel.expiresIn != undefined)
+                        $scope.checkExpiresIn = new Date(this.profileOptionsModel.expiresIn);
+                    $scope.tokenExpired = false;
+                    var profileId = this.profileOptionsModel._id;
+                    var expiresIn = this.profileOptionsModel.expiresIn;
+                    var currentDate = new Date();
+                    var newExpiresIn = new Date(expiresIn);
+                    if (currentDate <= newExpiresIn && expiresIn != null)
+                        $scope.tokenExpired = false;
+                    else if (expiresIn === undefined || expiresIn === null)
+                        $scope.tokenExpired = false;
+                    else
+                        $scope.tokenExpired = true;
+                    $http({
+                        method: 'GET',
+                        url: '/api/v1/get/objects/' + profileId
+                    }).then(
+                        function successCallback(response) {
+                            var uniqueObject;
+                            var k = 0;
+                            var tempList = {};
+                            uniqueObject = _.groupBy(response.data.objectList, 'objectTypeId');
+                            var sortedUniqueObject = {};
+                            for (var objectIds in $scope.uniqueObjectCount) {
+                                for (var uniqueObjects in uniqueObject)
+                                    if ($scope.uniqueObjectCount[objectIds] == uniqueObjects)
+                                        sortedUniqueObject[uniqueObjects] = uniqueObject[uniqueObjects];
+                            }
+                            for (var items in sortedUniqueObject) {
+                                var tempObjectList = [];
+                                for (var subItems in sortedUniqueObject[items])
+                                    tempObjectList.push(sortedUniqueObject[items][subItems]);
+                                var obj = {};
+                                obj[k] = tempObjectList;
+                                tempList[k] = obj;
+                                k++;
+                            }
+                            $scope.facebookAdsObjectList = tempList;
+                        }, function errorCallback(error) {
+                            swal({
+                                title: "",
+                                text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                                html: true
+                            });
                         }
-                        console.log(sortedUniqueObject);
-                        for(var items in sortedUniqueObject) {
-                            var tempObjectList = [];
-                            for(var subItems in sortedUniqueObject[items])
-                                tempObjectList.push(sortedUniqueObject[items][subItems]);
-                            var obj = {};
-                            obj[k] = tempObjectList;
-                            tempList[k] = obj;
-                            k++;
-                        }
-                        $scope.objectList = tempList;
-                        console.log($scope.objectList);
+                    );
+                }
+            }
+            else if(($scope.storedChannelName == 'GoogleAdwords')){
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+                if(this.profileOptionsModel) {
+                    $scope.googleCampaignEnable = false;
+                    $scope.adEnable = false;
+                    $scope.groupEnable = false;
+                    $scope.googleCampaign = null;
+                    $scope.googleGroup = null;
+                    $scope.googleAd = null;
+                    $scope.googleCampaignChosen = false;
+                    $scope.groupChosen = false;
+                    $scope.adChosen = false;
+                    $scope.selectEnable = false;
+                    document.getElementById('basicWidgetFinishButton').disabled = true;
+                    if ($scope.canManageClients == false) {
+                        $scope.googleProfileId = storedProfile._id;
+                        if (this.profileOptionsModel.expiresIn != undefined)
+                            $scope.checkExpiresIn = new Date(this.profileOptionsModel.expiresIn);
+                        $scope.tokenExpired = false;
+
+                        var profileId = this.profileOptionsModel._id;
+                        var expiresIn = this.profileOptionsModel.expiresIn;
+                        var currentDate = new Date();
+                        var newExpiresIn = new Date(expiresIn);
+                        if (currentDate <= newExpiresIn && expiresIn != null)
+                            $scope.tokenExpired = false;
+                        else if (expiresIn === undefined || expiresIn === null)
+                            $scope.tokenExpired = false;
+                        else
+                            $scope.tokenExpired = true;
+                        $http({
+                            method: 'GET',
+                            url: '/api/v1/get/objects/' + profileId
+                        }).then(
+                            function successCallback(response) {
+                                var uniqueObject;
+                                var k = 0;
+                                var tempList = {};
+                                uniqueObject = _.groupBy(response.data.objectList, 'objectTypeId');
+                                var sortedUniqueObject = {};
+                                for (var objectIds in $scope.uniqueObjectCount) {
+                                    for (var uniqueObjects in uniqueObject)
+                                        if ($scope.uniqueObjectCount[objectIds] == uniqueObjects)
+                                            sortedUniqueObject[uniqueObjects] = uniqueObject[uniqueObjects];
+                                }
+                                for (var items in sortedUniqueObject) {
+                                    var tempObjectList = [];
+                                    for (var subItems in sortedUniqueObject[items])
+                                        tempObjectList.push(sortedUniqueObject[items][subItems]);
+                                    var obj = {};
+                                    obj[k] = tempObjectList;
+                                    tempList[k] = obj;
+                                    k++;
+                                }
+                                $scope.googleAdwordsObjectList = tempList;
+                                var objectList = $scope.googleAdwordsObjectList;
+                                for (var items in $scope.uniqueObjectCount)
+                                    $scope.objectForWidgetChosen([objectList[0][0][0].name, objectList[0][0][0]._id, objectList[0][0][0].objectTypeId, items, objectList[0][0][0].channelObjectId]);
+                            }, function errorCallback(error) {
+                                swal({
+                                    title: "",
+                                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                                    html: true
+                                });
+                            }
+                        );
                     }
                     else {
-                        document.getElementById('basicWidgetFinishButton').disabled = true;
-                        var uniqueObjectTypeWithIndex = [];
-                        uniqueObjectTypeWithIndex[k] = response.data.objectList;
-                        $scope.objectList = uniqueObjectTypeWithIndex;
-                    }
+                        $scope.googleProfileId = storedProfile._id;
+                        if (this.profileOptionsModel.expiresIn != undefined)
+                            $scope.checkExpiresIn = new Date(this.profileOptionsModel.expiresIn);
+                        $scope.tokenExpired = false;
 
-                    if ($scope.storedChannelName === 'Twitter' || $scope.storedChannelName === 'Instagram' || ($scope.storedChannelName === 'GoogleAdwords' && $scope.canManageClients === true)) {
-                        document.getElementById('basicWidgetFinishButton').disabled = true;
-                        for(var items in $scope.uniqueObjectCount)
-                            $scope.objectForWidgetChosen([$scope.objectList[0][0][0].name, $scope.objectList[0][0][0]._id, $scope.objectList[0][0][0].objectTypeId,items]);
+                        var profileId = this.profileOptionsModel._id;
+                        var expiresIn = this.profileOptionsModel.expiresIn;
+                        var currentDate = new Date();
+                        var newExpiresIn = new Date(expiresIn);
+                        if (currentDate <= newExpiresIn && expiresIn != null)
+                            $scope.tokenExpired = false;
+                        else if (expiresIn === undefined || expiresIn === null)
+                            $scope.tokenExpired = false;
+                        else
+                            $scope.tokenExpired = true;
+                        $http({
+                            method: 'GET',
+                            url: '/api/v1/get/objects/' + profileId
+                        }).then(
+                            function successCallback(response) {
+                                var uniqueObject;
+                                var k = 0;
+                                var tempList = {};
+                                uniqueObject = _.groupBy(response.data.objectList, 'objectTypeId');
+                                var sortedUniqueObject = {};
+                                for (var objectIds in $scope.uniqueObjectCount) {
+                                    for (var uniqueObjects in uniqueObject)
+                                        if ($scope.uniqueObjectCount[objectIds] == uniqueObjects)
+                                            sortedUniqueObject[uniqueObjects] = uniqueObject[uniqueObjects];
+                                }
+                                for (var items in sortedUniqueObject) {
+                                    var tempObjectList = [];
+                                    for (var subItems in sortedUniqueObject[items])
+                                        tempObjectList.push(sortedUniqueObject[items][subItems]);
+                                    var obj = {};
+                                    obj[k] = tempObjectList;
+                                    tempList[k] = obj;
+                                    k++;
+                                }
+                                $scope.googleAdwordsObjectList = tempList;
+                            }, function errorCallback(error) {
+                                swal({
+                                    title: "",
+                                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                                    html: true
+                                });
+                            }
+                        );
                     }
-                    else if($scope.storedChannelName === 'GoogleAdwords' && $scope.canManageClients === false) {
-                        storeChosenObject = [];
-                        document.getElementById('basicWidgetFinishButton').disabled = true;
-                    }
-                },
-                function errorCallback(error) {
-                    swal({
-                        title: "",
-                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
-                        html: true
-                    });
                 }
-            );
+            }
+            else {
+                if (this.profileOptionsModel.expiresIn != undefined)
+                    $scope.checkExpiresIn = new Date(this.profileOptionsModel.expiresIn);
+                $scope.tokenExpired = false;
+
+                var profileId = this.profileOptionsModel._id;
+                var expiresIn = this.profileOptionsModel.expiresIn;
+                var currentDate = new Date();
+                var newExpiresIn = new Date(expiresIn);
+                if (currentDate <= newExpiresIn && expiresIn != null)
+                    $scope.tokenExpired = false;
+                else if (expiresIn === undefined || expiresIn === null)
+                    $scope.tokenExpired = false;
+                else
+                    $scope.tokenExpired = true;
+
+                $http({
+                    method: 'GET',
+                    url: '/api/v1/get/objects/' + profileId
+                }).then(
+                    function successCallback(response) {
+                        var uniqueObject;
+                        var k = 0;
+                        var tempList = {};
+
+                        if ($scope.storedChannelName != 'Google Analytics') {
+                            uniqueObject = _.groupBy(response.data.objectList, 'objectTypeId');
+                            var sortedUniqueObject = {};
+                            for (var objectIds in $scope.uniqueObjectCount) {
+                                for (var uniqueObjects in uniqueObject)
+                                    if ($scope.uniqueObjectCount[objectIds] == uniqueObjects)
+                                        sortedUniqueObject[uniqueObjects] = uniqueObject[uniqueObjects];
+                            }
+                            for (var items in sortedUniqueObject) {
+                                var tempObjectList = [];
+                                for (var subItems in sortedUniqueObject[items])
+                                    tempObjectList.push(sortedUniqueObject[items][subItems]);
+                                var obj = {};
+                                obj[k] = tempObjectList;
+                                tempList[k] = obj;
+                                k++;
+                            }
+                            if ($scope.storedChannelName == 'Facebook')
+                                $scope.facebookObjectList = tempList;
+                            else if ($scope.storedChannelName == 'Mailchimp')
+                                $scope.mailchimpObjectList = tempList;
+                            else if ($scope.storedChannelName == 'Aweber')
+                                $scope.aweberObjectList = tempList;
+                            else if ($scope.storedChannelName == 'LinkedIn')
+                                $scope.linkedInObjectList = tempList;
+                            else if ($scope.storedChannelName == 'YouTube')
+                                $scope.youtubeObjectList = tempList;
+                            else if ($scope.storedChannelName == 'Vimeo')
+                                $scope.vimeoObjectList = tempList;
+                            else if ($scope.storedChannelName == 'Twitter')
+                                $scope.twitterObjectList = tempList;
+                            else if ($scope.storedChannelName == 'Pinterest')
+                                $scope.pinterestObjectList = tempList;
+                            else if ($scope.storedChannelName == 'Instagram')
+                                $scope.instagramObjectList = tempList;
+                        }
+                        else {
+                            document.getElementById('basicWidgetFinishButton').disabled = true;
+                            var uniqueObjectTypeWithIndex = [];
+                            uniqueObjectTypeWithIndex[k] = response.data.objectList;
+                            $scope.googleAnalyticsObjectList = uniqueObjectTypeWithIndex;
+                        }
+
+                        if ($scope.storedChannelName === 'Twitter' || $scope.storedChannelName === 'Pinterest' || $scope.storedChannelName === 'Instagram') {
+                            document.getElementById('basicWidgetFinishButton').disabled = true;
+                            var objectList;
+                            switch ($scope.storedChannelName) {
+                                case 'Twitter':
+                                    objectList = $scope.twitterObjectList;
+                                    break;
+                                case 'Instagram':
+                                    objectList = $scope.instagramObjectList;
+                                    break;
+                                case 'Pinterest':
+                                    objectList = $scope.pinterestObjectList;
+                                    break;
+                                default:
+                                    objectList = null;
+                                    break;
+                            }
+                            for (var items in $scope.uniqueObjectCount)
+                                $scope.objectForWidgetChosen([objectList[0][0][0].name, objectList[0][0][0]._id, objectList[0][0][0].objectTypeId, items]);
+                        }
+                    },
+                    function errorCallback(error) {
+                        swal({
+                            title: "",
+                            text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                            html: true
+                        });
+                    }
+                );
+            }
         }
     };
 
@@ -301,11 +1326,26 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                                     obj[k] = tempObjectList;
                                     tempList = obj;
                                 }
-                                $scope.objectList[k] = tempList;
+                                if ($scope.storedChannelName == 'Facebook')
+                                    $scope.facebookObjectList[k] = tempList;
+                                else if ($scope.storedChannelName == 'Mailchimp')
+                                    $scope.mailchimpObjectList[k] = tempList;
+                                else if ($scope.storedChannelName == 'Aweber')
+                                    $scope.aweberObjectList[k] = tempList;
+                                else if ($scope.storedChannelName == 'LinkedIn')
+                                    $scope.linkedInObjectList[k] = tempList;
+                                else if ($scope.storedChannelName == 'YouTube')
+                                    $scope.youtubeObjectList[k]= tempList;
+                                else if ($scope.storedChannelName == 'Vimeo')
+                                    $scope.vimeoObjectList[k] = tempList;
+                                else if ($scope.storedChannelName == 'FacebookAds')
+                                    $scope.facebookAdsObjectList[k] = tempList;
+                                else if ($scope.storedChannelName == 'GoogleAdwords')
+                                    $scope.googleAdwordsObjectList[k] = tempList;
                             }
                             else {
                                 uniqueObjectTypeWithIndex[k] = response.data;
-                                $scope.objectList = uniqueObjectTypeWithIndex;
+                                $scope.googleAnalyticsObjectList = uniqueObjectTypeWithIndex;
                             }
                         },
                         function errorCallback(error) {
@@ -369,6 +1409,18 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     url = '/api/auth/linkedIn';
                     title = $scope.storedChannelName;
                     break;
+                case 'Aweber':
+                    url = '/api/auth/aweber';
+                    title = $scope.storedChannelName;
+                    break;
+                case 'Vimeo':
+                    url = '/api/auth/vimeo';
+                    title = $scope.storedChannelName;
+                    break;
+                case 'Pinterest':
+                    url = '/api/auth/pinterest';
+                    title = $scope.storedChannelName;
+                    break;
             }
             var left = (screen.width / 2) - (w / 2);
             var top = (screen.height / 2) - (h / 2);
@@ -416,17 +1468,274 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     };
 
     $scope.createAndFetchBasicWidget = function () {
-        var chartColors = [], widgetName;
+        var widgetName;
         $(".navbar").css('z-index', '1');
         $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
-        $("#getLoadingModalContent").addClass('md-show');
+
+
         if (getChannelName == "CustomData") {
             getCustomWidgetObj = {
                 '_id': getCustomWidgetId,
-                'widgetType': 'custom'
+                'widgetType': 'custom',
+                "channelName": 'custom'
             };
             // final function after custom api url creation goes here
             $rootScope.$broadcast('populateWidget', getCustomWidgetObj);
+        }
+
+
+        //for moz
+        else if(getChannelName == "Moz"){
+            var mozData = {
+                "channelId": $scope.storedChannelId,
+                "mozObject": $scope.weburl,
+                "mozObjectTypeId":$scope.uniqueObjectCount[0]
+            }
+            //creating object for moz
+            var httpPromise=$http({
+                method: 'POST',
+                url: '/api/v1/objects',
+                data: mozData
+            }).then(
+                function successCallback(response) {
+                    $scope.mozObjectdetails=response.data.objectList;
+                    return $scope.mozObjectdetails;
+                },
+                function errorCallback(error) {
+                    swal({
+                        title: "",
+                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                        html: true
+                    });
+                }
+            );
+            httpPromise.then (
+                function (mozObjectDetails) {
+                    //creating widget for moz
+                    for (var getData in getReferenceWidgetsArr) {
+                        var matchingMetric = [];
+                        var matchingMetricName = '';
+                        var inputParams = [];
+                        var widgetColor = generateChartColours.fetchWidgetColor($scope.storedChannelName);
+
+                        for (var i = 0; i < getReferenceWidgetsArr[getData].charts.length; i++) {
+                            matchingMetric = [];
+                            matchingMetricName = '';
+
+                            for (var j = 0; j < getReferenceWidgetsArr[getData].charts[i].metrics.length; j++) {
+                                matchingMetric.push(getReferenceWidgetsArr[getData].charts[i].metrics[j]);
+                                matchingMetric[0].objectId = mozObjectDetails[0]._id;
+                                matchingMetricName = mozObjectDetails[0].name;
+                            }
+                            getReferenceWidgetsArr[getData].charts[i].metrics = matchingMetric;
+                            getReferenceWidgetsArr[getData].charts[i].objectName = matchingMetricName;
+                        }
+
+                        widgetName = getReferenceWidgetsArr[getData].name + ' - ' + matchingMetricName;
+
+                        var jsonData = {
+                            "dashboardId": $state.params.id,
+                            "widgetType": widgetType,
+                            "name": widgetName,
+                            "description": getReferenceWidgetsArr[getData].description,
+                            "charts": getReferenceWidgetsArr[getData].charts,
+                            "order": getReferenceWidgetsArr[getData].order,
+                            "offset": getReferenceWidgetsArr[getData].offset,
+                            "size": getReferenceWidgetsArr[getData].size,
+                            "minSize": getReferenceWidgetsArr[getData].minSize,
+                            "maxSize": getReferenceWidgetsArr[getData].maxSize,
+                            "color": widgetColor,
+                            "visibility": true,
+                            "isAlert": getReferenceWidgetsArr[getData].isAlert,
+                            "channelName": $scope.storedChannelName
+                        };
+                        inputParams.push(jsonData);
+                        $http({
+                            method: 'POST',
+                            url: '/api/v1/widgets',
+                            data: inputParams
+                        }).then(
+                            function successCallback(response) {
+                                for (var widgetObjects in response.data.widgetsList)
+                                    $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
+                            },
+                            function errorCallback(error) {
+                                $(".navbar").css('z-index', '1');
+                                $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
+                                $("#somethingWentWrongModalContent").addClass('md-show');
+                                $("#somethingWentWrongText").text("Something went wrong! Please try again");
+                            }
+                        );
+                    }
+                    getReferenceWidgetsArr = [];
+                },
+                function errorCallback() {
+                    $(".navbar").css('z-index', '1');
+                    $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
+                    $("#somethingWentWrongModalContent").addClass('md-show');
+                    $("#somethingWentWrongText").text("Something went wrong! Please try again");
+                }
+            );
+        }
+        else if($scope.storedChannelName == "FacebookAds"){
+            // function for saving facebook widgets goes here
+            for (var getData in getReferenceWidgetsArr) {
+                var matchingMetric = [];
+                var matchingMetricName = '';
+                var inputParams = [];
+                var widgetColor = generateChartColours.fetchWidgetColor($scope.storedChannelName);
+
+                for (var i = 0; i < getReferenceWidgetsArr[getData].charts.length; i++) {
+                    matchingMetric = []; matchingMetricName = '';
+                    for (var j = 0; j < getReferenceWidgetsArr[getData].charts[i].metrics.length; j++) {
+                        matchingMetric.push(getReferenceWidgetsArr[getData].charts[i].metrics[j]);
+                        if($scope.selectedLevel=='fbadaccount') {
+                            matchingMetric[0].objectTypeId=$scope.selectedObjectType._id;
+                            matchingMetric[0].objectId = storeChosenObject[0]._id;
+                            matchingMetricName = storeChosenObject[0].name;
+                        }
+                        else if($scope.selectedLevel=='fbAdcampaign'){
+                            matchingMetric[0].objectTypeId=$scope.selectedObjectType._id;
+                            matchingMetric[0].objectId = $scope.campaign._id;
+                            matchingMetricName = $scope.campaign.name;
+                        }
+                        else if($scope.selectedLevel=='fbAdSet'){
+                            matchingMetric[0].objectTypeId=$scope.selectedObjectType._id;
+                            matchingMetric[0].objectId = $scope.adSet._id;
+                            matchingMetricName = $scope.adSet.name;
+                        }
+                        else if($scope.selectedLevel=='fbAdSetAds'){
+                            matchingMetric[0].objectTypeId=$scope.selectedObjectType._id;
+                            matchingMetric[0].objectId = $scope.adSetAds._id;
+                            matchingMetricName = $scope.adSetAds.name;
+                        }
+                    }
+                    getReferenceWidgetsArr[getData].charts[i].metrics = matchingMetric;
+                    getReferenceWidgetsArr[getData].charts[i].objectName = matchingMetricName;
+                }
+                widgetName = getReferenceWidgetsArr[getData].name + ' - ' + matchingMetricName;
+
+                var jsonData = {
+                    "dashboardId": $state.params.id,
+                    "widgetType": widgetType,
+                    "name": widgetName,
+                    "description": getReferenceWidgetsArr[getData].description,
+                    "charts": getReferenceWidgetsArr[getData].charts,
+                    "order": getReferenceWidgetsArr[getData].order,
+                    "offset": getReferenceWidgetsArr[getData].offset,
+                    "size": getReferenceWidgetsArr[getData].size,
+                    "minSize": getReferenceWidgetsArr[getData].minSize,
+                    "maxSize": getReferenceWidgetsArr[getData].maxSize,
+                    "color": widgetColor,
+                    "visibility": true,
+                    "isAlert": getReferenceWidgetsArr[getData].isAlert,
+                    "channelName": $scope.storedChannelName
+                };
+                inputParams.push(jsonData);
+                $http({
+                    method: 'POST',
+                    url: '/api/v1/widgets',
+                    data: inputParams
+                }).then(
+                    function successCallback(response) {
+                        for (var widgetObjects in response.data.widgetsList) {
+                            $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
+                        }
+                    },
+                    function errorCallback(error) {
+                        $(".navbar").css('z-index', '1');
+                        $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
+                        $("#somethingWentWrongModalContent").addClass('md-show');
+                        $("#somethingWentWrongText").text("Something went wrong! Please try again");
+                        swal({
+                            title: "",
+                            text: "<span style='sweetAlertFont'>Something went wrong! Please try again!</span> .",
+                            html: true
+                        });
+                    }
+                );
+            }
+            getReferenceWidgetsArr = [];
+        }
+        else if($scope.storedChannelName == "GoogleAdwords"){
+            // function for saving facebook widgets goes here
+            for (var getData in getReferenceWidgetsArr) {
+                var matchingMetric = [];
+                var matchingMetricName = '';
+                var inputParams = [];
+                var widgetColor = generateChartColours.fetchWidgetColor($scope.storedChannelName);
+
+                for (var i = 0; i < getReferenceWidgetsArr[getData].charts.length; i++) {
+                    matchingMetric = []; matchingMetricName = '';
+                    for (var j = 0; j < getReferenceWidgetsArr[getData].charts[i].metrics.length; j++) {
+                        matchingMetric.push(getReferenceWidgetsArr[getData].charts[i].metrics[j]);
+                        if($scope.selectedGoogleLevel=='adwordaccount') {
+                            matchingMetric[0].objectTypeId=$scope.selectedGoogleObjectType._id;
+                            matchingMetric[0].objectId = storeChosenObject[0]._id;
+                            matchingMetricName = storeChosenObject[0].name;
+                        }
+                        else if($scope.selectedGoogleLevel=='adwordCampaign'){
+                            matchingMetric[0].objectTypeId=$scope.selectedGoogleObjectType._id;
+                            matchingMetric[0].objectId = $scope.googleCampaign._id;
+                            matchingMetricName = $scope.googleCampaign.name;
+                        }
+                        else if($scope.selectedGoogleLevel=='adwordAdgroup'){
+                            matchingMetric[0].objectTypeId=$scope.selectedGoogleObjectType._id;
+                            matchingMetric[0].objectId = $scope.googleGroup._id;
+                            matchingMetricName = $scope.googleGroup.name;
+                        }
+                        else if($scope.selectedGoogleLevel=='adwordsAd'){
+                            matchingMetric[0].objectTypeId=$scope.selectedGoogleObjectType._id;
+                            matchingMetric[0].objectId = $scope.googleAd._id;
+                            matchingMetricName = $scope.googleAd.name;
+                        }
+                    }
+                    getReferenceWidgetsArr[getData].charts[i].metrics = matchingMetric;
+                    getReferenceWidgetsArr[getData].charts[i].objectName = matchingMetricName;
+                }
+                widgetName = getReferenceWidgetsArr[getData].name + ' - ' + matchingMetricName;
+
+                var jsonData = {
+                    "dashboardId": $state.params.id,
+                    "widgetType": widgetType,
+                    "name": widgetName,
+                    "description": getReferenceWidgetsArr[getData].description,
+                    "charts": getReferenceWidgetsArr[getData].charts,
+                    "order": getReferenceWidgetsArr[getData].order,
+                    "offset": getReferenceWidgetsArr[getData].offset,
+                    "size": getReferenceWidgetsArr[getData].size,
+                    "minSize": getReferenceWidgetsArr[getData].minSize,
+                    "maxSize": getReferenceWidgetsArr[getData].maxSize,
+                    "color": widgetColor,
+                    "visibility": true,
+                    "isAlert": getReferenceWidgetsArr[getData].isAlert,
+                    "channelName": $scope.storedChannelName
+                };
+                inputParams.push(jsonData);
+                $http({
+                    method: 'POST',
+                    url: '/api/v1/widgets',
+                    data: inputParams
+                }).then(
+                    function successCallback(response) {
+                        for (var widgetObjects in response.data.widgetsList) {
+                            $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
+                        }
+                    },
+                    function errorCallback(error) {
+                        $(".navbar").css('z-index', '1');
+                        $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
+                        $("#somethingWentWrongModalContent").addClass('md-show');
+                        $("#somethingWentWrongText").text("Something went wrong! Please try again");
+                        swal({
+                            title: "",
+                            text: "<span style='sweetAlertFont'>Something went wrong! Please try again!</span> .",
+                            html: true
+                        });
+                    }
+                );
+            }
+            getReferenceWidgetsArr = [];
         }
         else {
             // function for saving other widgets goes here
@@ -450,7 +1759,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     getReferenceWidgetsArr[getData].charts[i].metrics = matchingMetric;
                     getReferenceWidgetsArr[getData].charts[i].objectName = matchingMetricName;
                 }
-                if ($scope.storedChannelName === 'Twitter' || $scope.storedChannelName === 'Instagram' || $scope.storedChannelName === 'Google Analytics')
+                if ($scope.storedChannelName === 'Twitter' || $scope.storedChannelName === 'Instagram' || $scope.storedChannelName === 'Google Analytics' ||  $scope.storedChannelName === 'Pinterest')
                     widgetName = getReferenceWidgetsArr[getData].name + ' - ' + storedProfile.name;
                 else
                     widgetName = getReferenceWidgetsArr[getData].name + ' - ' + matchingMetricName;
@@ -478,13 +1787,13 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     data: inputParams
                 }).then(
                     function successCallback(response) {
-                        $("#getLoadingModalContent").removeClass('md-show');
+
                         for (var widgetObjects in response.data.widgetsList) {
                             $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
                         }
                     },
                     function errorCallback(error) {
-                        $("#getLoadingModalContent").removeClass('md-show');
+
                         $(".navbar").css('z-index', '1');
                         $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
                         $("#somethingWentWrongModalContent").addClass('md-show');
@@ -592,6 +1901,42 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     };
 
     $scope.objectForWidgetChosen = function (chosenObject) {
+        if($scope.storedChannelName=='FacebookAds') {
+            if (!this.objectOptionsModel[0]) {
+                $scope.selectedObjectType = null;
+                $scope.selectedLevel = null;
+                $scope.selectedId = null;
+                $scope.campaignChosen = false;
+                $scope.adSetChosen = false;
+                $scope.adSetAdsChosen = false;
+                $scope.campaignEnable = false;
+                $scope.adSetEnable = false;
+                $scope.adSetAdsEnable = false;
+                $scope.campaign = null;
+                $scope.adSet = null;
+                $scope.adSetAds = null;
+                $scope.selectEnable = false;
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+            }
+        }
+        if(($scope.storedChannelName=='GoogleAdwords')&&($scope.canManageClients==true)){
+            if (!this.objectOptionsModel[0]) {
+                $scope.googleCampaignChosen = false;
+                $scope.adChosen = false;
+                $scope.groupChosen = false;
+                $scope.googleCampaignEnable = false;
+                $scope.adEnable = false;
+                $scope.groupEnable = false;
+                $scope.googleCampaign = null;
+                $scope.googleAd = null;
+                $scope.googleGroup = null;
+                $scope.selectedGoogleObjectType = null;
+                $scope.selectedGoogleLevel = null;
+                $scope.selectedGoogleId = null;
+                $scope.selectEnable = false;
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+            }
+        }
         document.getElementById('basicWidgetFinishButton').disabled = true;
         var countChecker = false;
         if ($scope.storedChannelName === 'Google Analytics' && chosenObject) {
@@ -613,16 +1958,86 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             for(var items in storeChosenObject)
                 if(storeChosenObject[items] == null)
                     countChecker = false;
-            if(countChecker == true)
+            if((countChecker == true)&&($scope.storedChannelName!='FacebookAds')&&($scope.storedChannelName!='GoogleAdwords')) {
                 document.getElementById('basicWidgetFinishButton').disabled = false;
-            else
+            }
+            else if((countChecker == true)&&($scope.storedChannelName=='FacebookAds')){
+                //  $scope.clearSelectLevel();
+                $scope.selectedObjectType = null;
+                $scope.selectedLevel = null;
+                $scope.selectedId = null;
+                $scope.campaignChosen = false;
+                $scope.adSetChosen = false;
+                $scope.adSetAdsChosen = false;
+                $scope.campaignEnable = false;
+                $scope.adSetEnable = false;
+                $scope.adSetAdsEnable = false;
+                $scope.campaign = null;
+                $scope.adSet = null;
+                $scope.adSetAds = null;
+                $scope.accountId = chosenObject[4];
+                $scope.selectEnable = true;
+                $http({
+                    method: 'GET', url: '/api/v1/get/objectType/' + $scope.storedChannelId
+                }).then(
+                    function successCallback(response) {
+                        $scope.objectTypeList = response.data.objectType;
+                        //$scope.objectTypeOptionsModel=$scope.objectTypeList;
+                    },
+                    function errorCallback(error) {
+                        swal({
+                            title: "",
+                            text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                            html: true
+                        });
+                    }
+                );
                 document.getElementById('basicWidgetFinishButton').disabled = true;
+            }
+            else if((countChecker == true)&&($scope.storedChannelName=='GoogleAdwords')){
+                // $scope.clearGoogleSelectLevel();
+                $scope.googleCampaignChosen = false;
+                $scope.adChosen = false;
+                $scope.groupChosen = false;
+                $scope.googleCampaignEnable = false;
+                $scope.adEnable = false;
+                $scope.groupEnable = false;
+                $scope.googleCampaign = null;
+                $scope.googleAd = null;
+                $scope.googleGroup = null;
+                $scope.selectedGoogleObjectType =null;
+                $scope.selectedGoogleLevel = null;
+                $scope.selectedGoogleId = null;
+                $scope.googleAccountId=chosenObject[4];
+                $scope.selectEnable=true;
+                $http({
+                    method: 'GET', url: '/api/v1/get/objectType/' + $scope.storedChannelId
+                }).then(
+                    function successCallback(response) {
+                        $scope.googleObjectTypeList=response.data.objectType;
+                    },
+                    function errorCallback(error) {
+                        swal({
+                            title: "",
+                            text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                            html: true
+                        });
+                    }
+                );
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+            }
+            else {
+
+                document.getElementById('basicWidgetFinishButton').disabled =true;
+            }
         }
-        else
+        else {
             document.getElementById('basicWidgetFinishButton').disabled = true;
+        }
     };
 
     $scope.errorMessage = true;
+
     $scope.storeCustomData = function () {
         var jsonData = {
             "dashboardId": $state.params.id,

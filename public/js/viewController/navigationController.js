@@ -9,6 +9,13 @@ function NavigationController() {
         $("#insightsModalContent").addClass('md-show');
     });
 
+    $(".addRemoveModalContent").on( 'click', function( ev ) {
+        $(".navbar").css('z-index','1');
+        $(".md-overlay").css("background","rgba(0,0,0,0.5)");
+        $("#addRemoveModalContent").addClass('md-show');
+    });
+
+
     function removeModal( hasPerspective ) {
         classie.remove( modal, 'md-show' );
 

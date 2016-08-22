@@ -56,6 +56,16 @@ exports.storeProfiles = function (req, res, done) {
                     "expiresIn": req.expiresIn ? req.expiresIn : ''
                 }
             }
+            else if (req.code === configAuth.channels.aweber) {
+                setData = {
+                    "accessToken": newAccessToken,
+                  //  "refreshToken": newRefreshToken,
+                    'updated': updated,
+                    tokenSecret:req.tokenSecret,
+                    //'dataCenter': req.dataCenter,
+                    "expiresIn": req.expiresIn ? req.expiresIn : ''
+                }
+            }
             else {
                 setData = {
                     "accessToken": newAccessToken,
@@ -119,6 +129,12 @@ exports.storeProfiles = function (req, res, done) {
                 newProfile.canManageClients = req.canManageClients;
                 newProfile.customerId = req.customerId;
             }
+            if (req.code === configAuth.channels.aweber) {
+                newProfile.token =tokens.access_token;
+
+                newProfile.tokenSecret = req.tokenSecret;
+            }
+
 
             // save the user
             newProfile.save(function (err, user) {
@@ -133,7 +149,7 @@ exports.storeProfiles = function (req, res, done) {
                         }, function (err, profileDetail) {
                             if (!err) {
                                 if(req.canManageClients===false) done(null,profileDetail)
-                                else if (req.code != configAuth.channels.instagram && req.code !== configAuth.channels.youtube  && req.code !== configAuth.channels.twitter) {
+                                else if (req.code != configAuth.channels.pinterest && req.code != configAuth.channels.instagram && req.code !== configAuth.channels.youtube  && req.code !== configAuth.channels.twitter) {
                                     async.auto({
                                         object_types: getObjectType,
                                         get_remote_objects: ['object_types', getRemoteObjects]

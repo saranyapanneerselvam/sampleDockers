@@ -8,8 +8,8 @@ function CustomWidgetController($scope,$uibModal) {
         $uibModal.open({
             scope: $scope,
             backdrop: true,
-            templateUrl: 'widget_settings.ejs',
-            controller: 'WidgetSettingsController',
+            templateUrl: 'fusion_settings.ejs',
+            controller: 'FusionSettingsController',
             resolve: {
                 widget: function() {
                     return widget;

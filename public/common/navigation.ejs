@@ -7,59 +7,78 @@
                     <a href="{{siteUrl}}" target="_blank"><img alt="Datapoolt" src="image/logo.png"/></a>
                 </div>
             </li>
-            <li>
+            <li class="tool" data-toggle="tooltip" data-placement="right" title="Add Empty Dashboard" >
                 <a ng-click="createNewDashboard()">
                     <i class="icon icon-edit navigation-menu-icon"></i>
                     <span class="nav-label"> Add Empty Dashboard</span>
                 </a>
             </li>
-            <li ng-show="$state.includes('app.reporting.dashboard')">
+            <li class="tool" data-toggle="tooltip" data-placement="right" title="Add Recommended Dashboard" ng-show="$state.includes('app.reporting.dashboard')">
                 <a ui-sref="app.reporting.dashboard.recommendedDashboard">
                     <i class="icon icon-browser navigation-menu-icon"></i>
                     <span class="nav-label"> Add Recommended Dashboard</span>
                 </a>
             </li>
-            <li>
+            <li class="tool" data-toggle="tooltip" data-placement="right" title="Grid View">
                 <a ui-sref="app.reporting.dashboards">
                     <i class="icon icon-grid navigation-menu-icon"></i>
                     <span class="nav-label"> Grid View</span>
                 </a>
             </li>
-            <li ng-show="$state.includes('app.reporting.dashboard')">
+            <li class="tool" data-toggle="tooltip" data-placement="right" title="Add Widgets" ng-show="$state.includes('app.reporting.dashboard')">
                 <a ui-sref="app.reporting.dashboard.basicWidget({widgetType:'basic'})">
                     <i class="icon icon-presentation navigation-menu-icon"></i>
                     <span class="nav-label"> Add Widgets</span>
                 </a>
             </li>
-            <li ng-show="$state.includes('app.reporting.dashboard')">
+            <li class="tool"  data-toggle="tooltip" data-placement="right" title="Add Fusion widgets" ng-show="$state.includes('app.reporting.dashboard')">
                 <a ui-sref="app.reporting.dashboard.fusionWidget">
                     <i class="icon icon-expand navigation-menu-icon"></i>
                     <span class="nav-label"> Fusions</span>
                 </a>
             </li>
-            <li ng-show="$state.includes('app.reporting.dashboard')"class="md-trigger md-setperspective md-effect-19 addRemoveModalContent" data-modal="addRemoveModalContent">
+            <li class="tool soonModel" data-toggle="tooltip" data-placement="right" title="Insights" ng-show="$state.includes('app.reporting.dashboard')" class="md-trigger md-setperspective md-effect-19 addRemoveModalContent" data-modal="addRemoveModalContent">
                 <a>
                     <i class="icon icon-megaphone navigation-menu-icon"></i>
                     <span class="nav-label"> Insights</span>
                 </a>
             </li>
         </ul>
-<!--
-        &lt;!&ndash;List to be displayed in the sidebar when the 'adReporting' state is active&ndash;&gt;
-        <ul side-navigation class="nav metismenu" id="side-menu" ng-class="{active: $state.includes('adReporting')}" ng-show="$state.includes('adReporting')">
-            <li ng-class="{active: $state.includes('adReporting')}">
-                <a><i class="fa fa-th-large"></i> <span class="nav-label">Sample for AdReporting</span> <span class="fa arrow"></span></a>
-                <ul class="nav nav-second-level collapse" ng-class="{in: $state.includes('adReporting')}">
-                    <li><a>Ad reporting</a></li>
+        <!--
+                &lt;!&ndash;List to be displayed in the sidebar when the 'adReporting' state is active&ndash;&gt;
+                <ul side-navigation class="nav metismenu" id="side-menu" ng-class="{active: $state.includes('adReporting')}" ng-show="$state.includes('adReporting')">
+                    <li ng-class="{active: $state.includes('adReporting')}">
+                        <a><i class="fa fa-th-large"></i> <span class="nav-label">Sample for AdReporting</span> <span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level collapse" ng-class="{in: $state.includes('adReporting')}">
+                            <li><a>Ad reporting</a></li>
+                        </ul>
+                    </li>
                 </ul>
-            </li>
-        </ul>
--->
+        -->
     </div>
     <div class="slimScrollBar" style="width: 7px; position: absolute; top: 0px; opacity: 0.4; display: none; border-radius: 7px; z-index: 99; right: 1px; height: 344.828px; background: rgb(0, 0, 0);"></div><div class="slimScrollRail" style="width: 7px; height: 100%; position: absolute; top: 0px; display: none; border-radius: 7px; opacity: 0.9; z-index: 90; right: 1px; background: rgb(51, 51, 51);"></div>
 
 
 </nav>
+
+
+<script>
+    $('.tool').mouseenter(function() {
+        var minibar = $("#page-top").hasClass("mini-navbar");
+        if (minibar == true)
+            $('.tool').tooltip('enable');
+        else
+            $('.tool').tooltip('disable');
+    });
+    $('.tool').click(function() {
+        $('.tool').tooltip('disable');
+    });
+    $('.tool').mouseleave(function() {
+        $('.tool').tooltip('disable');
+    });
+
+
+</script>
 
 <script>
     $('.soonModel').click(function () {

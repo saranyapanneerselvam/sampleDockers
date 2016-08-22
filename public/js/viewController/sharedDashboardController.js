@@ -15,6 +15,9 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
         $scope.widgetsPresent = false;
         $scope.loadedWidgetCount = 0;
         $scope.populateDashboardWidgets();
+
+
+
         //To define the calendar in dashboard header
         $scope.dashboardCalendar = new Calendar({
             element: $('.daterange--double').attr( 'readOnly' , 'true' ),
@@ -137,11 +140,16 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
         })
             .then(
                 function successCallback(response) {
-                    if(response.data ===''){
+                    if(!response.data){
                         $state.go('error');
                     }
                     else dashboardId = response.data.widgetsList._id;
-                    $("#getLoadingModalContent").removeClass('md-show');
+
+
+
+                    $scope.dashboard.dashboardName = response.data.dashboardDetails.name
+
+
                     var widgets = [];
                     var dashboardWidgetList = [];
                     var initialWidgetList = response.data.widgetsList;

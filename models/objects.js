@@ -8,7 +8,15 @@ var objectsSchema = mongoose.Schema({
     name: String,
     profileId: mongoose.Schema.Types.ObjectId,
     channelObjectId: String,
+    meta: {
+        accountId: String,
+        campaignId: String,
+        adSetId: String,
+        webPropertyName:String,
+        webPropertyId:String
+    },
     objectTypeId: mongoose.Schema.Types.ObjectId,
+    channelId: mongoose.Schema.Types.ObjectId,
     meta:Object,
     created: Date,
     updated: Date,

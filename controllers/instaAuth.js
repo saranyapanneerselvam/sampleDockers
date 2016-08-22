@@ -67,7 +67,6 @@ module.exports = function (app) {
                                     objectType.find({'channelId': response.channelId}, function (err, objectType) {
                                         //Create an object for channel and Insert object in profile table - dev
                                         var objectList = new objects();
-                                        objectList.channelId = objectType[0].channelId;
                                         objectList.profileId = response._id;
                                         objectList.objectTypeId = objectType[0]._id;
                                         objectList.name = response.name;

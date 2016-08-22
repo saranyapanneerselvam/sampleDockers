@@ -196,20 +196,20 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
 
     $scope.getObjectsForChosenProfile = function (profileObj, index) {
         $scope.checkExpiresIn = null;
-        if ((profileObj.canManageClients === false)&&($scope.uniquechannelNames[index] === 'GoogleAdwords')){
-            $scope.canManage = false;
-        }
-        if (profileObj.canManageClients === true){
-            $scope.canManage = true;
-        }
         if (!profileObj) {
             $scope.objectList[index] = null;
-            if ($scope.uniquechannelNames[index] === 'Twitter' || $scope.uniquechannelNames[$index] === 'Instagram') {
+            if ($scope.uniquechannelNames[index] === 'Twitter' || $scope.uniquechannelNames[index] === 'Instagram') {
                 $scope.objectForWidgetChosen($scope.objectList[index], index);
             }
         }
         else {
-            if ($scope.uniquechannelNames[index] == 'Facebook' || $scope.uniquechannelNames[index] =='FacebookAds') {
+            if ((profileObj.canManageClients === false) && ($scope.uniquechannelNames[index] === 'GoogleAdwords')) {
+                $scope.canManage = false;
+            }
+            if (profileObj.canManageClients === true) {
+                $scope.canManage = true;
+            }
+            if ($scope.uniquechannelNames[index] == 'Facebook' || $scope.uniquechannelNames[index] == 'FacebookAds') {
                 $scope.expiredRefreshButton = $scope.uniquechannelNames[index];
 
                 if (profileObj.expiresIn != undefined)

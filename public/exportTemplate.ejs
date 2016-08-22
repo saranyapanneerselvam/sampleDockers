@@ -22,7 +22,7 @@
                                         <input type="radio" id="exportOptionJpeg" name="exportOption" value="JPEG" ng-click="pdfPrintPreview(false);"/> JPEG
                                     </label>
                                     <label class="btn btn-default">
-                                        <input type="radio" id="exportOptionPDF" name="exportOption" value="PDF" ng-click="printpaperPDF();pdfPrintPreview(true);exportDashboardConfiguration();"/> PDF
+                                        <input type="radio" id="exportOptionPDF" name="exportOption" value="PDF" ng-click="printpaperPDF();pdfPrintPreview(true);"/> PDF
                                     </label>
                                     <label class="btn btn-default">
                                         <input type="radio" id="exportOptionUrl" name="exportOption" value="PDF" ng-click="pdfPrintPreview(false);"/> Share URL
@@ -71,34 +71,30 @@
                     <div class="scrollbar" id="scroller">
                         <div class="row">
                             <h5 class="model-title">PDF Print Preview</h5>
-                            <div class="col-lg-12">
-                                <div id="dashLayout" class="dashboardLayout">
-                                    <div class="white-bg dashboardContent" ng-repeat="aexppage in expPages">
-                                        <div class="border-bottom dashboardTitle white-bg" style="border: 1px solid #000000;max-height:40px">
-                                            <div class="row">
-                                                <div class="col col-sm-12">
-                                                    <div class="dashboardTemplate-items">
-                                                        <div class="col-sm-3 dashboardName">
-                                                            <a href="#" ng-model="dashboardName" editable-text="dashboard.dashboardName" onaftersave="changeDashboardName()" buttons="no" e-maxlength="35">
-                                                                <pre ng-style="!expCtrl.dashboard.dashboardName  && {'color':'#999'}  || !expCtrl.dashboard.dashboardName && {'color':'#000'}">{{expCtrl.dashboard.dashboardName || 'UnNamed Dashboard'}}</pre>
-                                                            </a>
-                                                        </div>
-                                                        <div class="col-sm-4">
-                                                            <div class="daterange daterange--double three"></div>
-                                                        </div>
+                            <div class="col-lg-12"style="padiding:0px 0px !important">
+                                <div id="dashLayout" class="dashboardLayout" style="border:1px solid #efefef">
+                                    <div class="white-bg expdashboardLayout"style="border:0px solid #efefef" ng-repeat="aexppage in expPages">
+                                        <div class="row" style="max-height:40px !important;min-height:40px !important;border:0px">
+                                            <div class="col col-sm-12">
+                                                <div class="expdashboardTemplate-items">
+                                                    <div class="col-sm-3 dashboardName" style="padding:8px!important">
+                                                        <h4 style="font-family: Heebo-Thin !important ;font-style: normal !important;">{{expCtrl.dashboard.dashboardName || 'UnNamed Dashboard'}}</h4>
+                                                    </div>
+                                                    <div class="col-sm-4">
+                                                        <div class="daterange daterange--double three"></div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div gridster="expgridsterOptions" class="row fixheight" style="border: 1px solid #000000;" id="expgridsterItems"><!--ng-switch-when="true"-->
+                                        <div gridster="expgridsterOptions" class="row" id="expgridsterItems"><!--ng-switch-when="true"-->
                                             <ul>
                                                 <li gridster-item="widget" ng-repeat="(widgetIndex,widget) in aexppage.widgets">
                                                     <div class="box getBox-{{widget.id}}" ng-controller="CustomWidgetController">
 
                                                         <div class="box-header" id="getWidgetColor-{{widget.id}}" ref="{{aexppage.widgetData[widgetIndex].color}}" style="background-color: #ffffff;"> <!--ng-style="{'background-color': aexppage.widgetData[widgetIndex].color}"-->
                                                             <div style="float: left;width: 93%;">
-                                                                <!--<img src="image/thumbnail/{{widget.channelName}}.png" style="vertical-align: super;max-height: 31px; max-width: 50px; padding:5px"/>-->
-                                                                <h3 ng-style="widget.sizeX!=1  && {'width':'80%'}  || widget.sizeX==1 && {'width':'50%'} ">{{aexppage.widgetData[widgetIndex].name}}</h3>
+                                                                <img src="image/thumbnail/{{widget.channelName}}.png" ng-if="widget.channelName=='custom'||widget.channelName=='customFusion'"  style="vertical-align: super;max-height: 31px; max-width: 50px; padding:5px"/>
+                                                                <h3 ng-style="widget.sizeX!=1  && {'width':'80%'}  || widget.sizeX==1 && {'width':'50%'}" style="float:left;padding:7px!important;text-overflow:ellipsis;">{{aexppage.widgetData[widgetIndex].name}}</h3>
                                                             </div>
                                                         </div>
 
@@ -222,7 +218,44 @@
                                                                         </div>
                                                                     </div>
                                                                 </div>
-
+                                                                <div ng-repeat="chart in aexppage.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'pinterestEngagementRate'" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/aexppage.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/aexppage.widgetData[widgetIndex].layoutOptionsX)+'%'}">
+                                                                    <div class="row" style="margin: 0px;height: 100%" id='chartTable-{{widget.id}}'>
+                                                                        <div events="events" style="height: 99%" ng-if="aexppage.widgetData[widgetIndex].visibility == true">
+                                                                            <div class="scrollbar scrollInWidget" id="scroller">
+                                                                                <div class="col-lg-12 listed" ng-repeat="data in chart.data">
+                                                                                    <div class="col-lg-12">
+                                                                                        <div class="postComment"><a class="apiLink" href="{{data.links}} " target="_blank">{{data.postComment}}</a></div>
+                                                                                        <div class="impression">
+                                                                                            <div class="likes"><span>Likes: {{data.likes}}</span></div>
+                                                                                            <div class="comment"><span>comments: {{data.comments}}</span></div>
+                                                                                            <div class="comment"><span>Repins: {{data.repin}}</span></div>
+                                                                                            <div class="date"><span>{{data.date}}</span></div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div ng-repeat="chart in aexppage.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'pinterestLeaderboard'" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/aexppage.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/aexppage.widgetData[widgetIndex].layoutOptionsX)+'%'}">
+                                                                    <div class="row" style="margin: 0px;height: 100%" id='chartTable-{{widget.id}}'>
+                                                                        <div events="events" style="height: 99%" ng-if="aexppage.widgetData[widgetIndex].visibility == true">
+                                                                            <div class="scrollbar scrollInWidget" id="scroller">
+                                                                                <div class="col-lg-12 listed"  ng-repeat="data in chart.data">
+                                                                                    <div class="col-lg-12">
+                                                                                        <div class="postComment"><a class="apiLink" href="{{data.links}} " target="_blank">{{data.postComment}}</a></div>
+                                                                                        <div class="impression">
+                                                                                            <div class="likes"><span>collaborators: {{data.collaborators}}</span></div>
+                                                                                            <div class="comment"><span>pins: {{data.followers}}</span></div>
+                                                                                            <div class="comment"><span>followers: {{data.pins}}</span></div>
+                                                                                            <div class="date"><span>{{data.date}}</span></div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
 
                                                                 <div ng-repeat="chart in aexppage.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'vimeoTopVideos'" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/aexppage.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/aexppage.widgetData[widgetIndex].layoutOptionsX)+'%'}">
                                                                     <div class="row" style="margin: 0px;height: 100%">
@@ -262,7 +295,7 @@
                                                 <li gridster-item="widget" ng-repeat="(widgetIndex,widget) in aexppage.empWidget"></li>
                                             </ul>
                                         </div>
-                                        <div style="min-height: 5%;page-break-after: always;" ng-if="$index > 0"></div>
+                                        <div style="min-height: 5px !important;page-break-after: always;"></div>
                                     </div>
                                 </div>
                             </div>

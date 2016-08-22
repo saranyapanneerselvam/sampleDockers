@@ -758,7 +758,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                                         likes: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0) ?
                                             (widget.charts[charts].chartData[datas].total.metadata.connections.likes.total != null ?
                                                 (typeof widget.charts[charts].chartData[datas].total.metadata.connections.likes.total != 'undefined' ? widget.charts[charts].chartData[datas].total.metadata.connections.likes.total : 0) : 0) : 0),
-
                                         views: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0) ?
                                             (widget.charts[charts].chartData[datas].total.stats.plays != null ?
                                                 (typeof widget.charts[charts].chartData[datas].total.stats.plays != 'undefined' ?
@@ -1023,6 +1022,12 @@ showMetricApp.service('createWidgets',function($http,$q){
                         yAxis: {
                             tickFormat: function(d) {
                                 return d3.format('f')(d);}
+                        },
+                        tooltip: {
+                            enabled:false,
+                            headerEnabled:true,
+                            headerFormatter:function(d) {
+                                return d3.time.format('%d/%m/%y')(new Date(d))}
                         },
                         axisLabelDistance: -10,
                         showLegend: false,

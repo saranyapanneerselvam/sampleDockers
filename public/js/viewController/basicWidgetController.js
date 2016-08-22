@@ -189,8 +189,10 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         }).then(
             function successCallback(response) {
                 $scope.profileList = response.data.profileList;
-                $scope.profileOptionsModel=$scope.profileList[0];
-                $scope.getObjectsForChosenProfile();
+                if($scope.profileList !=undefined) {
+                    $scope.profileOptionsModel = $scope.profileList[0];
+                    $scope.getObjectsForChosenProfile();
+                }
                 $scope.objectList = [];
                 $scope.facebookObjectList = [];
                 $scope.googleAnalyticsObjectList = [];
@@ -1881,7 +1883,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         $scope.referenceWidgetsList = [];
         $scope.tokenExpired = false;
         var lastWidgetId = $rootScope.customWidgetId;
-        if (lastWidgetId != undefined) {
+        if (lastWidgetId != undefined && lastWidgetId !='' ) {
             $http({
                 method: 'POST',
                 url: '/api/v1/delete/widgets/' + lastWidgetId

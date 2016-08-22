@@ -1,3 +1,15 @@
+           <style>
+               .dr-calendar {
+                   display: none !important;
+               }
+
+               .dr-presets {
+                   display: none !important;
+               }
+           </style>
+
+
+
             <div ng-init="dashboardConfiguration()" id="dashboardLayout" class="dashboardLayout">
                 <div class="border-bottom dashboardTitle white-bg">
                     <div class="row">
@@ -24,7 +36,7 @@
                                     <div class="box-header" id="getWidgetColor-{{widget.id}}" ref="{{dashboard.widgetData[widgetIndex].color}}" style="background-color: #ffffff;"> <!--ng-style="{'background-color': dashboard.widgetData[widgetIndex].color}"-->
                                 <div style="float: left;width: 93%;">
                                     <img src="image/thumbnail/{{widget.channelName}}.png" style="vertical-align: super;max-height: 31px; max-width: 50px; padding:5px"/>
-                                    <h3 style="color: #000000;    padding-top: 4px;">{{dashboard.widgetData[widgetIndex].name}}</h3>
+                                    <h3 ng-style="widget.sizeX!=1  && {'width':'80%'}  || widget.sizeX==1 && {'width':'50%'} ">{{dashboard.widgetData[widgetIndex].name}}</h3>
                                         </div>
 
                                 <div class="graph-icon">
@@ -35,16 +47,11 @@
                                     <div class="box-content" style="vertical-align: middle" ng-style="{position:(isMobile?'static':'absolute')}">
                                         <div ng-if="dashboard.widgetData[widgetIndex].visibility == false">
                                             <div class="spiner-example" id="widgetData-{{widget.id}}">
-                                                <div class="sk-spinner sk-spinner-cube-grid">
-                                                    <div class="sk-cube"></div>
-                                                    <div class="sk-cube"></div>
-                                                    <div class="sk-cube"></div>
-                                                    <div class="sk-cube"></div>
-                                                    <div class="sk-cube"></div>
-                                                    <div class="sk-cube"></div>
-                                                    <div class="sk-cube"></div>
-                                                    <div class="sk-cube"></div>
-                                                    <div class="sk-cube"></div>
+                                                <div class="mainLoading location">
+                                                    <div class="sk-spinner sk-spinner-double-bounce">
+                                                        <div class="sk-double-bounce1"></div>
+                                                        <div class="sk-double-bounce2"></div>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="errorWidgetData" id="errorWidgetData-{{widget.id}}">
@@ -139,6 +146,83 @@
                                                             </div>
                                                             <div class="col-lg-12" style="position: relative;top:40%;text-align: center;" ng-if="!chart.data.postComment">
                                                                <span >No Updates available</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div ng-repeat="chart in dashboard.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'gaTopPagesByVisit'" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/dashboard.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/dashboard.widgetData[widgetIndex].layoutOptionsX)+'%'}">
+                                                <div class="row" style="margin: 0px;height: 100%" >
+                                                    <div events="events" style="height: 99%" ng-if="dashboard.widgetData[widgetIndex].visibility == true" ng-init="limitScroll=20">
+                                                        <div class="scrollbar scrollInWidget" id="scroller">
+                                                            <div class="col-xs-12 toplisted" ng-repeat="data in chart.data | limitTo: limitScroll" ng-if="data.pagePath">
+                                                                <div class="col-xs-10" style="float:left;overflow: hidden" >{{data.pagePath}}</div>
+                                                                <div class="col-xs-2" style="float:left;text-align: right">{{data.pageVisits}}</div>
+                                                            </div>
+                                                            <div style="text-align:center" ng-show="chart.data.length>20">
+                                                                <a href ng-click="limitScroll=(limitScroll+10)" ng-show="limitScroll<chart.data.length">Show More</a>
+                                                                <span ng-show="limitScroll>20&&limitScroll<chart.data.length">|</span>
+                                                                <a href ng-click="limitScroll=(limitScroll-10)" ng-show="limitScroll>20">Show Less</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div ng-repeat="chart in dashboard.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'pinterestEngagementRate'" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/dashboard.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/dashboard.widgetData[widgetIndex].layoutOptionsX)+'%'}">
+                                                <div class="row" style="margin: 0px;height: 100%">
+                                                    <div events="events" style="height: 99%" ng-if="dashboard.widgetData[widgetIndex].visibility == true">
+                                                        <div class="scrollbar scrollInWidget" id="scroller">
+                                                            <div class="col-lg-12 listed" ng-repeat="data in chart.data">
+                                                                <div class="col-lg-12">
+                                                                    <div class="postComment"><a class="apiLink" href="{{data.links}} " target="_blank">{{data.postComment}}</a></div>
+                                                                    <div class="impression">
+                                                                        <div class="likes"><span>Likes: {{data.likes}}</span></div>
+                                                                        <div class="comment"><span>comments: {{data.comments}}</span></div>
+                                                                        <div class="comment"><span>Repins: {{data.repin}}</span></div>
+                                                                        <div class="date"><span>{{data.date}}</span></div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div ng-repeat="chart in dashboard.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'pinterestLeaderboard'" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/dashboard.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/dashboard.widgetData[widgetIndex].layoutOptionsX)+'%'}">
+                                                <div class="row" style="margin: 0px;height: 100%" >
+                                                    <div events="events" style="height: 99%" ng-if="dashboard.widgetData[widgetIndex].visibility == true">
+                                                        <div class="scrollbar scrollInWidget" id="scroller">
+                                                            <div class="col-lg-12 listed"  ng-repeat="data in chart.data">
+                                                                <div class="col-lg-12">
+                                                                    <div class="postComment"><a class="apiLink" href="{{data.links}} " target="_blank">{{data.postComment}}</a></div>
+                                                                    <div class="impression">
+                                                                        <div class="likes"><span>collaborators: {{data.collaborators}}</span></div>
+                                                                        <div class="comment"><span>pins: {{data.followers}}</span></div>
+                                                                        <div class="comment"><span>followers: {{data.pins}}</span></div>
+                                                                        <div class="date"><span>{{data.date}}</span></div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div ng-repeat="chart in dashboard.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'vimeoTopVideos'" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/dashboard.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/dashboard.widgetData[widgetIndex].layoutOptionsX)+'%'}">
+                                                <div class="row" style="margin: 0px;height: 100%" >
+                                                    <div events="events" style="height: 99%" ng-if="dashboard.widgetData[widgetIndex].visibility == true">
+                                                        <div class="scrollbar scrollInWidget" id="scroller">
+                                                            <div class="col-lg-12 listed" ng-repeat="data in chart.data" ng-if="data.title">
+                                                                <div class="col-lg-1 listed-image" >
+                                                                    <a  href="{{data.link }}" target="_blank"><img src="{{data.picture}}" height="50px" widget="50px" /></a>
+                                                                </div>
+                                                                <div class="col-lg-11 aside">
+                                                                    <div class="postComment"> <a  class="apiLink" href="{{data.link }}" target="_blank">  {{data.title}}</a></div>
+                                                                    <div class="impression">
+                                                                        <div class="likes"><span>Likes: {{data.likes}}</span></div>
+                                                                        <div class="comment"><span>comments: {{data.comments}}</span></div>
+                                                                        <div class="likes"><span>Views: {{data.views}}</span></div>
+                                                                        <div class="date"><span>{{data.date}}</span></div>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>

@@ -27,7 +27,7 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
             end_date: new Date(),
             callback: function() {
                 var start = moment(this.start_date).format('ll'), end = moment(this.end_date).format('ll');
-                $scope.populateDashboardWidgets();
+
             }
         });
 
@@ -147,7 +147,7 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
 
 
 
-                    $scope.dashboard.dashboardName = response.data.dashboardDetails.name
+                    $scope.dashboard.dashboardName = response.data.dashboardDetails.name;
 
 
                     var widgets = [];
@@ -165,24 +165,6 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
                         $scope.widgetsPresent = false;
                     var widgetID=0;
                     var dashboardWidgets = [];
-
-
-
-
-                    $scope.fetchDashboardName = function () {
-                        $http({
-                            method: 'GET', url: '/api/v1/get/dashboards/'+ dashboardId
-                        }).then(function successCallback(response) {
-                            console.log("dashboard response",response)
-
-
-                            $scope.dashboard.dashboardName =  response.data.data.name;
-                        }, function errorCallback(error) {
-                            $scope.dashboard.dashboardName =   null;
-                        });
-                    };
-                    $scope.fetchDashboardName();
-
 
 
 

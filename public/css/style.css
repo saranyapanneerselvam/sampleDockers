@@ -98,6 +98,7 @@ svg:hover #Calendar-Icon { fill: #293846; }
 .grid-text:hover, .grid-text.active {
     border: 2px solid #04509B;}
 .dashboardTemplate-items{margin-top:11px;}
+.expdashboardTemplate-items{margin-top:0px;}
 .editable-controls > input{
     margin-top: 3px;
     border: 1px solid #e8e8e8;
@@ -290,7 +291,7 @@ svg:hover #Calendar-Icon { fill: #293846; }
     display: block;
 }
 
-.dropdown a:hover {background-color: #f1f1f1}
+.dropdown a img:hover {background-color: #f1f1f1}
 
 .shw {display:block;}
 
@@ -1849,6 +1850,9 @@ body {
 }
 #dashboardLayout {
     padding: 0px 0px 0px 0px;
+}
+#expdashboardLayout {
+    padding: 2px 0px !important;
 }
 #dashboardTitle {
     border: 1px solid #efefef;

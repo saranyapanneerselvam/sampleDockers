@@ -10,28 +10,25 @@
         width:100% !important;
     }
     .btn-primary{
-      margin-top: 5px !important;
+        margin-top: 5px !important;
     }
 
 
 
 }
 @media(max-width : 770px){
-    .centered-logo .bottom-border{
-        margin-top:179px;
+
+    .has-dropdown:hover{
+        height:auto !important;
 
     }
-     .top-bar{
-        height:300px !important;
+    .has-dropdown:hover .menuTree{
+        font-style: italic;
+        font-size: 15px;
 
     }
-     .has-dropdown:hover{
-         height:auto !important;
 
-     }
-
-
-   .drop-2:hover{
+    .drop-2:hover{
         height:90px !important;
     }
 

@@ -35,16 +35,11 @@
                                     <div class="box-content" style="vertical-align: middle" ng-style="{position:(isMobile?'static':'absolute')}">
                                         <div ng-if="dashboard.widgetData[widgetIndex].visibility == false">
                                             <div class="spiner-example" id="widgetData-{{widget.id}}">
-                                                <div class="sk-spinner sk-spinner-cube-grid">
-                                                    <div class="sk-cube"></div>
-                                                    <div class="sk-cube"></div>
-                                                    <div class="sk-cube"></div>
-                                                    <div class="sk-cube"></div>
-                                                    <div class="sk-cube"></div>
-                                                    <div class="sk-cube"></div>
-                                                    <div class="sk-cube"></div>
-                                                    <div class="sk-cube"></div>
-                                                    <div class="sk-cube"></div>
+                                                <div class="mainLoading location">
+                                                    <div class="sk-spinner sk-spinner-double-bounce">
+                                                        <div class="sk-double-bounce1"></div>
+                                                        <div class="sk-double-bounce2"></div>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="errorWidgetData" id="errorWidgetData-{{widget.id}}">

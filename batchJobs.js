@@ -3531,14 +3531,15 @@ agenda.define(configAuth.batchJobs.alertName, function (job, done) {
         else callback(null, 'success')
     }
 })
+
+
 agenda.on('ready', function () {
-    //agenda.processEvery('1 minutes', 'Update channel data');
-    agenda.now(configAuth.batchJobs.alertJobName)
+    agenda.processEvery('2 hours', 'configAuth.batchJobs.alertJobName');
     agenda.start();
     agenda.on(configAuth.batchJobs.successBatchJobMessage, function (job) {
         if (job) {
             agenda.now(configAuth.batchJobs.alertName)
-            //agenda.processEvery('1 minutes', 'Send Alert');
+
             agenda.start();
         }
     });

@@ -222,7 +222,44 @@
                                                                         </div>
                                                                     </div>
                                                                 </div>
-
+                                                                <div ng-repeat="chart in aexppage.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'pinterestEngagementRate'" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/aexppage.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/aexppage.widgetData[widgetIndex].layoutOptionsX)+'%'}">
+                                                                    <div class="row" style="margin: 0px;height: 100%" id='chartTable-{{widget.id}}'>
+                                                                        <div events="events" style="height: 99%" ng-if="aexppage.widgetData[widgetIndex].visibility == true">
+                                                                            <div class="scrollbar scrollInWidget" id="scroller">
+                                                                                <div class="col-lg-12 listed" ng-repeat="data in chart.data">
+                                                                                    <div class="col-lg-12">
+                                                                                        <div class="postComment"><a class="apiLink" href="{{data.links}} " target="_blank">{{data.postComment}}</a></div>
+                                                                                        <div class="impression">
+                                                                                            <div class="likes"><span>Likes: {{data.likes}}</span></div>
+                                                                                            <div class="comment"><span>comments: {{data.comments}}</span></div>
+                                                                                            <div class="comment"><span>Repins: {{data.repin}}</span></div>
+                                                                                            <div class="date"><span>{{data.date}}</span></div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div ng-repeat="chart in aexppage.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'pinterestLeaderboard'" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/aexppage.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/aexppage.widgetData[widgetIndex].layoutOptionsX)+'%'}">
+                                                                    <div class="row" style="margin: 0px;height: 100%" id='chartTable-{{widget.id}}'>
+                                                                        <div events="events" style="height: 99%" ng-if="aexppage.widgetData[widgetIndex].visibility == true">
+                                                                            <div class="scrollbar scrollInWidget" id="scroller">
+                                                                                <div class="col-lg-12 listed"  ng-repeat="data in chart.data">
+                                                                                    <div class="col-lg-12">
+                                                                                        <div class="postComment"><a class="apiLink" href="{{data.links}} " target="_blank">{{data.postComment}}</a></div>
+                                                                                        <div class="impression">
+                                                                                            <div class="likes"><span>collaborators: {{data.collaborators}}</span></div>
+                                                                                            <div class="comment"><span>pins: {{data.followers}}</span></div>
+                                                                                            <div class="comment"><span>followers: {{data.pins}}</span></div>
+                                                                                            <div class="date"><span>{{data.date}}</span></div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
 
                                                                 <div ng-repeat="chart in aexppage.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'vimeoTopVideos'" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/aexppage.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/aexppage.widgetData[widgetIndex].layoutOptionsX)+'%'}">
                                                                     <div class="row" style="margin: 0px;height: 100%">

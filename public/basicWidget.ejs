@@ -785,7 +785,7 @@
                                                                             <option value="">Select an item</option>
                                                                         </select>
                                                                         <select class="form-control m-b"
-                                                                                ng-show="storedChannelName=== 'LinkedIn'"
+                                                                                ng-show="storedChannelName=== 'linkedin'"
                                                                                 ng-model="objectOptionsModel[$index]"
                                                                                 ng-options="objects as objects.name for objects in linkedInObjectList[$index][$index]"
                                                                                 ng-change="objectForWidgetChosen([objectOptionsModel[$index].name,objectOptionsModel[$index]._id,objectOptionsModel[$index].objectTypeId,$index])">
@@ -976,7 +976,7 @@
                                                                 <select class="form-control m-b choose-text"
                                                                         ng-show="((storedChannelName=='GoogleAdwords')&&(selectEnable==true))"
                                                                         ng-model="objectTypeOptionsModel"
-                                                                        ng-options="objectType.name for objectType in googleObjectTypeList"
+                                                                        ng-options="objectType.name for objectType in googleObjec tTypeList"
                                                                         ng-change="googleSelectLevelChosen('level')">
                                                                     <option value="">Choose the Granularity</option>
                                                                 </select>

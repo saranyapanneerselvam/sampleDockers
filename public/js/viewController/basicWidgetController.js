@@ -1332,7 +1332,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                                     $scope.mailchimpObjectList[k] = tempList;
                                 else if ($scope.storedChannelName == 'Aweber')
                                     $scope.aweberObjectList[k] = tempList;
-                                else if ($scope.storedChannelName == 'LinkedIn')
+                                else if ($scope.storedChannelName == 'linkedin')
                                     $scope.linkedInObjectList[k] = tempList;
                                 else if ($scope.storedChannelName == 'YouTube')
                                     $scope.youtubeObjectList[k]= tempList;

@@ -32,9 +32,9 @@ module.exports = {
         clientID: '2e719e6b0cb5d3ac62710085455d1b0d57668942',
         clientSecret: 'N9pOQtPHixYBmda48BQdBXNeA15KHJzjlwK/IT4hZwFK60W6efciAX90Cvk7IlBiqjs9dMJDnn7wNrRdGmntQKM63IRBtidCECKlKyE287pTrymcInw8LSyKpgBFR5Cf',
         site: 'https://api.vimeo.com',
-        tokenPath: '/oauth/access_token',
-        authorizationPath: '/oauth/authorize',
-        redirect_uri:'https://datapoolt.co/auth/vimeo/callback',
+        tokenPath: 'https://api.vimeo.com/oauth/access_token',
+        authorizationPath: 'https://api.vimeo.com/oauth/authorize',
+        redirect_uri:'https://datapoolt.co/auth/vimeo/callback/',
         scope: 'public',
         state: '3(#0/!~',
         localCallingURL: '/api/auth/vimeo',
@@ -313,10 +313,15 @@ module.exports = {
         engagementRate:'engagementRate'
     },
     linkedInMetrics:{
+        endPoints:{
+            followers:'followers'
+    },
+        
         highestEngagementUpdatesLinkedIn:'highestEngagementUpdatesLinkedIn'
     },
     vimeoMetric:{
-        highEngagement:'highengagement'
+        vimeohighengagement:'vimeohighengagement',
+        vimeoviews:'vimeoviews'
     },
     facebookSite:{
         site:'https://graph.facebook.com/'
@@ -325,7 +330,8 @@ module.exports = {
         user:'user',
         likes:'likes',
         comments:'comments',
-        count:'count'
+        count:'count',
+        recentPost:'Recent Posts'
     },
     mailChimpQueryVariables:{
         lists:'lists',
@@ -336,8 +342,31 @@ module.exports = {
         emailSend:'emailSend'
     },
     aweberStatic:{
-        aweberMainList:'mainlists'
+        endPoints: {
+            aweberMainList: 'mainlists',
+            aweberLists:'lists',
+            aweberCampaigns:'campaigns'
+        },
+        metricCode:{
+            subscribers:'subscribers_count',
+            unSubscribers:'unsubscribers_count',
+            listOpen_rate:'open_rate/lists',
+            listClick_rate:'click_rate/lists',
+            open_rateCampaigns:'open_rate/campaigns',
+            click_rateCampaigns:'click_rate/campaigns',
+            total_opensCampaigns:'total_opens/campaigns',
+            total_clicksCampaigns:'total_clicks/campaigns',
+            total_sentCampaigns:'total_sent/campaigns'
+        }
+    },
+    
+    mozStatic:{
+        rank:'moz_rank_url',
+        links:'links',
+        page_authority:'page_authority',
+        domain_authority:'domain_authority'
     }
+
 
 };
 

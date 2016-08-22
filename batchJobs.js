@@ -351,7 +351,7 @@ agenda.define('Update channel data', function (job, done) {
                             var storeEndDate = new Date(result.endDate);
                             var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
                             var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
-                            if ("vimeoviews" == result.metricCode) {
+                            if (configAuth.vimeoMetric.vimeoviews == result.metricCode) {
                                 storeMetric = parsedData.stats.plays;
                             }
                             else {
@@ -713,7 +713,7 @@ agenda.define('Update channel data', function (job, done) {
                 }
                 else {
                     var callApi = function (err, medias, pagination, remaining, limit) {
-                        if (result.metricCode === 'likes' || result.metricCode === 'comments') {
+                        if (result.metricCode === configAuth.instagramStaticVariables.likes || result.metricCode === configAuth.instagramStaticVariables.comments) {
                             for (var key in medias) {
                                 userMediaRecent.push(medias[key])
                             }
@@ -1587,11 +1587,11 @@ agenda.define('Update channel data', function (job, done) {
                     var updated = initialResults.data.updated;
                     var currentDate = moment(new Date()).format('YYYY-MM-DD');
                     if (initialResults.data.updated < new Date()) {
-                        if (initialResults.metric.objectTypes[0].meta.endpoint[0] === 'lists') {
-                            var query = 'https://' + initialResults.profile.dataCenter + '.api.mailchimp.com/3.0/lists/' + initialResults.object.channelObjectId + '?count=100';
+                        if (initialResults.metric.objectTypes[0].meta.endpoint[0] === configAuth.mailChimpQueryVariables.lists) {
+                            var query = 'https://' + initialResults.profile.dataCenter + configAuth.mailChimpQueryVariables.listQuery + initialResults.object.channelObjectId + '?count=100';
                         }
                         else {
-                            var query = 'https://' + initialResults.profile.dataCenter + '.api.mailchimp.com/3.0/campaigns/' + initialResults.object.channelObjectId + '?count=100';
+                            var query = 'https://' + initialResults.profile.dataCenter + configAuth.mailChimpQueryVariables.campaignQuery + initialResults.object.channelObjectId + '?count=100';
                         }
                         updated = moment(initialResults.data.updated).format('YYYY-MM-DD');
                         if (updated == currentDate) {
@@ -1654,8 +1654,8 @@ agenda.define('Update channel data', function (job, done) {
                         var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
                         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); //adding plus one so that today also included
                         var item = result.widget.objectTypes[0].meta.mailChimpsMetricName;
-                        if (result.endpoint === 'campaign') {
-                            if (result.metricCode === 'emailSend') {
+                        if (result.endpoint === configAuth.mailChimpQueryVariables.campaign) {
+                            if (result.metricCode === configAuth.mailChimpQueryVariables.emailSend) {
                                 storeMetric = parseInt(mailChimpResponse[item]);
                             }
                             else {
@@ -1726,17 +1726,17 @@ agenda.define('Update channel data', function (job, done) {
                     if (initialResults.data.updated < new Date()) {
                         // query for getting subscribers and unsubscribers count in all the lists in a profile
 
-                        if (initialResults.metric.objectTypes[0].meta.endpoint[0] === 'mainlists')
+                        if (initialResults.metric.objectTypes[0].meta.endpoint[0] === configAuth.aweberStatic.endPoints.aweberMainList)
                             var query = 'accounts/' + initialResults.profile.userId + '/lists/' + initialResults.object.channelObjectId;
                         //query for getting open rate & click rates in listwise
 
-                        else if (initialResults.metric.objectTypes[0].meta.endpoint[0] === 'lists')
+                        else if (initialResults.metric.objectTypes[0].meta.endpoint[0] === configAuth.aweberStatic.endPoints.aweberList)
                             var query = 'accounts/' + initialResults.profile.userId + '/lists/' + initialResults.object.channelObjectId + '/campaigns';
 
                         //query for getting open rate & click rates in campaignwise
 
 
-                        else if (initialResults.metric.objectTypes[0].meta.endpoint[0] === 'campaigns')
+                        else if (initialResults.metric.objectTypes[0].meta.endpoint[0] === configAuth.aweberStatic.endPoints.aweberCampaigns)
                             var query = 'accounts/' + initialResults.profile.userId + '/lists/' + initialResults.object.meta.listId + '/campaigns/' + initialResults.object.meta.campaignType + initialResults.object.channelObjectId;
 
 
@@ -1793,13 +1793,13 @@ agenda.define('Update channel data', function (job, done) {
                         var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
 
                         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); //adding plus one so that today also included
-                        if (result.metricCode === 'subscribers_count')
+                        if (result.metricCode === configAuth.aweberStatic.metricCode.subscribers)
                             storeMetric = response.total_subscribed_subscribers;
 
-                        else if (result.metricCode === 'unsubscribers_count')
+                        else if (result.metricCode === configAuth.aweberStatic.metricCode.unSubscribers)
                             storeMetric = response.total_unsubscribed_subscribers;
 
-                        else if (result.metricCode === 'open_rate/lists') {
+                        else if (result.metricCode === configAuth.aweberStatic.metricCode.listOpen_rate) {
                             var total_opens = 0, total_sent = 0, open_rate;
                             for (var i = 0; i < response.total_size; i++) {
                                 if (response.entries[i].campaign_type == 'b') {
@@ -1810,7 +1810,7 @@ agenda.define('Update channel data', function (job, done) {
                             open_rate = Math.round(total_opens / total_sent);
                             storeMetric = open_rate;
                         }
-                        else if (result.metricCode === 'click_rate/lists') {
+                        else if (result.metricCode === configAuth.aweberStatic.metricCode.listClick_rate) {
                             var total_clicks = 0, total_sent = 0, click_rate;
                             for (var i = 0; i < response.total_size; i++) {
                                 if (response.entries[i].campaign_type == 'b') {
@@ -1821,19 +1821,19 @@ agenda.define('Update channel data', function (job, done) {
                             click_rate = Math.round(total_clicks / total_sent);
                             storeMetric = click_rate;
                         }
-                        else if (result.metricCode === 'open_rate/campaigns')
+                        else if (result.metricCode === configAuth.aweberStatic.metricCode.open_rateCampaigns)
                             storeMetric = Math.round(response.total_opens / response.total_sent);
 
-                        else if (result.metricCode === 'click_rate/campaigns')
+                        else if (result.metricCode === configAuth.aweberStatic.metricCode.click_rateCampaigns)
                             storeMetric = Math.round(response.total_clicks / response.total_sent);
 
-                        else if (result.metricCode === 'total_opens/campaigns')
+                        else if (result.metricCode === configAuth.aweberStatic.metricCode.total_opensCampaigns)
                             storeMetric = response.total_opens;
 
-                        else if (result.metricCode === 'total_clicks/campaigns')
+                        else if (result.metricCode === configAuth.aweberStatic.metricCode.total_clicksCampaigns)
                             storeMetric = response.total_clicks;
 
-                        else if (result.metricCode === 'total_sent/campaigns')
+                        else if (result.metricCode === configAuth.aweberStatic.metricCode.total_sentCampaigns)
                             storeMetric = response.total_sent;
 
 
@@ -1886,7 +1886,7 @@ agenda.define('Update channel data', function (job, done) {
 
                     if (updatedDb < currentDate) {
 
-                        if (initialResults.metric.objectTypes[0].meta.endpoint[0] === 'follwers') {
+                        if (initialResults.metric.objectTypes[0].meta.endpoint[0] === configAuth.linkedInMetrics.endPoints.followers) {
                             updated = moment(initialResults.data.updated).format('YYYY-MM-DD');
                             currentDate = moment(currentDate).format('YYYY-MM-DD');
                             if (updated == currentDate) {
@@ -1898,7 +1898,7 @@ agenda.define('Update channel data', function (job, done) {
                             var query = 'https://api.linkedin.com/v1/companies/' + channelObjectId + '/num-followers?oauth2_access_token=' + initialResults.profile.accessToken + '&format=json';
                         }
                         else {
-                            if (initialResults.metric.code === 'highestEngagementUpdatesLinkedIn') {
+                            if (initialResults.metric.code === configAuth.linkedInMetrics.highestEngagementUpdatesLinkedIn) {
                                 var query = 'https://api.linkedin.com/v1/companies/' + channelObjectId + '/updates?oauth2_access_token=' + initialResults.profile.accessToken + '&count=200&format=json';
                             }
                             else {
@@ -1978,7 +1978,7 @@ agenda.define('Update channel data', function (job, done) {
                                 callback(null, actualFinalApiData);
                             }
                             else {
-                                if (result.endpoint.endpoint[0] == 'follwers') {
+                                if (result.endpoint.endpoint[0] ==configAuth.linkedInMetrics.endPoints.followers) {
                                     var storeStartDate = new Date(result.startDate);
                                     var storeEndDate = new Date(result.endDate);
                                     var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
@@ -2004,7 +2004,7 @@ agenda.define('Update channel data', function (job, done) {
                                     callback(null, actualFinalApiData);
                                 }
                                 else {
-                                    if (result.metricCode === 'highestEngagementUpdatesLinkedIn') {
+                                    if (result.metricCode === configAuth.linkedInMetrics.highestEngagementUpdatesLinkedIn) {
                                         var loopCount = 0;
                                         for (var i = 0; i < storeMetric.values.length; i++) {
                                             loopCount++;
@@ -2206,13 +2206,13 @@ agenda.define('Update channel data', function (job, done) {
                     else {
                         var storeMetric = [];
                         var finalMozResponse;
-                        if (queries.get_moz_queries.metricCode === 'moz_rank_url')
+                        if (queries.get_moz_queries.metricCode === configAuth.mozStatic.rank)
                             storeMetric.push({date: queries.get_moz_queries.endDate, total: result.umrp});
-                        else if (queries.get_moz_queries.metricCode === 'links')
+                        else if (queries.get_moz_queries.metricCode === configAuth.mozStatic.links)
                             storeMetric.push({date: queries.get_moz_queries.endDate, total: result.uid});
-                        else if (queries.get_moz_queries.metricCode === 'page_authority')
+                        else if (queries.get_moz_queries.metricCode === configAuth.mozStatic.page_authority)
                             storeMetric.push({date: queries.get_moz_queries.endDate, total: result.upa});
-                        else if (queries.get_moz_queries.metricCode === 'domain_authority')
+                        else if (queries.get_moz_queries.metricCode === configAuth.mozStatic.domain_authority)
                             storeMetric.push({date: queries.get_moz_queries.endDate, total: result.pda});
                         else
                             storeMetric.push({date: queries.get_moz_queries.endDate, total: result.ueid});
@@ -2302,7 +2302,7 @@ agenda.define('Update channel data', function (job, done) {
                 var storePin = [];
                 var topTenBoard = [];
                 var pinterest = PDK.init(result.profile.accessToken);
-                if (result.metricCode === 'boardsleaderboard') {
+                if (result.metricCode === configAuth.pinterestMetrics.boardsLeaderBoard) {
                     var params = {
                         qs: {
                             fields: "counts,id,name,created_at,url"
@@ -2347,7 +2347,7 @@ agenda.define('Update channel data', function (job, done) {
                             callback(null);
                         });
                 }
-                else if (result.metricCode === 'engagementRate') {
+                else if (result.metricCode ===  configAuth.pinterestMetrics.engagementRate) {
                     var params = {
                         qs: {
                             limit: 100,
@@ -2674,7 +2674,7 @@ agenda.define('Update channel data', function (job, done) {
                     }
                     else if (channel[j].code === configAuth.channels.instagram) {
                         var finalData = [];
-                        if (metric[j].code === 'Recent Posts')
+                        if (metric[j].code === configAuth.instagramStaticVariables.recentPost)
                             next(null, dataFromRemote[j])
                         else {
                             if (dataFromRemote[j] === null) {

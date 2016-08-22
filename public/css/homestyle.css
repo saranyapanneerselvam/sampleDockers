@@ -1,0 +1,40 @@
+@media(max-width : 1120px) and (min-width : 750px){
+
+    .product-right .product-image{
+        max-width: 500px !important;
+    }
+    .mar{
+        margin-right: 0px;
+    }
+    .client-row .row-wrapper{
+        width:100% !important;
+    }
+    .btn-primary{
+        margin-top: 5px !important;
+    }
+
+
+
+}
+@media(max-width : 770px){
+
+    .has-dropdown:hover{
+        height:auto !important;
+
+    }
+    .has-dropdown:hover .menuTree{
+        font-style: italic;
+        font-size: 15px;
+
+    }
+
+    .drop-2:hover{
+        height:90px !important;
+    }
+
+}
+
+
+
+
+

@@ -143,6 +143,15 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                     templateUrl: "alertModal.ejs",
                     controller: 'LightBoxController'
                 }
+            },
+            resolve: {
+                loadPlugin: function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        {
+                            files: ['css/plugins/steps/jquery.steps.css']
+                        }
+                    ]);
+                }
             }
         })
 

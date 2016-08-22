@@ -166,6 +166,28 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
                     var widgetID=0;
                     var dashboardWidgets = [];
 
+
+
+
+                    $scope.fetchDashboardName = function () {
+                        $http({
+                            method: 'GET', url: '/api/v1/get/dashboards/'+ dashboardId
+                        }).then(function successCallback(response) {
+                            console.log("dashboard response",response)
+
+
+                            $scope.dashboard.dashboardName =  response.data.data.name;
+                        }, function errorCallback(error) {
+                            $scope.dashboard.dashboardName =   null;
+                        });
+                    };
+                    $scope.fetchDashboardName();
+
+
+
+
+
+
                     for(var getWidgetInfo in dashboardWidgetList){
                         dashboardWidgets.push(createWidgets.widgetHandler(dashboardWidgetList[getWidgetInfo],{
                             'startDate': moment($scope.dashboardCalendar.start_date).format('YYYY-MM-DD'),

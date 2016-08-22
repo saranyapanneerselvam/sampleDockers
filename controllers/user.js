@@ -95,6 +95,6 @@ module.exports = function (app, passport) {
     });
 
     app.get('/customDataDocumentation', function (req, res) {
-        res.render('customDataDocumentation.ejs'); // load the index.ejs file
+        res.render('../public/customDataDocumentation.ejs'); // load the index.ejs file
     });
 };

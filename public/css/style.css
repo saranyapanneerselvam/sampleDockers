@@ -51,7 +51,7 @@
     padding:0px !important;}
 .likes{float: left;}
 .listed-image{float: left;}.
-.responsiveDate{float: left;!important;}
+                           .responsiveDate{float: left;!important;}
 .scrollInWidget{height: 100% !important;}
 .apiLink{color: #000;}
 .apiLink:hover{text-decoration: underline; }
@@ -236,16 +236,16 @@ svg:hover #Calendar-Icon { fill: #293846; }
 .daterange .dr-selections .dr-list-item .dr-item-aside{color: #000 !important;
     font-size: 12px !important; font-family: Heebo-Medium !important ;}
 .main-content{margin-top: 10px;    margin-left: 0px;
-        box-shadow:2px 2px 2px 2px #C9C9C9;
-        webkit-box-shadow:0px 10px 10px 2px #C9C9C9;
-        moz-box-shadow:0px 10px 10px 2px #C9C9C9;
+    box-shadow:2px 2px 2px 2px #C9C9C9;
+    webkit-box-shadow:0px 10px 10px 2px #C9C9C9;
+    moz-box-shadow:0px 10px 10px 2px #C9C9C9;
 }
 .box-header{border-bottom: 1px solid #e8e8e8 !important;}
 .box-header h3{
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-   /* width: 80%;*/
+    /* width: 80%;*/
     margin-top:0px !important;
     background-color: #fff !important;
     border-radius: 5px !important;
@@ -378,7 +378,7 @@ h5 {
 .nav .open > a,
 .nav .open > a:hover,
 .nav .open > a:focus {
-   background: transparent;
+    background: transparent;
 }
 .nav.navbar-top-links > li > a:hover,
 .nav.navbar-top-links > li > a:focus {

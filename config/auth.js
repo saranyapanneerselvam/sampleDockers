@@ -13,10 +13,11 @@ module.exports = {
         localCallbackURL:'/auth/facebook/callback',
         accessTokenURL:'https://graph.facebook.com/me?access_token='
     },
+
     'aweberAuth': {
         clientID: 'AkREQGDPsoHjCN2mdF3qY4YM',
         clientSecret: 'ibqzrt5XWBUhZf6jrN65Gr9nPDLanh1mq9Yel1uK',
-        callbackURL:  'http://localhost:8080/callback',
+        callbackURL:  'https://datapoolt.co/callback',
         scope: ['onescope', 'twoscope', 'redscope', 'bluescope'],
         site:'https://api.aweber.com/1.0/',
         tokenPath:'https://auth.aweber.com/1.0/oauth/access_token',
@@ -24,15 +25,16 @@ module.exports = {
         localCallingURL:'/api/v1/auth/aweber',
         localCallbackURL:'/callback',
         requestTokenURL: 'https://auth.aweber.com/1.0/oauth/request_token',
-        accessTokenURL: 'https://auth.aweber.com/1.0/oauth/access_token',
+        accessTokenURL: 'https://auth.aweber.com/1.0/oauth/access_token'
     },
+
     'vimeoAuth':{
-        clientID: 'a974e4016ef940afbc49dbad33fc509e86a13dd2',
-        clientSecret: 'BDFtraHrIncCWl3mGVm8emXQ/hZA5b6S/gsDNIqpFZdOOiizYNRS5dPOiAJhpDSDOfuPCh7FleHCM0c7tw4NMj9uhEvP+3F33YfHPzpLWysHyeeWGQUeKe2qs+GTGeoE',
+        clientID: '2e719e6b0cb5d3ac62710085455d1b0d57668942',
+        clientSecret: 'N9pOQtPHixYBmda48BQdBXNeA15KHJzjlwK/IT4hZwFK60W6efciAX90Cvk7IlBiqjs9dMJDnn7wNrRdGmntQKM63IRBtidCECKlKyE287pTrymcInw8LSyKpgBFR5Cf',
         site: 'https://api.vimeo.com',
         tokenPath: '/oauth/access_token',
         authorizationPath: '/oauth/authorize',
-        redirect_uri:'http://localhost:8080/auth/vimeo/callback',
+        redirect_uri:'https://datapoolt.co/auth/vimeo/callback',
         scope: 'public',
         state: '3(#0/!~',
         localCallingURL: '/api/auth/vimeo',
@@ -145,9 +147,9 @@ module.exports = {
         twitter :'tweet',
         googleAdword :'adwordaccount',
         googleAdwordtypeId:'570e251ae4b0cbcd095d6ef0',
-        googleAdwordAdGrouptypeId:'57a480cbed5dca13b01bf081',
-        googleAdwordCampaigntypeId:'57a480b6ed5dca13b01bf07f',
-        googleAdwordsAdtypeId:'57a5ec21ed5dca1cc08b4728',
+        googleAdwordAdGrouptypeId:'57b820b3417c8b1f146cf4b3',
+        googleAdwordCampaigntypeId:'57b82128417c8b1f146cf4b5',
+        googleAdwordsAdtypeId:'57b821be417c8b1f146cf4b7',
         googleAdwordCampaign:'adwordCampaign',
         googleAdwordAdGroup:'adwordAdgroup',
         googleAdwordAd:'adwordsAd',
@@ -186,7 +188,8 @@ module.exports = {
         costPerClick:'costPerClick',
         costPerThousandImpressions:'costPerThousandImpressions'
     },
-    googleAdwordsStatic:{
+
+    'googleAdwordsStatic':{
         host:'https://adwords.google.com/api/adwords/reportdownload/v201601',
         ADGROUP_PERFORMANCE_REPORT:'ADGROUP_PERFORMANCE_REPORT',
         adGroupId:'AdGroupId,',
@@ -200,18 +203,19 @@ module.exports = {
         AD_PERFORMANCE_REPORT:'AD_PERFORMANCE_REPORT',
         ACCOUNT_PERFORMANCE_REPORT:'ACCOUNT_PERFORMANCE_REPORT'
     },
-    googleApiTypes:{
+
+    'googleApiTypes':{
         mcfApi:'mcf',
         gaApi:'ga',
         youtubeApi: 'youtube'
     },
 
-    interval:{
+    'interval':{
         setDaily:'daily',
         setWeekly:'weekly'
     },
 
-    dayNames:{
+    'dayNames':{
         Sunday:'Sunday',
         Monday:'Monday',
         Tuesday:'Tuesday',
@@ -221,7 +225,7 @@ module.exports = {
         Saturday:'Saturday'
     },
 
-    youTubeAuth: {
+    'youTubeAuth': {
         clientID: '697605351302-cm90a20idvq2gcu3qju0oaab88ik6peg.apps.googleusercontent.com',
         clientSecret: 'DkUY5XrdcWDQM_7tEI9xNAC6',
         callbackURL: 'https://datapoolt.co/auth/youtube/callback',
@@ -270,12 +274,14 @@ module.exports = {
         apiKey:"5b907c6f3b2f00b07270d38b709a8106-us13"
 
     },
+
     'pinterest':{
-        clientID        : '4838237239574020593',
-        clientSecret    : '84fe4b846f68a8f896282f5b55cdd23b0d341d6fb07fcd4920bebb3c5eaff4b7',
-        redirect_uri : 'https://localhost:8080/auth/pinterest/callback',
+        clientID        : '4850584692457482509',
+        clientSecret    : '93dbedd44181a79569f40c90bd9c6d1eb04c80ec8016444c84bb53c0901f3092',
+        redirect_uri : 'https://datapoolt.co/auth/pinterest/callback',
         scope:'read_public,read_relationships'
     },
+
     'linkedIn':{
         clientID :'81665zttd0yozd',
         clientSecret :'KUlhe3rR1ZoV3V2o',
@@ -285,11 +291,12 @@ module.exports = {
         site:'https://www.linkedin.com/oauth/',
         authorizationPath: 'v2/authorization'
     },
+
     'batchJobs':{
-        dataBase:"mongodb://saranya:saranya@ds031975.mlab.com:31975/datapooltlocal",
+        dataBase:"mongodb://datapoolt:DAtaPOolT@ec2-52-76-6-41.ap-southeast-1.compute.amazonaws.com/Datapoolt",
         mail:{
-            user: 'rajalakshmi.c@habile.in',
-            password: 'habile3238'
+            user: 'alerts@datapoolt.co',
+            password: 'DaTaPoOlT'
         },
         alertName:'Send Alert',
         alertJobName:'Update channel data',
@@ -297,8 +304,8 @@ module.exports = {
         successAlertMessage:'success:Send Alert'
     },
     'batchJobsMoz':{
-        accessId: 'mozscape-d79bd6e88f',
-        secret: 'e093b821ca077d42fd113db646c22487',
+        accessId: 'mozscape-3690b14df6',
+        secret: '6ae12736c389c099f3082b8f7d477c0c',
         expires: 300
     },
     pinterestMetrics:{
@@ -318,7 +325,7 @@ module.exports = {
         user:'user',
         likes:'likes',
         comments:'comments',
-        count:'count',
+        count:'count'
     },
     mailChimpQueryVariables:{
         lists:'lists',
@@ -326,10 +333,10 @@ module.exports = {
         campaignQuery:'.api.mailchimp.com/3.0/campaigns/',
         stats:'stats',
         campaign:'campaign',
-        emailSend:'emailSend',
+        emailSend:'emailSend'
     },
     aweberStatic:{
-        aweberMainList:'mainlists',
+        aweberMainList:'mainlists'
     }
 
 };

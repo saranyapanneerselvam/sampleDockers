@@ -77,7 +77,7 @@ var Alert = require('./models/alert');
 var Twitter = require('twitter');
 var utility = require('./helpers/utility');
 var transporter = nodemailer.createTransport({
-    service: 'Gmail',
+    service: 'Zoho',
     auth: {
         user: configAuth.batchJobs.mail.user,
         pass:configAuth.batchJobs.mail.password
@@ -3320,8 +3320,8 @@ agenda.define('Update channel data', function (job, done) {
                 if (results.merge_all_final_data[i].error) {
                     //bulkExecute = false;
                     var mailOptions = {
-                        from: 'Datapoolt Team <rajalakshmi.c@habile.in>',
-                        to: 'rajalakshmi.c@habile.in',
+                        from: 'Datapoolt Team <alerts@datapoolt.co>',
+                        to: 'natarajan@asod.in',
                         subject: 'Error alert for the metric' + results.merge_all_final_data[i].error.metricId + 'and object id' + results.merge_all_final_data[i].error.objectId,
 
                         // HTML Version
@@ -3496,7 +3496,7 @@ agenda.define(configAuth.batchJobs.alertName, function (job, done) {
                                     var checkingThreshold = operators[storeOperator](valueToCheck, thresholdValue);
                                     // Email Setup
                                     var mailOptions = {
-                                        from: 'Datapoolt Team <rajalakshmi.c@habile.in>',
+                                        from: 'Datapoolt Team <alerts@datapoolt.co>',
                                         to: alert.mailingId.email,
                                         subject: 'The alert ' + alert.name + ' has been triggered',
 

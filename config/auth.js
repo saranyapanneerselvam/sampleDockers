@@ -311,10 +311,15 @@ module.exports = {
         engagementRate:'engagementRate'
     },
     linkedInMetrics:{
+        endPoints:{
+            followers:'followers'
+    },
+        
         highestEngagementUpdatesLinkedIn:'highestEngagementUpdatesLinkedIn'
     },
     vimeoMetric:{
-        highEngagement:'highengagement'
+        vimeohighengagement:'vimeohighengagement',
+        vimeoviews:'vimeoviews',
     },
     facebookSite:{
         site:'https://graph.facebook.com/'
@@ -324,6 +329,7 @@ module.exports = {
         likes:'likes',
         comments:'comments',
         count:'count',
+        recentPost:'Recent Posts'
     },
     mailChimpQueryVariables:{
         lists:'lists',
@@ -334,7 +340,29 @@ module.exports = {
         emailSend:'emailSend',
     },
     aweberStatic:{
-        aweberMainList:'mainlists',
+        endPoints: {
+            aweberMainList: 'mainlists',
+            aweberLists:'lists',
+            aweberCampaigns:'campaigns'
+        },
+        metricCode:{
+            subscribers:'subscribers_count',
+            unSubscribers:'unsubscribers_count',
+            listOpen_rate:'open_rate/lists',
+            listClick_rate:'click_rate/lists',
+            open_rateCampaigns:'open_rate/campaigns',
+            click_rateCampaigns:'click_rate/campaigns',
+            total_opensCampaigns:'total_opens/campaigns',
+            total_clicksCampaigns:'total_clicks/campaigns',
+            total_sentCampaigns:'total_sent/campaigns',
+        }
+    },
+    
+    mozStatic:{
+        rank:'moz_rank_url',
+        links:'links',
+        page_authority:'page_authority',
+        domain_authority:'domain_authority'
     }
 
 

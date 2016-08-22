@@ -34,7 +34,7 @@ var oauth2AdsClient = new OAuth2(configAuth.googleAdwordsAuth.clientID, configAu
 //set googleadword node library
 var AdWords = require('../lib/googleads-node-lib');
 var NodeAweber = require('aweber-api-nodejs');
-var NA = new NodeAweber(configAuth.aweberAuth.clientID, configAuth.aweberAuth.clientSecret, 'http://localhost:8080/callback');
+var NA = new NodeAweber(configAuth.aweberAuth.clientID, configAuth.aweberAuth.clientSecret,  configAuth.aweberAuth.callbackURL);
 
 // set auth as a global default
 var analytics = googleapis.analytics({version: 'v3', auth: oauth2Client});
@@ -384,7 +384,7 @@ exports.listAccounts = function (req, res, next) {
                 };
             }
             else if (results.get_channel.code === configAuth.channels.aweber) {
-                if (results.get_objectType.type === 'aweberlists') {
+                if (results.get_objectType.type === configAuth.objectType.aweberList) {
 
                     //set query condition
                     var query = {
@@ -1193,7 +1193,7 @@ exports.listAccounts = function (req, res, next) {
                     return res.status(500).json({error: "internal server Error"});
 
                 else {
-                    if (results.get_objectType.type === 'aweberlists') {
+                    if (results.get_objectType.type ===configAuth.objectType.aweberList) {
 
                         for (var i = 0; i < response.entries.length; i++) {
                             channelObjectDetails.push({
@@ -1206,7 +1206,7 @@ exports.listAccounts = function (req, res, next) {
                         callback(null, channelObjectDetails);
                     }
 
-                    else if (results.get_objectType.type === 'awebercampaigns') {
+                    else if (results.get_objectType.type === configAuth.objectType.aweberCampaign) {
                         var count = 0;
                         var campaignObjectDetails = [];
 

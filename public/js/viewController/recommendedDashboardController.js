@@ -155,7 +155,6 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
                                 // console.log("Respone for Objects inside if fb", $scope.objectList[index]);
                             }
                         }
-
                     }
                     else if($scope.getChannelList[index].name === 'GoogleAdwords'){
                         $scope.objectList[index] = [];

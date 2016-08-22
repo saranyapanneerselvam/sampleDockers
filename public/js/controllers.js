@@ -966,6 +966,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                     }
                 }
             }
+
             deferred.resolve(widgetCharts);
             return deferred.promise;
         }

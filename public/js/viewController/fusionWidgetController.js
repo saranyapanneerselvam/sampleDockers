@@ -146,7 +146,6 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
             var top = (screen.height / 2) - (h / 2);
             return window.open(url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
         }
-
         popupwindow(url, title, 1000, 500);
     };
 

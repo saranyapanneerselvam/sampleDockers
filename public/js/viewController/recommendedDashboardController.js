@@ -77,7 +77,6 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
             }
         );
     };
-
     $scope.correspondingProfile = function (profileId, index) {
         var deferred = $q.defer();
         $http({

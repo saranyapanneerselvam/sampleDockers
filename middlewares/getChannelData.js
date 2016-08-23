@@ -2515,15 +2515,15 @@ exports.getChannelData = function (req, res, next) {
 
                 });
                 googleAds.awql({
-                    select: results.query,
-                    from: results.performance,
-                    where: results.objects,
-                    during: during
-                })
+                        select: results.query,
+                        from: results.performance,
+                        where: results.objects,
+                        during: during
+                    })
                     .send().then(function (response) {
-                    storeAdwordsFinalData(results, response.data);
-                    semaphore.leave();
-                })
+                        storeAdwordsFinalData(results, response.data);
+                        semaphore.leave();
+                    })
                     .catch(function (error) {
                         semaphore.leave();
                         callback(error, null);
@@ -3554,8 +3554,16 @@ exports.getChannelData = function (req, res, next) {
                     }
                     var MediasArray = _.sortBy(arrayOfBoards, ['total.followers']);
                     var collectionBoard = _.orderBy(MediasArray, ['total.followers', 'total.pins'], ['desc', 'asc']);
-                    for (var j = 0; j < 10; j++) {
-                        topTenBoard.push(collectionBoard[j]);
+                    if(collectionBoard.length>=10) {
+                        for (var j = 0; j < 10; j++) {
+                            topTenBoard.push(collectionBoard[j]);
+                        }
+                    }
+                    else
+                    {
+                        for (var j = 0; j <collectionBoard.length ; j++) {
+                            topTenBoard.push(collectionBoard[j]);
+                        }
                     }
                     actualFinalApiData = {
                         apiResponse: topTenBoard,

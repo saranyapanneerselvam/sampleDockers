@@ -77,7 +77,6 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
             }
         );
     };
-
     $scope.correspondingProfile = function (profileId, index) {
         var deferred = $q.defer();
         $http({
@@ -127,12 +126,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
     };
 
     $scope.getObjectsForChosenProfile = function (profileObj, index) {
-        if ((profileObj.canManageClients === false)&&($scope.getChannelList[index].name === 'GoogleAdwords')){
-            $scope.canManage = false;
-        }
-        if (profileObj.canManageClients === true){
-            $scope.canManage = true;
-        }
+
         //  console.log("$scope.fbAdObjId",$scope.fbAdObjId,'$scope.gaAdObjId',$scope.gaAdObjId)
         if (!profileObj) {
             $scope.objectList[index] = null;
@@ -141,6 +135,12 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
             }
         }
         else {
+            if ((profileObj.canManageClients === false)&&($scope.getChannelList[index].name === 'GoogleAdwords')){
+                $scope.canManage = false;
+            }
+            if (profileObj.canManageClients === true){
+                $scope.canManage = true;
+            }
             $http({
                 method: 'GET',
                 url: '/api/v1/get/objects/' + profileObj._id
@@ -154,7 +154,6 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
                                 // console.log("Respone for Objects inside if fb", $scope.objectList[index]);
                             }
                         }
-
                     }
                     else if($scope.getChannelList[index].name === 'GoogleAdwords'){
                         $scope.objectList[index] = [];

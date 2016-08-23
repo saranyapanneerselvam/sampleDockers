@@ -146,7 +146,6 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
             var top = (screen.height / 2) - (h / 2);
             return window.open(url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
         }
-
         popupwindow(url, title, 1000, 500);
     };
 
@@ -196,20 +195,20 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
 
     $scope.getObjectsForChosenProfile = function (profileObj, index) {
         $scope.checkExpiresIn = null;
-        if ((profileObj.canManageClients === false)&&($scope.uniquechannelNames[index] === 'GoogleAdwords')){
-            $scope.canManage = false;
-        }
-        if (profileObj.canManageClients === true){
-            $scope.canManage = true;
-        }
         if (!profileObj) {
             $scope.objectList[index] = null;
-            if ($scope.uniquechannelNames[index] === 'Twitter' || $scope.uniquechannelNames[$index] === 'Instagram') {
+            if ($scope.uniquechannelNames[index] === 'Twitter' || $scope.uniquechannelNames[index] === 'Instagram') {
                 $scope.objectForWidgetChosen($scope.objectList[index], index);
             }
         }
         else {
-            if ($scope.uniquechannelNames[index] == 'Facebook' || $scope.uniquechannelNames[index] =='FacebookAds') {
+            if ((profileObj.canManageClients === false) && ($scope.uniquechannelNames[index] === 'GoogleAdwords')) {
+                $scope.canManage = false;
+            }
+            if (profileObj.canManageClients === true) {
+                $scope.canManage = true;
+            }
+            if ($scope.uniquechannelNames[index] == 'Facebook' || $scope.uniquechannelNames[index] == 'FacebookAds') {
                 $scope.expiredRefreshButton = $scope.uniquechannelNames[index];
 
                 if (profileObj.expiresIn != undefined)

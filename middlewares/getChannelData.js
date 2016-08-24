@@ -2842,14 +2842,15 @@ exports.getChannelData = function (req, res, next) {
 
                             }
 
-                            if (removeDuplicate.length > 20) {
+                            var showEngagementList= _.uniqBy(removeDuplicate,'total.id');
+                            if (showEngagementList.length > 20) {
                                 for (var index = 1; index < 20; index++) {
-                                    finalHighEngagedTweets.push(removeDuplicate[index]);
+                                    finalHighEngagedTweets.push(showEngagementList[index]);
                                 }
                             }
                             else {
-                                for (var index = 0; index < removeDuplicate.length; index++) {
-                                    finalHighEngagedTweets.push(removeDuplicate[index]);
+                                for (var index = 0; index < showEngagementList.length; index++) {
+                                    finalHighEngagedTweets.push(showEngagementList[index]);
                                 }
                             }
                             finalTwitterResponse = {
@@ -3008,7 +3009,7 @@ exports.getChannelData = function (req, res, next) {
                     var inputs = {q: '%23' + profile.name, count: count};
             }
         }
-        else if (metric[0].name === configAuth.twitterMetric.Mentions || metricType === configAuth.twitterMetric.HighEngagementtweets) {
+        else if (metric[0].name === configAuth.twitterMetric.mentions || metricType === configAuth.twitterMetric.highEngagementTweets) {
             if (tweets != undefined && tweets != '') {
                 var inputs = checkMentionsInClientInput(until, count, tweets)
 

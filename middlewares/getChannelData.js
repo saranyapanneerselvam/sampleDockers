@@ -1140,7 +1140,7 @@ exports.getChannelData = function (req, res, next) {
                 function storeDataForInstagram(dataFromRemote, dataFromDb, widget, metric, done) {
                     async.times(metric.length, function (j, next) {
                         var finalData = [];
-                        if (metric[j].code === 'Recent Posts') {
+                        if (metric[j].code === configAuth.instagramStaticVariables.recentPost) {
                             callback(null, dataFromRemote[j]);
                         }
                         else {
@@ -1552,7 +1552,7 @@ exports.getChannelData = function (req, res, next) {
                 function storeDataForVimeo(dataFromRemote, dataFromDb, widget, metric, done) {
                     async.times(metric.length, function (j, next) {
                         var finalData = [];
-                        if (metric[j].name === configAuth.vimeoMetric.highEngagement)
+                        if (metric[j].code === configAuth.vimeoMetric.vimeohighengagement)
                             callback(null, dataFromRemote[j]);
                         else {
                             //Array to hold the final result
@@ -1676,7 +1676,7 @@ exports.getChannelData = function (req, res, next) {
                     }
                     next(null, wholeData)
                 }
-                else if (metric[k].code === 'Recent Posts') {
+                else if (metric[k].code === configAuth.instagramStaticVariables.recentPost) {
                     wholeData = {
                         "data": results.store_final_data[0].apiResponse,
                         "metricId": results.store_final_data[0].metricId,
@@ -1701,7 +1701,7 @@ exports.getChannelData = function (req, res, next) {
                     next(null, wholeData);
 
                 }
-                else if (metric[k].code === 'vimeohighengagement') {
+                else if (metric[k].code === configAuth.vimeoMetric.vimeohighengagement) {
                     wholeData = {
                         "data": results.store_final_data[0].apiResponse,
                         "metricId": results.store_final_data[0].metricId,
@@ -2842,14 +2842,15 @@ exports.getChannelData = function (req, res, next) {
 
                             }
 
-                            if (removeDuplicate.length > 20) {
+                            var showEngagementList= _.uniqBy(removeDuplicate,'total.id');
+                            if (showEngagementList.length > 20) {
                                 for (var index = 1; index < 20; index++) {
-                                    finalHighEngagedTweets.push(removeDuplicate[index]);
+                                    finalHighEngagedTweets.push(showEngagementList[index]);
                                 }
                             }
                             else {
-                                for (var index = 0; index < removeDuplicate.length; index++) {
-                                    finalHighEngagedTweets.push(removeDuplicate[index]);
+                                for (var index = 0; index < showEngagementList.length; index++) {
+                                    finalHighEngagedTweets.push(showEngagementList[index]);
                                 }
                             }
                             finalTwitterResponse = {
@@ -3008,7 +3009,7 @@ exports.getChannelData = function (req, res, next) {
                     var inputs = {q: '%23' + profile.name, count: count};
             }
         }
-        else if (metric[0].name === configAuth.twitterMetric.Mentions || metricType === configAuth.twitterMetric.HighEngagementtweets) {
+        else if (metric[0].name === configAuth.twitterMetric.mentions || metricType === configAuth.twitterMetric.highEngagementTweets) {
             if (tweets != undefined && tweets != '') {
                 var inputs = checkMentionsInClientInput(until, count, tweets)
 
@@ -3521,7 +3522,7 @@ exports.getChannelData = function (req, res, next) {
             var storePin = [];
             var topTenBoard = [];
             var pinterest = PDK.init(result.profile.accessToken);
-            if (result.metricCode === 'boardsleaderboard') {
+            if (result.metricCode === configAuth.pinterestMetrics.boardsLeaderBoard) {
                 var params = {
                     qs: {
                         fields: "counts,id,name,created_at,url",
@@ -3554,8 +3555,16 @@ exports.getChannelData = function (req, res, next) {
                     }
                     var MediasArray = _.sortBy(arrayOfBoards, ['total.followers']);
                     var collectionBoard = _.orderBy(MediasArray, ['total.followers', 'total.pins'], ['desc', 'asc']);
-                    for (var j = 0; j < 10; j++) {
-                        topTenBoard.push(collectionBoard[j]);
+                    if(collectionBoard.length>=10) {
+                        for (var j = 0; j < 10; j++) {
+                            topTenBoard.push(collectionBoard[j]);
+                        }
+                    }
+                    else
+                    {
+                        for (var j = 0; j <collectionBoard.length ; j++) {
+                            topTenBoard.push(collectionBoard[j]);
+                        }
                     }
                     actualFinalApiData = {
                         apiResponse: topTenBoard,
@@ -3957,16 +3966,16 @@ exports.getChannelData = function (req, res, next) {
                         d.setDate(d.getDate() - 365);
                         var startDate = formatDate(d);
                         var endDate = formatDate(new Date());
-                        if (metric[j].objectTypes[0].meta.endpoint[0] === 'mainlists') {
+                        if (metric[j].objectTypes[0].meta.endpoint[0] === configAuth.aweberStatic.endPoints.aweberMainList) {
                             var query = 'accounts/' + initialResults.get_profile[j].userId + '/lists/' + initialResults.object[j].channelObjectId;
 
                         }
 
-                        else if (metric[j].objectTypes[0].meta.endpoint[0] === 'lists') {
+                        else if (metric[j].objectTypes[0].meta.endpoint[0] === configAuth.aweberStatic.endPoints.aweberLists) {
                             var query = 'accounts/' + initialResults.get_profile[j].userId + '/lists/' + initialResults.object[j].channelObjectId + '/campaigns';
 
                         }
-                        else if (metric[j].objectTypes[0].meta.endpoint[0] === 'campaigns') {
+                        else if (metric[j].objectTypes[0].meta.endpoint[0] === configAuth.aweberStatic.endPoints.aweberCampaigns) {
                             var query = 'accounts/' + initialResults.get_profile[j].userId + '/lists/' + initialResults.object[j].meta.listId + '/campaigns/' + initialResults.object[j].meta.campaignType + initialResults.object[j].channelObjectId;
 
                         }
@@ -4028,13 +4037,13 @@ exports.getChannelData = function (req, res, next) {
                     var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
 
                     var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); //adding plus one so that today also included
-                    if (result.metricCode === 'subscribers_count') {
+                    if (result.metricCode === configAuth.aweberStatic.metricCode.subscribers) {
                         storeMetric = response.total_subscribed_subscribers;
                     }
-                    else if (result.metricCode === 'unsubscribers_count') {
+                    else if (result.metricCode === configAuth.aweberStatic.metricCode.unSubscribers) {
                         storeMetric = response.total_unsubscribed_subscribers;
                     }
-                    else if (result.metricCode === 'open_rate/lists') {
+                    else if (result.metricCode === configAuth.aweberStatic.metricCode.listOpen_rate) {
                         var total_opens = 0, total_sent = 0, open_rate;
                         for (var i = 0; i < response.total_size; i++) {
                             if (response.entries[i].campaign_type == 'b') {
@@ -4045,7 +4054,7 @@ exports.getChannelData = function (req, res, next) {
                         open_rate = Math.round(total_opens / total_sent);
                         storeMetric = open_rate;
                     }
-                    else if (result.metricCode === 'click_rate/lists') {
+                    else if (result.metricCode === configAuth.aweberStatic.metricCode.listClick_rate) {
                         var total_clicks = 0, total_sent = 0, click_rate;
                         for (var i = 0; i < response.total_size; i++) {
                             if (response.entries[i].campaign_type == 'b') {
@@ -4056,19 +4065,19 @@ exports.getChannelData = function (req, res, next) {
                         click_rate = Math.round(total_clicks / total_sent);
                         storeMetric = click_rate;
                     }
-                    else if (result.metricCode === 'open_rate/campaigns') {
+                    else if (result.metricCode === configAuth.aweberStatic.metricCode.open_rateCampaigns) {
                         storeMetric = Math.round(response.total_opens / response.total_sent);
                     }
-                    else if (result.metricCode === 'click_rate/campaigns') {
+                    else if (result.metricCode === configAuth.aweberStatic.metricCode.click_rateCampaigns) {
                         storeMetric = Math.round(response.total_clicks / response.total_sent);
                     }
-                    else if (result.metricCode === 'total_opens/campaigns') {
+                    else if (result.metricCode === configAuth.aweberStatic.metricCode.total_opensCampaigns) {
                         storeMetric = response.total_opens;
                     }
-                    else if (result.metricCode === 'total_clicks/campaigns') {
+                else if (result.metricCode ===configAuth.aweberStatic.metricCode.total_clicksCampaigns) {
                         storeMetric = response.total_clicks;
                     }
-                    else if (result.metricCode === 'total_sent/campaigns') {
+                    else if (result.metricCode === configAuth.aweberStatic.metricCode.total_sentCampaigns) {
                         storeMetric = response.total_sent;
                     }
                     for (var i = 0; i <= diffDays; i++) {
@@ -4129,12 +4138,12 @@ exports.getChannelData = function (req, res, next) {
                         updated.setTime(updated.getTime() + oneDay);
                         var startDate = calculateDate(updated);
                         if (updatedDb < currentDate) {
-                            if (metric[j].objectTypes[0].meta.endpoint[0] === 'follwers') {
+                            if (metric[j].objectTypes[0].meta.endpoint[0] === configAuth.linkedInMetrics.endPoints.followers) {
                                 var query = 'https://api.linkedin.com/v1/companies/' + channelObjectId + '/num-followers?oauth2_access_token=' + initialResults.get_profile[j].accessToken + '&format=json';
 
                             }
                             else {
-                                if (metric[j].code === 'highestEngagementUpdatesLinkedIn') {
+                                if (metric[j].code === configAuth.linkedInMetrics.highestEngagementUpdatesLinkedIn) {
                                     var query = 'https://api.linkedin.com/v1/companies/' + channelObjectId + '/updates?oauth2_access_token=' + initialResults.get_profile[j].accessToken + '&count=200&format=json';
                                 }
                                 else {
@@ -4171,11 +4180,11 @@ exports.getChannelData = function (req, res, next) {
                         d.setDate(d.getDate() - 365);
                         var startDate = formatDate(d);
                         var endDate = formatDate(new Date());
-                        if (metric[j].objectTypes[0].meta.endpoint[0] === 'follwers') {
+                        if (metric[j].objectTypes[0].meta.endpoint[0] === configAuth.linkedInMetrics.endPoints.followers) {
                             var query = 'https://api.linkedin.com/v1/companies/' + channelObjectId + '/num-followers?oauth2_access_token=' + initialResults.get_profile[j].accessToken + '&format=json';
                         }
                         else {
-                            if (metric[j].code === 'highestEngagementUpdatesLinkedIn') {
+                            if (metric[j].code === configAuth.linkedInMetrics.highestEngagementUpdatesLinkedIn) {
                                 var query = 'https://api.linkedin.com/v1/companies/' + channelObjectId + '/updates?oauth2_access_token=' + initialResults.get_profile[j].accessToken + '&count=200&format=json';
                             }
                             else {
@@ -4257,7 +4266,7 @@ exports.getChannelData = function (req, res, next) {
                             callback(null, actualFinalApiData);
                         }
                         else {
-                            if (result.endpoint[0] == 'follwers') {
+                            if (result.endpoint[0] == configAuth.linkedInMetrics.endPoints.followers) {
                                 var storeStartDate = new Date(result.startDate);
                                 var storeEndDate = new Date(result.endDate);
                                 var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
@@ -4282,7 +4291,7 @@ exports.getChannelData = function (req, res, next) {
                                 callback(null, actualFinalApiData);
                             }
                             else {
-                                if (result.metricCode === 'highestEngagementUpdatesLinkedIn') {
+                                if (result.metricCode === configAuth.linkedInMetrics.highestEngagementUpdatesLinkedIn) {
                                     var loopCount = 0;
                                     for (var i = 0; i < storeMetric.values.length; i++) {
                                         loopCount++;
@@ -4500,13 +4509,13 @@ exports.getChannelData = function (req, res, next) {
                 else {
                     var storeMetric = [];
                     var finalMozResponse;
-                    if (queries.get_moz_queries[j].metricCode === 'moz_rank_url')
+                    if (queries.get_moz_queries[j].metricCode === configAuth.mozStatic.rank)
                         storeMetric.push({date: queries.get_moz_queries[j].endDate, total: result.umrp});
-                    else if (queries.get_moz_queries[j].metricCode === 'links')
+                    else if (queries.get_moz_queries[j].metricCode === configAuth.mozStatic.links)
                         storeMetric.push({date: queries.get_moz_queries[j].endDate, total: result.uid});
-                    else if (queries.get_moz_queries[j].metricCode === 'page_authority')
+                    else if (queries.get_moz_queries[j].metricCode === configAuth.mozStatic.page_authority)
                         storeMetric.push({date: queries.get_moz_queries[j].endDate, total: result.upa});
-                    else if (queries.get_moz_queries[j].metricCode === 'domain_authority')
+                    else if (queries.get_moz_queries[j].metricCode === configAuth.mozStatic.domain_authority)
                         storeMetric.push({date: queries.get_moz_queries[j].endDate, total: result.pda});
                     else
                         storeMetric.push({date: queries.get_moz_queries[j].endDate, total: result.ueid});
@@ -4651,7 +4660,7 @@ exports.getChannelData = function (req, res, next) {
                     else {
 
                         var Tempstore = [];
-                        if ("vimeohighengagement" == result.metricCode) {
+                        if (configAuth.vimeoMetric.vimeohighengagement == result.metricCode) {
                             for (var i = 0; i < parsedData.data.length; i++) {
                                 var datadate = formatDate(new Date(Date.parse(parsedData.data[i].created_time.replace(/( +)/, ' UTC$1'))))
                                 var lastCreatedAt = formatDate(new Date(Date.parse(datadate)));
@@ -4699,7 +4708,7 @@ exports.getChannelData = function (req, res, next) {
                             var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
                             var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
-                            if ("vimeoviews" == result.metricCode) {
+                            if (configAuth.vimeoMetric.vimeoviews == result.metricCode) {
                                 storeMetric = parsedData.stats.plays;
                             }
                             else {

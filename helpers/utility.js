@@ -70,7 +70,7 @@ var self = module.exports = {
                             done(null, result);
                         }
                         else {
-                            req.app.objcets = objects;
+                            req.app.objects = objects;
                             done(null, objects);
                         }
                     }

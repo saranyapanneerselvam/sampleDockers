@@ -190,6 +190,12 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 }
             );
         };
+
+
+
+
+
+
         $scope.changeWidgetName = function (widgetInfo,widgetdata) {
             var inputParams = [];
             var jsonData = {

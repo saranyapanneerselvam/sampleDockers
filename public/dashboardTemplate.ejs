@@ -56,9 +56,10 @@
                             <div class="box-header" id="getWidgetColor-{{widget.id}}" ref="{{dashboard.widgetData[widgetIndex].color}}" style="background-color: #ffffff;"> <!--ng-style="{'background-color': dashboard.widgetData[widgetIndex].color}"-->
                                 <div style="float: left;width: 93%;">
                                     <img src="image/thumbnail/{{widget.channelName}}.png" style="float:left;vertical-align: super;max-height: 31px; max-width: 50px; padding:5px"/>
-                                   <h3 ng-style="widget.sizeX!=1  && {'width':'80%'}  || widget.sizeX==1 && {'width':'50%'} "><a title="Click to Rename this widget" style="float:left;border-bottom:0px!important;padding:7px!important;color:#000!important" href="#" editable-text="dashboard.widgetData[widgetIndex].name" onaftersave="changeWidgetName(widget,dashboard.widgetData[widgetIndex].name)" buttons="no" e-maxlength="35">
-                                       {{dashboard.widgetData[widgetIndex].name || 'Name your widget'}}
-                                    </a></h3>
+                                    <h3 ng-style="widget.sizeX!=1  && {'width':'80%'}  || widget.sizeX==1 && {'width':'50%'} "><a title="Click to Rename this widget" style="float:left;border-bottom:0px!important;padding:7px!important;color:#000!important" href="#" editable-text="dashboard.widgetData[widgetIndex].name" onaftersave="changeWidgetName(widget,dashboard.widgetData[widgetIndex].name)" buttons="no" e-maxlength="35">
+                                            {{dashboard.widgetData[widgetIndex].name || 'Name your widget'}}
+                                        </a>
+                                    </h3>
                                 </div>
                                 <div class="dropdown" style="float: right; margin-top: 7px;margin-right: -25px;">
                                     <a title="settings" ng-click="showSettings(widget.id);"><i class="fa fa-cog"></i></a>
@@ -141,7 +142,7 @@
                                                 <div class="scrollbar scrollInWidget" id="scroller">
                                                     <div class="col-lg-12 listed" ng-repeat="data in chart.data" ng-if="data.postComment">
                                                         <div class="col-lg-12">
-                                                            <div class="postComment"><a class="apiLink" href="{{data.links.media[0].expanded_url}} " target="_blank">{{data.postComment}}</a></div>
+                                                            <div class="postComment"><a ng-if="data.links.media" class="apiLink" href="{{data.links.media[0].expanded_url}} " target="_blank">{{data.postComment}}</a><a ng-if="!data.links.media[0]" class="apiLink" href="https://twitter.com" target="_blank">{{data.postComment}}</a></div>
                                                             <div class="impression">
                                                                 <div class="likes"><span>Likes: {{data.likes}}</span></div>
                                                                 <div class="comment"><span>Retweets: {{data.reTweet}}</span></div>
@@ -166,12 +167,12 @@
                                                                 <div class="comment"><span>shares: {{data.shares}}</span></div>
                                                                 <div class="comment"><span>clicks: {{data.clicks}}</span></div>
                                                                 <div class="comment"><span>impressions: {{data.impressions}}</span></div>
-                                                                <div class="date"><span>{{data.date}}</span></div>
+                                                                <div ng-style="widget.sizeX!=2  && {'float':'right'}  || widget.sizeX==2 && {'float':'left'} " ><span>{{data.date}}</span></div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <!--<div class="col-lg-12" style="position: relative;top:40%;text-align: center;" ng-if="!chart.data.postComment">-->
-                                                       <!--<span >No Updates available</span>-->
+                                                    <!--<span >No Updates available</span>-->
                                                     <!--</div>-->
                                                 </div>
                                             </div>
@@ -184,11 +185,11 @@
                                                     <div class="col-xs-12 toplisted" ng-repeat="data in chart.data | limitTo: limitScroll" ng-if="data.pagePath">
                                                         <div class="col-xs-10" style="float:left;overflow: hidden" >{{data.pagePath}}</div>
                                                         <div class="col-xs-2" style="float:left;text-align: right">{{data.pageVisits}}</div>
-                                                        </div>
+                                                    </div>
                                                     <div style="text-align:center" ng-show="chart.data.length>20">
-                                                    <a href ng-click="limitScroll=(limitScroll+10)" ng-show="limitScroll<chart.data.length">Show More</a>
-                                                        <span ng-show="limitScroll>20&&limitScroll<chart.data.length">|</span>
-                                                    <a href ng-click="limitScroll=(limitScroll-10)" ng-show="limitScroll>20">Show Less</a>
+                                                        <a href ng-click="limitScroll=(limitScroll+10)" ng-show="limitScroll<chart.data.length">Show More</a>
+                                                            <span ng-show="limitScroll>20&&limitScroll<chart.data.length">|</span>
+                                                        <a href ng-click="limitScroll=(limitScroll-10)" ng-show="limitScroll>20">Show Less</a>
                                                     </div>
                                                 </div>
                                             </div>

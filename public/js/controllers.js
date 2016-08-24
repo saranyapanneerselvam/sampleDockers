@@ -750,11 +750,9 @@ showMetricApp.service('createWidgets',function($http,$q){
                                         link: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0) ?
                                             (widget.charts[charts].chartData[datas].total.link != null ?
                                                 (typeof widget.charts[charts].chartData[datas].total.link != 'undefined' ? widget.charts[charts].chartData[datas].total.link : '') : '') : ''),
-
                                         Comment: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0) ?
                                             (widget.charts[charts].chartData[datas].total.metadata.connections.comments.total != null ?
                                                 (typeof widget.charts[charts].chartData[datas].total.metadata.connections.comments.total != 'undefined' ? widget.charts[charts].chartData[datas].total.metadata.connections.comments.total : '') : '') : ''),
-
                                         likes: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0) ?
                                             (widget.charts[charts].chartData[datas].total.metadata.connections.likes.total != null ?
                                                 (typeof widget.charts[charts].chartData[datas].total.metadata.connections.likes.total != 'undefined' ? widget.charts[charts].chartData[datas].total.metadata.connections.likes.total : 0) : 0) : 0),
@@ -992,7 +990,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                         },
                         yAxis: {
                             tickFormat: function(d) {
-                                return d3.format('f')(d);},
+                                return d3.format('r')(d);},
                             showMaxMin: false,
                         },
                         interpolate: "monotone",
@@ -1022,7 +1020,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                         },
                         yAxis: {
                             tickFormat: function(d) {
-                                return d3.format('f')(d);}
+                                return d3.format('r')(d);}
                         },
                         tooltip: {
                             enabled:false,

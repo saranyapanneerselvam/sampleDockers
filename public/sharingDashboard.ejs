@@ -1,3 +1,4 @@
+<!--
            <style>
                .dr-calendar {
                    display: none !important;
@@ -7,8 +8,7 @@
                    display: none !important;
                }
            </style>
-
-
+-->
 
             <div ng-init="dashboardConfiguration()" id="dashboardLayout" class="dashboardLayout">
                 <div class="border-bottom dashboardTitle white-bg">
@@ -64,11 +64,11 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="row getWidgetGraph" style="height: 100%;margin:0px;" ng-if="dashboard.widgetData[widgetIndex].visibility == true">
+                                        <div class="row getWidgetGraph" style="height: 100%;margin:0px;" ng-if="dashboard.widgetData[widgetIndex].visibility == true" chart-height>
                                             <div ng-repeat="chart in dashboard.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'lineChart'  || chart.options.chart.type=== 'pieChart' || chart.options.chart.type=== 'multiBarChart' " style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/dashboard.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/dashboard.widgetData[widgetIndex].layoutOptionsX)+'%'}">
                                                 <div class="row" style="margin: 0px;height: 20%">
                                                     <ul style="height:100%;font-size:14px; padding-left: 5px;">
-                                                <li  ng-repeat="data in chart.data" size-watcher size-watcher-height="data.myheight" ng-class="calculateColumnWidth(chart.data.length)" ng-style="calculateRowHeight(data.myheight,chart.data.length)" style="text-align: center;padding-top: 1px;padding-left:0px;padding-right: 2px;" id="li-{{widget.id}}-{{$index}}"><!--size-watcher-width="data.mywidth"-->
+                                                <li  ng-repeat="data in chart.data" size-watcher size-watcher-height="data.myheight" size-Watcher-Width="chart.data"  ng-class="calculateColumnWidth(chart.data.length)" ng-style="calculateRowHeight(data.myheight,chart.data.length,widget)" style="text-align: center;padding-top: 1px;padding-left:0px;padding-right: 2px;" id="li-{{widget.id}}-{{$index}}"><!--size-watcher-width="data.mywidth"-->
                                                             <div style="margin: 0px;height: 100%;overflow: hidden;white-space: nowrap;color: #000000;text-align: center" >
                                                                 <p ng-style="{'color': '#979797', 'font-family' : 'Bebas Neue'}" style="font-weight: bold;">{{data.key}} - <b ng-style="{'color':data.color, 'font-family' : 'Bebas Neue'}"> {{data.summaryDisplay}} </b> </p>
                                                             </div>
@@ -232,7 +232,6 @@
                                         <!--<div class="context widgetTransparentImage" id="widgetTransparentImage-{{widget.id}}" ng-hide="tempDashboard" ng-click="callThePosition($event,widget.id)" style="width: 100%;height: 100%;"></div>-->
                                     </div>
                                 </div>
-
                             </li>
                         </ul>
                     </div>

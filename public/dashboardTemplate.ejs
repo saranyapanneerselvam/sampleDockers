@@ -142,7 +142,7 @@
                                                 <div class="scrollbar scrollInWidget" id="scroller">
                                                     <div class="col-lg-12 listed" ng-repeat="data in chart.data" ng-if="data.postComment">
                                                         <div class="col-lg-12">
-                                                            <div class="postComment"><a ng-if="data.links.media" class="apiLink" href="{{data.links.media[0].expanded_url}} " target="_blank">{{data.postComment}}</a><a ng-if="!data.links.media[0]" class="apiLink" href="#" target="_blank">{{data.postComment}}</a></div>
+                                                            <div class="postComment"><a ng-if="data.links.media" class="apiLink" href="{{data.links.media[0].expanded_url}} " target="_blank">{{data.postComment}}</a><a ng-if="!data.links.media[0]" class="apiLink" href="https://twitter.com" target="_blank">{{data.postComment}}</a></div>
                                                             <div class="impression">
                                                                 <div class="likes"><span>Likes: {{data.likes}}</span></div>
                                                                 <div class="comment"><span>Retweets: {{data.reTweet}}</span></div>

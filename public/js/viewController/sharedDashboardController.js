@@ -151,7 +151,6 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
                     }
                     else dashboardId = response.data.widgetsList._id;
 
-                    //element:$('.dr-date').attr('contenteditable','false')
 
                     $scope.dashboard.dashboardName = response.data.dashboardDetails.name;
 

@@ -4,7 +4,7 @@ var options = { format:"A3", quality:"75", orientation:"landscape" };
 var exports = module.exports = {};
 
 exports.createHtml5ToPdf = function (req, res, next) {
-    var html = "<img src='"+req.body.dashboardLayout+"' style='width: 100%;' />";
+    var html = "<img src='"+req.body.dashboardLayout+"' style='width: 100%;height:auto;' />";
     var timestamp = Number(new Date());
     var getName = "";
 
@@ -21,15 +21,20 @@ exports.createHtml5ToPdf = function (req, res, next) {
         req.app.result = {'status': '302','Response': 'Error in creating PDF'};
         next();
     }
-    else{
-       /* htmlTopdf({paperFormat:'Legal'}).from.string(html).to(outputPath, function () {
-            req.app.result = {'status': '200','Response': "/PDF/"+req.body.dashboardName+"_"+timestamp+".pdf"};
-            next();
-        })*/
+    else {
+        /* htmlTopdf({paperFormat:'Legal'}).from.string(html).to(outputPath, function () {
+         req.app.result = {'status': '200','Response': "/PDF/"+req.body.dashboardName+"_"+timestamp+".pdf"};
+         next();
+         })*/
 
-        pdf.create(html,options).toStream(function(err, stream){
-            stream.pipe(fs.createWriteStream(outputPath));
-            req.app.result = {'status': '200','Response': '/PDF/'+getName+'_'+timestamp+'.pdf'};
+        // pdf.create(html,options).toStream(function(err, stream){
+        //     stream.pipe(fs.createWriteStream(outputPath));
+        //     req.app.result = {'status': '200','Response': '/PDF/'+getName+'_'+timestamp+'.pdf'};
+        //     next();
+        // });
+        pdf.create(html, options).toFile(outputPath, function (err, res) {
+            if (err) return console.log(err);
+            req.app.result = {'status': '200', 'Response': '/PDF/' + getName + '_' + timestamp + '.pdf'};
             next();
         });
     }

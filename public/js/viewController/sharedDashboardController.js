@@ -120,7 +120,7 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
             var rows = Math.ceil(noOfItems/cols);
             var heightPercent = 100/rows;
             var fontSizeEm = availableHeight/100*4.5;
-            var minSize = 0.8, maxSize=1.5;
+            var minSize = 0.7, maxSize=1.35;
             if(fontSizeEm<minSize)
                 fontSizeEm=minSize;
             if(fontSizeEm>maxSize)

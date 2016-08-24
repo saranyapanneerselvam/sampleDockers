@@ -24,7 +24,7 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
             end_date: new Date(),
             callback: function() {
                 var start = moment(this.start_date).format('ll'), end = moment(this.end_date).format('ll');
-
+                $scope.populateDashboardWidgets();
             }
         });
 
@@ -103,7 +103,7 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
                 return ('col-sm-'+4+' col-md-'+4+' col-lg-'+4);
         };
 
-        $scope.calculateRowHeight = function(availableHeight,noOfItems) {
+        $scope.calculateRowHeight = function(availableHeight,noOfItems,widget) {
 
             var cols;
             if(noOfItems<=2)
@@ -117,11 +117,20 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
             var rows = Math.ceil(noOfItems/cols);
             var heightPercent = 100/rows;
             var fontSizeEm = availableHeight/100*4.5;
-            var minSize = 0.8, maxSize=1.5;
+            var minSize = 0.7, maxSize=1.35;
             if(fontSizeEm<minSize)
                 fontSizeEm=minSize;
-            if(fontSizeEm>maxSize)
+            else if(fontSizeEm>maxSize)
                 fontSizeEm=maxSize;
+            else if((noOfItems>4)&&widget.sizeX==1){
+                if(widget.sizeY==1)
+                    fontSizeEm=minSize;
+                else if(widget.sizeY==2)
+                    fontSizeEm = 0.9;
+                else {
+                    fontSizeEm=1.1;
+                }
+            }
             return {'height':(heightPercent+'%'),'font-size':(fontSizeEm+'em')};
         };
     };
@@ -142,7 +151,7 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
                     }
                     else dashboardId = response.data.widgetsList._id;
 
-
+                    //element:$('.dr-date').attr('contenteditable','false')
 
                     $scope.dashboard.dashboardName = response.data.dashboardDetails.name;
 
@@ -162,10 +171,6 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
                         $scope.widgetsPresent = false;
                     var widgetID=0;
                     var dashboardWidgets = [];
-
-
-
-
 
                     for(var getWidgetInfo in dashboardWidgetList){
                         dashboardWidgets.push(createWidgets.widgetHandler(dashboardWidgetList[getWidgetInfo],{

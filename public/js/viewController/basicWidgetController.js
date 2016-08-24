@@ -1245,7 +1245,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                                 $scope.mailchimpObjectList = tempList;
                             else if ($scope.storedChannelName == 'Aweber')
                                 $scope.aweberObjectList = tempList;
-                            else if ($scope.storedChannelName == 'LinkedIn')
+                            else if ($scope.storedChannelName == 'linkedin')
                                 $scope.linkedInObjectList = tempList;
                             else if ($scope.storedChannelName == 'YouTube')
                                 $scope.youtubeObjectList = tempList;
@@ -1334,7 +1334,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                                     $scope.mailchimpObjectList[k] = tempList;
                                 else if ($scope.storedChannelName == 'Aweber')
                                     $scope.aweberObjectList[k] = tempList;
-                                else if ($scope.storedChannelName == 'LinkedIn')
+                                else if ($scope.storedChannelName == 'linkedin')
                                     $scope.linkedInObjectList[k] = tempList;
                                 else if ($scope.storedChannelName == 'YouTube')
                                     $scope.youtubeObjectList[k]= tempList;
@@ -1407,7 +1407,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     url = '/api/auth/mailchimp';
                     title = $scope.storedChannelName;
                     break;
-                case 'LinkedIn':
+                case 'linkedin':
                     url = '/api/auth/linkedIn';
                     title = $scope.storedChannelName;
                     break;

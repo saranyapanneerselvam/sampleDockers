@@ -109,7 +109,7 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
         {
             $scope.windowWidth = true;
         }
-        console.log("$scope.windowWidth",$scope.windowWidth,$window.outerWidth);
+       // console.log("$scope.windowWidth",$scope.windowWidth,$window.outerWidth);
         vm.dashboard = $scope.exportObject;
         var pages = new Array();
         var len = vm.dashboard.widgets.length;

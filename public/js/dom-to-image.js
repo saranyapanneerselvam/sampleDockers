@@ -409,7 +409,7 @@
         }
 
         function getAndEncode(url) {
-            var TIMEOUT = 60000;
+            var TIMEOUT = 30000;
 
             return new Promise(function (resolve) {
                 var request = new XMLHttpRequest();

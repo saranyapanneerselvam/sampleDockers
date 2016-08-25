@@ -22,12 +22,20 @@ var self = module.exports = {
             charts: 1,
             widgetType: 1
         }, function (err, response) {
+            if (err)
+                return res.status(500).json({error: 'Internal server error'});
+            else if (!response)
+                return res.status(204).json({error: 'No records found'});
+            else{
+                req.dashboardId = response.dashboardId;
+                if (req.user)
+                    self.checkUserAccess(req, res, done);
+                else
+                    return res.status(401).json({error: 'User must be logged in'});
 
-            req.dashboardId = response.dashboardId;
-            if (req.user)
-                self.checkUserAccess(req, res, done);
-            else
-                return res.status(401).json({error: 'User must be logged in'});
+            }
+
+
         });
     },
     checkUserAccess: function (req, res, done) {

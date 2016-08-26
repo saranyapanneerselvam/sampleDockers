@@ -197,20 +197,28 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
         $scope.checkExpiresIn = null;
         if (!profileObj) {
             $scope.objectList[index] = null;
+            if($scope.uniquechannelNames[index] === 'Google Analytics'){
+                this.objectOptionsModel1='';
+                $scope.objectForWidgetChosen($scope.objectList[index], index);
+            }
             if ($scope.uniquechannelNames[index] === 'Twitter' || $scope.uniquechannelNames[index] === 'Instagram') {
                 $scope.objectForWidgetChosen($scope.objectList[index], index);
             }
         }
         else {
+            if($scope.uniquechannelNames[index] === 'Google Analytics'){
+                this.objectOptionsModel1='';
+            }
             if ((profileObj.canManageClients === false) && ($scope.uniquechannelNames[index] === 'GoogleAdwords')) {
                 $scope.canManage = false;
+                $scope.objectList[index]=null;
             }
             if (profileObj.canManageClients === true) {
+                document.getElementById('basicWidgetFinishButton').disabled = true;
                 $scope.canManage = true;
             }
             if ($scope.uniquechannelNames[index] == 'Facebook' || $scope.uniquechannelNames[index] == 'FacebookAds') {
                 $scope.expiredRefreshButton = $scope.uniquechannelNames[index];
-
                 if (profileObj.expiresIn != undefined)
                     $scope.checkExpiresIn = new Date(profileObj.expiresIn);
                 $scope.tokenExpired = false;
@@ -341,6 +349,10 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
     };
 
     $scope.refreshObjectsForChosenProfile = function (index) {
+        if($scope.uniquechannelNames[index]=='Google Analytics'){
+            this.objectOptionsModel1='';
+            $scope.objectList[index]='';
+        }
         if (this.profileOptionsModel[index]._id) {
             switch ($scope.uniquechannelNames[index]) {
                 case 'Facebook':

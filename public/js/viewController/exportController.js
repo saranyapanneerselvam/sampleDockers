@@ -1,6 +1,6 @@
 showMetricApp.controller('ExportController', ExportController)
 
-function ExportController($scope, $http, $state, $rootScope, $window, $stateParams, $timeout) {
+function ExportController($scope, $http, $state, $rootScope, $window,$q,$stateParams, $timeout) {
     var dashboardName = "NoName";
     var dashboardRepId = null;
     $rootScope.showExport = true;
@@ -10,6 +10,7 @@ function ExportController($scope, $http, $state, $rootScope, $window, $statePara
     $scope.expPages = [];
     $scope.exportObject = {widgets: [], widgetData: []};
     $scope.exportObject.dashboardName = '';
+    $scope.windowWidth = false;
     if ($rootScope.expObj != undefined) {
         var tWid = $rootScope.expObj.widgets;
         var tWidData = $rootScope.expObj.widgetData;
@@ -97,11 +98,19 @@ function ExportController($scope, $http, $state, $rootScope, $window, $statePara
     var vm = this;
     $scope.pdfPrintPreview = function (opt) {
         $scope.expAct = opt;
+        document.getElementById('submitExportButton').disabled = opt;
     };
 
 
     //To download a pdf/jpeg version of the dashboard
     $scope.printpaperPDF = function () {
+        // $scope.windowWidth = String(parseInt(($window.outerWidth)*0.028))+'px';
+
+        if($window.outerWidth>=1600)
+        {
+            $scope.windowWidth = true;
+        }
+       // console.log("$scope.windowWidth",$scope.windowWidth,$window.outerWidth);
         vm.dashboard = $scope.exportObject;
         var pages = new Array();
         var len = vm.dashboard.widgets.length;
@@ -130,6 +139,13 @@ function ExportController($scope, $http, $state, $rootScope, $window, $statePara
 
         angular.copy(tempSortWidgetDataList1, tempWidgetDataList1);
         angular.copy(tempSortWidgetList1, tempWidgetList1);
+        for(var widgetData in tempWidgetDataList1) {
+                for(var chart in tempWidgetDataList1[widgetData].chart) {
+                    if(typeof tempWidgetDataList1[widgetData].chart[chart].options.chart.showLegend != 'undefined') {
+                            tempWidgetDataList1[widgetData].chart[chart].options.chart.showLegend = false;
+                    }
+                }
+        }
         var n = 0;
 
         do
@@ -236,8 +252,11 @@ function ExportController($scope, $http, $state, $rootScope, $window, $statePara
                             $scope.expPages[j].widgetData[ind].chart[i].api.update();
                     }
                 }
+                if(j==len-1)
+                document.getElementById('submitExportButton').disabled = false;
             }
-        }, 1000);
+        }, 600);
+
     };
 
     $scope.closeExport = function () {
@@ -250,8 +269,16 @@ function ExportController($scope, $http, $state, $rootScope, $window, $statePara
             $window.alert("* Please Select the option to export");
         }
         else {
-            $rootScope.showExport = false;
-            $scope.submitExport();
+            document.getElementById('submitExportButton').disabled = true;
+            if(setPDFOption==true) {
+                $rootScope.showExport = false;
+                $timeout(function(){$scope.submitExport()},1800);
+            }
+            else {
+                $rootScope.showExport = false;
+                $scope.submitExport();
+            }
+
         }
     };
 
@@ -259,13 +286,12 @@ function ExportController($scope, $http, $state, $rootScope, $window, $statePara
         var dashboardLayout = document.getElementById('dashboardLayout');
         var dashboardExportLayout = document.getElementById('dashLayout');
         var setJPEGOption = $("#exportOptionJpeg").prop("checked");
-        var setPDFOption = $("#exportOptionPDF").prop("checked");
         var setUrlOption = $("#exportOptionUrl").prop("checked");
-        if (setJPEGOption == false && setPDFOption == false && setUrlOption == false)
-        //$(".errorExportMessage").text("* Select the option to export").show();
-            $window.alert("* Please Select the option to export");
-        else
-            $rootScope.showExport = false;
+        var setPDFOption = $("#exportOptionPDF").prop("checked");
+        // if (setJPEGOption == false && setPDFOption == false && setUrlOption == false)
+        //     $window.alert("* Please Select the option to export");
+        // else
+        //     $rootScope.showExport = false;
 
         if (setJPEGOption == true) {
             $(".navbar").css('z-index', '1');
@@ -305,62 +331,111 @@ function ExportController($scope, $http, $state, $rootScope, $window, $statePara
             //  $(".pdfHeadText").text('');
             $(".exportContentText").html('<b>Please wait while the PDF file is being generated</b>');
             $(".loadingStatus").show();
+            var exportImages=[];
 
-            domtoimage.toPng(dashboardExportLayout)
-                .then(
-                    function (dataUrl) {
-                        var jsonData = {
-                            "dashboardLayout": dataUrl,
-                            "dashboardId": $state.params.id,
-                            "dashboardName": dashboardName
-                        };
+            // function asyncGreet(name) {
+            //     // perform some asynchronous operation, resolve or reject the promise when appropriate.
+            //     return $q(function(resolve, reject) {
+            //         setTimeout(function() {
+            //             if (okToGreet(name)) {
+            //                 resolve('Hello, ' + name + '!');
+            //             } else {
+            //                 reject('Greeting ' + name + ' is not allowed.');
+            //             }
+            //         }, 1000);
+            //     });
+            // }
+            //
+            // var promise = asyncGreet('Robin Hood');
+            // promise.then(function(greeting) {
+            //     alert('Success: ' + greeting);
+            // }, function(reason) {
+            //     alert('Failed: ' + reason);
+            // });
 
-                        $http({
-                            method: 'POST',
-                            url: '/api/v1/createHtml5ToPdf/dashboard',
-                            data: jsonData
-                        }).then(
-                            function successCallback(response) {
-                                $("#exportOptionPDF").prop("checked", false);
-                                var timestamp = Number(new Date());
-                                var domainUrl = "";
-                                if (window.location.hostname == "localhost")
-                                    domainUrl = "http://localhost:8080";
-                                else
-                                    domainUrl = "";
-                                $rootScope.closePdfModal();
-                                $("#exportPDFModalContent").removeClass('md-show');
-                                $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
-                                $("#exportPDFModalContent").addClass('md-show');
 
-                                $(".loadingStatus").hide();
-                                $(".pdfHeadText").show().text("PDF has been generated successfully").css('font-style', 'italic');
-                                $(".pdfContentText").html('<b>Your download should start shortly.<br/><a id="yourLinkID" href="' + domainUrl + response.data.Response + '" download style="color: #1AB394;"> If not, please use direct link.</a></b>');
-                                document.getElementById('yourLinkID').click();
-                                var dwnldUrl = String(domainUrl + response.data.Response);
-                                // $window.open(dwnldUrl);
-                                // window.saveAs(dwnldUrl, dashboardName+"_"+timestamp+".pdf");
-                                $scope.expAct = false;
-                            },
-                            function errorCallback(error) {
-                                $rootScope.closePdfModal();
-                                $("#exportPDFModalContent").removeClass('md-show');
-                                $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
-                                $("#exportPDFModalContent").addClass('md-show');
-                                $(".loadingStatus").hide();
-                                $(".pdfHeadText").show().text("Uh-Oh!!").css({"font-style": 'normal', "color": "red"});
-                                $(".pdfContentText").html('<b>Something went wrong. Please try again</b>');
-                                document.getElementById('dashboardTitleIcons').style.visibility = "visible";
-                                $scope.expAct = false;
-                            }
-                        );
-                    })
-                .catch(function (error) {
+
+
+
+
+
+
+
+            var dashboardExpLayout=[];
+            var promiseExportObject = [];
+            $scope.exportPromise = function(dashboardExpLayout) {
+                var deferred = $q.defer();
+                domtoimage.toPng(dashboardExpLayout)
+                    .then(
+                        function (dataUrl) {
+                            deferred.resolve(dataUrl);
+                        },
+                        function errorCallback(error) {
+                            deferred.reject(error);
+                        });
+                return deferred.promise;
+            }
+            for (var j = 0; j < $scope.expPages.length; j++) {
+                dashboardExpLayout[j] = document.getElementById('dashLayoutpages-' + j);
+                promiseExportObject.push($scope.exportPromise(dashboardExpLayout[j]));
+            }
+            // console.log("promiseExportObject",promiseExportObject);
+            $q.all(promiseExportObject).then(
+                function (exportImages) {
+                    // console.log("exportImages inside promise",exportImages);
+                    var jsonData = {
+                        "dashboardLayout": exportImages,
+                        "dashboardId": $state.params.id,
+                        "dashboardName": dashboardName
+                    };
+                    console.log("exportImages",exportImages.length);
+                    $http({
+                        method: 'POST',
+                        url: '/api/v1/createHtml5ToPdf/dashboard',
+                        data: jsonData
+                    }).then(
+                        function successCallback(response) {
+                            $("#exportOptionPDF").prop("checked", false);
+                            var timestamp = Number(new Date());
+                            var domainUrl = "";
+                            if (window.location.hostname == "localhost")
+                                domainUrl = "http://localhost:8080";
+                            else
+                                domainUrl = "";
+                            var dwnldUrl = String(domainUrl + response.data.Response);
+                            $rootScope.closePdfModal();
+                            $("#exportPDFModalContent").removeClass('md-show');
+                            $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
+                            $("#exportPDFModalContent").addClass('md-show');
+
+                            $(".loadingStatus").hide();
+                            $(".pdfHeadText").show().text("PDF has been generated successfully");
+                            $(".pdfContentText").html('<b><br/><a href="' + dwnldUrl + '" download style="color: #000;"  id="yourLinkID">Click here to download your PDF</a></b>');
+                            // window.saveAs(response.data.Response['blob'], dashboardName + "_" + timestamp + ".pdf");
+                            // document.getElementById('yourLinkID').click();
+                            // $window.open(dwnldUrl);
+                            // window.saveAs(dwnldUrl, dashboardName+"_"+timestamp+".pdf");
+                            $scope.expAct = false;
+                        },
+                        function errorCallback(error) {
+                            $rootScope.closePdfModal();
+                            $("#exportPDFModalContent").removeClass('md-show');
+                            $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
+                            $("#exportPDFModalContent").addClass('md-show');
+                            $(".loadingStatus").hide();
+                            $(".pdfHeadText").show().text("Uh-Oh!!").css({"font-style": 'normal', "color": "red"});
+                            $(".pdfContentText").html('<b>Something went wrong. Please try again</b>');
+                            document.getElementById('dashboardTitleIcons').style.visibility = "visible";
+                            $scope.expAct = false;
+                        }
+                    );
+                },
+                function errCallback(error) {
                     $("#exportPDFModalContent").removeClass('md-show');
                     $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
                     $("#exportPDFModalContent").addClass('md-show');
                     $(".loadingStatus").hide();
-                    $(".pdfHeadText").show().text("Uh-Oh!!").css({"font-style": 'normal', "color": "red"});
+                    $(".pdfHeadText").show().text("Oh!!").css({"font-style": 'normal', "color": "red"});
                     $(".pdfContentText").html('<b>Something went wrong. Please try again</b>');
                     $scope.expAct = false;
                     $rootScope.closePdfModal();

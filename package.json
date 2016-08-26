@@ -52,6 +52,7 @@
     "passport-google-oauth": "~0.1.5",
     "passport-local": "~0.1.6",
     "passport-twitter": "~1.0.2",
+    "pdfkit": "0.7.2",
     "phantomjs": "*",
     "q": "*",
     "request": "^2.69.0",

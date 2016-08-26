@@ -1118,12 +1118,12 @@ showMetricApp.service('createWidgets',function($http,$q){
                         },
                         yAxis1: {
                             tickFormat: function(d) {
-                                return d3.format('f')(d);},
+                                return d3.format('r')(d);},
                             showMaxMin: false
                         },
                         yAxis2: {
                             tickFormat: function(d) {
-                                return d3.format('f')(d);},
+                                return d3.format('r')(d);},
                             showMaxMin: false
                         },
                         interpolate: "monotone",

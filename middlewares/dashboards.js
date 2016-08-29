@@ -91,13 +91,14 @@ exports.storeDashboards = function (req, res, next) {
     }
     else {
         var createDashboard = new dashboardList();
-
         //To check whether new dashboard or not
         if (req.body.dashboardId == undefined) {
             createDashboard.created = new Date();
             createDashboard.updated = new Date();
             createDashboard.orgId = req.user.orgId;
             createDashboard.name = req.body.name;
+            createDashboard.startDate=req.body.startDate;
+            createDashboard.endDate=req.body.endDate;
             createDashboard.save(function (err, dashboard) {
                 if (err)
                     return res.status(500).json({error: 'Internal server error'});
@@ -152,15 +153,30 @@ exports.storeDashboards = function (req, res, next) {
 
         //To update already existing database
         else {
-
             // set all of the user data that we need
-            var name = req.body.name == undefined ? '' : req.body.name;
             var updated = new Date();
+            if(req.body.name!=undefined) {
+                var name = req.body.name == undefined ? '' : req.body.name;
+                var updateData={
+                    'name': name,
+                    updated: updated
+                }
+            }
+            else{
+                var startDate= req.body.startDate;
+                var endDate=req.body.endDate;
+                var updateData={
+                    'startDate':startDate,
+                    'endDate':endDate,
+                    updated: updated
+                }
+            }
+
             var _id = new mongoose.Schema.ObjectId(req.body.dashboardId).path;
 
             // update the dashboard data
             dashboardList.update({_id: _id}, {
-                $set: {'name': name, updated: updated}
+                $set: updateData
             }, {upsert: true}, function (err, response) {
                 if (err)
                     return res.status(500).json({error: 'Internal server error'})

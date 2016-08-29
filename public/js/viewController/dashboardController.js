@@ -8,10 +8,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
     $scope.dashbd.dashboardName='';
     var expWid = { dashName:[], wid: [], widData: []};
 
-
-
-
-
      // document.getElementById('dashLayout').style.visibility = "hidden";
     var isExportOptionSet = '';
     $(".navbar").css('z-index','1');
@@ -27,18 +23,70 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         $scope.widgetsPresent = false;
         $scope.loadedWidgetCount = 0;
 
+        $scope.fetchDateForDashboard=function(){
+            $http({
+                method: 'GET',
+                url: '/api/v1/get/dashboards/' + $state.params.id
+            }).then(
+                 function successCallback(response){
+                     if(response.status==200){
+                            var startDate=response.data.startDate;
+                            var endDate=response.data.endDate;
+                            $scope.userModifyDate(startDate,endDate)
+                        }
+                     else{
+                            $scope.startDate= moment(new Date()).subtract(30,'days');
+                            $scope.endDate=new Date();
+                        }
+                 }
+            )
+        };
+        $scope.fetchDateForDashboard();
+
         //To define the calendar in dashboard header
-        $scope.dashboardCalendar = new Calendar({
-            element: $('.daterange--double'),
-            earliest_date: moment(new Date()).subtract(365,'days'),
-            latest_date: new Date(),
-            start_date: moment(new Date()).subtract(30,'days'),
-            end_date: new Date(),
-            callback: function() {
-                var start = moment(this.start_date).format('ll'), end = moment(this.end_date).format('ll');
-                $scope.populateDashboardWidgets();
-            }
-        });
+        $scope.userModifyDate=function(startDate,endDate) {
+            $scope.dashboardCalendar = new Calendar({
+                element: $('.daterange--double'),
+                earliest_date: moment(new Date()).subtract(365, 'days'),
+                latest_date: new Date(),
+                start_date: startDate,
+                end_date: endDate,
+                callback: function () {
+                    var jsonData = {
+                        dashboardId: $state.params.id,
+                        startDate:this.start_date,
+                        endDate: this.end_date
+                    };
+                    $http(
+                        {
+                            method: 'POST',
+                            url: '/api/v1/create/dashboards',
+                            data:jsonData
+                        }
+                    ).then(
+                        function successCallback(response) {
+                            if(response.status==200){
+                                var startDate=response.data.startDate;
+                                var endDate=response.data.endDate;
+                                $scope.populateDashboardWidgets();
+                            }
+                            else{
+                                var startDate=this.start_date;
+                                var endDate=this.end_date;
+                                $scope.populateDashboardWidgets();
+                            }
+                           // var start = moment(this.start_date).format('ll'), end = moment(this.end_date).format('ll');
+                        },
+                        function errorCallback(error) {
+                            var startDate=this.start_date;
+                            var endDate=this.end_date;
+                            $scope.populateDashboardWidgets();
+                        });
+                }
+            });
+        }
+
+        console.log('date', new Date(),$scope.dashboardCalendar );
 
         //Setting up grid configuration for widgets
         $scope.gridsterOptions = {
@@ -164,6 +212,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 }
             );
         };
+
         $scope.fetchDashboardName();
 
         //To change the name of the dashboard to user entered value
@@ -190,11 +239,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 }
             );
         };
-
-
-
-
-
 
         $scope.changeWidgetName = function (widgetInfo,widgetdata) {
             var inputParams = [];
@@ -223,6 +267,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 }
             );
         };
+
         $scope.$on('gridster-resized', function(sizes, gridster,$element) {
             for(var i=0;i<$scope.dashboard.widgets.length;i++){
                 $timeout(resizeWidget(i), 100);
@@ -620,6 +665,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         $scope.autoArrangeGrid = true;
         $scope.reArrangeWidgets();
     };
+
     $scope.showSettings=function(id) {
         var dropDwn = "settingsDropdown-"+id;
         document.getElementById(String(dropDwn)).classList.toggle("shw");

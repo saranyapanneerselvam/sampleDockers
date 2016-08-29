@@ -10,6 +10,8 @@ var dashboardsSchema = mongoose.Schema({
     order: Number,
     type: String,
     reportId : {type:ObjectIdSchema, default: function () { return new ObjectId()} },
+    startDate:Date,
+    endDate:Date,
     created: Date,
     updated: Date,
     deleted: Date

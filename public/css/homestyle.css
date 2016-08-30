@@ -1,8 +1,11 @@
+
 @media(max-width : 1120px) and (min-width : 750px){
 
     .product-right .product-image{
         max-width: 500px !important;
     }
+    .client-row .col-sm-3{min-height: 112px  !important; }
+
     .mar{
         margin-right: 0px;
     }

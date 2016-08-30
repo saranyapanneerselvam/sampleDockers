@@ -15,9 +15,6 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
         $scope.widgetsPresent = false;
         $scope.loadedWidgetCount = 0;
         $scope.populateDashboardWidgets();
-
-
-
         //To define the calendar in dashboard header
         $scope.dashboardCalendar = new Calendar({
             element: $('.daterange--double').attr( 'readOnly' , 'true' ),
@@ -106,7 +103,7 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
                 return ('col-sm-'+4+' col-md-'+4+' col-lg-'+4);
         };
 
-        $scope.calculateRowHeight = function(availableHeight,noOfItems) {
+        $scope.calculateRowHeight = function(availableHeight,noOfItems,widget) {
 
             var cols;
             if(noOfItems<=2)
@@ -123,8 +120,17 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
             var minSize = 0.7, maxSize=1.35;
             if(fontSizeEm<minSize)
                 fontSizeEm=minSize;
-            if(fontSizeEm>maxSize)
+            else if(fontSizeEm>maxSize)
                 fontSizeEm=maxSize;
+            else if((noOfItems>4)&&widget.sizeX==1){
+                if(widget.sizeY==1)
+                    fontSizeEm=minSize;
+                else if(widget.sizeY==2)
+                    fontSizeEm = 0.9;
+                else {
+                    fontSizeEm=1.1;
+                }
+            }
             return {'height':(heightPercent+'%'),'font-size':(fontSizeEm+'em')};
         };
     };
@@ -146,8 +152,7 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
                     else dashboardId = response.data.widgetsList._id;
 
 
-
-                    $scope.dashboard.dashboardName = response.data.dashboardDetails.name
+                    $scope.dashboard.dashboardName = response.data.dashboardDetails.name;
 
 
                     var widgets = [];
@@ -165,28 +170,6 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
                         $scope.widgetsPresent = false;
                     var widgetID=0;
                     var dashboardWidgets = [];
-
-
-
-
-                    $scope.fetchDashboardName = function () {
-                        $http({
-                            method: 'GET', url: '/api/v1/get/dashboards/'+ dashboardId
-                        }).then(function successCallback(response) {
-                            console.log("dashboard response",response)
-
-
-                            $scope.dashboard.dashboardName =  response.data.data.name;
-                        }, function errorCallback(error) {
-                            $scope.dashboard.dashboardName =   null;
-                        });
-                    };
-                    $scope.fetchDashboardName();
-
-
-
-
-
 
                     for(var getWidgetInfo in dashboardWidgetList){
                         dashboardWidgets.push(createWidgets.widgetHandler(dashboardWidgetList[getWidgetInfo],{

@@ -98,6 +98,7 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
     var vm = this;
     $scope.pdfPrintPreview = function (opt) {
         $scope.expAct = opt;
+        document.getElementById('submitExportButton').disabled = opt;
     };
 
 
@@ -138,6 +139,13 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
 
         angular.copy(tempSortWidgetDataList1, tempWidgetDataList1);
         angular.copy(tempSortWidgetList1, tempWidgetList1);
+        for(var widgetData in tempWidgetDataList1) {
+                for(var chart in tempWidgetDataList1[widgetData].chart) {
+                    if(typeof tempWidgetDataList1[widgetData].chart[chart].options.chart.showLegend != 'undefined') {
+                            tempWidgetDataList1[widgetData].chart[chart].options.chart.showLegend = false;
+                    }
+                }
+        }
         var n = 0;
 
         do
@@ -244,8 +252,11 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
                             $scope.expPages[j].widgetData[ind].chart[i].api.update();
                     }
                 }
+                if(j==len-1)
+                document.getElementById('submitExportButton').disabled = false;
             }
-        }, 1000);
+        }, 600);
+
     };
 
     $scope.closeExport = function () {
@@ -258,8 +269,16 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
             $window.alert("* Please Select the option to export");
         }
         else {
-            $rootScope.showExport = false;
-            $scope.submitExport();
+            document.getElementById('submitExportButton').disabled = true;
+            if(setPDFOption==true) {
+                $rootScope.showExport = false;
+                $timeout(function(){$scope.submitExport()},1800);
+            }
+            else {
+                $rootScope.showExport = false;
+                $scope.submitExport();
+            }
+
         }
     };
 
@@ -267,13 +286,12 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
         var dashboardLayout = document.getElementById('dashboardLayout');
         var dashboardExportLayout = document.getElementById('dashLayout');
         var setJPEGOption = $("#exportOptionJpeg").prop("checked");
-        var setPDFOption = $("#exportOptionPDF").prop("checked");
         var setUrlOption = $("#exportOptionUrl").prop("checked");
-        if (setJPEGOption == false && setPDFOption == false && setUrlOption == false)
-        //$(".errorExportMessage").text("* Select the option to export").show();
-            $window.alert("* Please Select the option to export");
-        else
-            $rootScope.showExport = false;
+        var setPDFOption = $("#exportOptionPDF").prop("checked");
+        // if (setJPEGOption == false && setPDFOption == false && setUrlOption == false)
+        //     $window.alert("* Please Select the option to export");
+        // else
+        //     $rootScope.showExport = false;
 
         if (setJPEGOption == true) {
             $(".navbar").css('z-index', '1');
@@ -384,16 +402,17 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
                                 domainUrl = "http://localhost:8080";
                             else
                                 domainUrl = "";
+                            var dwnldUrl = String(domainUrl + response.data.Response);
                             $rootScope.closePdfModal();
                             $("#exportPDFModalContent").removeClass('md-show');
                             $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
                             $("#exportPDFModalContent").addClass('md-show');
 
                             $(".loadingStatus").hide();
-                            $(".pdfHeadText").show().text("PDF has been generated successfully").css('font-style', 'italic');
-                            $(".pdfContentText").html('<b>Your download should start shortly.<br/><a id="yourLinkID" href="' + domainUrl + response.data.Response + '" download style="color: #1AB394;"> If not, please use direct link.</a></b>');
-                            document.getElementById('yourLinkID').click();
-                            var dwnldUrl = String(domainUrl + response.data.Response);
+                            $(".pdfHeadText").show().text("PDF has been generated successfully");
+                            $(".pdfContentText").html('<b><br/><a href="' + dwnldUrl + '" download style="color: #000;"  id="yourLinkID">Click here to download your PDF</a></b>');
+                            // window.saveAs(response.data.Response['blob'], dashboardName + "_" + timestamp + ".pdf");
+                            // document.getElementById('yourLinkID').click();
                             // $window.open(dwnldUrl);
                             // window.saveAs(dwnldUrl, dashboardName+"_"+timestamp+".pdf");
                             $scope.expAct = false;

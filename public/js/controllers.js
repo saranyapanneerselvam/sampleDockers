@@ -750,15 +750,12 @@ showMetricApp.service('createWidgets',function($http,$q){
                                         link: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0) ?
                                             (widget.charts[charts].chartData[datas].total.link != null ?
                                                 (typeof widget.charts[charts].chartData[datas].total.link != 'undefined' ? widget.charts[charts].chartData[datas].total.link : '') : '') : ''),
-
                                         Comment: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0) ?
                                             (widget.charts[charts].chartData[datas].total.metadata.connections.comments.total != null ?
                                                 (typeof widget.charts[charts].chartData[datas].total.metadata.connections.comments.total != 'undefined' ? widget.charts[charts].chartData[datas].total.metadata.connections.comments.total : '') : '') : ''),
-
                                         likes: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0) ?
                                             (widget.charts[charts].chartData[datas].total.metadata.connections.likes.total != null ?
                                                 (typeof widget.charts[charts].chartData[datas].total.metadata.connections.likes.total != 'undefined' ? widget.charts[charts].chartData[datas].total.metadata.connections.likes.total : 0) : 0) : 0),
-
                                         views: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0) ?
                                             (widget.charts[charts].chartData[datas].total.stats.plays != null ?
                                                 (typeof widget.charts[charts].chartData[datas].total.stats.plays != 'undefined' ?
@@ -967,6 +964,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                     }
                 }
             }
+
             deferred.resolve(widgetCharts);
             return deferred.promise;
         }
@@ -992,14 +990,12 @@ showMetricApp.service('createWidgets',function($http,$q){
                         },
                         yAxis: {
                             tickFormat: function(d) {
-                                return d3.format('f')(d);},
-                            showMaxMin: false,
+                                return d3.format('r')(d);},
+                            showMaxMin: false
                         },
                         interpolate: "monotone",
                         axisLabelDistance: -10,
                         showLegend: false,
-                        //forceY: [lowestLineValue,highestLineValue == 0? 10 : highestLineValue + 10],
-                        //yDomain: [lowestValue,highestValue],
                         legend: {
                             rightAlign: false,
                             margin: {
@@ -1022,12 +1018,17 @@ showMetricApp.service('createWidgets',function($http,$q){
                         },
                         yAxis: {
                             tickFormat: function(d) {
-                                return d3.format('f')(d);}
+                                return d3.format('r')(d);}
+                        },
+                        tooltip: {
+                            enabled:false,
+                            headerEnabled:true,
+                            headerFormatter:function(d) {
+                                return d3.time.format('%d/%m/%y')(new Date(d))}
                         },
                         axisLabelDistance: -10,
                         showLegend: false,
                         stacked: true,
-                        //forceY: [lowestValue,highestValue == 0? 10 : highestValue + 10],
                         showControls: false,
                         legend: {
                             rightAlign: false,
@@ -1052,8 +1053,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                         showLegend: false,
                         labelsOutside: false,
                         tooltips: true,
-                        //tooltipcontent: 'toolTipContentFunction()',
-                        //duration: 50,
                         labelThreshold: 0.01,
                         labelSunbeamLayout: true,
                         legend: {
@@ -1119,19 +1118,17 @@ showMetricApp.service('createWidgets',function($http,$q){
                         },
                         yAxis1: {
                             tickFormat: function(d) {
-                                return d3.format('f')(d);},
+                                return d3.format('r')(d);},
                             showMaxMin: false
                         },
                         yAxis2: {
                             tickFormat: function(d) {
-                                return d3.format('f')(d);},
+                                return d3.format('r')(d);},
                             showMaxMin: false
                         },
                         interpolate: "monotone",
                         axisLabelDistance: -10,
                         showLegend: false,
-                        //forceY: [lowestLineValue,highestLineValue == 0? 10 : highestLineValue + 10],
-                        //yDomain: [lowestValue,highestValue],
                         legend: {
                             rightAlign: false,
                             margin: {
@@ -1347,32 +1344,11 @@ showMetricApp.service('createWidgets',function($http,$q){
             for(var charts in widgetCharts) {
                 if(widgetCharts[charts].type == 'line' || widgetCharts[charts].type == 'area') {
                     finalCharts.lineCharts.push(widgetCharts[charts]);
-                    /*
-                     if(finalCharts.lineCharts.length == 1) {
-                     lineDataLowValue = _.minBy(widgetCharts[charts].values,function (o){return o.y}).y;
-                     lineDataHighValue = _.maxBy(widgetCharts[charts].values,function (o){return o.y}).y;
-                     }
-                     else {
-                     lineDataLowValue = lineDataLowValue > _.minBy(widgetCharts[charts].values,function (o){return o.y}).y ? _.minBy(widgetCharts[charts].values,function (o){return o.y}).y : lineDataHighValue;
-                     lineDataHighValue = lineDataHighValue < _.maxBy(widgetCharts[charts].values,function (o){return o.y}).y ? _.maxBy(widgetCharts[charts].values,function (o){return o.y}).y : lineDataHighValue;
-                     }
-                     */
-
                     for(var values in widgetCharts[charts].values) {
-                        /*
-                         if(finalCharts.lineCharts.length == 1) {
-                         lineDataLowValue = parseFloat(_.minBy(widgetCharts[charts].values,function (o){return o.y}).y);
-                         lineDataHighValue = parseFloat(_.maxBy(widgetCharts[charts].values,function (o){return o.y}).y);
-                         }
-                         else if(finalCharts.lineCharts.length > 1) {
-                         */
                         if(parseFloat(widgetCharts[charts].values[values].y) < lineDataLowValue)
                             lineDataLowValue = parseFloat(widgetCharts[charts].values[values].y);
                         if(parseFloat(widgetCharts[charts].values[values].y) > lineDataHighValue)
                             lineDataHighValue = parseFloat(widgetCharts[charts].values[values].y);
-                        /*
-                         }
-                         */
                     }
                 }
                 else if(widgetCharts[charts].type == 'bar') {
@@ -1411,7 +1387,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                 }
             }
 
-            if(finalCharts.lineCharts.length > 0) {
+            if(finalCharts.lineCharts.length == 1) {
                 chartsCount++;
                 for(var charts in finalCharts.lineCharts) {
                     for(var items in chartColorChecker) {
@@ -1423,92 +1399,82 @@ showMetricApp.service('createWidgets',function($http,$q){
                     chartColorChecker.push(finalCharts.lineCharts[charts].color);
                 }
                 chartColorChecker = [];
-
-                var forceY;
                 finalChartData.push({
                     'options': graphOptions.lineDataOptions,
                     'data': finalCharts.lineCharts,
                     'api': {}
                 });
-                /*
-                 forceY = [lineDataLowValue,lineDataHighValue == 0? 10 : (lineDataHighValue>100 ? lineDataHighValue + 10 : lineDataHighValue + 1)];
-                 finalChartData[finalChartData.length -1].options.chart.yDomain = forceY;
-                 if(lineDataHighValue < 5)
-                 finalChartData[finalChartData.length -1].options.chart.yAxis.tickValues =  d3.range(graphOptions.lineDataOptions.chart.yDomain[0],graphOptions.lineDataOptions.chart.yDomain[1]);
-                 */
             }
-            /*
-             if(finalCharts.lineCharts.length > 1) {
-             chartsCount++;
-             for(var charts in finalCharts.lineCharts) {
-             for(var items in chartColorChecker) {
-             if(finalCharts.lineCharts[charts].color == chartColorChecker[items]) {
-             var neededColour = fetchAColour(finalCharts.lineCharts[charts].color,chartColorChecker);
-             finalCharts.lineCharts[charts].color = neededColour;
-             }
-             }
-             chartColorChecker.push(finalCharts.lineCharts[charts].color);
-             }
-             chartColorChecker = [];
 
-             var individualGraphTotals = [];
-             for(var charts in finalCharts.lineCharts) {
-             var summaryTotal = 0, lowValue = 0, highValue = 0;
-             for(values in finalCharts.lineCharts[charts].values) {
-             summaryTotal += parseFloat(finalCharts.lineCharts[charts].values[values].y);
-             if(lowValue > parseFloat(finalCharts.lineCharts[charts].values[values].y))
-             lowValue = parseFloat(finalCharts.lineCharts[charts].values[values].y);
-             if(highValue < parseFloat(finalCharts.lineCharts[charts].values[values].y))
-             highValue = parseFloat(finalCharts.lineCharts[charts].values[values].y);
-             }
-             individualGraphTotals[charts] =  {
-             summaryTotal: summaryTotal,
-             lowValue: lowValue,
-             highValue: highValue
-             };
-             }
+            if(finalCharts.lineCharts.length > 1) {
+                chartsCount++;
+                for (var charts in finalCharts.lineCharts) {
+                    for (var items in chartColorChecker) {
+                        if (finalCharts.lineCharts[charts].color == chartColorChecker[items]) {
+                            var neededColour = fetchAColour(finalCharts.lineCharts[charts].color, chartColorChecker);
+                            finalCharts.lineCharts[charts].color = neededColour;
+                        }
+                    }
+                    chartColorChecker.push(finalCharts.lineCharts[charts].color);
+                }
+                chartColorChecker = [];
 
-             var cumulativeTotal = 0;
-             for(items in individualGraphTotals)
-             cumulativeTotal += parseInt(individualGraphTotals[items].summaryTotal);
-             var cumulativeAverage = cumulativeTotal/individualGraphTotals.length;
+                var individualGraphTotals = [];
+                for (var charts in finalCharts.lineCharts) {
+                    var summaryTotal = 0, lowValue = 0, highValue = 0;
+                    for (values in finalCharts.lineCharts[charts].values) {
+                        summaryTotal += parseFloat(finalCharts.lineCharts[charts].values[values].y);
+                        if (lowValue > parseFloat(finalCharts.lineCharts[charts].values[values].y))
+                            lowValue = parseFloat(finalCharts.lineCharts[charts].values[values].y);
+                        if (highValue < parseFloat(finalCharts.lineCharts[charts].values[values].y))
+                            highValue = parseFloat(finalCharts.lineCharts[charts].values[values].y);
+                    }
+                    individualGraphTotals[charts] = {
+                        summaryTotal: summaryTotal,
+                        lowValue: lowValue,
+                        highValue: highValue
+                    };
+                }
 
-             var firstChartLowValue = 0, firstChartHighValue = 0, secondChartLowValue = 0, secondChartHighValue = 0;
-             for(var charts in finalCharts.lineCharts) {
-             var summaryTotal = 0, lowValue = 0, highValue = 0;
-             for(values in finalCharts.lineCharts[charts].values) {
-             summaryTotal += parseFloat(finalCharts.lineCharts[charts].values[values].y);
-             if(lowValue > parseFloat(finalCharts.lineCharts[charts].values[values].y))
-             lowValue = parseFloat(finalCharts.lineCharts[charts].values[values].y);
-             if(highValue < parseFloat(finalCharts.lineCharts[charts].values[values].y))
-             highValue = parseFloat(finalCharts.lineCharts[charts].values[values].y);
-             }
+                var cumulativeTotal = 0;
+                for (items in individualGraphTotals)
+                    cumulativeTotal += parseInt(individualGraphTotals[items].summaryTotal);
+                var cumulativeAverage = cumulativeTotal / individualGraphTotals.length;
 
-             if(summaryTotal < cumulativeAverage) {
-             if(firstChartLowValue > lowValue)
-             firstChartLowValue = lowValue;
-             if(firstChartHighValue < highValue)
-             firstChartHighValue = highValue;
-             finalCharts.lineCharts[charts].yAxis = 1;
-             }
-             else {
-             if(secondChartLowValue > lowValue)
-             secondChartLowValue = lowValue;
-             if(secondChartHighValue < highValue)
-             secondChartHighValue = highValue;
-             finalCharts.lineCharts[charts].yAxis = 2;
-             }
-             }
+                var firstChartLowValue = 0, firstChartHighValue = 0, secondChartLowValue = 0, secondChartHighValue = 0;
+                for (var charts in finalCharts.lineCharts) {
+                    var summaryTotal = 0, lowValue = 0, highValue = 0;
+                    for (values in finalCharts.lineCharts[charts].values) {
+                        summaryTotal += parseFloat(finalCharts.lineCharts[charts].values[values].y);
+                        if (lowValue > parseFloat(finalCharts.lineCharts[charts].values[values].y))
+                            lowValue = parseFloat(finalCharts.lineCharts[charts].values[values].y);
+                        if (highValue < parseFloat(finalCharts.lineCharts[charts].values[values].y))
+                            highValue = parseFloat(finalCharts.lineCharts[charts].values[values].y);
+                    }
 
-             finalChartData.push({
-             'options': graphOptions.multiDataOptions,
-             'data': finalCharts.lineCharts,
-             'api': {}
-             });
-             finalChartData[finalChartData.length -1].options.chart.yDomain1 = [firstChartLowValue,firstChartHighValue > 0 ? firstChartHighValue : 1];
-             finalChartData[finalChartData.length -1].options.chart.yDomain2 = [secondChartLowValue,secondChartHighValue > 0 ? secondChartHighValue : 1];
-             }
-             */
+                    if (summaryTotal < cumulativeAverage) {
+                        if (firstChartLowValue > lowValue)
+                            firstChartLowValue = lowValue;
+                        if (firstChartHighValue < highValue)
+                            firstChartHighValue = highValue;
+                        finalCharts.lineCharts[charts].yAxis = 1;
+                    }
+                    else {
+                        if (secondChartLowValue > lowValue)
+                            secondChartLowValue = lowValue;
+                        if (secondChartHighValue < highValue)
+                            secondChartHighValue = highValue;
+                        finalCharts.lineCharts[charts].yAxis = 2;
+                    }
+                }
+
+                finalChartData.push({
+                    'options': graphOptions.multiDataOptions,
+                    'data': finalCharts.lineCharts,
+                    'api': {}
+                });
+            }
+
             if(finalCharts.barCharts.length > 0) {
                 chartsCount++;
 
@@ -1533,56 +1499,54 @@ showMetricApp.service('createWidgets',function($http,$q){
                  finalChartData[finalChartData.length -1].options.chart.forceY = forceY;
                  */
             }
-            /*
-             if(finalCharts.barCharts.length > 1) {
-             chartsCount++;
-             for(var charts in finalCharts.barCharts) {
-             for(var items in chartColorChecker) {
-             if(finalCharts.barCharts[charts].color == chartColorChecker[items]) {
-             var neededColour = fetchAColour(finalCharts.barCharts[charts].color,chartColorChecker);
-             finalCharts.barCharts[charts].color = neededColour;
-             }
-             }
-             chartColorChecker.push(finalCharts.barCharts[charts].color);
-             }
-             chartColorChecker = [];
 
-             var individualGraphTotals = [];
-             for(var charts in finalCharts.barCharts) {
-             var summaryTotal = 0;
-             for(values in finalCharts.barCharts[charts].values) {
-             summaryTotal += parseFloat(finalCharts.barCharts[charts].values[values].y);
-             }
-             individualGraphTotals[charts] = summaryTotal;
-             }
+/*
+            if (finalCharts.barCharts.length > 1) {
+                chartsCount++;
+                for (var charts in finalCharts.barCharts) {
+                    for (var items in chartColorChecker) {
+                        if (finalCharts.barCharts[charts].color == chartColorChecker[items]) {
+                            var neededColour = fetchAColour(finalCharts.barCharts[charts].color, chartColorChecker);
+                            finalCharts.barCharts[charts].color = neededColour;
+                        }
+                    }
+                    chartColorChecker.push(finalCharts.barCharts[charts].color);
+                }
+                chartColorChecker = [];
 
-             var cumulativeTotal = 0;
-             for(items in individualGraphTotals)
-             cumulativeTotal += parseInt(individualGraphTotals[items]);
-             var cumulativeAverage = cumulativeTotal/individualGraphTotals.length;
+                var individualGraphTotals = [];
+                for (var charts in finalCharts.barCharts) {
+                    var summaryTotal = 0;
+                    for (values in finalCharts.barCharts[charts].values) {
+                        summaryTotal += parseFloat(finalCharts.barCharts[charts].values[values].y);
+                    }
+                    individualGraphTotals[charts] = summaryTotal;
+                }
 
-             for(var charts in finalCharts.barCharts) {
-             var summaryTotal = 0;
-             for(values in finalCharts.barCharts[charts].values)
-             summaryTotal += parseFloat(finalCharts.barCharts[charts].values[values].y);
+                var cumulativeTotal = 0;
+                for (items in individualGraphTotals)
+                    cumulativeTotal += parseInt(individualGraphTotals[items]);
+                var cumulativeAverage = cumulativeTotal / individualGraphTotals.length;
 
-             if(summaryTotal > cumulativeAverage)
-             finalCharts.barCharts[charts].yAxis = 2;
-             else
-             finalCharts.barCharts[charts].yAxis = 1;
-             }
+                for (var charts in finalCharts.barCharts) {
+                    var summaryTotal = 0;
+                    for (values in finalCharts.barCharts[charts].values)
+                        summaryTotal += parseFloat(finalCharts.barCharts[charts].values[values].y);
 
+                    if (summaryTotal > cumulativeAverage)
+                        finalCharts.barCharts[charts].yAxis = 2;
+                    else
+                        finalCharts.barCharts[charts].yAxis = 1;
+                }
 
+                finalChartData.push({
+                    'options': graphOptions.multiDataOptions,
+                    'data': finalCharts.barCharts,
+                    'api': {}
+                });
+            }
+*/
 
-             //var forceY = [0,barDataHighValue == 0? 10 : (barDataHighValue>100 ? barDataHighValue + 10 : barDataHighValue + 1)];
-             finalChartData.push({
-             'options': graphOptions.multiDataOptions,
-             'data': finalCharts.barCharts,
-             'api': {}
-             });
-             //finalChartData[finalChartData.length -1].options.chart.forceY = forceY;
-             }
-             */
             if(finalCharts.pieCharts.length > 0) {
                 chartsCount++;
 

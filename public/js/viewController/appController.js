@@ -22,10 +22,15 @@ function AppController($http,$state,$scope) {
 
     $scope.createNewDashboard = function() {
         $scope.loading=true;
+        var jsonData = {
+            startDate:moment(new Date()).subtract(30,'days'),
+            endDate: new Date()
+        };
         $http(
             {
                 method: 'POST',
-                url: '/api/v1/create/dashboards'
+                url: '/api/v1/create/dashboards',
+                data:jsonData
             }
         ).then(
             function successCallback(response){

@@ -41,7 +41,7 @@ exports.createHtml5ToPdf = function (req, res, next) {
     }
     else{
         doc = new PDFDocument({size: 'A4',
-            layout: 'landscape', margin: 20});
+            layout: 'landscape', margin: 10});
         // stream = doc.pipe(blobStream());
         doc.image(req.body.dashboardLayout[0]);
         if(req.body.dashboardLayout.length>0){

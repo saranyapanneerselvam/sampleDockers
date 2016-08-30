@@ -18,40 +18,40 @@ exports.objects = function (req, res, next) {
 
     else if(req.query.accountId!=undefined) req.query.metaCondition = {accountId:req.query.accountId}
 
-    getObjects.findObjectsForProfile(req, res, function (err, object) {
-        if (err)
-            return res.status(500).json({error: 'Internal server error'});
-        else {
-            req.app.objects = object;
-            next();
-        }
-    });
+  getObjects.findObjectsForProfile(req, res, function (err, object) {
+    if (err)
+      return res.status(500).json({error: 'Internal server error'});
+    else {
+      req.app.objects = object;
+      next();
+    }
+  });
 };
 
 exports.objectTypes = function (req, res, next) {
-    ObjectType.findOne({_id:req.params.objectTypeId},function (err,objectType) {
-        if (err)
-            return res.status(500).json({error: 'Internal Server Error'});
-        else if (!objectType)
-            return res.status(401).json({error: 'Authentication required to perform this action'});
-        else{
-            req.app.result = objectType;
-            next();
-        }
-    })
+  ObjectType.findOne({_id:req.params.objectTypeId},function (err,objectType) {
+    if (err)
+      return res.status(500).json({error: 'Internal Server Error'});
+    else if (!objectType)
+      return res.status(401).json({error: 'Authentication required to perform this action'});
+    else{
+      req.app.result = objectType;
+      next();
+    }
+  })
 };
 
 exports.objectTypesForChannel = function (req, res, next) {
-    ObjectType.find({channelId:req.params.channelId},function (err,objectType) {
-        if (err)
-            return res.status(500).json({error: 'Internal Server Error'});
-        else if (!objectType)
-            return res.status(401).json({error: 'Authentication required to perform this action'});
-        else{
-            req.app.result = objectType;
-            next();
-        }
-    })
+  ObjectType.find({channelId:req.params.channelId},function (err,objectType) {
+    if (err)
+      return res.status(500).json({error: 'Internal Server Error'});
+    else if (!objectType)
+      return res.status(401).json({error: 'Authentication required to perform this action'});
+    else{
+      req.app.result = objectType;
+      next();
+    }
+  })
 };
 //updating moz objects in db
 exports.mozObjectStore = function (req, res, next) {

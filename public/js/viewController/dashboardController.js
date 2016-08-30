@@ -85,9 +85,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 }
             });
         }
-
-        console.log('date', new Date(),$scope.dashboardCalendar );
-
+        
         //Setting up grid configuration for widgets
         $scope.gridsterOptions = {
             margins: [20, 20],

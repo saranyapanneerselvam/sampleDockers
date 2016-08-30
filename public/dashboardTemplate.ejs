@@ -5,9 +5,11 @@
                 <div class="col col-sm-12" id="CustomTemplate">
                     <div class="dashboardTemplate-items">
                         <div class="col-sm-3 dashboardName">
-                            <a title="Click to rename this Dashboard" href="#" ng-model="dashboardName" editable-text="dashboard.dashboardName" onaftersave="changeDashboardName()" buttons="no" e-maxlength="35">
+                            <a title="Click to rename this Dashboard" id='reset-btn' href="#" ng-model="dashboardName" editable-text="dashboard.dashboardName" onaftersave="changeDashboardName()"  e-maxlength="35">
                                 <pre ng-style="!dashboard.dashboardName  && {'color':'#999'}  || dashboard.dashboardName && {'color':'#000'}">{{dashboard.dashboardName || 'Name your dashboard'}}</pre>
+                                <i class="fa fa-pencil hover-icon" aria-hidden="true" style="font-size: 1.5em;margin-top: 6px;color:#000;display:none"></i>
                             </a>
+
                         </div >
                         <div class="col-sm-4">
                             <div class="daterange daterange--double three"></div>
@@ -16,16 +18,7 @@
                             <form class="dashboardIcons">
                                 <a>
                                     <div class="title-icons" ng-click="deleteDashboard()">
-                                        <svg width="28px" height="28px" viewBox="12 4 76 92" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Delete">
-                                            <g id="Group" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(12.000000, 4.000000)">
-                                                <path d="M45.822,6.715 C45.546,6.715 45.322,6.491 45.322,6.215 L45.322,2.06 C45.322,1.751 45.071,1.5 44.762,1.5 L31.238,1.5 C30.929,1.5 30.678,1.751 30.678,2.06 L30.678,6.215 C30.678,6.491 30.454,6.715 30.178,6.715 C29.902,6.715 29.678,6.491 29.678,6.215 L29.678,2.06 C29.678,1.2 30.378,0.5 31.238,0.5 L44.762,0.5 C45.622,0.5 46.322,1.2 46.322,2.06 L46.322,6.215 C46.322,6.491 46.099,6.715 45.822,6.715 L45.822,6.715 Z" id="Shape" fill="#000000"></path>
-                                                <path d="M75.094,6.715 L0.906,6.715 C0.63,6.715 0.406,6.491 0.406,6.215 C0.406,5.939 0.63,5.715 0.906,5.715 L75.094,5.715 C75.37,5.715 75.594,5.939 75.594,6.215 C75.594,6.491 75.37,6.715 75.094,6.715 L75.094,6.715 Z" id="Shape" fill="#000000"></path>
-                                                <path d="M61.621,91.5 L14.379,91.5 C12.438,91.5 10.825,89.982 10.707,88.045 L5.674,5.715 L70.326,5.715 L65.293,88.045 C65.175,89.982 63.562,91.5 61.621,91.5 L61.621,91.5 Z M6.737,6.715 L11.705,87.985 C11.791,89.396 12.966,90.501 14.379,90.501 L61.62,90.501 C63.034,90.501 64.208,89.396 64.294,87.985 L69.262,6.715 L6.737,6.715 L6.737,6.715 Z" id="Shape" fill="#000000"></path>
-                                                <path d="M25.716,80.409 C25.454,80.409 25.234,80.205 25.217,79.939 L22.092,28.814 C22.075,28.539 22.285,28.301 22.561,28.285 C22.833,28.277 23.074,28.478 23.09,28.754 L26.215,79.879 C26.232,80.154 26.022,80.392 25.746,80.408 C25.737,80.409 25.727,80.409 25.716,80.409 L25.716,80.409 Z" id="Shape" fill="#000000"></path>
-                                                <path d="M50.147,80.409 C50.137,80.409 50.126,80.409 50.116,80.408 C49.84,80.391 49.63,80.154 49.647,79.879 L52.772,28.754 C52.789,28.478 53.036,28.277 53.301,28.285 C53.577,28.302 53.787,28.539 53.77,28.814 L50.645,79.939 C50.63,80.205 50.41,80.409 50.147,80.409 L50.147,80.409 Z" id="Shape" fill="#000000"></path>
-                                                <path d="M38,80.902 C37.724,80.902 37.5,80.678 37.5,80.402 L37.5,27.411 C37.5,27.135 37.724,26.911 38,26.911 C38.276,26.911 38.5,27.135 38.5,27.411 L38.5,80.402 C38.5,80.678 38.276,80.902 38,80.902 L38,80.902 Z" id="Shape" fill="#000000"></path>
-                                            </g>
-                                        </svg>
+                                        <i class="glyphicon glyphicon-trash favigon-img" style="color:#2f4050;font-size:22px" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Delete"></i>
                                     </div>
                                 </a>
                                 <a class="md-trigger md-setperspective md-effect-19" ng-click="exportModal('app.reporting.dashboard.exportModal')" ng-show="loadedWidgetCount == dashboard.widgets.length"> <!-- ng-click="exportModal('app.reporting.dashboard.exportModal')" -->
@@ -56,8 +49,9 @@
                             <div class="box-header" id="getWidgetColor-{{widget.id}}" ref="{{dashboard.widgetData[widgetIndex].color}}" style="background-color: #ffffff;"> <!--ng-style="{'background-color': dashboard.widgetData[widgetIndex].color}"-->
                                 <div style="float: left;width: 93%;">
                                     <img src="image/thumbnail/{{widget.channelName}}.png" style="float:left;vertical-align: super;max-height: 31px; max-width: 50px; padding:5px"/>
-                                    <h3 ng-style="widget.sizeX!=1  && {'width':'80%'}  || widget.sizeX==1 && {'width':'50%'} "><a title="Click to Rename this widget" style="float:left;border-bottom:0px!important;padding:7px!important;color:#000!important" href="#" editable-text="dashboard.widgetData[widgetIndex].name" onaftersave="changeWidgetName(widget,dashboard.widgetData[widgetIndex].name)" buttons="no" e-maxlength="35">
-                                            {{dashboard.widgetData[widgetIndex].name || 'Name your widget'}}
+                                    <h3 ng-style="widget.sizeX!=1  && {'width':'80%'}  || widget.sizeX==1 && {'width':'50%'} "><a title="Click to Rename this widget" style="float:left;border-bottom:0px!important;padding:7px!important;color:#000!important" href="#" editable-text="dashboard.widgetData[widgetIndex].name" onaftersave="changeWidgetName(widget,dashboard.widgetData[widgetIndex].name)"  e-maxlength="35">
+                                           <sapn>{{dashboard.widgetData[widgetIndex].name || 'Name your widget'}}</sapn>
+                                            <i class="fa fa-pencil hover-icon" aria-hidden="true" style="font-size: 1em;margin-top: 0px;float:right; margin-left: 11px;color:#000;display:none"></i>
                                         </a>
                                     </h3>
                                 </div>
@@ -275,5 +269,6 @@
             </div>
         </div>
         <script src="js/datePicker/Calendar.js"></script>
+
     </div>
 </div>

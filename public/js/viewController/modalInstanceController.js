@@ -24,19 +24,19 @@ function ModalInstanceController($scope, $rootScope, $http, $uibModalInstance) {
         $uibModalInstance.dismiss('cancel');
     };
 
-    $scope.closeExport = function(){
-        var setJPEGOption = $("#exportOptionJpeg").prop("checked");
-        var setPDFOption = $("#exportOptionPDF").prop("checked");
-        var dashboardLayout = document.getElementById('dashboardLayout');
-
-        if(setJPEGOption==false && setPDFOption==false){
-            alert("Select the option to export");
-            return false;
-        }
-        else{
-            $uibModalInstance.close();
-        }
-    };
+    // $scope.closeExport = function(){
+    //     var setJPEGOption = $("#exportOptionJpeg").prop("checked");
+    //     var setPDFOption = $("#exportOptionPDF").prop("checked");
+    //     var dashboardLayout = document.getElementById('dashboardLayout');
+    //
+    //     if(setJPEGOption==false && setPDFOption==false){
+    //         alert("Select the option to export");
+    //         return false;
+    //     }
+    //     else{
+    //         $uibModalInstance.close();
+    //     }
+    // };
 
     $scope.closeExportModal = function(){
         $uibModalInstance.close();

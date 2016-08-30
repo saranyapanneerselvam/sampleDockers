@@ -1400,7 +1400,7 @@ agenda.define('Update channel data', function (job, done) {
                     var newEndDate = startDate.replace(/-/g, "");
                     startDate = newEndDate;
                     if (initialResults.data.updated < new Date()) {
-                        var updated=moment(updated).format('YYYY-MM-DD');
+                       var updated=moment(updated).format('YYYY-MM-DD');
                         var currentDate=moment(new Date()).format('YYYY-MM-DD');
                         if(updated!=currentDate) {
                             var updated = initialResults.data.updated;

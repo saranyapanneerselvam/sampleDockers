@@ -93,16 +93,12 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
                 }).then(
                     function successCallback(response) {
                         $scope.objectTypeList=response.data.objectType;
-
-                        //console.log("$scope.objectTypeList",$scope.objectTypeList);
-                        //$scope.objectTypeOptionsModel=$scope.objectTypeList;
                         for(var i=0;i<$scope.objectTypeList.length;i++){
                             if($scope.objectTypeList[i].type =='fbadaccount')
                                 $scope.fbAdObjId = $scope.objectTypeList[i]._id;
                             else if($scope.objectTypeList[i].type =='adwordaccount')
                                 $scope.gaAdObjId = $scope.objectTypeList[i]._id;
                         }
-                        //    console.log("$scope.fbAdObjId",$scope.fbAdObjId,'$scope.gaAdObjId',$scope.gaAdObjId)
                     },
                     function errorCallback(error) {
                         swal({
@@ -126,19 +122,26 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
     };
 
     $scope.getObjectsForChosenProfile = function (profileObj, index) {
-
-        //  console.log("$scope.fbAdObjId",$scope.fbAdObjId,'$scope.gaAdObjId',$scope.gaAdObjId)
         if (!profileObj) {
+            document.getElementById('basicWidgetFinishButton').disabled = true;
             $scope.objectList[index] = null;
+            if($scope.getChannelList[index].name === 'Google Analytics'){
+                this.objectOptionsModel1='';
+                $scope.objectForWidgetChosen($scope.objectList[index], index);
+            }
             if ($scope.getChannelList[index].name === 'Twitter') {
                 $scope.objectForWidgetChosen($scope.objectList[index], index);
             }
         }
         else {
+            if($scope.getChannelList[index].name === 'Google Analytics')
+             this.objectOptionsModel1='';
             if ((profileObj.canManageClients === false)&&($scope.getChannelList[index].name === 'GoogleAdwords')){
                 $scope.canManage = false;
+                $scope.objectList[index]=null;
             }
             if (profileObj.canManageClients === true){
+                document.getElementById('basicWidgetFinishButton').disabled = true;
                 $scope.canManage = true;
             }
             $http({
@@ -151,7 +154,6 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
                         for(var j=0;j<response.data.objectList.length;j++) {
                             if(response.data.objectList[j].objectTypeId == $scope.fbAdObjId) {
                                 $scope.objectList[index].push(response.data.objectList[j]);
-                                // console.log("Respone for Objects inside if fb", $scope.objectList[index]);
                             }
                         }
                     }
@@ -159,16 +161,12 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
                         $scope.objectList[index] = [];
                         for(var j=0;j<response.data.objectList.length;j++) {
                             if (response.data.objectList[j].objectTypeId == $scope.gaAdObjId) {
-                                //     console.log(typeof(response.data.objectList[j].objectTypeId))
-                                //     console.log(typeof($scope.gaAdObjId))
                                 $scope.objectList[index].push(response.data.objectList[j]);
-                                //      console.log("Respone for Objects inside if ga", $scope.objectList[index]);
                             }
                         }
                     }
                     else {
                         $scope.objectList[index] = response.data.objectList;
-                        //console.log("Respone for Objects else", $scope.objectList[index]);
                     }
                     if ($scope.getChannelList[index].name === 'Twitter') {
                         $scope.objectForWidgetChosen($scope.objectList[index][0], index);
@@ -189,16 +187,23 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
     };
 
     $scope.objectForWidgetChosen = function (objectList, index) {
-        if (typeof objectList==='string') {
+        if ((typeof objectList==='string')&&(objectList!='')) {
             var parsedObjectList = JSON.parse(objectList);
             objectList = parsedObjectList;
-
         }
         if (objectList != null && $scope.currentView == 'step_two') {
-            $scope.storedUserChosenValues[index] = {
-                object: objectList,
-                profile: this.profileOptionsModel[index]
-            };
+            if((objectList !='')&&(this.profileOptionsModel[index])) {
+                $scope.storedUserChosenValues[index] = {
+                    object: objectList,
+                    profile: this.profileOptionsModel[index]
+                };
+            }
+            else{
+                $scope.storedUserChosenValues[index] = {
+                    object: null,
+                    profile: null
+                };
+            }
         }
         else if (objectList == null && $scope.currentView == 'step_two') {
             $scope.storedUserChosenValues[index] = {
@@ -299,6 +304,10 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
     };
 
     $scope.refreshObjectsForChosenProfile = function (index) {
+        if($scope.getChannelList[index].name === 'Google Analytics') {
+            this.objectOptionsModel1[index] = '';
+            $scope.objectList[index] = '';
+        }
         if(this.profileOptionsModel[index]._id) {
             switch ($scope.getChannelList[index].name) {
                 case 'Facebook':

@@ -201,13 +201,14 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
                 this.objectOptionsModel1='';
                 $scope.objectForWidgetChosen($scope.objectList[index], index);
             }
-            if ($scope.uniquechannelNames[index] === 'Twitter' || $scope.uniquechannelNames[index] === 'Instagram') {
+            if ($scope.uniquechannelNames[index] === 'Twitter' || $scope.uniquechannelNames[index] === 'Instagram'||(($scope.uniquechannelNames[index] === 'GoogleAdwords')&&($scope.canManage == false))) {
                 $scope.objectForWidgetChosen($scope.objectList[index], index);
             }
         }
         else {
             if($scope.uniquechannelNames[index] === 'Google Analytics'){
                 this.objectOptionsModel1='';
+				document.getElementById('basicWidgetFinishButton').disabled = true;
             }
             if ((profileObj.canManageClients === false) && ($scope.uniquechannelNames[index] === 'GoogleAdwords')) {
                 $scope.canManage = false;

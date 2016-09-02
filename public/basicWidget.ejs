@@ -696,9 +696,9 @@
                                                         <div class="form-group">
                                                             <div class="col-lg-12">
                                                                 <select class="form-control m-b choose-text"
-                                                                        ng-model="profileOptionsModel"
+                                                                        ng-model="$parent.profileOptionsModel"
                                                                         id="profileOptions"
-                                                                        ng-options="profiles.name for profiles in profileList track by profiles.id"
+                                                                        ng-options="profiles.name for profiles in profileList"
                                                                         ng-change="getObjectsForChosenProfile()">
                                                                     <option value="">Select a Profile</option>
                                                                 </select>
@@ -1145,7 +1145,7 @@
                                 ng-show="currentView === 'step_two'" ng-click="createAndFetchBasicWidget();ok();">Finish
                         </button>
                         <button class="btn btn-primary button-mode" id="basicWidgetFinishButton"
-                                ng-show="currentView === 'step_three'" ng-click="createAndFetchBasicWidget();ok();"
+                                ng-show="currentView === 'step_three'" ng-click="createAndFetchBasicWidget();"
                                 disabled="disabled">Finish
                         </button>
                     </div>

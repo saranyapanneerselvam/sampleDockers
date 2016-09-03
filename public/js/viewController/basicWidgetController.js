@@ -1322,11 +1322,13 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                                 uniqueObject = _.groupBy(response.data, 'objectTypeId');
                                 for(var items in uniqueObject) {
                                     var tempObjectList = [];
-                                    for(var subItems in uniqueObject[items])
-                                        tempObjectList.push(uniqueObject[items][subItems]);
-                                    var obj = {};
-                                    obj[k] = tempObjectList;
-                                    tempList = obj;
+                                    if(items == objectTypeId) {
+                                        for(var subItems in uniqueObject[items])
+                                            tempObjectList.push(uniqueObject[items][subItems]);
+                                        var obj = {};
+                                        obj[k] = tempObjectList;
+                                        tempList = obj;
+                                    }
                                 }
                                 if ($scope.storedChannelName == 'Facebook')
                                     $scope.facebookObjectList[k] = tempList;

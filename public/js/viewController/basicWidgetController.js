@@ -23,7 +23,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     $scope.googleCampaignChosen = false;
     $scope.groupChosen = false;
     $scope.adChosen = false;
-    var widgetType = $stateParams.widgetType;
+    var widgetType = 'basic';
     var storedProfile = {};
     var getChannelName = "";
     var getCustomWidgetObj = {};

@@ -129,13 +129,15 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
                 this.objectOptionsModel1='';
                 $scope.objectForWidgetChosen($scope.objectList[index], index);
             }
-            if ($scope.getChannelList[index].name === 'Twitter') {
+            if ($scope.getChannelList[index].name === 'Twitter' ||  $scope.getChannelList[index].name === 'Instagram' || (($scope.getChannelList[index].name === 'GoogleAdwords')&&($scope.canManage == false))) {
                 $scope.objectForWidgetChosen($scope.objectList[index], index);
             }
         }
         else {
-            if($scope.getChannelList[index].name === 'Google Analytics')
-             this.objectOptionsModel1='';
+            if($scope.getChannelList[index].name === 'Google Analytics'){
+				this.objectOptionsModel1='';			
+				document.getElementById('basicWidgetFinishButton').disabled = true;
+			}
             if ((profileObj.canManageClients === false)&&($scope.getChannelList[index].name === 'GoogleAdwords')){
                 $scope.canManage = false;
                 $scope.objectList[index]=null;
@@ -168,7 +170,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
                     else {
                         $scope.objectList[index] = response.data.objectList;
                     }
-                    if ($scope.getChannelList[index].name === 'Twitter') {
+                    if ($scope.getChannelList[index].name === 'Twitter' ||$scope.getChannelList[index].name === 'Instagram') {
                         $scope.objectForWidgetChosen($scope.objectList[index][0], index);
                     }
                     if ((profileObj.canManageClients === false)&&($scope.getChannelList[index].name === 'GoogleAdwords')){

@@ -96,7 +96,7 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
         })
 
         .state('app.reporting.dashboard.basicWidget', {
-            url: "/{widgetType}",
+            url: "",
             views: {
                 'lightbox@app.reporting.dashboard': {
                     templateUrl: "basicWidget.ejs",

@@ -291,10 +291,11 @@ module.exports = {
         authorizationPath: 'v2/authorization'
     },
     'batchJobs':{
-        dataBase:"mongodb://saranya:saranya@ds031975.mlab.com:31975/datapooltlocal",
+        dataBase:'mongodb://admin:admin@ds139685.mlab.com:39685/datapoolt_testing',
         mail:{
             user: 'rajalakshmi.c@habile.in',
-            password: 'habile3238'
+            password: 'habile3238',
+            serviceNameInUtility:'Gmail'
         },
         alertName:'Send Alert',
         alertJobName:'Update channel data',
@@ -363,7 +364,25 @@ module.exports = {
         links:'links',
         page_authority:'page_authority',
         domain_authority:'domain_authority'
+    },
+
+    subscriptionType:{
+        free:'free',
+        small:'small',
+        medium:'medium',
+        enterprise:'enterprise'
+    },
+    fbAdsMetric:{
+        costPerActionType:'costperactionType'
+    },
+    limitRequestType:{
+        alert:'alert',
+        dashboards:'dashboards',
+        basic:'basic',
+        fusion:'fusion'
     }
+
+
 
 
 };

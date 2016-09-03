@@ -5,20 +5,15 @@ var channels = require('../models/channels');
 var FB = require('fb');
 var exports = module.exports = {};
 var request = require('request');
-
 //To use google api's
 var googleapis = require('googleapis');
-
 //Importing the fbgraph module
 var graph = require('fbgraph');
-
 //To load up the user model
 var profile = require('../models/profiles');
-var User = require('../models/user');
-
+var User = require('../models/user')
 //To load the metrics model
 var Metric = require('../models/metrics');
-
 var moment = require('moment');
 moment().format();
 
@@ -27,7 +22,7 @@ var Data = require('../models/data');
 
 //To load the data model
 var Object = require('../models/objects');
-
+var objectType = require('../models/objectTypes');
 
 //Set OAuth
 var OAuth2 = googleapis.auth.OAuth2;
@@ -637,11 +632,13 @@ exports.getChannelData = function (req, res, next) {
             else {
                 graph.get(query.query, function (err, fbQueryRes) {
                     if (err) {
-                        if (err.code === 190)
+                        if (err.code === 190){
                             return res.status(401).json({
                                 error: 'Authentication required to perform this action',
-                                id: req.params.widgetId
+                                id: req.params.widgetId,
+                                errorstatusCode:1003
                             })
+                        }
                         else if (err.code === 4)
                             return res.status(4).json({error: 'Forbidden Error', id: req.params.widgetId})
                         else
@@ -1856,11 +1853,13 @@ exports.getChannelData = function (req, res, next) {
             });
             oauth2Client.refreshAccessToken(function (err, tokens) {
                 if (err) {
-                    if (err.code === 400)
+                    if (err.code === 400){
                         return res.status(401).json({
                             error: 'Authentication required to perform this action',
-                            id: req.params.widgetId
+                            id: req.params.widgetId,
+                            errorstatusCode:1003
                         })
+                    }
                     else if (err.code === 403)
                         return res.status(403).json({error: 'Forbidden Error', id: req.params.widgetId})
                     else
@@ -2034,11 +2033,13 @@ exports.getChannelData = function (req, res, next) {
                 function callGoogleApi(apiQuery) {
                     analytics(apiQuery, function (err, result) {
                         if (err) {
-                            if (err.code === 400)
+                            if (err.code === 400){
                                 return res.status(401).json({
                                     error: 'Authentication required to perform this action',
-                                    id: req.params.widgetId
+                                    id: req.params.widgetId,
+                                    errorstatusCode:1003
                                 })
+                            }
                             else
                                 return res.status(500).json({error: 'Internal server error', id: req.params.widgetId})
                         }
@@ -2154,7 +2155,8 @@ exports.getChannelData = function (req, res, next) {
                             endDate: endDate,
                             metricId: metric[j]._id,
                             metricName: initialResults.metric[j].objectTypes[0].meta.fbAdsMetricName,
-                            metric: metric[j]
+                            metric: metric[j],
+                            object: object[j]
                         }
                         callback(null, allObjects);
                     }
@@ -2179,7 +2181,8 @@ exports.getChannelData = function (req, res, next) {
                                 endDate: currentDate,
                                 metricId: metric[j]._id,
                                 metricName: initialResults.metric[j].objectTypes[0].meta.fbAdsMetricName,
-                                metric: metric[j]
+                                metric: metric[j],
+                                object: object[j]
                             }
                             next(null, [allObjects]);
                         }
@@ -2194,7 +2197,8 @@ exports.getChannelData = function (req, res, next) {
                                 metricId: metric[j]._id,
                                 channelId: metric[j].channelId,
                                 metricName: initialResults.metric[j].objectTypes[0].meta.fbAdsMetricName,
-                                metric: metric[j]
+                                metric: metric[j],
+                                object: object[j]
                             }
                             next(null, allObjects);
                         }
@@ -2250,6 +2254,7 @@ exports.getChannelData = function (req, res, next) {
         function getFbAdsForEachMetric(results, callback) {
             var queryResponse = {};
             var storeDefaultValues = [];
+            console.log('results.profile.accessToken',results.profile.accessToken)
             FB.setAccessToken(results.profile.accessToken);
             var tot_metric = [];
             var finalData = {};
@@ -2259,11 +2264,13 @@ exports.getChannelData = function (req, res, next) {
                 var metricId = results.metricId;
                 FB.api(query, function (apiResult) {
                     if (apiResult.error) {
-                        if (apiResult.error.code === 190)
+                        if (apiResult.error.code === 190){
                             return res.status(401).json({
                                 error: 'Authentication required to perform this action',
-                                id: req.params.widgetId
+                                id: req.params.widgetId,
+                                errorstatusCode:1003
                             })
+                        }
                         else if (apiResult.error.code === 4)
                             return res.status(4).json({error: 'Forbidden Error', id: req.params.widgetId})
                         else
@@ -2288,22 +2295,71 @@ exports.getChannelData = function (req, res, next) {
                         //controlled pagination Data
                         if (apiResult.data.length != 0) {
                             if (apiResult.paging && apiResult.paging.next) {
-                                for (var key in apiResult.data)
-                                    tot_metric.push({
-                                        total: apiResult.data[key][storeMetricName],
-                                        date: apiResult.data[key].date_start
-                                    });
+                                for (var key in apiResult.data) {
+                                    var totalValue;
+                                    if (results.metric.code === configAuth.fbAdsMetric.costPerActionType) {
+                                        if(results.object.meta.objective){
+                                            var findObjectiveIndex = _.findIndex(apiResult.data[key][storeMetricName], function (o) {
+                                                return o.action_type == results.object.meta.objective.toLowerCase();
+                                            });
+                                            if (findObjectiveIndex!=-1) totalValue = apiResult.data[key][storeMetricName][findObjectiveIndex].value;
+                                            else totalValue = 0;
+                                        }
+                                        else{
+                                            var totalLength = apiResult.data[key][storeMetricName].length;
+                                            var totalValue = 0;
+                                            for(var i=0;i<totalLength;i++){
+                                                totalValue+= apiResult.data[key][storeMetricName][i].value;
+                                            }
+                                        }
+                                        tot_metric.push({
+                                            total: totalValue,
+                                            date: apiResult.data[key].date_start
+                                        });
+                                    }
+                                    else {
+                                        tot_metric.push({
+                                            total: apiResult.data[key][storeMetricName],
+                                            date: apiResult.data[key].date_start
+                                        });
+                                    }
+                                }
+
                                 var nextPage = apiResult.paging.next;
                                 var str = nextPage;
                                 var recallApi = str.replace(configAuth.facebookSite.site, " ").trim();
                                 Adsinsights(recallApi);
                             }
                             else {
-                                for (var key in apiResult.data)
-                                    tot_metric.push({
-                                        total: apiResult.data[key][storeMetricName],
-                                        date: apiResult.data[key].date_start
-                                    });
+                                for (var key in apiResult.data) {
+                                    var totalValue;
+                                    if (results.metric.code === configAuth.fbAdsMetric.costPerActionType) {
+                                        if(results.object.meta.objective){
+                                            var findObjectiveIndex = _.findIndex(apiResult.data[key][storeMetricName], function (o) {
+                                                return o.action_type == results.object.meta.objective.toLowerCase();
+                                            });
+                                            if (findObjectiveIndex!=-1) totalValue = apiResult.data[key][storeMetricName][findObjectiveIndex].value;
+                                            else totalValue = 0;
+                                        }
+                                        else{
+                                            var totalLength = apiResult.data[key][storeMetricName].length;
+                                            var totalValue = 0;
+                                            for(var i=0;i<totalLength;i++){
+                                                totalValue+= apiResult.data[key][storeMetricName][i].value;
+                                            }
+                                        }
+                                        tot_metric.push({
+                                            total: totalValue,
+                                            date: apiResult.data[key].date_start
+                                        });
+                                    }
+                                    else {
+                                        tot_metric.push({
+                                            total: apiResult.data[key][storeMetricName],
+                                            date: apiResult.data[key].date_start
+                                        });
+                                    }
+                                }
                                 var obj_metric = tot_metric.length;
                                 for (var j = 0; j < obj_metric; j++) {
                                     wholeData.push({date: tot_metric[j].date, total: tot_metric[j].total});
@@ -2361,117 +2417,119 @@ exports.getChannelData = function (req, res, next) {
                 async.timesSeries(metric.length, function (j, next) {
                     var adAccountId = initialResults.object[j].channelObjectId
                     d = new Date();
-                    var allObjects = {};
-                    if (data[j].data != null) {
-                        var updated = calculateDate(data[j].data.updated);
-                        var currentDate = calculateDate(new Date());
-                        d.setDate(d.getDate() + 1);
-                        var startDate = moment(new Date()).format('YYYY-MM-DD');
-                        var newEndDate = startDate.replace(/-/g, "");
-                        startDate = newEndDate;
-                        if (calculateDate(data[j].data.updated) < currentDate) {
-                            var updated = data[j].data.updated;
-                            var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
-                            updated.setTime(updated.getTime() + oneDay);
-                            updated = moment(updated).format('YYYY-MM-DD');
-                            var newStartDate = updated.replace(/-/g, "");
-                            updated = newStartDate;
-                            if (configAuth.objectType.googleAdwordAdGrouptypeId == String(initialResults.object[j].objectTypeId)) {
-                                var query = configAuth.googleAdwordsStatic.adGroupId + configAuth.googleAdwordsStatic.date + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
-                                var performance = configAuth.googleAdwordsStatic.ADGROUP_PERFORMANCE_REPORT;
-                                var clientId = initialResults.object[j].meta.accountId;
-                                var objects = configAuth.googleAdwordsStatic.adGroupIdEqual + initialResults.object[j].channelObjectId;
-                            }
-                            else if (configAuth.objectType.googleAdwordCampaigntypeId == String(initialResults.object[j].objectTypeId)) {
-                                var query = configAuth.googleAdwordsStatic.campaignId + configAuth.googleAdwordsStatic.date + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
-                                var performance = configAuth.googleAdwordsStatic.CAMPAIGN_PERFORMANCE_REPORT;
-                                var clientId = initialResults.object[j].meta.accountId;
-                                var objects = configAuth.googleAdwordsStatic.campaignEqual + initialResults.object[j].channelObjectId;
-                            }
-                            else if (configAuth.objectType.googleAdwordsAdtypeId == String(initialResults.object[j].objectTypeId)) {
-                                var query = configAuth.googleAdwordsStatic.id + configAuth.googleAdwordsStatic.date + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
-                                var performance = configAuth.googleAdwordsStatic.AD_PERFORMANCE_REPORT;
-                                var clientId = initialResults.object[j].meta.accountId;
-                                var objects = configAuth.googleAdwordsStatic.idEquals + initialResults.object[j].channelObjectId;
+                    objectType.findOne({
+                        '_id': initialResults.object[j].objectTypeId,
+                    }, function (err, objectType) {
+                        if (err)
+                            return res.status(500).json({error: err});
+                        else {
+                            var allObjects = {};
+                            if (data[j].data != null) {
+                                var updated = calculateDate(data[j].data.updated);
+                                var currentDate = calculateDate(new Date());
+                                d.setDate(d.getDate() + 1);
+                                var startDate = moment(new Date()).format('YYYY-MM-DD');
+                                var newEndDate = startDate.replace(/-/g, "");
+                                startDate = newEndDate;
+                                if (calculateDate(data[j].data.updated) < currentDate) {
+                                    var updated = data[j].data.updated;
+                                    var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+                                    updated.setTime(updated.getTime() + oneDay);
+                                    updated = moment(updated).format('YYYY-MM-DD');
+                                    var newStartDate = updated.replace(/-/g, "");
+                                    if (configAuth.objectType.googleAdwordAdGroup == objectType.type) {
+                                        var query = configAuth.googleAdwordsStatic.adGroupId + configAuth.googleAdwordsStatic.date + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
+                                        var performance = configAuth.googleAdwordsStatic.ADGROUP_PERFORMANCE_REPORT;
+                                        var clientId = initialResults.object[j].meta.accountId;
+                                        var objects = configAuth.googleAdwordsStatic.adGroupIdEqual + initialResults.object[j].channelObjectId;
+                                    }
+                                    else if (configAuth.objectType.googleAdwordCampaign == objectType.type) {
+                                        var query = configAuth.googleAdwordsStatic.campaignId + configAuth.googleAdwordsStatic.date + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
+                                        var performance = configAuth.googleAdwordsStatic.CAMPAIGN_PERFORMANCE_REPORT;
+                                        var clientId = initialResults.object[j].meta.accountId;
+                                        var objects = configAuth.googleAdwordsStatic.campaignEqual + initialResults.object[j].channelObjectId;
+                                    }
+                                    else if (configAuth.objectType.googleAdwordAd == objectType.type) {
+                                        var query = configAuth.googleAdwordsStatic.id + configAuth.googleAdwordsStatic.date + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
+                                        var performance = configAuth.googleAdwordsStatic.AD_PERFORMANCE_REPORT;
+                                        var clientId = initialResults.object[j].meta.accountId;
+                                        var objects = configAuth.googleAdwordsStatic.idEquals + initialResults.object[j].channelObjectId;
+                                    }
+                                    else {
+                                        var query = configAuth.googleAdwordsStatic.date + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
+                                        var performance = configAuth.googleAdwordsStatic.ACCOUNT_PERFORMANCE_REPORT;
+                                        var clientId = initialResults.object[j].channelObjectId;
+                                        var objects = ""
+                                    }
+                                    allObjects = {
+                                        profile: initialResults.get_profile[j],
+                                        query: query,
+                                        widget: metric[j],
+                                        dataResult: data[j].data,
+                                        startDate: updated,
+                                        objects: objects,
+                                        endDate: startDate,
+                                        metricId: metric[j]._id,
+                                        metricCode: metric[j].code,
+                                        clientId: clientId,
+                                        performance: performance
+                                    }
+                                    next(null, allObjects);
+                                }
+                                else
+                                    next(null, 'DataFromDb');
                             }
                             else {
-                                var query = configAuth.googleAdwordsStatic.date + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
-                                var performance = configAuth.googleAdwordsStatic.ACCOUNT_PERFORMANCE_REPORT;
-                                var clientId = initialResults.object[j].channelObjectId;
-                                var objects = ""
+                                //call google api
+                                d.setDate(d.getDate() - 365);
+                                var startDate = formatDate(d);
+                                var newStr = startDate.replace(/-/g, "");
+                                startDate = newStr;
+                                var endDate = formatDate(new Date());
+                                var newEndDate = endDate.replace(/-/g, "");
+                                var endDate = newEndDate;
+                                if (configAuth.objectType.googleAdwordAdGroup == objectType.type) {
+
+                                    var query = configAuth.googleAdwordsStatic.adGroupId + configAuth.googleAdwordsStatic.date + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
+                                    var performance = configAuth.googleAdwordsStatic.ADGROUP_PERFORMANCE_REPORT;
+                                    var clientId = initialResults.object[j].meta.accountId;
+                                    var objects = configAuth.googleAdwordsStatic.adGroupIdEqual + initialResults.object[j].channelObjectId;
+                                }
+                                else if (configAuth.objectType.googleAdwordCampaign == objectType.type) {
+                                    var query = configAuth.googleAdwordsStatic.campaignId + configAuth.googleAdwordsStatic.date + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
+                                    var performance = configAuth.googleAdwordsStatic.CAMPAIGN_PERFORMANCE_REPORT;
+                                    var clientId = initialResults.object[j].meta.accountId;
+                                    var objects = configAuth.googleAdwordsStatic.campaignEqual + initialResults.object[j].channelObjectId;
+                                }
+                                else if (configAuth.objectType.googleAdwordAd == objectType.type) {
+                                    var query = configAuth.googleAdwordsStatic.id + configAuth.googleAdwordsStatic.date + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
+                                    var performance = configAuth.googleAdwordsStatic.AD_PERFORMANCE_REPORT;
+                                    var clientId = initialResults.object[j].meta.accountId;
+                                    var objects = configAuth.googleAdwordsStatic.idEquals + initialResults.object[j].channelObjectId;
+                                }
+                                else {
+                                    var query = configAuth.googleAdwordsStatic.date + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
+                                    var performance = configAuth.googleAdwordsStatic.ACCOUNT_PERFORMANCE_REPORT;
+                                    var clientId = initialResults.object[j].channelObjectId;
+                                    var objects = ""
+                                }
+                                allObjects = {
+                                    profile: initialResults.get_profile[j],
+                                    query: query,
+                                    widget: metric[j],
+                                    dataResult: data[j].data,
+                                    clientId: clientId,
+                                    objects: objects,
+                                    startDate: startDate,
+                                    performance: performance,
+                                    endDate: endDate,
+                                    metricId: metric[j]._id,
+                                    metricCode: metric[j].code
+                                };
+                                next(null, allObjects);
                             }
-                            allObjects = {
-                                profile: initialResults.get_profile[j],
-                                query: query,
-                                widget: metric[j],
-                                dataResult: data[j].data,
-                                startDate: updated,
-                                objects: objects,
-                                endDate: startDate,
-                                metricId: metric[j]._id,
-                                metricCode: metric[j].code,
-                                clientId: clientId,
-                                performance: performance
-                            }
-
-                            next(null, allObjects);
                         }
-                        else
-                            next(null, 'DataFromDb');
-                    }
-                    else {
-
-                        //call google api
-                        d.setDate(d.getDate() - 365);
-                        var startDate = formatDate(d);
-                        var newStr = startDate.replace(/-/g, "");
-                        startDate = newStr;
-                        var endDate = formatDate(new Date());
-                        var newEndDate = endDate.replace(/-/g, "");
-                        var endDate = newEndDate;
-                        if (configAuth.objectType.googleAdwordAdGrouptypeId == String(initialResults.object[j].objectTypeId)) {
-                            var query = configAuth.googleAdwordsStatic.adGroupId + configAuth.googleAdwordsStatic.date + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
-                            var performance = configAuth.googleAdwordsStatic.ADGROUP_PERFORMANCE_REPORT;
-                            var clientId = initialResults.object[j].meta.accountId;
-                            var objects = configAuth.googleAdwordsStatic.adGroupIdEqual + initialResults.object[j].channelObjectId;
-                        }
-                        else if (configAuth.objectType.googleAdwordCampaigntypeId == String(initialResults.object[j].objectTypeId)) {
-                            var query = configAuth.googleAdwordsStatic.campaignId + configAuth.googleAdwordsStatic.date + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
-                            var performance = configAuth.googleAdwordsStatic.CAMPAIGN_PERFORMANCE_REPORT;
-                            var clientId = initialResults.object[j].meta.accountId;
-                            var objects = configAuth.googleAdwordsStatic.campaignEqual + initialResults.object[j].channelObjectId;
-                        }
-                        else if (configAuth.objectType.googleAdwordtypeId == String(initialResults.object[j].objectTypeId)) {
-
-                            var query = configAuth.googleAdwordsStatic.date + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
-                            var performance = configAuth.googleAdwordsStatic.ACCOUNT_PERFORMANCE_REPORT;
-                            var clientId = initialResults.object[j].channelObjectId;
-                            var objects = ""
-                        }
-                        else {
-                            var query = configAuth.googleAdwordsStatic.id + configAuth.googleAdwordsStatic.date + initialResults.metric[j].objectTypes[0].meta.gAdsMetricName;
-                            var performance = configAuth.googleAdwordsStatic.AD_PERFORMANCE_REPORT;
-                            var clientId = initialResults.object[j].meta.accountId;
-                            var objects = configAuth.googleAdwordsStatic.idEquals + initialResults.object[j].channelObjectId;
-
-                        }
-                        allObjects = {
-                            profile: initialResults.get_profile[j],
-                            query: query,
-                            widget: metric[j],
-                            dataResult: data[j].data,
-                            clientId: clientId,
-                            objects: objects,
-                            startDate: startDate,
-                            performance: performance,
-                            endDate: endDate,
-                            metricId: metric[j]._id,
-                            metricCode: metric[j].code
-                        };
-                        next(null, allObjects);
-
-                    }
-
+                    })
                 }, done)
             }
         }
@@ -2483,7 +2541,6 @@ exports.getChannelData = function (req, res, next) {
             async.concatSeries(allObjects.call_adword_data, checkDbData, callback);
             function checkDbData(result, callback) {
                 count++;
-
                 if (result == 'DataFromDb') {
                     actualFinalApiData = {
                         apiResponse: 'DataFromDb',
@@ -2526,7 +2583,11 @@ exports.getChannelData = function (req, res, next) {
                     })
                     .catch(function (error) {
                         semaphore.leave();
-                        callback(error, null);
+                        return res.status(401).json({
+                            error: 'Authentication required to perform this action',
+                            id: req.params.widgetId,
+                            errorstatusCode:1003
+                        })
                     });
             });
 
@@ -2842,7 +2903,7 @@ exports.getChannelData = function (req, res, next) {
 
                             }
 
-                            var showEngagementList= _.uniqBy(removeDuplicate,'total.id');
+                            var showEngagementList = _.uniqBy(removeDuplicate, 'total.id');
                             if (showEngagementList.length > 20) {
                                 for (var index = 1; index < 20; index++) {
                                     finalHighEngagedTweets.push(showEngagementList[index]);
@@ -3556,14 +3617,13 @@ exports.getChannelData = function (req, res, next) {
                     }
                     var MediasArray = _.sortBy(arrayOfBoards, ['total.followers']);
                     var collectionBoard = _.orderBy(MediasArray, ['total.followers', 'total.pins'], ['desc', 'asc']);
-                    if(collectionBoard.length>=10) {
+                    if (collectionBoard.length >= 10) {
                         for (var j = 0; j < 10; j++) {
                             topTenBoard.push(collectionBoard[j]);
                         }
                     }
-                    else
-                    {
-                        for (var j = 0; j <collectionBoard.length ; j++) {
+                    else {
+                        for (var j = 0; j < collectionBoard.length; j++) {
                             topTenBoard.push(collectionBoard[j]);
                         }
                     }
@@ -3841,7 +3901,18 @@ exports.getChannelData = function (req, res, next) {
                 var parsedResponse;
                 var storeMetric;
                 var tot_metric = [];
-                if (response.statusCode != 200) callback(response.statusCode);
+                if (response.statusCode != 200){
+                    if(response.statusCode == 401){
+                        return res.status(401).json({
+                            error: 'Authentication required to perform this action',
+                            id: req.params.widgetId,
+                           errorstatusCode:1003
+                        })
+                    }
+                    else
+                    callback(response.statusCode);
+                }
+
                 else {
                     var mailChimpResponse = JSON.parse(body);
                     var storeStartDate = new Date(result.startDate);
@@ -4023,10 +4094,17 @@ exports.getChannelData = function (req, res, next) {
             var token = result.profile.accessToken;
             var tokenSecret = result.profile.tokenSecret;
             var query = result.query;
-
             var apiClient = NA.api(token, tokenSecret);
             apiClient.request('get', query, {}, function (err, response) {
                 if (err) {
+                    if(err.error.status == 401){
+                        return res.status(401).json({
+                            error: 'Authentication required to perform this action',
+                            id: req.params.widgetId,
+                            errorstatusCode:1003
+                        })
+                    }
+                    else
                     return res.status(500).json({error: 'Internal server error'});
                 }
                 else {
@@ -4075,7 +4153,7 @@ exports.getChannelData = function (req, res, next) {
                     else if (result.metricCode === configAuth.aweberStatic.metricCode.total_opensCampaigns) {
                         storeMetric = response.total_opens;
                     }
-                else if (result.metricCode ===configAuth.aweberStatic.metricCode.total_clicksCampaigns) {
+                    else if (result.metricCode === configAuth.aweberStatic.metricCode.total_clicksCampaigns) {
                         storeMetric = response.total_clicks;
                     }
                     else if (result.metricCode === configAuth.aweberStatic.metricCode.total_sentCampaigns) {
@@ -4244,6 +4322,14 @@ exports.getChannelData = function (req, res, next) {
             request(result.query,
                 function (err, response, body) {
                     if (err || response.statusCode !== 200) {
+                        if(response.statusCode == 401){
+                            return res.status(401).json({
+                                error: 'Authentication required to perform this action',
+                                id: req.params.widgetId,
+                                errorstatusCode:1003
+                            })
+                        }
+                        else
                         return res.status(500).json({error: 'Internal server error'});
                     }
                     else {
@@ -4654,12 +4740,19 @@ exports.getChannelData = function (req, res, next) {
 
             function callrequest() {
                 request(result.query + '?access_token=' + access_token + '&page=' + page + '&per_page=2', function (err, results, body) {
-                    var parsedData = JSON.parse(body);
                     if (results.statusCode != 200) {
+                        if(results.statusCode == 401){
+                            return res.status(401).json({
+                                error: 'Authentication required to perform this action',
+                                id: req.params.widgetId,
+                                errorstatusCode:1003
+                            });
+                        }
+                        else
                         return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
                     }
                     else {
-
+                        var parsedData = JSON.parse(body);
                         var Tempstore = [];
                         if (configAuth.vimeoMetric.vimeohighengagement == result.metricCode) {
                             for (var i = 0; i < parsedData.data.length; i++) {

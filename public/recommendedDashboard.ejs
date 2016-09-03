@@ -156,16 +156,23 @@
                     <div class="scrollbar" id="scroller">
                         <div class="row" ng-show="currentView === 'step_one'">
                             <h5 class="model-title">Step 1 : Choose a Dashboard</h5>
+                            <div id ="alert_placeholder"></div>
                             <div class="col-lg-12">
-                                <div ng-repeat="dashboards in recommendDashboard" class="col-lg-2 widget-icons showReferenceWidgets" data-toggle="tooltip" data-placement="bottom" title="" data-original-title={{dashboards.dashboard.description}}  ng-click="getProfileForChosenChannel(dashboards);changeViewsInBasicWidget('step_two');">
-                                    <p class="metricNames" style="margin-top:5px !important;">{{dashboards.dashboard.name}}</p>
-                                    <img ng-repeat="channels in dashboards.channels" src="image/thumbnail/{{channels.name}}.png" class="img-thumbnail" style="max-width:30%;max-height:35%; margin: 0px 5px 0px 0px;"/>
+                                <div style="padding:2px;align-content: center;margin:0% 41%"><p style="padding:5px;font-family: Heebo-Medium;">Available Widgets : {{widgetCount}}</P></div>
+                                <div ng-repeat="dashboards in recommendDashboard" class="col-lg-2 widget-icons showReferenceWidgets" data-toggle="tooltip" data-placement="bottom" title="" data-original-title={{dashboards.dashboard.description}}  ng-click="getProfileForChosenChannel(dashboards);">
+                                    <p style="padding:2px;font-family: Heebo-Medium; ">{{dashboards.referenceWidgets.length}} widgets</p>
+                                    <p class="metricNames" style="margin-top:5px !important;margin:0px 0px 3px !important">{{dashboards.dashboard.name}}</p>
+                                    <img ng-repeat="channels in dashboards.channels" src="image/thumbnail/{{channels.name}}.png" class="img-thumbnail" style="max-width:30%;max-height:30%; margin: 0px 5px 0px 0px;"/>
+
+
                                 </div>
                             </div>
                         </div>
                         <div class="row" ng-show="currentView === 'step_two'">
                             <h5 class="model-title">Step 2 : Choose Your Accounts</h5>
                             <div class="col-lg-12" style="background-color: #f3f3f4">
+                                <div id ="errorInFinish" class="errorInFinish"></div>
+
                                 <div class="row" style="margin: 25px 5px 5px 5px ;">
                                     <div class="col-lg-12" style="margin: 0px">
                                         <channelDiv class="col-lg-6" ng-repeat="listChannel in getChannelList">
@@ -237,12 +244,12 @@
                                                                 </select>
                                                                 <select class="form-control m-b col-md-6"
                                                                         ng-model="objectOptionsModel[$index]"
-                                                                        ng-hide = "listChannel.name=== 'Twitter' || listChannel.name=== 'Google Analytics'||(canManage==false&&listChannel.name === 'GoogleAdwords')"
+                                                                        ng-hide = "listChannel.name=== 'Twitter' || listChannel.name=== 'Instagram'|| listChannel.name=== 'Google Analytics'||(canManage==false&&listChannel.name === 'GoogleAdwords')"
                                                                         ng-options="objects as objects.name for objects in objectList[$index]"
                                                                         ng-change="objectForWidgetChosen(objectOptionsModel[$index], $index)" >
                                                                     <option value="" selected="selected">Select an item</option>
                                                                 </select>
-                                                                <div class="infont col-md-1 col-sm-2" ng-hide = "listChannel.name=== 'Twitter'|| (canManage==false&&listChannel.name === 'GoogleAdwords')">
+                                                                <div class="infont col-md-1 col-sm-2" ng-hide = "listChannel.name=== 'Twitter' || listChannel.name=== 'Instagram' || (canManage==false&&listChannel.name === 'GoogleAdwords')">
                                                                     <a ng-click="refreshObjectsForChosenProfile($index)"
                                                                        class="link-img">
                                                                         <svg width="7px" height="7px"
@@ -278,7 +285,7 @@
                     <div class="col-lg-12 text-right">
                         <button class="btn btn-white button-mode" id="basicWidgetBackButton1" ng-hide="currentView === 'step_one' || currentView === 'step_two'" ng-click="changeViewsInBasicWidget('step_two')">Previous </button>
                         <button class="btn btn-white button-mode" id="basicWidgetBackButton2" ng-show="currentView === 'step_two'" ng-click="changeViewsInBasicWidget('step_one')">Previous </button>
-                        <button class="btn btn-primary button-mode" id="basicWidgetFinishButton" ng-show="currentView === 'step_two'" ng-click="createRecommendedDashboard();ok()" disabled="disabled">Finish</button>
+                        <button class="btn btn-primary button-mode" id="basicWidgetFinishButton" ng-show="currentView === 'step_two'" ng-click="createRecommendedDashboard();" disabled="disabled">Finish</button>
                     </div>
                 </div>
             </div>

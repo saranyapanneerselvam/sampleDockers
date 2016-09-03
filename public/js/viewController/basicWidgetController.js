@@ -3,8 +3,9 @@ showMetricApp.controller('BasicWidgetController', BasicWidgetController)
 function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stateParams, generateChartColours) {
     $scope.objectList = {};
     $scope.referenceWidgetsList = [];
-    $scope.profileList = {};
-    $scope.objectTypeList={};
+    var availableBasicWidgets;
+    $scope.profileList = [];
+    $scope.objectTypeList = {};
     $scope.tokenExpired = false;
     $scope.channelList;
     $scope.currentView = 'step_one';
@@ -33,6 +34,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     var getReferenceWidgetsArr = new Array();
     var storeChosenObject = [];
     var profileListBeforeAddition = {};
+    $scope.profileOptionsModel={};
 
     $scope.changeViewsInBasicWidget = function (obj) {
         $scope.currentView = obj;
@@ -47,11 +49,29 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             $scope.profileList = {};
             $scope.objectTypeList={};
             $scope.canManageClients = null;
+    //request to get the subscription details of the user on basic widgets
+            $http(
+                {
+                    method: 'GET',
+                    url: '/api/v1/subscriptionLimits' + '?requestType=' + 'basic'
+                }
+            ).then(
+                function successCallback(response) {
+                    availableBasicWidgets = response.data.availableWidgets;
+                },
+                function errorCallback(error) {
+                    swal({
+                        title: "",
+                        text: "<span style='sweetAlertFont'>Something went wrong!!!!</span> .",
+                        html: true
+                    });
+                }
+            );
         }
         else if ($scope.currentView === 'step_two') {
             document.getElementById('basicWidgetBackButton1').disabled = false;
             $scope.clearReferenceWidget();
-            $scope.profileList = {};
+            $scope.profileList = [];
             if (getChannelName == "CustomData") {
                 $scope.storeCustomData();
                 $("#basicWidgetNextButton").hide();
@@ -397,7 +417,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
 
     // $scope.clearSelectLevel=function(){
     //
-    //     if($scope.profileId==this.profileOptionsModel._id){
+    //     if($scope.profileId==$scope.profileOptionsModel._id){
     //
     //         $scope.selectedLevel=null;
     //         document.getElementById('basicWidgetFinishButton').disabled = true;
@@ -412,7 +432,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     //         $scope.adSetAdsChosen=false;
     //     }
     //     else {
-    //         $scope.profileId=this.profileOptionsModel._id;
+    //         $scope.profileId=$scope.profileOptionsModel._id;
     //
     //         $scope.selectedLevel=null;
     //         document.getElementById('basicWidgetFinishButton').disabled = true;
@@ -603,7 +623,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             }
         }
         if($scope.selectedGoogleLevel=='adwordaccount'){
-            if((this.profileOptionsModel!=null)&&($scope.googleAccountId!=null))
+            if(($scope.profileOptionsModel!=null)&&($scope.googleAccountId!=null))
                 document.getElementById('basicWidgetFinishButton').disabled =false;
             else
                 document.getElementById('basicWidgetFinishButton').disabled = true;
@@ -625,7 +645,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         }
         else if($scope.selectedGoogleLevel=='adwordAdgroup'){
             if(($scope.googleCampaignChosen==true)&&($scope.groupChosen==true)){
-                if((this.profileOptionsModel!=null)&&($scope.googleAccountId!=null)&&($scope.googleCampaign!=null)&&($scope.googleGroup!=null))
+                if(($scope.profileOptionsModel!=null)&&($scope.googleAccountId!=null)&&($scope.googleCampaign!=null)&&($scope.googleGroup!=null))
                     document.getElementById('basicWidgetFinishButton').disabled =false;
                 else {
                     //  $scope.clearGoogleSelectLevel();
@@ -648,7 +668,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         }
         else if($scope.selectedGoogleLevel=='adwordsAd'){
             if(($scope.googleCampaignChosen==true)&&($scope.groupChosen==true)&&($scope.adChosen==true)){
-                if((this.profileOptionsModel!=null)&&($scope.googleAccountId!=null)&&($scope.googleCampaign!=null)&&($scope.googleGroup!=null)&&($scope.googleAd!=null))
+                if(($scope.profileOptionsModel!=null)&&($scope.googleAccountId!=null)&&($scope.googleCampaign!=null)&&($scope.googleGroup!=null)&&($scope.googleAd!=null))
                     document.getElementById('basicWidgetFinishButton').disabled =false;
                 else {
                     //  $scope.clearGoogleSelectLevel();
@@ -904,7 +924,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     // $scope.clearGoogleSelectLevel=function(){
     //     if($scope.canManageClients==false) {
     //         var value=0;
-    //         if ($scope.googleProfileId != this.profileOptionsModel._id) {
+    //         if ($scope.googleProfileId != $scope.profileOptionsModel._id) {
     //             $scope.selectedGoogleLevel = null;
     //             document.getElementById('basicWidgetFinishButton').disabled = true;
     //             $scope.googleCampaignEnable = false;
@@ -923,7 +943,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     //     }
     //     else{
     //         var value=0;
-    //         if ($scope.googleProfileId == this.profileOptionsModel._id) {
+    //         if ($scope.googleProfileId == $scope.profileOptionsModel._id) {
     //             $scope.selectedGoogleLevel = null;
     //             document.getElementById('basicWidgetFinishButton').disabled = true;
     //             $scope.googleCampaignEnable = false;
@@ -961,7 +981,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         document.getElementById('basicWidgetFinishButton').disabled = true;
         $scope.checkExpiresIn = null;
         storeChosenObject = [];
-        if (!this.profileOptionsModel) {
+        if (!$scope.profileOptionsModel) {
             $scope.facebookObjectList = null;
             $scope.googleAnalyticsObjectList = null;
             $scope.facebookAdsObjectList = null;
@@ -1007,17 +1027,17 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             }
         }
         else {
-            storedProfile = this.profileOptionsModel;
+            storedProfile = $scope.profileOptionsModel;
 
             if($scope.storedChannelName == 'GoogleAdwords') {
-                if (this.profileOptionsModel.canManageClients === false)
+                if ($scope.profileOptionsModel.canManageClients === false)
                     $scope.canManageClients =false;
                 else
                     $scope.canManageClients =true;
             }
             if($scope.storedChannelName == 'FacebookAds'){
                 document.getElementById('basicWidgetFinishButton').disabled = true;
-                if(this.profileOptionsModel) {
+                if($scope.profileOptionsModel) {
                     $scope.selectedLevel = null;
                     document.getElementById('basicWidgetFinishButton').disabled = true;
                     $scope.campaignEnable = false;
@@ -1030,11 +1050,11 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     $scope.adSetChosen = false;
                     $scope.adSetAdsChosen = false;
                     $scope.profileId = storedProfile._id;
-                    if (this.profileOptionsModel.expiresIn != undefined)
-                        $scope.checkExpiresIn = new Date(this.profileOptionsModel.expiresIn);
+                    if ($scope.profileOptionsModel.expiresIn != undefined)
+                        $scope.checkExpiresIn = new Date($scope.profileOptionsModel.expiresIn);
                     $scope.tokenExpired = false;
-                    var profileId = this.profileOptionsModel._id;
-                    var expiresIn = this.profileOptionsModel.expiresIn;
+                    var profileId = $scope.profileOptionsModel._id;
+                    var expiresIn = $scope.profileOptionsModel.expiresIn;
                     var currentDate = new Date();
                     var newExpiresIn = new Date(expiresIn);
                     if (currentDate <= newExpiresIn && expiresIn != null)
@@ -1080,7 +1100,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             }
             else if(($scope.storedChannelName == 'GoogleAdwords')){
                 document.getElementById('basicWidgetFinishButton').disabled = true;
-                if(this.profileOptionsModel) {
+                if($scope.profileOptionsModel) {
                     $scope.googleCampaignEnable = false;
                     $scope.adEnable = false;
                     $scope.groupEnable = false;
@@ -1094,12 +1114,12 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     document.getElementById('basicWidgetFinishButton').disabled = true;
                     if ($scope.canManageClients == false) {
                         $scope.googleProfileId = storedProfile._id;
-                        if (this.profileOptionsModel.expiresIn != undefined)
-                            $scope.checkExpiresIn = new Date(this.profileOptionsModel.expiresIn);
+                        if ($scope.profileOptionsModel.expiresIn != undefined)
+                            $scope.checkExpiresIn = new Date($scope.profileOptionsModel.expiresIn);
                         $scope.tokenExpired = false;
 
-                        var profileId = this.profileOptionsModel._id;
-                        var expiresIn = this.profileOptionsModel.expiresIn;
+                        var profileId = $scope.profileOptionsModel._id;
+                        var expiresIn = $scope.profileOptionsModel.expiresIn;
                         var currentDate = new Date();
                         var newExpiresIn = new Date(expiresIn);
                         if (currentDate <= newExpiresIn && expiresIn != null)
@@ -1147,12 +1167,12 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     }
                     else {
                         $scope.googleProfileId = storedProfile._id;
-                        if (this.profileOptionsModel.expiresIn != undefined)
-                            $scope.checkExpiresIn = new Date(this.profileOptionsModel.expiresIn);
+                        if ($scope.profileOptionsModel.expiresIn != undefined)
+                            $scope.checkExpiresIn = new Date($scope.profileOptionsModel.expiresIn);
                         $scope.tokenExpired = false;
 
-                        var profileId = this.profileOptionsModel._id;
-                        var expiresIn = this.profileOptionsModel.expiresIn;
+                        var profileId = $scope.profileOptionsModel._id;
+                        var expiresIn = $scope.profileOptionsModel.expiresIn;
                         var currentDate = new Date();
                         var newExpiresIn = new Date(expiresIn);
                         if (currentDate <= newExpiresIn && expiresIn != null)
@@ -1198,12 +1218,12 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 }
             }
             else {
-                if (this.profileOptionsModel.expiresIn != undefined)
-                    $scope.checkExpiresIn = new Date(this.profileOptionsModel.expiresIn);
+                if ($scope.profileOptionsModel.expiresIn != undefined)
+                    $scope.checkExpiresIn = new Date($scope.profileOptionsModel.expiresIn);
                 $scope.tokenExpired = false;
 
-                var profileId = this.profileOptionsModel._id;
-                var expiresIn = this.profileOptionsModel.expiresIn;
+                var profileId = $scope.profileOptionsModel._id;
+                var expiresIn = $scope.profileOptionsModel.expiresIn;
                 var currentDate = new Date();
                 var newExpiresIn = new Date(expiresIn);
                 if (currentDate <= newExpiresIn && expiresIn != null)
@@ -1245,7 +1265,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                                 $scope.mailchimpObjectList = tempList;
                             else if ($scope.storedChannelName == 'Aweber')
                                 $scope.aweberObjectList = tempList;
-                            else if ($scope.storedChannelName == 'linkedin')
+                            else if ($scope.storedChannelName == 'LinkedIn')
                                 $scope.linkedInObjectList = tempList;
                             else if ($scope.storedChannelName == 'YouTube')
                                 $scope.youtubeObjectList = tempList;
@@ -1299,8 +1319,8 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     };
 
     $scope.refreshObjectsForChosenProfile = function (objectTypeId) {
-        if (this.profileOptionsModel._id) {
-            var profileId = this.profileOptionsModel._id;
+        if ($scope.profileOptionsModel._id) {
+            var profileId = $scope.profileOptionsModel._id;
             $http({
                 method: 'GET',
                 url: '/api/v1/get/objectTypeDetail/' + objectTypeId
@@ -1315,18 +1335,18 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                             var uniqueObjectTypeWithIndex = [];
                             var uniqueObject;
                             var k=0; var tempList = {};
-
                             k = $scope.uniqueObjectCount.indexOf(objectTypeId);
-
                             if($scope.storedChannelName != 'Google Analytics') {
                                 uniqueObject = _.groupBy(response.data, 'objectTypeId');
                                 for(var items in uniqueObject) {
                                     var tempObjectList = [];
-                                    for(var subItems in uniqueObject[items])
-                                        tempObjectList.push(uniqueObject[items][subItems]);
-                                    var obj = {};
-                                    obj[k] = tempObjectList;
-                                    tempList = obj;
+                                    if (items == objectTypeId) {
+                                        for (var subItems in uniqueObject[items])
+                                            tempObjectList.push(uniqueObject[items][subItems]);
+                                        var obj = {};
+                                        obj[k] = tempObjectList;
+                                        tempList = obj;
+                                    }
                                 }
                                 if ($scope.storedChannelName == 'Facebook')
                                     $scope.facebookObjectList[k] = tempList;
@@ -1351,6 +1371,17 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                             }
                         },
                         function errorCallback(error) {
+                            if(error.status === 401){
+                                if(error.data.errorstatusCode === 1003){
+                                    swal({
+                                        title: "",
+                                        text: "<span style='sweetAlertFont'>refresh your account</span> .",
+                                        html: true
+                                    });
+                                    $scope.tokenExpired=true;
+                                }
+                            } else
+
                             swal({
                                 title: "",
                                 text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
@@ -1407,7 +1438,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     url = '/api/auth/mailchimp';
                     title = $scope.storedChannelName;
                     break;
-                case 'linkedin':
+                case 'LinkedIn':
                     url = '/api/auth/linkedIn';
                     title = $scope.storedChannelName;
                     break;
@@ -1437,7 +1468,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     };
 
     $scope.removeExistingProfile = function () {
-        var profileOptionsModel = this.profileOptionsModel;
+        var profileOptionsModel = $scope.profileOptionsModel;
         swal({
                 title: "Confirm Profile Delink?",
                 text: "All data, widgets associated with this profile will be deleted! Confirm?",
@@ -1513,11 +1544,12 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             );
             httpPromise.then (
                 function (mozObjectDetails) {
+                    var inputParams = [];
+
                     //creating widget for moz
                     for (var getData in getReferenceWidgetsArr) {
                         var matchingMetric = [];
                         var matchingMetricName = '';
-                        var inputParams = [];
                         var widgetColor = generateChartColours.fetchWidgetColor($scope.storedChannelName);
 
                         for (var i = 0; i < getReferenceWidgetsArr[getData].charts.length; i++) {
@@ -1552,24 +1584,56 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                             "channelName": $scope.storedChannelName
                         };
                         inputParams.push(jsonData);
-                        $http({
-                            method: 'POST',
-                            url: '/api/v1/widgets',
-                            data: inputParams
-                        }).then(
-                            function successCallback(response) {
-                                for (var widgetObjects in response.data.widgetsList)
-                                    $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
-                            },
-                            function errorCallback(error) {
-                                $(".navbar").css('z-index', '1');
-                                $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
-                                $("#somethingWentWrongModalContent").addClass('md-show');
-                                $("#somethingWentWrongText").text("Something went wrong! Please try again");
-                            }
-                        );
                     }
                     getReferenceWidgetsArr = [];
+                    //request to get the subscription details of the user on basic widgets
+                    $http(
+                        {
+                            method: 'GET',
+                            url: '/api/v1/subscriptionLimits' + '?requestType=' + 'basic'
+                        }
+                    ).then(
+                        function successCallback(response) {
+                            availableBasicWidgets = response.data.availableWidgets;
+                            if ((availableBasicWidgets > 0) && (availableBasicWidgets >= inputParams.length)) {
+                                $scope.ok();
+                                $http({
+                                    method: 'POST',
+                                    url: '/api/v1/widgets',
+                                    data: inputParams
+                                }).then(
+                                    function successCallback(response) {
+
+                                        for (var widgetObjects in response.data.widgetsList) {
+                                            $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
+                                        }
+                                    },
+                                    function errorCallback(error) {
+
+                                        $(".navbar").css('z-index', '1');
+                                        $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
+                                        $("#somethingWentWrongModalContent").addClass('md-show');
+                                        $("#somethingWentWrongText").text("Something went wrong! Please try again");
+                                        swal({
+                                            title: "",
+                                            text: "<span style='sweetAlertFont'>Something went wrong! Please try again!</span> .",
+                                            html: true
+                                        });
+                                    }
+                                );
+
+                            }
+                            else
+                                $('#mozError').html('<div class="alert alert-danger fade in" style="width: 400px;margin-left: 212px;"><button type="button" class="close close-alert" data-dismiss="alert" aria-hidden="true">×</button>You dont have any available widgets</div>');
+                        },
+                        function errorCallback(error) {
+                            swal({
+                                title: "",
+                                text: "<span style='sweetAlertFont'>Something went wrong! Please try again</span> .",
+                                html: true
+                            });
+                        }
+                    );
                 },
                 function errorCallback() {
                     $(".navbar").css('z-index', '1');
@@ -1579,12 +1643,13 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 }
             );
         }
-        else if($scope.storedChannelName == "FacebookAds"){
+        else if ($scope.storedChannelName == "FacebookAds") {
+            var inputParams = [];
+
             // function for saving facebook widgets goes here
             for (var getData in getReferenceWidgetsArr) {
                 var matchingMetric = [];
                 var matchingMetricName = '';
-                var inputParams = [];
                 var widgetColor = generateChartColours.fetchWidgetColor($scope.storedChannelName);
 
                 for (var i = 0; i < getReferenceWidgetsArr[getData].charts.length; i++) {
@@ -1600,11 +1665,21 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                             matchingMetric[0].objectTypeId=$scope.selectedObjectType._id;
                             matchingMetric[0].objectId = $scope.campaign._id;
                             matchingMetricName = $scope.campaign.name;
+                            if((getReferenceWidgetsArr[getData].charts[0].name=='Cost per Action Type')&&($scope.campaign.meta.objective!=null)){
+                                var chartName=$scope.campaign.meta.objective;
+                                var name=chartName.replace('_',' ')
+                                getReferenceWidgetsArr[getData].charts[0].name=name;
+                            }
                         }
                         else if($scope.selectedLevel=='fbAdSet'){
                             matchingMetric[0].objectTypeId=$scope.selectedObjectType._id;
                             matchingMetric[0].objectId = $scope.adSet._id;
                             matchingMetricName = $scope.adSet.name;
+                            if((getReferenceWidgetsArr[getData].charts[0].name=='Cost per Action Type')&&($scope.adSet.meta.objective!=null)){
+                                var chartName=$scope.adSet.meta.objective;
+                                var name=chartName.replace('_',' ')
+                                getReferenceWidgetsArr[getData].charts[0].name=name;
+                            }
                         }
                         else if($scope.selectedLevel=='fbAdSetAds'){
                             matchingMetric[0].objectTypeId=$scope.selectedObjectType._id;
@@ -1616,7 +1691,6 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     getReferenceWidgetsArr[getData].charts[i].objectName = matchingMetricName;
                 }
                 widgetName = getReferenceWidgetsArr[getData].name + ' - ' + matchingMetricName;
-
                 var jsonData = {
                     "dashboardId": $state.params.id,
                     "widgetType": widgetType,
@@ -1634,37 +1708,64 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     "channelName": $scope.storedChannelName
                 };
                 inputParams.push(jsonData);
-                $http({
-                    method: 'POST',
-                    url: '/api/v1/widgets',
-                    data: inputParams
-                }).then(
-                    function successCallback(response) {
-                        for (var widgetObjects in response.data.widgetsList) {
-                            $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
-                        }
-                    },
-                    function errorCallback(error) {
-                        $(".navbar").css('z-index', '1');
-                        $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
-                        $("#somethingWentWrongModalContent").addClass('md-show');
-                        $("#somethingWentWrongText").text("Something went wrong! Please try again");
-                        swal({
-                            title: "",
-                            text: "<span style='sweetAlertFont'>Something went wrong! Please try again!</span> .",
-                            html: true
-                        });
-                    }
-                );
             }
             getReferenceWidgetsArr = [];
+
+            //request to get the subscription details of the user on basic widgets
+
+            $http(
+                {
+                    method: 'GET',
+                    url: '/api/v1/subscriptionLimits' + '?requestType=' + 'basic'
+                }
+            ).then(
+                function successCallback(response) {
+                    availableBasicWidgets = response.data.availableWidgets;
+
+                    if ((availableBasicWidgets > 0) && (availableBasicWidgets >= inputParams.length)) {
+                        $scope.ok();
+                        $http({
+                            method: 'POST',
+                            url: '/api/v1/widgets',
+                            data: inputParams
+                        }).then(
+                            function successCallback(response) {
+                                for (var widgetObjects in response.data.widgetsList) {
+                                    $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
+                                }
+                            },
+                            function errorCallback(error) {
+                                $(".navbar").css('z-index', '1');
+                                $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
+                                $("#somethingWentWrongModalContent").addClass('md-show');
+                                $("#somethingWentWrongText").text("Something went wrong! Please try again");
+                                swal({
+                                    title: "",
+                                    text: "<span style='sweetAlertFont'>Something went wrong! Please try again!</span> .",
+                                    html: true
+                                });
+                            }
+                        );
+                    }
+                    else
+                        $('#errorInFinishButton').html('<div class="alert alert-danger fade in" style="width: 400px;margin-left: 212px;"><button type="button" class="close close-alert" data-dismiss="alert" aria-hidden="true">×</button>You dont have any available widgets</div>');
+                },
+                function errorCallback(error) {
+                    swal({
+                        title: "",
+                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                        html: true
+                    });
+                }
+            );
         }
-        else if($scope.storedChannelName == "GoogleAdwords"){
+        else if ($scope.storedChannelName == "GoogleAdwords") {
+            var inputParams = [];
+
             // function for saving facebook widgets goes here
             for (var getData in getReferenceWidgetsArr) {
                 var matchingMetric = [];
                 var matchingMetricName = '';
-                var inputParams = [];
                 var widgetColor = generateChartColours.fetchWidgetColor($scope.storedChannelName);
 
                 for (var i = 0; i < getReferenceWidgetsArr[getData].charts.length; i++) {
@@ -1714,37 +1815,65 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     "channelName": $scope.storedChannelName
                 };
                 inputParams.push(jsonData);
-                $http({
-                    method: 'POST',
-                    url: '/api/v1/widgets',
-                    data: inputParams
-                }).then(
-                    function successCallback(response) {
-                        for (var widgetObjects in response.data.widgetsList) {
-                            $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
-                        }
-                    },
-                    function errorCallback(error) {
-                        $(".navbar").css('z-index', '1');
-                        $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
-                        $("#somethingWentWrongModalContent").addClass('md-show');
-                        $("#somethingWentWrongText").text("Something went wrong! Please try again");
-                        swal({
-                            title: "",
-                            text: "<span style='sweetAlertFont'>Something went wrong! Please try again!</span> .",
-                            html: true
-                        });
-                    }
-                );
+
             }
+
             getReferenceWidgetsArr = [];
+            //request to get the subscription details of the user on basic widgets
+
+            $http(
+                {
+                    method: 'GET',
+                    url: '/api/v1/subscriptionLimits' + '?requestType=' + 'basic'
+                }
+            ).then(
+                function successCallback(response) {
+                    availableBasicWidgets = response.data.availableWidgets;
+
+                    if ((availableBasicWidgets > 0) && (availableBasicWidgets >= inputParams.length)) {
+                        $scope.ok();
+                        $http({
+                            method: 'POST',
+                            url: '/api/v1/widgets',
+                            data: inputParams
+                        }).then(
+                            function successCallback(response) {
+                                for (var widgetObjects in response.data.widgetsList) {
+                                    $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
+                                }
+                            },
+                            function errorCallback(error) {
+                                $(".navbar").css('z-index', '1');
+                                $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
+                                $("#somethingWentWrongModalContent").addClass('md-show');
+                                $("#somethingWentWrongText").text("Something went wrong! Please try again");
+                                swal({
+                                    title: "",
+                                    text: "<span style='sweetAlertFont'>Something went wrong! Please try again!</span> .",
+                                    html: true
+                                });
+                            }
+                        );
+                    }
+                    else
+                        $('#errorInFinishButton').html('<div class="alert alert-danger fade in" style="width: 400px;margin-left: 212px;"><button type="button" class="close close-alert" data-dismiss="alert" aria-hidden="true">×</button>You dont have any available widgets</div>');
+                },
+                function errorCallback(error) {
+                    swal({
+                        title: "",
+                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                        html: true
+                    });
+                }
+            );
         }
         else {
+            var inputParams = [];
             // function for saving other widgets goes here
             for (var getData in getReferenceWidgetsArr) {
                 var matchingMetric = [];
                 var matchingMetricName = '';
-                var inputParams = [];
+
                 var widgetColor = generateChartColours.fetchWidgetColor($scope.storedChannelName);
 
                 for (var i = 0; i < getReferenceWidgetsArr[getData].charts.length; i++) {
@@ -1783,12 +1912,26 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     "channelName": $scope.storedChannelName
                 };
                 inputParams.push(jsonData);
-                $http({
-                    method: 'POST',
-                    url: '/api/v1/widgets',
-                    data: inputParams
-                }).then(
-                    function successCallback(response) {
+            }
+            getReferenceWidgetsArr = [];
+            //request to get the subscription details of the user on basic widgets
+            $http(
+                {
+                    method: 'GET',
+                    url: '/api/v1/subscriptionLimits' + '?requestType=' + 'basic'
+                }
+            ).then(
+                function successCallback(response) {
+                    availableBasicWidgets = response.data.availableWidgets;
+
+                    if ((availableBasicWidgets > 0) && (availableBasicWidgets >= inputParams.length)) {
+                        $scope.ok();
+                        $http({
+                            method: 'POST',
+                            url: '/api/v1/widgets',
+                            data: inputParams
+                        }).then(
+                            function successCallback(response) {
 
                         for (var widgetObjects in response.data.widgetsList) {
                             $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
@@ -1796,19 +1939,30 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     },
                     function errorCallback(error) {
 
-                        $(".navbar").css('z-index', '1');
-                        $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
-                        $("#somethingWentWrongModalContent").addClass('md-show');
-                        $("#somethingWentWrongText").text("Something went wrong! Please try again");
-                        swal({
-                            title: "",
-                            text: "<span style='sweetAlertFont'>Something went wrong! Please try again!</span> .",
-                            html: true
-                        });
+                                $(".navbar").css('z-index', '1');
+                                $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
+                                $("#somethingWentWrongModalContent").addClass('md-show');
+                                $("#somethingWentWrongText").text("Something went wrong! Please try again");
+                                swal({
+                                    title: "",
+                                    text: "<span style='sweetAlertFont'>Something went wrong! Please try again!</span> .",
+                                    html: true
+                                });
+                            }
+                        );
+
                     }
-                );
-            }
-            getReferenceWidgetsArr = [];
+                    else
+                        $('#errorInFinishButton').html('<div class="alert alert-danger fade in" style="width: 400px;margin-left: 212px;"><button type="button" class="close close-alert" data-dismiss="alert" aria-hidden="true">×</button>You dont have any available widgets</div>');
+                },
+                function errorCallback(error) {
+                    swal({
+                        title: "",
+                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                        html: true
+                    });
+                }
+            );
         }
     };
 
@@ -1839,7 +1993,6 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         }
         return arr;
     };
-
     $scope.storeReferenceWidget = function () {
         $scope.storedReferenceWidget = this.referenceWidgets;
         var totalObjectType = [];
@@ -1852,15 +2005,22 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 $("#metricNames-" + this.referenceWidgets._id).removeClass("getMetricName");
                 $("#getCheck-" + this.referenceWidgets._id).hide();
                 IsAlreadyExist = 1;
+                availableBasicWidgets++;
             }
         }
         if (IsAlreadyExist != 1) {
-            getReferenceWidgetsArr.push(this.referenceWidgets);
-            $("#referenceWidgets-" + this.referenceWidgets._id).css("border", "2px solid #04509B");
-            $("#triangle-topright-" + this.referenceWidgets._id).addClass("triangle-topright");
-            $("#metricNames-" + this.referenceWidgets._id).addClass("getMetricName");
-            $("#getCheck-" + this.referenceWidgets._id).show();
-            document.getElementById('basicWidgetNextButton').disabled = false;
+            if (availableBasicWidgets <= 0) {
+                $('#error').html('<div class="alert alert-danger fade in" style="width: 400px;margin-left: 212px;"><button type="button" class="close close-alert" data-dismiss="alert" aria-hidden="true">×</button>You dont have any available widgets</div>');
+            }
+            else {
+                getReferenceWidgetsArr.push(this.referenceWidgets);
+                $("#referenceWidgets-" + this.referenceWidgets._id).css("border", "2px solid #04509B");
+                $("#triangle-topright-" + this.referenceWidgets._id).addClass("triangle-topright");
+                $("#metricNames-" + this.referenceWidgets._id).addClass("getMetricName");
+                $("#getCheck-" + this.referenceWidgets._id).show();
+                document.getElementById('basicWidgetNextButton').disabled = false;
+                availableBasicWidgets--;
+            }
         }
         if (getReferenceWidgetsArr == "" || getReferenceWidgetsArr == "[]" || getReferenceWidgetsArr == null) {
             document.getElementById('basicWidgetNextButton').disabled = true;
@@ -1903,6 +2063,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     };
 
     $scope.objectForWidgetChosen = function (chosenObject) {
+
         if($scope.storedChannelName=='FacebookAds') {
             if (!this.objectOptionsModel[0]) {
                 $scope.selectedObjectType = null;

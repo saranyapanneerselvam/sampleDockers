@@ -1,5 +1,8 @@
 var user = require('../models/user');
 var profile = require('../models/profiles');
+var organizations = require('../models/organizations');
+var subscriptionTypes=require('../models/subscriptionType');
+var configAuth = require('../config/auth');
 var exports = module.exports = {};
 var bcrypt = require('bcrypt-nodejs');
 
@@ -11,7 +14,7 @@ var bcrypt = require('bcrypt-nodejs');
  */
 
 exports.getUserDetails = function (req, res, next) {
-
+console.log('user',req.user)
     //To check user is logged in or not
     if(req.user){
         user.find({_id: req.user._id}, function (err, user) {
@@ -20,8 +23,60 @@ exports.getUserDetails = function (req, res, next) {
             else if (!user)
                 return res.status(204).json({error: 'No records found'});
             else{
-                req.app.result = user;
-                next();
+                var userResult=user;
+                var orgId=user[0].orgId;
+                organizations.find({_id:orgId}, {subscriptionTypeId:1,subscriptionExpiresOn:1} ,function(err,result){
+                    console.log('organizations',result)
+                    if (err)
+                        return res.status(500).json({error: 'Internal server error'});
+                    else if (!result)
+                        return res.status(204).json({error: 'No records found'});
+                    else {
+                        var subscriptionTypeId = result[0].subscriptionTypeId;
+                        console.log('subscriptionTypeId',subscriptionTypeId)
+                        var userExpiry = result[0].subscriptionExpiresOn;
+                        subscriptionTypes.find({_id: subscriptionTypeId}, {code: 1}, function (err, type) {
+                            if (err)
+                                return res.status(500).json({error: 'Internal server error'});
+                            else if (!type)
+                                return res.status(204).json({error: 'No records found'});
+                            else {
+                                var subscriptionType = type[0].code;
+                                if(configAuth.subscriptionType.free===subscriptionType) {
+                                    var user = {
+                                        user: userResult,
+                                        subscriptionType:subscriptionType
+                                    };
+                                    req.app.result = user;
+                                    next();
+                                }
+                                else{
+                                    var expiryDate = moment(userExpiry).format("YYYY-MM-DD");
+                                    var currentDate = moment(new Date).format("YYYY-MM-DD");
+                                    if(expiryDate>=currentDate){
+                                        var user = {
+                                            user: userResult,
+                                            subscriptionType:subscriptionType,
+                                            expiryDate:expiryDate
+                                        };
+                                        req.app.result = user;
+                                        next();
+                                    }
+                                    else{
+                                        var user = {
+                                            user: userResult,
+                                            subscriptionType:subscriptionType,
+                                            statusCode: 1002
+                                        };
+                                        console.log('userrr',user)
+                                        req.app.result = user;
+                                        next();
+                                    }
+                                }
+                            }
+                        });
+                    }
+                });
             }
         });
     }

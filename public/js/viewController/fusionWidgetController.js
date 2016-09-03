@@ -11,10 +11,11 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
     $scope.widgetType = 'fusion';
     $scope.storedUserChosenValues = [];
     $scope.profileOptionsModel = [];
-    $scope.objectTypeList =[];
-    $scope.fbAdObjId='';
-    $scope.gaAdObjId='';
+    $scope.objectTypeList = [];
+    $scope.fbAdObjId = '';
+    $scope.gaAdObjId = '';
     $scope.canManage = true;
+    var availableFusionWidgets;
     $scope.changeViewsInBasicWidget = function (obj) {
         $scope.currentView = obj;
         if ($scope.currentView === 'step_one') {
@@ -115,6 +116,7 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
 
     $scope.addNewProfile = function (index) {
         var url, title;
+
         function popupwindow(url, title, w, h) {
             switch ($scope.uniquechannelNames[index]) {
                 case 'Facebook':
@@ -169,11 +171,11 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
                     method: 'GET', url: '/api/v1/get/objectType/' + channel
                 }).then(
                     function successCallback(response) {
-                        $scope.objectTypeList=response.data.objectType;
-                        for(var i=0;i<$scope.objectTypeList.length;i++){
-                            if($scope.objectTypeList[i].type =='fbadaccount')
+                        $scope.objectTypeList = response.data.objectType;
+                        for (var i = 0; i < $scope.objectTypeList.length; i++) {
+                            if ($scope.objectTypeList[i].type == 'fbadaccount')
                                 $scope.fbAdObjId = $scope.objectTypeList[i]._id;
-                            else if($scope.objectTypeList[i].type =='adwordaccount')
+                            else if ($scope.objectTypeList[i].type == 'adwordaccount')
                                 $scope.gaAdObjId = $scope.objectTypeList[i]._id;
                         }
                     },
@@ -208,6 +210,7 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
         else {
             if($scope.uniquechannelNames[index] === 'Google Analytics'){
                 this.objectOptionsModel1='';
+                document.getElementById('basicWidgetFinishButton').disabled = true;
             }
             if ((profileObj.canManageClients === false) && ($scope.uniquechannelNames[index] === 'GoogleAdwords')) {
                 $scope.canManage = false;
@@ -239,18 +242,18 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
                 url: '/api/v1/get/objects/' + profileObj._id
             }).then(
                 function successCallback(response) {
-                    if ($scope.uniquechannelNames[index] === 'FacebookAds'){
+                    if ($scope.uniquechannelNames[index] === 'FacebookAds') {
                         $scope.objectList[index] = [];
-                        for(var j=0;j<response.data.objectList.length;j++) {
-                            if(response.data.objectList[j].objectTypeId == $scope.fbAdObjId) {
+                        for (var j = 0; j < response.data.objectList.length; j++) {
+                            if (response.data.objectList[j].objectTypeId == $scope.fbAdObjId) {
                                 $scope.objectList[index].push(response.data.objectList[j]);
                             }
                         }
 
                     }
-                    else if($scope.uniquechannelNames[index] === 'GoogleAdwords'){
+                    else if ($scope.uniquechannelNames[index] === 'GoogleAdwords') {
                         $scope.objectList[index] = [];
-                        for(var j=0;j<response.data.objectList.length;j++) {
+                        for (var j = 0; j < response.data.objectList.length; j++) {
                             if (response.data.objectList[j].objectTypeId == $scope.gaAdObjId) {
                                 $scope.objectList[index].push(response.data.objectList[j]);
                             }
@@ -262,7 +265,7 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
                     if ($scope.uniquechannelNames[index] === 'Twitter' || $scope.uniquechannelNames[index] === 'Instagram') {
                         $scope.objectForWidgetChosen($scope.objectList[index][0], index);
                     }
-                    if ((profileObj.canManageClients === false)&&($scope.uniquechannelNames[index] === 'GoogleAdwords')){
+                    if ((profileObj.canManageClients === false) && ($scope.uniquechannelNames[index] === 'GoogleAdwords')) {
                         $scope.objectForWidgetChosen($scope.objectList[index][0], index);
                     }
                 },
@@ -278,7 +281,7 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
     };
 
     $scope.objectForWidgetChosen = function (objectList, index) {
-        if(typeof objectList=== 'string' && objectList.length!=0)
+        if (typeof objectList === 'string' && objectList.length != 0)
             objectList = JSON.parse(objectList);
         else if (typeof objectList === 'string' && objectList.length == 0)
             objectList = null;
@@ -309,7 +312,7 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
             }
         }
 
-        if (chosenObjectCount == $scope.uniquechannelList.length && (  $scope.checkExpiresIn ===null || $scope.checkExpiresIn >= new Date()))
+        if (chosenObjectCount == $scope.uniquechannelList.length && (  $scope.checkExpiresIn === null || $scope.checkExpiresIn >= new Date()))
             document.getElementById('basicWidgetFinishButton').disabled = false;
         else
             document.getElementById('basicWidgetFinishButton').disabled = true;
@@ -398,7 +401,6 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
         colourRepeatChecker = generateChartColours.fetchRandomColors(chartCount);
         var matchingMetric = [];
         var inputParams = [];
-
         var widgetName = $scope.storedReferenceWidget.name;
         /*
          for(items in $scope.storedUserChosenValues) {
@@ -437,19 +439,45 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
             "channelName": "custom"
         };
         inputParams.push(jsonData);
-        $http({
-            method: 'POST',
-            url: '/api/v1/widgets',
-            data: inputParams
-        }).then(
+        //request to get the subscription details of the user on fusion widgets
+
+        $http(
+            {
+                method: 'GET',
+                url: '/api/v1/subscriptionLimits' + '?requestType=' + 'fusion'
+            }
+        ).then(
             function successCallback(response) {
-                for(widgetObjects in response.data.widgetsList)
-                    $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
+                availableFusionWidgets = response.data.availableWidgets;
+                if((availableFusionWidgets>0) && (availableFusionWidgets >= inputParams.length)){
+                    $scope.ok();
+
+                    $http({
+                        method: 'POST',
+                        url: '/api/v1/widgets',
+                        data: inputParams
+                    }).then(
+                        function successCallback(response) {
+                            for(widgetObjects in response.data.widgetsList)
+                                $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
+                        },
+                        function errorCallback(error) {
+                            swal({
+                                title: "",
+                                text: "<span style='sweetAlertFont'>Please try again! Something is missing</span> .",
+                                html: true
+                            });
+                        }
+                    );
+                }
+                else
+                    $('#errorInFusionWidgets').html('<div class="alert alert-danger fade in" style="width: 400px;margin-left: 212px;"><button type="button" class="close close-alert" data-dismiss="alert" aria-hidden="true">×</button>You dont have any available widgets</div>');
+
             },
             function errorCallback(error) {
                 swal({
                     title: "",
-                    text: "<span style='sweetAlertFont'>Please try again! Something is missing</span> .",
+                    text: "<span style='sweetAlertFont'>Something went wrong!!!!</span> .",
                     html: true
                 });
             }

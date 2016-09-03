@@ -26,34 +26,97 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
         .state('app.reporting', {
             url: "/reporting",
             template: '{{loadingVariable}}',
-            controller: function ($http,$state,$scope){
+            controller: function ($http,$state,$scope,$interval,$rootScope){
                 $scope.loadingVariable = '';
                 if($state.$current.name == 'app.reporting'){
                     $scope.loadingVariable = '';
-                    $http(
-                        {
-                            method: 'GET',
-                            url: '/api/v1/me'
-                        }
-                    ).then(
-                        function successCallback(response) {
-                            if(response.data.userDetails[0].lastDashboardId) {
-                                $scope.loadingVariable = '';
-                                if(response.data.userDetails[0].lastDashboardId != 'undefined')
-                                    $state.go('.dashboard',{id: response.data.userDetails[0].lastDashboardId});
-                                else
-                                    $scope.createNewDashboard();
+                    var repeat=0;
+                    var expiryCheck = function() {
+                        $http(
+                            {
+                                method: 'GET',
+                                url: '/api/v1/me'
                             }
-                            else {
+                        ).then(
+                            function successCallback(response) {
+                                if(repeat==0) {
+                                    if (response.data.userDetails.subscriptionType === 'free') {
+                                        if (response.data.userDetails.user[0].lastDashboardId) {
+                                            $scope.loadingVariable = '';
+                                            if (response.data.userDetails.user[0].lastDashboardId != 'undefined')
+                                                $state.go('.dashboard', {id: response.data.userDetails.user[0].lastDashboardId});
+                                            else
+                                                $scope.createNewDashboard();
+                                        }
+                                        else {
+                                            $scope.createNewDashboard();
+                                        }
+                                    }
+                                    else {
+                                        if (response.data.userDetails.statusCode === 1002) {
+                                            $rootScope.isExpired = true;
+                                            $state.go('.upgrade');
+                                        }
+                                        else {
+                                            $rootScope.isExpired = false;
+                                            var expiryDate = moment(response.data.userDetails.expiryDate);
+                                            var currentDate = moment(new Date).format("YYYY-MM-DD");
+                                            currentDate = moment(currentDate);
+                                            var diffDays = expiryDate.diff(currentDate, 'days');
+                                            if (diffDays < 4) {
+                                                toastr.info("Hi, welcome to Datapoolt.Your pricing plan is going to expire soon.Please upgrade to access Datapoolt", 'Expiry Warning', {
+                                                    "closeButton": true,
+                                                    "debug": false,
+                                                    "progressBar": true,
+                                                    "preventDuplicates": false,
+                                                    "positionClass": "toast-top-right",
+                                                    "onclick": null,
+                                                    "showDuration": "4000",
+                                                    "hideDuration": "1000",
+                                                    "timeOut": "7000",
+                                                    "extendedTimeOut": "1000",
+                                                    "showEasing": "swing",
+                                                    "hideEasing": "linear",
+                                                    "showMethod": "fadeIn",
+                                                    "hideMethod": "fadeOut"
+                                                });
+                                            }
+                                            if (response.data.userDetails.user[0].lastDashboardId) {
+                                                $scope.loadingVariable = '';
+                                                if (response.data.userDetails.user[0].lastDashboardId != 'undefined')
+                                                    $state.go('.dashboard', {id: response.data.userDetails.user[0].lastDashboardId});
+                                                else
+                                                    $scope.createNewDashboard();
+                                            }
+                                            else {
+                                                $scope.createNewDashboard();
+                                            }
+                                            
+                                        }
+                                    }
+                                    repeat++;
+                                }
+                                else {
+                                    if (response.data.userDetails.statusCode === 1002) {
+                                        $rootScope.isExpired = true;
+                                        $state.go('app.reporting.upgrade');
+                                    }
+                                }
+                            },
+                            function errorCallback(error) {
                                 $scope.createNewDashboard();
                             }
-                        },
-                        function errorCallback(error) {
-                            $scope.createNewDashboard();
-                        }
-                    );
+                        );
+                    };
+                    expiryCheck();
+                    $interval(expiryCheck,3600000);
                 }
             }
+        })
+
+        .state('app.reporting.upgrade', {
+            url: "/upgrade",
+            templateUrl: "common/upgrade.ejs"
         })
 
         .state('app.reporting.dashboard', {

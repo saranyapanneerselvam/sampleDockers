@@ -34,7 +34,7 @@ var oauth2AdsClient = new OAuth2(configAuth.googleAdwordsAuth.clientID, configAu
 //set googleadword node library
 var AdWords = require('../lib/googleads-node-lib');
 var NodeAweber = require('aweber-api-nodejs');
-var NA = new NodeAweber(configAuth.aweberAuth.clientID, configAuth.aweberAuth.clientSecret,  configAuth.aweberAuth.callbackURL);
+var NA = new NodeAweber(configAuth.aweberAuth.clientID, configAuth.aweberAuth.clientSecret, configAuth.aweberAuth.callbackURL);
 
 // set auth as a global default
 var analytics = googleapis.analytics({version: 'v3', auth: oauth2Client});
@@ -46,7 +46,8 @@ exports.listAccounts = function (req, res, next) {
     async.auto({
         get_objectType: getObjectType,
         get_profile: getProfile,
-        get_channel: ['get_objectType', 'get_profile', getChannel],
+        get_object: ['get_objectType', 'get_profile', getObject],
+        get_channel: ['get_objectType', 'get_object','get_profile', getChannel],
         get_channel_objects_remote: ['get_channel', getChannelObjectsRemote],
         store_channel_objects: ['get_channel_objects_remote', storeChannelObjects],
         get_channel_objects_db: ['store_channel_objects', getChannelObjectsDB]
@@ -90,6 +91,57 @@ exports.listAccounts = function (req, res, next) {
             dataCenter: 1,
             customerId: 1
         }, checkNullObject(callback));
+    }
+
+    function getObject(results, callback) {
+        if (req.query.objectType === configAuth.objectType.facebookAdCampaign) {
+            req.getObjectId = req.query.accountId;
+            req.profileId = req.params.profileId;
+            getObjects.getObjectsBasedAccountId(req, res, function (err, objectDetail) {
+                callback(null, objectDetail)
+            })
+        }
+        else if (req.query.objectType === configAuth.objectType.facebookAdSet) {
+            Object.findOne({
+                profileId: req.params.profileId,
+                channelObjectId: req.query.campaignId
+            }, function (err, object) {
+                if (err) return res.status(500).json({error: err});
+                else if (!object) return res.status(204).json({error: 'No records found'});
+                else {
+                    req.getObjectId = object.meta.accountId;
+                    req.profileId = req.params.profileId;
+                    getObjects.getObjectsBasedAccountId(req, res, function (err, objectDetail) {
+                        callback(null, objectDetail)
+                    })
+                }
+            });
+        }
+        else if (req.query.objectType === configAuth.objectType.facebookAdSetAds) {
+            req.getObjectId = req.query.adSetId;
+            req.profileId = req.params.profileId;
+            Object.findOne({
+                profileId: results.get_profile.id,
+                channelObjectId: req.query.adSetId
+            }, function (err, object) {
+                if (err) return res.status(500).json({error: err});
+                else if (!object) return res.status(204).json({error: 'No records found'});
+                else {
+                    Object.findOne({channelObjectId: object.meta.campaignId,profileId:req.params.profileId}, function (err, objectCampaignLevel) {
+                        if (err) return res.status(500).json({error: err});
+                        else if (!objectCampaignLevel) return res.status(204).json({error: 'No records found'});
+                        else{
+                            req.getObjectId = objectCampaignLevel.meta.accountId;
+                            getObjects.getObjectsBasedAccountId(req, res, function (err, objectDetail) {
+                                callback(null, objectDetail)
+                            })
+                        }
+                    });
+                }
+
+            });
+        }
+        else callback(null, 'No Object');
     }
 
     //To get the channel details from db
@@ -166,6 +218,17 @@ exports.listAccounts = function (req, res, next) {
                             request(configAuth.vimeoAuth.common +
                                 query + accessToken,
                                 function (err, result, body) {
+                                    if (err) {
+                                        return res.status(500).json({error: 'Internal server error'});
+                                    }
+                                        else if(result.statusCode == 401){
+                                        return res.status(401).json({
+                                            error: 'Authentication required to perform this action',
+                                            id: req.params.widgetId,
+                                            errorstatusCode: 1003
+                                        })
+                                    }
+                                    else{
                                     // var vimeoObject=[];
                                     var parsedData = JSON.parse(body);
                                     var length = parsedData.data.length;
@@ -184,6 +247,7 @@ exports.listAccounts = function (req, res, next) {
                                     callback(err, channelObject);
 
                                 }
+                        }
                             )
                         }
                     }
@@ -221,8 +285,19 @@ exports.listAccounts = function (req, res, next) {
         //To refresh the access token
         function refreshAccessToken(callback) {
             oauth2Client.refreshAccessToken(function (err, tokens) {
-                if (err)
+
+                if (err){
+                    if(err.code === 400){
+                        return res.status(401).json({
+                            error: 'Authentication required to perform this action',
+                            id: req.params.widgetId,
+                            errorstatusCode:1003
+                        })
+                    }
+                    else
                     callback(err, tokens);
+                }
+
                 else {
                     // your access_token is now refreshed and stored in oauth2Client; store these new tokens in a safe place (e.g. database)
                     var profile = initialResults.get_profile;
@@ -327,29 +402,44 @@ exports.listAccounts = function (req, res, next) {
             if (results.get_channel.code === configAuth.channels.facebookAds) {
                 var query = {};
                 if (req.query.objectType === configAuth.objectType.facebookAdCampaign) {
-                    query.meta = {'accountId': req.query.accountId};
+                    query.meta = {
+                        'accountId': req.query.accountId,
+                        currency: views[i].currency,
+                        objective: views[i].objective
+                    };
                     query.channelObjectId = views[i].channelObjectId;
-                    metaCondition.condition = {'accountId': req.query.accountId};
+                    metaCondition.objectTypeId = results.get_objectType._id;
+                    metaCondition.condition = {'meta.accountId': req.query.accountId};
                 }
                 else if (req.query.objectType === configAuth.objectType.facebookAdSet) {
-                    query.meta = {'campaignId': req.query.campaignId};
+                    query.meta = {
+                        'campaignId': req.query.campaignId,
+                        currency: views[i].currency,
+                        objective: views[i].objective
+                    };
                     query.channelObjectId = views[i].channelObjectId;
-
-                    metaCondition.condition = {campaignId: req.query.campaignId};
+                    metaCondition.objectTypeId = results.get_objectType._id;
+                    metaCondition.condition = {'meta.campaignId': req.query.campaignId};
                 }
                 else if (req.query.objectType === configAuth.objectType.facebookAds) {
                     //set query condition
                     var query = {
                         profileId: results.get_profile._id,
-                        channelObjectId: views[i].channelObjectId
+                        channelObjectId: views[i].channelObjectId,
+                        meta: {currency: views[i].currency}
                     };
                     metaCondition.objectTypeId = results.get_objectType._id;
                     //metaCondition.condition = null;
                 }
                 else {
-                    query.meta = {'adSetId': req.query.adSetId};
+                    query.meta = {
+                        'adSetId': req.query.adSetId,
+                        currency: views[i].currency,
+                        objective: views[i].objective
+                    };
                     query.channelObjectId = views[i].channelObjectId;
-                    metaCondition.condition = {adSetId: req.query.adSetId};
+                    metaCondition.objectTypeId = results.get_objectType._id;
+                    metaCondition.condition = {'meta.adSetId': req.query.adSetId};
                 }
                 //set the values
                 var update = {
@@ -512,26 +602,42 @@ exports.listAccounts = function (req, res, next) {
             FB.api(query,
                 function (objects) {
                     if (objects.error) {
-                        if (objects.error.code === 190)
+                        if (objects.error.code === 190){
                             return res.status(401).json({
                                 error: 'Authentication required to perform this action',
-                                id: req.params.widgetId
+                                id: req.params.widgetId,
+                                errorstatusCode:1003
                             })
+                        }
                         else if (objects.error.code === 4)
                             return res.status(4).json({error: 'Forbidden Error', id: req.params.widgetId})
                         else
                             return res.status(500).json({error: 'Internal server error', id: req.params.widgetId})
-
                     }
                     else {
                         if (objects.data.length != 0) {
                             if (objects.paging && objects.paging.next) {
                                 var objectLength = objects.data.length;
                                 for (var key = 0; key < objectLength; key++) {
-                                    objectList.push({
-                                        objectTypeId: results.get_objectType._id, profileId: results.get_profile._id,
-                                        channelObjectId: objects.data[key].id, name: objects.data[key].name
-                                    });
+                                    if (req.query.objectType === configAuth.objectType.facebookAds) {
+                                        objectList.push({
+                                            objectTypeId: results.get_objectType._id,
+                                            profileId: results.get_profile._id,
+                                            channelObjectId: objects.data[key].id,
+                                            name: objects.data[key].name,
+                                            currency: objects.data[key].currency
+                                        });
+                                    }
+                                    else {
+                                        objectList.push({
+                                            objectTypeId: results.get_objectType._id,
+                                            profileId: results.get_profile._id,
+                                            channelObjectId: objects.data[key].id,
+                                            name: objects.data[key].name,
+                                            objective: objects.data[key].objective,
+                                            currency: results.get_object.meta.currency
+                                        });
+                                    }
                                 }
                                 var nextPage = objects.paging.next;
                                 var str = nextPage;
@@ -541,10 +647,25 @@ exports.listAccounts = function (req, res, next) {
                             else {
                                 var objectLength = objects.data.length;
                                 for (var key = 0; key < objectLength; key++) {
-                                    objectList.push({
-                                        objectTypeId: results.get_objectType._id,
-                                        channelObjectId: objects.data[key].id, name: objects.data[key].name
-                                    });
+                                    if (req.query.objectType === configAuth.objectType.facebookAds) {
+                                        objectList.push({
+                                            objectTypeId: results.get_objectType._id,
+                                            profileId: results.get_profile._id,
+                                            channelObjectId: objects.data[key].id,
+                                            name: objects.data[key].name,
+                                            currency: objects.data[key].currency
+                                        });
+                                    }
+                                    else {
+                                        objectList.push({
+                                            objectTypeId: results.get_objectType._id,
+                                            profileId: results.get_profile._id,
+                                            channelObjectId: objects.data[key].id,
+                                            name: objects.data[key].name,
+                                            objective: objects.data[key].objective,
+                                            currency: results.get_object.meta.currency
+                                        });
+                                    }
                                 }
                                 callback(null, objectList)
                             }
@@ -560,15 +681,15 @@ exports.listAccounts = function (req, res, next) {
         //To select which object type
         switch (req.query.objectType) {
             case configAuth.objectType.facebookAds:
-                var query = configAuth.apiVersions.FBADs + "/" + results.get_profile.userId + "/adaccounts?fields=name";
+                var query = configAuth.apiVersions.FBADs + "/" + results.get_profile.userId + "/adaccounts?fields=name,currency";
                 getFbAdObjectList(results, query, callback);
                 break;
             case configAuth.objectType.facebookAdCampaign:
-                var query = configAuth.apiVersions.FBADs + "/" + req.query.accountId + "/campaigns?fields=name&limit=100";
+                var query = configAuth.apiVersions.FBADs + "/" + req.query.accountId + "/campaigns?fields=name,objective&limit=100";
                 getFbAdObjectList(results, query, callback);
                 break;
             case configAuth.objectType.facebookAdSet:
-                var query = configAuth.apiVersions.FBADs + "/" + req.query.campaignId + "/adsets?fields=name&limit=100";
+                var query = configAuth.apiVersions.FBADs + "/" + req.query.campaignId + "/adsets?fields=name,objective&limit=100";
                 getFbAdObjectList(results, query, callback);
                 break;
             case configAuth.objectType.facebookAdSetAds:
@@ -596,7 +717,6 @@ exports.listAccounts = function (req, res, next) {
 
     function getFbPageList(profile, channel, query) {
         var channelObjectDetails = [];
-
         //To get the object type id from database
         ObjectType.findOne({
             'type': req.query.objectType,
@@ -616,7 +736,19 @@ exports.listAccounts = function (req, res, next) {
                             FB.api(
                                 query,
                                 function (pageList) {
-                                    var length = pageList.data.length;
+                                    if (pageList.error){
+                                        if (pageList.error.code === 190) {
+                                            return res.status(401).json({
+                                                error: 'Authentication required to perform this action',
+                                                id: req.params.widgetId,
+                                                errorstatusCode: 1003
+                                            })
+                                        }
+                                        else
+                                            return res.status(500).json({error: 'Internal server error'});
+                                    }
+                                    else{
+                                        var length = pageList.data.length;
                                     req.app.result = pageList.data;
                                     for (var i = 0; i < length; i++) {
                                         var objectsResult = new Object();
@@ -657,6 +789,7 @@ exports.listAccounts = function (req, res, next) {
                                             }
                                         })
                                     }
+                                }
                                 }
                             )
                         }
@@ -754,10 +887,7 @@ exports.listAccounts = function (req, res, next) {
                 return res.status(204).json({error: 'No records found'});
             else {
                 if (results.canManageClients === true) {
-
-
                     if (configAuth.objectType.googleAdword == req.query.objectType) {
-
                         var service = new AdWords.ManagedCustomerService({
                             ADWORDS_CLIENT_ID: configAuth.googleAdwordsAuth.clientID,
                             ADWORDS_CLIENT_CUSTOMER_ID: results.customerId,
@@ -772,12 +902,8 @@ exports.listAccounts = function (req, res, next) {
                             ordering: [{field: 'Name', sortOrder: 'ASCENDING'}],
                             paging: {startIndex: 0, numberResults: 100}
                         });
-
                     }
-
                     if (req.query.accountId) {
-
-
                         if (configAuth.objectType.googleAdwordAdGroup == req.query.objectType) {
                             var service = new AdWords.AdGroupService({
                                 ADWORDS_CLIENT_ID: configAuth.googleAdwordsAuth.clientID,
@@ -793,10 +919,8 @@ exports.listAccounts = function (req, res, next) {
                                 ordering: [{field: 'AdGroupId', sortOrder: 'ASCENDING'}],
                                 paging: {startIndex: 0, numberResults: 100}
                             });
-
                         }
                         else if (configAuth.objectType.googleAdwordCampaign == req.query.objectType) {
-
                             var service = new AdWords.CampaignService({
                                 ADWORDS_CLIENT_ID: configAuth.googleAdwordsAuth.clientID,
                                 ADWORDS_CLIENT_CUSTOMER_ID: req.query.accountId,
@@ -828,14 +952,11 @@ exports.listAccounts = function (req, res, next) {
                                 ordering: [{field: 'Id', sortOrder: 'ASCENDING'}],
                                 paging: {startIndex: 0, numberResults: 100}
                             });
-
-
                         }
                     }
 
                 }
                 else {
-
                     if (configAuth.objectType.googleAdwordAdGroup == req.query.objectType) {
                         var service = new AdWords.AdGroupService({
                             ADWORDS_CLIENT_ID: configAuth.googleAdwordsAuth.clientID,
@@ -853,7 +974,6 @@ exports.listAccounts = function (req, res, next) {
                         });
                     }
                     else if (configAuth.objectType.googleAdwordCampaign == req.query.objectType) {
-
                         var service = new AdWords.CampaignService({
                             ADWORDS_CLIENT_ID: configAuth.googleAdwordsAuth.clientID,
                             ADWORDS_CLIENT_CUSTOMER_ID: results.customerId,
@@ -870,7 +990,6 @@ exports.listAccounts = function (req, res, next) {
                         });
                     }
                     else {
-
                         var service = new AdWords.AdGroupAdService({
                             ADWORDS_CLIENT_ID: configAuth.googleAdwordsAuth.clientID,
                             ADWORDS_CLIENT_CUSTOMER_ID: results.customerId,
@@ -885,15 +1004,16 @@ exports.listAccounts = function (req, res, next) {
                             ordering: [{field: 'Id', sortOrder: 'ASCENDING'}],
                             paging: {startIndex: 0, numberResults: 100}
                         });
-
-
                     }
-
-
                 }
                 service.get(clientCustomerId, selector, function (err, response) {
-                    if (err)
-                        return res.status(401).json({error: 'Authentication required to perform this action'});
+                    if (err){
+                        return res.status(401).json({
+                            error: 'Authentication required to perform this action',
+                            id: req.params.widgetId,
+                            errorstatusCode:1003
+                        })
+                    }
                     else {
                         queryExec(clientCustomerId, objectTypeId, results, response, callback);
                     }
@@ -913,12 +1033,9 @@ exports.listAccounts = function (req, res, next) {
         for (var i = 0; i < model.length; i++) {
             var modelResult = results.canManageClients;
             if (modelResult && configAuth.objectType.googleAdword == req.query.objectType) {
-
                 if (!model[i].attributes.canManageClients) {
                     var name = model[i].attributes.name;
                     var customerId = model[i].attributes.customerId;
-
-
                     //To store once
                     channelList.push({
                         profileId: results._id,
@@ -928,34 +1045,28 @@ exports.listAccounts = function (req, res, next) {
                         objectTypeId: objectTypeId._id
                     })
                 }
-
-
             }
             else {
                 var meta = {};
                 var filter = {};
-
                 if (configAuth.objectType.googleAdwordAdGroup == req.query.objectType) {
                     var name = model[i].attributes.name;
                     var Id = model[i].attributes.id;
                     meta.accountId = String(clientCustomerId);
-                    filter.accountId = String(clientCustomerId);
+                    filter['meta.accountId'] = String(clientCustomerId);
 
                     meta.campaignId = model[i].attributes.campaignId;
 
-                    filter.campaignId = req.query.campaignId;
+                    filter['meta.campaignId'] = req.query.campaignId;
                 }
                 else if (configAuth.objectType.googleAdwordCampaign == req.query.objectType) {
                     var name = model[i].attributes.name;
                     var Id = model[i].attributes.id;
                     meta.accountId = String(clientCustomerId);
-                    filter.accountId = String(clientCustomerId);
-
-
+                    filter['meta.accountId'] = String(clientCustomerId);
                 }
                 else {
                     if (typeof(model[i].attributes.ad.headline) === 'string') {
-
                         var name = model[i].attributes.ad.headline;
                     }
                     else {
@@ -966,8 +1077,8 @@ exports.listAccounts = function (req, res, next) {
                     meta.accountId = String(clientCustomerId);
                     meta.adSetId = model[i].attributes.adGroupId;
 
-                    filter.accountId = String(clientCustomerId);
-                    filter.adSetId = req.query.adSetId;
+                    filter['meta.accountId'] = String(clientCustomerId);
+                    filter['meta.adSetId'] = req.query.adSetId;
 
                 }
 
@@ -983,7 +1094,6 @@ exports.listAccounts = function (req, res, next) {
         }
         callback(null, channelList)
     }
-
     function selectLinkedInPages(results, callback) {
         switch (req.query.objectType) {
             case configAuth.objectType.linkedIn:
@@ -991,7 +1101,6 @@ exports.listAccounts = function (req, res, next) {
                 break;
         }
     }
-
     function getLinkedInPages(results, callback) {
         var channelObjectDetails = [];
         //To get the object type id from database
@@ -1005,8 +1114,17 @@ exports.listAccounts = function (req, res, next) {
                 var query = 'https://api.linkedin.com/v1/companies?oauth2_access_token=' + results.accessToken + '&format=json&is-company-admin=true';
                 request(query,
                     function (err, response, body) {
-                        if (err)
-                            return res.status(500).json({error: 'Internal server error'});
+                        if (err || response.statusCode !== 200) {
+                            if(response.statusCode == 401){
+                                return res.status(401).json({
+                                    error: 'Authentication required to perform this action',
+                                    id: req.params.widgetId,
+                                    errorstatusCode:1003
+                                })
+                            }
+                            else
+                                return res.status(500).json({error: 'Internal server error'});
+                        }
                         else {
                             parseObject = JSON.parse(body);
                             if (parseObject._total != 0) {
@@ -1048,8 +1166,6 @@ exports.listAccounts = function (req, res, next) {
                                             })
                                         }
                                     })
-
-
                                 }
                             }
                             else {
@@ -1057,7 +1173,6 @@ exports.listAccounts = function (req, res, next) {
                                 next();
                             }
                         }
-
                     })
             }
             else {
@@ -1096,8 +1211,17 @@ exports.listAccounts = function (req, res, next) {
                         }
                     }, function (err, response, body) {
                         var parsedResponse;
-                        if (response.statusCode != 200)
+                        if (response.statusCode != 200){
+                            if(response.statusCode != 200){
+                                return res.status(401).json({
+                                    error: 'Authentication required to perform this action',
+                                    id: req.params.widgetId,
+                                    errorstatusCode:1003
+                                })
+                            }
+                           else
                             return res.status(500).json({error: err});
+                        }
                         else {
                             var objectStoreDetails = JSON.parse(body);
                             if (objectStoreDetails[objectsName].length === 0) {
@@ -1151,7 +1275,6 @@ exports.listAccounts = function (req, res, next) {
                                 }
                             }
 
-
                         }
                     });
                 }
@@ -1162,15 +1285,12 @@ exports.listAccounts = function (req, res, next) {
     function selectaweberObject(results, callback) {
         if (req.query.objectType === configAuth.objectType.aweberList) {
             getaweber(results, callback);
-
         }
         else
             getaweber(results, callback);
-
     }
 
     function getaweber(results, callback) {
-
         if (results.get_objectType.type === configAuth.objectType.aweberList) {
             var listUrl = 'accounts/' + results.get_profile.userId + '/lists';
             getaweberObjectLists(listUrl, results.get_profile, results, callback);
@@ -1179,42 +1299,40 @@ exports.listAccounts = function (req, res, next) {
             var listUrl = 'accounts/' + results.get_profile.userId + '/lists';
             getaweberObjectLists(listUrl, results.get_profile, results, callback);
         }
-
         function getaweberObjectLists(query, get_profile, results, callback) {
-
             var channelObjectDetails = [];
             var token = get_profile.accessToken;
             var tokenSecret = get_profile.tokenSecret;
-
-
             var apiClient = NA.api(token, tokenSecret);
             apiClient.request('get', listUrl, {}, function (err, response) {
-                if (err)
+                if (err){
+                    if(err.error.status === 401){
+                        return res.status(401).json({
+                            error: 'Authentication required to perform this action',
+                            id: req.params.widgetId,
+                            errorstatusCode:1003
+                        })
+                    }
+                    else
                     return res.status(500).json({error: "internal server Error"});
-
+                }
                 else {
                     if (results.get_objectType.type ===configAuth.objectType.aweberList) {
-
                         for (var i = 0; i < response.entries.length; i++) {
                             channelObjectDetails.push({
                                 'name': response.entries[i].name,
                                 'objectid': response.entries[i].id
-
                             });
                         }
-
                         callback(null, channelObjectDetails);
                     }
-
                     else if (results.get_objectType.type === configAuth.objectType.aweberCampaign) {
                         var count = 0;
                         var campaignObjectDetails = [];
-
                         for (var i = 0; i < response.total_size; i++) {
                             var size = response.total_size;
                             var listUrl = 'accounts/' + results.get_profile.userId + '/lists/' + response.entries[i].id + '/campaigns';
                             var campaigns = call(listUrl, response.entries[i].id);
-
                             function call(listUrl, listId) {
                                 apiClient.request('get', listUrl, {}, function (err, res) {
                                     count++

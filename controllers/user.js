@@ -1,5 +1,6 @@
 var userDetails = require('../middlewares/user');
 var userActivity = require('../helpers/user');
+var limitcheck=require('../helpers/pricing')
 module.exports = function (app, passport) {
 
     // HOME PAGE (with login links)
@@ -89,7 +90,15 @@ module.exports = function (app, passport) {
         req.logout();
         res.redirect('/');
     });
-
+    //get available dashboards or widgets or alerts
+    app.get('/api/v1/subscriptionLimits',function (req, res) {
+        if (req.user){
+            limitcheck.checkUserSubscriptionLimit(req,res,function(err,response){
+                res.json(response);
+            });
+        }
+        else res.status(401).json({error: 'Authentication required to perform this action'});
+    })
     app.post('/api/v1/updateLastDashboardId/:id', userDetails.updateLastDashboardId, function (req, res) {
         res.json(req.app.result);
     });

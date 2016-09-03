@@ -6,6 +6,7 @@ var User = require('../models/user');
 var Widget = require('../models/widgets');
 var userPermission = require('../helpers/utility');
 var Q = require("q");
+var _ = require('lodash');
 /**
  Function to get the profiles's details such as name,access token,refresh token..
  @params 1.req contains the app user details i.e. username,email,orgId etc
@@ -32,7 +33,7 @@ exports.getDashboardList = function (req, res, next) {
                         return res.status(501).json({error: 'Not implemented'})
                     }
                     else {
-                        req.app.result = userDashboard;
+                        req.app.result = _.without(userDashboard,null);
                         next();
                     }
                 }, function errorCallback(err) {

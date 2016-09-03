@@ -14,7 +14,7 @@
                 </a>
             </li>
             <li class="tool" data-toggle="tooltip" data-placement="right" title="Add Recommended Dashboard" ng-show="$state.includes('app.reporting.dashboard')">
-                <a ui-sref="app.reporting.dashboard.recommendedDashboard">
+                <a ng-click="addRecommendedDashboard()">
                     <i class="icon icon-browser navigation-menu-icon"></i>
                     <span class="nav-label"> Add Recommended Dashboard</span>
                 </a>
@@ -25,20 +25,20 @@
                     <span class="nav-label"> Grid View</span>
                 </a>
             </li>
-            <li class="tool" data-toggle="tooltip" data-placement="right" title="Add Widgets" ng-show="$state.includes('app.reporting.dashboard')">
-                <a ui-sref="app.reporting.dashboard.basicWidget({widgetType:'basic'})">
+            <li class="tool" data-toggle="tooltip" data-placement="right" title="Add Widgets">
+                <a ng-click="checkAndShowAlert() || basicwidget()">
                     <i class="icon icon-presentation navigation-menu-icon"></i>
                     <span class="nav-label"> Add Widgets</span>
                 </a>
             </li>
-            <li class="tool"  data-toggle="tooltip" data-placement="right" title="Add Fusion widgets" ng-show="$state.includes('app.reporting.dashboard')">
-                <a ui-sref="app.reporting.dashboard.fusionWidget">
+            <li class="tool"  data-toggle="tooltip" data-placement="right" title="Add Fusion widgets" >
+                <a ng-click="checkAndShowAlert() || fusionwidget()">
                     <i class="icon icon-expand navigation-menu-icon"></i>
                     <span class="nav-label"> Fusions</span>
                 </a>
             </li>
-            <li class="tool soonModel" data-toggle="tooltip" data-placement="right" title="Insights" ng-show="$state.includes('app.reporting.dashboard')" class="md-trigger md-setperspective md-effect-19 addRemoveModalContent" data-modal="addRemoveModalContent">
-                <a>
+            <li class="tool soonModel" data-toggle="tooltip" data-placement="right" title="Insights"  class="md-trigger md-setperspective md-effect-19 addRemoveModalContent" data-modal="addRemoveModalContent">
+                <a ng-click="checkAndShowAlert() || true">
                     <i class="icon icon-megaphone navigation-menu-icon"></i>
                     <span class="nav-label"> Insights</span>
                 </a>

@@ -258,5 +258,48 @@ function AlertController($scope, $http, $q, $state, $rootScope, $window, $stateP
         $scope.alertFunction();
         $scope.changeViewsInAlertModal('step_two');
     };
+ $scope.availableAlerts=function(){
+     var isExpire=false;
+     $http({
+         method: 'GET',
+         url: '/api/v1/subscriptionLimits'+'?requestType='+'alert'
+     }).then(function successCallback(response){
+             if (isExpire === false){
+                 if(response.data.availablealerts > 0){
+                     if ($scope.currentView === 'step_one') {
+                         $scope.changeViewsInAlertModal('step_two');
+                     }
+                    else if ($scope.currentView === 'step_two'){
+                         $scope.saveAlert();
+                     }
+                     else {
+                         swal({
+                             title: "",
+                             text: "<span style='sweetAlertFont'>Something went wrong! Please try again!</span> .",
+                             html: true
+                         });
+                     }
+                     //available alert checking
+                 }
+                 else {
 
+                     $('.alertError').html('<div class="alert alert-danger fade in" style="width: 400px;margin-left: 212px;"><button type="button" class="close close-alert" data-dismiss="alert" aria-hidden="true">×</button>Alert limit is reached!</div>');
+                 }
+                 //expire condition end
+             }
+             else {
+
+                 $('.alertError').html('<div class="alert alert-danger fade in" style="width: 400px;margin-left: 212px;"><button type="button" class="close close-alert" data-dismiss="alert" aria-hidden="true">×</button>subscription is expire</div>');
+             }
+
+         },
+         function errorCallback(error){
+             swal({
+                 title: "",
+                 text: "<span style='sweetAlertFont'>Something went wrong! Please try again!</span> .",
+                 html: true
+             });
+         }
+     )
+ }
 }

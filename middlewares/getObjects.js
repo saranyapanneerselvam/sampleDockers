@@ -8,15 +8,15 @@ var Object = require('../models/objects');
 
 exports.objects = function (req, res, next) {
     if (req.query.campaignId != undefined) {
-        if (req.query.accountId != undefined)  req.query.metaCondition = {accountId:req.query.accountId,campaignId: req.query.campaignId}
-        else  req.query.metaCondition = {campaignId: req.query.campaignId}
+        if (req.query.accountId != undefined)  req.query.metaCondition = {'meta.accountId':req.query.accountId,'meta.campaignId': req.query.campaignId}
+        else  req.query.metaCondition = {'meta.campaignId': req.query.campaignId}
     }
     else if (req.query.adSetId != undefined) {
-        if (req.query.accountId != undefined)  req.query.metaCondition = {accountId:req.query.accountId,adSetId:req.query.adSetId}
-        else  req.query.metaCondition = {adSetId: req.query.adSetId}
+        if (req.query.accountId != undefined)  req.query.metaCondition = {'meta.accountId':req.query.accountId,'meta.adSetId':req.query.adSetId}
+        else  req.query.metaCondition = {'meta.adSetId': req.query.adSetId}
     }
 
-    else if(req.query.accountId!=undefined) req.query.metaCondition = {accountId:req.query.accountId}
+    else if(req.query.accountId!=undefined) req.query.metaCondition = {'meta.accountId':req.query.accountId}
 
   getObjects.findObjectsForProfile(req, res, function (err, object) {
     if (err)

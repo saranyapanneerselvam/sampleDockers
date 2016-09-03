@@ -10,8 +10,10 @@ var objectsSchema = mongoose.Schema({
     channelObjectId: String,
     meta: {
         accountId: String,
-        campaignId: String,
         adSetId: String,
+        campaignId: String,
+        currency:String,
+        objective:String,
         webPropertyName:String,
         webPropertyId:String
     },

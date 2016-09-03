@@ -7,6 +7,41 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
     $scope.dashbd = { widgets: [], widgetData: []};
     $scope.dashbd.dashboardName='';
     var expWid = { dashName:[], wid: [], widData: []};
+    var availableBasicWidgets;
+//function to check the subscription limits on basic widgets
+    $scope.basicwidget= function (){
+        toastr.options.positionClass = 'toast-top-right';
+        $http(
+            {
+                method: 'GET',
+                url: '/api/v1/subscriptionLimits'+'?requestType='+'basic'
+            }
+        ).then(
+            function successCallback(response) {
+                availableBasicWidgets = response.data.availableWidgets;
+                if ($rootScope.isExpired == true)
+                    toastr.info('your expiry date is finished');
+                else {
+                    if (availableBasicWidgets != 0)
+                        $state.go("app.reporting.dashboard.basicWidget", {widgetType: 'basic'});
+
+                    else
+                        toastr.info("you dont have available  widgets to create")
+                }
+            },
+            function errorCallback(error) {
+                swal({
+                    title: "",
+                    text: "<span style='sweetAlertFont'>Something went wrong! Please try again</span> .",
+                    html: true
+                });
+            }
+        );
+    }
+
+
+
+
 
      // document.getElementById('dashLayout').style.visibility = "hidden";
     var isExportOptionSet = '';

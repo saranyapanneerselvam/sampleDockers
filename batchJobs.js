@@ -70,7 +70,7 @@ var Object = require('./models/objects');
 var Profile = require('./models/profiles');
 var mongoose = require('mongoose');
 mongoose.connect(mongoConnectionString);//Connection with mongoose
-mongoose.set('debug', false);
+mongoose.set('debug', true);
 var Alert = require('./models/alert');
 
 //set Twitter module
@@ -952,7 +952,9 @@ agenda.define('Update channel data', function (job, done) {
                             startDate: updated,
                             endDate: currentDate,
                             metricId: initialResults.metric._id,
-                            metricName: initialResults.metric.objectTypes[0].meta.fbAdsMetricName
+                            metricName: initialResults.metric.objectTypes[0].meta.fbAdsMetricName,
+                            object:initialResults.object,
+                            metric:initialResults.metric
                         };
                         callback(null, [allObjects]);
                     }
@@ -972,7 +974,9 @@ agenda.define('Update channel data', function (job, done) {
                             endDate: currentDate,
                             metricId: initialResults.metric._id,
                             channelId: initialResults.metric.channelId,
-                            metricName: initialResults.metric.objectTypes[0].meta.fbAdsMetricName
+                            metricName: initialResults.metric.objectTypes[0].meta.fbAdsMetricName,
+                            object:initialResults.object,
+                            metric:initialResults.metric
                         };
                         callback(null, allObjects);
                     }
@@ -1020,6 +1024,7 @@ agenda.define('Update channel data', function (job, done) {
                     var query = results.query;
                     Adsinsights(query);
                     function Adsinsights(query) {
+                        console.log('adsights')
                         var metricId = results.metricId;
                         FB.api(query, function (apiResult) {
                             if (apiResult.error) callback(null)
@@ -1041,22 +1046,76 @@ agenda.define('Update channel data', function (job, done) {
                                         else var storeDefaultValues = findDaysDifference(storeStartDate, storeEndDate, undefined);
                                     }
                                     if (apiResult.paging && apiResult.paging.next) {
-                                        for (var key in apiResult.data)
-                                            tot_metric.push({
-                                                total: apiResult.data[key][storeMetricName],
-                                                date: apiResult.data[key].date_start
-                                            });
+                                        for (var key in apiResult.data) {
+                                            var totalValue;
+                                            if (results.metric.code === configAuth.fbAdsMetric.costPerActionType) {
+                                                if(results.object.meta.objective){
+                                                    var findObjectiveIndex = _.findIndex(apiResult.data[key][storeMetricName], function (o) {
+                                                        return o.action_type == results.object.meta.objective.toLowerCase();
+                                                    });
+                                                    console.log('findObjectiveIndex', findObjectiveIndex, results.metric.code)
+                                                    if (findObjectiveIndex!=-1) totalValue = apiResult.data[key][storeMetricName][findObjectiveIndex].value;
+                                                    else totalValue = 0;
+                                                }
+                                                else{
+                                                    console.log('else',apiResult.data[key][storeMetricName])
+                                                    var totalLength = apiResult.data[key][storeMetricName].length;
+                                                    var totalValue = 0;
+                                                    for(var i=0;i<totalLength;i++){
+                                                        totalValue+= apiResult.data[key][storeMetricName][i].value;
+                                                    }
+                                                }
+                                                console.log('totalValue',totalValue)
+                                                tot_metric.push({
+                                                    total: totalValue,
+                                                    date: apiResult.data[key].date_start
+                                                });
+                                            }
+                                            else {
+                                                tot_metric.push({
+                                                    total: apiResult.data[key][storeMetricName],
+                                                    date: apiResult.data[key].date_start
+                                                });
+                                            }
+                                        }
                                         var nextPage = apiResult.paging.next;
                                         var str = nextPage;
                                         var recallApi = str.replace("https://graph.facebook.com/", " ").trim();
                                         Adsinsights(recallApi);
                                     }
                                     else {
-                                        for (var key in apiResult.data)
-                                            tot_metric.push({
-                                                total: apiResult.data[key][storeMetricName],
-                                                date: apiResult.data[key].date_start
-                                            });
+                                        for (var key in apiResult.data) {
+                                            var totalValue;
+                                            if (results.metric.code === configAuth.fbAdsMetric.costPerActionType) {
+                                                if(results.object.meta.objective){
+                                                    var findObjectiveIndex = _.findIndex(apiResult.data[key][storeMetricName], function (o) {
+                                                        return o.action_type == results.object.meta.objective.toLowerCase();
+                                                    });
+                                                    console.log('findObjectiveIndex', findObjectiveIndex, results.metric.code)
+                                                    if (findObjectiveIndex!=-1) totalValue = apiResult.data[key][storeMetricName][findObjectiveIndex].value;
+                                                    else totalValue = 0;
+                                                }
+                                                else{
+                                                    console.log('else',apiResult.data[key][storeMetricName])
+                                                    var totalLength = apiResult.data[key][storeMetricName].length;
+                                                    var totalValue = 0;
+                                                    for(var i=0;i<totalLength;i++){
+                                                        totalValue+= apiResult.data[key][storeMetricName][i].value;
+                                                    }
+                                                }
+                                                console.log('totalValue',totalValue)
+                                                tot_metric.push({
+                                                    total: totalValue,
+                                                    date: apiResult.data[key].date_start
+                                                });
+                                            }
+                                            else {
+                                                tot_metric.push({
+                                                    total: apiResult.data[key][storeMetricName],
+                                                    date: apiResult.data[key].date_start
+                                                });
+                                            }
+                                        }
 
                                         var obj_metric = tot_metric.length;
                                         for (var j = 0; j < obj_metric; j++) {
@@ -3532,7 +3591,8 @@ agenda.define(configAuth.batchJobs.alertName, function (job, done) {
     }
 })
 agenda.on('ready', function () {
-    agenda.processEvery('2 hours', configAuth.batchJobs.alertJobName);
+    //agenda.processEvery('2 hours', configAuth.batchJobs.alertJobName);
+    agenda.now(configAuth.batchJobs.alertJobName);
     agenda.start();
     agenda.on(configAuth.batchJobs.successBatchJobMessage, function (job) {
         if (job) {

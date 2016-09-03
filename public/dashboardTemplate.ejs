@@ -38,7 +38,10 @@
             </div>
         </div>
         <div class="parallel-dashboard" ng-if="widgetsPresent == false">
-            <a ui-sref="app.reporting.dashboard.basicWidget({widgetType:'basic'})"><div class="empty-dashboard"><span>Add your first widget</span></div></a>
+<!--            <a ui-sref="app.reporting.dashboard.basicWidget({widgetType:'basic'})"><div class="empty-dashboard"><span>Add your first widget</span></div></a>-->
+
+            <a ng-click="basicwidget()"><div class="empty-dashboard"><span>Add your first widget</span></div></a>
+
         </div>
         <div class="white-bg dashboardContent">
             <div gridster="gridsterOptions" class="row" style="border: 1px solid #efefef;min-height: 500px" id="gridsterItems"><!--ng-switch-when="true"-->

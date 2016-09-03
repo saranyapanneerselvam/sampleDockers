@@ -538,18 +538,8 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
     //To download a pdf/jpeg version of the dashboard
     $scope.exportModal = function(val){
-
-        if(isExportOptionSet==1){
-            $rootScope.expObj = $scope.dashboard;
-            $state.go(val);
-        }
-        else{
-            swal({
-                title: '',
-                text: '<span style="sweetAlertFont">Unable to export at this moment. Please try again</span>',
-                html: true
-            });
-        }
+        $rootScope.expObj = $scope.dashboard;
+        $state.go(val);
     };
 
     //To delete a widget from the dashboard

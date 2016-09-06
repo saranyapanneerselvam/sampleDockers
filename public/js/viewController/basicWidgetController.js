@@ -1008,7 +1008,6 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         }
         else {
             storedProfile = $scope.profileOptionsModel;
-
             if($scope.storedChannelName == 'GoogleAdwords') {
                 if ($scope.profileOptionsModel.canManageClients === false)
                     $scope.canManageClients =false;
@@ -1353,6 +1352,16 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                             }
                         },
                         function errorCallback(error) {
+                            if(error.status === 401){
+                                if(error.data.errorstatusCode === 1003){
+                                    swal({
+                                        title: "",
+                                        text: "<span style='sweetAlertFont'>Please refersh your profile!</span>",
+                                        html: true
+                                    });
+                                    $scope.tokenExpired=true;
+                                }
+                            } else
                             swal({
                                 title: "",
                                 text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",

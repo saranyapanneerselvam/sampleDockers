@@ -144,6 +144,7 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
             }
             var left = (screen.width / 2) - (w / 2);
             var top = (screen.height / 2) - (h / 2);
+            $scope.tokenExpired = false;
             return window.open(url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
         }
         popupwindow(url, title, 1000, 500);
@@ -383,11 +384,21 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
                     $scope.objectList[index] = response.data;
                 },
                 function errorCallback(error) {
-                    swal({
-                        title: "",
-                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen fusions link</span> .",
-                        html: true
-                    });
+                    if(error.status === 401){
+                        if(error.data.errorstatusCode === 1003){
+                            swal({
+                                title: "",
+                                text: "<span style='sweetAlertFont'>Please refresh your profile!</span>",
+                                html: true
+                            });
+                            $scope.tokenExpired=true;
+                        }
+                    } else
+                        swal({
+                            title: "",
+                            text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                            html: true
+                        });
                 }
             );
         }

@@ -320,7 +320,7 @@ svg:hover #Calendar-Icon { fill: #293846; }
     font-size: 15px;
     color: #797676;}
 .fusion-tab{padding-left: 166px !important;}
-.fusion-boxContent{height: 165px;}
+.fusion-boxContent{height: 210px;}
 .ibox-fusion{padding: 7px 100px 0px !important;}
 .daterange .dr-input .dr-dates{ padding: 0 1.5rem 0 1.75rem !important; cursor: pointer !important;}
 .daterange .dr-selections .dr-calendar .dr-range-switcher .dr-switcher i:after, .daterange .dr-selections .dr-calendar .dr-range-switcher .dr-switcher i:before{background-color: #fff !important;}

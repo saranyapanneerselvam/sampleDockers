@@ -166,6 +166,17 @@ exports.listAccounts = function (req, res, next) {
                             request(configAuth.vimeoAuth.common +
                                 query + accessToken,
                                 function (err, result, body) {
+                                    if (err) {
+                                        return res.status(500).json({error: 'Internal server error'});
+                                    }                                     
+                                    else if(result.statusCode == 401){
+                                        return res.status(401).json({
+                                            error: 'Authentication required to perform this action',
+                                            id: req.params.widgetId,
+                                            errorstatusCode: 1003
+                                        })
+                                    }
+                                    else{
                                     // var vimeoObject=[];
                                     var parsedData = JSON.parse(body);
                                     var length = parsedData.data.length;
@@ -184,6 +195,7 @@ exports.listAccounts = function (req, res, next) {
                                     callback(err, channelObject);
 
                                 }
+                        }
                             )
                         }
                     }
@@ -221,8 +233,18 @@ exports.listAccounts = function (req, res, next) {
         //To refresh the access token
         function refreshAccessToken(callback) {
             oauth2Client.refreshAccessToken(function (err, tokens) {
-                if (err)
+                if (err){
+                    if(err.code === 400){
+                        return res.status(401).json({
+                            error: 'Authentication required to perform this action',
+                            id: req.params.widgetId,
+                            errorstatusCode:1003
+                        })
+                    }
+                    else
                     callback(err, tokens);
+                }
+
                 else {
                     // your access_token is now refreshed and stored in oauth2Client; store these new tokens in a safe place (e.g. database)
                     var profile = initialResults.get_profile;
@@ -512,16 +534,17 @@ exports.listAccounts = function (req, res, next) {
             FB.api(query,
                 function (objects) {
                     if (objects.error) {
-                        if (objects.error.code === 190)
+                        if (objects.error.code === 190){
                             return res.status(401).json({
                                 error: 'Authentication required to perform this action',
-                                id: req.params.widgetId
+                                id: req.params.widgetId,
+                                errorstatusCode:1003
                             })
+                        }
                         else if (objects.error.code === 4)
                             return res.status(4).json({error: 'Forbidden Error', id: req.params.widgetId})
                         else
                             return res.status(500).json({error: 'Internal server error', id: req.params.widgetId})
-
                     }
                     else {
                         if (objects.data.length != 0) {
@@ -596,7 +619,6 @@ exports.listAccounts = function (req, res, next) {
 
     function getFbPageList(profile, channel, query) {
         var channelObjectDetails = [];
-
         //To get the object type id from database
         ObjectType.findOne({
             'type': req.query.objectType,
@@ -616,7 +638,19 @@ exports.listAccounts = function (req, res, next) {
                             FB.api(
                                 query,
                                 function (pageList) {
-                                    var length = pageList.data.length;
+                                    if (pageList.error){
+                                        if (pageList.error.code === 190) {
+                                            return res.status(401).json({
+                                                error: 'Authentication required to perform this action',
+                                                id: req.params.widgetId,
+                                                errorstatusCode: 1003
+                                            })
+                                        }
+                                        else
+                                            return res.status(500).json({error: 'Internal server error'});
+                                    }
+                                    else{
+                                        var length = pageList.data.length;
                                     req.app.result = pageList.data;
                                     for (var i = 0; i < length; i++) {
                                         var objectsResult = new Object();
@@ -658,12 +692,12 @@ exports.listAccounts = function (req, res, next) {
                                         })
                                     }
                                 }
+                                }
                             )
                         }
                     }
                 );
             }
-
         })
     }
 
@@ -754,10 +788,7 @@ exports.listAccounts = function (req, res, next) {
                 return res.status(204).json({error: 'No records found'});
             else {
                 if (results.canManageClients === true) {
-
-
                     if (configAuth.objectType.googleAdword == req.query.objectType) {
-
                         var service = new AdWords.ManagedCustomerService({
                             ADWORDS_CLIENT_ID: configAuth.googleAdwordsAuth.clientID,
                             ADWORDS_CLIENT_CUSTOMER_ID: results.customerId,
@@ -772,13 +803,10 @@ exports.listAccounts = function (req, res, next) {
                             ordering: [{field: 'Name', sortOrder: 'ASCENDING'}],
                             paging: {startIndex: 0, numberResults: 100}
                         });
-
                     }
-
                     if (req.query.accountId) {
-
-
-                        if (configAuth.objectType.googleAdwordAdGroup == req.query.objectType) {
+                        if
+                        (configAuth.objectType.googleAdwordAdGroup == req.query.objectType) {
                             var service = new AdWords.AdGroupService({
                                 ADWORDS_CLIENT_ID: configAuth.googleAdwordsAuth.clientID,
                                 ADWORDS_CLIENT_CUSTOMER_ID: req.query.accountId,
@@ -828,14 +856,11 @@ exports.listAccounts = function (req, res, next) {
                                 ordering: [{field: 'Id', sortOrder: 'ASCENDING'}],
                                 paging: {startIndex: 0, numberResults: 100}
                             });
-
-
                         }
                     }
 
                 }
                 else {
-
                     if (configAuth.objectType.googleAdwordAdGroup == req.query.objectType) {
                         var service = new AdWords.AdGroupService({
                             ADWORDS_CLIENT_ID: configAuth.googleAdwordsAuth.clientID,
@@ -853,7 +878,6 @@ exports.listAccounts = function (req, res, next) {
                         });
                     }
                     else if (configAuth.objectType.googleAdwordCampaign == req.query.objectType) {
-
                         var service = new AdWords.CampaignService({
                             ADWORDS_CLIENT_ID: configAuth.googleAdwordsAuth.clientID,
                             ADWORDS_CLIENT_CUSTOMER_ID: results.customerId,
@@ -870,7 +894,6 @@ exports.listAccounts = function (req, res, next) {
                         });
                     }
                     else {
-
                         var service = new AdWords.AdGroupAdService({
                             ADWORDS_CLIENT_ID: configAuth.googleAdwordsAuth.clientID,
                             ADWORDS_CLIENT_CUSTOMER_ID: results.customerId,
@@ -885,15 +908,16 @@ exports.listAccounts = function (req, res, next) {
                             ordering: [{field: 'Id', sortOrder: 'ASCENDING'}],
                             paging: {startIndex: 0, numberResults: 100}
                         });
-
-
                     }
-
-
                 }
                 service.get(clientCustomerId, selector, function (err, response) {
-                    if (err)
-                        return res.status(401).json({error: 'Authentication required to perform this action'});
+                    if (err){
+                        return res.status(401).json({
+                            error: 'Authentication required to perform this action',
+                            id: req.params.widgetId,
+                            errorstatusCode:1003
+                        })
+                    }
                     else {
                         queryExec(clientCustomerId, objectTypeId, results, response, callback);
                     }
@@ -913,12 +937,9 @@ exports.listAccounts = function (req, res, next) {
         for (var i = 0; i < model.length; i++) {
             var modelResult = results.canManageClients;
             if (modelResult && configAuth.objectType.googleAdword == req.query.objectType) {
-
                 if (!model[i].attributes.canManageClients) {
                     var name = model[i].attributes.name;
                     var customerId = model[i].attributes.customerId;
-
-
                     //To store once
                     channelList.push({
                         profileId: results._id,
@@ -928,21 +949,16 @@ exports.listAccounts = function (req, res, next) {
                         objectTypeId: objectTypeId._id
                     })
                 }
-
-
             }
             else {
                 var meta = {};
                 var filter = {};
-
                 if (configAuth.objectType.googleAdwordAdGroup == req.query.objectType) {
                     var name = model[i].attributes.name;
                     var Id = model[i].attributes.id;
                     meta.accountId = String(clientCustomerId);
                     filter.accountId = String(clientCustomerId);
-
                     meta.campaignId = model[i].attributes.campaignId;
-
                     filter.campaignId = req.query.campaignId;
                 }
                 else if (configAuth.objectType.googleAdwordCampaign == req.query.objectType) {
@@ -950,8 +966,6 @@ exports.listAccounts = function (req, res, next) {
                     var Id = model[i].attributes.id;
                     meta.accountId = String(clientCustomerId);
                     filter.accountId = String(clientCustomerId);
-
-
                 }
                 else {
                     if (typeof(model[i].attributes.ad.headline) === 'string') {
@@ -965,12 +979,9 @@ exports.listAccounts = function (req, res, next) {
                     var Id = model[i].attributes.ad.id;
                     meta.accountId = String(clientCustomerId);
                     meta.adSetId = model[i].attributes.adGroupId;
-
                     filter.accountId = String(clientCustomerId);
                     filter.adSetId = req.query.adSetId;
-
                 }
-
                 channelList.push({
                     profileId: results._id,
                     Name: name,
@@ -983,7 +994,6 @@ exports.listAccounts = function (req, res, next) {
         }
         callback(null, channelList)
     }
-
     function selectLinkedInPages(results, callback) {
         switch (req.query.objectType) {
             case configAuth.objectType.linkedIn:
@@ -991,7 +1001,6 @@ exports.listAccounts = function (req, res, next) {
                 break;
         }
     }
-
     function getLinkedInPages(results, callback) {
         var channelObjectDetails = [];
         //To get the object type id from database
@@ -1005,8 +1014,17 @@ exports.listAccounts = function (req, res, next) {
                 var query = 'https://api.linkedin.com/v1/companies?oauth2_access_token=' + results.accessToken + '&format=json&is-company-admin=true';
                 request(query,
                     function (err, response, body) {
-                        if (err)
-                            return res.status(500).json({error: 'Internal server error'});
+                        if (err || response.statusCode !== 200) {
+                            if(response.statusCode == 401){
+                                return res.status(401).json({
+                                    error: 'Authentication required to perform this action',
+                                    id: req.params.widgetId,
+                                    errorstatusCode:1003
+                                })
+                            }
+                            else
+                                return res.status(500).json({error: 'Internal server error'});
+                        }
                         else {
                             parseObject = JSON.parse(body);
                             if (parseObject._total != 0) {
@@ -1048,8 +1066,6 @@ exports.listAccounts = function (req, res, next) {
                                             })
                                         }
                                     })
-
-
                                 }
                             }
                             else {
@@ -1057,7 +1073,6 @@ exports.listAccounts = function (req, res, next) {
                                 next();
                             }
                         }
-
                     })
             }
             else {
@@ -1096,8 +1111,17 @@ exports.listAccounts = function (req, res, next) {
                         }
                     }, function (err, response, body) {
                         var parsedResponse;
-                        if (response.statusCode != 200)
+                        if (response.statusCode != 200){
+                            if(response.statusCode != 200){
+                                return res.status(401).json({
+                                    error: 'Authentication required to perform this action',
+                                    id: req.params.widgetId,
+                                    errorstatusCode:1003
+                                })
+                            }
+                           else
                             return res.status(500).json({error: err});
+                        }
                         else {
                             var objectStoreDetails = JSON.parse(body);
                             if (objectStoreDetails[objectsName].length === 0) {
@@ -1162,15 +1186,12 @@ exports.listAccounts = function (req, res, next) {
     function selectaweberObject(results, callback) {
         if (req.query.objectType === configAuth.objectType.aweberList) {
             getaweber(results, callback);
-
         }
         else
             getaweber(results, callback);
-
     }
 
     function getaweber(results, callback) {
-
         if (results.get_objectType.type === configAuth.objectType.aweberList) {
             var listUrl = 'accounts/' + results.get_profile.userId + '/lists';
             getaweberObjectLists(listUrl, results.get_profile, results, callback);
@@ -1179,42 +1200,40 @@ exports.listAccounts = function (req, res, next) {
             var listUrl = 'accounts/' + results.get_profile.userId + '/lists';
             getaweberObjectLists(listUrl, results.get_profile, results, callback);
         }
-
         function getaweberObjectLists(query, get_profile, results, callback) {
-
             var channelObjectDetails = [];
             var token = get_profile.accessToken;
             var tokenSecret = get_profile.tokenSecret;
-
-
             var apiClient = NA.api(token, tokenSecret);
             apiClient.request('get', listUrl, {}, function (err, response) {
-                if (err)
+                if (err){
+                    if(err.error.status === 401){
+                        return res.status(401).json({
+                            error: 'Authentication required to perform this action',
+                            id: req.params.widgetId,
+                            errorstatusCode:1003
+                        })
+                    }
+                    else
                     return res.status(500).json({error: "internal server Error"});
-
+                }
                 else {
                     if (results.get_objectType.type ===configAuth.objectType.aweberList) {
-
                         for (var i = 0; i < response.entries.length; i++) {
                             channelObjectDetails.push({
                                 'name': response.entries[i].name,
                                 'objectid': response.entries[i].id
-
                             });
                         }
-
                         callback(null, channelObjectDetails);
                     }
-
                     else if (results.get_objectType.type === configAuth.objectType.aweberCampaign) {
                         var count = 0;
                         var campaignObjectDetails = [];
-
                         for (var i = 0; i < response.total_size; i++) {
                             var size = response.total_size;
                             var listUrl = 'accounts/' + results.get_profile.userId + '/lists/' + response.entries[i].id + '/campaigns';
                             var campaigns = call(listUrl, response.entries[i].id);
-
                             function call(listUrl, listId) {
                                 apiClient.request('get', listUrl, {}, function (err, res) {
                                     count++
@@ -1224,7 +1243,6 @@ exports.listAccounts = function (req, res, next) {
                                             'campaignid': res.entries[j].id,
                                             'unique_id': listId,
                                             'campaignType': res.entries[j].campaign_type
-
                                         });
                                     }
                                     if (count == size) {
@@ -1238,7 +1256,5 @@ exports.listAccounts = function (req, res, next) {
             });
 
         }
-
     }
-
 };

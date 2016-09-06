@@ -13,7 +13,7 @@
 #refreshButton{
     width:16px;
     heigth:16px;
-    margin:-70px 0 0 -3px;
+    margin:-77px 0 0 0px;
 }
 .nav .dropdown-menu li a:hover{
     background: #E6E3E3;
@@ -2720,7 +2720,7 @@ button.btn.btn-primary.changePassword {
     border-top: 40px solid #04509B;
     border-left: 40px solid transparent;
     padding: 0px;
-    margin: -13px 0px 0px 128px;
+    margin: -13px 0px 0px 82%;
 }
 
 .comingSoon{
@@ -4544,4 +4544,55 @@ body.rtls.top-navigation .footer.fixed {
 }
 .selectIcon {
     border: 2px solid #04509B;
+}
+.showmore{
+    text-align: center;
+    float: left;
+    margin-left: 40%;
+}
+.modal-profilelist{
+    width:60% !important;
+}
+.profiletitle{
+    font-family: Heebo-Medium !important;
+    color: #04509B !important;
+    height:auto !important;
+    margin-top: 15px !important
+}
+.profilelistcell{
+    text-align: left;
+}
+hr{
+    color: #1ba7b4;
+}
+.bottomline{
+    border-bottom: 1px solid beige;
+    border-top: 0.5px solid beige;
+    padding: 12px;
+}
+
+@media(max-width : 1500px) and (min-width : 900px) {
+    .profilelisImg{
+        max-width:16% !important;
+        max-height:20%!important;
+        margin: 0px 5px 0px 0px !important;
+    }
+}
+@media(max-width : 890px) and (min-width : 760px) {
+    .profilelisImg{
+        max-width:20% !important;
+        max-height:20%!important;
+        margin: 0px 5px 0px 0px !important;
+    }
+}
+@media(max-width : 760px) {
+    .profilelisImg{
+        max-width:6% !important;
+        max-height:20%!important;
+        margin: 0px 5px 0px 0px !important;
+    }
+    .bottomline{
+        height: 97px !important;
+        border:none !important;
+    }
 }

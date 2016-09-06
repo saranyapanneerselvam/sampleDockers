@@ -286,7 +286,7 @@ exports.getDashboardDetailsFromReportId = function (req, res, done) {
                     if (err)
                         return res.status(500).json({error: 'Internal server error'});
                     else if (!widget.length)
-                        return res.status(204).json({error: 'No records found'});
+                        return res.status(206).json({error: 'No records found'});
                     else {
                         done(null,{widget:widget,dashboardDetails:dashboardDetails});
                     }

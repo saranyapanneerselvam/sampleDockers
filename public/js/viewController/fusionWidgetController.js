@@ -209,6 +209,7 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
             }
         }
         else {
+            $scope.hasNoAccess = profileObj.hasNoAccess;
             if($scope.uniquechannelNames[index] === 'Google Analytics'){
                 this.objectOptionsModel1='';
 				document.getElementById('basicWidgetFinishButton').disabled = true;

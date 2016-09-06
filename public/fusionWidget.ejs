@@ -191,7 +191,7 @@
                                                                         ng-change="getObjectsForChosenProfile(profileOptionsModel[$index],$index)">
                                                                     <option value="">Select a Profile</option>
                                                                 </select>
-                                                                <div class="infont col-md-1 col-sm-2 background-color" ng-show = "(tokenExpired &&  expiredRefreshButton==uniquechannelNames[$index])">
+                                                                <div class="infont col-md-1 col-sm-2 background-color" ng-show = "((tokenExpired || hasNoAccess)&&   expiredRefreshButton==uniquechannelNames[$index])">
                                                                     <a ng-click="addNewProfile($index)" class="link-img">
                                                                         <svg width="7px" height="7px" viewBox="0 0 7 7" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                                                                             <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->

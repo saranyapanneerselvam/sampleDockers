@@ -186,7 +186,7 @@
                                                                     <option value="">Select a Profile</option>
                                                                 </select>
                                                                 <div class="infont col-md-1 col-sm-2 background-color"
-                                                                     ng-show="(tokenExpired&&expiredRefreshButton===listChannel.name)">
+                                                                     ng-show="((tokenExpired[$index]  || hasNoAccess)&&expiredRefreshButton[$index]===getChannelList[$index].name)">
                                                                     <a ng-click="addNewProfile($index)" class="link-img">
                                                                         <svg width="7px" height="7px" viewBox="0 0 7 7"
                                                                              version="1.1"

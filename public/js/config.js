@@ -104,6 +104,16 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                 }
             }
         })
+        .state('app.reporting.dashboard.listProfile', {
+            url: "",
+            views: {
+                'lightbox@app.reporting.dashboard': {
+                    templateUrl: "profilelist.ejs",
+                    controller: 'LightBoxController'
+                }
+            }
+        })
+
 
         .state('app.reporting.dashboard.fusionWidget', {
             url: "",

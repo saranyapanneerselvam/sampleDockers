@@ -379,7 +379,6 @@ showMetricApp.service('createWidgets',function($http,$q){
             if(widget.charts.length > 0) {
                 for(var charts in widget.charts) {
                     var chartType = widget.charts[charts].chartType;
-
                     if(chartType == "line" || chartType == "area" || chartType == "bar") {
                         if(typeof widget.charts[charts].chartData[0].total == 'object') {
                             var endpoint;
@@ -582,7 +581,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                         }
                     }
                     else if(chartType == "gaTopPagesByVisit"){
-
                         var topPages={};
                         if(typeof widget.charts[charts].chartData[0] != 'undefined') {
                             if(typeof(widget.charts[charts].chartData[0].total) === 'object') {
@@ -807,13 +805,24 @@ showMetricApp.service('createWidgets',function($http,$q){
                                 }
 
                                 if(chartType == 'line' || chartType == 'bar') {
-                                    widgetCharts.push({
-                                        'type': widget.charts[charts].chartType,
-                                        'values': widget.charts[charts].chartData,      //values - represents the array of {x,y} data points
-                                        'key': widget.charts[charts].metricDetails.name, //key  - the name of the series.
-                                        'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
-                                        'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(summaryValue)) > 0 ? parseFloat(summaryValue).toFixed(2): parseInt(summaryValue)
-                                    });
+                                    if((widget.channelName=='FacebookAds')&&(widget.charts[charts].metricDetails.name=='Cost Per Unique Action Type')){
+                                        widgetCharts.push({
+                                            'type': widget.charts[charts].chartType,
+                                            'values': widget.charts[charts].chartData,      //values - represents the array of {x,y} data points
+                                            'key': widget.charts[charts].chartName, //key  - the name of the series.
+                                            'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
+                                            'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(summaryValue)) > 0 ? parseFloat(summaryValue).toFixed(2): parseInt(summaryValue)
+                                        });
+                                    }
+                                    else {
+                                        widgetCharts.push({
+                                            'type': widget.charts[charts].chartType,
+                                            'values': widget.charts[charts].chartData,      //values - represents the array of {x,y} data points
+                                            'key': widget.charts[charts].metricDetails.name, //key  - the name of the series.
+                                            'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
+                                            'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(summaryValue)) > 0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue)
+                                        });
+                                    }
                                 }
                                 else if(chartType == 'area') {
                                     widgetCharts.push({

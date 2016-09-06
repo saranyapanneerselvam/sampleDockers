@@ -6,6 +6,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
     $scope.autoArrangeGrid = false;
     $scope.dashbd = { widgets: [], widgetData: []};
     $scope.dashbd.dashboardName='';
+    $scope.widgetErrorCode=0;
     var expWid = { dashName:[], wid: [], widData: []};
 
      // document.getElementById('dashLayout').style.visibility = "hidden";
@@ -22,7 +23,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         $scope.dashboard.dashboardName = '';
         $scope.widgetsPresent = false;
         $scope.loadedWidgetCount = 0;
-
+        $scope.widgetErrorCode=0;
         $scope.fetchDateForDashboard=function(){
             $http({
                 method: 'GET',
@@ -322,8 +323,18 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                         {
                             if($scope.dashboard.widgetData[i].chart.length===0){
                                 if($scope.dashboard.widgetData[i].visibility==false){
-                                    $("#widgetData-"+$scope.dashboard.widgetData[i].id).hide();
-                                    $("#errorWidgetData-"+$scope.dashboard.widgetData[i].id).show();
+
+                                    if($scope.widgetErrorCode === 1){
+                                        $("#widgetData-"+$scope.dashboard.widgetData[i].id).hide();
+                                        $("#errorWidgetData-"+$scope.dashboard.widgetData[i].id).hide();
+                                        $("#errorWidgetTokenexpire-" + $scope.dashboard.widgetData[i].id).show()
+                                    }
+                                    else{
+                                        $("#widgetData-"+$scope.dashboard.widgetData[i].id).hide();
+                                        $("#errorWidgetData-"+$scope.dashboard.widgetData[i].id).show();
+                                        $("#errorWidgetTokenexpire-" + $scope.dashboard.widgetData[i].id).hide()
+                                    }
+
                                 }
                             }
                         }
@@ -408,7 +419,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         })
             .then(
                 function successCallback(response) {
-
                     var widgets = [];
                     var dashboardWidgetList = [];
                     var initialWidgetList = response.data.widgetsList;
@@ -424,13 +434,11 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                         $scope.widgetsPresent = false;
                     var widgetID=0;
                     var dashboardWidgets = [];
-
                     for(var getWidgetInfo in dashboardWidgetList){
                         dashboardWidgets.push(createWidgets.widgetHandler(dashboardWidgetList[getWidgetInfo],{
                             'startDate': moment($scope.dashboardCalendar.start_date).format('YYYY-MM-DD'),
                             'endDate': moment($scope.dashboardCalendar.end_date).format('YYYY-MM-DD')
                         }));
-
                         $scope.dashboard.widgets.push({
                             'row': (typeof dashboardWidgetList[getWidgetInfo].row != 'undefined'? dashboardWidgetList[getWidgetInfo].row : 0),
                             'col': (typeof dashboardWidgetList[getWidgetInfo].col != 'undefined'? dashboardWidgetList[getWidgetInfo].col : 0),
@@ -462,11 +470,23 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                                 $scope.loadedWidgetCount++;
                             },
                             function errorCallback(error){
-                                $scope.loadedWidgetCount++;
-                                if(typeof error.data.id != 'undefined') {
-                                    $("#widgetData-"+error.data.id).hide();
-                                    $("#errorWidgetData-"+error.data.id).show();
-                                    isExportOptionSet=0;
+                                if(error.status === 401) {
+                                    if (error.data.errorstatusCode === 1003) {
+                                        $("#widgetData-"+error.data.id).hide();
+                                        $("#errorWidgetData-"+error.data.id).hide();
+                                        $("#errorWidgetTokenexpire-" + error.data.id).show();
+                                        $scope.widgetErrorCode=1;
+                                        $scope.loadedWidgetCount++;
+                                        isExportOptionSet = 0;
+                                    }
+                                }else{
+                                    $scope.loadedWidgetCount++;
+                                    if(typeof error.data.id != 'undefined') {
+                                        $("#widgetData-"+error.data.id).hide();
+                                        $("#errorWidgetData-"+error.data.id).show();
+                                        $("#errorWidgetTokenexpire-" + error.data.id).hide();
+                                        isExportOptionSet=0;
+                                    }
                                 }
                             }
                         );
@@ -528,10 +548,22 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 isExportOptionSet=1;
             },
             function errorCallback(error){
-                $("#widgetData-"+widget._id).hide();
-                $("#errorWidgetData-"+widget._id).show();
-                $scope.loadedWidgetCount++;
-                isExportOptionSet=0;
+                if(error.status === 401) {
+                    if (error.data.errorstatusCode === 1003) {
+                        $("#widgetData-" + widget._id).hide();
+                        $("#errorWidgetData-" + widget._id).hide();
+                        $("#errorWidgetTokenexpire-" + widget._id).show();
+                        $scope.widgetErrorCode=1;
+                        $scope.loadedWidgetCount++;
+                        isExportOptionSet = 0;
+                    }
+                } else{
+                    $("#widgetData-" + widget._id).hide();
+                    $("#errorWidgetData-" + widget._id).show();
+                    $("#errorWidgetTokenexpire-" + widget._id).hide()
+                    $scope.loadedWidgetCount++;
+                    isExportOptionSet = 0;
+                }
             }
         );
     });

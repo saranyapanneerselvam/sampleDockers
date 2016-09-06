@@ -193,6 +193,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 $scope.profileList = response.data.profileList;
                 if($scope.profileList !=undefined) {
                     $scope.profileOptionsModel = $scope.profileList[0];
+                    $scope.hasNoAccess = $scope.profileOptionsModel.hasNoAccess;
                     $scope.getObjectsForChosenProfile();
                 }
                 $scope.objectList = [];
@@ -1087,6 +1088,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             }
         }
         else {
+            $scope.hasNoAccess = $scope.profileOptionsModel.hasNoAccess;
             storedProfile = $scope.profileOptionsModel;
             if($scope.storedChannelName == 'GoogleAdwords') {
                 if ($scope.profileOptionsModel.canManageClients === false)

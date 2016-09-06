@@ -15,6 +15,8 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
     $scope.fbAdObjId='';
     $scope.gaAdObjId='';
     $scope.canManage = true;
+    $scope.fusionRefreshButton='';
+
     $scope.changeViewsInBasicWidget = function (obj) {
         $scope.currentView = obj;
         if ($scope.currentView === 'step_one') {
@@ -356,6 +358,8 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
             $scope.objectList[index]='';
         }
         if (this.profileOptionsModel[index]._id) {
+            $scope.fusionRefreshButton=$scope.uniquechannelNames[index];
+
             switch ($scope.uniquechannelNames[index]) {
                 case 'Facebook':
                     $scope.objectType = 'page';
@@ -382,8 +386,12 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
             }).then(
                 function successCallback(response) {
                     $scope.objectList[index] = response.data;
+                    $scope.fusionRefreshButton='';
+
+
                 },
                 function errorCallback(error) {
+                    $scope.fusionRefreshButton='';
                     if(error.status === 401){
                         if(error.data.errorstatusCode === 1003){
                             swal({

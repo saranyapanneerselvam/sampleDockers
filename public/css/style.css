@@ -5,6 +5,16 @@
  *   version 0.1
  *
 */
+#refreshButtonFusion{
+    width:16px;
+    height:16px;
+    margin:-77px 0 0 0;
+}
+#refreshButton{
+    width:16px;
+    heigth:16px;
+    margin:-70px 0 0 -3px;
+}
 .nav .dropdown-menu li a:hover{
     background: #E6E3E3;
     color: #04509B !important

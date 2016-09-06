@@ -19,6 +19,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
     $scope.fbAdObjId='';
     $scope.gaAdObjId='';
     $scope.canManage = true;
+    $scope.recommendedRefreshButton='';
     $scope.changeViewsInBasicWidget = function (obj) {
         $scope.currentView = obj;
         if ($scope.currentView === 'step_one') {
@@ -326,6 +327,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
             $scope.objectList[index] = '';
         }
         if(this.profileOptionsModel[index]._id) {
+            $scope.recommendedRefreshButton=$scope.getChannelList[index].name;
             switch ($scope.getChannelList[index].name) {
                 case 'Facebook':
                     $scope.objectType = 'page';
@@ -352,6 +354,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
             }).then(
                 function successCallback(response) {
                     $scope.objectList[index] = response.data;
+                    $scope.recommendedRefreshButton='';
                 },
                 function errorCallback(error) {
                     if(error.status === 401){

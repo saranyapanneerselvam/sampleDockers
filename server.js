@@ -5,6 +5,7 @@
 var express = require('express');
 var router = express.Router();
 var app = express();
+var fileUpload = require('express-fileupload');
 var fs = require('file-system');
 var path = require('path');
 var port = process.env.PORT || 8080;
@@ -72,9 +73,10 @@ app.use(session(sessionConfig));
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
-
+app.use(fileUpload()); // use express-fileupload for uploading files
 app.use(express.static(__dirname + '/public'));
 app.use('/bower_components',  express.static(__dirname + '/bower_components'));
+app.use('/userFiles', express.static('../userFiles'));
 app.post('/getinvite', function(req,res){
 
     var formName = req.body.name;

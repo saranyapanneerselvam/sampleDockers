@@ -248,7 +248,7 @@
                                                                     </optgroup>
                                                                 </select>
                                                                 <select class="form-control m-b col-md-6"
-                                                                        ng-model="objectOptionsModel[$index]" ng-hide = "uniquechannelNames[$index]=== 'Twitter'||uniquechannelNames[$index]=== 'Google Analytics' || uniquechannelNames[$index] === 'Instagram'||(canManage==false&& uniquechannelNames[$index] === 'GoogleAdwords')"
+                                                                        ng-model="objectOptionsModel[$index]" ng-hide = "uniquechannelNames[$index]=== 'Twitter'|| uniquechannelNames[$index]=== 'Instagram' ||uniquechannelNames[$index]=== 'Google Analytics' || uniquechannelNames[$index] === 'Instagram'||(canManage==false&& uniquechannelNames[$index] === 'GoogleAdwords')"
                                                                         ng-options="objects as objects.name for objects in objectList[$index]"
                                                                         ng-change="objectForWidgetChosen(objectOptionsModel[$index], $index)" >
                                                                     <option value="" selected="selected">Select an item</option>

@@ -1338,40 +1338,38 @@ showMetricApp.service('createWidgets',function($http,$q){
                 {W:6,H:3,N:7,r:2,c:4},
                 {W:6,H:3,N:8,r:2,c:4}
             ];
-            var lineDataHighValue = 0, lineDataLowValue = 0;
-            var barDataHighValue = 0, barDataLowValue = 0;
 
-            for(var charts in widgetCharts) {
-                if(widgetCharts[charts].type == 'line' || widgetCharts[charts].type == 'area') {
-                    finalCharts.lineCharts.push(widgetCharts[charts]);
-                    for(var values in widgetCharts[charts].values) {
-                        if(parseFloat(widgetCharts[charts].values[values].y) < lineDataLowValue)
-                            lineDataLowValue = parseFloat(widgetCharts[charts].values[values].y);
-                        if(parseFloat(widgetCharts[charts].values[values].y) > lineDataHighValue)
-                            lineDataHighValue = parseFloat(widgetCharts[charts].values[values].y);
-                    }
+            if(widget.widgetType == 'customFusion') {
+                for (var charts in widgetCharts) {
+                    if (widgetCharts[charts].type == 'line' || widgetCharts[charts].type == 'area' || widgetCharts[charts].type == 'bar') finalCharts.lineCharts.push(widgetCharts[charts]);
+                    else if (widgetCharts[charts].type == 'pie') finalCharts.pieCharts.push(widgetCharts[charts]);
+                    else if (widgetCharts[charts].type == 'instagramPosts') finalCharts.instagramPosts.push(widgetCharts[charts]);
+                    else if (widgetCharts[charts].type == 'highEngagementTweets') finalCharts.highEngagementTweets.push(widgetCharts[charts]);
+                    else if (widgetCharts[charts].type == 'highestEngagementLinkedIn') finalCharts.highestEngagementLinkedIn.push(widgetCharts[charts]);
+                    else if (widgetCharts[charts].type == 'gaTopPagesByVisit') finalCharts.gaTopPagesByVisit.push(widgetCharts[charts]);
+                    else if (widgetCharts[charts].type == 'fbReachByGender') finalCharts.fbReachByGender.push(widgetCharts[charts]);
+                    else if (widgetCharts[charts].type == 'fbReachByAge') finalCharts.fbReachByAge.push(widgetCharts[charts]);
+                    else if (widgetCharts[charts].type == 'pinterestEngagementRate') finalCharts.pinterestEngagementRate.push(widgetCharts[charts]);
+                    else if (widgetCharts[charts].type == 'pinterestLeaderboard')finalCharts.pinterestLeaderboard.push(widgetCharts[charts]);
+                    else if (widgetCharts[charts].type == 'vimeoTopVideos') finalCharts.vimeoTopVideos.push(widgetCharts[charts]);
                 }
-                else if(widgetCharts[charts].type == 'bar') {
-                    finalCharts.barCharts.push(widgetCharts[charts]);
-                    for(var values in widgetCharts[charts].values) {
-                        if(widgetCharts[charts].values[values].y < barDataLowValue)
-                            barDataLowValue = parseFloat(widgetCharts[charts].values[values].y);
-                        if(widgetCharts[charts].values[values].y > barDataHighValue)
-                            barDataHighValue = parseFloat(widgetCharts[charts].values[values].y);
-                    }
-                }
-                else if(widgetCharts[charts].type == 'pie') finalCharts.pieCharts.push(widgetCharts[charts]);
-                else if(widgetCharts[charts].type == 'instagramPosts') finalCharts.instagramPosts.push(widgetCharts[charts]);
-                else if(widgetCharts[charts].type == 'highEngagementTweets') finalCharts.highEngagementTweets.push(widgetCharts[charts]);
-                else if(widgetCharts[charts].type == 'highestEngagementLinkedIn') finalCharts.highestEngagementLinkedIn.push(widgetCharts[charts]);
-                else if(widgetCharts[charts].type == 'gaTopPagesByVisit') finalCharts.gaTopPagesByVisit.push(widgetCharts[charts]);
-                else if(widgetCharts[charts].type == 'fbReachByGender') finalCharts.fbReachByGender.push(widgetCharts[charts]);
-                else if(widgetCharts[charts].type == 'fbReachByAge') finalCharts.fbReachByAge.push(widgetCharts[charts]);
-                else if(widgetCharts[charts].type == 'pinterestEngagementRate') finalCharts.pinterestEngagementRate.push(widgetCharts[charts]);
-                else if(widgetCharts[charts].type == 'pinterestLeaderboard')finalCharts.pinterestLeaderboard.push(widgetCharts[charts]);
-                else if(widgetCharts[charts].type == 'vimeoTopVideos') finalCharts.vimeoTopVideos.push(widgetCharts[charts]);
             }
-
+            else {
+                for (var charts in widgetCharts) {
+                    if (widgetCharts[charts].type == 'line' || widgetCharts[charts].type == 'area') finalCharts.lineCharts.push(widgetCharts[charts]);
+                    else if(widgetCharts[charts].type == 'bar') finalCharts.barCharts.push(widgetCharts[charts]);
+                    else if (widgetCharts[charts].type == 'pie') finalCharts.pieCharts.push(widgetCharts[charts]);
+                    else if (widgetCharts[charts].type == 'instagramPosts') finalCharts.instagramPosts.push(widgetCharts[charts]);
+                    else if (widgetCharts[charts].type == 'highEngagementTweets') finalCharts.highEngagementTweets.push(widgetCharts[charts]);
+                    else if (widgetCharts[charts].type == 'highestEngagementLinkedIn') finalCharts.highestEngagementLinkedIn.push(widgetCharts[charts]);
+                    else if (widgetCharts[charts].type == 'gaTopPagesByVisit') finalCharts.gaTopPagesByVisit.push(widgetCharts[charts]);
+                    else if (widgetCharts[charts].type == 'fbReachByGender') finalCharts.fbReachByGender.push(widgetCharts[charts]);
+                    else if (widgetCharts[charts].type == 'fbReachByAge') finalCharts.fbReachByAge.push(widgetCharts[charts]);
+                    else if (widgetCharts[charts].type == 'pinterestEngagementRate') finalCharts.pinterestEngagementRate.push(widgetCharts[charts]);
+                    else if (widgetCharts[charts].type == 'pinterestLeaderboard')finalCharts.pinterestLeaderboard.push(widgetCharts[charts]);
+                    else if (widgetCharts[charts].type == 'vimeoTopVideos') finalCharts.vimeoTopVideos.push(widgetCharts[charts]);
+                }
+            }
             var chartColorChecker = [];
             var colourChart = ['#EF5350','#EC407A','#9C27B0','#42A5F5','#26A69A','#FFCA28','#FF7043','#8D6E63'];
             function fetchAColour(currentColour,colourArray){
@@ -1389,21 +1387,18 @@ showMetricApp.service('createWidgets',function($http,$q){
 
             if(finalCharts.lineCharts.length == 1) {
                 chartsCount++;
-                for(var charts in finalCharts.lineCharts) {
-                    for(var items in chartColorChecker) {
-                        if(finalCharts.lineCharts[charts].color == chartColorChecker[items]) {
-                            var neededColour = fetchAColour(finalCharts.lineCharts[charts].color,chartColorChecker);
-                            finalCharts.lineCharts[charts].color = neededColour;
-                        }
-                    }
-                    chartColorChecker.push(finalCharts.lineCharts[charts].color);
-                }
-                chartColorChecker = [];
                 finalChartData.push({
                     'options': graphOptions.lineDataOptions,
                     'data': finalCharts.lineCharts,
                     'api': {}
                 });
+                var domainChecker = 0;
+                for (var charts in finalCharts.lineCharts) {
+                    for (values in finalCharts.lineCharts[charts].values)
+                        domainChecker += parseFloat(finalCharts.lineCharts[charts].values[values].y);
+                }
+                if(domainChecker == 0)
+                    finalChartData[finalChartData.length - 1].options.chart.yDomain = [0,10];
             }
 
             if(finalCharts.lineCharts.length > 1) {
@@ -1421,18 +1416,11 @@ showMetricApp.service('createWidgets',function($http,$q){
 
                 var individualGraphTotals = [];
                 for (var charts in finalCharts.lineCharts) {
-                    var summaryTotal = 0, lowValue = 0, highValue = 0;
-                    for (values in finalCharts.lineCharts[charts].values) {
+                    var summaryTotal = 0;
+                    for (var values in finalCharts.lineCharts[charts].values)
                         summaryTotal += parseFloat(finalCharts.lineCharts[charts].values[values].y);
-                        if (lowValue > parseFloat(finalCharts.lineCharts[charts].values[values].y))
-                            lowValue = parseFloat(finalCharts.lineCharts[charts].values[values].y);
-                        if (highValue < parseFloat(finalCharts.lineCharts[charts].values[values].y))
-                            highValue = parseFloat(finalCharts.lineCharts[charts].values[values].y);
-                    }
                     individualGraphTotals[charts] = {
-                        summaryTotal: summaryTotal,
-                        lowValue: lowValue,
-                        highValue: highValue
+                        summaryTotal: summaryTotal
                     };
                 }
 
@@ -1441,31 +1429,12 @@ showMetricApp.service('createWidgets',function($http,$q){
                     cumulativeTotal += parseInt(individualGraphTotals[items].summaryTotal);
                 var cumulativeAverage = cumulativeTotal / individualGraphTotals.length;
 
-                var firstChartLowValue = 0, firstChartHighValue = 0, secondChartLowValue = 0, secondChartHighValue = 0;
                 for (var charts in finalCharts.lineCharts) {
-                    var summaryTotal = 0, lowValue = 0, highValue = 0;
-                    for (values in finalCharts.lineCharts[charts].values) {
+                    var summaryTotal = 0;
+                    for (values in finalCharts.lineCharts[charts].values)
                         summaryTotal += parseFloat(finalCharts.lineCharts[charts].values[values].y);
-                        if (lowValue > parseFloat(finalCharts.lineCharts[charts].values[values].y))
-                            lowValue = parseFloat(finalCharts.lineCharts[charts].values[values].y);
-                        if (highValue < parseFloat(finalCharts.lineCharts[charts].values[values].y))
-                            highValue = parseFloat(finalCharts.lineCharts[charts].values[values].y);
-                    }
-
-                    if (summaryTotal < cumulativeAverage) {
-                        if (firstChartLowValue > lowValue)
-                            firstChartLowValue = lowValue;
-                        if (firstChartHighValue < highValue)
-                            firstChartHighValue = highValue;
-                        finalCharts.lineCharts[charts].yAxis = 1;
-                    }
-                    else {
-                        if (secondChartLowValue > lowValue)
-                            secondChartLowValue = lowValue;
-                        if (secondChartHighValue < highValue)
-                            secondChartHighValue = highValue;
-                        finalCharts.lineCharts[charts].yAxis = 2;
-                    }
+                    if (summaryTotal > cumulativeAverage) finalCharts.lineCharts[charts].yAxis = 2;
+                    else finalCharts.lineCharts[charts].yAxis = 1   ;
                 }
 
                 finalChartData.push({
@@ -1473,6 +1442,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                     'data': finalCharts.lineCharts,
                     'api': {}
                 });
+                if(cumulativeTotal == 0) finalChartData[finalChartData.length-1].options.chart.yDomain1 = [0,10];
             }
 
             if(finalCharts.barCharts.length > 0) {
@@ -1489,15 +1459,27 @@ showMetricApp.service('createWidgets',function($http,$q){
                 }
                 chartColorChecker = [];
 
-                var forceY = [barDataLowValue,barDataHighValue == 0? 10 : (barDataHighValue>100 ? barDataHighValue + 10 : barDataHighValue + 1)];
+
+                var individualGraphTotals = [];
+                for (var charts in finalCharts.barCharts) {
+                    var summaryTotal = 0;
+                    for (var values in finalCharts.barCharts[charts].values)
+                        summaryTotal += parseFloat(finalCharts.barCharts[charts].values[values].y);
+                    individualGraphTotals[charts] = {
+                        summaryTotal: summaryTotal
+                    };
+                }
+
+                var cumulativeTotal = 0;
+                for (items in individualGraphTotals)
+                    cumulativeTotal += parseInt(individualGraphTotals[items].summaryTotal);
+
                 finalChartData.push({
                     'options': graphOptions.barDataOptions,
                     'data': finalCharts.barCharts,
                     'api': {}
                 });
-                /*
-                 finalChartData[finalChartData.length -1].options.chart.forceY = forceY;
-                 */
+                if(cumulativeTotal == 0) finalChartData[finalChartData.length-1].options.chart.yDomain = [0,10];
             }
 
 /*

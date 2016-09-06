@@ -1906,6 +1906,8 @@ a:focus {
 .modal-body {
     padding: 0px 0px 10px 10px;
     height:420px;
+}.modalExp-body {
+    padding: 0px 5px 10px 5px;
 }
 
 .animated.modal.fade .modal-dialog {
@@ -4292,10 +4294,11 @@ body.rtls.top-navigation .footer.fixed {
 
 }
 .modal-pdfExport{
-    width:62.2% !important;
+    width:88.2% !important;
 }
 @media (max-width: 768px) {
     .widget-icons{width:40% !important;}
+    .logo-icons{width:30% !important;}
     .modal-dialog{width:auto !important;}
     .ibox-title span{display:none !important;}
     .modal-body{height: auto !important;}
@@ -4328,6 +4331,7 @@ body.rtls.top-navigation .footer.fixed {
 }
 @media(max-width : 386px){
     .widget-icons { width: 80% !important; margin-left: 30px; !important}
+    .logo-icons { width: 30% !important; margin-left: 30px; !important}
     .minimalize-styl-2{margin: 5px 4px 5px 15px; !important}
     .remove-profile{float: none !important;}
 
@@ -4454,4 +4458,80 @@ body.rtls.top-navigation .footer.fixed {
 
 .pdfContentText b{
     font-family: Heebo-Light !important ;
+}
+.uploadThumb {
+    width: 24px;
+    height: 24px;
+    float: none;
+    position: relative;
+    top: 7px;
+}
+
+
+.desc { color:#6b6b6b;}
+.desc a {color:#0092dd;}
+
+.dropdown dd, .dropdown dt, .dropdown ul { margin:0px; padding:0px; }
+.dropdown dd { position:relative; }
+.dropdown a, .dropdown a:visited { color:#816c5b; text-decoration:none; outline:none;}
+.dropdown a:hover { color:#5d4617;}
+.dropdown dt a:hover { color:#5d4617; border: 1px solid #d0c9af;}
+.dropdown dt a {background:#ffffff url('http://www.jankoatwarpspeed.com/wp-content/uploads/examples/reinventing-drop-down/arrow.png') no-repeat scroll right center; display:block; padding-right:20px;
+    border:1px solid #d4ca9a; width:150px;}
+.dropdown dt a span {cursor:pointer; display:block; padding:5px;}
+.dropdown dd ul { background:#ffffff none repeat scroll 0 0; border:1px solid #d4ca9a; color:#C5C0B0; display:none;
+    left:0px; padding:5px 0px; position:absolute; top:2px; width:auto; min-width:170px; list-style:none;}
+.dropdown span.value { display:none;}
+.dropdown dd ul li a { padding:5px; display:block;}
+.dropdown dd ul li a:hover { background-color:#d0c9af;}
+
+.dropdown img.flag { border:none; vertical-align:middle; margin-left:5px; }
+.flagvisibility { display:none;}
+.logo-icons {
+    padding: 5px;
+    margin: 5px;
+    text-align: center;
+    border: 2px solid #e7eaec;
+    width: 30%;
+    height:70px;
+    float: left;
+    cursor: pointer;
+}
+.logo-icons:hover,
+.logo-icons.active {
+    border: 2px solid #04509B;
+    /*
+    -webkit-box-shadow: 0px -3px -3px 0px #a8a8a8;
+    -moz-box-shadow: 0px -3px -3px 0px #a8a8a8;
+    box-shadow: 0px -3px 0px 0px #a8a8a8;
+    */
+}
+/*.logo-Clienticons {*/
+    /*padding: 5px;*/
+    /*margin: 5px;*/
+    /*text-align: center;*/
+    /*border: 2px solid #e7eaec;*/
+    /*width: 30%;*/
+    /*height:70px;*/
+    /*float: left;*/
+    /*cursor: pointer;*/
+/*}*/
+/*.logo-Clienticons:hover,*/
+/*.logo-Clienticons.active {*/
+    /*border: 2px solid #04509B;*/
+    /*!**/
+    /*-webkit-box-shadow: 0px -3px -3px 0px #a8a8a8;*/
+    /*-moz-box-shadow: 0px -3px -3px 0px #a8a8a8;*/
+    /*box-shadow: 0px -3px 0px 0px #a8a8a8;*/
+    /**!*/
+/*}*/
+.uploadbutton-mode{border: 1px solid #f5f5f5 !important;
+    background-color: #04509B !important;
+    border-radius: 5px !important;
+    color:#fff !important;}
+.iconClicked {
+    border: 2px solid #04509B;
+}
+.selectIcon {
+    border: 2px solid #04509B;
 }

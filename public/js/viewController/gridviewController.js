@@ -2,7 +2,7 @@ showMetricApp.controller('GridviewController', GridviewController);
 
 function GridviewController($scope,$http) {
     $scope.dashboardList = null;
-
+    $scope.gridloading=true;
     $(".navbar").css('z-index','1');
     $(".md-overlay").css("background","rgba(0,0,0,0.5)");
 
@@ -10,20 +10,23 @@ function GridviewController($scope,$http) {
     $scope.fetchAllDashboards = function(){
         $http({
             method: 'GET', url: '/api/v1/get/dashboardList'
-        }).then(function successCallback(response){
-            if(response.status == '200')
-                $scope.dashboardList = response.data.dashboardList;
-            else
+        }).then(
+            function successCallback(response){
+                $scope.gridloading=false;
+                if(response.status == '200')
+                    $scope.dashboardList = response.data.dashboardList; 
+                else
+                    $scope.dashboardList = null;
+            },
+            function errorCallback(error){
+                $scope.gridloading=false;
                 $scope.dashboardList = null;
-
-        },function errorCallback(error){
-
-            $scope.dashboardList = null;
-            $(".navbar").css('z-index','1');
-            $(".md-overlay").css("background","rgba(0,0,0,0.5)");
-            $("#somethingWentWrongModalContent").addClass('md-show');
-            //swal({  title: "", text: "<span style='sweetAlertFont'>Please try again! Something is missing</span> .",   html: true });
-        })
+                $(".navbar").css('z-index','1');
+                $(".md-overlay").css("background","rgba(0,0,0,0.5)");
+                $("#somethingWentWrongModalContent").addClass('md-show');
+                //swal({  title: "", text: "<span style='sweetAlertFont'>Please try again! Something is missing</span> .",   html: true });
+            }
+        )
     };
 
     $scope.deleteDashboard = function(dashboard){

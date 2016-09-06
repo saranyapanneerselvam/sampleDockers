@@ -1,7 +1,28 @@
 showMetricApp.controller('NavigationController',NavigationController)
 
-function NavigationController() {
+function NavigationController($scope,$state,$http,$rootScope) {
 
+    $scope.stateValidation = function(targetState) {
+        if($state.includes('app.reporting.dashboard')) {
+            switch(targetState) {
+                case 'recommendedDashboard':
+                    $state.go('app.reporting.dashboard.'+targetState);
+                    break;
+                case 'basicWidget':
+                    var toStateParams = "{widgetType:'basic'}";
+                    $state.go('app.reporting.dashboard.'+targetState,{widgetType:'basic'});
+                    break;
+                case 'fusionWidget':
+                    $state.go('app.reporting.dashboard.'+targetState);
+                    break;
+                case 'insights':
+                    toastr.info('Coming Soon');
+                    break;
+            }
+        }
+        else
+            toastr.info('Please perform this action from within a dashboard');
+    };
 
     $(".insightsModalContent").on( 'click', function( ev ) {
         $(".navbar").css('z-index','1');
@@ -15,13 +36,10 @@ function NavigationController() {
         $("#addRemoveModalContent").addClass('md-show');
     });
 
-
     function removeModal( hasPerspective ) {
         classie.remove( modal, 'md-show' );
-
-        if( hasPerspective ) {
+        if( hasPerspective )
             classie.remove( document.documentElement, 'md-perspective' );
-        }
     }
 
     function removeModalHandler() {

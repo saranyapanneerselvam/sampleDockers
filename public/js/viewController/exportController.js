@@ -1,6 +1,9 @@
 showMetricApp.controller('ExportController', ExportController)
 
 function ExportController($scope, $http, $state, $rootScope, $window,$q,$stateParams, $timeout) {
+
+
+
     var dashboardName = "NoName";
     var dashboardRepId = null;
     $rootScope.showExport = true;
@@ -11,6 +14,139 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
     $scope.exportObject = {widgets: [], widgetData: []};
     $scope.exportObject.dashboardName = '';
     $scope.windowWidth = false;
+//Logos Section Code Begins
+    $scope.orgLogosList = [];
+    $scope.cliLogosList = [];
+    $scope.orgLogoSrc = '/userFiles/datapoolt.png';
+    $scope.cliLogoSrc = '/userFiles/plain-white.jpg';
+    $scope.selectedIconIndicator = function(accType,getID) {
+        if(accType == 'cli'){
+        var $cols = $('.cliIcon')
+            $cols.removeClass('selectIcon');
+            $('#' + getID).addClass('selectIcon');
+        }
+        else if(accType=='org'){
+        var $cols = $('.orgIcon');
+            $cols.removeClass('selectIcon');
+            $('#' + getID).addClass('selectIcon');
+
+        }
+    }
+    $scope.fetchLogosFromDB = function(acType){
+        var uploadData= {
+            'accType':acType
+        };
+        $http({
+            method: 'post',
+            url: '/api/v1/fetchLogoToPdf/dashboard',
+            data: uploadData
+        }).then(
+            function successCallback(response) {
+                if(acType =='org')
+                    $scope.orgLogosList = JSON.parse(JSON.stringify(response.data.logosInDB));
+                else if(acType =='cli')
+                    $scope.cliLogosList = JSON.parse(JSON.stringify(response.data.logosInDB));
+            },
+            function errorCallback(error) {
+                $scope.orgLogosList = [];
+                $scope.cliLogosList = [];
+                swal({
+                    title: '',
+                    text: '<span style="sweetAlertFont">Something went wrong! Please reload the dashboard</span>',
+                    html: true
+                });
+            }
+        );
+
+    };
+
+    $scope.submitUpload = function(info,accType){
+        var uploadData= {
+            file : info,
+            accType:accType
+        };
+        var uploadUrl = '/api/v1/createLogoToPdf/createFolder';
+        var fd = new FormData();
+        var fileType = info.type.split('/');
+        if(fileType[1]=='png'||fileType[1]=='bmp'||fileType[1]=='jpg'||fileType[1]=='jpeg')
+        {
+        for(var key in uploadData)
+            fd.append(key, uploadData[key]);
+        $http.post(uploadUrl, fd, {
+            transformRequest: angular.indentity,
+            headers: { 'Content-Type': undefined }
+        }).then(
+            function successCallback(response){
+                document.getElementById('orgUploadButton').disabled = true;
+                    document.getElementById('clientUploadButton').disabled = true;
+                // data.resolve(response.data.FileUrl);
+                $scope.fetchLogosFromDB(accType);
+            },
+            function errorCallback(err){
+                swal({
+                    title: '',
+                    text: '<span style="sweetAlertFont">Something went wrong! Please reload the dashboard</span>',
+                    html: true
+                });
+            }
+        );
+        }
+        else{
+            swal({
+                title: '',
+                text: '<span style="sweetAlertFont">Please Upload Only Image files(.jpg,.png,.jpeg,.bmp)</span>',
+                html: true
+            });
+        }
+        // return data.promise;;
+
+    };
+
+
+    $scope.removeLogo = function(imageInfo,accType) {
+        var jsonData = {
+            'fileUrl': imageInfo.fileUrl,
+            "accType": accType,
+        };
+        $http({
+            method: 'POST',
+            url: '/api/v1/removeLogoToPdf/dashboard',
+            data: jsonData
+        }).then(
+            function successCallback(response){
+                // data.resolve(response.data.FileUrl);
+                 if(imageInfo.fileUrl == $scope.orgLogoSrc){
+                     $scope.orgLogoSrc = '/userFiles/datapoolt.png';
+                 }
+                else if (imageInfo.fileUrl == $scope.cliLogoSrc){
+                     $scope.cliLogoSrc = '/userFiles/plain-white.jpg';
+                 }
+                $scope.fetchLogosFromDB(accType);
+            },
+            function errorCallback(err){
+                // data.resolve(err);
+                swal({
+                    title: '',
+                    text: '<span style="sweetAlertFont">Something went wrong! Please reload the dashboard</span>',
+                    html: true
+                });
+            }
+        );
+    }
+    $scope.enableUploadbutton=function(accType){
+        if(accType=='org')
+            document.getElementById('orgUploadButton').disabled = false;
+        else if(accType=='cli')
+            document.getElementById('clientUploadButton').disabled = false;
+    }
+    $scope.selectedOrgLogo = function(imageInfo){
+        $scope.orgLogoSrc = imageInfo;
+    }
+    $scope.selectedCliLogo = function(imageInfo){
+        $scope.cliLogoSrc = imageInfo;
+    }
+    //Logos Section Code Ends
+
     if ($rootScope.expObj != undefined) {
         var tWid = $rootScope.expObj.widgets;
         var tWidData = $rootScope.expObj.widgetData;
@@ -63,6 +199,8 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
             }
         }, 800);
     });
+
+
     $scope.calcColumnWidth = function (x) {
 
         if (x <= 2)
@@ -110,7 +248,6 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
         {
             $scope.windowWidth = true;
         }
-       // console.log("$scope.windowWidth",$scope.windowWidth,$window.outerWidth);
         vm.dashboard = $scope.exportObject;
         var pages = new Array();
         var len = vm.dashboard.widgets.length;
@@ -140,11 +277,11 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
         angular.copy(tempSortWidgetDataList1, tempWidgetDataList1);
         angular.copy(tempSortWidgetList1, tempWidgetList1);
         for(var widgetData in tempWidgetDataList1) {
-                for(var chart in tempWidgetDataList1[widgetData].chart) {
-                    if(typeof tempWidgetDataList1[widgetData].chart[chart].options.chart.showLegend != 'undefined') {
-                            tempWidgetDataList1[widgetData].chart[chart].options.chart.showLegend = false;
-                    }
+            for(var chart in tempWidgetDataList1[widgetData].chart) {
+                if(typeof tempWidgetDataList1[widgetData].chart[chart].options.chart.showLegend != 'undefined') {
+                    tempWidgetDataList1[widgetData].chart[chart].options.chart.showLegend = false;
                 }
+            }
         }
         var n = 0;
 
@@ -253,7 +390,7 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
                     }
                 }
                 if(j==len-1)
-                document.getElementById('submitExportButton').disabled = false;
+                    document.getElementById('submitExportButton').disabled = false;
             }
         }, 600);
 
@@ -333,32 +470,6 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
             $(".loadingStatus").show();
             var exportImages=[];
 
-            // function asyncGreet(name) {
-            //     // perform some asynchronous operation, resolve or reject the promise when appropriate.
-            //     return $q(function(resolve, reject) {
-            //         setTimeout(function() {
-            //             if (okToGreet(name)) {
-            //                 resolve('Hello, ' + name + '!');
-            //             } else {
-            //                 reject('Greeting ' + name + ' is not allowed.');
-            //             }
-            //         }, 1000);
-            //     });
-            // }
-            //
-            // var promise = asyncGreet('Robin Hood');
-            // promise.then(function(greeting) {
-            //     alert('Success: ' + greeting);
-            // }, function(reason) {
-            //     alert('Failed: ' + reason);
-            // });
-
-
-
-
-
-
-
 
 
             var dashboardExpLayout=[];
@@ -372,6 +483,7 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
                         },
                         function errorCallback(error) {
                             deferred.reject(error);
+                            console.log("Dom to image fails",error);
                         });
                 return deferred.promise;
             }
@@ -379,16 +491,14 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
                 dashboardExpLayout[j] = document.getElementById('dashLayoutpages-' + j);
                 promiseExportObject.push($scope.exportPromise(dashboardExpLayout[j]));
             }
-            // console.log("promiseExportObject",promiseExportObject);
             $q.all(promiseExportObject).then(
                 function (exportImages) {
-                    // console.log("exportImages inside promise",exportImages);
                     var jsonData = {
                         "dashboardLayout": exportImages,
                         "dashboardId": $state.params.id,
                         "dashboardName": dashboardName
                     };
-                    console.log("exportImages",exportImages.length);
+
                     $http({
                         method: 'POST',
                         url: '/api/v1/createHtml5ToPdf/dashboard',
@@ -410,7 +520,7 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
 
                             $(".loadingStatus").hide();
                             $(".pdfHeadText").show().text("PDF has been generated successfully");
-                            $(".pdfContentText").html('<b><br/><a href="' + dwnldUrl + '" download style="color: #000;"  id="yourLinkID">Click here to download your PDF</a></b>');
+                            $(".pdfContentText").html('<b><br/><a href="' + dwnldUrl + '" download style="color: green;"  id="yourLinkID">Click here to download your PDF</a></b>');
                             // window.saveAs(response.data.Response['blob'], dashboardName + "_" + timestamp + ".pdf");
                             // document.getElementById('yourLinkID').click();
                             // $window.open(dwnldUrl);

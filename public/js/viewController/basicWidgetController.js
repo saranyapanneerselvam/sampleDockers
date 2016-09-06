@@ -23,7 +23,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     $scope.googleCampaignChosen = false;
     $scope.groupChosen = false;
     $scope.adChosen = false;
-    var widgetType = $stateParams.widgetType;
+    var widgetType = 'basic';
     var storedProfile = {};
     var getChannelName = "";
     var getCustomWidgetObj = {};
@@ -397,7 +397,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
 
     // $scope.clearSelectLevel=function(){
     //
-    //     if($scope.profileId==this.profileOptionsModel._id){
+    //     if($scope.profileId==$scope.profileOptionsModel._id){
     //
     //         $scope.selectedLevel=null;
     //         document.getElementById('basicWidgetFinishButton').disabled = true;
@@ -412,7 +412,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     //         $scope.adSetAdsChosen=false;
     //     }
     //     else {
-    //         $scope.profileId=this.profileOptionsModel._id;
+    //         $scope.profileId=$scope.profileOptionsModel._id;
     //
     //         $scope.selectedLevel=null;
     //         document.getElementById('basicWidgetFinishButton').disabled = true;
@@ -603,7 +603,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             }
         }
         if($scope.selectedGoogleLevel=='adwordaccount'){
-            if((this.profileOptionsModel!=null)&&($scope.googleAccountId!=null))
+            if(($scope.profileOptionsModel!=null)&&($scope.googleAccountId!=null))
                 document.getElementById('basicWidgetFinishButton').disabled =false;
             else
                 document.getElementById('basicWidgetFinishButton').disabled = true;
@@ -625,7 +625,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         }
         else if($scope.selectedGoogleLevel=='adwordAdgroup'){
             if(($scope.googleCampaignChosen==true)&&($scope.groupChosen==true)){
-                if((this.profileOptionsModel!=null)&&($scope.googleAccountId!=null)&&($scope.googleCampaign!=null)&&($scope.googleGroup!=null))
+                if(($scope.profileOptionsModel!=null)&&($scope.googleAccountId!=null)&&($scope.googleCampaign!=null)&&($scope.googleGroup!=null))
                     document.getElementById('basicWidgetFinishButton').disabled =false;
                 else {
                     //  $scope.clearGoogleSelectLevel();
@@ -648,7 +648,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         }
         else if($scope.selectedGoogleLevel=='adwordsAd'){
             if(($scope.googleCampaignChosen==true)&&($scope.groupChosen==true)&&($scope.adChosen==true)){
-                if((this.profileOptionsModel!=null)&&($scope.googleAccountId!=null)&&($scope.googleCampaign!=null)&&($scope.googleGroup!=null)&&($scope.googleAd!=null))
+                if(($scope.profileOptionsModel!=null)&&($scope.googleAccountId!=null)&&($scope.googleCampaign!=null)&&($scope.googleGroup!=null)&&($scope.googleAd!=null))
                     document.getElementById('basicWidgetFinishButton').disabled =false;
                 else {
                     //  $scope.clearGoogleSelectLevel();
@@ -904,7 +904,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     // $scope.clearGoogleSelectLevel=function(){
     //     if($scope.canManageClients==false) {
     //         var value=0;
-    //         if ($scope.googleProfileId != this.profileOptionsModel._id) {
+    //         if ($scope.googleProfileId != $scope.profileOptionsModel._id) {
     //             $scope.selectedGoogleLevel = null;
     //             document.getElementById('basicWidgetFinishButton').disabled = true;
     //             $scope.googleCampaignEnable = false;
@@ -923,7 +923,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     //     }
     //     else{
     //         var value=0;
-    //         if ($scope.googleProfileId == this.profileOptionsModel._id) {
+    //         if ($scope.googleProfileId == $scope.profileOptionsModel._id) {
     //             $scope.selectedGoogleLevel = null;
     //             document.getElementById('basicWidgetFinishButton').disabled = true;
     //             $scope.googleCampaignEnable = false;
@@ -961,7 +961,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         document.getElementById('basicWidgetFinishButton').disabled = true;
         $scope.checkExpiresIn = null;
         storeChosenObject = [];
-        if (!this.profileOptionsModel) {
+        if (!$scope.profileOptionsModel) {
             $scope.facebookObjectList = null;
             $scope.googleAnalyticsObjectList = null;
             $scope.facebookAdsObjectList = null;
@@ -1007,17 +1007,17 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             }
         }
         else {
-            storedProfile = this.profileOptionsModel;
+            storedProfile = $scope.profileOptionsModel;
 
             if($scope.storedChannelName == 'GoogleAdwords') {
-                if (this.profileOptionsModel.canManageClients === false)
+                if ($scope.profileOptionsModel.canManageClients === false)
                     $scope.canManageClients =false;
                 else
                     $scope.canManageClients =true;
             }
             if($scope.storedChannelName == 'FacebookAds'){
                 document.getElementById('basicWidgetFinishButton').disabled = true;
-                if(this.profileOptionsModel) {
+                if($scope.profileOptionsModel) {
                     $scope.selectedLevel = null;
                     document.getElementById('basicWidgetFinishButton').disabled = true;
                     $scope.campaignEnable = false;
@@ -1030,11 +1030,11 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     $scope.adSetChosen = false;
                     $scope.adSetAdsChosen = false;
                     $scope.profileId = storedProfile._id;
-                    if (this.profileOptionsModel.expiresIn != undefined)
-                        $scope.checkExpiresIn = new Date(this.profileOptionsModel.expiresIn);
+                    if ($scope.profileOptionsModel.expiresIn != undefined)
+                        $scope.checkExpiresIn = new Date($scope.profileOptionsModel.expiresIn);
                     $scope.tokenExpired = false;
-                    var profileId = this.profileOptionsModel._id;
-                    var expiresIn = this.profileOptionsModel.expiresIn;
+                    var profileId = $scope.profileOptionsModel._id;
+                    var expiresIn = $scope.profileOptionsModel.expiresIn;
                     var currentDate = new Date();
                     var newExpiresIn = new Date(expiresIn);
                     if (currentDate <= newExpiresIn && expiresIn != null)
@@ -1080,7 +1080,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             }
             else if(($scope.storedChannelName == 'GoogleAdwords')){
                 document.getElementById('basicWidgetFinishButton').disabled = true;
-                if(this.profileOptionsModel) {
+                if($scope.profileOptionsModel) {
                     $scope.googleCampaignEnable = false;
                     $scope.adEnable = false;
                     $scope.groupEnable = false;
@@ -1094,12 +1094,12 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     document.getElementById('basicWidgetFinishButton').disabled = true;
                     if ($scope.canManageClients == false) {
                         $scope.googleProfileId = storedProfile._id;
-                        if (this.profileOptionsModel.expiresIn != undefined)
-                            $scope.checkExpiresIn = new Date(this.profileOptionsModel.expiresIn);
+                        if ($scope.profileOptionsModel.expiresIn != undefined)
+                            $scope.checkExpiresIn = new Date($scope.profileOptionsModel.expiresIn);
                         $scope.tokenExpired = false;
 
-                        var profileId = this.profileOptionsModel._id;
-                        var expiresIn = this.profileOptionsModel.expiresIn;
+                        var profileId = $scope.profileOptionsModel._id;
+                        var expiresIn = $scope.profileOptionsModel.expiresIn;
                         var currentDate = new Date();
                         var newExpiresIn = new Date(expiresIn);
                         if (currentDate <= newExpiresIn && expiresIn != null)
@@ -1147,12 +1147,12 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     }
                     else {
                         $scope.googleProfileId = storedProfile._id;
-                        if (this.profileOptionsModel.expiresIn != undefined)
-                            $scope.checkExpiresIn = new Date(this.profileOptionsModel.expiresIn);
+                        if ($scope.profileOptionsModel.expiresIn != undefined)
+                            $scope.checkExpiresIn = new Date($scope.profileOptionsModel.expiresIn);
                         $scope.tokenExpired = false;
 
-                        var profileId = this.profileOptionsModel._id;
-                        var expiresIn = this.profileOptionsModel.expiresIn;
+                        var profileId = $scope.profileOptionsModel._id;
+                        var expiresIn = $scope.profileOptionsModel.expiresIn;
                         var currentDate = new Date();
                         var newExpiresIn = new Date(expiresIn);
                         if (currentDate <= newExpiresIn && expiresIn != null)
@@ -1198,12 +1198,12 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 }
             }
             else {
-                if (this.profileOptionsModel.expiresIn != undefined)
-                    $scope.checkExpiresIn = new Date(this.profileOptionsModel.expiresIn);
+                if ($scope.profileOptionsModel.expiresIn != undefined)
+                    $scope.checkExpiresIn = new Date($scope.profileOptionsModel.expiresIn);
                 $scope.tokenExpired = false;
 
-                var profileId = this.profileOptionsModel._id;
-                var expiresIn = this.profileOptionsModel.expiresIn;
+                var profileId = $scope.profileOptionsModel._id;
+                var expiresIn = $scope.profileOptionsModel.expiresIn;
                 var currentDate = new Date();
                 var newExpiresIn = new Date(expiresIn);
                 if (currentDate <= newExpiresIn && expiresIn != null)
@@ -1299,8 +1299,8 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     };
 
     $scope.refreshObjectsForChosenProfile = function (objectTypeId) {
-        if (this.profileOptionsModel._id) {
-            var profileId = this.profileOptionsModel._id;
+        if ($scope.profileOptionsModel._id) {
+            var profileId = $scope.profileOptionsModel._id;
             $http({
                 method: 'GET',
                 url: '/api/v1/get/objectTypeDetail/' + objectTypeId
@@ -1322,11 +1322,13 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                                 uniqueObject = _.groupBy(response.data, 'objectTypeId');
                                 for(var items in uniqueObject) {
                                     var tempObjectList = [];
-                                    for(var subItems in uniqueObject[items])
-                                        tempObjectList.push(uniqueObject[items][subItems]);
-                                    var obj = {};
-                                    obj[k] = tempObjectList;
-                                    tempList = obj;
+                                    if(items == objectTypeId) {
+                                        for(var subItems in uniqueObject[items])
+                                            tempObjectList.push(uniqueObject[items][subItems]);
+                                        var obj = {};
+                                        obj[k] = tempObjectList;
+                                        tempList = obj;
+                                    }
                                 }
                                 if ($scope.storedChannelName == 'Facebook')
                                     $scope.facebookObjectList[k] = tempList;
@@ -1437,7 +1439,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     };
 
     $scope.removeExistingProfile = function () {
-        var profileOptionsModel = this.profileOptionsModel;
+        var profileOptionsModel = $scope.profileOptionsModel;
         swal({
                 title: "Confirm Profile Delink?",
                 text: "All data, widgets associated with this profile will be deleted! Confirm?",

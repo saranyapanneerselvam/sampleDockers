@@ -359,6 +359,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
                 function errorCallback(error) {
                     if(error.status === 401){
                         if(error.data.errorstatusCode === 1003){
+                            $scope.recommendedRefreshButton='';
                             swal({
                                 title: "",
                                 text: "<span style='sweetAlertFont'>Please refresh your profile</span> .!",

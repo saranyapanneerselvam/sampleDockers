@@ -518,7 +518,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     if(error.data.errorstatusCode === 1003){
                         swal({
                             title: "",
-                            text: "<span style='sweetAlertFont'>Please refersh your profile!</span>",
+                            text: "<span style='sweetAlertFont'>Please refresh your profile!</span>",
                             html: true
                         });
                         $scope.tokenExpired=true;
@@ -553,7 +553,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     if(error.data.errorstatusCode === 1003){
                         swal({
                             title: "",
-                            text: "<span style='sweetAlertFont'>Please refersh your profile!</span>",
+                            text: "<span style='sweetAlertFont'>Please refresh your profile!</span>",
                             html: true
                         });
                         $scope.tokenExpired=true;
@@ -589,7 +589,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     if(error.data.errorstatusCode === 1003){
                         swal({
                             title: "",
-                            text: "<span style='sweetAlertFont'>Please refersh your profile!</span>",
+                            text: "<span style='sweetAlertFont'>Please refresh your profile!</span>",
                             html: true
                         });
                         $scope.tokenExpired=true;
@@ -884,7 +884,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     if(error.data.errorstatusCode === 1003){
                         swal({
                             title: "",
-                            text: "<span style='sweetAlertFont'>Please refersh your profile!</span>",
+                            text: "<span style='sweetAlertFont'>Please refresh your profile!</span>",
                             html: true
                         });
                         $scope.tokenExpired=true;
@@ -925,7 +925,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     if(error.data.errorstatusCode === 1003){
                         swal({
                             title: "",
-                            text: "<span style='sweetAlertFont'>Please refersh your profile!</span>",
+                            text: "<span style='sweetAlertFont'>Please refresh your profile!</span>",
                             html: true
                         });
                         $scope.tokenExpired=true;
@@ -966,7 +966,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     if(error.data.errorstatusCode === 1003){
                         swal({
                             title: "",
-                            text: "<span style='sweetAlertFont'>Please refersh your profile!</span>",
+                            text: "<span style='sweetAlertFont'>Please refresh your profile!</span>",
                             html: true
                         });
                         $scope.tokenExpired=true;
@@ -1439,7 +1439,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                                 if(error.data.errorstatusCode === 1003){
                                     swal({
                                         title: "",
-                                        text: "<span style='sweetAlertFont'>Please refersh your profile!</span>",
+                                        text: "<span style='sweetAlertFont'>Please refresh your profile!</span>",
                                         html: true
                                     });
                                     $scope.tokenExpired=true;

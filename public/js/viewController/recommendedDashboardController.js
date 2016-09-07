@@ -125,6 +125,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
     };
 
     $scope.getObjectsForChosenProfile = function (profileObj, index) {
+        $scope.tokenExpired[index] = false;
         if (!profileObj) {
             document.getElementById('basicWidgetFinishButton').disabled = true;
             $scope.objectList[index] = null;
@@ -137,7 +138,6 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
             }
         }
         else {
-            $scope.hasNoAccess = profileObj.hasNoAccess;
             if($scope.getChannelList[index].name === 'Google Analytics'){
 				this.objectOptionsModel1='';			
 				document.getElementById('basicWidgetFinishButton').disabled = true;
@@ -371,7 +371,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
                                 text: "<span style='sweetAlertFont'>Please refresh your profile</span>",
                                 html: true
                             });
-                            $scope.tokenExpired[index]=true;
+                            $scope.getProfileForChosenChannel($scope.fullOfDashboard);
                         }
                     } else
                         swal({

@@ -170,10 +170,18 @@ exports.listAccounts = function (req, res, next) {
                                         return res.status(500).json({error: 'Internal server error'});
                                     }                                     
                                     else if(result.statusCode == 401){
-                                        return res.status(401).json({
-                                            error: 'Authentication required to perform this action',
-                                            id: req.params.widgetId,
-                                            errorstatusCode: 1003
+                                        Profile.update({_id: profile._id}, {
+                                            hasNoAccess:true
+                                        }, function(err, response) {
+                                            if(!err){
+                                                return res.status(401).json({
+                                                    error: 'Authentication required to perform this action',
+                                                    id: req.params.widgetId,
+                                                    errorstatusCode:1003
+                                                });
+                                            }
+                                            else
+                                                return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
                                         })
                                     }
                                     else{
@@ -235,10 +243,18 @@ exports.listAccounts = function (req, res, next) {
             oauth2Client.refreshAccessToken(function (err, tokens) {
                 if (err){
                     if(err.code === 400){
-                        return res.status(401).json({
-                            error: 'Authentication required to perform this action',
-                            id: req.params.widgetId,
-                            errorstatusCode:1003
+                        Profile.update({_id: initialResults.get_profile._id}, {
+                            hasNoAccess:true
+                        }, function(err, response) {
+                            if(!err){
+                                return res.status(401).json({
+                                    error: 'Authentication required to perform this action',
+                                    id: req.params.widgetId,
+                                    errorstatusCode:1003
+                                });
+                            }
+                            else
+                                return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
                         })
                     }
                     else
@@ -535,10 +551,18 @@ exports.listAccounts = function (req, res, next) {
                 function (objects) {
                     if (objects.error) {
                         if (objects.error.code === 190){
-                            return res.status(401).json({
-                                error: 'Authentication required to perform this action',
-                                id: req.params.widgetId,
-                                errorstatusCode:1003
+                            Profile.update({_id: results.get_profile._id}, {
+                                hasNoAccess:true
+                            }, function(err, response) {
+                                if(!err){
+                                    return res.status(401).json({
+                                        error: 'Authentication required to perform this action',
+                                        id: req.params.widgetId,
+                                        errorstatusCode:1003
+                                    });
+                                }
+                                else
+                                    return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
                             })
                         }
                         else if (objects.error.code === 4)
@@ -640,10 +664,18 @@ exports.listAccounts = function (req, res, next) {
                                 function (pageList) {
                                     if (pageList.error){
                                         if (pageList.error.code === 190) {
-                                            return res.status(401).json({
-                                                error: 'Authentication required to perform this action',
-                                                id: req.params.widgetId,
-                                                errorstatusCode: 1003
+                                            Profile.update({_id: profile._id}, {
+                                                hasNoAccess:true
+                                            }, function(err, response) {
+                                                if(!err){
+                                                    return res.status(401).json({
+                                                        error: 'Authentication required to perform this action',
+                                                        id: req.params.widgetId,
+                                                        errorstatusCode:1003
+                                                    });
+                                                }
+                                                else
+                                                    return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
                                             })
                                         }
                                         else
@@ -912,10 +944,18 @@ exports.listAccounts = function (req, res, next) {
                 }
                 service.get(clientCustomerId, selector, function (err, response) {
                     if (err){
-                        return res.status(401).json({
-                            error: 'Authentication required to perform this action',
-                            id: req.params.widgetId,
-                            errorstatusCode:1003
+                        Profile.update({_id: results._id}, {
+                            hasNoAccess:true
+                        }, function(err, response) {
+                            if(!err){
+                                return res.status(401).json({
+                                    error: 'Authentication required to perform this action',
+                                    id: req.params.widgetId,
+                                    errorstatusCode:1003
+                                });
+                            }
+                            else
+                                return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
                         })
                     }
                     else {
@@ -1016,10 +1056,18 @@ exports.listAccounts = function (req, res, next) {
                     function (err, response, body) {
                         if (err || response.statusCode !== 200) {
                             if(response.statusCode == 401){
-                                return res.status(401).json({
-                                    error: 'Authentication required to perform this action',
-                                    id: req.params.widgetId,
-                                    errorstatusCode:1003
+                                Profile.update({_id: results._id}, {
+                                    hasNoAccess:true
+                                }, function(err, response) {
+                                    if(!err){
+                                        return res.status(401).json({
+                                            error: 'Authentication required to perform this action',
+                                            id: req.params.widgetId,
+                                            errorstatusCode:1003
+                                        });
+                                    }
+                                    else
+                                        return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
                                 })
                             }
                             else
@@ -1112,11 +1160,19 @@ exports.listAccounts = function (req, res, next) {
                     }, function (err, response, body) {
                         var parsedResponse;
                         if (response.statusCode != 200){
-                            if(response.statusCode != 200){
-                                return res.status(401).json({
-                                    error: 'Authentication required to perform this action',
-                                    id: req.params.widgetId,
-                                    errorstatusCode:1003
+                            if(response.statusCode == 401){
+                                Profile.update({_id: results._id}, {
+                                    hasNoAccess:true
+                                }, function(err, response) {
+                                    if(!err){
+                                        return res.status(401).json({
+                                            error: 'Authentication required to perform this action',
+                                            id: req.params.widgetId,
+                                            errorstatusCode:1003
+                                        });
+                                    }
+                                    else
+                                        return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
                                 })
                             }
                            else
@@ -1208,10 +1264,18 @@ exports.listAccounts = function (req, res, next) {
             apiClient.request('get', listUrl, {}, function (err, response) {
                 if (err){
                     if(err.error.status === 401){
-                        return res.status(401).json({
-                            error: 'Authentication required to perform this action',
-                            id: req.params.widgetId,
-                            errorstatusCode:1003
+                        Profile.update({_id: get_profile._id}, {
+                            hasNoAccess:true
+                        }, function(err, response) {
+                            if(!err){
+                                return res.status(401).json({
+                                    error: 'Authentication required to perform this action',
+                                    id: req.params.widgetId,
+                                    errorstatusCode:1003
+                                });
+                            }
+                            else
+                                return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
                         })
                     }
                     else

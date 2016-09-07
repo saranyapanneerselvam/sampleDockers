@@ -195,7 +195,7 @@
                                                         <div class="col-xs-10" style="float:left;overflow: hidden" >{{data.pagePath}}</div>
                                                         <div class="col-xs-2" style="float:left;text-align: right">{{data.pageVisits}}</div>
                                                     </div>
-                                                    <div style="text-align:center" ng-show="chart.data.length>20">
+                                                    <div class="showmore" style="text-align:center" ng-show="chart.data.length>20">
                                                         <a href ng-click="limitScroll=(limitScroll+10)" ng-show="limitScroll<chart.data.length">Show More</a>
                                                             <span ng-show="limitScroll>20&&limitScroll<chart.data.length">|</span>
                                                         <a href ng-click="limitScroll=(limitScroll-10)" ng-show="limitScroll>20">Show Less</a>

@@ -23,7 +23,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     $scope.googleCampaignChosen = false;
     $scope.groupChosen = false;
     $scope.adChosen = false;
-    $scope.refreshButtonLoading;
+    $scope.refreshButtonLoading='';
     var widgetType = 'basic';
     var storedProfile = {};
     var getChannelName = "";
@@ -522,7 +522,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                             text: "<span style='sweetAlertFont'>Please refresh your profile!</span>",
                             html: true
                         });
-                        $scope.tokenExpired=true;
+                        $scope.getProfilesForDropdown();
                     }
                 } else
                 swal({
@@ -557,8 +557,8 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                             text: "<span style='sweetAlertFont'>Please refresh your profile!</span>",
                             html: true
                         });
-                        $scope.tokenExpired=true;
                     }
+                    $scope.getProfilesForDropdown();
                 } else
                     swal({
                         title: "",
@@ -595,6 +595,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                         });
                         $scope.tokenExpired=true;
                     }
+                    $scope.getProfilesForDropdown();
                 } else
                     swal({
                         title: "",
@@ -888,8 +889,8 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                             text: "<span style='sweetAlertFont'>Please refresh your profile!</span>",
                             html: true
                         });
-                        $scope.tokenExpired=true;
                     }
+                    $scope.getProfilesForDropdown();
                 } else
                     swal({
                         title: "",
@@ -929,8 +930,8 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                             text: "<span style='sweetAlertFont'>Please refresh your profile!</span>",
                             html: true
                         });
-                        $scope.tokenExpired=true;
                     }
+                    $scope.getProfilesForDropdown();
                 } else
                     swal({
                         title: "",
@@ -970,8 +971,8 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                             text: "<span style='sweetAlertFont'>Please refresh your profile!</span>",
                             html: true
                         });
-                        $scope.tokenExpired=true;
                     }
+                    $scope.getProfilesForDropdown();
                 } else
                     swal({
                         title: "",
@@ -1381,7 +1382,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
 
     $scope.refreshObjectsForChosenProfile = function (objectTypeId) {
         if ($scope.profileOptionsModel._id) {
-            $scope.refreshButtonLoading=true;
+            $scope.refreshButtonLoading=objectTypeId;
             var profileId = $scope.profileOptionsModel._id;
             $http({
                 method: 'GET',
@@ -1433,10 +1434,10 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                                 uniqueObjectTypeWithIndex[k] = response.data;
                                 $scope.googleAnalyticsObjectList = uniqueObjectTypeWithIndex;
                             }
-                            $scope.refreshButtonLoading=false;
+                            $scope.refreshButtonLoading='';
                         },
                         function errorCallback(error) {
-                            $scope.refreshButtonLoading=false;
+                            $scope.refreshButtonLoading='';
                             if(error.status === 401){
                                 if(error.data.errorstatusCode === 1003){
                                     swal({
@@ -1444,8 +1445,8 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                                         text: "<span style='sweetAlertFont'>Please refresh your profile!</span>",
                                         html: true
                                     });
-                                    $scope.tokenExpired=true;
                                 }
+                                $scope.getProfilesForDropdown();
                             } else
                             swal({
                                 title: "",

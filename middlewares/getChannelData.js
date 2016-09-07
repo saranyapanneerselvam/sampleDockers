@@ -4524,13 +4524,12 @@ exports.getChannelData = function (req, res, next) {
             formMozQuery(results.metric, results.data, results.object, callback);
             function formMozQuery(metric, data, object, callback) {
                 async.timesSeries(metric.length, function (j, next) {
-
                     var metricType = metric[j].code;
                     if (data[j].data != null) {
                         var updated = moment(data[j].data.updated).format("YYYY-MM-DD");
                         var endDate = moment(new Date).format("YYYY-MM-DD");
                         if (updated < endDate) {
-                            var newDate = moment(updated, "DD-MM-YYYY").add(1, 'days');
+                            var newDate = moment(updated, "YYYY-MM-DD").add(1, 'days').format('YYYY-MM-DD');
                             var query = moz.newQuery('url-metrics')
                                 .target(object[0].name)
                                 .cols([metric[j].code]);

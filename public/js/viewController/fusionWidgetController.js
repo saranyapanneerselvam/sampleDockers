@@ -4,6 +4,7 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
     $scope.currentView = 'step_one';
     $scope.objectList = [];
     $scope.metricList = {};
+    $scope.tokenExpired=[];
     $scope.referenceWidgetsList = [];
     $scope.profileList = [];
     $scope.storedObjects = {};
@@ -198,6 +199,7 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
 
     $scope.getObjectsForChosenProfile = function (profileObj, index) {
         $scope.checkExpiresIn = null;
+        $scope.tokenExpired[index]=false;
         if (!profileObj) {
             $scope.objectList[index] = null;
             if($scope.uniquechannelNames[index] === 'Google Analytics'){
@@ -226,17 +228,17 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
                 $scope.expiredRefreshButton = $scope.uniquechannelNames[index];
                 if (profileObj.expiresIn != undefined)
                     $scope.checkExpiresIn = new Date(profileObj.expiresIn);
-                $scope.tokenExpired = false;
+                $scope.tokenExpired[index] = false;
                 //var profileId = this.profileOptionsModel._id;
                 var expiresIn = profileObj.expiresIn;
                 var currentDate = new Date();
                 var newexpiresIn = new Date(expiresIn);
                 if (currentDate <= newexpiresIn)
-                    $scope.tokenExpired = false;
+                    $scope.tokenExpired[index] = false;
                 else if (expiresIn === undefined)
-                    $scope.tokenExpired = false;
+                    $scope.tokenExpired[index] = false;
                 else
-                    $scope.tokenExpired = true;
+                    $scope.tokenExpired[index] = true;
             }
 
             $http({
@@ -400,7 +402,7 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
                                 text: "<span style='sweetAlertFont'>Please refresh your profile!</span>",
                                 html: true
                             });
-                            $scope.tokenExpired=true;
+                            $scope.getProfilesForDropdown();
                         }
                     } else
                         swal({

@@ -2366,19 +2366,20 @@ exports.getChannelData = function (req, res, next) {
                                 var storeDefaultValues = findDaysDifference(storeStartDate, storeEndDate, undefined, 'noEndPoint');
                             else var storeDefaultValues = findDaysDifference(storeStartDate, storeEndDate, undefined);
                         }
+                        finalData = {
+                            metricId: metricId,
+                            data: storeDefaultValues
+                        };
+                        queryResponse = {
+                            data: storeDefaultValues,
+                            metricId: metricId,
+                            queryResults: initialResults,
+                            channelId: initialResults.metric[0].channelId
+                        }
+                        callback(null, queryResponse);
 
                     }
-                    finalData = {
-                        metricId: metricId,
-                        data: storeDefaultValues
-                    };
-                    queryResponse = {
-                        data: storeDefaultValues,
-                        metricId: metricId,
-                        queryResults: initialResults,
-                        channelId: initialResults.metric[0].channelId
-                    }
-                    callback(null, queryResponse);
+
 
                 })
 

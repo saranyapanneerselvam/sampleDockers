@@ -103,10 +103,9 @@
                                                 <li  ng-repeat="data in chart.data" size-watcher size-watcher-height="data.myheight" size-Watcher-Width="chart.data" ng-class="calculateColumnWidth(chart.data.length)" ng-style="calculateRowHeight(data.myheight,chart.data.length)" style="text-align: center;padding-top: 1px;padding-left:0px;padding-right: 2px;" id="li-{{widget.id}}-{{$index}}" ><!--size-watcher-width="data.mywidth"-->
                                                     <div style="margin: 0px;height: 100%;overflow: hidden;white-space: nowrap;color: #000000;text-align: center" >
                                                         <p ng-style="{'color': '#979797', 'font-family' : 'Bebas Neue'}" style="font-weight: bold;">{{data.key}} - <b ng-style="{'color':data.color, 'font-family' : 'Bebas Neue'}"> {{data.summaryDisplay}} </b>
-                                                            <i ng-if="data.arrow==='up'" style="color:#2A8539" class="fa fa-arrow-up" aria-hidden="true"></i>
-                                                            <i ng-if='data.arrow==="down"' style="color:#FF1B1B" class="fa fa-arrow-down" aria-hidden="true"></i>
+
                                                         </p>
-                                                        <!--<p><b>{{data.period}}- <span ng-if="data.variance !=0">{{data.variance}}%</span></b></p>-->
+                                                        <p style="font-size: 14px;font-family: Heebo-Light;">{{data.period}}- <span ng-if="data.variance !=0">{{data.variance}}%</span><i ng-if="data.arrow==='up' && data.variance !=0" style="font-size: 0.8em;color:#2A8539" class="fa fa-arrow-up" aria-hidden="true"></i><i ng-if='data.arrow==="down" && data.variance !=0' style="font-size: 0.8em;color:#FF1B1B" class="fa fa-arrow-down" aria-hidden="true"></i></p>
                                                     </div>
                                                 </li>
                                             </ul>

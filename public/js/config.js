@@ -108,7 +108,7 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
             url: "",
             views: {
                 'lightbox@app.reporting.dashboard': {
-                    templateUrl: "profilelist.ejs",
+                    templateUrl: "profileList.ejs",
                     controller: 'LightBoxController'
                 }
             }

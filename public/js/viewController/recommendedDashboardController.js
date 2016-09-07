@@ -53,7 +53,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
         }, function errorCallback(error) {
             swal({
                 title: "",
-                text: "<span style='sweetAlertFont'>Something went wrong! Please reopen recommended dashboards link</span> .",
+                text: "<span style='sweetAlertFont'>Something went wrong! Please reopen recommended dashboards link</span>",
                 html: true
             });
         });
@@ -74,7 +74,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
             function errorCallback(err) {
                 swal({
                     title: "",
-                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen recommended dashboards link</span> .",
+                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen recommended dashboards link</span>",
                     html: true
                 });
             }
@@ -106,7 +106,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
                     function errorCallback(error) {
                         swal({
                             title: "",
-                            text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                            text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span>",
                             html: true
                         });
                     }
@@ -116,7 +116,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
                 deferred.reject(error);
                 swal({
                     title: "",
-                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen recommended dashboards link</span> .",
+                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen recommended dashboards link</span>",
                     html: true
                 });
             }
@@ -200,7 +200,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
                 function errorCallback(error) {
                     swal({
                         title: "",
-                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen recommended dashboards link</span> .",
+                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen recommended dashboards link</span>",
                         html: true
                     });
                 }
@@ -316,7 +316,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
                         function errorCallback(error) {
                             swal({
                                 title: "",
-                                text: "<span style='sweetAlertFont'>Something went wrong! Please reopen recommended dashboards link</span> .",
+                                text: "<span style='sweetAlertFont'>Something went wrong! Please reopen recommended dashboards link</span>",
                                 html: true
                             });
                         }
@@ -368,7 +368,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
                             $scope.recommendedRefreshButton='';
                             swal({
                                 title: "",
-                                text: "<span style='sweetAlertFont'>Please refresh your profile</span> .!",
+                                text: "<span style='sweetAlertFont'>Please refresh your profile</span>",
                                 html: true
                             });
                             $scope.tokenExpired[index]=true;
@@ -376,7 +376,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
                     } else
                         swal({
                             title: "",
-                            text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                            text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span>",
                             html: true
                         });
                 }
@@ -456,7 +456,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
                     function errorCallback(error) {
                         swal({
                             title: "",
-                            text: "<span style='sweetAlertFont'>Something went wrong! Please reopen recommended dashboards link</span> .",
+                            text: "<span style='sweetAlertFont'>Something went wrong! Please reopen recommended dashboards link</span>",
                             html: true
                         });
                     }
@@ -465,7 +465,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
             function errorCallback(error) {
                 swal({
                     title: "",
-                    text: "<span style='sweetAlertFont'>Please try again! Something is missing</span> .",
+                    text: "<span style='sweetAlertFont'>Please try again! Something is missing</span>",
                     html: true
                 });
             }

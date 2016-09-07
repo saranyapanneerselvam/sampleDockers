@@ -934,7 +934,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 } else
                     swal({
                         title: "",
-                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span>",
                         html: true
                     });
             }
@@ -975,7 +975,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 } else
                     swal({
                         title: "",
-                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span>",
                         html: true
                     });
             }
@@ -1152,7 +1152,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                         }, function errorCallback(error) {
                             swal({
                                 title: "",
-                                text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                                text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span>",
                                 html: true
                             });
                         }
@@ -1220,7 +1220,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                             }, function errorCallback(error) {
                                 swal({
                                     title: "",
-                                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span>",
                                     html: true
                                 });
                             }
@@ -1270,7 +1270,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                             }, function errorCallback(error) {
                                 swal({
                                     title: "",
-                                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span>",
                                     html: true
                                 });
                             }
@@ -1370,7 +1370,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     function errorCallback(error) {
                         swal({
                             title: "",
-                            text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                            text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span>",
                             html: true
                         });
                     }
@@ -1449,7 +1449,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                             } else
                             swal({
                                 title: "",
-                                text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                                text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span>",
                                 html: true
                             });
                         }
@@ -1459,7 +1459,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     $scope.refreshButtonLoading=false;
                     swal({
                         title: "",
-                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span>",
                         html: true
                     });
                 }
@@ -1555,7 +1555,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                         function errorCallback(error) {
                             swal({
                                 title: "",
-                                text: "<span style='sweetAlertFont'>Something went wrong with Profile delink.Please try again</span> .",
+                                text: "<span style='sweetAlertFont'>Something went wrong with Profile delink.Please try again</span>",
                                 html: true
                             });
                         }
@@ -1598,7 +1598,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 function errorCallback(error) {
                     swal({
                         title: "",
-                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span>",
                         html: true
                     });
                 }
@@ -1743,7 +1743,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                         $("#somethingWentWrongText").text("Something went wrong! Please try again");
                         swal({
                             title: "",
-                            text: "<span style='sweetAlertFont'>Something went wrong! Please try again!</span> .",
+                            text: "<span style='sweetAlertFont'>Something went wrong! Please try again!</span>",
                             html: true
                         });
                     }
@@ -1823,7 +1823,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                         $("#somethingWentWrongText").text("Something went wrong! Please try again");
                         swal({
                             title: "",
-                            text: "<span style='sweetAlertFont'>Something went wrong! Please try again!</span> .",
+                            text: "<span style='sweetAlertFont'>Something went wrong! Please try again!</span>",
                             html: true
                         });
                     }
@@ -1894,7 +1894,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                         $("#somethingWentWrongText").text("Something went wrong! Please try again");
                         swal({
                             title: "",
-                            text: "<span style='sweetAlertFont'>Something went wrong! Please try again!</span> .",
+                            text: "<span style='sweetAlertFont'>Something went wrong! Please try again!</span>",
                             html: true
                         });
                     }
@@ -1985,7 +1985,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 function errorCallback(error) {
                     swal({
                         title: "",
-                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span>",
                         html: true
                     });
                 }
@@ -2080,7 +2080,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     function errorCallback(error) {
                         swal({
                             title: "",
-                            text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                            text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span>",
                             html: true
                         });
                     }
@@ -2112,7 +2112,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     function errorCallback(error) {
                         swal({
                             title: "",
-                            text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                            text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span>",
                             html: true
                         });
                     }
@@ -2166,7 +2166,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 $scope.customDocLinkMessage = true;
                 swal({
                     title: "",
-                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span>",
                     html: true
                 });
             }

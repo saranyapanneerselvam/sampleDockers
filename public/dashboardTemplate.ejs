@@ -133,7 +133,7 @@
                                                 <div class="scrollbar scrollInWidget" id="scroller">
                                                     <div class="col-lg-12 listed" ng-repeat="data in chart.data">
                                                         <div class="col-lg-1 listed-image" >
-                                                            <a  href="{{data.links}}" target="_blank"><img src="{{data.image}}" height="50px" widget="50px"/></a>
+                                                            <a  href="{{data.links}}" target="_blank"><img ng-src="{{data.image}}" height="50px" widget="50px"/></a>
                                                         </div>
                                                         <div class="col-lg-11 aside">
                                                             <div class="postComment"><a class="apiLink" href="{{data.links}} " target="_blank">{{data.postComment}}</a></div>
@@ -251,7 +251,7 @@
                                                 <div class="scrollbar scrollInWidget" id="scroller">
                                                     <div class="col-lg-12 listed" ng-repeat="data in chart.data" ng-if="data.title">
                                                         <div class="col-lg-1 listed-image" >
-                                                            <a  href="{{data.link }}" target="_blank"><img src="{{data.picture}}" height="50px" widget="50px" /></a>
+                                                            <a  href="{{data.link }}" target="_blank"><img ng-src="{{data.picture}}" height="50px" widget="50px" /></a>
                                                         </div>
                                                         <div class="col-lg-11 aside">
                                                             <div class="postComment"> <a  class="apiLink" href="{{data.link }}" target="_blank">  {{data.title}}</a></div>

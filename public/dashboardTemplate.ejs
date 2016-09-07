@@ -85,8 +85,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div  class=" errorWidgetData  background-color"
-                                         id="errorWidgetTokenexpire-{{widget.id}}" style="margin-top: 23%;">
+                                    <div class=" errorWidgetData  background-color" id="errorWidgetTokenexpire-{{widget.id}}" style="margin-top: 23%;">
                                         <div class="row" style="margin: 0px;height: 100%">
                                             <div style="height:99%;">
                                                 <div style="position:relative; top:10%; text-align:center; padding-right:20px">
@@ -96,8 +95,6 @@
                                             </div>
                                         </div>
                                     </div>
-
-                                </div>
                                 </div>
                                 <div class="row getWidgetGraph" style="height: 100%;margin:0px;" ng-if="dashboard.widgetData[widgetIndex].visibility == true" chart-height>
                                     <div ng-repeat="(chartIndex,chart) in dashboard.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'lineChart'  || chart.options.chart.type=== 'pieChart' || chart.options.chart.type=== 'multiBarChart' || chart.options.chart.type=== 'multiChart'" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/dashboard.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/dashboard.widgetData[widgetIndex].layoutOptionsX)+'%'}">

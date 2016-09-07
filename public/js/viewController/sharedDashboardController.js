@@ -14,19 +14,108 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
         $scope.dashboard.dashboardName = '';
         $scope.widgetsPresent = false;
         $scope.loadedWidgetCount = 0;
-        $scope.populateDashboardWidgets();
+        $scope.startDate;
+        $scope.endDate;
+
+
+        $scope.fetchDateForDashboard = function () {
+            $http({
+                method: 'GET',
+                url: '/api/v1/get/dashboards/' + $state.params.id
+            }).then(
+                function successCallback(response) {
+                    if (response.status == 200) {
+                        var diffWithStartDate = dayDiff(response.data.startDate, new Date());
+                        var diffWithEndDate = dayDiff(response.data.endDate, new Date());
+                        var changeInDb = true;
+                        function dayDiff(startDate, endDate) {
+                            var storeStartDate = new Date(startDate);
+                            var storeEndDate = new Date(endDate);
+                            var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
+                            var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                            return diffDays;
+                        }
+
+                        if (diffWithStartDate >= 365 || diffWithEndDate >= 365) {
+                            $scope.startDate = moment(new Date()).subtract(30, 'days');
+                            $scope.endDate = new Date();
+                            storeDateInDb($scope.startDate,$scope.endDate, changeInDb);
+                        }
+
+                        else {
+                            $scope. startDate = response.data.startDate;
+                            $scope. endDate = response.data.endDate;
+                            console.log('else',$scope.startDate, $scope.endDate);
+                            $scope.userModifyDate($scope.startDate, $scope.endDate);
+                        }
+                    }
+                    else {
+                        $scope.startDate = moment(new Date()).subtract(30, 'days');
+                        $scope.endDate = new Date();
+                        $scope.userModifyDate($scope.startDate, $scope.endDate)
+                    }
+                    // $scope.userModifyDate(startDate,endDate)
+                }
+            )
+        };
+
+        $scope.fetchDateForDashboard();
         //To define the calendar in dashboard header
-        $scope.dashboardCalendar = new Calendar({
-            element: $('.daterange--double').attr( 'readOnly' , 'true' ),
-            earliest_date: moment(new Date()).subtract(365,'days'),
-            latest_date: new Date(),
-            start_date: moment(new Date()).subtract(30,'days'),
-            end_date: new Date(),
-            callback: function() {
-                var start = moment(this.start_date).format('ll'), end = moment(this.end_date).format('ll');
-                $scope.populateDashboardWidgets();
-            }
-        });
+        $scope.userModifyDate = function (startDate, endDate) {
+            $scope.dashboardCalendar = new Calendar({
+                element: $('.daterange--double'),
+                earliest_date: moment(new Date()).subtract(365, 'days'),
+                latest_date: new Date(),
+                start_date: startDate,
+                end_date: endDate,
+                callback: function () {
+                    storeDateInDb(this.start_date, this.end_date);
+                }
+            });
+            $scope.populateDashboardWidgets();
+        };
+
+
+
+        function storeDateInDb(start_date, end_date, changeInDb) {
+            var jsonData = {
+                dashboardId: $state.params.id,
+                startDate: start_date,
+                endDate: end_date
+            };
+            $http(
+                {
+                    method: 'POST',
+                    url: '/api/v1/create/dashboards',
+                    data: jsonData
+                }
+            ).then(
+                function successCallback(response) {
+                    if (response.status == 200) {
+                        $scope.startDate = response.config.data.startDate;
+                        $scope.endDate = response.config.data.endDate;
+                        if (changeInDb === true) {
+                            $scope.userModifyDate( $scope.startDate, $scope.endDate);
+                        }
+                        else {
+                            $scope.populateDashboardWidgets();
+                        }
+                    }
+                    else {
+                        var startDate = this.start_date;
+                        var endDate = this.end_date;
+                        $scope.populateDashboardWidgets();
+                    }
+                    // var start = moment(this.start_date).format('ll'), end = moment(this.end_date).format('ll');
+                },
+                function errorCallback(error) {
+                    var startDate = this.start_date;
+                    var endDate = this.end_date;
+                    $scope.populateDashboardWidgets();
+                });
+        }
+
+
 
         //Setting up grid configuration for widgets
         $scope.gridsterOptions = {

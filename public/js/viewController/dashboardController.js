@@ -399,26 +399,60 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             }
         });
 
-        $scope.calculateColumnWidth = function(x) {
+        $scope.calculateColumnWidth = function(noOfItems,widgetWidth,noOfCharts) {
 
-            if(x<=2)
+            if(noOfCharts<=3)
+            widgetWidth = Math.ceil(widgetWidth/noOfCharts);
+            if(widgetWidth==1)
                 return ('col-sm-'+12+' col-md-'+12+' col-lg-'+12);
-            else if(x>2 && x<=4)
+            else {
+                if(widgetWidth==2){
+                    if(noOfItems<=2)
+                        return ('col-sm-'+12+' col-md-'+12+' col-lg-'+12);
+                    else
+                        return ('col-sm-'+6+' col-md-'+6+' col-lg-'+6);
+                }
+                else {
+                    if (noOfItems <= 2)
+                        return ('col-sm-' + 12 + ' col-md-' + 12 + ' col-lg-' + 12);
+                    else if (noOfItems > 2 && noOfItems <= 4)
                 return ('col-sm-'+6+' col-md-'+6+' col-lg-'+6);
             else
                 return ('col-sm-'+4+' col-md-'+4+' col-lg-'+4);
+                }
+            }
         };
 
-        $scope.calculateRowHeight = function(availableHeight,noOfItems) {
-
+        $scope.calculateRowHeight = function(data,widgetWidth,noOfCharts) {
+            var availableHeight = data.myheight;
+            var noOfItems = data.length;
+            if(noOfCharts<=3)
+                widgetWidth = Math.ceil(widgetWidth/noOfCharts);
             var cols;
+
+            if(widgetWidth==1)
+                cols =1;
+            else {
+                if(widgetWidth==2){
+                    if(noOfItems<=2)
+                        cols=1;
+                    else
+                        cols =2;
+                }
+                else {
             if(noOfItems<=2)
                 cols = 1;
             else if(noOfItems>2 && noOfItems<=4)
                 cols = 2;
             else
                 cols = 3;
-
+                }
+            }
+            // console.log("No.of charts",noOfCharts,"Widget Width",widgetWidth,"No of Cols",cols);
+            if(cols==1)
+                data.showComparision = false;
+            else
+                data.showComparision = true;
             //var cols = $window.innerWidth>=768 ? 2 : 1;
             var rows = Math.ceil(noOfItems/cols);
             var heightPercent = 100/rows;
@@ -428,8 +462,38 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 fontSizeEm=minSize;
             if(fontSizeEm>maxSize)
                 fontSizeEm=maxSize;
-            return {'height':(heightPercent+'%'),'font-size':(fontSizeEm+'em')};
+            // return {'height':(heightPercent+'%'),'font-size':(fontSizeEm+'em')};
+            return {'height':(heightPercent+'%')};
         };
+        $scope.calculateSummaryHeight = function(widgetHeight,noOfItems) {
+            var heightPercent;
+            if(widgetHeight<=2) {
+                if(noOfItems==1)
+                    heightPercent = 20;
+                else
+                heightPercent = 100 / widgetHeight;
+                return {'height': (heightPercent + '%')};
+            }
+            else{
+                heightPercent = 100-(100/widgetHeight);
+                return {'height':(heightPercent+'%')};
+            }
+        };
+        $scope.calculateChartHeight = function(widgetHeight,noOfItems) {
+            var heightPercent;
+            if(widgetHeight<=2) {
+                if(noOfItems==1)
+                    heightPercent = 80;
+                else
+                heightPercent = 100-(100/widgetHeight);
+                return {'height':(heightPercent+'%')};
+            }
+            else{
+                heightPercent = 100 / widgetHeight;
+                return {'height': (heightPercent + '%')};
+            }
+        };
+
     };
 
     //To populate all the widgets in a dashboard when the dashboard is refreshed or opened or calendar date range in the dashboard header is changed
@@ -473,8 +537,8 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                             'col': (typeof dashboardWidgetList[getWidgetInfo].col != 'undefined'? dashboardWidgetList[getWidgetInfo].col : 0),
                             'sizeY': (typeof dashboardWidgetList[getWidgetInfo].size != 'undefined'? dashboardWidgetList[getWidgetInfo].size.h : 2),
                             'sizeX': (typeof dashboardWidgetList[getWidgetInfo].size != 'undefined'? dashboardWidgetList[getWidgetInfo].size.w : 2),
-                            'minSizeY': (typeof dashboardWidgetList[getWidgetInfo].minSize != 'undefined'? dashboardWidgetList[getWidgetInfo].minSize.h : 1),
-                            'minSizeX': (typeof dashboardWidgetList[getWidgetInfo].minSize != 'undefined'? dashboardWidgetList[getWidgetInfo].minSize.w : 1),
+                            'minSizeY': 1,//(typeof dashboardWidgetList[getWidgetInfo].minSize != 'undefined'? dashboardWidgetList[getWidgetInfo].minSize.h : 1),
+                            'minSizeX': 1,//(typeof dashboardWidgetList[getWidgetInfo].minSize != 'undefined'? dashboardWidgetList[getWidgetInfo].minSize.w : 1),
                             'maxSizeY': (typeof dashboardWidgetList[getWidgetInfo].maxSize != 'undefined'? dashboardWidgetList[getWidgetInfo].maxSize.h : 3),
                             'maxSizeX': (typeof dashboardWidgetList[getWidgetInfo].maxSize != 'undefined'? dashboardWidgetList[getWidgetInfo].maxSize.w : 3),
                             'name': (typeof dashboardWidgetList[getWidgetInfo].name != 'undefined'? dashboardWidgetList[getWidgetInfo].name : ''),

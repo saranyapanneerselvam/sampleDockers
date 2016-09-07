@@ -1,28 +1,39 @@
-<div class="modal-dialog modal-lg" ng-init="open()">
+<div class="modal-dialog modal-lg" ng-init="open('profilelist')">
     <script type="text/ng-template" id="modal.ejs">
         <div class="modal-content" class="profilelistmodal" ng-controller="ProfileListController" ng-init="configProfileListModal()">
         <div class="modal-header">
             <button type="button" class="close"
                     ng-click="closeProfilelistModal()"><span
                         aria-hidden="true">×</span><span class="sr-only">Close</span></button>
-            <h3 class="modal-title">
+            <h3 class="modal-title" Style="text-align: center;color: #04509B;">
                 Linked Profiles
             </h3>
         </div>
         <div class="modal-body" >
-            <div class="scrollbar">
+            <div class="scrollbar scrollInWidget" id="scroller">
                 <div id ="errorInRelink"></div>
-                <div class="row" class="profiletitle" style="height:40px;margin-top: 15px;">
-                    <div class="col-sm-4">Channel</div>
-                    <div class="col-sm-4">profileName</div>
+                <div class="row bottomline"  >
+                    <div class="profiletitle">
+                        <div class="col-sm-3" style="text-align: left;">Channel</div>
+                        <div class="col-sm-3" style="text-align: left">Profile Name</div>
+                        <div class="col-sm-3" style="text-align: center">Expires IN</div>
+                        <div class="col-sm-3" style="text-align: left">Status</div>
+                    </div>
+
                 </div>
-                <div class="row" ng-repeat="profile in profileListArray" style="height:40px">
-                    <div class="col-sm-4"> <img  src="image/thumbnail/{{profile.channelName}}.png" class="img-thumbnail" style="max-width:10%;max-height:10%; margin: 0px 5px 0px 0px;"/></div>
-                    <div class="col-sm-4">{{profile.name}}</div>
-                    <div ng-show="profile.hasNoAccess" class="col-sm-4" ><a  style="color: #45596b" ng-click="refreshProfile(profile)" ><i class="fa fa-refresh" aria-hidden="true"></i></a></div>
+                <div class="row bottomline" ng-repeat="profile in profileListArray" style="height:40px">
+                    <div class="col-sm-3" class="profilelistcell"> <img  src="image/thumbnail/{{profile.channelName}}.png" class="img-thumbnail profilelisImg" /></div>
+                    <div class="col-sm-3" class="profilelistcell">{{profile.name}}</div>
+                    <div class="col-sm-3" style="text-align: center">{{profile.expiresIn | date}}</div>
+                    <div ng-show="profile.hasNoAccess" class="col-sm-3"  class="profilelistcell">
+                        Inactive&nbsp;
+                        <a  style="color: #45596b" ng-click="refreshProfile(profile)" ><i class="fa fa-refresh" aria-hidden="true"></i></a>
+                    </div>
+                    <div ng-show="!profile.hasNoAccess" class="col-sm-3"  class="profilelistcell">
+                        Active&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a ng-show="profile.expiresIn" style="color: #45596b" ng-click="refreshProfile(profile)" ><i class="fa fa-refresh" aria-hidden="true"></i></a>
+                    </div>
                 </div>
             </div>
-
         </div>
             </div>
             </script>

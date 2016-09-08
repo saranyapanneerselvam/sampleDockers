@@ -402,7 +402,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         $scope.calculateColumnWidth = function(noOfItems,widgetWidth,noOfCharts) {
 
             if(noOfCharts<=3)
-            widgetWidth = Math.ceil(widgetWidth/noOfCharts);
+                widgetWidth = Math.ceil(widgetWidth/noOfCharts);
             if(widgetWidth==1)
                 return ('col-sm-'+12+' col-md-'+12+' col-lg-'+12);
             else {
@@ -416,9 +416,9 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     if (noOfItems <= 2)
                         return ('col-sm-' + 12 + ' col-md-' + 12 + ' col-lg-' + 12);
                     else if (noOfItems > 2 && noOfItems <= 4)
-                return ('col-sm-'+6+' col-md-'+6+' col-lg-'+6);
-            else
-                return ('col-sm-'+4+' col-md-'+4+' col-lg-'+4);
+                        return ('col-sm-'+6+' col-md-'+6+' col-lg-'+6);
+                    else
+                        return ('col-sm-'+4+' col-md-'+4+' col-lg-'+4);
                 }
             }
         };
@@ -440,12 +440,12 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                         cols =2;
                 }
                 else {
-            if(noOfItems<=2)
-                cols = 1;
-            else if(noOfItems>2 && noOfItems<=4)
-                cols = 2;
-            else
-                cols = 3;
+                    if(noOfItems<=2)
+                        cols = 1;
+                    else if(noOfItems>2 && noOfItems<=4)
+                        cols = 2;
+                    else
+                        cols = 3;
                 }
             }
             // console.log("No.of charts",noOfCharts,"Widget Width",widgetWidth,"No of Cols",cols);
@@ -465,31 +465,33 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             // return {'height':(heightPercent+'%'),'font-size':(fontSizeEm+'em')};
             return {'height':(heightPercent+'%')};
         };
+
         $scope.calculateSummaryHeight = function(widgetHeight,noOfItems) {
             var heightPercent;
-            if(widgetHeight<=2) {
+            if(widgetHeight<=1) {
                 if(noOfItems==1)
                     heightPercent = 20;
                 else
-                heightPercent = 100 / widgetHeight;
+                    heightPercent = 100 / widgetHeight;
                 return {'height': (heightPercent + '%')};
             }
-            else{
-                heightPercent = 100-(100/widgetHeight);
+            else {
+                heightPercent = 100 / widgetHeight;
                 return {'height':(heightPercent+'%')};
             }
         };
+
         $scope.calculateChartHeight = function(widgetHeight,noOfItems) {
             var heightPercent;
-            if(widgetHeight<=2) {
+            if(widgetHeight<=1) {
                 if(noOfItems==1)
                     heightPercent = 80;
                 else
-                heightPercent = 100-(100/widgetHeight);
+                    heightPercent = 100-(100/widgetHeight);
                 return {'height':(heightPercent+'%')};
             }
-            else{
-                heightPercent = 100 / widgetHeight;
+            else {
+                heightPercent = 100-(100/widgetHeight);
                 return {'height': (heightPercent + '%')};
             }
         };
@@ -537,8 +539,8 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                             'col': (typeof dashboardWidgetList[getWidgetInfo].col != 'undefined'? dashboardWidgetList[getWidgetInfo].col : 0),
                             'sizeY': (typeof dashboardWidgetList[getWidgetInfo].size != 'undefined'? dashboardWidgetList[getWidgetInfo].size.h : 2),
                             'sizeX': (typeof dashboardWidgetList[getWidgetInfo].size != 'undefined'? dashboardWidgetList[getWidgetInfo].size.w : 2),
-                            'minSizeY': 1,//(typeof dashboardWidgetList[getWidgetInfo].minSize != 'undefined'? dashboardWidgetList[getWidgetInfo].minSize.h : 1),
-                            'minSizeX': 1,//(typeof dashboardWidgetList[getWidgetInfo].minSize != 'undefined'? dashboardWidgetList[getWidgetInfo].minSize.w : 1),
+                            'minSizeY': (typeof dashboardWidgetList[getWidgetInfo].minSize != 'undefined'? dashboardWidgetList[getWidgetInfo].minSize.h : 1),
+                            'minSizeX': (typeof dashboardWidgetList[getWidgetInfo].minSize != 'undefined'? dashboardWidgetList[getWidgetInfo].minSize.w : 1),
                             'maxSizeY': (typeof dashboardWidgetList[getWidgetInfo].maxSize != 'undefined'? dashboardWidgetList[getWidgetInfo].maxSize.h : 3),
                             'maxSizeX': (typeof dashboardWidgetList[getWidgetInfo].maxSize != 'undefined'? dashboardWidgetList[getWidgetInfo].maxSize.w : 3),
                             'name': (typeof dashboardWidgetList[getWidgetInfo].name != 'undefined'? dashboardWidgetList[getWidgetInfo].name : ''),

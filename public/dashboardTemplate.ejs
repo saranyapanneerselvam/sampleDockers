@@ -49,10 +49,10 @@
                                 <div style="float: left;width: 93%;">
                                     <img src="image/thumbnail/{{widget.channelName}}.png" style="float:left;vertical-align: super;max-height: 31px; max-width: 50px; padding:5px"/>
                                     <h3 ng-style="widget.sizeX!=1  && {'width':'80%'}  || widget.sizeX==1 && {'width':'50%'} "><a title="Click to Rename this widget" style="float:left;border-bottom:0px!important;padding:7px!important;color:#000!important" href="#" editable-text="dashboard.widgetData[widgetIndex].name" buttons="no" onaftersave="changeWidgetName(widget,dashboard.widgetData[widgetIndex].name)"  e-maxlength="35">
-                                           <span>{{dashboard.widgetData[widgetIndex].name || 'Name your widget'}}</span>
-<!--
-                                            <i class="fa fa-pencil hover-icon" aria-hidden="true" ng-style="widget.sizeX>2  &&{'margin-top': '-15px','float':'right','margin-left': '100%'} || widget.sizeX==1  &&{'margin-top': '-16px','float':'none','position': 'relative','margin-left': '5%'} || widget.sizeX==2  &&{'margin-top': '-15px','float':'none','margin-left': '125px'}" style="font-size: 1em;color:#000;display:none"></i>
--->
+                                            <span>{{dashboard.widgetData[widgetIndex].name || 'Name your widget'}}</span>
+                                            <!--
+                                                                                        <i class="fa fa-pencil hover-icon" aria-hidden="true" ng-style="widget.sizeX>2  &&{'margin-top': '-15px','float':'right','margin-left': '100%'} || widget.sizeX==1  &&{'margin-top': '-16px','float':'none','position': 'relative','margin-left': '5%'} || widget.sizeX==2  &&{'margin-top': '-15px','float':'none','margin-left': '125px'}" style="font-size: 1em;color:#000;display:none"></i>
+                                            -->
                                         </a>
                                     </h3>
                                 </div>
@@ -80,17 +80,17 @@
                                         <div class="row" style="margin: 0px;height: 100%">
                                             <div style="height:99%;">
                                                 <div style="position:relative; top:36%; text-align:center; padding-right:20px">
-                                                    <p style="word-wrap:break-word;font-size: 12px;">Your credential is insufficient to fetch data for this metric</p>
+                                                    <p style="word-wrap:break-word;font-size: 10px;">Your credential is insufficient to fetch data for this metric</p>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class=" errorWidgetData  background-color" id="errorWidgetTokenexpire-{{widget.id}}" style="margin-top: 23%;">
+                                    <div class=" errorWidgetData  background-color" id="errorWidgetTokenexpire-{{widget.id}}" style="margin-top: 0%;">
                                         <div class="row" style="margin: 0px;height: 100%">
                                             <div style="height:99%;">
-                                                <div style="position:relative; top:10%; text-align:center; padding-right:20px">
-                                                    <p>Access to one or more profiles has expired</p>
-                                                   <a ui-sref="app.reporting.dashboard.listProfile"><i style="color: #23527c;" class="fa fa-refresh" aria-hidden="true"> </i><p style="color:#000">  Refresh</p></a>
+                                                <div style="position:relative; top:25%; text-align:center; padding-right:20px">
+                                                    <p style="word-wrap:break-word;font-size: 10px;">Access to one or more profiles has expired</p>
+                                                    <a ui-sref="app.reporting.dashboard.listProfile"><i style="color: #23527c;" class="fa fa-refresh" aria-hidden="true"> </i><p style="color:#000;font-size: 10px">  Refresh</p></a>
                                                 </div>
                                             </div>
                                         </div>
@@ -98,12 +98,15 @@
                                 </div>
                                 <div class="row getWidgetGraph" style="height: 100%;margin:0px;" ng-if="dashboard.widgetData[widgetIndex].visibility == true" chart-height>
                                     <div ng-repeat="(chartIndex,chart) in dashboard.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'lineChart'  || chart.options.chart.type=== 'pieChart' || chart.options.chart.type=== 'multiBarChart' || chart.options.chart.type=== 'multiChart'" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/dashboard.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/dashboard.widgetData[widgetIndex].layoutOptionsX)+'%'}">
-                                        <div class="row scrollbar scroller"style="margin:0px;"  ng-style="calculateSummaryHeight(widget.sizeY,chart.data.length)">
+                                        <div class="row scrollbar scroller" style="margin:0px;"  ng-style="calculateSummaryHeight(widget.sizeY,chart.data.length)">
                                             <ul style="height:100%;font-size:12px;padding-left: 5px;">
                                                 <li  ng-repeat="data in chart.data" size-watcher size-watcher-height="data.myheight" size-Watcher-Width="chart.data" ng-class="calculateColumnWidth(chart.data.length,widget.sizeX,dashboard.widgetData[widgetIndex].chart.length)" ng-style="calculateRowHeight(data,widget.sizeX,dashboard.widgetData[widgetIndex].chart.length)" style="text-align: center;padding-top: 1px;padding-left:0px;padding-right: 2px;font-size: 1.0em!important;" id="li-{{widget.id}}-{{$index}}" ><!--size-watcher-width="data.mywidth"-->
-                                                    <div style="margin: 0px;height: 100%;overflow: hidden;white-space: nowrap;color: #000000;text-align: center;" >
-                                                        <p ng-style="{'color': '#979797', 'font-family' : 'Heebo-Medium','font-size':'12px', 'text-transform':'uppercase', 'background-color': 'whitesmoke'}" style="margin:0px 0px 3px!important;font-weight: bold;">{{data.key}} - <b ng-style="{'color':data.color, 'font-family' : 'Bebas Neue'}"> {{data.summaryDisplay}} </b></p>
-                                                        <p ng-if="chart.options.chart.type != 'pieChart'" ng-show="data.showComparision==true" style="margin:1px 0px 1px!important;overflow: hidden">{{data.period}}- <span ng-if="data.variance !=0">{{data.variance}}%</span><i ng-if="data.arrow==='up' && data.variance !=0" style="font-size: 0.8em;color:#2A8539" class="fa fa-arrow-up" aria-hidden="true"></i><i ng-if='data.arrow==="down" && data.variance !=0' style="font-size: 0.8em;color:#FF1B1B" class="fa fa-arrow-down" aria-hidden="true"></i></p>
+                                                    <div style="margin: 0px;height: 100%;overflow: hidden;white-space: nowrap;color: #000000;text-align: center;">
+                                                        <p ng-show="data.showComparision==false" ng-style="{'color': '#979797', 'font-family' : 'Heebo-Medium','font-size':'10px', 'text-transform':'uppercase', 'background-color': 'whitesmoke', 'border-bottom': '4px solid', 'border-color': data.color, 'padding-left': '3px', 'border-right': '3px solid white'}" style="margin:0px 0px 3px!important;font-weight: bold;"> {{data.key}} - {{data.summaryDisplay}}</p>
+                                                        <p ng-show="data.showComparision==true" ng-style="{'color': '#979797', 'font-family' : 'Heebo-Medium','font-size':'14px', 'text-transform':'uppercase', 'background-color': 'whitesmoke', 'border-bottom': '4px solid', 'border-color': data.color, 'padding-left': '3px', 'border-right': '3px solid white'}" style="margin:0px 0px 3px!important;font-weight: bold;"> {{data.key}}</p>
+                                                        <p ng-show="data.showComparision==true" ng-style="{'color': '#979797', 'font-family' : 'Heebo-Medium','font-size':'14px', 'text-transform':'uppercase', 'padding-left': '3px', 'border-right': '3px solid white'}" style="margin:0px 0px 3px!important;font-weight: bold;"> {{data.summaryDisplay}}</p>
+                                                        <!--<p ng-style="{'color': '#979797', 'font-family' : 'Heebo-Medium','font-size':'12px', 'text-transform':'uppercase', 'background-color': 'whitesmoke'}" style="margin:0px 0px 3px!important;font-weight: bold;">{{data.key}} - <b ng-style="{'color':data.color, 'font-family' : 'Heebo-Medium'}"> {{data.summaryDisplay}} </b></p>-->
+                                                        <p ng-if="chart.options.chart.type != 'pieChart'" ng-show="data.showComparision==true" style="margin:1px 0px 1px!important;overflow: hidden">{{data.period}}: <span ng-if="data.variance !=0">{{data.variance}}%  </span><i ng-if="data.arrow==='up' && data.variance !=0" style="font-size: 0.8em;color:#2A8539" class="fa fa-arrow-up" aria-hidden="true"></i><i ng-if='data.arrow==="down" && data.variance !=0' style="font-size: 0.8em;color:#FF1B1B" class="fa fa-arrow-down" aria-hidden="true"></i></p>
                                                         <!--<p ng-if="chart.options.chart.type != 'pieChart'" style="font-size: 14px;font-family: Heebo-Light;">{{data.period}}- <span ng-if="data.variance !=0">{{data.variance}}%</span><i ng-if="data.arrow==='up' && data.variance !=0" style="font-size: 0.8em;color:#2A8539" class="fa fa-arrow-up" aria-hidden="true"></i><i ng-if='data.arrow==="down" && data.variance !=0' style="font-size: 0.8em;color:#FF1B1B" class="fa fa-arrow-down" aria-hidden="true"></i></p>-->
                                                     </div>
                                                 </li>
@@ -195,7 +198,7 @@
                                                     </div>
                                                     <div class="showmore" style="text-align:center" ng-show="chart.data.length>20">
                                                         <a href ng-click="limitScroll=(limitScroll+10)" ng-show="limitScroll<chart.data.length">Show More</a>
-                                                            <span ng-show="limitScroll>20&&limitScroll<chart.data.length">|</span>
+                                                        <span ng-show="limitScroll>20&&limitScroll<chart.data.length">|</span>
                                                         <a href ng-click="limitScroll=(limitScroll-10)" ng-show="limitScroll>20">Show Less</a>
                                                     </div>
                                                 </div>

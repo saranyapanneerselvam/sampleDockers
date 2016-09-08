@@ -866,7 +866,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                             'values': widget.charts[charts].chartData,      //values - represents the array of {x,y} data points
                                             'key': widget.charts[charts].chartName, //key  - the name of the series.
                                             'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
-                                            'summaryDisplay': summaryValue//(parseFloat(summaryValue).toFixed(2) % Math.floor(summaryValue)) > 0 ? parseFloat(summaryValue).toFixed(2): parseInt(summaryValue)
+                                            'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(summaryValue)) > 0 ? parseFloat(summaryValue).toFixed(2): Math.floor(summaryValue) == 0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
                                         });
                                     }
                                     else {
@@ -878,7 +878,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                             'arrow':comparingData,
                                             'variance':percentage,
                                             'period':granunality,
-                                            'summaryDisplay': summaryValue//(parseFloat(summaryValue).toFixed(2) % Math.floor(summaryValue)) > 0 ? parseFloat(summaryValue).toFixed(2): parseInt(summaryValue)
+                                            'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(summaryValue)) > 0 ? parseFloat(summaryValue).toFixed(2): Math.floor(summaryValue) == 0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue)
                                         });
                                     }
                                 }
@@ -891,7 +891,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                         'arrow':comparingData,
                                         'variance':percentage,
                                         'period':granunality,
-                                        'summaryDisplay': summaryValue,//(parseFloat(summaryValue).toFixed(2) % Math.floor(summaryValue)) > 0 ? parseFloat(summaryValue).toFixed(2): parseInt(summaryValue),
+                                        'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(summaryValue)) > 0 ? parseFloat(summaryValue).toFixed(2): Math.floor(summaryValue) == 0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
                                         'area': true
                                     });
                                 }
@@ -904,7 +904,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                         'arrow':comparingData,
                                         'period':granunality,
                                         'variance':percentage,
-                                        'summaryDisplay': summaryValue//(parseFloat(summaryValue).toFixed(2) % Math.floor(summaryValue)) > 0 ? parseFloat(summaryValue).toFixed(2): parseInt(summaryValue)
+                                        'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(summaryValue)) > 0 ? parseFloat(summaryValue).toFixed(2): Math.floor(summaryValue) == 0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
                                     });
                                 }
                             }
@@ -1002,7 +1002,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                             'arrow':comparingData,
                                             'variance':percentage,
                                             'period':granunality,
-                                            'summaryDisplay': summaryValue//(parseFloat(summaryValue).toFixed(2) % Math.floor(summaryValue)) > 0 ? parseFloat(summaryValue).toFixed(2): parseInt(summaryValue)
+                                            'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(summaryValue)) > 0 ? parseFloat(summaryValue).toFixed(2): Math.floor(summaryValue) == 0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue)
                                         });
                                     }
                                     else if(chartType == 'area') {
@@ -1014,7 +1014,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                             'arrow':comparingData,
                                             'variance':percentage,
                                             'period':granunality,
-                                            'summaryDisplay': summaryValue,//(parseFloat(summaryValue).toFixed(2) % Math.floor(summaryValue)) > 0 ? parseFloat(summaryValue).toFixed(2): parseInt(summaryValue),
+                                            'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(summaryValue)) > 0 ? parseFloat(summaryValue).toFixed(2): Math.floor(summaryValue) == 0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
                                             'area': true
                                         });
                                     }
@@ -1027,7 +1027,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                             'arrow':comparingData,
                                             'variance':percentage,
                                             'period':granunality,
-                                            'summaryDisplay': summaryValue//(parseFloat(summaryValue).toFixed(2) % Math.floor(summaryValue)) > 0 ? parseFloat(summaryValue).toFixed(2): parseInt(summaryValue)
+                                            'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(summaryValue)) > 0 ? parseFloat(summaryValue).toFixed(2): Math.floor(summaryValue) == 0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
                                         });
                                     }
                                 }

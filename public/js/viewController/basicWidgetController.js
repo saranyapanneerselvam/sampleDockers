@@ -23,6 +23,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     $scope.googleCampaignChosen = false;
     $scope.groupChosen = false;
     $scope.adChosen = false;
+    $scope.refreshButtonLoading='';
     var widgetType = 'basic';
     var storedProfile = {};
     var getChannelName = "";
@@ -33,6 +34,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     var getReferenceWidgetsArr = new Array();
     var storeChosenObject = [];
     var profileListBeforeAddition = {};
+    $scope.profileOptionsModel={};
 
     $scope.changeViewsInBasicWidget = function (obj) {
         $scope.currentView = obj;
@@ -51,7 +53,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         else if ($scope.currentView === 'step_two') {
             document.getElementById('basicWidgetBackButton1').disabled = false;
             $scope.clearReferenceWidget();
-            $scope.profileList = {};
+            $scope.profileList = [];
             if (getChannelName == "CustomData") {
                 $scope.storeCustomData();
                 $("#basicWidgetNextButton").hide();
@@ -191,6 +193,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 $scope.profileList = response.data.profileList;
                 if($scope.profileList !=undefined) {
                     $scope.profileOptionsModel = $scope.profileList[0];
+                    $scope.hasNoAccess = $scope.profileOptionsModel.hasNoAccess;
                     $scope.getObjectsForChosenProfile();
                 }
                 $scope.objectList = [];
@@ -497,6 +500,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     };
 
     $scope.refreshAdCampaign=function(level){
+        $scope.refreshAdCampaignLoading=true;
         var objectTypeId = level;
         var accountId = $scope.accountId;
         var profileId = $scope.profileId;
@@ -507,18 +511,31 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             function successCallback(response) {
                 $scope.campaignList = response.data;
                 $scope.campaignOptionsModel = $scope.campaignList;
+                $scope.refreshAdCampaignLoading=false;
             },
             function errorCallback(error) {
-                swal({
-                    title: "",
-                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
-                    html: true
-                });
+                $scope.refreshAdCampaignLoading=false;
+                if(error.status === 401){
+                    if(error.data.errorstatusCode === 1003){
+                        swal({
+                            title: "",
+                            text: "<span style='sweetAlertFont'>Please refresh your profile!</span>",
+                            html: true
+                        });
+                        $scope.getProfilesForDropdown();
+                    }
+                } else
+                    swal({
+                        title: "",
+                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                        html: true
+                    });
             }
         )
     };
 
     $scope.refreshAdSet=function(level){
+        $scope.refreshAdSetLoading=true;
         var objectTypeId = level;
         var accountId = $scope.campaign.channelObjectId;
         var profileId = $scope.profileId;
@@ -529,18 +546,31 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             function successCallback(response) {
                 $scope.adSetList = response.data;
                 $scope.adSetOptionsModel = $scope.adSetList;
+                $scope.refreshAdSetLoading=false;
             },
             function errorCallback(error) {
-                swal({
-                    title: "",
-                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
-                    html: true
-                });
+                $scope.refreshAdSetLoading=false;
+                if(error.status === 401){
+                    if(error.data.errorstatusCode === 1003){
+                        swal({
+                            title: "",
+                            text: "<span style='sweetAlertFont'>Please refresh your profile!</span>",
+                            html: true
+                        });
+                    }
+                    $scope.getProfilesForDropdown();
+                } else
+                    swal({
+                        title: "",
+                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                        html: true
+                    });
             }
         )
     };
 
-    $scope.refreshAdSetAds=function(level){
+    $scope.refreshAdSetAds = function (level) {
+        $scope.refreshAdSetAdsLoading=true;
         var objectTypeId = level;
         var accountId = $scope.adSet.channelObjectId;
         var profileId = $scope.profileId;
@@ -552,13 +582,26 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
 
                 $scope.adSetAdsList = response.data;
                 $scope.adSetAdsOptionsModel = $scope.adSetAdsList;
+                $scope.refreshAdSetAdsLoading=false;
             },
             function errorCallback(error) {
-                swal({
-                    title: "",
-                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
-                    html: true
-                });
+                $scope.refreshAdSetAdsLoading=false;
+                if(error.status === 401){
+                    if(error.data.errorstatusCode === 1003){
+                        swal({
+                            title: "",
+                            text: "<span style='sweetAlertFont'>Please refresh your profile!</span>",
+                            html: true
+                        });
+                        $scope.tokenExpired=true;
+                    }
+                    $scope.getProfilesForDropdown();
+                } else
+                    swal({
+                        title: "",
+                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                        html: true
+                    });
             }
         )
     };
@@ -823,7 +866,8 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         )
     };
 
-    $scope.refreshGoogleCampaign=function(level){
+    $scope.refreshGoogleCampaign = function (level) {
+        $scope.refreshGoogleCampaignLoading=true;
         var objectTypeId = level;
         var accountId = $scope.googleAccountId;
         var profileId = $scope.googleProfileId;
@@ -834,18 +878,31 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             function successCallback(response) {
                 $scope.googleCampaignList = response.data;
                 $scope.googleCampaignOptionsModel = $scope.googleCampaignList;
+                $scope.refreshGoogleCampaignLoading=false;
             },
             function errorCallback(error) {
-                swal({
-                    title: "",
-                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
-                    html: true
-                });
+                $scope.refreshGoogleCampaignLoading=false;
+                if(error.status === 401){
+                    if(error.data.errorstatusCode === 1003){
+                        swal({
+                            title: "",
+                            text: "<span style='sweetAlertFont'>Please refresh your profile!</span>",
+                            html: true
+                        });
+                    }
+                    $scope.getProfilesForDropdown();
+                } else
+                    swal({
+                        title: "",
+                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                        html: true
+                    });
             }
         )
     };
 
-    $scope.refreshGroup=function(level){
+    $scope.refreshGroup = function (level) {
+        $scope.refreshGroupLoading=true;
         var objectTypeId = level;
         var campaignId = $scope.googleCampaign.channelObjectId;
         var profileId = $scope.googleProfileId;
@@ -862,18 +919,31 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             function successCallback(response) {
                 $scope.groupList = response.data;
                 $scope.groupOptionsModel = $scope.groupList;
+                $scope.refreshGroupLoading=false;
             },
             function errorCallback(error) {
-                swal({
-                    title: "",
-                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
-                    html: true
-                });
+                $scope.refreshGroupLoading=false;
+                if(error.status === 401){
+                    if(error.data.errorstatusCode === 1003){
+                        swal({
+                            title: "",
+                            text: "<span style='sweetAlertFont'>Please refresh your profile!</span>",
+                            html: true
+                        });
+                    }
+                    $scope.getProfilesForDropdown();
+                } else
+                    swal({
+                        title: "",
+                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span>",
+                        html: true
+                    });
             }
         )
     };
 
-    $scope.refreshAd=function(level){
+    $scope.refreshAd = function (level) {
+        $scope.refreshAdLoading=true;
         var objectTypeId = level;
         var adSetId = $scope.googleGroup.channelObjectId;
         var profileId = $scope.googleProfileId;
@@ -890,13 +960,25 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             function successCallback(response) {
                 $scope.adList = response.data;
                 $scope.adOptionsModel = $scope.adList;
+                $scope.refreshAdLoading=false;
             },
             function errorCallback(error) {
-                swal({
-                    title: "",
-                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
-                    html: true
-                });
+                $scope.refreshAdLoading=true;
+                if(error.status === 401){
+                    if(error.data.errorstatusCode === 1003){
+                        swal({
+                            title: "",
+                            text: "<span style='sweetAlertFont'>Please refresh your profile!</span>",
+                            html: true
+                        });
+                    }
+                    $scope.getProfilesForDropdown();
+                } else
+                    swal({
+                        title: "",
+                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span>",
+                        html: true
+                    });
             }
         )
     };
@@ -1007,8 +1089,8 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             }
         }
         else {
+            $scope.hasNoAccess = $scope.profileOptionsModel.hasNoAccess;
             storedProfile = $scope.profileOptionsModel;
-
             if($scope.storedChannelName == 'GoogleAdwords') {
                 if ($scope.profileOptionsModel.canManageClients === false)
                     $scope.canManageClients =false;
@@ -1071,7 +1153,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                         }, function errorCallback(error) {
                             swal({
                                 title: "",
-                                text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                                text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span>",
                                 html: true
                             });
                         }
@@ -1139,7 +1221,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                             }, function errorCallback(error) {
                                 swal({
                                     title: "",
-                                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span>",
                                     html: true
                                 });
                             }
@@ -1189,7 +1271,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                             }, function errorCallback(error) {
                                 swal({
                                     title: "",
-                                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span>",
                                     html: true
                                 });
                             }
@@ -1289,7 +1371,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     function errorCallback(error) {
                         swal({
                             title: "",
-                            text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                            text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span>",
                             html: true
                         });
                     }
@@ -1300,6 +1382,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
 
     $scope.refreshObjectsForChosenProfile = function (objectTypeId) {
         if ($scope.profileOptionsModel._id) {
+            $scope.refreshButtonLoading=objectTypeId;
             var profileId = $scope.profileOptionsModel._id;
             $http({
                 method: 'GET',
@@ -1351,20 +1434,33 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                                 uniqueObjectTypeWithIndex[k] = response.data;
                                 $scope.googleAnalyticsObjectList = uniqueObjectTypeWithIndex;
                             }
+                            $scope.refreshButtonLoading='';
                         },
                         function errorCallback(error) {
-                            swal({
-                                title: "",
-                                text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
-                                html: true
-                            });
+                            $scope.refreshButtonLoading='';
+                            if(error.status === 401){
+                                if(error.data.errorstatusCode === 1003){
+                                    swal({
+                                        title: "",
+                                        text: "<span style='sweetAlertFont'>Please refresh your profile!</span>",
+                                        html: true
+                                    });
+                                }
+                                $scope.getProfilesForDropdown();
+                            } else
+                                swal({
+                                    title: "",
+                                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span>",
+                                    html: true
+                                });
                         }
                     );
                 },
                 function errorCallback(error) {
+                    $scope.refreshButtonLoading=false;
                     swal({
                         title: "",
-                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span>",
                         html: true
                     });
                 }
@@ -1430,7 +1526,6 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             var top = (screen.height / 2) - (h / 2);
             return window.open(url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
         }
-
         popupwindow(url, title, 1000, 500);
     };
 
@@ -1461,7 +1556,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                         function errorCallback(error) {
                             swal({
                                 title: "",
-                                text: "<span style='sweetAlertFont'>Something went wrong with Profile delink.Please try again</span> .",
+                                text: "<span style='sweetAlertFont'>Something went wrong with Profile delink.Please try again</span>",
                                 html: true
                             });
                         }
@@ -1475,8 +1570,6 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         var widgetName;
         $(".navbar").css('z-index', '1');
         $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
-
-
         if (getChannelName == "CustomData") {
             getCustomWidgetObj = {
                 '_id': getCustomWidgetId,
@@ -1486,8 +1579,6 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             // final function after custom api url creation goes here
             $rootScope.$broadcast('populateWidget', getCustomWidgetObj);
         }
-
-
         //for moz
         else if(getChannelName == "Moz"){
             var mozData = {
@@ -1508,7 +1599,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 function errorCallback(error) {
                     swal({
                         title: "",
-                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span>",
                         html: true
                     });
                 }
@@ -1653,7 +1744,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                         $("#somethingWentWrongText").text("Something went wrong! Please try again");
                         swal({
                             title: "",
-                            text: "<span style='sweetAlertFont'>Something went wrong! Please try again!</span> .",
+                            text: "<span style='sweetAlertFont'>Something went wrong! Please try again!</span>",
                             html: true
                         });
                     }
@@ -1733,7 +1824,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                         $("#somethingWentWrongText").text("Something went wrong! Please try again");
                         swal({
                             title: "",
-                            text: "<span style='sweetAlertFont'>Something went wrong! Please try again!</span> .",
+                            text: "<span style='sweetAlertFont'>Something went wrong! Please try again!</span>",
                             html: true
                         });
                     }
@@ -1804,7 +1895,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                         $("#somethingWentWrongText").text("Something went wrong! Please try again");
                         swal({
                             title: "",
-                            text: "<span style='sweetAlertFont'>Something went wrong! Please try again!</span> .",
+                            text: "<span style='sweetAlertFont'>Something went wrong! Please try again!</span>",
                             html: true
                         });
                     }
@@ -1841,7 +1932,6 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         }
         return arr;
     };
-
     $scope.storeReferenceWidget = function () {
         $scope.storedReferenceWidget = this.referenceWidgets;
         var totalObjectType = [];
@@ -1896,7 +1986,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 function errorCallback(error) {
                     swal({
                         title: "",
-                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span>",
                         html: true
                     });
                 }
@@ -1991,7 +2081,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     function errorCallback(error) {
                         swal({
                             title: "",
-                            text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                            text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span>",
                             html: true
                         });
                     }
@@ -2023,7 +2113,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     function errorCallback(error) {
                         swal({
                             title: "",
-                            text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                            text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span>",
                             html: true
                         });
                     }
@@ -2077,7 +2167,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 $scope.customDocLinkMessage = true;
                 swal({
                     title: "",
-                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span>",
                     html: true
                 });
             }

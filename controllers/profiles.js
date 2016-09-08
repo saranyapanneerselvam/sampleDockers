@@ -15,4 +15,7 @@ module.exports = function (app) {
     app.post('/api/v1/post/removeProfiles/:profileId', profiles.removeProfile, function (req, res) {
         res.json(req.app.result);
     });
+    app.get('/api/v1/get/profileList',profilesList.profileslist, function (req, res) {
+        res.json({profileList: req.app.profiles});
+    });
 };

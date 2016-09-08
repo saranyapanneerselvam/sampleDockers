@@ -41,7 +41,7 @@ module.exports = function(app) {
                             req.code = channelDetails.code;
                             req.tokenSecret=tokenSecret;
                             req.tokens=tokens;
-                            // req.channelName = channelDetails.name;
+                            req.channelName = channelDetails.name;
 
                             user.storeProfiles(req,res,function (err){
                                 if (err)

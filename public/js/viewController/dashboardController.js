@@ -6,9 +6,10 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
     $scope.autoArrangeGrid = false;
     $scope.dashbd = { widgets: [], widgetData: []};
     $scope.dashbd.dashboardName='';
+    $scope.widgetErrorCode=0;
     var expWid = { dashName:[], wid: [], widData: []};
 
-     // document.getElementById('dashLayout').style.visibility = "hidden";
+    // document.getElementById('dashLayout').style.visibility = "hidden";
     var isExportOptionSet = '';
     $(".navbar").css('z-index','1');
     $(".md-overlay").css('background','rgba(0,0,0,0.5)');
@@ -22,29 +23,50 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         $scope.dashboard.dashboardName = '';
         $scope.widgetsPresent = false;
         $scope.loadedWidgetCount = 0;
-
+        $scope.widgetErrorCode=0;
         $scope.fetchDateForDashboard=function(){
             $http({
                 method: 'GET',
                 url: '/api/v1/get/dashboards/' + $state.params.id
             }).then(
-                 function successCallback(response){
-                     if(response.status==200){
-                            var startDate=response.data.startDate;
-                            var endDate=response.data.endDate;
-                            $scope.userModifyDate(startDate,endDate)
+                function successCallback(response) {
+                    if (response.status == 200) {
+                        var diffWithStartDate = dayDiff(response.data.startDate, new Date());
+                        var diffWithEndDate = dayDiff(response.data.endDate, new Date());
+                        var changeInDb = true;
+                        function dayDiff(startDate, endDate) {
+                            var storeStartDate = new Date(startDate);
+                            var storeEndDate = new Date(endDate);
+                            var timeDiff = Math.abs(storeEndDate.getTime() - storeStartDate.getTime());
+                            var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                            return diffDays;
                         }
-                     else{
-                            $scope.startDate= moment(new Date()).subtract(30,'days');
-                            $scope.endDate=new Date();
+
+                        if (diffWithStartDate >= 365 || diffWithEndDate >= 365) {
+                            $scope.startDate = moment(new Date()).subtract(30, 'days');
+                            $scope.endDate = new Date();
+                            storeDateInDb($scope.startDate,$scope.endDate, changeInDb);
                         }
-                 }
+
+                        else {
+                            $scope. startDate = response.data.startDate;
+                            $scope. endDate = response.data.endDate;
+                            $scope.userModifyDate($scope.startDate, $scope.endDate);
+                        }
+                    }
+                    else {
+                        $scope.startDate = moment(new Date()).subtract(30, 'days');
+                        $scope.endDate = new Date();
+                        $scope.userModifyDate($scope.startDate, $scope.endDate)
+                    }
+                    // $scope.userModifyDate(startDate,endDate)
+                }
             )
         };
         $scope.fetchDateForDashboard();
 
         //To define the calendar in dashboard header
-        $scope.userModifyDate=function(startDate,endDate) {
+        $scope.userModifyDate = function (startDate, endDate) {
             $scope.dashboardCalendar = new Calendar({
                 element: $('.daterange--double'),
                 earliest_date: moment(new Date()).subtract(365, 'days'),
@@ -52,40 +74,48 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 start_date: startDate,
                 end_date: endDate,
                 callback: function () {
-                    var jsonData = {
-                        dashboardId: $state.params.id,
-                        startDate:this.start_date,
-                        endDate: this.end_date
-                    };
-                    $http(
-                        {
-                            method: 'POST',
-                            url: '/api/v1/create/dashboards',
-                            data:jsonData
-                        }
-                    ).then(
-                        function successCallback(response) {
-                            if(response.status==200){
-                                var startDate=response.data.startDate;
-                                var endDate=response.data.endDate;
-                                $scope.populateDashboardWidgets();
-                            }
-                            else{
-                                var startDate=this.start_date;
-                                var endDate=this.end_date;
-                                $scope.populateDashboardWidgets();
-                            }
-                           // var start = moment(this.start_date).format('ll'), end = moment(this.end_date).format('ll');
-                        },
-                        function errorCallback(error) {
-                            var startDate=this.start_date;
-                            var endDate=this.end_date;
-                            $scope.populateDashboardWidgets();
-                        });
+                    storeDateInDb(this.start_date, this.end_date);
                 }
             });
+        };
+        function storeDateInDb(start_date, end_date, changeInDb) {
+            var jsonData = {
+                dashboardId: $state.params.id,
+                startDate: start_date,
+                endDate: end_date
+            };
+            $http(
+                {
+                    method: 'POST',
+                    url: '/api/v1/create/dashboards',
+                    data: jsonData
+                }
+            ).then(
+                function successCallback(response) {
+                    if (response.status == 200) {
+                        $scope.startDate = response.config.data.startDate;
+                        $scope.endDate = response.config.data.endDate;
+                        if (changeInDb === true) {
+                            $scope.userModifyDate( $scope.startDate, $scope.endDate);
+                        }
+                        else {
+                            $scope.populateDashboardWidgets();
+                        }
+                    }
+                    else {
+                        var startDate = this.start_date;
+                        var endDate = this.end_date;
+                        $scope.populateDashboardWidgets();
+                    }
+                    // var start = moment(this.start_date).format('ll'), end = moment(this.end_date).format('ll');
+                },
+                function errorCallback(error) {
+                    var startDate = this.start_date;
+                    var endDate = this.end_date;
+                    $scope.populateDashboardWidgets();
+                });
         }
-        
+
         //Setting up grid configuration for widgets
         $scope.gridsterOptions = {
             margins: [20, 20],
@@ -142,10 +172,10 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                                 if ($scope.dashboard.widgetData[ind].chart[i].options.chart.type === 'lineChart' || $scope.dashboard.widgetData[ind].chart[i].options.chart.type === 'pieChart' || $scope.dashboard.widgetData[ind].chart[i].options.chart.type === 'multiBarChart' || $scope.dashboard.widgetData[ind].chart[i].options.chart.type === 'multiChart') {
 
                                     for (var j = 0; j < $scope.dashboard.widgetData[ind].chart[i].data.length; j++) {
-                                            var elemHeight = document.getElementById('li-' + widget.id + '-' + String(j)).offsetHeight;
-                                            $scope.dashboard.widgetData[ind].chart[i].data[j].myheight = elemHeight;
-                                        }
+                                        var elemHeight = document.getElementById('li-' + widget.id + '-' + String(j)).offsetHeight;
+                                        $scope.dashboard.widgetData[ind].chart[i].data[j].myheight = elemHeight;
                                     }
+                                }
 
                                 else{
                                     var getWigetId='#getWidgetColor-' + widget.id
@@ -179,9 +209,9 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                         }
                     }
                     $timeout(updateCharts(widget),400);
-                    
-                    
-                    
+
+
+
                 }
             }
         };
@@ -322,8 +352,18 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                         {
                             if($scope.dashboard.widgetData[i].chart.length===0){
                                 if($scope.dashboard.widgetData[i].visibility==false){
-                                    $("#widgetData-"+$scope.dashboard.widgetData[i].id).hide();
-                                    $("#errorWidgetData-"+$scope.dashboard.widgetData[i].id).show();
+
+                                    if($scope.widgetErrorCode === 1){
+                                        $("#widgetData-"+$scope.dashboard.widgetData[i].id).hide();
+                                        $("#errorWidgetData-"+$scope.dashboard.widgetData[i].id).hide();
+                                        $("#errorWidgetTokenexpire-" + $scope.dashboard.widgetData[i].id).show()
+                                    }
+                                    else{
+                                        $("#widgetData-"+$scope.dashboard.widgetData[i].id).hide();
+                                        $("#errorWidgetData-"+$scope.dashboard.widgetData[i].id).show();
+                                        $("#errorWidgetTokenexpire-" + $scope.dashboard.widgetData[i].id).hide()
+                                    }
+
                                 }
                             }
                         }
@@ -359,26 +399,60 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             }
         });
 
-        $scope.calculateColumnWidth = function(x) {
+        $scope.calculateColumnWidth = function(noOfItems,widgetWidth,noOfCharts) {
 
-            if(x<=2)
+            if(noOfCharts<=3)
+                widgetWidth = Math.ceil(widgetWidth/noOfCharts);
+            if(widgetWidth==1)
                 return ('col-sm-'+12+' col-md-'+12+' col-lg-'+12);
-            else if(x>2 && x<=4)
-                return ('col-sm-'+6+' col-md-'+6+' col-lg-'+6);
-            else
-                return ('col-sm-'+4+' col-md-'+4+' col-lg-'+4);
+            else {
+                if(widgetWidth==2){
+                    if(noOfItems<=2)
+                        return ('col-sm-'+12+' col-md-'+12+' col-lg-'+12);
+                    else
+                        return ('col-sm-'+6+' col-md-'+6+' col-lg-'+6);
+                }
+                else {
+                    if (noOfItems <= 2)
+                        return ('col-sm-' + 12 + ' col-md-' + 12 + ' col-lg-' + 12);
+                    else if (noOfItems > 2 && noOfItems <= 4)
+                        return ('col-sm-'+6+' col-md-'+6+' col-lg-'+6);
+                    else
+                        return ('col-sm-'+4+' col-md-'+4+' col-lg-'+4);
+                }
+            }
         };
 
-        $scope.calculateRowHeight = function(availableHeight,noOfItems) {
-
+        $scope.calculateRowHeight = function(data,widgetWidth,noOfCharts) {
+            var availableHeight = data.myheight;
+            var noOfItems = data.length;
+            if(noOfCharts<=3)
+                widgetWidth = Math.ceil(widgetWidth/noOfCharts);
             var cols;
-            if(noOfItems<=2)
-                cols = 1;
-            else if(noOfItems>2 && noOfItems<=4)
-                cols = 2;
-            else
-                cols = 3;
 
+            if(widgetWidth==1)
+                cols =1;
+            else {
+                if(widgetWidth==2){
+                    if(noOfItems<=2)
+                        cols=1;
+                    else
+                        cols =2;
+                }
+                else {
+                    if(noOfItems<=2)
+                        cols = 1;
+                    else if(noOfItems>2 && noOfItems<=4)
+                        cols = 2;
+                    else
+                        cols = 3;
+                }
+            }
+            // console.log("No.of charts",noOfCharts,"Widget Width",widgetWidth,"No of Cols",cols);
+            if(cols==1)
+                data.showComparision = false;
+            else
+                data.showComparision = true;
             //var cols = $window.innerWidth>=768 ? 2 : 1;
             var rows = Math.ceil(noOfItems/cols);
             var heightPercent = 100/rows;
@@ -388,8 +462,40 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 fontSizeEm=minSize;
             if(fontSizeEm>maxSize)
                 fontSizeEm=maxSize;
-            return {'height':(heightPercent+'%'),'font-size':(fontSizeEm+'em')};
+            // return {'height':(heightPercent+'%'),'font-size':(fontSizeEm+'em')};
+            return {'height':(heightPercent+'%')};
         };
+
+        $scope.calculateSummaryHeight = function(widgetHeight,noOfItems) {
+            var heightPercent;
+            if(widgetHeight<=1) {
+                if(noOfItems==1)
+                    heightPercent = 20;
+                else
+                    heightPercent = 100 / widgetHeight;
+                return {'height': (heightPercent + '%')};
+            }
+            else {
+                heightPercent = 100 / widgetHeight;
+                return {'height':(heightPercent+'%')};
+            }
+        };
+
+        $scope.calculateChartHeight = function(widgetHeight,noOfItems) {
+            var heightPercent;
+            if(widgetHeight<=1) {
+                if(noOfItems==1)
+                    heightPercent = 80;
+                else
+                    heightPercent = 100-(100/widgetHeight);
+                return {'height':(heightPercent+'%')};
+            }
+            else {
+                heightPercent = 100-(100/widgetHeight);
+                return {'height': (heightPercent + '%')};
+            }
+        };
+
     };
 
     //To populate all the widgets in a dashboard when the dashboard is refreshed or opened or calendar date range in the dashboard header is changed
@@ -408,7 +514,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         })
             .then(
                 function successCallback(response) {
-
                     var widgets = [];
                     var dashboardWidgetList = [];
                     var initialWidgetList = response.data.widgetsList;
@@ -424,13 +529,11 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                         $scope.widgetsPresent = false;
                     var widgetID=0;
                     var dashboardWidgets = [];
-
                     for(var getWidgetInfo in dashboardWidgetList){
                         dashboardWidgets.push(createWidgets.widgetHandler(dashboardWidgetList[getWidgetInfo],{
                             'startDate': moment($scope.dashboardCalendar.start_date).format('YYYY-MM-DD'),
                             'endDate': moment($scope.dashboardCalendar.end_date).format('YYYY-MM-DD')
                         }));
-
                         $scope.dashboard.widgets.push({
                             'row': (typeof dashboardWidgetList[getWidgetInfo].row != 'undefined'? dashboardWidgetList[getWidgetInfo].row : 0),
                             'col': (typeof dashboardWidgetList[getWidgetInfo].col != 'undefined'? dashboardWidgetList[getWidgetInfo].col : 0),
@@ -462,11 +565,23 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                                 $scope.loadedWidgetCount++;
                             },
                             function errorCallback(error){
-                                $scope.loadedWidgetCount++;
-                                if(typeof error.data.id != 'undefined') {
-                                    $("#widgetData-"+error.data.id).hide();
-                                    $("#errorWidgetData-"+error.data.id).show();
-                                    isExportOptionSet=0;
+                                if(error.status === 401) {
+                                    if (error.data.errorstatusCode === 1003) {
+                                        $("#widgetData-"+error.data.id).hide();
+                                        $("#errorWidgetData-"+error.data.id).hide();
+                                        $("#errorWidgetTokenexpire-" + error.data.id).show();
+                                        $scope.widgetErrorCode=1;
+                                        $scope.loadedWidgetCount++;
+                                        isExportOptionSet = 0;
+                                    }
+                                }else{
+                                    $scope.loadedWidgetCount++;
+                                    if(typeof error.data.id != 'undefined') {
+                                        $("#widgetData-"+error.data.id).hide();
+                                        $("#errorWidgetData-"+error.data.id).show();
+                                        $("#errorWidgetTokenexpire-" + error.data.id).hide();
+                                        isExportOptionSet=0;
+                                    }
                                 }
                             }
                         );
@@ -528,10 +643,22 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 isExportOptionSet=1;
             },
             function errorCallback(error){
-                $("#widgetData-"+widget._id).hide();
-                $("#errorWidgetData-"+widget._id).show();
-                $scope.loadedWidgetCount++;
-                isExportOptionSet=0;
+                if(error.status === 401) {
+                    if (error.data.errorstatusCode === 1003) {
+                        $("#widgetData-" + widget._id).hide();
+                        $("#errorWidgetData-" + widget._id).hide();
+                        $("#errorWidgetTokenexpire-" + widget._id).show();
+                        $scope.widgetErrorCode=1;
+                        $scope.loadedWidgetCount++;
+                        isExportOptionSet = 0;
+                    }
+                } else{
+                    $("#widgetData-" + widget._id).hide();
+                    $("#errorWidgetData-" + widget._id).show();
+                    $("#errorWidgetTokenexpire-" + widget._id).hide()
+                    $scope.loadedWidgetCount++;
+                    isExportOptionSet = 0;
+                }
             }
         );
     });
@@ -716,299 +843,299 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         $(".errorExportMessage").text("").hide();
     });
 
-/*
-    $rootScope.$on("getDashboardCommentsFunc", function(getValue){
-            $scope.getDashboardComments(getValue);
-        });
+    /*
+     $rootScope.$on("getDashboardCommentsFunc", function(getValue){
+     $scope.getDashboardComments(getValue);
+     });
 
-    $scope.getDashboardComments = function(){
-            console.log("get dashboard comments from database");
-            /!*
-             count = 0;
-             var getCommentArr = '[{"Comment":"test 1","DashboardId":"571f2875c761262c0c0db9c8","WidgetId":"5755151332719ba202f3412e","xAxis":"20%","yAxis":"44%"},{"Comment":"test 2","DashboardId":"571f2875c761262c0c0db9c8","WidgetId":"5755122732719ba202f34068","xAxis":"36%","yAxis":"67%"},{"Comment":"test 3","DashboardId":"571f2875c761262c0c0db9c8","WidgetId":"5755011b32719ba202f33fc2","xAxis":"56%","yAxis":"67%"}]';
-             console.log(JSON.parse(getCommentArr));
-             var jsonData = JSON.parse(getCommentArr);
+     $scope.getDashboardComments = function(){
+     console.log("get dashboard comments from database");
+     /!*
+     count = 0;
+     var getCommentArr = '[{"Comment":"test 1","DashboardId":"571f2875c761262c0c0db9c8","WidgetId":"5755151332719ba202f3412e","xAxis":"20%","yAxis":"44%"},{"Comment":"test 2","DashboardId":"571f2875c761262c0c0db9c8","WidgetId":"5755122732719ba202f34068","xAxis":"36%","yAxis":"67%"},{"Comment":"test 3","DashboardId":"571f2875c761262c0c0db9c8","WidgetId":"5755011b32719ba202f33fc2","xAxis":"56%","yAxis":"67%"}]';
+     console.log(JSON.parse(getCommentArr));
+     var jsonData = JSON.parse(getCommentArr);
 
-             for(getData in jsonData){
-                 count++;
-                 $("#widgetTransparentImage-"+jsonData[getData].WidgetId).append($('<div class="commentPoint" id="commentPoint-'+count+'" ref="'+jsonData[getData].WidgetId+'" style="color: #ffffff;"><span class="countComment">'+count+'</span><input type="hidden" id="hiddenComment-'+count+'" value="'+jsonData[getData].Comment+'" /> <input type="hidden" id="hiddenXaxis-'+count+'" value="'+jsonData[getData].xAxis+'" /> <input type="hidden" id="hiddenYaxis-'+count+'" value="'+jsonData[getData].yAxis+'" /> </div></div>')
-                 .css('position', 'absolute')
-                 .css('top', jsonData[getData].yAxis)
-                 .css('left', jsonData[getData].xAxis)
-                 .css('width', size)
-                 .css('height', size)
-                 .css('border-radius', '25px')
-                 .css('background-color', color)
-                 .css('cursor', 'pointer')
-                 .css('z-index', '2')
-                 );
+     for(getData in jsonData){
+     count++;
+     $("#widgetTransparentImage-"+jsonData[getData].WidgetId).append($('<div class="commentPoint" id="commentPoint-'+count+'" ref="'+jsonData[getData].WidgetId+'" style="color: #ffffff;"><span class="countComment">'+count+'</span><input type="hidden" id="hiddenComment-'+count+'" value="'+jsonData[getData].Comment+'" /> <input type="hidden" id="hiddenXaxis-'+count+'" value="'+jsonData[getData].xAxis+'" /> <input type="hidden" id="hiddenYaxis-'+count+'" value="'+jsonData[getData].yAxis+'" /> </div></div>')
+     .css('position', 'absolute')
+     .css('top', jsonData[getData].yAxis)
+     .css('left', jsonData[getData].xAxis)
+     .css('width', size)
+     .css('height', size)
+     .css('border-radius', '25px')
+     .css('background-color', color)
+     .css('cursor', 'pointer')
+     .css('z-index', '2')
+     );
 
-             }
+     }
 
-             $(".commentPoint").on('click',function () {
-                 console.log("exist commentPoint called");
+     $(".commentPoint").on('click',function () {
+     console.log("exist commentPoint called");
 
-                 var countValue = this.id.replace('commentPoint-','');
-                 var hiddenComment = $("#hiddenComment-"+countValue).val();
-                 var widgetID = $("#commentPoint-"+countValue).attr('ref');
-                 var xAxis = $("#hiddenXaxis-"+countValue).val();
-                 var yAxis = $("#hiddenYaxis-"+countValue).val();
-                 existCommentCheck = countValue;
+     var countValue = this.id.replace('commentPoint-','');
+     var hiddenComment = $("#hiddenComment-"+countValue).val();
+     var widgetID = $("#commentPoint-"+countValue).attr('ref');
+     var xAxis = $("#hiddenXaxis-"+countValue).val();
+     var yAxis = $("#hiddenYaxis-"+countValue).val();
+     existCommentCheck = countValue;
 
-                 $(".navbar").css('z-index','1');
-                 $(".md-overlay").css("background","rgba(0,0,0,0.5)");
-                 $("#commentModalContent").addClass('md-show');
-                 $(".successImage").hide();
-                 $(".commentHeadText").text('Leave a Comment - '+countValue).css('font-style','italic');
-                 $(".commentMessage").hide();
-                 $(".closeModalContent").hide();
-                 $("#inputTextArea").show().val(hiddenComment);
-                 $(".cancelModalContent").show().text('Delete');
-                 $(".sendCommentModalContent").show().text('Update');
+     $(".navbar").css('z-index','1');
+     $(".md-overlay").css("background","rgba(0,0,0,0.5)");
+     $("#commentModalContent").addClass('md-show');
+     $(".successImage").hide();
+     $(".commentHeadText").text('Leave a Comment - '+countValue).css('font-style','italic');
+     $(".commentMessage").hide();
+     $(".closeModalContent").hide();
+     $("#inputTextArea").show().val(hiddenComment);
+     $(".cancelModalContent").show().text('Delete');
+     $(".sendCommentModalContent").show().text('Update');
 
-                 $("#inputTextArea").keyup(function () {
-                     var comment = $("#inputTextArea").val();
-                     if(comment==""){
-                         $(".commentMessage").text('* Enter the Comment !!!').show().css('color','red');
-                     }
-                     else{
-                         $(".commentMessage").text('').hide();
-                     }
-                 });
+     $("#inputTextArea").keyup(function () {
+     var comment = $("#inputTextArea").val();
+     if(comment==""){
+     $(".commentMessage").text('* Enter the Comment !!!').show().css('color','red');
+     }
+     else{
+     $(".commentMessage").text('').hide();
+     }
+     });
 
-                 $(".cancelModalContent").off('click').on('click', function() {
-                     deleteComment();
-                 });
-
-
-                 $(".sendCommentModalContent").off('click').on('click', function() {
-                     updateDashBoardComment();
-                 });
+     $(".cancelModalContent").off('click').on('click', function() {
+     deleteComment();
+     });
 
 
-                 function updateDashBoardComment(){
-                     var comment = $("#inputTextArea").val();
-
-                     if(comment==""){
-                         $(".commentMessage").text('* Enter the Comment !!!').show().css('color','red');
-                         return false;
-                     }
-                     else{
-                         var dashboardId = $state.params.id;
-
-                         var dataForm = '{"Comment":"'+comment+'","DashboardId":"'+dashboardId+'","WidgetId":"'+widgetID+'","xAxis":"'+xAxis+'","yAxis":"'+yAxis+'"}';
-                         console.log(dataForm);
-                         existCommentCheck="";
-                         $("#errorCommentMessage").text('').hide();
-                         $("#commentModalContent").removeClass('md-show');
-                         $(".md-overlay").css("background","rgba(0,0,0,0.5)");
-                         $("#commentModalContent").addClass('md-show');
-                         $(".successImage").show().attr("src","/image/success.png");
-                         $(".commentHeadText").html('Updated!').css('font-style','normal');
-                         $(".commentMessage").text('Your comment has been updated sucessfully').show().css('color','');
-                         $("#inputTextArea").hide();
-                         $(".cancelModalContent").hide();
-                         $(".sendCommentModalContent").hide();
-                         $(".closeModalContent").show();
-
-                         $(".closeModalContent").on('click',function () {
-                             $(".successImage").hide();
-                             $("#commentModalContent").removeClass('md-show');
-                         });
-
-                     }
-
-                 }
+     $(".sendCommentModalContent").off('click').on('click', function() {
+     updateDashBoardComment();
+     });
 
 
-                 function deleteComment(){
-                     $("#commentPoint-"+countValue).remove();
+     function updateDashBoardComment(){
+     var comment = $("#inputTextArea").val();
 
-                     $("#commentModalContent").removeClass('md-show');
-                     $(".md-overlay").css("background","rgba(0,0,0,0.5)");
-                     $("#commentModalContent").addClass('md-show');
-                     $(".successImage").show();
-                     $(".commentHeadText").html('Deleted!').css('font-style','normal');
-                     $(".successImage").show().attr("src","/image/success.png");
-                     $(".commentMessage").text('Your comment has been deleted successfully').show().css('color','');
-                     $("#inputTextArea").hide();
-                     $(".cancelModalContent").hide();
-                     $(".sendCommentModalContent").hide();
-                     $(".closeModalContent").show();
-                     existCommentCheck="";
+     if(comment==""){
+     $(".commentMessage").text('* Enter the Comment !!!').show().css('color','red');
+     return false;
+     }
+     else{
+     var dashboardId = $state.params.id;
 
-                     $(".closeModalContent").on('click',function () {
-                         $(".successImage").hide();
-                         $("#commentModalContent").removeClass('md-show');
-                     });
-                 }
+     var dataForm = '{"Comment":"'+comment+'","DashboardId":"'+dashboardId+'","WidgetId":"'+widgetID+'","xAxis":"'+xAxis+'","yAxis":"'+yAxis+'"}';
+     console.log(dataForm);
+     existCommentCheck="";
+     $("#errorCommentMessage").text('').hide();
+     $("#commentModalContent").removeClass('md-show');
+     $(".md-overlay").css("background","rgba(0,0,0,0.5)");
+     $("#commentModalContent").addClass('md-show');
+     $(".successImage").show().attr("src","/image/success.png");
+     $(".commentHeadText").html('Updated!').css('font-style','normal');
+     $(".commentMessage").text('Your comment has been updated sucessfully').show().css('color','');
+     $("#inputTextArea").hide();
+     $(".cancelModalContent").hide();
+     $(".sendCommentModalContent").hide();
+     $(".closeModalContent").show();
 
-             });
-            *!/
-        };
+     $(".closeModalContent").on('click',function () {
+     $(".successImage").hide();
+     $("#commentModalContent").removeClass('md-show');
+     });
 
-    $scope.callThePosition = function (event,widgetID){
-        console.log(existCommentCheck+" != "+count);
-        if(existCommentCheck==""){
-            console.log("callThePosition called");
-            var dialog, form;
-            var x = event.x;
-            var y = event.y;
-            var offsetX = event.offsetX;
-            var offsetY = event.offsetY;
-            var contentWidth = $("#page-wrapper").width();
-            count++;
+     }
 
-            var $this = $("#widgetTransparentImage-"+widgetID), offset = $this.offset(),
-                width = $this.innerWidth(), height = $this.innerHeight();
-            var parentOffset = $this.offset();
-            var posX = $("#widgetTransparentImage-"+widgetID).offset().left, posY = $("#widgetTransparentImage-"+widgetID).offset().top;
-
-            var x = event.pageX-posX;
-            x = parseInt(x/width*100,10);
-            x = x<0?0:x;
-            x = x>100?100:x;
-            var y = event.pageY-posY;
-            y = parseInt(y/height*100,10);
-            y = y<0?0:y;
-            y = y>100?100:y;
-            console.log(x+'% '+y+'%');
-
-            $("#widgetTransparentImage-"+widgetID).append($('<div class="commentPoint" id="commentPoint-'+count+'" style="color: #ffffff;"><span class="countComment">'+count+'</span></div></div>')
-                .css('position', 'absolute')
-                .css('top', y + '%')
-                .css('left', x + '%')
-                .css('width', size)
-                .css('height', size)
-                .css('border-radius', '25px')
-                .css('background-color', color)
-            );
+     }
 
 
-            $(".navbar").css('z-index','1');
-            $(".md-overlay").css("background","rgba(0,0,0,0.5)");
-            $("#commentModalContent").addClass('md-show');
-            $(".successImage").hide();
-            $(".commentHeadText").text('Leave a Comment - '+count).css('font-style','italic');
-            $(".commentMessage").hide();
-            $(".closeModalContent").hide();
-            $("#inputTextArea").show().val('');
-            $(".cancelModalContent").show().text('Cancel');
-            $(".sendCommentModalContent").show().text('Send');
+     function deleteComment(){
+     $("#commentPoint-"+countValue).remove();
 
-            $("#inputTextArea").keyup(function () {
-                var comment = $("#inputTextArea").val();
-                if(comment==""){
-                    $(".commentMessage").text('* Enter the Comment !!!').show().css('color','red');
-                }
-                else{
-                    $(".commentMessage").text('').hide();
-                }
-            });
+     $("#commentModalContent").removeClass('md-show');
+     $(".md-overlay").css("background","rgba(0,0,0,0.5)");
+     $("#commentModalContent").addClass('md-show');
+     $(".successImage").show();
+     $(".commentHeadText").html('Deleted!').css('font-style','normal');
+     $(".successImage").show().attr("src","/image/success.png");
+     $(".commentMessage").text('Your comment has been deleted successfully').show().css('color','');
+     $("#inputTextArea").hide();
+     $(".cancelModalContent").hide();
+     $(".sendCommentModalContent").hide();
+     $(".closeModalContent").show();
+     existCommentCheck="";
 
-            $(".cancelModalContent").off('click').on('click', function() {
-                errorComment();
-            });
+     $(".closeModalContent").on('click',function () {
+     $(".successImage").hide();
+     $("#commentModalContent").removeClass('md-show');
+     });
+     }
+
+     });
+     *!/
+     };
+
+     $scope.callThePosition = function (event,widgetID){
+     console.log(existCommentCheck+" != "+count);
+     if(existCommentCheck==""){
+     console.log("callThePosition called");
+     var dialog, form;
+     var x = event.x;
+     var y = event.y;
+     var offsetX = event.offsetX;
+     var offsetY = event.offsetY;
+     var contentWidth = $("#page-wrapper").width();
+     count++;
+
+     var $this = $("#widgetTransparentImage-"+widgetID), offset = $this.offset(),
+     width = $this.innerWidth(), height = $this.innerHeight();
+     var parentOffset = $this.offset();
+     var posX = $("#widgetTransparentImage-"+widgetID).offset().left, posY = $("#widgetTransparentImage-"+widgetID).offset().top;
+
+     var x = event.pageX-posX;
+     x = parseInt(x/width*100,10);
+     x = x<0?0:x;
+     x = x>100?100:x;
+     var y = event.pageY-posY;
+     y = parseInt(y/height*100,10);
+     y = y<0?0:y;
+     y = y>100?100:y;
+     console.log(x+'% '+y+'%');
+
+     $("#widgetTransparentImage-"+widgetID).append($('<div class="commentPoint" id="commentPoint-'+count+'" style="color: #ffffff;"><span class="countComment">'+count+'</span></div></div>')
+     .css('position', 'absolute')
+     .css('top', y + '%')
+     .css('left', x + '%')
+     .css('width', size)
+     .css('height', size)
+     .css('border-radius', '25px')
+     .css('background-color', color)
+     );
 
 
-            $(".sendCommentModalContent").off('click').on('click', function() {
-                addDashBoardComment();
-            });
+     $(".navbar").css('z-index','1');
+     $(".md-overlay").css("background","rgba(0,0,0,0.5)");
+     $("#commentModalContent").addClass('md-show');
+     $(".successImage").hide();
+     $(".commentHeadText").text('Leave a Comment - '+count).css('font-style','italic');
+     $(".commentMessage").hide();
+     $(".closeModalContent").hide();
+     $("#inputTextArea").show().val('');
+     $(".cancelModalContent").show().text('Cancel');
+     $(".sendCommentModalContent").show().text('Send');
+
+     $("#inputTextArea").keyup(function () {
+     var comment = $("#inputTextArea").val();
+     if(comment==""){
+     $(".commentMessage").text('* Enter the Comment !!!').show().css('color','red');
+     }
+     else{
+     $(".commentMessage").text('').hide();
+     }
+     });
+
+     $(".cancelModalContent").off('click').on('click', function() {
+     errorComment();
+     });
 
 
-            function addDashBoardComment(){
-                var comment = $("#inputTextArea").val();
+     $(".sendCommentModalContent").off('click').on('click', function() {
+     addDashBoardComment();
+     });
 
-                if(comment==""){
-                    $(".commentMessage").text('* Enter the Comment !!!').show().css('color','red');
-                    return false;
-                }
-                else{
-                    var dashboardId = $state.params.id;
 
-                    var dataForm = '{"Comment":"'+comment+'","DashboardId":"'+dashboardId+'","WidgetId":"'+widgetID+'","xAxis":"'+x+'%","yAxis":"'+y+'%"}';
-                    console.log(dataForm);
+     function addDashBoardComment(){
+     var comment = $("#inputTextArea").val();
 
-                    /!*
-                     Send JSON data to the database for CreateComment
-                     $http({
-                     method: 'POST', url: '/api/v1/create/dashboardComment', data: dataForm
-                     }).then(function successCallback(response){
-                     console.log(response);
-                     $("#errorCommentMessage").text('').hide();
-                     $("#commentModalContent").removeClass('md-show');
-                     $(".md-overlay").css("background","rgba(0,0,0,0.5)");
-                     $("#commentModalContent").addClass('md-show');
-                     $(".successImage").show().attr("src","/image/success.png");
-                     $(".commentHeadText").html('Submitted!').css('font-style','normal');
-                     $(".commentMessage").text('Your comment has been posted sucessfully').show().css('color','');
-                     $("#inputTextArea").hide();
-                     $(".cancelModalContent").hide();
-                     $(".sendCommentModalContent").hide();
-                     $(".closeModalContent").show();
+     if(comment==""){
+     $(".commentMessage").text('* Enter the Comment !!!').show().css('color','red');
+     return false;
+     }
+     else{
+     var dashboardId = $state.params.id;
 
-                     $(".closeModalContent").on('click',function () {
-                        $(".successImage").hide();
-                        $("#commentModalContent").removeClass('md-show');
-                     });
+     var dataForm = '{"Comment":"'+comment+'","DashboardId":"'+dashboardId+'","WidgetId":"'+widgetID+'","xAxis":"'+x+'%","yAxis":"'+y+'%"}';
+     console.log(dataForm);
 
-                     }, function errorCallback (error){
-                     console.log('Error in creating dashboard comment post',error);
-                        errorComment();
+     /!*
+     Send JSON data to the database for CreateComment
+     $http({
+     method: 'POST', url: '/api/v1/create/dashboardComment', data: dataForm
+     }).then(function successCallback(response){
+     console.log(response);
+     $("#errorCommentMessage").text('').hide();
+     $("#commentModalContent").removeClass('md-show');
+     $(".md-overlay").css("background","rgba(0,0,0,0.5)");
+     $("#commentModalContent").addClass('md-show');
+     $(".successImage").show().attr("src","/image/success.png");
+     $(".commentHeadText").html('Submitted!').css('font-style','normal');
+     $(".commentMessage").text('Your comment has been posted sucessfully').show().css('color','');
+     $("#inputTextArea").hide();
+     $(".cancelModalContent").hide();
+     $(".sendCommentModalContent").hide();
+     $(".closeModalContent").show();
 
-                     });
-                     *!/
+     $(".closeModalContent").on('click',function () {
+     $(".successImage").hide();
+     $("#commentModalContent").removeClass('md-show');
+     });
 
-                    $("#errorCommentMessage").text('').hide();
-                    $("#commentModalContent").removeClass('md-show');
-                    $(".md-overlay").css("background","rgba(0,0,0,0.5)");
-                    $("#commentModalContent").addClass('md-show');
-                    $(".successImage").show().attr("src","/image/success.png");
-                    $(".commentHeadText").html('Submitted!').css('font-style','normal');
-                    $(".commentMessage").text('Your comment has been posted sucessfully.').show().css('color','');
-                    $("#inputTextArea").hide();
-                    $(".cancelModalContent").hide();
-                    $(".sendCommentModalContent").hide();
-                    $(".closeModalContent").show();
+     }, function errorCallback (error){
+     console.log('Error in creating dashboard comment post',error);
+     errorComment();
 
-                    $(".closeModalContent").on('click',function () {
-                        $(".successImage").hide();
-                        $("#commentModalContent").removeClass('md-show');
-                    });
+     });
+     *!/
 
-                }
-            }
+     $("#errorCommentMessage").text('').hide();
+     $("#commentModalContent").removeClass('md-show');
+     $(".md-overlay").css("background","rgba(0,0,0,0.5)");
+     $("#commentModalContent").addClass('md-show');
+     $(".successImage").show().attr("src","/image/success.png");
+     $(".commentHeadText").html('Submitted!').css('font-style','normal');
+     $(".commentMessage").text('Your comment has been posted sucessfully.').show().css('color','');
+     $("#inputTextArea").hide();
+     $(".cancelModalContent").hide();
+     $(".sendCommentModalContent").hide();
+     $(".closeModalContent").show();
 
-            function errorComment(){
-                $("#commentPoint-"+count).remove();
-                count--;
-                $("#commentModalContent").removeClass('md-show');
-                $(".md-overlay").css("background","rgba(0,0,0,0.5)");
-                $("#commentModalContent").addClass('md-show');
-                $(".commentHeadText").html('Comment').css('font-style','normal');
-                $(".successImage").show().attr("src","/image/error.png");
-                $(".commentMessage").text('Your comment is not posted').show();
-                $("#inputTextArea").hide();
-                $(".cancelModalContent").hide();
-                $(".sendCommentModalContent").hide();
-                $(".closeModalContent").show();
+     $(".closeModalContent").on('click',function () {
+     $(".successImage").hide();
+     $("#commentModalContent").removeClass('md-show');
+     });
 
-                $(".closeModalContent").on('click',function () {
-                    $(".successImage").hide();
-                    $("#commentModalContent").removeClass('md-show');
-                });
-            }
-        }
+     }
+     }
 
-    }; // callThePosition
-    
-    $scope.closeCommentMode = function () {
-        count=0;
-        $(".commentPoint").html("");
-        $(".context").removeClass("commentPoint");
-        $rootScope.tempDashboard=true;
-        $rootScope.$emit("CallSwitchChangeFunc", {value:0});
-    };
-*/
+     function errorComment(){
+     $("#commentPoint-"+count).remove();
+     count--;
+     $("#commentModalContent").removeClass('md-show');
+     $(".md-overlay").css("background","rgba(0,0,0,0.5)");
+     $("#commentModalContent").addClass('md-show');
+     $(".commentHeadText").html('Comment').css('font-style','normal');
+     $(".successImage").show().attr("src","/image/error.png");
+     $(".commentMessage").text('Your comment is not posted').show();
+     $("#inputTextArea").hide();
+     $(".cancelModalContent").hide();
+     $(".sendCommentModalContent").hide();
+     $(".closeModalContent").show();
+
+     $(".closeModalContent").on('click',function () {
+     $(".successImage").hide();
+     $("#commentModalContent").removeClass('md-show');
+     });
+     }
+     }
+
+     }; // callThePosition
+
+     $scope.closeCommentMode = function () {
+     count=0;
+     $(".commentPoint").html("");
+     $(".context").removeClass("commentPoint");
+     $rootScope.tempDashboard=true;
+     $rootScope.$emit("CallSwitchChangeFunc", {value:0});
+     };
+     */
 
 }

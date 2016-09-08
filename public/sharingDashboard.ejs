@@ -1,5 +1,4 @@
-<!--
-           <style>
+         <!--  <style>
                .dr-calendar {
                    display: none !important;
                }
@@ -7,10 +6,10 @@
                .dr-presets {
                    display: none !important;
                }
-           </style>
--->
-
-            <div ng-init="dashboardConfiguration()" id="dashboardLayout" class="dashboardLayout">
+           </style>-->
+<link href="css/sweetAlert/sweetalert.css" rel="stylesheet">
+                <script src="js/sweetAlert/sweetalert.min.js"></script>
+                <div ng-init="dashboardConfiguration()" id="dashboardLayout" class="dashboardLayout">
                 <div class="border-bottom dashboardTitle white-bg">
                     <div class="row">
                         <div class="col col-sm-12">
@@ -70,7 +69,10 @@
                                                     <ul style="height:100%;font-size:14px; padding-left: 5px;">
                                                 <li  ng-repeat="data in chart.data" size-watcher size-watcher-height="data.myheight" size-Watcher-Width="chart.data"  ng-class="calculateColumnWidth(chart.data.length)" ng-style="calculateRowHeight(data.myheight,chart.data.length,widget)" style="text-align: center;padding-top: 1px;padding-left:0px;padding-right: 2px;" id="li-{{widget.id}}-{{$index}}"><!--size-watcher-width="data.mywidth"-->
                                                             <div style="margin: 0px;height: 100%;overflow: hidden;white-space: nowrap;color: #000000;text-align: center" >
-                                                                <p ng-style="{'color': '#979797', 'font-family' : 'Bebas Neue'}" style="font-weight: bold;">{{data.key}} - <b ng-style="{'color':data.color, 'font-family' : 'Bebas Neue'}"> {{data.summaryDisplay}} </b> </p>
+                                                                <p ng-style="{'color': '#979797', 'font-family' : 'Bebas Neue'}" style="font-weight: bold;">{{data.key}} - <b ng-style="{'color':data.color, 'font-family' : 'Bebas Neue'}"> {{data.summaryDisplay}} </b>
+
+                                                                </p>
+                                                                <p style="font-size: 14px;font-family: Heebo-Light;">{{data.period}}- <span ng-if="data.variance !=0">{{data.variance}}%</span><i ng-if="data.arrow==='up'" style="font-size: 0.8em;color:#2A8539" class="fa fa-arrow-up" aria-hidden="true"></i><i ng-if='data.arrow==="down"' style="font-size: 0.8em;color:#FF1B1B" class="fa fa-arrow-down" aria-hidden="true"></i></p>
                                                             </div>
                                                         </li>
                                                     </ul>

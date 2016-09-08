@@ -2569,19 +2569,24 @@ exports.getChannelData = function (req, res, next) {
                     })
                     .catch(function (error) {
                         semaphore.leave();
-                        profile.update({_id: results.profile._id}, {
-                            hasNoAccess:true
-                        }, function(err, response) {
-                            if(!err){
-                                return res.status(401).json({
-                                    error: 'Authentication required to perform this action',
-                                    id: req.params.widgetId,
-                                    errorstatusCode:1003
-                                });
-                            }
-                            else
-                                return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
-                        })
+
+                        if(typeof error !== 'object'){
+                            profile.update({_id: results.profile._id}, {
+                                hasNoAccess:true
+                            }, function(err, response) {
+                                if(!err){
+                                    return res.status(401).json({
+                                        error: 'Authentication required to perform this action',
+                                        id: req.params.widgetId,
+                                        errorstatusCode:1003
+                                    });
+                                }
+                                else
+                                    return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
+                            })
+                        }
+                        else
+                            return res.status(500).json({error: 'Internal server error', id: req.params.widgetId})
                     });
             });
 

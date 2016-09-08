@@ -4,6 +4,7 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
     $scope.currentView = 'step_one';
     $scope.objectList = [];
     $scope.metricList = {};
+    $scope.tokenExpired=[];
     $scope.referenceWidgetsList = [];
     $scope.profileList = [];
     $scope.storedObjects = {};
@@ -15,6 +16,8 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
     $scope.fbAdObjId='';
     $scope.gaAdObjId='';
     $scope.canManage = true;
+    $scope.fusionRefreshButton='';
+
     $scope.changeViewsInBasicWidget = function (obj) {
         $scope.currentView = obj;
         if ($scope.currentView === 'step_one') {
@@ -144,6 +147,7 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
             }
             var left = (screen.width / 2) - (w / 2);
             var top = (screen.height / 2) - (h / 2);
+            $scope.tokenExpired = false;
             return window.open(url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
         }
         popupwindow(url, title, 1000, 500);
@@ -195,6 +199,7 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
 
     $scope.getObjectsForChosenProfile = function (profileObj, index) {
         $scope.checkExpiresIn = null;
+        $scope.tokenExpired[index]=false;
         if (!profileObj) {
             $scope.objectList[index] = null;
             if($scope.uniquechannelNames[index] === 'Google Analytics'){
@@ -206,9 +211,10 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
             }
         }
         else {
+            $scope.hasNoAccess = profileObj.hasNoAccess;
             if($scope.uniquechannelNames[index] === 'Google Analytics'){
                 this.objectOptionsModel1='';
-				document.getElementById('basicWidgetFinishButton').disabled = true;
+                document.getElementById('basicWidgetFinishButton').disabled = true;
             }
             if ((profileObj.canManageClients === false) && ($scope.uniquechannelNames[index] === 'GoogleAdwords')) {
                 $scope.canManage = false;
@@ -222,17 +228,17 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
                 $scope.expiredRefreshButton = $scope.uniquechannelNames[index];
                 if (profileObj.expiresIn != undefined)
                     $scope.checkExpiresIn = new Date(profileObj.expiresIn);
-                $scope.tokenExpired = false;
+                $scope.tokenExpired[index] = false;
                 //var profileId = this.profileOptionsModel._id;
                 var expiresIn = profileObj.expiresIn;
                 var currentDate = new Date();
                 var newexpiresIn = new Date(expiresIn);
                 if (currentDate <= newexpiresIn)
-                    $scope.tokenExpired = false;
+                    $scope.tokenExpired[index] = false;
                 else if (expiresIn === undefined)
-                    $scope.tokenExpired = false;
+                    $scope.tokenExpired[index] = false;
                 else
-                    $scope.tokenExpired = true;
+                    $scope.tokenExpired[index] = true;
             }
 
             $http({
@@ -355,6 +361,8 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
             $scope.objectList[index]='';
         }
         if (this.profileOptionsModel[index]._id) {
+            $scope.fusionRefreshButton=$scope.uniquechannelNames[index];
+
             switch ($scope.uniquechannelNames[index]) {
                 case 'Facebook':
                     $scope.objectType = 'page';
@@ -381,13 +389,27 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
             }).then(
                 function successCallback(response) {
                     $scope.objectList[index] = response.data;
+                    $scope.fusionRefreshButton='';
+
+
                 },
                 function errorCallback(error) {
-                    swal({
-                        title: "",
-                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen fusions link</span> .",
-                        html: true
-                    });
+                    $scope.fusionRefreshButton='';
+                    if(error.status === 401){
+                        if(error.data.errorstatusCode === 1003){
+                            swal({
+                                title: "",
+                                text: "<span style='sweetAlertFont'>Please refresh your profile!</span>",
+                                html: true
+                            });
+                            $scope.getProfilesForDropdown();
+                        }
+                    } else
+                        swal({
+                            title: "",
+                            text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                            html: true
+                        });
                 }
             );
         }

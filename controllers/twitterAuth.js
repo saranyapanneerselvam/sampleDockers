@@ -58,6 +58,7 @@ module.exports = function (app) {
                                 return res.status(204).json({error: 'No records found'});
                             else {
                                 req.channelId = channelList._id;
+                                req.channelName = channelList.name;
                                 req.channelCode = '4';
                                 req.code = channelList.code;
                                 user.storeProfiles(req,res, function (err, response) {

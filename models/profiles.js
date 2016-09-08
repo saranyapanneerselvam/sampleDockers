@@ -16,10 +16,12 @@ var profilesSchema = mongoose.Schema({
     refreshToken: String,
     userId: String,
     channelId: String,
+    channelName: String,
     expiresIn: Date,
     created: Date,
     updated: Date,
-    deleted: Date
+    deleted: Date,
+    hasNoAccess: { type:Boolean , default: false }
 });
 
 // create the model for organization and expose it to our app

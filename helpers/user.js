@@ -44,7 +44,9 @@ exports.storeProfiles = function (req, res, done) {
                     'updated': updated,
                     "expiresIn": req.expiresIn ? req.expiresIn : '',
                     "canManageClients": req.canManageClients,
-                    "customerId": req.customerId
+                    "customerId": req.customerId,
+                    "channelName":req.channelName,
+                    "hasNoAccess":false
                 }
             }
             else if (req.code === configAuth.channels.mailChimp) {
@@ -53,7 +55,9 @@ exports.storeProfiles = function (req, res, done) {
                     "refreshToken": newRefreshToken,
                     'updated': updated,
                     'dataCenter': req.dataCenter,
-                    "expiresIn": req.expiresIn ? req.expiresIn : ''
+                    "expiresIn": req.expiresIn ? req.expiresIn : '',
+                    "channelName":req.channelName,
+                    "hasNoAccess":false
                 }
             }
             else if (req.code === configAuth.channels.aweber) {
@@ -63,7 +67,9 @@ exports.storeProfiles = function (req, res, done) {
                     'updated': updated,
                     tokenSecret:req.tokenSecret,
                     //'dataCenter': req.dataCenter,
-                    "expiresIn": req.expiresIn ? req.expiresIn : ''
+                    "expiresIn": req.expiresIn ? req.expiresIn : '',
+                    "channelName":req.channelName,
+                    "hasNoAccess":false
                 }
             }
             else {
@@ -71,7 +77,9 @@ exports.storeProfiles = function (req, res, done) {
                     "accessToken": newAccessToken,
                     "refreshToken": newRefreshToken,
                     'updated': updated,
-                    "expiresIn": req.expiresIn ? req.expiresIn : ''
+                    "expiresIn": req.expiresIn ? req.expiresIn : '',
+                    "channelName":req.channelName,
+                    "hasNoAccess":false
                 }
             }
             profile.update({
@@ -107,6 +115,7 @@ exports.storeProfiles = function (req, res, done) {
             newProfile.email = req.userEmail;
             newProfile.name = req.profileName;
             newProfile.channelId = req.channelId;
+            newProfile.channelName=req.channelName;
 
             //Facebook doesn't have refresh token,store refresh token if the channel is google
             if (req.channelCode == req.channelId) {

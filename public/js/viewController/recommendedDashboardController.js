@@ -2,6 +2,7 @@ showMetricApp.controller('RecommendedDashboardController', RecommendedDashboardC
 
 function RecommendedDashboardController($scope, $http, $window, $q, $state, $rootScope, generateChartColours) {
     $scope.currentView = 'step_one';
+    $scope.expiredRefreshButton = [];
     $scope.recommendDashboard = [];
     $scope.getChannelList = {};
     $scope.profileList = [];
@@ -18,6 +19,8 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
     $scope.fbAdObjId='';
     $scope.gaAdObjId='';
     $scope.canManage = true;
+    $scope.recommendedRefreshButton='';
+    $scope.tokenExpired=[];
     $scope.changeViewsInBasicWidget = function (obj) {
         $scope.currentView = obj;
         if ($scope.currentView === 'step_one') {
@@ -50,7 +53,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
         }, function errorCallback(error) {
             swal({
                 title: "",
-                text: "<span style='sweetAlertFont'>Something went wrong! Please reopen recommended dashboards link</span> .",
+                text: "<span style='sweetAlertFont'>Something went wrong! Please reopen recommended dashboards link</span>",
                 html: true
             });
         });
@@ -71,7 +74,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
             function errorCallback(err) {
                 swal({
                     title: "",
-                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen recommended dashboards link</span> .",
+                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen recommended dashboards link</span>",
                     html: true
                 });
             }
@@ -103,7 +106,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
                     function errorCallback(error) {
                         swal({
                             title: "",
-                            text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span> .",
+                            text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span>",
                             html: true
                         });
                     }
@@ -113,7 +116,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
                 deferred.reject(error);
                 swal({
                     title: "",
-                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen recommended dashboards link</span> .",
+                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen recommended dashboards link</span>",
                     html: true
                 });
             }
@@ -122,6 +125,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
     };
 
     $scope.getObjectsForChosenProfile = function (profileObj, index) {
+        $scope.tokenExpired[index] = false;
         if (!profileObj) {
             document.getElementById('basicWidgetFinishButton').disabled = true;
             $scope.objectList[index] = null;
@@ -135,9 +139,9 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
         }
         else {
             if($scope.getChannelList[index].name === 'Google Analytics'){
-				this.objectOptionsModel1='';			
-				document.getElementById('basicWidgetFinishButton').disabled = true;
-			}
+                this.objectOptionsModel1='';
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+            }
             if ((profileObj.canManageClients === false)&&($scope.getChannelList[index].name === 'GoogleAdwords')){
                 $scope.canManage = false;
                 $scope.objectList[index]=null;
@@ -146,12 +150,25 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
                 document.getElementById('basicWidgetFinishButton').disabled = true;
                 $scope.canManage = true;
             }
+            if ($scope.profileOptionsModel.expiresIn != undefined)
+                $scope.checkExpiresIn = new Date($scope.profileOptionsModel.expiresIn);
+            $scope.tokenExpired[index] = false;
+            var expiresIn = profileObj.expiresIn;
+            var currentDate = new Date();
+            var newExpiresIn = new Date(expiresIn);
+            if (currentDate <= newExpiresIn && expiresIn != null)
+                $scope.tokenExpired[index] = false;
+            else if (expiresIn === undefined || expiresIn === null)
+                $scope.tokenExpired[index] = false;
+            else
+                $scope.tokenExpired[index] = true;
             $http({
                 method: 'GET',
                 url: '/api/v1/get/objects/' + profileObj._id
             }).then(
                 function successCallback(response) {
                     if ($scope.getChannelList[index].name === 'FacebookAds'){
+                        $scope.expiredRefreshButton[index] = $scope.getChannelList[index].name;
                         $scope.objectList[index] = [];
                         for(var j=0;j<response.data.objectList.length;j++) {
                             if(response.data.objectList[j].objectTypeId == $scope.fbAdObjId) {
@@ -160,6 +177,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
                         }
                     }
                     else if($scope.getChannelList[index].name === 'GoogleAdwords'){
+                        $scope.expiredRefreshButton[index] = $scope.getChannelList[index].name;
                         $scope.objectList[index] = [];
                         for(var j=0;j<response.data.objectList.length;j++) {
                             if (response.data.objectList[j].objectTypeId == $scope.gaAdObjId) {
@@ -168,9 +186,11 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
                         }
                     }
                     else {
+                        $scope.expiredRefreshButton[index] = $scope.getChannelList[index].name;
                         $scope.objectList[index] = response.data.objectList;
                     }
                     if ($scope.getChannelList[index].name === 'Twitter' ||$scope.getChannelList[index].name === 'Instagram') {
+                        $scope.expiredRefreshButton[index] = null;
                         $scope.objectForWidgetChosen($scope.objectList[index][0], index);
                     }
                     if ((profileObj.canManageClients === false)&&($scope.getChannelList[index].name === 'GoogleAdwords')){
@@ -180,7 +200,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
                 function errorCallback(error) {
                     swal({
                         title: "",
-                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen recommended dashboards link</span> .",
+                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen recommended dashboards link</span>",
                         html: true
                     });
                 }
@@ -262,6 +282,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
             }
             var left = (screen.width / 2) - (w / 2);
             var top = (screen.height / 2) - (h / 2);
+            $scope.tokenExpired[index] = false;
             return window.open(url, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
         }
 
@@ -295,7 +316,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
                         function errorCallback(error) {
                             swal({
                                 title: "",
-                                text: "<span style='sweetAlertFont'>Something went wrong! Please reopen recommended dashboards link</span> .",
+                                text: "<span style='sweetAlertFont'>Something went wrong! Please reopen recommended dashboards link</span>",
                                 html: true
                             });
                         }
@@ -311,6 +332,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
             $scope.objectList[index] = '';
         }
         if(this.profileOptionsModel[index]._id) {
+            $scope.recommendedRefreshButton=$scope.getChannelList[index].name;
             switch ($scope.getChannelList[index].name) {
                 case 'Facebook':
                     $scope.objectType = 'page';
@@ -337,13 +359,26 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
             }).then(
                 function successCallback(response) {
                     $scope.objectList[index] = response.data;
+                    $scope.recommendedRefreshButton='';
                 },
                 function errorCallback(error) {
-                    swal({
-                        title: "",
-                        text: "<span style='sweetAlertFont'>Something went wrong! Please reopen recommended dashboards link</span> .",
-                        html: true
-                    });
+                    $scope.recommendedRefreshButton='';
+                    if(error.status === 401){
+                        if(error.data.errorstatusCode === 1003){
+                            $scope.recommendedRefreshButton='';
+                            swal({
+                                title: "",
+                                text: "<span style='sweetAlertFont'>Please refresh your profile</span>",
+                                html: true
+                            });
+                            $scope.getProfileForChosenChannel($scope.fullOfDashboard);
+                        }
+                    } else
+                        swal({
+                            title: "",
+                            text: "<span style='sweetAlertFont'>Something went wrong! Please reopen widgets link</span>",
+                            html: true
+                        });
                 }
             );
         }
@@ -421,7 +456,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
                     function errorCallback(error) {
                         swal({
                             title: "",
-                            text: "<span style='sweetAlertFont'>Something went wrong! Please reopen recommended dashboards link</span> .",
+                            text: "<span style='sweetAlertFont'>Something went wrong! Please reopen recommended dashboards link</span>",
                             html: true
                         });
                     }
@@ -430,7 +465,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
             function errorCallback(error) {
                 swal({
                     title: "",
-                    text: "<span style='sweetAlertFont'>Please try again! Something is missing</span> .",
+                    text: "<span style='sweetAlertFont'>Please try again! Something is missing</span>",
                     html: true
                 });
             }

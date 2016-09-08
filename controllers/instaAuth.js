@@ -48,6 +48,7 @@ module.exports = function (app) {
                 //Query to find instagram channelId which is to be stored in profile table - dev
                 channels.findOne({code: configAuth.channels.instagram}, function (err, channelDetails) {
                     req.channelId = channelDetails._id;
+                    req.channelName = channelDetails.name;
                     req.accessToken = token;
                     req.code = channelDetails.code;
 

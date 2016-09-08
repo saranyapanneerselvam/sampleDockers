@@ -45,6 +45,8 @@ function ModalInstanceController($scope, $rootScope, $http, $uibModalInstance) {
     $rootScope.closePdfModal = function(){
         $uibModalInstance.close();
     };
-
+    $scope.closeProfilelistModal = function(){
+        $uibModalInstance.close();
+    };
 
 }

@@ -2,15 +2,13 @@
     <p class="grid-header">GridView</p>
 </div>
 <div ng-init="fetchAllDashboards()" class="wrapper wrapper-content gridAlign white-bg">
-    <div ng-if="gridloading">
-        <div class="spiner-example" >
-            <div class="sk-spinner sk-spinner-double-bounce">
-                <div class="sk-double-bounce1"></div>
-                <div class="sk-double-bounce2"></div>
-            </div>
+    <div ng-show="gridloading === true"  class="spiner-example">
+        <div class="sk-spinner sk-spinner-double-bounce">
+            <div class="sk-double-bounce1"></div>
+            <div class="sk-double-bounce2"></div>
         </div>
     </div>
-    <div class="row" ng-show="dashboardList != null">
+    <div class="row" ng-show="dashboardList != null && gridloading === false ">
         <div class="col col-lg-2  grid-text"  ng-repeat="dashboard in dashboardList" >
             <div style="height: 10px; cursor: pointer;" ng-click="deleteDashboard(dashboard)" class="col-lg-1 pull-right"><i class="fa fa-times" aria-hidden="true"></i></div>
             <div style="height: 40px" class="contentName">

@@ -6,7 +6,6 @@ showMetricApp.service('createWidgets',function($http,$q){
 
         var deferredWidget = $q.defer();
         var tempWidget = JSON.parse(JSON.stringify(widget));
-
         if(widget.widgetType == 'customFusion') {
             var sourceWidgetList = [], dataLoadedWidgetArray = [], widgetChartsArray = [];
             sourceWidgetList.push(fetchCustomFusionWidgets(widget));
@@ -342,6 +341,15 @@ showMetricApp.service('createWidgets',function($http,$q){
                     deferred.resolve(updatedCharts);
                 },
                 function errorCallback(error) {
+                    if(tempWidget.widgets.length > 0){
+
+                        k = tempWidget.widgets.map(function(e) { return e._id; }).indexOf(error._id);
+                        if(k!== -1){
+                            error.data.id=tempWidget._id;
+                        }
+                        deferred.reject(error);
+                    }
+                    else
                     deferred.reject(error);
                 }
             );

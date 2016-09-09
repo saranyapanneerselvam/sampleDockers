@@ -352,8 +352,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                         {
                             if($scope.dashboard.widgetData[i].chart.length===0){
                                 if($scope.dashboard.widgetData[i].visibility==false){
-
-                                    if($scope.widgetErrorCode === 1){
+                                    if($scope.dashboard.widgetData[i].dataerror === true){
                                         $("#widgetData-"+$scope.dashboard.widgetData[i].id).hide();
                                         $("#errorWidgetData-"+$scope.dashboard.widgetData[i].id).hide();
                                         $("#errorWidgetTokenexpire-" + $scope.dashboard.widgetData[i].id).show()
@@ -554,6 +553,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                             'id':  dashboardWidgetList[getWidgetInfo]._id,
                             'chart': [],
                             'visibility': false,
+                            'dataerror':false,
                             'name': (typeof dashboardWidgetList[getWidgetInfo].name != 'undefined'? dashboardWidgetList[getWidgetInfo].name : ''),
                             'color': (typeof dashboardWidgetList[getWidgetInfo].color != 'undefined'? dashboardWidgetList[getWidgetInfo].color : '')
                         });
@@ -567,6 +567,10 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                             function errorCallback(error){
                                 if(error.status === 401) {
                                     if (error.data.errorstatusCode === 1003) {
+                                        k = $scope.dashboard.widgetData.map(function(e) { return e.id; }).indexOf(error.data.id);
+                                        if(k !== -1 ){
+                                            $scope.dashboard.widgetData[k].dataerror=true;
+                                        }
                                         $("#widgetData-"+error.data.id).hide();
                                         $("#errorWidgetData-"+error.data.id).hide();
                                         $("#errorWidgetTokenexpire-" + error.data.id).show();
@@ -646,6 +650,10 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             function errorCallback(error){
                 if(error.status === 401) {
                     if (error.data.errorstatusCode === 1003) {
+                        k = $scope.dashboard.widgetData.map(function(e) { return e.id; }).indexOf(error.data.id);
+                        if(k !== -1 ){
+                            $scope.dashboard.widgetData[k].dataerror=true;
+                        }
                         $("#widgetData-" + widget._id).hide();
                         $("#errorWidgetData-" + widget._id).hide();
                         $("#errorWidgetTokenexpire-" + widget._id).show();

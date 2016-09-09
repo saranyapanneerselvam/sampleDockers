@@ -170,19 +170,7 @@ exports.listAccounts = function (req, res, next) {
                                         return res.status(500).json({error: 'Internal server error'});
                                     }                                     
                                     else if(result.statusCode == 401){
-                                        Profile.update({_id: profile._id}, {
-                                            hasNoAccess:true
-                                        }, function(err, response) {
-                                            if(!err){
-                                                return res.status(401).json({
-                                                    error: 'Authentication required to perform this action',
-                                                    id: req.params.widgetId,
-                                                    errorstatusCode:1003
-                                                });
-                                            }
-                                            else
-                                                return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
-                                        })
+                                        accesserror(profile._id)
                                     }
                                     else{
                                     // var vimeoObject=[];
@@ -243,19 +231,7 @@ exports.listAccounts = function (req, res, next) {
             oauth2Client.refreshAccessToken(function (err, tokens) {
                 if (err){
                     if(err.code === 400){
-                        Profile.update({_id: initialResults.get_profile._id}, {
-                            hasNoAccess:true
-                        }, function(err, response) {
-                            if(!err){
-                                return res.status(401).json({
-                                    error: 'Authentication required to perform this action',
-                                    id: req.params.widgetId,
-                                    errorstatusCode:1003
-                                });
-                            }
-                            else
-                                return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
-                        })
+                        accesserror(initialResults.get_profile._id)
                     }
                     else
                     callback(err, tokens);
@@ -551,19 +527,7 @@ exports.listAccounts = function (req, res, next) {
                 function (objects) {
                     if (objects.error) {
                         if (objects.error.code === 190){
-                            Profile.update({_id: results.get_profile._id}, {
-                                hasNoAccess:true
-                            }, function(err, response) {
-                                if(!err){
-                                    return res.status(401).json({
-                                        error: 'Authentication required to perform this action',
-                                        id: req.params.widgetId,
-                                        errorstatusCode:1003
-                                    });
-                                }
-                                else
-                                    return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
-                            })
+                            accesserror(results.get_profile._id)
                         }
                         else if (objects.error.code === 4)
                             return res.status(4).json({error: 'Forbidden Error', id: req.params.widgetId})
@@ -664,20 +628,7 @@ exports.listAccounts = function (req, res, next) {
                                 function (pageList) {
                                     if (pageList.error){
                                         if (pageList.error.code === 190) {
-                                            Profile.update({_id: profile._id}, {
-                                                hasNoAccess:true
-                                            }, function(err, response) {
-                                                if(!err){
-                                                    return res.status(401).json({
-                                                        error: 'Authentication required to perform this action',
-                                                        id: req.params.widgetId,
-                                                        errorstatusCode:1003
-                                                    });
-                                                }
-                                                else
-                                                    return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
-                                            })
-                                        }
+                                            accesserror(profile._id)}
                                         else
                                             return res.status(500).json({error: 'Internal server error'});
                                     }
@@ -944,19 +895,7 @@ exports.listAccounts = function (req, res, next) {
                 }
                 service.get(clientCustomerId, selector, function (err, response) {
                     if (err){
-                        Profile.update({_id: results._id}, {
-                            hasNoAccess:true
-                        }, function(err, response) {
-                            if(!err){
-                                return res.status(401).json({
-                                    error: 'Authentication required to perform this action',
-                                    id: req.params.widgetId,
-                                    errorstatusCode:1003
-                                });
-                            }
-                            else
-                                return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
-                        })
+                        accesserror(results._id)
                     }
                     else {
                         queryExec(clientCustomerId, objectTypeId, results, response, callback);
@@ -1056,19 +995,7 @@ exports.listAccounts = function (req, res, next) {
                     function (err, response, body) {
                         if (err || response.statusCode !== 200) {
                             if(response.statusCode == 401){
-                                Profile.update({_id: results._id}, {
-                                    hasNoAccess:true
-                                }, function(err, response) {
-                                    if(!err){
-                                        return res.status(401).json({
-                                            error: 'Authentication required to perform this action',
-                                            id: req.params.widgetId,
-                                            errorstatusCode:1003
-                                        });
-                                    }
-                                    else
-                                        return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
-                                })
+                                accesserror(results._id)
                             }
                             else
                                 return res.status(500).json({error: 'Internal server error'});
@@ -1161,19 +1088,7 @@ exports.listAccounts = function (req, res, next) {
                         var parsedResponse;
                         if (response.statusCode != 200){
                             if(response.statusCode == 401){
-                                Profile.update({_id: results._id}, {
-                                    hasNoAccess:true
-                                }, function(err, response) {
-                                    if(!err){
-                                        return res.status(401).json({
-                                            error: 'Authentication required to perform this action',
-                                            id: req.params.widgetId,
-                                            errorstatusCode:1003
-                                        });
-                                    }
-                                    else
-                                        return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
-                                })
+                                accesserror(results._id)
                             }
                            else
                             return res.status(500).json({error: err});
@@ -1264,19 +1179,7 @@ exports.listAccounts = function (req, res, next) {
             apiClient.request('get', listUrl, {}, function (err, response) {
                 if (err){
                     if(err.error.status === 401){
-                        Profile.update({_id: get_profile._id}, {
-                            hasNoAccess:true
-                        }, function(err, response) {
-                            if(!err){
-                                return res.status(401).json({
-                                    error: 'Authentication required to perform this action',
-                                    id: req.params.widgetId,
-                                    errorstatusCode:1003
-                                });
-                            }
-                            else
-                                return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
-                        })
+                        accesserror(get_profile._id)
                     }
                     else
                     return res.status(500).json({error: "internal server Error"});
@@ -1320,5 +1223,22 @@ exports.listAccounts = function (req, res, next) {
             });
 
         }
+    }
+    function accesserror(profileId){
+        Profile.update({_id: profileId}, {
+            hasNoAccess:true
+        }, function(err, response) {
+            if(!err){
+                return res.status(401).json({
+                    error: 'Authentication required to perform this action',
+                    id: req.params.widgetId,
+                    errorstatusCode:1003
+                });
+            }
+            else if (response == 0)
+                return res.status(501).json({error: 'Not implemented', id: req.params.widgetId});
+            else
+                return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
+        })
     }
 };

@@ -367,17 +367,25 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
                                         $scope.loadedWidgetCount++;
                                     },
                                     function errorCallback(error) {
-                                        $scope.loadedWidgetCount++;
-                                        if (typeof error.data.id != 'undefined') {
-                                            $("#widgetData-" + error.data.id).hide();
-                                            $("#errorWidgetData-" + error.data.id).show();
-                                            isExportOptionSet = 0;
+                                        if(error.status === 401) {
+                                            $("#widgetData-"+error.data.id).hide();
+                                            if (error.data.errorstatusCode === 1003) {
+                                                $("#widgetData-"+error.data.id).hide();
+                                                $("#errorWidgetData-"+error.data.id).hide();
+                                                $("#errorWidgetTokenexpire-" + error.data.id).show();
+                                                $scope.widgetErrorCode=1;
+                                                $scope.loadedWidgetCount++;
+                                                isExportOptionSet = 0;
+                                            }
+                                        }else{
+                                            $scope.loadedWidgetCount++;
+                                            if(typeof error.data.id != 'undefined') {
+                                                $("#widgetData-"+error.data.id).hide();
+                                                $("#errorWidgetData-"+error.data.id).show();
+                                                $("#errorWidgetTokenexpire-" + error.data.id).hide();
+                                                isExportOptionSet=0;
+                                            }
                                         }
-                                        swal({
-                                            title: '',
-                                            text: '<span style = "sweetAlertFont">Error in populating widgets! Please refresh the dashboard again</span>',
-                                            html: true
-                                        });
                                     }
                                 );
                             }

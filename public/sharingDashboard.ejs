@@ -62,6 +62,16 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                            <div class=" errorWidgetData  background-color" id="errorWidgetTokenexpire-{{widget.id}}" style="margin-top: 0%;">
+                                                <div class="row" style="margin: 0px;height: 100%">
+                                                    <div style="height:99%;">
+                                                        <div style="position:relative; top:25%; text-align:center; padding-right:20px">
+                                                            <p style="word-wrap:break-word;font-size: 10px;">Access to one or more profiles has expired</p>
+                                                            <a ui-sref="app.reporting.dashboard.listProfile"><i style="color: #23527c;" class="fa fa-refresh" aria-hidden="true"> </i><p style="color:#000;font-size: 10px">  Refresh</p></a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                         <div class="row getWidgetGraph" style="height: 100%;margin:0px;" ng-if="dashboard.widgetData[widgetIndex].visibility == true" chart-height>
                                             <div ng-repeat="chart in dashboard.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'lineChart'  || chart.options.chart.type=== 'pieChart' || chart.options.chart.type=== 'multiBarChart' || chart.options.chart.type=== 'multiChart'" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/dashboard.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/dashboard.widgetData[widgetIndex].layoutOptionsX)+'%'}">

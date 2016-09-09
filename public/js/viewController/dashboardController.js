@@ -574,7 +574,8 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                                         $scope.loadedWidgetCount++;
                                         isExportOptionSet = 0;
                                     }
-                                }else{
+                                }
+                                else {
                                     $scope.loadedWidgetCount++;
                                     if(typeof error.data.id != 'undefined') {
                                         $("#widgetData-"+error.data.id).hide();

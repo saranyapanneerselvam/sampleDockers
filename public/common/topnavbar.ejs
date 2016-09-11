@@ -4,7 +4,7 @@
             <span minimaliza-sidebar class="menus-img"></span>
             <span style="float: right">
                 <a class="navbar-minimalize minimalize-styl-1" href="/signout" style="margin-top: 10px;">
-                    <i class="fa fa-power-off fa-3x" style="color: #898989;"></i>
+                    <i class="fa fa-power-off fa-3x" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Logout"style="color: #898989;"></i>
                 </a>
             </span>
 
@@ -27,8 +27,8 @@
                     </ul>
                 </div>
 -->
-                <a class="navbar-minimalize minimalize-styl-1 md-trigger md-setperspective md-effect-19 addRemoveModalContent" style="margin-top: 10px;" data-modal="addRemoveModalContent">
-                    <i class="icon icon-profile-male topnavbar-menu-icon"></i>
+                <a id="soonModel" class="navbar-minimalize minimalize-styl-1 md-trigger md-setperspective md-effect-19 addRemoveModalContent" style="margin-top: 10px;" data-modal="addRemoveModalContent">
+                    <i class="icon icon-profile-male topnavbar-menu-icon" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="User Management"></i>
                 </a>
                 <ul class="nav nav-second-level collapse">
                     <li class="md-trigger md-setperspective md-effect-19 addRemoveModalContent" data-modal="addRemoveModalContent"><a>Add / Remove User</a></li>
@@ -42,7 +42,7 @@
 
             <span style="float: right">
                 <a class="navbar-minimalize minimalize-styl-1 md-trigger md-setperspective md-effect-19" ui-sref="app.changePassword" data-modal="settingModalContent" style="margin-top: 10px;">
-                    <i class="icon icon-key topnavbar-menu-icon"></i>
+                    <i class="icon icon-key topnavbar-menu-icon " data-toggle="tooltip" data-placement="bottom" title="" data-original-title="ChangePassword"></i>
                 </a>
             </span>
 
@@ -74,9 +74,6 @@
 </div>
 <script>
     $('#soonModel').click(function () {
-        swal("Coming Soon!");
-        $(this).removeClass("active");
-        // adding classname 'active' to current click li
-        $(this).addClass("noChange");
+        toastr.info('Coming Soon');
     });
 </script>

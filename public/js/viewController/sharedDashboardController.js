@@ -182,45 +182,101 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
             }
         });
 
-        $scope.calculateColumnWidth = function(x) {
+        $scope.calculateColumnWidth = function(noOfItems,widgetWidth,noOfCharts) {
 
-            if(x<=2)
+            if(noOfCharts<=3)
+                widgetWidth = Math.ceil(widgetWidth/noOfCharts);
+            if(widgetWidth==1)
                 return ('col-sm-'+12+' col-md-'+12+' col-lg-'+12);
-            else if(x>2 && x<=4)
-                return ('col-sm-'+6+' col-md-'+6+' col-lg-'+6);
-            else
-                return ('col-sm-'+4+' col-md-'+4+' col-lg-'+4);
+            else {
+                if(widgetWidth==2){
+                    if(noOfItems<=2)
+                        return ('col-sm-'+12+' col-md-'+12+' col-lg-'+12);
+                    else
+                        return ('col-sm-'+6+' col-md-'+6+' col-lg-'+6);
+                }
+                else {
+                    if (noOfItems <= 2)
+                        return ('col-sm-' + 12 + ' col-md-' + 12 + ' col-lg-' + 12);
+                    else if (noOfItems > 2 && noOfItems <= 4)
+                        return ('col-sm-'+6+' col-md-'+6+' col-lg-'+6);
+                    else
+                        return ('col-sm-'+4+' col-md-'+4+' col-lg-'+4);
+                }
+            }
         };
 
-        $scope.calculateRowHeight = function(availableHeight,noOfItems,widget) {
-
+        $scope.calculateRowHeight = function(data,widgetWidth,noOfCharts) {
+            var availableHeight = data.myheight;
+            var noOfItems = data.length;
+            if(noOfCharts<=3)
+                widgetWidth = Math.ceil(widgetWidth/noOfCharts);
             var cols;
-            if(noOfItems<=2)
-                cols = 1;
-            else if(noOfItems>2 && noOfItems<=4)
-                cols = 2;
-            else
-                cols = 3;
 
+            if(widgetWidth==1)
+                cols =1;
+            else {
+                if(widgetWidth==2){
+                    if(noOfItems<=2)
+                        cols=1;
+                    else
+                        cols =2;
+                }
+                else {
+                    if(noOfItems<=2)
+                        cols = 1;
+                    else if(noOfItems>2 && noOfItems<=4)
+                        cols = 2;
+                    else
+                        cols = 3;
+                }
+            }
+            // console.log("No.of charts",noOfCharts,"Widget Width",widgetWidth,"No of Cols",cols);
+            if(cols==1)
+                data.showComparision = false;
+            else
+                data.showComparision = true;
             //var cols = $window.innerWidth>=768 ? 2 : 1;
             var rows = Math.ceil(noOfItems/cols);
             var heightPercent = 100/rows;
-            var fontSizeEm = availableHeight/100*4.5;
+            var fontSizeEm = availableHeight/100*5;
             var minSize = 0.7, maxSize=1.35;
             if(fontSizeEm<minSize)
                 fontSizeEm=minSize;
-            else if(fontSizeEm>maxSize)
+            if(fontSizeEm>maxSize)
                 fontSizeEm=maxSize;
-            else if((noOfItems>4)&&widget.sizeX==1){
-                if(widget.sizeY==1)
-                    fontSizeEm=minSize;
-                else if(widget.sizeY==2)
-                    fontSizeEm = 0.9;
-                else {
-                    fontSizeEm=1.1;
-                }
+            // return {'height':(heightPercent+'%'),'font-size':(fontSizeEm+'em')};
+            return {'height':(heightPercent+'%')};
+        };
+
+        $scope.calculateSummaryHeight = function(widgetHeight,noOfItems) {
+            var heightPercent;
+            if(widgetHeight<=1) {
+                if(noOfItems==1)
+                    heightPercent = 20;
+                else
+                    heightPercent = 100 / widgetHeight;
+                return {'height': (heightPercent + '%')};
             }
-            return {'height':(heightPercent+'%'),'font-size':(fontSizeEm+'em')};
+            else {
+                heightPercent = 100 / widgetHeight;
+                return {'height':(heightPercent+'%')};
+            }
+        };
+
+        $scope.calculateChartHeight = function(widgetHeight,noOfItems) {
+            var heightPercent;
+            if(widgetHeight<=1) {
+                if(noOfItems==1)
+                    heightPercent = 80;
+                else
+                    heightPercent = 100-(100/widgetHeight);
+                return {'height':(heightPercent+'%')};
+            }
+            else {
+                heightPercent = 100-(100/widgetHeight);
+                return {'height': (heightPercent + '%')};
+            }
         };
     };
 
@@ -311,17 +367,25 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
                                         $scope.loadedWidgetCount++;
                                     },
                                     function errorCallback(error) {
-                                        $scope.loadedWidgetCount++;
-                                        if (typeof error.data.id != 'undefined') {
-                                            $("#widgetData-" + error.data.id).hide();
-                                            $("#errorWidgetData-" + error.data.id).show();
-                                            isExportOptionSet = 0;
+                                        if(error.status === 401) {
+                                            $("#widgetData-"+error.data.id).hide();
+                                            if (error.data.errorstatusCode === 1003) {
+                                                $("#widgetData-"+error.data.id).hide();
+                                                $("#errorWidgetData-"+error.data.id).hide();
+                                                $("#errorWidgetTokenexpire-" + error.data.id).show();
+                                                $scope.widgetErrorCode=1;
+                                                $scope.loadedWidgetCount++;
+                                                isExportOptionSet = 0;
+                                            }
+                                        }else{
+                                            $scope.loadedWidgetCount++;
+                                            if(typeof error.data.id != 'undefined') {
+                                                $("#widgetData-"+error.data.id).hide();
+                                                $("#errorWidgetData-"+error.data.id).show();
+                                                $("#errorWidgetTokenexpire-" + error.data.id).hide();
+                                                isExportOptionSet=0;
+                                            }
                                         }
-                                        swal({
-                                            title: '',
-                                            text: '<span style = "sweetAlertFont">Error in populating widgets! Please refresh the dashboard again</span>',
-                                            html: true
-                                        });
                                     }
                                 );
                             }

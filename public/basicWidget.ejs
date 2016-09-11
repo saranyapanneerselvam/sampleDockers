@@ -851,7 +851,7 @@
                                                                                 </svg>
                                                                                 <div class="link-span refresh">Refresh
                                                                                 </div>
-                                                                                <img  ng-if="refreshButtonLoading===true" id="refreshButton" src="image/loading.gif">
+                                                                                <img  ng-if="refreshButtonLoading===uniqueObjectCount[$index]" id="refreshButton" src="image/loading.gif">
                                                                             </a>
                                                                             <a style="cursor: not-allowed;" ng-show="profileOptionsModel.hasNoAccess"
                                                                                class="link-img">

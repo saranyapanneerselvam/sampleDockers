@@ -6,7 +6,6 @@ showMetricApp.service('createWidgets',function($http,$q){
 
         var deferredWidget = $q.defer();
         var tempWidget = JSON.parse(JSON.stringify(widget));
-
         if(widget.widgetType == 'customFusion') {
             var sourceWidgetList = [], dataLoadedWidgetArray = [], widgetChartsArray = [];
             sourceWidgetList.push(fetchCustomFusionWidgets(widget));
@@ -342,6 +341,15 @@ showMetricApp.service('createWidgets',function($http,$q){
                     deferred.resolve(updatedCharts);
                 },
                 function errorCallback(error) {
+                    if(tempWidget.widgets.length > 0){
+
+                        k = tempWidget.widgets.map(function(e) { return e._id; }).indexOf(error._id);
+                        if(k!== -1){
+                            error.data.id=tempWidget._id;
+                        }
+                        deferred.reject(error);
+                    }
+                    else
                     deferred.reject(error);
                 }
             );
@@ -783,60 +791,52 @@ showMetricApp.service('createWidgets',function($http,$q){
                             if(widget.charts[charts].chartData[0].x){
                                 var summaryValue = 0;
                                 var nonZeroPoints = 0;
-                                var n=widget.charts[charts].chartData.length;
-                                var currentWeek=0;
-                                var pastWeek=0;
-                                var granunality;
-                                if(widget.charts[charts].chartData.length>=14){
+                                var n = widget.charts[charts].chartData.length;
+                                var currentWeek = 0;
+                                var pastWeek = 0;
+                                var granularity;
+                                if(widget.charts[charts].chartData.length >= 14){
                                     var count=0;
-                                    for(var i=n-1;i>=0;i--) {
-                                        if(count===0 || count<7){
-                                            currentWeek+=(widget.charts[charts].chartData[i].y);
-                                        }
-                                        else if (count>=7 && count<14){
-                                            pastWeek+=(widget.charts[charts].chartData[i].y);
-                                        }
+                                    for(var i = n-1; i >= 0; i--) {
+                                        if(count===0 || count < 7)
+                                            currentWeek +=parseFloat(widget.charts[charts].chartData[i].y);
+                                        else if (count >= 7 && count < 14)
+                                            pastWeek+=parseFloat(widget.charts[charts].chartData[i].y);
                                         count++;
                                     }
-                                    granunality='Week';
+                                    granularity='Week';
                                 }
-                                else{
+                                else {
                                     var lastIndex = _.last(widget.charts[charts].chartData);
-                                    var subtractDate= moment(lastIndex.x).subtract(1, "days").format('YYYY-DD-MM');
-                                    currentWeek=lastIndex.y;
-                                    for(var i=n-1;i>=0;i--) {
-                                        var dateFormatChange=moment(widget.charts[charts].chartData[i].x).format('YYYY-DD-MM');
-                                        if(subtractDate===dateFormatChange){
-                                            pastWeek=widget.charts[charts].chartData[i].y;
-                                        }
+                                    var subtractDate = moment(lastIndex.x).subtract(1, "days").format('YYYY-DD-MM');
+                                    currentWeek = parseFloat(lastIndex.y);
+                                    for(var i = n-1; i >= 0; i--) {
+                                        var dateFormatChange = moment(widget.charts[charts].chartData[i].x).format('YYYY-DD-MM');
+                                        if(subtractDate === dateFormatChange)
+                                            pastWeek = parseFloat(widget.charts[charts].chartData[i].y);
                                     }
-                                    granunality='Day';
+                                    granularity='Day';
                                 }
-                                var comparingData;
-                                if(currentWeek>pastWeek){
-                                    comparingData='up';
-                                    var minus =currentWeek-pastWeek;
-                                    if(pastWeek>0){
-                                        var percentage =parseFloat(minus/pastWeek*100).toFixed(2);
-                                    }
-                                    else{
-                                        var percentage=currentWeek;
-                                    }
-
+                                var comparingData, percentage, minus;
+                                if(currentWeek > pastWeek){
+                                    comparingData = 'up';
+                                    minus = currentWeek - pastWeek;
+                                    if(pastWeek > 0)
+                                        percentage = parseFloat(minus / pastWeek * 100).toFixed(2);
+                                    else
+                                        percentage = currentWeek;
                                 }
-                                else if(currentWeek<pastWeek){
-                                    var minus=pastWeek-currentWeek;
-                                    if(currentWeek>0) {
-                                        var percentage =parseFloat(minus / currentWeek * 100).toFixed(2);
-                                    }
-                                    else{
-                                        var percentage=0;
-                                    }
-                                    comparingData='down';
+                                else if(currentWeek < pastWeek){
+                                    comparingData = 'down';
+                                    minus = pastWeek - currentWeek;
+                                    if(pastWeek > 0)
+                                        percentage = parseFloat(minus / pastWeek * 100).toFixed(2);
+                                    else
+                                        percentage = 0;
                                 }
-                                else{
-                                    var minus=pastWeek-currentWeek;
-                                    var percentage = 0;
+                                else {
+                                    minus= pastWeek - currentWeek;
+                                    percentage = 0;
                                 }
                                 for(var datas in widget.charts[charts].chartData) {
                                     summaryValue += parseFloat(widget.charts[charts].chartData[datas].y);
@@ -866,7 +866,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                             'values': widget.charts[charts].chartData,      //values - represents the array of {x,y} data points
                                             'key': widget.charts[charts].chartName, //key  - the name of the series.
                                             'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
-                                            'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(summaryValue)) > 0 ? parseFloat(summaryValue).toFixed(2): Math.floor(summaryValue) == 0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
+                                            'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
                                         });
                                     }
                                     else {
@@ -877,9 +877,9 @@ showMetricApp.service('createWidgets',function($http,$q){
                                             'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
                                             'arrow':comparingData,
                                             'variance':percentage,
-                                            'period':granunality,
-                                            'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(summaryValue)) > 0 ? parseFloat(summaryValue).toFixed(2): Math.floor(summaryValue) == 0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue)
-                                        });
+                                            'period':granularity,
+                                            'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
+                                    });
                                     }
                                 }
                                 else if(chartType == 'area') {
@@ -890,8 +890,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                                         'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
                                         'arrow':comparingData,
                                         'variance':percentage,
-                                        'period':granunality,
-                                        'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(summaryValue)) > 0 ? parseFloat(summaryValue).toFixed(2): Math.floor(summaryValue) == 0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
+                                        'period':granularity,
+                                        'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
                                         'area': true
                                     });
                                 }
@@ -902,9 +902,9 @@ showMetricApp.service('createWidgets',function($http,$q){
                                         'key': widget.charts[charts].metricDetails.name, //key  - the name of the series.
                                         'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
                                         'arrow':comparingData,
-                                        'period':granunality,
+                                        'period':granularity,
                                         'variance':percentage,
-                                        'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(summaryValue)) > 0 ? parseFloat(summaryValue).toFixed(2): Math.floor(summaryValue) == 0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
+                                        'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
                                     });
                                 }
                             }
@@ -917,56 +917,48 @@ showMetricApp.service('createWidgets',function($http,$q){
                                     var n=widget.charts[charts].chartData[items].length;
                                     var currentWeek=0;
                                     var pastWeek=0;
-                                    var granunality;
+                                    var granularity;
                                     if(widget.charts[charts].chartData[items].length>=14){
-                                        var count=0;
-                                        for(var i=n-1;i>=0;i--) {
-                                            if(count===0 || count<7){
-                                                currentWeek+=(widget.charts[charts].chartData[items][i].y);
-                                            }
-                                            else if (count>=7 && count<14){
-                                                pastWeek+=(widget.charts[charts].chartData[items][i].y);
-                                            }
+                                        var count = 0;
+                                        for(var i = n-1; i >= 0; i--) {
+                                            if(count === 0 || count < 7)
+                                                currentWeek += parseFloat(widget.charts[charts].chartData[items][i].y);
+                                            else if (count >= 7 && count < 14)
+                                                pastWeek += parseFloat(widget.charts[charts].chartData[items][i].y);
                                             count++;
                                         }
-                                        granunality='Week';
+                                        granularity = 'Week';
                                     }
-                                    else{
+                                    else {
                                         var lastIndex = _.last(widget.charts[charts].chartData[items]);
                                         var subtractDate= moment(lastIndex.x).subtract(1, "days").format('YYYY-DD-MM');
-                                        currentWeek=lastIndex.y;
+                                        currentWeek = parseFloat(lastIndex.y);
                                         for(var i=n-1;i>=0;i--) {
                                             var dateFormatChange=moment(widget.charts[charts].chartData[items][i].x).format('YYYY-DD-MM');
-                                            if(subtractDate===dateFormatChange){
-                                                pastWeek=widget.charts[charts].chartData[items][i].y;
-                                            }
+                                            if(subtractDate === dateFormatChange)
+                                                pastWeek = parseFloat(widget.charts[charts].chartData[items][i].y);
                                         }
-                                        granunality='Day';
+                                        granularity = 'Day';
                                     }
-                                    var comparingData;
-                                    if(currentWeek>pastWeek){
-                                        comparingData='up';
-                                        var minus =currentWeek-pastWeek;
-                                        if(pastWeek>0){
-                                            var percentage =parseFloat(minus/pastWeek*100).toFixed(2);
-                                        }
-                                        else{
-                                            var percentage=currentWeek;
-                                        }
-
+                                    var comparingData, minus, percentage;
+                                    if(currentWeek > pastWeek){
+                                        comparingData = 'up';
+                                        minus = currentWeek - pastWeek;
+                                        if(pastWeek > 0)
+                                            percentage = parseFloat(minus / pastWeek * 100).toFixed(2);
+                                        else
+                                            percentage = currentWeek;
                                     }
-                                    else if(currentWeek<pastWeek){
-                                        var minus=pastWeek-currentWeek;
-                                        if(currentWeek>0) {
-                                            var percentage =parseFloat(minus / currentWeek * 100).toFixed(2);
-                                        }
-                                        else{
-                                            var percentage=0;
-                                        }
-                                        comparingData='down';
+                                    else if(currentWeek < pastWeek){
+                                        comparingData ='down';
+                                        minus = pastWeek - currentWeek;
+                                        if(pastWeek > 0)
+                                            percentage = parseFloat(minus / pastWeek * 100).toFixed(2);
+                                        else
+                                            percentage = 0;
                                     }
-                                    else{
-                                        var minus=pastWeek-currentWeek;
+                                    else {
+                                        var minus = pastWeek - currentWeek;
                                         var percentage = 0;
                                     }
 
@@ -1001,8 +993,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                                             'color': typeof widget.charts[charts].chartColour != 'undefined' ? (typeof widget.charts[charts].chartColour[items] != 'undefined'? widget.charts[charts].chartColour[items] : '') : '',  //color - optional: choose your own line color.
                                             'arrow':comparingData,
                                             'variance':percentage,
-                                            'period':granunality,
-                                            'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(summaryValue)) > 0 ? parseFloat(summaryValue).toFixed(2): Math.floor(summaryValue) == 0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue)
+                                            'period':granularity,
+                                            'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
                                         });
                                     }
                                     else if(chartType == 'area') {
@@ -1013,8 +1005,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                                             'color': typeof widget.charts[charts].chartColour != 'undefined' ? (typeof widget.charts[charts].chartColour[items] != 'undefined'? widget.charts[charts].chartColour[items] : '') : '',  //color - optional: choose your own line color.
                                             'arrow':comparingData,
                                             'variance':percentage,
-                                            'period':granunality,
-                                            'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(summaryValue)) > 0 ? parseFloat(summaryValue).toFixed(2): Math.floor(summaryValue) == 0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
+                                            'period':granularity,
+                                            'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
                                             'area': true
                                         });
                                     }
@@ -1026,8 +1018,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                                             'color': typeof widget.charts[charts].chartColour != 'undefined' ? (typeof widget.charts[charts].chartColour[items] != 'undefined'? widget.charts[charts].chartColour[items] : '') : '',  //color - optional: choose your own line color.
                                             'arrow':comparingData,
                                             'variance':percentage,
-                                            'period':granunality,
-                                            'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(summaryValue)) > 0 ? parseFloat(summaryValue).toFixed(2): Math.floor(summaryValue) == 0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
+                                            'period':granularity,
+                                            'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
                                         });
                                     }
                                 }

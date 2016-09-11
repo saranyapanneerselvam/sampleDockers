@@ -568,7 +568,7 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
                     $("#exportPDFModalContent").addClass('md-show');
                     $(".loadingStatus").hide();
                     $(".pdfHeadText").text('');
-                    $(".pdfContentText").html('<p id="butt"><b>Check your dashboard here : ' + '</b>' + sharingUrl + '</p>' + '<button class="btn" id="btnCopyLink" ' + 'data-clipboard-text=sharingUrl">' + '<img src="image/clippy.svg" width="13" alt="Copy to clipboard"></button>');
+                    $(".pdfContentText").html('<p id="butt" style="word-wrap: break-word;"><b>Check your dashboard here : ' + '</b>' + sharingUrl + '</p>' + '<button class="btn" id="btnCopyLink" ' + 'data-clipboard-text=sharingUrl">' + '<img src="image/clippy.svg" width="13" alt="Copy to clipboard"></button>');
                     $("#btnCopyLink").attr('data-clipboard-text', sharingUrl);
                     var clipboard = new Clipboard('.btn');
                     clipboard.on('success', function (e) {

@@ -131,8 +131,18 @@
                                                             </div>
                                                             <div class="box-content" style="vertical-align: middle" ng-style="{position:(isMobile?'static':'absolute')}">
                                                                 <div ng-if="aexppage.widgetData[widgetIndex].visibility == false">
-                                                                    <div class="errorWidgetData" id="errorWidgetData-{{widget.id}}">
-                                                                        <div class="row" style="margin: 0px;height: 100%">
+                                                                    <div  ng-if="aexppage.widgetData[widgetIndex].dataerror == true" >
+                                                                        <div class="row" style=" margin-top: 18%;height: 100%">
+                                                                            <div style="height:99%;">
+                                                                                <div style="position:relative; top:25%; text-align:center; padding-right:20px">
+                                                                                    <p style="word-wrap:break-word;font-size: 10px;">Access to one or more profiles has expired</p>
+                                                                                    <a ><i style="color: #23527c;" class="fa fa-refresh" aria-hidden="true"> </i><p style="color:#000;font-size: 10px">  Refresh</p></a>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div  ng-if="aexppage.widgetData[widgetIndex].dataerror == false" >
+                                                                        <div class="row" style="margin-top: 18%;height: 100%">
                                                                             <div style="height:99%;">
                                                                                 <div style="position:relative; top:36%; text-align:center; padding-right:20px">
                                                                                     <p style="word-wrap:break-word;font-size: 12px;">Your credential is insufficient to fetch data for this metric</p>

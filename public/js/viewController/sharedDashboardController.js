@@ -59,6 +59,7 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
         };
 
         $scope.fetchDateForDashboard();
+        
         //To define the calendar in dashboard header
         $scope.userModifyDate = function (startDate, endDate) {
             $scope.dashboardCalendar = new Calendar({

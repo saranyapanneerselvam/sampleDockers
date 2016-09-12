@@ -161,6 +161,7 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
             $scope.exportObject.widgetData.push(tWidData[m]);
         }
     }
+    
     $scope.expgridsterOptions = {
         margins: [20, 20],
         columns: 6,

@@ -79,6 +79,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 }
             });
         };
+        
         function storeDateInDb(start_date, end_date, changeInDb) {
             var jsonData = {
                 dashboardId: $state.params.id,

@@ -5,7 +5,7 @@
                 <div class="col col-sm-12" id="CustomTemplate">
                     <div class="dashboardTemplate-items">
                         <div class="col-sm-3 dashboardName">
-                            <a title="Click to rename this Dashboard" id='reset-btn' href="#" ng-model="dashboardName" editable-text="dashboard.dashboardName" buttons="no"  onaftersave="changeDashboardName()"  e-maxlength="35">
+                            <a title="Click to rename this Dashboard" id='reset-btn' href="#" ng-model="dashboardName" editable-text="dashboard.dashboardName"   onaftersave="changeDashboardName()"  e-maxlength="35">
                                 <pre ng-style="!dashboard.dashboardName  && {'color':'#999'}  || dashboard.dashboardName && {'color':'#000'}">{{dashboard.dashboardName || 'Name your dashboard'}}</pre>
                                 <i class="fa fa-pencil hover-icon" aria-hidden="true" style="font-size: 1.5em;margin-top: 6px;color:#000;display:none"></i>
                             </a>
@@ -51,7 +51,7 @@
                                     <h3 ng-style="widget.sizeX!=1  && {'width':'80%'}  || widget.sizeX==1 && {'width':'50%'} "><a title="Click to Rename this widget" style="float:left;border-bottom:0px!important;padding:7px!important;color:#000!important" href="#" editable-text="dashboard.widgetData[widgetIndex].name" buttons="no" onaftersave="changeWidgetName(widget,dashboard.widgetData[widgetIndex].name)"  e-maxlength="35">
                                             <span>{{dashboard.widgetData[widgetIndex].name || 'Name your widget'}}</span>
                                             <!--
-                                                                                        <i class="fa fa-pencil hover-icon" aria-hidden="true" ng-style="widget.sizeX>2  &&{'margin-top': '-15px','float':'right','margin-left': '100%'} || widget.sizeX==1  &&{'margin-top': '-16px','float':'none','position': 'relative','margin-left': '5%'} || widget.sizeX==2  &&{'margin-top': '-15px','float':'none','margin-left': '125px'}" style="font-size: 1em;color:#000;display:none"></i>
+                                              <i class="fa fa-pencil hover-icon" aria-hidden="true" ng-style="widget.sizeX>2  &&{'margin-top': '-15px','float':'right','margin-left': '100%'} || widget.sizeX==1  &&{'margin-top': '-16px','float':'none','position': 'relative','margin-left': '5%'} || widget.sizeX==2  &&{'margin-top': '-15px','float':'none','margin-left': '125px'}" style="font-size: 1em;color:#000;display:none"></i>
                                             -->
                                         </a>
                                     </h3>
@@ -96,11 +96,11 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row getWidgetGraph" style="height: 100%;margin:0px;" ng-if="dashboard.widgetData[widgetIndex].visibility == true" chart-height>
+                                <div class="row getWidgetGraph" style="height: 100%;margin:0px;" ng-if="dashboard.widgetData[widgetIndex].visibility == true">
                                     <div ng-repeat="(chartIndex,chart) in dashboard.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'lineChart'  || chart.options.chart.type=== 'pieChart' || chart.options.chart.type=== 'multiBarChart' || chart.options.chart.type=== 'multiChart'" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/dashboard.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/dashboard.widgetData[widgetIndex].layoutOptionsX)+'%'}">
                                         <div class="row scrollbar scroller" style="margin:0px;"  ng-style="calculateSummaryHeight(widget.sizeY,chart.data.length)">
                                             <ul style="height:100%;font-size:12px;padding-left: 5px;">
-                                                <li  ng-repeat="data in chart.data" size-watcher size-watcher-height="data.myheight" size-Watcher-Width="chart.data" ng-class="calculateColumnWidth(chart.data.length,widget.sizeX,dashboard.widgetData[widgetIndex].chart.length)" ng-style="calculateRowHeight(data,widget.sizeX,dashboard.widgetData[widgetIndex].chart.length)" style="text-align: center;padding-top: 1px;padding-left:0px;padding-right: 2px;font-size: 1.0em!important;" id="li-{{widget.id}}-{{$index}}" ><!--size-watcher-width="data.mywidth"-->
+                                                <li  ng-repeat="data in chart.data" ng-class="calculateColumnWidth(chart.data.length,widget.sizeX,dashboard.widgetData[widgetIndex].layoutOptionsX)" ng-style="calculateRowHeight(data,chart.data.length,widget.sizeX,widget.sizeY,dashboard.widgetData[widgetIndex].layoutOptionsX)" style="text-align: center;padding-top: 1px;padding-left:0px;padding-right: 2px;font-size: 1.0em!important;" id="li-{{widget.id}}-{{$index}}" ><!--size-watcher-width="data.mywidth"-->
                                                     <div style="margin: 0px;height: 100%;overflow: hidden;white-space: nowrap;color: #000000;text-align: center;">
                                                         <p ng-show="data.showComparision==false" ng-style="{'color': '#979797', 'font-family' : 'Heebo-Medium','font-size':'10px', 'text-transform':'uppercase', 'background-color': 'whitesmoke', 'border-bottom': '4px solid', 'border-color': data.color, 'padding-left': '3px', 'border-right': '3px solid white'}" style="margin:0px 0px 3px!important;font-weight: bold;"> {{data.key}} - {{data.summaryDisplay}}</p>
                                                         <p ng-show="data.showComparision==true" ng-style="{'color': '#979797', 'font-family' : 'Heebo-Medium','font-size':'14px', 'text-transform':'uppercase', 'background-color': 'whitesmoke', 'border-bottom': '4px solid', 'border-color': data.color, 'padding-left': '3px', 'border-right': '3px solid white'}" style="margin:0px 0px 3px!important;font-weight: bold;"> {{data.key}}</p>

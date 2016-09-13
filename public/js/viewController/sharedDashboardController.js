@@ -21,7 +21,8 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
         $scope.fetchDateForDashboard = function () {
             $http({
                 method: 'GET',
-                url: '/api/v1/get/dashboards/' + $state.params.id
+                url: '/api/v1/get/dashboards/' + null,
+                params: {dashboardId:$state.params.id}
             }).then(
                 function successCallback(response) {
                     if (response.status == 200) {

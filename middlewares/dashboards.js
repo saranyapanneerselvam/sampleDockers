@@ -62,8 +62,21 @@ exports.getDashboardList = function (req, res, next) {
  * @param req contains the dashboard id
  */
 exports.getDashboardDetails = function (req, res, next) {
-    var dashboardId = req.params.dashboardId;
-    if (req.user) {
+        if (req.user && req.query.dashboardId===undefined) {
+        var dashboardId = req.params.dashboardId;
+        dashboardList.findOne({'_id': dashboardId}, function (err, dashboardDetails) {
+            if (err)
+                return res.status(500).json({error: 'Internal server error'});
+            else if (!dashboardDetails)
+                return res.status(204).json({error: 'No records found'});
+            else {
+                req.app.result = dashboardDetails;
+                next();
+            }
+        })
+    }
+        else if(String(req.params.dashboardId) === String(null)){
+        var dashboardId = req.query.dashboardId;
         dashboardList.findOne({'_id': dashboardId}, function (err, dashboardDetails) {
             if (err)
                 return res.status(500).json({error: 'Internal server error'});

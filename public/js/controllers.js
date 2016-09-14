@@ -983,7 +983,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                                         }
                                     }
 
-
                                     var endpointDisplayCode = widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items];
                                     if(chartType == 'line' || chartType == 'bar') {
                                         widgetCharts.push({

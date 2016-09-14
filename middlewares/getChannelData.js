@@ -2570,7 +2570,7 @@ exports.getChannelData = function (req, res, next) {
                     .catch(function (error) {
                         semaphore.leave();
 
-                        if(typeof error !== 'object'){
+                        if(typeof error !== 'object' || error.status == 400){
                             profile.update({_id: results.profile._id}, {
                                 hasNoAccess:true
                             }, function(err, response) {
@@ -3336,6 +3336,22 @@ exports.getChannelData = function (req, res, next) {
             if (result.query === configAuth.instagramStaticVariables.user) {
                 ig.user(result.profile.userId, function (err, results, remaining, limit) {
                     if (err) {
+                             if(err.code === 400){
+                                 profile.update({_id: result.profile._id}, {
+                                     hasNoAccess:true
+                                 }, function(err, response) {
+                                     if(!err){
+                                         return res.status(401).json({
+                                             error: 'Authentication required to perform this action',
+                                             id: req.params.widgetId,
+                                             errorstatusCode:1003
+                                         });
+                                     }
+                                     else
+                                         return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
+                                 })
+                             }
+                        else
                         return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
                     }
                     else {

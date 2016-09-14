@@ -365,8 +365,23 @@ module.exports = {
         links:'links',
         page_authority:'page_authority',
         domain_authority:'domain_authority'
+    },
+    emailVerification:{
+        validity:24*60*60*1000,
+        duration:2,
+        validityForForgotPassword:24,
+        length:8,
+        charSet:'alphanumeric',
+        service:'Zoho',
+        username: 'alerts@datapoolt.co',
+        password: 'DaTaPoOlT',
+        redirectLink:'https://uat.datapoolt.co/api/v1/emailVerification?token=',
+        verified:'verified',
+        alreadyVerified:'alreadyVerified',
+        mailResend:'mailResend',
+        redirectVerifyUserToken:'https://uat.datapoolt.co/verifyUserToken?token=',
+        inValid:'Invalid'
     }
-
 
 };
 

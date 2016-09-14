@@ -13,8 +13,7 @@ var userSchema = mongoose.Schema({
     emailVerified: Boolean,
     emailVerification: {
         tokenId: String,
-        expires: Date,
-        used: Boolean
+        expires: Date
     },
     passwordReset: {
         tokenId: String,

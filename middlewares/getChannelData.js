@@ -2570,7 +2570,7 @@ exports.getChannelData = function (req, res, next) {
                     .catch(function (error) {
                         semaphore.leave();
 
-                        if(typeof error !== 'object' || error.status == 400){
+                        if(typeof error !== 'object'){
                             profile.update({_id: results.profile._id}, {
                                 hasNoAccess:true
                             }, function(err, response) {

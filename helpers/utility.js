@@ -52,34 +52,13 @@ var self = module.exports = {
         })
     },
     findObjectsForProfile: function (req, res, done) {
-        var metaString = {};
-        var condition;
-        for (var index in req.query.metaCondition) {
-            metaString[index] = req.query.metaCondition[index];
-        }
-        metaString.profileId = req.params.profileID;
-        console.log('metaString', req.query.objectTypeId)
-        if (req.query.metaCondition === undefined && req.query.objectTypeId != undefined) {
-            condition = {profileId: req.params.profileID, objectTypeId: req.query.objectTypeId};
-            //metaString.objectTypeId = req.query.objectTypeId;
-            condition = metaString;
-        }
-        else if (req.query.metaCondition != undefined) {
-            condition = {profileId: req.params.profileID, meta: req.query.metaCondition};
-            //if(req.query.objectTypeId) metaString.objectTypeId = req.query.objectTypeId;
-            condition = metaString;
-        }
-        else {
-            //if(req.query.objectTypeId) metaString.objectTypeId = req.query.objectTypeId;
-            condition = metaString;
-        }
-
-
+        if(req.query.metaCondition === undefined && req.query.objectTypeId!=undefined){var condition = {profileId: req.params.profileID,objectTypeId:req.query.objectTypeId};}
+        else if(req.query.metaCondition!=undefined) {var condition={profileId: req.params.profileID,meta:req.query.metaCondition};}
+        else {var condition = {profileId: req.params.profileID};}
         objectList.find(condition, function (err, objects) {
             if(err) done(err);
             else if (objects != null && objects.length > 0) {
                 req.profileId = objects[0].profileId;
-
                 channelHelper.getChannelDetails(req, res, function (err, channel) {
                     if (err)
                         return res.status(500).json({error: 'Internal server error'});

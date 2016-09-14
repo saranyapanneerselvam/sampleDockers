@@ -291,7 +291,7 @@ module.exports = {
         authorizationPath: 'v2/authorization'
     },
     'batchJobs':{
-        dataBase:"mongodb://saranya:saranya@ds031975.mlab.com:31975/datapooltlocal",
+        dataBase:"mongodb://admin:admin@localhost:27017/datapoolt_19082016",
         mail:{
             user: 'rajalakshmi.c@habile.in',
             password: 'habile3238'
@@ -363,8 +363,23 @@ module.exports = {
         links:'links',
         page_authority:'page_authority',
         domain_authority:'domain_authority'
+    },
+    emailVerification:{
+        validity:24*60*60*1000,
+        duration:2,
+        validityForForgotPassword:24,
+        length:8,
+        charSet:'alphanumeric',
+        service:'Gmail',
+        username: 'rajalakshmi.c@habile.in',
+        password: 'habile3238',
+        redirectLink:'http://localhost:8080/api/v1/emailVerification?token=',
+        verified:'verified',
+        alreadyVerified:'alreadyVerified',
+        mailResend:'mailResend',
+        redirectVerifyUserToken:'http://localhost:8080/verifyUserToken?token=',
+        inValid:'Invalid'
     }
-
 
 };
 

@@ -31,7 +31,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             }).then(
                 function successCallback(response) {
                     if (response.status == 200) {
-                        console.log(response.data.startDate, response.data.endDate);
                         var diffWithStartDate = dayDiff(response.data.startDate, new Date());
                         var diffWithEndDate = dayDiff(response.data.endDate, new Date());
                         var changeInDb = true;

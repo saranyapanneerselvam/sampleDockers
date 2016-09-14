@@ -57,6 +57,7 @@
     "pdfkit": "0.7.2",
     "phantomjs": "*",
     "q": "*",
+    "randomstring": "^1.1.5",
     "request": "^2.69.0",
     "semaphore": "*",
     "simple-oauth2": "^0.5.1",

@@ -21,7 +21,8 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
         $scope.fetchDateForDashboard = function () {
             $http({
                 method: 'GET',
-                url: '/api/v1/get/dashboards/' + $state.params.id
+                url: '/api/v1/get/dashboards/' + null,
+                params: {dashboardId:$state.params.id}
             }).then(
                 function successCallback(response) {
                     if (response.status == 200) {
@@ -45,7 +46,6 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
                         else {
                             $scope. startDate = response.data.startDate;
                             $scope. endDate = response.data.endDate;
-                            console.log('else',$scope.startDate, $scope.endDate);
                             $scope.userModifyDate($scope.startDate, $scope.endDate);
                         }
                     }
@@ -181,47 +181,90 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
                 };
             }
         });
+        $scope.calculateColumnWidth = function(noOfItems,widgetWidth,noOfCharts) {
 
-        $scope.calculateColumnWidth = function(x) {
+            widgetWidth = Math.floor(widgetWidth/noOfCharts);
+            if(widgetWidth < 1)
+                widgetWidth = 1;
 
-            if(x<=2)
+            if(widgetWidth==1)
                 return ('col-sm-'+12+' col-md-'+12+' col-lg-'+12);
-            else if(x>2 && x<=4)
+            else {
+                if(widgetWidth==2){
+                    if(noOfItems<=2)
+                        return ('col-sm-'+12+' col-md-'+12+' col-lg-'+12);
+                    else
+                        return ('col-sm-'+6+' col-md-'+6+' col-lg-'+6);
+                }
+                else {
+                    if (noOfItems <= 2)
+                        return ('col-sm-' + 12 + ' col-md-' + 12 + ' col-lg-' + 12);
+                    else if (noOfItems > 2 && noOfItems <= 4)
                 return ('col-sm-'+6+' col-md-'+6+' col-lg-'+6);
             else
                 return ('col-sm-'+4+' col-md-'+4+' col-lg-'+4);
+                }
+            }
         };
 
-        $scope.calculateRowHeight = function(availableHeight,noOfItems,widget) {
+        $scope.calculateRowHeight = function(data,noOfItems,widgetWidth,widgetHeight,noOfCharts) {
+            widgetWidth = Math.floor(widgetWidth/noOfCharts);
+            if(widgetWidth < 1)
+                widgetWidth = 1;
 
             var cols;
+
+            if(widgetWidth == 1)
+                cols =1;
+            else {
+                if(widgetWidth == 2){
+                    if(noOfItems <= 2)
+                        cols=1;
+                    else
+                        cols =2;
+                }
+                else {
             if(noOfItems<=2)
                 cols = 1;
             else if(noOfItems>2 && noOfItems<=4)
                 cols = 2;
             else
                 cols = 3;
-
-            //var cols = $window.innerWidth>=768 ? 2 : 1;
-            var rows = Math.ceil(noOfItems/cols);
-            var heightPercent = 100/rows;
-            var fontSizeEm = availableHeight/100*4.5;
-            var minSize = 0.7, maxSize=1.35;
-            if(fontSizeEm<minSize)
-                fontSizeEm=minSize;
-            else if(fontSizeEm>maxSize)
-                fontSizeEm=maxSize;
-            else if((noOfItems>4)&&widget.sizeX==1){
-                if(widget.sizeY==1)
-                    fontSizeEm=minSize;
-                else if(widget.sizeY==2)
-                    fontSizeEm = 0.9;
-                else {
-                    fontSizeEm=1.1;
                 }
             }
-            return {'height':(heightPercent+'%'),'font-size':(fontSizeEm+'em')};
+            if(cols === 1){
+                if(widgetHeight > 1 && noOfItems <= 2)
+                    data.showComparision = true;
+                else
+                    data.showComparision = false;
+            }
+            else
+                data.showComparision = true;
         };
+
+        $scope.calculateSummaryHeight = function(widgetHeight,noOfItems) {
+            var heightPercent;
+
+            if(noOfItems==1 && widgetHeight ==1)
+                heightPercent = 20;
+            else
+                heightPercent = 100 / widgetHeight;
+            return {'height': (heightPercent + '%')};
+
+        };
+
+        $scope.calculateChartHeight = function(widgetHeight,noOfItems) {
+            var heightPercent;
+            if(noOfItems==1 && widgetHeight ==1)
+                heightPercent = 80;
+            else
+                heightPercent = 100-(100/widgetHeight);
+            return {'height':(heightPercent+'%')};
+
+
+        };
+
+
     };
 
     //To populate all the widgets in a dashboard when the dashboard is refreshed or opened or calendar date range in the dashboard header is changed
@@ -311,17 +354,25 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
                                         $scope.loadedWidgetCount++;
                                     },
                                     function errorCallback(error) {
+                                        if(error.status === 401) {
+                                            $("#widgetData-"+error.data.id).hide();
+                                            if (error.data.errorstatusCode === 1003) {
+                                                $("#widgetData-"+error.data.id).hide();
+                                                $("#errorWidgetData-"+error.data.id).hide();
+                                                $("#errorWidgetTokenexpire-" + error.data.id).show();
+                                                $scope.widgetErrorCode=1;
+                                                $scope.loadedWidgetCount++;
+                                                isExportOptionSet = 0;
+                                            }
+                                        }else{
                                         $scope.loadedWidgetCount++;
                                         if (typeof error.data.id != 'undefined') {
                                             $("#widgetData-" + error.data.id).hide();
                                             $("#errorWidgetData-" + error.data.id).show();
+                                                $("#errorWidgetTokenexpire-" + error.data.id).hide();
                                             isExportOptionSet = 0;
                                         }
-                                        swal({
-                                            title: '',
-                                            text: '<span style = "sweetAlertFont">Error in populating widgets! Please refresh the dashboard again</span>',
-                                            html: true
-                                        });
+                                        }
                                     }
                                 );
                             }

@@ -4,6 +4,10 @@
 var LocalStrategy = require('passport-local').Strategy;
 var FacebookStrategy = require('passport-facebook').Strategy;
 var TwitterStrategy = require('passport-twitter').Strategy;
+// to create a random string
+var randomString = require("randomstring");
+// to send mail
+var nodemailer = require('nodemailer');
 //var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 var GoogleTokenProvider = require('refresh-token').GoogleTokenProvider;
 
@@ -12,6 +16,7 @@ var Organization = require('../models/organizations');
 
 // load up the user model
 var User = require('../models/user');
+var  utility= require('../helpers/utility');
 
 // load the auth variables
 var configAuth = require('./../config/auth');
@@ -77,6 +82,9 @@ module.exports = function (passport) {
                             if (err)
                                 return done(err);
                             else {
+                                //create token and expiry
+                                var tokenId=response._id+new Date().getTime()+randomString.generate({length: configAuth.emailVerification.length, charset: configAuth.emailVerification.charSet})+new Date().getMilliseconds();
+                                var tokenExpiry=new Date().getTime()+configAuth.emailVerification.validity;
                                 // create the user
                                 var newUser = new User();
                                 // set the user's local credentials
@@ -85,6 +93,9 @@ module.exports = function (passport) {
                                 newUser.pwdHash = newUser.generateHash(req.body.password);
                                 newUser.phoneNo = newUser.phone;
                                 newUser.orgId = response._id;
+                                newUser.emailVerified=false;
+                                newUser.emailVerification.expires=tokenExpiry;
+                                newUser.emailVerification.tokenId=tokenId;
                                 newUser.created = new Date();
                                 newUser.updated = new Date();
 
@@ -92,7 +103,30 @@ module.exports = function (passport) {
                                 newUser.save(function (err, user) {
                                     if (err)
                                         return done(err);
-                                    return done(null, user);
+                                    else {
+                                        var mailOptionsSubmitter = {
+                                            from: 'Datapoolt Invites <configAuth.emailVerification.username>',
+                                            to: user.email,
+                                            subject: user.name + ', we\'ve received your request for an invite' ,
+                                            // HTML Version
+                                            html: '<p>Hi ' + user.name + ',</p>' +
+                                            '<p> We have received your request for an invite.Click link below to activate your account</p><br><button style="background-color: #1a8bb3;border-radius: 12px;color:#fff;font-size: 24px;"><a style="text-decoration: none;color:#fff" href="'+configAuth.emailVerification.redirectLink+user.emailVerification.tokenId+'">Click to Activate</a></button> <p>Thanks for trying us out. Cheers!</p>'
+                                        };
+                                        utility.sendVerificationMail(mailOptionsSubmitter,function(err){
+                                            if(err){
+                                                User.remove({_id: user._id}, function (err,result){
+                                                    if (err)
+                                                        return res.status(500).json({error: 'Internal server error'});
+                                                    else if (!result)
+                                                        return res.status(501).json({error: 'Not implemented'});
+                                                    else
+                                                        return done(null, false, req.flash('signupMessage', 'Failed to send email.Try to signup again'));
+                                                });
+                                            }
+                                            else
+                                                return done(null, newUser,req.flash('signupMessage','Please check your mail for activation link'));
+                                        })
+                                    }
                                 });
                             }
                             //return done(null, newUser);
@@ -134,7 +168,9 @@ module.exports = function (passport) {
                 // if no user is found, return the message
                 if (!user)
                     return done(null, false, req.flash('loginMessage', 'No user found.')); // req.flash is the way to set flashdata using connect-flash
-
+                //if user is not verified
+                if(user.emailVerified==false)
+                    return done(null, false, req.flash('loginMessage', 'User not Verified'));
                 // if the user is found but the password is wrong
                 if (!user.validPassword(req.body.password))
                     return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.')); // create the loginMessage and save it to session as flashdata

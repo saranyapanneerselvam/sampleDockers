@@ -55,8 +55,6 @@ var self = module.exports = {
         if(req.query.metaCondition === undefined && req.query.objectTypeId!=undefined){var condition = {profileId: req.params.profileID,objectTypeId:req.query.objectTypeId};}
         else if(req.query.metaCondition!=undefined) {var condition={profileId: req.params.profileID,meta:req.query.metaCondition};}
         else {var condition = {profileId: req.params.profileID};}
-
-
         objectList.find(condition, function (err, objects) {
             if(err) done(err);
             else if (objects != null && objects.length > 0) {
@@ -99,6 +97,21 @@ var self = module.exports = {
                     done(null, 'success')
                 })
             }
+        });
+    },
+    sendVerificationMail: function(mailOptions,done){
+        transporter.sendMail(mailOptions, function (error, info) {
+            if (error) done(error)
+            else {
+                done(null,'success')
+            }
+        });
+    },
+    getObjectsBasedAccountId: function (req, res, done) {
+        objectList.findOne({profileId: req.profileId, channelObjectId: req.getObjectId}, function (err, object) {
+            if (err) return res.status(500).json({error: err});
+            else if (!object) return res.status(204).json({error: 'No records found'});
+            else done(null, object)
         });
     }
 };

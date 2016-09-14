@@ -352,8 +352,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                         {
                             if($scope.dashboard.widgetData[i].chart.length===0){
                                 if($scope.dashboard.widgetData[i].visibility==false){
-
-                                    if($scope.widgetErrorCode === 1){
+                                    if($scope.dashboard.widgetData[i].dataerror === true){
                                         $("#widgetData-"+$scope.dashboard.widgetData[i].id).hide();
                                         $("#errorWidgetData-"+$scope.dashboard.widgetData[i].id).hide();
                                         $("#errorWidgetTokenexpire-" + $scope.dashboard.widgetData[i].id).show()
@@ -401,8 +400,10 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
         $scope.calculateColumnWidth = function(noOfItems,widgetWidth,noOfCharts) {
 
-            if(noOfCharts<=3)
-                widgetWidth = Math.ceil(widgetWidth/noOfCharts);
+            widgetWidth = Math.floor(widgetWidth/noOfCharts);
+            
+            if(widgetWidth < 1)
+                widgetWidth = 1;
             if(widgetWidth==1)
                 return ('col-sm-'+12+' col-md-'+12+' col-lg-'+12);
             else {
@@ -423,11 +424,11 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             }
         };
 
-        $scope.calculateRowHeight = function(data,widgetWidth,noOfCharts) {
-            var availableHeight = data.myheight;
-            var noOfItems = data.length;
-            if(noOfCharts<=3)
-                widgetWidth = Math.ceil(widgetWidth/noOfCharts);
+        $scope.calculateRowHeight = function(data,noOfItems,widgetWidth,widgetHeight,noOfCharts) {
+            widgetWidth = Math.floor(widgetWidth/noOfCharts);
+            if(widgetWidth < 1)
+                widgetWidth = 1;
+
             var cols;
 
             if(widgetWidth==1)
@@ -448,52 +449,32 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                         cols = 3;
                 }
             }
-            // console.log("No.of charts",noOfCharts,"Widget Width",widgetWidth,"No of Cols",cols);
-            if(cols==1)
+            if(cols === 1){
+                if(widgetHeight > 1 && noOfItems <= 2)
+                    data.showComparision = true;
+                else
                 data.showComparision = false;
+            }
             else
                 data.showComparision = true;
-            //var cols = $window.innerWidth>=768 ? 2 : 1;
-            var rows = Math.ceil(noOfItems/cols);
-            var heightPercent = 100/rows;
-            var fontSizeEm = availableHeight/100*5;
-            var minSize = 0.7, maxSize=1.35;
-            if(fontSizeEm<minSize)
-                fontSizeEm=minSize;
-            if(fontSizeEm>maxSize)
-                fontSizeEm=maxSize;
-            // return {'height':(heightPercent+'%'),'font-size':(fontSizeEm+'em')};
-            return {'height':(heightPercent+'%')};
         };
 
         $scope.calculateSummaryHeight = function(widgetHeight,noOfItems) {
             var heightPercent;
-            if(widgetHeight<=1) {
-                if(noOfItems==1)
+            if(noOfItems==1 && widgetHeight ==1)
                     heightPercent = 20;
                 else
                     heightPercent = 100 / widgetHeight;
                 return {'height': (heightPercent + '%')};
-            }
-            else {
-                heightPercent = 100 / widgetHeight;
-                return {'height':(heightPercent+'%')};
-            }
         };
 
         $scope.calculateChartHeight = function(widgetHeight,noOfItems) {
             var heightPercent;
-            if(widgetHeight<=1) {
-                if(noOfItems==1)
+                if(noOfItems==1 && widgetHeight ==1)
                     heightPercent = 80;
                 else
                     heightPercent = 100-(100/widgetHeight);
                 return {'height':(heightPercent+'%')};
-            }
-            else {
-                heightPercent = 100-(100/widgetHeight);
-                return {'height': (heightPercent + '%')};
-            }
         };
 
     };
@@ -554,6 +535,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                             'id':  dashboardWidgetList[getWidgetInfo]._id,
                             'chart': [],
                             'visibility': false,
+                            'dataerror':false,
                             'name': (typeof dashboardWidgetList[getWidgetInfo].name != 'undefined'? dashboardWidgetList[getWidgetInfo].name : ''),
                             'color': (typeof dashboardWidgetList[getWidgetInfo].color != 'undefined'? dashboardWidgetList[getWidgetInfo].color : '')
                         });
@@ -567,6 +549,10 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                             function errorCallback(error){
                                 if(error.status === 401) {
                                     if (error.data.errorstatusCode === 1003) {
+                                        k = $scope.dashboard.widgetData.map(function(e) { return e.id; }).indexOf(error.data.id);
+                                        if(k !== -1 ){
+                                            $scope.dashboard.widgetData[k].dataerror=true;
+                                        }
                                         $("#widgetData-"+error.data.id).hide();
                                         $("#errorWidgetData-"+error.data.id).hide();
                                         $("#errorWidgetTokenexpire-" + error.data.id).show();
@@ -645,6 +631,10 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             function errorCallback(error){
                 if(error.status === 401) {
                     if (error.data.errorstatusCode === 1003) {
+                        k = $scope.dashboard.widgetData.map(function(e) { return e.id; }).indexOf(error.data.id);
+                        if(k !== -1 ){
+                            $scope.dashboard.widgetData[k].dataerror=true;
+                        }
                         $("#widgetData-" + widget._id).hide();
                         $("#errorWidgetData-" + widget._id).hide();
                         $("#errorWidgetTokenexpire-" + widget._id).show();

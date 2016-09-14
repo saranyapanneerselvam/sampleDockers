@@ -201,38 +201,136 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
     });
 
 
-    $scope.calcColumnWidth = function (x) {
+    $scope.calcColumnWidth = function (noOfItems,widgetWidth,widgetHeight) {
 
-        if (x <= 2)
+        if (noOfItems <= 2)
             return ('col-sm-' + 12 + ' col-md-' + 12 + ' col-lg-' + 12);
-        else if (x > 2 && x <= 4)
+        else if (noOfItems > 2 && noOfItems <= 4)
             return ('col-sm-' + 6 + ' col-md-' + 6 + ' col-lg-' + 6);
+        else if (noOfItems > 5 && noOfItems <= 9)
+        {
+            if(widgetWidth==1 && widgetHeight!=1)
+            return ('col-sm-' + 6 + ' col-md-' + 6 + ' col-lg-' + 6);
+        else
+            return ('col-sm-' + 4 + ' col-md-' + 4 + ' col-lg-' + 4);
+        }
         else
             return ('col-sm-' + 4 + ' col-md-' + 4 + ' col-lg-' + 4);
     };
 
-    $scope.calcRowHeight = function (availableHeight, noOfItems) {
+    $scope.calcRowHeight = function (data,noOfItems,widgetWidth,widgetHeight,layoutHeight) {
+        // var availableHeight = data.myheight;
+        var fontSizeEm;
         var cols;
-        if (noOfItems <= 2)
+        if (noOfItems <= 2) {
             cols = 1;
-        else if (noOfItems > 2 && noOfItems <= 4)
+            fontSizeEm = 1.0;
+        }
+        else if (noOfItems > 2 && noOfItems <= 4) {
             cols = 2;
-        else
+            fontSizeEm = 0.85;
+        }
+        else if (noOfItems > 5 && noOfItems <= 9) {
+            if (widgetWidth == 1 && widgetHeight != 1) {
+                cols = 2;
+                fontSizeEm = 0.85;
+            }
+            else {
+                cols = 3;
+                fontSizeEm = 0.7;
+            }
+        }
+        else {
             cols = 3;
+            fontSizeEm = 0.7;
+        }
+        // console.log("No.of charts",noOfCharts,"Widget Width",widgetWidth,"No of Cols",cols);
+        if(widgetWidth === 1 || noOfItems > 15 ||widgetHeight === 1||layoutHeight>1)
+            data.showComparision = false;
+        else
+            data.showComparision = true;
+
+
         //var cols = $window.innerWidth>=768 ? 2 : 1;
         var rows = Math.ceil(noOfItems / cols);
         var heightPercent = 100 / rows;
         // var rowHeight = document.getElementById('chartRowHeight-'+widgetId).offsetHeight;
         // var rHeight = rowHeight;
         //  var availableHeight = Math.floor(rHeight/rows);
-        var fontSizeEm = availableHeight / 100 * 3.5;
-        var minSize = 0.7, maxSize = 1.2;
+        // var fontSizeEm = availableHeight / 100 * 3.5;
+
+
+        var minSize = 0.7, maxSize = 1.0;
         if (fontSizeEm < minSize)
             fontSizeEm = minSize;
         if (fontSizeEm > maxSize)
             fontSizeEm = maxSize;
         return {'height': (heightPercent + '%'), 'font-size': (fontSizeEm + 'em')};
     };
+
+    $scope.calculateSummaryHeight = function(widgetHeight,noOfItems) {
+        var heightPercent;
+        if(widgetHeight<=1) {
+            if(noOfItems==1)
+                heightPercent = 20;
+            else
+                heightPercent = 100;
+        }
+        else if(widgetHeight==2){
+            if(noOfItems==1)
+                heightPercent = 20;
+            else if(noOfItems<=4&&noOfItems>1)
+                heightPercent = 30;
+            else
+            heightPercent = 50;
+
+        }
+        else {
+            if(noOfItems==1)
+                heightPercent = 20;
+            else if(noOfItems<=4&&noOfItems>1)
+                heightPercent = 30;
+            else if(noOfItems<=9&&noOfItems>5)
+                heightPercent = 40;
+            else if(noOfItems<=15&&noOfItems>10)
+                heightPercent = 50;
+            else
+                heightPercent = 60;
+        }
+        return {'height':(heightPercent+'%')};
+    };
+
+    $scope.calculateChartHeight = function(widgetHeight,noOfItems) {
+        var heightPercent;
+        if(widgetHeight<=1) {
+            if(noOfItems==1)
+                heightPercent = 80;
+            else
+                heightPercent = 0;
+        }
+        else if(widgetHeight==2){
+            if(noOfItems==1)
+                heightPercent = 80;
+            else if(noOfItems<=4&&noOfItems>1)
+                heightPercent = 70;
+            else
+                heightPercent = 50;
+        }
+        else {
+            if(noOfItems==1)
+                heightPercent = 80;
+            else if(noOfItems<=4&&noOfItems>1)
+                heightPercent = 70;
+            else if(noOfItems<=9&&noOfItems>5)
+                heightPercent = 60;
+            else if(noOfItems<=15&&noOfItems>10)
+                heightPercent = 50;
+            else
+                heightPercent = 40;
+        }
+        return {'height':(heightPercent+'%')};
+    };
+
     var vm = this;
     $scope.pdfPrintPreview = function (opt) {
         $scope.expAct = opt;
@@ -299,9 +397,9 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
             pageWidgets.sizeLeft = [4, 4, 4, 4, 4, 4];
             loop4: for (var getWidgetInfo in tempWidgetList1) {
                 var caninsert = 1;
-                if (tempWidgetList1[getWidgetInfo].sizeY < 2) {
-                    tempWidgetList1[getWidgetInfo].sizeY = 2;
-                }
+                // if (tempWidgetList1[getWidgetInfo].sizeY < 2) {
+                //     tempWidgetList1[getWidgetInfo].sizeY = 2;
+                // }
                 var pos = tempWidgetList1[getWidgetInfo].col;
                 var checkpos = pos + tempWidgetList1[getWidgetInfo].sizeX - 1;
                 for (var p = pos; p <= checkpos; p++) {
@@ -311,6 +409,16 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
                         caninsert *= 0;
                 }
                 if (caninsert == 1) {
+
+                    for(var ind=0;ind<tempWidgetDataList1[getWidgetInfo].chart.length;ind++) {
+                        if (tempWidgetDataList1[getWidgetInfo].chart[ind].data.length > 15) {
+                            tempWidgetList1[getWidgetInfo].sizeY = 3;
+                            if (tempWidgetDataList1[getWidgetInfo].chart[ind].data.length > 30) {
+                                tempWidgetList1[getWidgetInfo].sizeY = 4;
+                            }
+                        }
+                    }
+
                     pageWidgets.widgets.push({
                         'row': (typeof tempWidgetList1[getWidgetInfo].row != 'undefined' ? tempWidgetList1[getWidgetInfo].row : 0),
                         'col': tempWidgetList1[getWidgetInfo].col,
@@ -568,7 +676,7 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
                     $("#exportPDFModalContent").addClass('md-show');
                     $(".loadingStatus").hide();
                     $(".pdfHeadText").text('');
-                    $(".pdfContentText").html('<p id="butt"><b>Check your dashboard here : ' + '</b>' + sharingUrl + '</p>' + '<button class="btn" id="btnCopyLink" ' + 'data-clipboard-text=sharingUrl">' + '<img src="image/clippy.svg" width="13" alt="Copy to clipboard"></button>');
+                    $(".pdfContentText").html('<p id="butt" style="word-wrap: break-word;"><b>Check your dashboard here : ' + '</b>' + sharingUrl + '</p>' + '<button class="btn" id="btnCopyLink" ' + 'data-clipboard-text=sharingUrl">' + '<img src="image/clippy.svg" width="13" alt="Copy to clipboard"></button>');
                     $("#btnCopyLink").attr('data-clipboard-text', sharingUrl);
                     var clipboard = new Clipboard('.btn');
                     clipboard.on('success', function (e) {

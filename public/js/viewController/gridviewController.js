@@ -2,7 +2,7 @@ showMetricApp.controller('GridviewController', GridviewController);
 
 function GridviewController($scope,$http) {
     $scope.dashboardList = null;
-    $scope.gridloading=false;
+    $scope.gridloading=true;
     $(".navbar").css('z-index','1');
     $(".md-overlay").css("background","rgba(0,0,0,0.5)");
     $scope.fetchAllDashboards = function(){

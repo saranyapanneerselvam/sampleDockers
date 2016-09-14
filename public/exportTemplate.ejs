@@ -131,8 +131,18 @@
                                                             </div>
                                                             <div class="box-content" style="vertical-align: middle" ng-style="{position:(isMobile?'static':'absolute')}">
                                                                 <div ng-if="aexppage.widgetData[widgetIndex].visibility == false">
-                                                                    <div class="errorWidgetData" id="errorWidgetData-{{widget.id}}">
-                                                                        <div class="row" style="margin: 0px;height: 100%">
+                                                                    <div  ng-if="aexppage.widgetData[widgetIndex].dataerror == true" >
+                                                                        <div class="row" style=" margin-top: 18%;height: 100%">
+                                                                            <div style="height:99%;">
+                                                                                <div style="position:relative; top:25%; text-align:center; padding-right:20px">
+                                                                                    <p style="word-wrap:break-word;font-size: 10px;">Access to one or more profiles has expired</p>
+                                                                                    <a ><i style="color: #23527c;" class="fa fa-refresh" aria-hidden="true"> </i><p style="color:#000;font-size: 10px">  Refresh</p></a>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div  ng-if="aexppage.widgetData[widgetIndex].dataerror == false" >
+                                                                        <div class="row" style="margin-top: 18%;height: 100%">
                                                                             <div style="height:99%;">
                                                                                 <div style="position:relative; top:36%; text-align:center; padding-right:20px">
                                                                                     <p style="word-wrap:break-word;font-size: 12px;">Your credential is insufficient to fetch data for this metric</p>
@@ -143,16 +153,20 @@
                                                                 </div>
                                                                 <div class="row getWidgetGraph" style="height: 100%;margin:0px;" ng-if="aexppage.widgetData[widgetIndex].visibility == true">
                                                                     <div ng-repeat="chart in aexppage.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'lineChart'  || chart.options.chart.type=== 'pieChart' || chart.options.chart.type=== 'multiBarChart' || chart.options.chart.type=== 'multiChart'" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/aexppage.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/aexppage.widgetData[widgetIndex].layoutOptionsX)+'%'}">
-                                                                        <div class="row" style="margin: 0px;height: 20%">
+                                                                        <div class="row" style="margin:0px;"  ng-style="calculateSummaryHeight(widget.sizeY,chart.data.length)">
                                                                             <ul style="height:100%;font-size:12px; padding-left: 5px;">
-                                                                                <li  ng-repeat="data in chart.data" exp-size-watcher exp-size-watcher-height="data.myheight" ng-class="calcColumnWidth(chart.data.length)" ng-style="calcRowHeight(data.myheight,chart.data.length)"  style="text-align: center;padding-top: 1px;padding-left:0px;padding-right: 2px;"><!--id="expli-{{widget.id}}-{{$index}}" size-watcher-width="data.mywidth"-->
-                                                                                    <div style="margin: 0px;height: 100%;overflow: hidden;white-space: nowrap;color: #000000;text-align: center" >
-                                                                                        <p ng-style="{'color': '#979797', 'font-family' : 'Bebas Neue'}" style="font-weight: bold;">{{data.key}} - <b ng-style="{'color':data.color, 'font-family' : 'Bebas Neue'}"> {{data.summaryDisplay}} </b> </p>
+                                                                                <li  ng-repeat="data in chart.data" ng-class="calcColumnWidth(chart.data.length,widget.sizeX,widget.sizeY)" ng-style="calcRowHeight(data,chart.data.length,widget.sizeX,widget.sizeY,aexppage.widgetData[widgetIndex].layoutOptionsY)"  style="text-align: center;padding-top: 1px;padding-left:0px;padding-right: 2px;"><!--id="expli-{{widget.id}}-{{$index}}" size-watcher-width="data.mywidth"-->
+                                                                                    <div style="margin: 0px;height: 100%;overflow: hidden;white-space: nowrap;color: #000000;text-align: center" ng-cloak>
+
+                                                                                        <p ng-show="data.showComparision==false" ng-style="{'color': '#979797', 'font-family' : 'Bebas Neue', 'text-transform':'uppercase', 'background-color': 'whitesmoke', 'border-bottom': '2px solid', 'border-color': data.color, 'padding-left': '3px', 'border-right': '3px solid white'}" style="margin:0px 0px 3px!important;font-weight: bold;"> {{data.key}} - {{data.summaryDisplay}}<i ng-if="data.arrow==='up' && data.variance !=0 && chart.options.chart.type != 'pieChart'" style="font-size: 0.8em;color:#2A8539" class="fa fa-arrow-up" aria-hidden="true"></i><i ng-if='data.arrow==="down" && data.variance !=0 && chart.options.chart.type != "pieChart"' style="font-size: 0.8em;color:#FF1B1B" class="fa fa-arrow-down" aria-hidden="true"></i></p>
+                                                                                        <p ng-show="data.showComparision==true" ng-style="{'color': '#979797', 'font-family' : 'Bebas Neue', 'text-transform':'uppercase', 'background-color': 'whitesmoke', 'border-bottom': '2px solid', 'border-color': data.color, 'padding-left': '3px', 'border-right': '3px solid white'}" style="margin:0px 0px 3px!important;font-weight: bold;">  {{data.key}} - {{data.summaryDisplay}}</p>
+                                                                                        <p ng-show="data.showComparision==true" ng-if="chart.options.chart.type != 'pieChart'" style="margin:1px 0px 1px!important;overflow: hidden">{{data.period}}: <span ng-if="data.variance !=0">{{data.variance}}%  </span><i ng-if="data.arrow==='up' && data.variance !=0" style="font-size: 0.8em;color:#2A8539" class="fa fa-arrow-up" aria-hidden="true"></i><i ng-if='data.arrow==="down" && data.variance !=0' style="font-size: 0.8em;color:#FF1B1B" class="fa fa-arrow-down" aria-hidden="true"></i></p>
+
                                                                                     </div>
                                                                                 </li>
                                                                             </ul>
                                                                         </div>
-                                                                        <div class="row" style="margin: 0px;height: 80%">
+                                                                        <div class="row" style="margin: 0px;" ng-style="calculateChartHeight(widget.sizeY,chart.data.length)">
                                                                             <nvd3 options="chart.options" data="chart.data" api="chart.api" config="{refreshDataOnly:true, deepWatchDataDepth: 0}" events="events" ng-if="aexppage.widgetData[widgetIndex].visibility == true"></nvd3>
                                                                         </div>
                                                                     </div>

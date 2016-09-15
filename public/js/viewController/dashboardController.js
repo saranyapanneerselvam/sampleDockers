@@ -11,6 +11,13 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
     $scope.submitEnable={};
     $scope.messageEnable={};
     var expWid = { dashName:[], wid: [], widData: []};
+    $scope.currentDate=moment(new Date()).format("YYYY-DD-MM");
+    $scope.widgetsize=function(widgetsizeX){
+        if(widgetsizeX==1){
+            return {float:"left"}
+        }
+    }
+
 
      // document.getElementById('dashLayout').style.visibility = "hidden";
     var isExportOptionSet = '';
@@ -427,6 +434,18 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 }
             }
         };
+        $scope.calculateColumnWidthMoz = function(noOfItems,widgetWidth,noOfCharts) {
+            if(widgetWidth==1){
+                return ('col-sm-'+12+' col-md-'+12+' col-lg-'+12);
+            }
+            else if((widgetWidth>=2)&& (widgetWidth<=4)){
+                return ('col-sm-' + 4 + ' col-md-' + 4 + ' col-lg-' + 4);
+
+            }
+            else if(widgetWidth>=5){
+                        return ('col-sm-' + 2 + ' col-md-' + 2 + ' col-lg-' + 2);
+                }
+        };
 
         $scope.calculateRowHeight = function(data,noOfItems,widgetWidth,widgetHeight,noOfCharts) {
                 widgetWidth = Math.floor(widgetWidth/noOfCharts);
@@ -473,7 +492,15 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 return {'height': (heightPercent + '%')};
 
         };
+        $scope.calculateSummaryHeightMoz = function(widgetHeight,noOfItems) {
+            var heightPercent;
+            if(widgetHeight ==1)
+                heightPercent = 20;
+            else
+                heightPercent = 70 / widgetHeight;
+            return {'height': (heightPercent + '%')};
 
+        };
         $scope.calculateChartHeight = function(widgetHeight,noOfItems) {
             var heightPercent;
                 if(noOfItems==1 && widgetHeight ==1)

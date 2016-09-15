@@ -171,6 +171,23 @@
                                                                             <nvd3 options="chart.options" data="chart.data" api="chart.api" config="{refreshDataOnly:true, deepWatchDataDepth: 0}" events="events" ng-if="aexppage.widgetData[widgetIndex].visibility == true"></nvd3>
                                                                         </div>
                                                                     </div>
+                                                                    <div ng-repeat="(chartIndex,chart) in aexppage.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'mozoverview'" style="padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/dashboard.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/dashboard.widgetData[widgetIndex].layoutOptionsX)+'%'}">
+                                                                        <div class="row scrollbar scroller" style="margin:0px;background-color:whitesmoke !important;"  ng-style="calculateSummaryHeight(widget.sizeY,chart.data.length)">
+                                                                            <ul style="height:100%;font-size:12px;padding-left: 5px;">
+                                                                                <li  ng-repeat="data in chart.data"  ng-class="calculateColumnWidthMoz(chart.data.length,widget.sizeX,dashboard.widgetData[widgetIndex].chart.length)" ng-style="calculateRowHeight(data,widget.sizeX,dashboard.widgetData[widgetIndex].chart.length)" style="text-align: center;padding-top: 1px;padding-left:0px;padding-right: 2px;font-size: 1.0em!important;" id="li-{{widget.id}}-{{$index}}" ><!--size-watcher-width="data.mywidth"-->
+                                                                                    <div ng-repeat="values in data.values">
+                                                                                        <div style="margin: 0px;height: 100%;overflow: hidden;white-space: nowrap;color: #000000;text-align: center;" ng-show="values.x===currentDate">
+                                                                                            <p ng-style="{'color': '#979797', 'font-family' : 'Heebo-Medium','font-size':'12px', 'text-transform':'uppercase', 'padding-left': '3px'}" style="margin:0px 0px 3px!important;font-weight: bold;"> {{data.key}}</p>
+                                                                                            <p ng-style="{'color': '#979797', 'font-family' : 'Heebo-Medium','font-size':'11px', 'text-transform':'uppercase', 'padding-left': '3px'}" style="margin:0px 0px 3px!important;font-weight: bold;"> {{values.y}}</p>
+                                                                                        </div>
+                                                                                    </div>
+
+                                                                                </li>
+                                                                            </ul>
+                                                                        </div>
+                                                                    </div>
+
+
                                                                     <div ng-repeat="chart in aexppage.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'emptyCharts'" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/aexppage.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/aexppage.widgetData[widgetIndex].layoutOptionsX)+'%'}">
                                                                         <div class="row" style="margin: 0px;height: 100%">
                                                                             <div events="events" style="height: 99%;" ng-if="aexppage.widgetData[widgetIndex].visibility == true">
@@ -319,10 +336,16 @@
                                                                             </div>
                                                                         </div>
                                                                     </div>
+                                                                    <div ng-repeat="chart in aexppage.widgetData[widgetIndex].chart track by $index" ng-if="chart.options.chart.type=== 'costPerActionType'" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/aexppage.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/aexppage.widgetData[widgetIndex].layoutOptionsX)+'%'}">
+                                                                        <div ng-show="chart.data[0].values.flag==true">
+                                                                            <div class="center" style="vertical-align: middle">
+                                                                                <button class="btn btn-primary gobutton-mode" ng-click="">Configure</button>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
                                                                 <!--<div class="context widgetTransparentImage" id="widgetTransparentImage-{{widget.id}}" ng-hide="tempDashboard" ng-click="callThePosition($event,widget.id)" style="width: 100%;height: 100%;"></div>-->
                                                             </div>
-
                                                         </div>
                                                     </li>
                                                     <li gridster-item="widget" ng-repeat="(widgetIndex,widget) in aexppage.empWidget"></li>

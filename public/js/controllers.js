@@ -380,14 +380,14 @@ showMetricApp.service('createWidgets',function($http,$q){
         }
 
         function formulateRegularWidgetGraphs(widget) {
-
             var deferred = $q.defer();
             var widgetCharts = [];
 
             if(widget.charts.length > 0) {
                 for(var charts in widget.charts) {
                     var chartType = widget.charts[charts].chartType;
-                    if(chartType == "line" || chartType == "area" || chartType == "bar") {
+
+                    if(chartType == "line" || chartType == "area" || chartType == "bar" || chartType=="mozoverview") {
                         if(typeof widget.charts[charts].chartData[0].total == 'object') {
                             var endpoint;
                             for(objectTypes in widget.charts[charts].metricDetails.objectTypes){
@@ -405,7 +405,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                                             if(keyValuePairs.search('/') > -1) {
                                                 endpointArray = keyValuePairs.split('/');
                                                 for(var splittedValues in endpointArray) {
-
                                                 }
                                             }
                                             else if(keyValuePairs == currentItem) {
@@ -843,7 +842,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                 }
                 for(var charts in widget.charts) {
                     var chartType = widget.charts[charts].chartType;
-                    if(chartType == "line" || chartType == "bar" || chartType == "area" || chartType == "pie" || ((chartType == "costPerActionType") && (widget.meta != undefined))) {
+                    if(chartType == "line" || chartType == "bar" || chartType == "area" || chartType == "pie" || chartType=='mozoverview' || ((chartType == "costPerActionType") && (widget.meta != undefined))) {
                         if(typeof widget.charts[charts].chartData[0] != 'undefined') {
                             if(widget.charts[charts].chartData[0].x){
                                 var summaryValue = 0;
@@ -916,7 +915,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                     }
                                 }
 
-                                if(chartType == 'line' || chartType == 'bar') {
+                                if(chartType == 'line' || chartType == 'bar' || chartType=='mozoverview') {
                                     if((widget.channelName=='FacebookAds')&&(widget.charts[charts].metricDetails.name=='Cost Per Unique Action Type')){
                                         widgetCharts.push({
                                             'type': widget.charts[charts].chartType,
@@ -979,8 +978,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                             }
                             else {
                                 for(var items in widget.charts[charts].chartData) {
-                                    var summaryValue = 0;
-                                    var nonZeroPoints = 0;
                                     var summaryValue = 0;
                                     var nonZeroPoints = 0;
                                     var n=widget.charts[charts].chartData[items].length;
@@ -1051,9 +1048,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                                             }
                                         }
                                     }
-
                                     var endpointDisplayCode = widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items];
-                                    if(chartType == 'line' || chartType == 'bar') {
+                                    if(chartType == 'line' || chartType == 'bar' || chartType=='mozoverview') {
                                         widgetCharts.push({
                                             'type': widget.charts[charts].chartType,
                                             'values': widget.charts[charts].chartData[items],      //values - represents the array of {x,y} data points
@@ -1136,7 +1132,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                             'values': widget.charts[charts].chartData
                         });
                     }
-                    else  if(chartType == "fbReachByGender") {
+                    else if(chartType == "fbReachByGender") {
                         var colorIndex = 0;
                         for(var index in widget.charts[charts].chartData) {
                             widgetCharts.push({
@@ -1149,7 +1145,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                             ++colorIndex;
                         }
                     }
-                    else  if(chartType == "fbReachByAge") {
+                    else if(chartType == "fbReachByAge") {
                         var colorIndex = 0;
                         for(var index in widget.charts[charts].chartData) {
                             widgetCharts.push({
@@ -1192,7 +1188,7 @@ showMetricApp.service('createWidgets',function($http,$q){
             var deferred = $q.defer();
             var finalCharts = [];
             finalCharts.lineCharts = [], finalCharts.barCharts = [], finalCharts.pieCharts = [], finalCharts.instagramPosts = [], finalCharts.highEngagementTweets = [],finalCharts.highestEngagementLinkedIn=[], finalCharts.pinterestEngagementRate=[], finalCharts.pinterestLeaderboard=[];
-            finalCharts.gaTopPagesByVisit=[],finalCharts.fbReachByGender = [],finalCharts.fbReachByAge = [],finalCharts.vimeoTopVideos=[],finalCharts.costPerActionType=[];
+            finalCharts.gaTopPagesByVisit=[],finalCharts.fbReachByGender = [],finalCharts.mozoverview = [],finalCharts.fbReachByAge = [],finalCharts.vimeoTopVideos=[],finalCharts.costPerActionType=[];
             var graphOptions = {
                 lineDataOptions: {
                     chart: {
@@ -1293,6 +1289,11 @@ showMetricApp.service('createWidgets',function($http,$q){
                 highEngagementTweets: {
                     chart: {
                         type: 'highEngagementTweets'
+                    }
+                },
+                mozoverview: {
+                    chart: {
+                        type: 'mozoverview'
                     }
                 },
                 highestEngagementLinkedIn: {
@@ -1579,6 +1580,11 @@ showMetricApp.service('createWidgets',function($http,$q){
                     else if (widgetCharts[charts].type == 'pinterestEngagementRate') finalCharts.pinterestEngagementRate.push(widgetCharts[charts]);
                     else if (widgetCharts[charts].type == 'pinterestLeaderboard')finalCharts.pinterestLeaderboard.push(widgetCharts[charts]);
                     else if (widgetCharts[charts].type == 'vimeoTopVideos') finalCharts.vimeoTopVideos.push(widgetCharts[charts]);
+                    else if (widgetCharts[charts].type == 'mozoverview') {
+                        for(var i=0;i<widgetCharts[charts].values.length;i++)
+                            widgetCharts[charts].values[i].x=moment(widgetCharts[charts].values[i].x).format("YYYY-DD-MM");
+                        finalCharts.mozoverview.push(widgetCharts[charts]);
+                    }
                 }
             }
             else {
@@ -1595,7 +1601,13 @@ showMetricApp.service('createWidgets',function($http,$q){
                     else if (widgetCharts[charts].type == 'pinterestEngagementRate') finalCharts.pinterestEngagementRate.push(widgetCharts[charts]);
                     else if (widgetCharts[charts].type == 'pinterestLeaderboard')finalCharts.pinterestLeaderboard.push(widgetCharts[charts]);
                     else if (widgetCharts[charts].type == 'vimeoTopVideos') finalCharts.vimeoTopVideos.push(widgetCharts[charts]);
-                    else if (widgetCharts[charts].type == 'costPerActionType' && !widget.meta) finalCharts.costPerActionType.push(widgetCharts[charts])};
+                    else if (widgetCharts[charts].type == 'costPerActionType' && !widget.meta) finalCharts.costPerActionType.push(widgetCharts[charts]);
+                    else if (widgetCharts[charts].type == 'mozoverview') {
+                        for(var i=0;i<widgetCharts[charts].values.length;i++)
+                            widgetCharts[charts].values[i].x=moment(widgetCharts[charts].values[i].x).format("YYYY-DD-MM");
+                        finalCharts.mozoverview.push(widgetCharts[charts]);
+                    }
+                }
             }
             var chartColorChecker = [];
             var colourChart = ['#EF5350','#EC407A','#9C27B0','#42A5F5','#26A69A','#FFCA28','#FF7043','#8D6E63'];
@@ -1640,7 +1652,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                     chartColorChecker.push(finalCharts.lineCharts[charts].color);
                 }
                 chartColorChecker = [];
-
                 var individualGraphTotals = [];
                 for (var charts in finalCharts.lineCharts) {
                     var summaryTotal = 0;
@@ -1650,7 +1661,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                         summaryTotal: summaryTotal
                     };
                 }
-
                 var cumulativeTotal = 0;
                 for (items in individualGraphTotals)
                     cumulativeTotal += parseInt(individualGraphTotals[items].summaryTotal);
@@ -1663,7 +1673,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                     if (summaryTotal > cumulativeAverage) finalCharts.lineCharts[charts].yAxis = 2;
                     else finalCharts.lineCharts[charts].yAxis = 1   ;
                 }
-
                 finalChartData.push({
                     'options': graphOptions.multiDataOptions,
                     'data': finalCharts.lineCharts,
@@ -1906,6 +1915,13 @@ showMetricApp.service('createWidgets',function($http,$q){
                 finalChartData.push({
                     'options': graphOptions.costPerActionType,
                     'data':finalCharts.costPerActionType
+                });
+            }
+
+            if (finalCharts.mozoverview.length > 0){
+                finalChartData.push({
+                    'options': graphOptions.mozoverview,
+                    'data': finalCharts.mozoverview
                 });
             }
 

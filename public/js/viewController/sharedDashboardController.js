@@ -5,6 +5,7 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
     $scope.loading=false;
     $scope.$window = $window;
     $scope.autoArrangeGrid = false;
+    $scope.currentDate=moment(new Date()).format("YYYY-DD-MM");
 
     //Sets up all the required parameters for the dashboard to function properly when it is initially loaded. This is called in the ng-init function of the dashboard template
     $scope.dashboardConfiguration = function () {
@@ -240,6 +241,28 @@ function SharedDashboardController($scope,$timeout,$rootScope,$http,$window,$sta
             }
             else
                 data.showComparision = true;
+        };
+        $scope.calculateSummaryHeightMoz = function(widgetHeight,noOfItems) {
+            var heightPercent;
+
+            if(widgetHeight ==1)
+                heightPercent = 20;
+            else
+                heightPercent = 70 / widgetHeight;
+            return {'height': (heightPercent + '%')};
+
+        };
+        $scope.calculateColumnWidthMoz = function(noOfItems,widgetWidth,noOfCharts) {
+            if(widgetWidth==1){
+                return ('col-sm-'+12+' col-md-'+12+' col-lg-'+12);
+            }
+            else if((widgetWidth>=2)&& (widgetWidth<=4)){
+                return ('col-sm-' + 4 + ' col-md-' + 4 + ' col-lg-' + 4);
+
+            }
+            else if(widgetWidth>=5){
+                return ('col-sm-' + 2 + ' col-md-' + 2 + ' col-lg-' + 2);
+            }
         };
 
         $scope.calculateSummaryHeight = function(widgetHeight,noOfItems) {

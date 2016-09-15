@@ -7,7 +7,17 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
     $scope.dashbd = { widgets: [], widgetData: []};
     $scope.dashbd.dashboardName='';
     $scope.widgetErrorCode=0;
+    $scope.actionTypeEnable={};
+    $scope.submitEnable={};
+    $scope.messageEnable={};
     var expWid = { dashName:[], wid: [], widData: []};
+    $scope.currentDate=moment(new Date()).format("YYYY-DD-MM");
+    $scope.widgetsize=function(widgetsizeX){
+        if(widgetsizeX==1){
+            return {float:"left"}
+        }
+    }
+
 
     // document.getElementById('dashLayout').style.visibility = "hidden";
     var isExportOptionSet = '';
@@ -423,6 +433,18 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 }
             }
         };
+        $scope.calculateColumnWidthMoz = function(noOfItems,widgetWidth,noOfCharts) {
+            if(widgetWidth==1){
+                return ('col-sm-'+12+' col-md-'+12+' col-lg-'+12);
+            }
+            else if((widgetWidth>=2)&& (widgetWidth<=4)){
+                return ('col-sm-' + 4 + ' col-md-' + 4 + ' col-lg-' + 4);
+
+            }
+            else if(widgetWidth>=5){
+                        return ('col-sm-' + 2 + ' col-md-' + 2 + ' col-lg-' + 2);
+                }
+        };
 
         $scope.calculateRowHeight = function(data,noOfItems,widgetWidth,widgetHeight,noOfCharts) {
             widgetWidth = Math.floor(widgetWidth/noOfCharts);
@@ -467,7 +489,15 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     heightPercent = 100 / widgetHeight;
                 return {'height': (heightPercent + '%')};
         };
+        $scope.calculateSummaryHeightMoz = function(widgetHeight,noOfItems) {
+            var heightPercent;
+            if(widgetHeight ==1)
+                heightPercent = 20;
+            else
+                heightPercent = 70 / widgetHeight;
+            return {'height': (heightPercent + '%')};
 
+        };
         $scope.calculateChartHeight = function(widgetHeight,noOfItems) {
             var heightPercent;
                 if(noOfItems==1 && widgetHeight ==1)
@@ -477,6 +507,55 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 return {'height':(heightPercent+'%')};
         };
 
+    };
+
+    $scope.getActionType=function(actionType,widgetID){
+        if(actionType.length) {
+            var key;
+            var name;
+
+            var finalList=[]
+            $scope.actionTypeEnable[widgetID] = true;
+            for(var i=0;i<actionType.length;i++){
+                var list={}
+                key=actionType[i];
+                name=key.replace('_',' ')
+                list.name=name;
+                list.meta=actionType[i];
+                finalList.push(list);
+            }
+            $scope.actionTypeList = finalList;
+        }
+        else {
+            $scope.actionTypeEnable[widgetID]=false;
+            $scope.messageEnable[widgetID]=true;
+        }
+    };
+
+    $scope.saveMeta=function(widgetId,meta){
+        if(meta) $scope.submitEnable[widgetId]=true;
+        else $scope.submitEnable[widgetId]=false;
+    };
+
+    $scope.reloadDashboard=function(widgetId,meta){
+        $scope.actionTypeEnable[widgetId]=false;
+        $scope.submitEnable[widgetId]=false;
+        var dataUrl = {
+            method: 'GET',
+            url: '/api/v1/widget/'+ widgetId + '?meta=' +meta.meta
+        };
+        $http(dataUrl).then(
+            function successCallback() {
+                $rootScope.populateDashboardWidgets();
+            },
+            function errorCallback() {
+                swal({
+                    title: '',
+                    text: '<span style = "sweetAlertFont">Error in saving the configuration. Please try again</span>',
+                    html: true
+                });
+            }
+        )
     };
 
     //To populate all the widgets in a dashboard when the dashboard is refreshed or opened or calendar date range in the dashboard header is changed

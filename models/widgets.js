@@ -24,6 +24,7 @@ var widgetsSchema = mongoose.Schema({
     widgets:Array,
     visibility:Boolean,
     isAlert:Boolean,
+    meta:String,
     channelName: String
 });
 

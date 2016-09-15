@@ -51,6 +51,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             $scope.canManageClients = null;
         }
         else if ($scope.currentView === 'step_two') {
+            $scope.messageEnable=false;
             document.getElementById('basicWidgetBackButton1').disabled = false;
             $scope.clearReferenceWidget();
             $scope.profileList = [];
@@ -222,7 +223,13 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     };
 
     $scope.selectLevelChosen = function (level) {
+        $scope.messageEnable=false;
         if(level) {
+            var setLimitation=0;
+            for (var getData in getReferenceWidgetsArr) {
+                if(getReferenceWidgetsArr[getData].name == "Cost per Action Type") setLimitation=1;
+                else setLimitation=0;
+            }
             if(!this.objectTypeOptionsModel){
                 document.getElementById('basicWidgetFinishButton').disabled = true;
                 $scope.campaignChosen = false;
@@ -256,10 +263,16 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         }
         //   else
         if($scope.selectedLevel=='fbadaccount'){
-            if(($scope.profileId!=null)&&($scope.accountId!=null))
-                document.getElementById('basicWidgetFinishButton').disabled =false;
-            else
+            if(setLimitation){
+                $scope.messageEnable=true;
                 document.getElementById('basicWidgetFinishButton').disabled = true;
+            }
+            else {
+                if(($scope.profileId!=null)&&($scope.accountId!=null))
+                    document.getElementById('basicWidgetFinishButton').disabled =false;
+                else
+                    document.getElementById('basicWidgetFinishButton').disabled = true;
+            }
         }
         else if($scope.selectedLevel=='fbAdcampaign'){
             if($scope.campaignChosen==false){
@@ -277,83 +290,95 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             }
         }
         else if($scope.selectedLevel=='fbAdSet'){
-            if(($scope.campaignChosen==true)&&($scope.adSetChosen==true)){
-                if(($scope.profileId!=null)&&($scope.accountId!=null)&&($scope.campaign!=null)&&($scope.adSet!=null))
-                    document.getElementById('basicWidgetFinishButton').disabled =false;
-                else {
-                    //   $scope.clearSelectLevel();
+            if(setLimitation){
+                $scope.messageEnable=true;
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+            }
+            else {
+                if (($scope.campaignChosen == true) && ($scope.adSetChosen == true)) {
+                    if (($scope.profileId != null) && ($scope.accountId != null) && ($scope.campaign != null) && ($scope.adSet != null))
+                        document.getElementById('basicWidgetFinishButton').disabled = false;
+                    else {
+                        //   $scope.clearSelectLevel();
+                        document.getElementById('basicWidgetFinishButton').disabled = true;
+                    }
+                }
+                else if (($scope.campaignChosen == false) && ($scope.adSetChosen == false)) {
+                    $scope.campaignEnable = true;
+                    $scope.getCampaigns();
+                }
+                else if (($scope.campaignChosen == true) && ($scope.adSetChosen == false)) {
+                    $scope.campaignEnable = true;
+                    $scope.adSetEnable = true;
+                    $scope.getAdSet();
                     document.getElementById('basicWidgetFinishButton').disabled = true;
                 }
+                else
+                    document.getElementById('basicWidgetFinishButton').disabled = true;
+                //  $scope.clearSelectLevel();
             }
-            else if(($scope.campaignChosen==false)&&($scope.adSetChosen==false)){
-                $scope.campaignEnable=true;
-                $scope.getCampaigns();
-            }
-            else if(($scope.campaignChosen==true)&&($scope.adSetChosen==false)){
-                $scope.campaignEnable=true;
-                $scope.adSetEnable=true;
-                $scope.getAdSet();
-                document.getElementById('basicWidgetFinishButton').disabled = true;
-            }
-            else
-                document.getElementById('basicWidgetFinishButton').disabled = true;
-            //  $scope.clearSelectLevel();
         }
         else if($scope.selectedLevel=='fbAdSetAds'){
-            if(($scope.campaignChosen==true)&&($scope.adSetChosen==true)&&($scope.adSetAdsChosen==true)){
-                if(($scope.profileId!=null)&&($scope.accountId!=null)&&($scope.campaign!=null)&&($scope.adSet!=null)&&($scope.adSetAds!=null))
-                    document.getElementById('basicWidgetFinishButton').disabled =false;
-                else {
-                    //  $scope.clearSelectLevel();
-                    document.getElementById('basicWidgetFinishButton').disabled = true;
+            if(setLimitation){
+                $scope.messageEnable=true;
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+            }
+            else {
+                if (($scope.campaignChosen == true) && ($scope.adSetChosen == true) && ($scope.adSetAdsChosen == true)) {
+                    if (($scope.profileId != null) && ($scope.accountId != null) && ($scope.campaign != null) && ($scope.adSet != null) && ($scope.adSetAds != null))
+                        document.getElementById('basicWidgetFinishButton').disabled = false;
+                    else {
+                        //  $scope.clearSelectLevel();
+                        document.getElementById('basicWidgetFinishButton').disabled = true;
+                    }
                 }
-            }
-            else if((($scope.campaignChosen==false)&&($scope.adSetChosen==false))&&($scope.adSetAdsChosen==true)){
-                document.getElementById('basicWidgetFinishButton').disabled = true;
-                $scope.campaignEnable=true;
-                $scope.getCampaigns();
-                $scope.adSetAdsChosen=false;
-                $scope.adSetAds=null;
-            }
-            else if(($scope.campaignChosen==true)&&($scope.adSetChosen==true)&&($scope.adSetAdsChosen==false)){
-                document.getElementById('basicWidgetFinishButton').disabled = true;
-                $scope.adSetAdsEnable=true;
-                $scope.getAdSetAds();
-            }
-            else if(($scope.campaignChosen==false)&&($scope.adSetChosen==false)&&($scope.adSetAdsChosen==false)){
-                document.getElementById('basicWidgetFinishButton').disabled = true;
-                $scope.campaignEnable=true;
-                $scope.getCampaigns();
-            }
-            else if(($scope.campaignChosen==true)&&($scope.adSetChosen==false)&&($scope.adSetAdsChosen==false)){
-                document.getElementById('basicWidgetFinishButton').disabled = true;
-                $scope.adSetEnable=true;
-                $scope.getAdSet();
-            }
-            else if(($scope.campaignChosen==true)&&($scope.adSetChosen==false)&&($scope.adSetAdsChosen==true)){
-                document.getElementById('basicWidgetFinishButton').disabled = true;
-                $scope.adSetEnable=true;
-                $scope.getAdSet();
-                $scope.adSetAdsChosen=false;
-                $scope.adSetAds=null;
-            }
-            else if(($scope.campaignChosen==false)&&($scope.adSetChosen==true)&&($scope.adSetAdsChosen==true)){
-                document.getElementById('basicWidgetFinishButton').disabled = true;
-                $scope.campaignEnable=true;
-                $scope.getCampaigns();
-                $scope.adSetAdsChosen=false;
-                $scope.adSetAds=null;
-                $scope.adSetChosen=false;
-                $scope.adSet=null;
-            }
-            else if(($scope.campaignChosen==false)&&($scope.adSetChosen==true)&&($scope.adSetAdsChosen==false)){
-                document.getElementById('basicWidgetFinishButton').disabled = true;
-                $scope.campaignEnable=true;
-                $scope.getCampaigns();
-                $scope.adSetAdsChosen=false;
-                $scope.adSetAds=null;
-                $scope.adSetChosen=false;
-                $scope.adSet=null;
+                else if ((($scope.campaignChosen == false) && ($scope.adSetChosen == false)) && ($scope.adSetAdsChosen == true)) {
+                    document.getElementById('basicWidgetFinishButton').disabled = true;
+                    $scope.campaignEnable = true;
+                    $scope.getCampaigns();
+                    $scope.adSetAdsChosen = false;
+                    $scope.adSetAds = null;
+                }
+                else if (($scope.campaignChosen == true) && ($scope.adSetChosen == true) && ($scope.adSetAdsChosen == false)) {
+                    document.getElementById('basicWidgetFinishButton').disabled = true;
+                    $scope.adSetAdsEnable = true;
+                    $scope.getAdSetAds();
+                }
+                else if (($scope.campaignChosen == false) && ($scope.adSetChosen == false) && ($scope.adSetAdsChosen == false)) {
+                    document.getElementById('basicWidgetFinishButton').disabled = true;
+                    $scope.campaignEnable = true;
+                    $scope.getCampaigns();
+                }
+                else if (($scope.campaignChosen == true) && ($scope.adSetChosen == false) && ($scope.adSetAdsChosen == false)) {
+                    document.getElementById('basicWidgetFinishButton').disabled = true;
+                    $scope.adSetEnable = true;
+                    $scope.getAdSet();
+                }
+                else if (($scope.campaignChosen == true) && ($scope.adSetChosen == false) && ($scope.adSetAdsChosen == true)) {
+                    document.getElementById('basicWidgetFinishButton').disabled = true;
+                    $scope.adSetEnable = true;
+                    $scope.getAdSet();
+                    $scope.adSetAdsChosen = false;
+                    $scope.adSetAds = null;
+                }
+                else if (($scope.campaignChosen == false) && ($scope.adSetChosen == true) && ($scope.adSetAdsChosen == true)) {
+                    document.getElementById('basicWidgetFinishButton').disabled = true;
+                    $scope.campaignEnable = true;
+                    $scope.getCampaigns();
+                    $scope.adSetAdsChosen = false;
+                    $scope.adSetAds = null;
+                    $scope.adSetChosen = false;
+                    $scope.adSet = null;
+                }
+                else if (($scope.campaignChosen == false) && ($scope.adSetChosen == true) && ($scope.adSetAdsChosen == false)) {
+                    document.getElementById('basicWidgetFinishButton').disabled = true;
+                    $scope.campaignEnable = true;
+                    $scope.getCampaigns();
+                    $scope.adSetAdsChosen = false;
+                    $scope.adSetAds = null;
+                    $scope.adSetChosen = false;
+                    $scope.adSet = null;
+                }
             }
         }
     };

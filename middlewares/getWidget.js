@@ -65,6 +65,25 @@ exports.widgetDetails = function (req, res, next) {
             if (err)
                 return res.status(500).json({error: 'Internal server error'});
             else {
+                if(req.query.meta){
+                    widgetsList.update({'_id': req.params.widgetId}, {
+                        $setOnInsert: {updated: new Date(),meta:req.query.meta},
+                        $set: {
+                            updated: new Date(),
+                            meta:req.query.meta
+                        }
+                    },{upsert: true},  function (err,widget) {
+                        if (err)
+                            return res.status(500).json({error: 'Internal server error'})
+                        else if (!widget)
+                            return res.status(204).json({error: 'No records found'})
+                        else{
+                            req.app.result = widget;
+                            next();
+                        }
+                    });
+                }
+            else {
                 widgetsList.find({_id: req.params.widgetId}, function (err, widget) {
                     if (err)
                         return res.status(500).json({error: 'Internal server error'});
@@ -75,6 +94,7 @@ exports.widgetDetails = function (req, res, next) {
                         next();
                     }
                 })
+            }
             }
 
         })

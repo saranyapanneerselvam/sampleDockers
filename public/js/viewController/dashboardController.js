@@ -7,6 +7,9 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
     $scope.dashbd = { widgets: [], widgetData: []};
     $scope.dashbd.dashboardName='';
     $scope.widgetErrorCode=0;
+    $scope.actionTypeEnable={};
+    $scope.submitEnable={};
+    $scope.messageEnable={};
     var expWid = { dashName:[], wid: [], widData: []};
 
      // document.getElementById('dashLayout').style.visibility = "hidden";
@@ -482,6 +485,55 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
         };
 
+    };
+
+    $scope.getActionType=function(actionType,widgetID){
+        if(actionType.length) {
+            var key;
+            var name;
+
+            var finalList=[]
+            $scope.actionTypeEnable[widgetID] = true;
+            for(var i=0;i<actionType.length;i++){
+                var list={}
+                key=actionType[i];
+                name=key.replace('_',' ')
+                list.name=name;
+                list.meta=actionType[i];
+                finalList.push(list);
+            }
+            $scope.actionTypeList = finalList;
+        }
+        else {
+            $scope.actionTypeEnable[widgetID]=false;
+            $scope.messageEnable[widgetID]=true;
+        }
+    };
+
+    $scope.saveMeta=function(widgetId,meta){
+        if(meta) $scope.submitEnable[widgetId]=true;
+        else $scope.submitEnable[widgetId]=false;
+    };
+
+    $scope.reloadDashboard=function(widgetId,meta){
+        $scope.actionTypeEnable[widgetId]=false;
+        $scope.submitEnable[widgetId]=false;
+        var dataUrl = {
+            method: 'GET',
+            url: '/api/v1/widget/'+ widgetId + '?meta=' +meta.meta
+        };
+        $http(dataUrl).then(
+            function successCallback() {
+                $rootScope.populateDashboardWidgets();
+            },
+            function errorCallback() {
+                swal({
+                    title: '',
+                    text: '<span style = "sweetAlertFont">Error in saving the configuration. Please try again</span>',
+                    html: true
+                });
+            }
+        )
     };
 
     //To populate all the widgets in a dashboard when the dashboard is refreshed or opened or calendar date range in the dashboard header is changed

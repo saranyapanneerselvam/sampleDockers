@@ -783,10 +783,67 @@ showMetricApp.service('createWidgets',function($http,$q){
                             }
                         }
                     }
+                    else if(chartType == "costPerActionType"){
+                        var configureEnable=false;
+                        var actionType=[];
+                        if(!widget.meta) {
+                            var formattedChartData={};
+                            configureEnable = true;
+                            for(var i=0;i<widget.charts[charts].chartData.length;i++){
+                                for (var keys in widget.charts[charts].chartData[i].total){
+                                    actionType.push(widget.charts[charts].chartData[i].total[keys].action_type);
+                                }
+                            }
+                            var unique=_.uniqBy(actionType);
+                            formattedChartData.flag=configureEnable;
+                            formattedChartData.action=unique;
+                            widget.charts[charts].chartData=formattedChartData;
+                        }
+                        else{
+                            var formattedChartData=[];
+                            for(var datas in widget.charts[charts].chartData) {
+                                var count = 0;
+                                var i;
+
+                                for (i in widget.charts[charts].chartData[datas].total) {
+                                    if (widget.charts[charts].chartData[datas].total.hasOwnProperty(i)) {
+                                        count++;
+                                    }
+                                }
+                                if(!count){
+                                    formattedChartData.push({
+                                        x: moment(widget.charts[charts].chartData[datas].date),
+                                        y: 0
+                                    });
+                                }
+
+                                else
+                                {
+                                    var repeat=0;
+                                    for (var keys in widget.charts[charts].chartData[datas].total) {
+                                        if (widget.meta == widget.charts[charts].chartData[datas].total[keys].action_type) {
+                                            repeat=1;
+                                            formattedChartData.push({
+                                                x: moment(widget.charts[charts].chartData[datas].date),
+                                                y: widget.charts[charts].chartData[datas].total[keys] != null ? widget.charts[charts].chartData[datas].total[keys].value : 0
+                                            });
+                                        }
+                                    }
+                                    if(!repeat){
+                                        formattedChartData.push({
+                                            x: moment(widget.charts[charts].chartData[datas].date),
+                                            y: 0
+                                        });
+                                    }
+                                }
+                            }
+                            widget.charts[charts].chartData = formattedChartData;
+                        }
+                    }
                 }
                 for(var charts in widget.charts) {
                     var chartType = widget.charts[charts].chartType;
-                    if(chartType == "line" || chartType == "bar" || chartType == "area" || chartType == "pie") {
+                    if(chartType == "line" || chartType == "bar" || chartType == "area" || chartType == "pie" || ((chartType == "costPerActionType") && (widget.meta != undefined))) {
                         if(typeof widget.charts[charts].chartData[0] != 'undefined') {
                             if(widget.charts[charts].chartData[0].x){
                                 var summaryValue = 0;
@@ -893,6 +950,18 @@ showMetricApp.service('createWidgets',function($http,$q){
                                         'period':granularity,
                                         'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
                                         'area': true
+                                    });
+                                }
+                                else if(chartType == 'costPerActionType') {
+                                    widgetCharts.push({
+                                        'type': 'line',
+                                        'values': widget.charts[charts].chartData,      //values - represents the array of {x,y} data points
+                                        'key': widget.meta.replace('_',' '), //key  - the name of the series.
+                                        'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
+                                        'arrow':comparingData,
+                                        'variance':percentage,
+                                        'period':granularity,
+                                        'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
                                     });
                                 }
                                 else {
@@ -1009,6 +1078,18 @@ showMetricApp.service('createWidgets',function($http,$q){
                                             'area': true
                                         });
                                     }
+                                    else if(chartType == 'costPerActionType') {
+                                        widgetCharts.push({
+                                            'type': 'line',
+                                            'values': widget.charts[charts].chartData,      //values - represents the array of {x,y} data points
+                                            'key': widget.meta, //key  - the name of the series.
+                                            'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
+                                            'arrow':comparingData,
+                                            'variance':percentage,
+                                            'period':granularity,
+                                            'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
+                                        });
+                                    }
                                     else {
                                         widgetCharts.push({
                                             'type': widget.charts[charts].chartType,
@@ -1093,6 +1174,13 @@ showMetricApp.service('createWidgets',function($http,$q){
                             'values': widget.charts[charts].chartData
                         });
                     }
+                    else if(chartType == "costPerActionType" && (widget.meta == undefined)){
+                        widgetCharts.push({
+                            'type': 'costPerActionType',
+                            'values': widget.charts[charts].chartData,
+                            //'configure':
+                        });
+                    }
                 }
             }
 
@@ -1104,7 +1192,7 @@ showMetricApp.service('createWidgets',function($http,$q){
             var deferred = $q.defer();
             var finalCharts = [];
             finalCharts.lineCharts = [], finalCharts.barCharts = [], finalCharts.pieCharts = [], finalCharts.instagramPosts = [], finalCharts.highEngagementTweets = [],finalCharts.highestEngagementLinkedIn=[], finalCharts.pinterestEngagementRate=[], finalCharts.pinterestLeaderboard=[];
-            finalCharts.gaTopPagesByVisit=[],finalCharts.fbReachByGender = [],finalCharts.fbReachByAge = [],finalCharts.vimeoTopVideos=[];
+            finalCharts.gaTopPagesByVisit=[],finalCharts.fbReachByGender = [],finalCharts.fbReachByAge = [],finalCharts.vimeoTopVideos=[],finalCharts.costPerActionType=[];
             var graphOptions = {
                 lineDataOptions: {
                     chart: {
@@ -1127,6 +1215,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                         interpolate: "monotone",
                         axisLabelDistance: -10,
                         showLegend: false,
+                        clipEdge:false,
                         legend: {
                             rightAlign: false,
                             margin: {
@@ -1145,11 +1234,13 @@ showMetricApp.service('createWidgets',function($http,$q){
                         useInteractiveGuideline: true,
                         xAxis: {
                             tickFormat: function(d) {
-                                return d3.time.format('%d/%m/%y')(new Date(d))}
+                                return d3.time.format('%d/%m/%y')(new Date(d))},
+                            showMaxMin: false
                         },
                         yAxis: {
                             tickFormat: function(d) {
-                                return d3.format('r')(d);}
+                                return d3.format('r')(d);},
+                            showMaxMin: false
                         },
                         tooltip: {
                             enabled:false,
@@ -1227,6 +1318,11 @@ showMetricApp.service('createWidgets',function($http,$q){
                 pinterestLeaderboard:{
                     chart: {
                         type: 'pinterestLeaderboard'
+                    }
+                },
+                costPerActionType:{
+                    chart: {
+                        type: 'costPerActionType'
                     }
                 },
                 emptyCharts: {
@@ -1487,7 +1583,7 @@ showMetricApp.service('createWidgets',function($http,$q){
             }
             else {
                 for (var charts in widgetCharts) {
-                    if (widgetCharts[charts].type == 'line' || widgetCharts[charts].type == 'area') finalCharts.lineCharts.push(widgetCharts[charts]);
+                    if (widgetCharts[charts].type == 'line' || widgetCharts[charts].type == 'area' || (widgetCharts[charts].type == 'costPerActionType' && (widget.meta !=undefined))) finalCharts.lineCharts.push(widgetCharts[charts]);
                     else if(widgetCharts[charts].type == 'bar') finalCharts.barCharts.push(widgetCharts[charts]);
                     else if (widgetCharts[charts].type == 'pie') finalCharts.pieCharts.push(widgetCharts[charts]);
                     else if (widgetCharts[charts].type == 'instagramPosts') finalCharts.instagramPosts.push(widgetCharts[charts]);
@@ -1499,7 +1595,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                     else if (widgetCharts[charts].type == 'pinterestEngagementRate') finalCharts.pinterestEngagementRate.push(widgetCharts[charts]);
                     else if (widgetCharts[charts].type == 'pinterestLeaderboard')finalCharts.pinterestLeaderboard.push(widgetCharts[charts]);
                     else if (widgetCharts[charts].type == 'vimeoTopVideos') finalCharts.vimeoTopVideos.push(widgetCharts[charts]);
-                }
+                    else if (widgetCharts[charts].type == 'costPerActionType' && !widget.meta) finalCharts.costPerActionType.push(widgetCharts[charts])};
             }
             var chartColorChecker = [];
             var colourChart = ['#EF5350','#EC407A','#9C27B0','#42A5F5','#26A69A','#FFCA28','#FF7043','#8D6E63'];
@@ -1803,6 +1899,13 @@ showMetricApp.service('createWidgets',function($http,$q){
                     'options': graphOptions.pieDataOptions,
                     'data': finalCharts.fbReachByAge,
                     'api': {}
+                });
+            }
+
+            if(finalCharts.costPerActionType.length > 0){
+                finalChartData.push({
+                    'options': graphOptions.costPerActionType,
+                    'data':finalCharts.costPerActionType
                 });
             }
 

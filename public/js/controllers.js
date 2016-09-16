@@ -386,7 +386,6 @@ showMetricApp.service('createWidgets',function($http,$q){
             if(widget.charts.length > 0) {
                 for(var charts in widget.charts) {
                     var chartType = widget.charts[charts].chartType;
-
                     if(chartType == "line" || chartType == "area" || chartType == "bar" || chartType=="mozoverview") {
                         if(typeof widget.charts[charts].chartData[0].total == 'object') {
                             var endpoint;
@@ -405,11 +404,12 @@ showMetricApp.service('createWidgets',function($http,$q){
                                             if(keyValuePairs.search('/') > -1) {
                                                 endpointArray = keyValuePairs.split('/');
                                                 for(var splittedValues in endpointArray) {
+                                                    if(endpointArray[splittedValues] == currentItem)
+                                                        yValue += parseFloat(widget.charts[charts].chartData[datas].total[keyValuePairs]);
                                                 }
                                             }
-                                            else if(keyValuePairs == currentItem) {
+                                            else if(keyValuePairs == currentItem)
                                                 yValue = widget.charts[charts].chartData[datas].total[currentItem];
-                                            }
                                         }
                                     }
                                     formattedChartData.push({
@@ -446,8 +446,16 @@ showMetricApp.service('createWidgets',function($http,$q){
                                 var yValue = 0;
                                 for(datas in widget.charts[charts].chartData){
                                     if(widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )) {
-                                        if(typeof widget.charts[charts].chartData[datas].total[currentItem] != 'undefined') {
-                                            yValue += parseInt(widget.charts[charts].chartData[datas].total[currentItem]);
+                                        for(var keyValuePairs in widget.charts[charts].chartData[datas].total) {
+                                            if(keyValuePairs.search('/') > -1) {
+                                                endpointArray = keyValuePairs.split('/');
+                                                for(var splittedValues in endpointArray) {
+                                                    if(endpointArray[splittedValues] == currentItem)
+                                                        yValue += parseFloat(widget.charts[charts].chartData[datas].total[keyValuePairs]);
+                                                }
+                                            }
+                                            else if(keyValuePairs == currentItem)
+                                                yValue += widget.charts[charts].chartData[datas].total[currentItem];
                                         }
                                     }
                                 }

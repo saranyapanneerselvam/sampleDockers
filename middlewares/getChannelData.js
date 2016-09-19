@@ -787,16 +787,16 @@ exports.getChannelData = function (req, res, next) {
                                                 initD = 1;
                                             else
                                                 initD = 2;
+                                            for (var g = 0; g < groupedData[i].data.length; g++) {
+                                                var finalDimensionData = groupedData[i].data[g][dimensionList[1].name.substr(3)];
                                             for (var d = initD; d < dimensionList.length; d++) {
-                                                for (var g = 0; g < groupedData[i].data.length; g++) {
-                                                    var dimensionData = groupedData[i].data[g][dimensionList[1].name.substr(3)];
                                                     if (initD === 1)
-                                                        var finalDimensionData = dimensionData;
+                                                        finalDimensionData = finalDimensionData;
                                                     else
-                                                        var finalDimensionData = dimensionData + '/' + groupedData[i].data[g][dimensionList[d].name.substr(3)];
+                                                        finalDimensionData = finalDimensionData + '/' + groupedData[i].data[g][dimensionList[d].name.substr(3)];
                                                     var replacedValue = finalDimensionData.split('.').join('002E');
-                                                    objToStoreFinalData[replacedValue] = groupedData[i].data[g].total;
                                                 }
+                                                    objToStoreFinalData[replacedValue] = groupedData[i].data[g].total;
                                                 storeFinalData.push({
                                                     total: objToStoreFinalData,
                                                     date: groupedData[i].date

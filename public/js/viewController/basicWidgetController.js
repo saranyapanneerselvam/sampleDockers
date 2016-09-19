@@ -227,7 +227,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         if(level) {
             var setLimitation=0;
             for (var getData in getReferenceWidgetsArr) {
-                if(getReferenceWidgetsArr[getData].name == "Cost per campaign objective action") setLimitation=1;
+                if(getReferenceWidgetsArr[getData].name == "Cost per objective") setLimitation=1;
                 else setLimitation=0;
             }
             if(!this.objectTypeOptionsModel){

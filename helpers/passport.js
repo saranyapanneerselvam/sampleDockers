@@ -105,7 +105,7 @@ module.exports = function (passport) {
                                         return done(err);
                                     else {
                                         var mailOptionsSubmitter = {
-                                            from: 'Datapoolt Invites <configAuth.emailVerification.username>',
+                                            from: 'Datapoolt Invites <alerts@datapoolt.co>',
                                             to: user.email,
                                             subject: user.name + ', we\'ve received your request for an invite' ,
                                             // HTML Version

@@ -5,10 +5,10 @@ var objectList = require('../models/objects');
 var configAuth = require('../config/auth');
 var nodemailer = require('nodemailer');
 var transporter = nodemailer.createTransport({
-    service: 'Gmail',
+    service: configAuth.emailVerification.service,
     auth: {
-        user: 'rajalakshmi.c@habile.in',
-        pass: 'habile3238'
+        user: configAuth.emailVerification.username,
+        pass: configAuth.emailVerification.password
     }
 });
 var User = require('../models/user');

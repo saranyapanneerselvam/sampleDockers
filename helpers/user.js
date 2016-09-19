@@ -273,7 +273,7 @@ exports.generateToken = function (req, res, done) {
                 else {
                     var verificationUrl = configAuth.emailVerification.redirectVerifyUserToken + tokenId;
                     var mailOptions = {
-                        from: 'Datapoolt Team <configAuth.emailVerification.username>',
+                        from: 'Datapoolt Team <alerts@datapoolt.co>',
                         to: req.userEmail,
                         subject: userDetail.name + ",we've received your request to reset password",
 

@@ -157,7 +157,7 @@ exports.emailVerification=function(req,res,next){
                                         return res.status(204).json({error: 'No records found'});
                                     else {
                                         var mailOptionsSubmitter = {
-                                            from: 'Datapoolt Invites <configAuth.emailVerification.username>',
+                                            from: 'Datapoolt Invites <alerts@datapoolt.co>',
                                             to: unVerifiedUser.email,
                                             subject: unVerifiedUser.name + ', we\'ve received your request for an invite',
                                             // HTML Version

@@ -498,7 +498,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                     else if(chartType == "pie"){
                         if(typeof(widget.charts[charts].chartData[0].total) === 'object') {
                             var endpoint = [];
-                            for(objectTypes in widget.charts[charts].metricDetails.objectTypes){
+                            for(var objectTypes in widget.charts[charts].metricDetails.objectTypes){
                                 if(widget.charts[charts].metricDetails.objectTypes[objectTypes].objectTypeId == widget.charts[charts].chartObjectTypeId)
                                     endpoint = widget.charts[charts].metricDetails.objectTypes[objectTypes].meta.endpoint;
                             }
@@ -518,12 +518,12 @@ showMetricApp.service('createWidgets',function($http,$q){
                                                 }
                                             }
                                             else if(keyValuePairs == currentItem)
-                                                yValue += widget.charts[charts].chartData[datas].total[currentItem];
+                                                yValue += parseFloat(widget.charts[charts].chartData[datas].total[currentItem]);
                                         }
                                     }
                                 }
                                 formattedChartData.push({
-                                    y: yValue
+                                    y: (parseFloat(yValue).toFixed(2) % Math.floor(parseFloat(yValue).toFixed(2))) > 0 ? parseFloat(yValue).toFixed(2): parseFloat(yValue).toFixed(2) > 1 ? parseInt(yValue) : parseFloat(yValue) >0 ? parseFloat(yValue).toFixed(2) : parseInt(yValue)
                                 });
                                 formattedChartDataArray.push(formattedChartData);
                             }
@@ -532,10 +532,10 @@ showMetricApp.service('createWidgets',function($http,$q){
                         else {
                             var yValue = 0;
                             for(datas in widget.charts[charts].chartData) {
-                                yValue += parseInt(widget.charts[charts].chartData[datas].total);
+                                yValue += parseFloat(widget.charts[charts].chartData[datas].total);
                             }
                             formattedChartData.push({
-                                y: yValue
+                                y: (parseFloat(yValue).toFixed(2) % Math.floor(parseFloat(yValue).toFixed(2))) > 0 ? parseFloat(yValue).toFixed(2): parseFloat(yValue).toFixed(2) > 1 ? parseInt(yValue) : parseFloat(yValue) >0 ? parseFloat(yValue).toFixed(2) : parseInt(yValue)
                             });
                             widget.charts[charts].chartData = formattedChartData;
                         }

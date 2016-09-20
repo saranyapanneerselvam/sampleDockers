@@ -432,6 +432,69 @@ showMetricApp.service('createWidgets',function($http,$q){
                             widget.charts[charts].chartData = formattedChartData;
                         }
                     }
+                    else if(chartType == "trafficSourcesBrkdwnLine") {
+                        if(typeof widget.charts[charts].chartData[0].total == 'object') {
+                            var endpoint;
+                            for(objectTypes in widget.charts[charts].metricDetails.objectTypes){
+                                if(widget.charts[charts].metricDetails.objectTypes[objectTypes].objectTypeId == widget.charts[charts].chartObjectTypeId)
+                                    endpoint = widget.charts[charts].metricDetails.objectTypes[objectTypes].meta.endpoint;
+                            }
+                            var formattedChartDataArray = [];
+
+                                for(datas in widget.charts[charts].chartData){
+                                    var yValue = 0, endpointArray;
+                                    if(widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )) {
+                                        for(var keyValuePairs in widget.charts[charts].chartData[datas].total) {
+                                            typeof (widget.charts[charts].chartData[datas].total['social/Yes']) != 'undefined' ? Number(widget.charts[charts].chartData[datas].total['social/Yes']):0;
+                                            if(keyValuePairs.search('/') > -1) {
+                                                endpointArray = keyValuePairs.split('/');
+                                                if(endpointArray[1]=='Yes'){
+                                                    widget.charts[charts].chartData[datas].total['social/Yes'] = Number(widget.charts[charts].chartData[datas].total[keyValuePairs]);
+                                                    widget.charts[charts].chartData[datas].total[keyValuePairs] = 0;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                            for(items in endpoint){
+                                var currentItem = endpoint[items];
+                                var formattedChartData = [];
+                                for(datas in widget.charts[charts].chartData){
+                                    var yValue = 0, endpointArray;
+                                    if(widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )) {
+                                        for(var keyValuePairs in widget.charts[charts].chartData[datas].total) {
+                                            if(keyValuePairs.search('/') > -1) {
+                                                endpointArray = keyValuePairs.split('/');
+                                                for(var splittedValues in endpointArray) {
+                                                    if(endpointArray[splittedValues] == currentItem)
+                                                        yValue += parseFloat(widget.charts[charts].chartData[datas].total[keyValuePairs]);
+                                                }
+                                            }
+                                            else if(keyValuePairs == currentItem)
+                                                yValue = widget.charts[charts].chartData[datas].total[currentItem];
+                                        }
+                                    }
+                                    formattedChartData.push({
+                                        x: moment(widget.charts[charts].chartData[datas].date),
+                                        y: yValue
+                                    });
+                                }
+                                formattedChartDataArray.push(formattedChartData);
+                            }
+                            widget.charts[charts].chartData = formattedChartDataArray;
+                        }
+                        else {
+                            var formattedChartData = [];
+                            for(var datas in widget.charts[charts].chartData) {
+                                formattedChartData.push({
+                                    x: moment(widget.charts[charts].chartData[datas].date),
+                                    y: widget.charts[charts].chartData[datas].total != null ? widget.charts[charts].chartData[datas].total : 0
+                                });
+                            }
+                            widget.charts[charts].chartData = formattedChartData;
+                        }
+                    }
                     else if(chartType == "pie"){
                         if(typeof(widget.charts[charts].chartData[0].total) === 'object') {
                             var endpoint = [];
@@ -440,6 +503,66 @@ showMetricApp.service('createWidgets',function($http,$q){
                                     endpoint = widget.charts[charts].metricDetails.objectTypes[objectTypes].meta.endpoint;
                             }
                             var formattedChartDataArray = [];
+                            for(items in endpoint){
+                                var currentItem = endpoint[items];
+                                formattedChartData = [];
+                                var yValue = 0;
+                                for(datas in widget.charts[charts].chartData){
+                                    if(widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )) {
+                                        for(var keyValuePairs in widget.charts[charts].chartData[datas].total) {
+                                            if(keyValuePairs.search('/') > -1) {
+                                                endpointArray = keyValuePairs.split('/');
+                                                for(var splittedValues in endpointArray) {
+                                                    if(endpointArray[splittedValues] == currentItem)
+                                                        yValue += parseFloat(widget.charts[charts].chartData[datas].total[keyValuePairs]);
+                                                }
+                                            }
+                                            else if(keyValuePairs == currentItem)
+                                                yValue += widget.charts[charts].chartData[datas].total[currentItem];
+                                        }
+                                    }
+                                }
+                                formattedChartData.push({
+                                    y: yValue
+                                });
+                                formattedChartDataArray.push(formattedChartData);
+                            }
+                            widget.charts[charts].chartData = formattedChartDataArray;
+                        }
+                        else {
+                            var yValue = 0;
+                            for(datas in widget.charts[charts].chartData) {
+                                yValue += parseInt(widget.charts[charts].chartData[datas].total);
+                            }
+                            formattedChartData.push({
+                                y: yValue
+                            });
+                            widget.charts[charts].chartData = formattedChartData;
+                        }
+                    }
+                    else if(chartType == "trafficSourcesBrkdwnPie"){
+                        if(typeof(widget.charts[charts].chartData[0].total) === 'object') {
+                            var endpoint = [];
+                            for(objectTypes in widget.charts[charts].metricDetails.objectTypes){
+                                if(widget.charts[charts].metricDetails.objectTypes[objectTypes].objectTypeId == widget.charts[charts].chartObjectTypeId)
+                                    endpoint = widget.charts[charts].metricDetails.objectTypes[objectTypes].meta.endpoint;
+                            }
+                            var formattedChartDataArray = [];
+                            for(datas in widget.charts[charts].chartData){
+                                var yValue = 0, endpointArray;
+                                if(widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )) {
+                                    for(var keyValuePairs in widget.charts[charts].chartData[datas].total) {
+                                        typeof (widget.charts[charts].chartData[datas].total['social/Yes']) != 'undefined' ? Number(widget.charts[charts].chartData[datas].total['social/Yes']):0;
+                                        if(keyValuePairs.search('/') > -1) {
+                                            endpointArray = keyValuePairs.split('/');
+                                            if(endpointArray[1]=='Yes'){
+                                                widget.charts[charts].chartData[datas].total['social/Yes'] = Number(widget.charts[charts].chartData[datas].total[keyValuePairs]);
+                                                widget.charts[charts].chartData[datas].total[keyValuePairs] = 0;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                             for(items in endpoint){
                                 var currentItem = endpoint[items];
                                 formattedChartData = [];
@@ -850,7 +973,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                 }
                 for(var charts in widget.charts) {
                     var chartType = widget.charts[charts].chartType;
-                    if(chartType == "line" || chartType == "bar" || chartType == "area" || chartType == "pie" || chartType=='mozoverview' || ((chartType == "costPerActionType") && (widget.meta != undefined))) {
+                    if(chartType == "line" || chartType == "bar" || chartType == "area" || chartType == "pie" || chartType=='mozoverview' || chartType == "trafficSourcesBrkdwnLine" || chartType == "trafficSourcesBrkdwnPie"||((chartType == "costPerActionType") && (widget.meta != undefined))) {
                         if(typeof widget.charts[charts].chartData[0] != 'undefined') {
                             if(widget.charts[charts].chartData[0].x){
                                 var summaryValue = 0;
@@ -971,6 +1094,30 @@ showMetricApp.service('createWidgets',function($http,$q){
                                         'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
                                     });
                                 }
+                                else if(chartType == 'trafficSourcesBrkdwnLine') {
+                                    widgetCharts.push({
+                                        'type': 'line',
+                                        'values': widget.charts[charts].chartData,      //values - represents the array of {x,y} data points
+                                        'key': widget.charts[charts].metricDetails.name, //key  - the name of the series.
+                                        'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
+                                        'arrow':comparingData,
+                                        'variance':percentage,
+                                        'period':granularity,
+                                        'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
+                                    });
+                                }
+                                else if(chartType == 'trafficSourcesBrkdwnPie') {
+                                    widgetCharts.push({
+                                        'type': 'pie',
+                                        'values': widget.charts[charts].chartData,      //values - represents the array of {x,y} data points
+                                        'key': widget.charts[charts].metricDetails.name, //key  - the name of the series.
+                                        'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
+                                        'arrow':comparingData,
+                                        'variance':percentage,
+                                        'period':granularity,
+                                        'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
+                                    });
+                                }
                                 else {
                                     widgetCharts.push({
                                         'type': widget.charts[charts].chartType,
@@ -1061,6 +1208,30 @@ showMetricApp.service('createWidgets',function($http,$q){
                                         widgetCharts.push({
                                             'type': widget.charts[charts].chartType,
                                             'values': widget.charts[charts].chartData[items],      //values - represents the array of {x,y} data points
+                                            'key': typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName != 'undefined'? (typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode] != 'undefined'? widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode]: widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items]) : widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items],
+                                            'color': typeof widget.charts[charts].chartColour != 'undefined' ? (typeof widget.charts[charts].chartColour[items] != 'undefined'? widget.charts[charts].chartColour[items] : '') : '',  //color - optional: choose your own line color.
+                                            'arrow':comparingData,
+                                            'variance':percentage,
+                                            'period':granularity,
+                                            'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
+                                        });
+                                    }
+                                    else if(chartType == 'trafficSourcesBrkdwnLine') {
+                                        widgetCharts.push({
+                                            'type': 'line',
+                                            'values': widget.charts[charts].chartData[items],      //values - represents the array of {x,y} data points
+                                            'key': typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName != 'undefined'? (typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode] != 'undefined'? widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode]: widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items]) : widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items],
+                                            'color': typeof widget.charts[charts].chartColour != 'undefined' ? (typeof widget.charts[charts].chartColour[items] != 'undefined'? widget.charts[charts].chartColour[items] : '') : '',  //color - optional: choose your own line color.
+                                            'arrow':comparingData,
+                                            'variance':percentage,
+                                            'period':granularity,
+                                            'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
+                                        });
+                                    }
+                                    else if(chartType == 'trafficSourcesBrkdwnPie') {
+                                        widgetCharts.push({
+                                            'type': 'pie',
+                                            'y': parseFloat(summaryValue),       //values - represents the array of {x,y} data points
                                             'key': typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName != 'undefined'? (typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode] != 'undefined'? widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode]: widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items]) : widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items],
                                             'color': typeof widget.charts[charts].chartColour != 'undefined' ? (typeof widget.charts[charts].chartColour[items] != 'undefined'? widget.charts[charts].chartColour[items] : '') : '',  //color - optional: choose your own line color.
                                             'arrow':comparingData,

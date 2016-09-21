@@ -194,14 +194,14 @@ module.exports = {
     googleAdwordsStatic:{
         host:'https://adwords.google.com/api/adwords/reportdownload/v201601',
         ADGROUP_PERFORMANCE_REPORT:'ADGROUP_PERFORMANCE_REPORT',
-        adGroupId:'AdGroupId,',
-        date:'Date,',
-        adGroupIdEqual:"AdGroupId=",
-        campaignId:'CampaignId,',
+        adGroupId:'AdGroupId',
+        date:'Date',
+        adGroupIdEqual:"AdGroupId",
+        campaignId:'CampaignId',
         CAMPAIGN_PERFORMANCE_REPORT:'CAMPAIGN_PERFORMANCE_REPORT',
-        campaignEqual:"CampaignId=",
-        id:'Id,',
-        idEquals:"Id=",
+        campaignEqual:"CampaignId",
+        id:'Id',
+        idEquals:"Id",
         AD_PERFORMANCE_REPORT:'AD_PERFORMANCE_REPORT',
         ACCOUNT_PERFORMANCE_REPORT:'ACCOUNT_PERFORMANCE_REPORT'
     },
@@ -253,7 +253,8 @@ module.exports = {
     },
 
     widgetType:{
-        customFusion:'customFusion'
+        customFusion:'customFusion',
+        insights:'insights'
     },
 
     dataFormat:{
@@ -275,12 +276,14 @@ module.exports = {
         apiKey:"77baa3687f263b77dbda4f97b5111b62-us13"
 
     },
+    
     'pinterest':{
         clientID        : '4838237239574020593',
         clientSecret    : '84fe4b846f68a8f896282f5b55cdd23b0d341d6fb07fcd4920bebb3c5eaff4b7',
         redirect_uri : 'https://localhost:8080/auth/pinterest/callback',
         scope:'read_public,read_relationships'
     },
+    
     'linkedIn':{
         clientID :'81rzqsz9vo6vk4',
         clientSecret :'qWo9LU2s6KJ9EnNI',
@@ -290,6 +293,7 @@ module.exports = {
         site:'https://www.linkedin.com/oauth/',
         authorizationPath: 'v2/authorization'
     },
+    
     'batchJobs':{
         dataBase:"mongodb://admin:admin@localhost:27017/datapoolt_19082016",
         mail:{
@@ -301,29 +305,34 @@ module.exports = {
         successBatchJobMessage:'success:Update channel data',
         successAlertMessage:'success:Send Alert'
     },
+    
     'batchJobsMoz':{
         accessId: 'mozscape-d79bd6e88f',
         secret: 'e093b821ca077d42fd113db646c22487',
         expires: 300
     },
+    
     pinterestMetrics:{
         boardsLeaderBoard:'boardsleaderboard',
         engagementRate:'engagementRate'
     },
+    
     linkedInMetrics:{
         endPoints:{
             followers:'followers'
-    },
-        
+        },
         highestEngagementUpdatesLinkedIn:'highestEngagementUpdatesLinkedIn'
     },
+    
     vimeoMetric:{
         vimeohighengagement:'vimeohighengagement',
         vimeoviews:'vimeoviews',
     },
+    
     facebookSite:{
         site:'https://graph.facebook.com/'
     },
+    
     instagramStaticVariables:{
         user:'user',
         likes:'likes',
@@ -331,6 +340,7 @@ module.exports = {
         count:'count',
         recentPost:'Recent Posts'
     },
+    
     mailChimpQueryVariables:{
         lists:'lists',
         listQuery:'.api.mailchimp.com/3.0/lists/',
@@ -339,6 +349,7 @@ module.exports = {
         campaign:'campaign',
         emailSend:'emailSend',
     },
+    
     aweberStatic:{
         endPoints: {
             aweberMainList: 'mainlists',
@@ -363,7 +374,14 @@ module.exports = {
         links:'links',
         page_authority:'page_authority',
         domain_authority:'domain_authority'
+    }, 
+    
+    insights:{
+        topSentiment:'topSentiment', 
+        shareOfVoice:'shareOfVoice', 
+        twitterWordCloud:'twitterWordCloud'
     },
+    
     emailVerification:{
         validity:24*60*60*1000,
         duration:2,
@@ -379,6 +397,10 @@ module.exports = {
         mailResend:'mailResend',
         redirectVerifyUserToken:'http://localhost:8080/verifyUserToken?token=',
         inValid:'Invalid'
+    },
+    
+    JobTypes:{
+        insightsJobs:['batchjobforinsights','shareOfVoice']
     }
 
 };

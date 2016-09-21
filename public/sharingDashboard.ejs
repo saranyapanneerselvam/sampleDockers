@@ -26,8 +26,8 @@
                         </div>
                     </div>
                 </div>
-                   <div class="white-bg dashboardContent">
-                    <div gridster="gridsterOptions" class="row" style="border: 1px solid #efefef;min-height: 500px" id="gridsterItems"><!--ng-switch-when="true"-->
+                   <div class="greyish-bg urlDashboardContent">
+                    <div gridster="gridsterOptions" class="row gridsterStlyeOptions" id="gridsterItems"><!--ng-switch-when="true"-->
                         <ul>
                             <li gridster-item="widget" ng-repeat="(widgetIndex,widget) in dashboard.widgets">
                                 <div class="box getBox-{{widget.id}}" ng-controller="CustomWidgetController" id="{{widget.id}}">
@@ -67,7 +67,7 @@
                                                     <div style="height:99%;">
                                                         <div style="position:relative; top:25%; text-align:center; padding-right:20px">
                                                             <p style="word-wrap:break-word;font-size: 10px;">Access to one or more profiles has expired</p>
-                                                            <a ui-sref="app.reporting.dashboard.listProfile"><i style="color: #23527c;" class="fa fa-refresh" aria-hidden="true"> </i><p style="color:#000;font-size: 10px">  Refresh</p></a>
+                                                            <p><i style="color: #23527c;" class="fa fa-refresh" aria-hidden="true"> </i><p style="color:#000;font-size: 10px">  Refresh</p></p>
                                                         </div>
                                                     </div>
                                                 </div>

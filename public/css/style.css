@@ -2259,8 +2259,12 @@ body.mini-navbar .branding {
     z-index: 2050 !important;
 }
 .spiner-example {
-    height: 200px;
-    margin: 16% 34%!important;
+    padding-left: 40%;
+    padding-right: 40%;
+    position: relative;
+    align-items: center;
+    vertical-align: bottom;
+    height: inherit;
 }
 .m-b {
     margin-bottom: 15px;
@@ -3157,25 +3161,25 @@ svg.nvd3-svg {
  *
  */
 .sk-spinner-double-bounce.sk-spinner {
-    width: 40px;
-    height: 40px;
+    width: 100%;
+    height: 100%;
     position: relative;
-    top: 10%;
-    left: 30%;
-
+    vertical-align: bottom;
 }
 .sk-spinner-double-bounce .sk-double-bounce1,
 .sk-spinner-double-bounce .sk-double-bounce2 {
-    width: 100%;
-    height: 100%;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     background-color: #2F4050;
     opacity: 0.6;
     position: absolute;
-    top: 0;
-    left: 0;
     -webkit-animation: sk-doubleBounce 2s infinite ease-in-out;
     animation: sk-doubleBounce 2s infinite ease-in-out;
+    bottom: 50%;
+    top: 40%;
+    right: 30%;
+    left: 30%;
 }
 .sk-spinner-double-bounce .sk-double-bounce2 {
     -webkit-animation-delay: -1s;
@@ -4725,6 +4729,9 @@ body.rtls.top-navigation .footer.fixed {
 .modal-profilelist{
     width:60% !important;
 }
+.adjustPadding{
+    padding-top: 15px !important;
+}
 .profiletitle{
     font-family: Heebo-Medium !important;
     color: #04509B !important;
@@ -4747,30 +4754,29 @@ hr{
     margin: 0 auto;
     padding: 100px 20px 20px 20px;
 }
+    .profilelisImg{
+        margin: 0px 5px 0px 0px !important;
+    border: none;
+    max-width:30px;
+    max-height:30px;
+    }
 
-@media(max-width : 1500px) and (min-width : 900px) {
-    .profilelisImg{
-        max-width:16% !important;
-        max-height:20%!important;
-        margin: 0px 5px 0px 0px !important;
-    }
-}
-@media(max-width : 890px) and (min-width : 760px) {
-    .profilelisImg{
-        max-width:20% !important;
-        max-height:20%!important;
-        margin: 0px 5px 0px 0px !important;
-    }
-}
 @media(max-width : 760px) {
-    .profilelisImg{
-        max-width:6% !important;
-        max-height:20%!important;
-        margin: 0px 5px 0px 0px !important;
-    }
+
     .bottomline{
         height: 97px !important;
         border:none !important;
+    }
+}
+@media(max-width : 760px) {
+
+    .bottomline{
+        height: 97px !important;
+        border:none !important;
+    }
+    .modal-profilelist {
+        width: 93% !important;
+        margin-top: 15px;
     }
 }
 

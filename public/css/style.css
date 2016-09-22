@@ -160,6 +160,12 @@ svg:hover #Calendar-Icon { fill: #293846; }
     font-family: Heebo-Medium;
     color:#04509B;
 }
+.dashboardContentmodel-title {
+    text-align:center !important;
+    font-size: 20px;
+    font-family: Heebo-Medium;
+    color:#04509B;
+}
 .daterange{width: 300px;
     float: left;}
 .button-mode:disabled{
@@ -4793,10 +4799,18 @@ button.overlayCloseButton {
     color: #04509B;
     border: 2px #04509B
 }
+.dashboardContentJpeg{
+    min-height: 500px !important;
+    position: relative;
+    left: 0px;
+    top: 0px;
+    z-index: 0;
+    padding-bottom: 50px!important;
+}
 
 .exportDashbdNameStyle{
     font-size:19px!important;
-    font-family: Heebo !important ;
+    font-family: Heebo-Thin !important ;
     font-style: normal !important;
     font-weight:200 !important;
     text-transform: uppercase;

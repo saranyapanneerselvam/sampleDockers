@@ -33,7 +33,7 @@
         <div class="parallel-dashboard greyish-bg" ng-if="widgetsPresent == false">
             <a ui-sref="app.reporting.dashboard.basicWidget({widgetType:'basic'})"><div class="white-bg empty-dashboard"><span>Add your first widget</span></div></a>
         </div>
-        <div class="greyish-bg dashboardContent" ng-if="widgetsPresent == true">
+        <div id="dashboardContent"class="greyish-bg dashboardContent" ng-if="widgetsPresent == true">
             <div gridster="gridsterOptions" class="row gridsterStlyeOptions" id="gridsterItems"><!--ng-switch-when="true"-->
                 <ul>
                     <li gridster-item="widget" ng-repeat="(widgetIndex,widget) in dashboard.widgets">

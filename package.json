@@ -47,6 +47,7 @@
     "morgan": "~1.0.0",
     "mozscape-request": "0.0.4",
     "node-pinterest": "0.0.3",
+    "node-adwords": "*",
     "nodemailer": "^2.3.2",
     "oauth": "^0.9.14",
     "passport": "~0.1.17",

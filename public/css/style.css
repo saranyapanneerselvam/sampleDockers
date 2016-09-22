@@ -4725,6 +4725,9 @@ body.rtls.top-navigation .footer.fixed {
 .modal-profilelist{
     width:60% !important;
 }
+.adjustPadding{
+    padding-top: 15px !important;
+}
 .profiletitle{
     font-family: Heebo-Medium !important;
     color: #04509B !important;
@@ -4747,30 +4750,29 @@ hr{
     margin: 0 auto;
     padding: 100px 20px 20px 20px;
 }
+    .profilelisImg{
+        margin: 0px 5px 0px 0px !important;
+    border: none;
+    max-width:30px;
+    max-height:30px;
+    }
 
-@media(max-width : 1500px) and (min-width : 900px) {
-    .profilelisImg{
-        max-width:16% !important;
-        max-height:20%!important;
-        margin: 0px 5px 0px 0px !important;
-    }
-}
-@media(max-width : 890px) and (min-width : 760px) {
-    .profilelisImg{
-        max-width:20% !important;
-        max-height:20%!important;
-        margin: 0px 5px 0px 0px !important;
-    }
-}
 @media(max-width : 760px) {
-    .profilelisImg{
-        max-width:6% !important;
-        max-height:20%!important;
-        margin: 0px 5px 0px 0px !important;
-    }
+
     .bottomline{
         height: 97px !important;
         border:none !important;
+    }
+}
+@media(max-width : 760px) {
+
+    .bottomline{
+        height: 97px !important;
+        border:none !important;
+    }
+    .modal-profilelist {
+        width: 93% !important;
+        margin-top: 15px;
     }
 }
 

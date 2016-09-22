@@ -196,7 +196,7 @@ svg:hover #Calendar-Icon { fill: #293846; }
 @font-face { font-family: Bebas Neue-book; font-weight: bold; src: url('../fonts/BebasNeue/BebasNeue_Book.otf');}
 @font-face { font-family: Bebas Neue-thin; font-weight: bold; src: url('../fonts/BebasNeue/BebasNeue_Thin.otf');}
 @font-face { font-family: Bebas Neue-light; font-weight: bold; src: url('../fonts/BebasNeue/BebasNeue_Light.otf');}
-.nav li a:hover .nav-label{color: #a7b1c2 !important;}
+.nav li a:hover .nav-label{color: #ffffff !important;}
 .add-profile{float: left;margin: 0px ; text-align: left;!important}
 .fa-3x{font-size: 28px!important;color:#fff;padding-left: 5px;}
 .remove-profile{float: right;margin: 0px ;text-align: right;}
@@ -318,8 +318,7 @@ svg:hover #Calendar-Icon { fill: #293846; }
     display: block;
 }
 
-.dropdown a img:hover {background-color: #f1f1f1}
-
+.dropdown a img:hover {/*background-color: #f1f1f1*/}
 .shw {display:block;}
 
 .graph-icon{float: right; margin-top: 7px;margin-right: -25px;}
@@ -395,7 +394,7 @@ h5 {
 }
 .navbar-default .nav > li > a:hover,
 .navbar-default .nav > li > a:focus {
-
+    background-color: #293846;
     color: #000000;
 }
 .nav .open > a,
@@ -2304,8 +2303,20 @@ body.mini-navbar.fixed-sidebar .profile-element,
 body.mini-navbar.fixed-sidebar .nav-header {
     padding: 33px 25px;
 }
-body.mini-navbar.fixed-sidebar .logo-element {
+body.mini-navbar .logo-element {
+    display: block !important;
+}
+.logo-element {
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+    color: white;
     display: none;
+    padding: 18px 0;
+}
+.dataimage{
+    height: 25px;
+    width:50px;
 }
 
 /* INVOICE */
@@ -3057,6 +3068,9 @@ svg.nvd3-svg {
     width: 30px;
     height: 30px;
     margin: 0 auto;
+}
+.sidebarmenu :hover{
+    background-color: #0e0e0e;
 }
 .sk-spinner-cube-grid .sk-cube {
     width: 33%;

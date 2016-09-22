@@ -549,9 +549,10 @@ exports.getChannelData = function (req, res, next) {
 
                     //check already there is one year data in db
                     if (data[j].data != null) {
-                        data[j].data.updated.setDate(data[j].data.updated.getDate());
-                        var updated = formatDate(data[j].data.updated);
-                        var now = formatDate(new Date());
+                        var updated = new Date(data[j].data.updated);
+                        updated= updated.setHours(updated.getHours() + configAuth.dataValidityInHours);
+                        updated=new Date(updated);
+                        var now = new Date();                        
                         if (updated < now) {
                             var updated = formatDate(data[j].data.updated);
                             var now = new Date();
@@ -1992,12 +1993,15 @@ exports.getChannelData = function (req, res, next) {
                             else
                                 var metricName = metric[i].objectTypes[0].meta.gaMetricName;
                             if (data[i].data != null) {
-                                var startDate = formatDate(data[i].data.updated);
-                                var endDate = formatDate(d);
+                                var updated = new Date(data[i].data.updated);
+                                updated= updated.setHours(updated.getHours() + configAuth.dataValidityInHours);
+                                startDate=new Date(updated);
+                                var endDate = new Date();
                                 if (startDate < endDate) {
                                     startDate = data[i].data.updated;
                                    //startDate.setDate(startDate.getDate() + 1);
                                     startDate = moment(startDate).format('YYYY-MM-DD');
+                                    endDate=moment(endDate).format('YYYY-MM-DD');
                                     allObjects = {
                                         oauth2Client: oauth2Client,
                                         object: object[i],
@@ -2128,7 +2132,7 @@ exports.getChannelData = function (req, res, next) {
                     analytics(apiQuery, function (err, result) {
                         if (err) {
                             if (err.code === 400)
-                            { profile.update({_id: result.profile._id}, {
+                            { profile.update({_id: results.get_profile[0]._id}, {
                                 hasNoAccess:true
                             }, function(err, response) {
                                 if(!err){
@@ -2263,16 +2267,16 @@ exports.getChannelData = function (req, res, next) {
                     }
 
                     if (data[j].data != null) {
-                        var updated = calculateDate(data[j].data.updated);
-                        var currentDate = calculateDate(new Date());
-                        d.setDate(d.getDate() + 1);
-                        var startDate = calculateDate(d);
-                        var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+                        var updated = new Date(data[j].data.updated);
+                        updated= updated.setHours(updated.getHours() + configAuth.dataValidityInHours);
+                        updated=new Date(updated);
+                        var currentDate = new Date();
                         if (updated < currentDate) {
                             updated = data[j].data.updated;
                             // updated.setDate(updated.getDate() + 1);
-                            updated = moment(updated).format('YYYY-MM-DD')
-                            var query = configAuth.apiVersions.FBADs + "/" + adAccountId + "/insights?limit=365&time_increment=1&fields=" + initialResults.metric[j].objectTypes[0].meta.fbAdsMetricName + '&time_range[since]=' + updated + '&time_range[until]=' + startDate;
+                            updated = moment(updated).format('YYYY-MM-DD');
+                            currentDate = moment(new Date()).format('YYYY-MM-DD');
+                            var query = configAuth.apiVersions.FBADs + "/" + adAccountId + "/insights?limit=365&time_increment=1&fields=" + initialResults.metric[j].objectTypes[0].meta.fbAdsMetricName + '&time_range[since]=' + updated + '&time_range[until]=' + currentDate;
                             allObjects = {
                                 profile: initialResults.get_profile[j],
                                 query: query,
@@ -2484,16 +2488,16 @@ exports.getChannelData = function (req, res, next) {
                         else {
                             var allObjects = {};
                             if (data[j].data != null) {
-                                var updated = calculateDate(data[j].data.updated);
-                                var currentDate = calculateDate(new Date());
-                                d.setDate(d.getDate() + 1);
-                                var startDate = moment(new Date()).format('YYYY-MM-DD');
-                                //var newEndDate = startDate.replace(/-/g, "");
-                                // startDate = newEndDate;
+                                var updated = new Date(data[j].data.updated);
+                                updated= updated.setHours(updated.getHours() + configAuth.dataValidityInHours);
+                                updated=new Date(updated);
+                                var currentDate = new Date();
+                                console.log('diffime',updated,currentDate);
                                 if (calculateDate(data[j].data.updated) < currentDate) {
                                     var updated = data[j].data.updated;
                                     var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
                                     updated = moment(updated).format('YYYY-MM-DD');
+                                    var startDate = moment(new Date()).format('YYYY-MM-DD');
                                     // var newStartDate = updated.replace(/-/g, "");
                                     if (configAuth.objectType.googleAdwordAdGroup == objectType.type) {
                                         var query = [configAuth.googleAdwordsStatic.adGroupId , configAuth.googleAdwordsStatic.date , initialResults.metric[j].objectTypes[0].meta.gAdsMetricName];

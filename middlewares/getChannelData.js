@@ -6,7 +6,7 @@ var channels = require('../models/channels');
 var FB = require('fb');
 var exports = module.exports = {};
 var request = require('request');
-
+var insights=require('../helpers/insights')
 //To use google api's
 var googleapis = require('googleapis');
 
@@ -128,6 +128,7 @@ exports.getChannelData = function (req, res, next) {
     //To check whether the user has required permission to get the widget data
     Widget.findOne({_id: req.params.widgetId}, {dashboardId: 1, charts: 1, widgetType: 1}, function (err, response) {
         var dashboardId = response.dashboardId;
+        var widgetType=response.widgetType;
         if (req.user) {
             User.findOne({
                 _id: req.user._id,
@@ -137,8 +138,20 @@ exports.getChannelData = function (req, res, next) {
                     return res.status(500).json({error: 'Internal Server Error', id: req.params.widgetId});
                 else if (!user)
                     return res.status(401).json({error: 'User not found', id: req.params.widgetId});
-                else
-                    callEntireDataFunction();
+                else{
+                    if(widgetType === configAuth.widgetType.insights ){
+                        insights.checkInsights(req,res,function(err,insights){
+                            if (err)
+                                return res.status(500).json({error: 'Internal server error'});
+                            else {
+                                req.app.result= insights;
+                                next()
+                            }
+                        })
+                    }
+                    else
+                        callEntireDataFunction();
+                }
             })
         }
         else if (req.body.params) {
@@ -770,7 +783,6 @@ exports.getChannelData = function (req, res, next) {
                                     }
                                     storeGoogleData.push(obj);
                                 }
-
                                 if (dimensionList.length > 1) {
                                     if (metric[j].objectTypes[0].meta.endpoint.length) {
                                         var result = _.chain(storeGoogleData)
@@ -819,7 +831,6 @@ exports.getChannelData = function (req, res, next) {
                                         storeGoogleData = result;
                                     }
                                 }
-
                                 var now = new Date();
                                 var wholeResponse = [];
 
@@ -2450,7 +2461,6 @@ exports.getChannelData = function (req, res, next) {
                             channelId: initialResults.metric[0].channelId
                         }
                         callback(null, queryResponse);
-
                     }
 
 
@@ -2661,7 +2671,6 @@ exports.getChannelData = function (req, res, next) {
                         else {
                             semaphore.leave();
                             data = tsvJSON(report);
-                            // console.log("data",data)
                             function tsvJSON(tsv) {
                                 var lines = tsv.split("\n");
                                 var result = [];

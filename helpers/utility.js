@@ -26,7 +26,7 @@ var self = module.exports = {
                 return res.status(500).json({error: 'Internal server error'});
             else if (!response)
                 return res.status(204).json({error: 'No records found'});
-            else{
+            else {
                 req.dashboardId = response.dashboardId;
                 if (req.user)
                     self.checkUserAccess(req, res, done);
@@ -52,11 +52,17 @@ var self = module.exports = {
         })
     },
     findObjectsForProfile: function (req, res, done) {
-        if(req.query.metaCondition === undefined && req.query.objectTypeId!=undefined){var condition = {profileId: req.params.profileID,objectTypeId:req.query.objectTypeId};}
-        else if(req.query.metaCondition!=undefined) {var condition={profileId: req.params.profileID,meta:req.query.metaCondition};}
-        else {var condition = {profileId: req.params.profileID};}
+        if (req.query.metaCondition === undefined && req.query.objectTypeId != undefined) {
+            var condition = {profileId: req.params.profileID, objectTypeId: req.query.objectTypeId};
+        }
+        else if (req.query.metaCondition != undefined) {
+            var condition = {profileId: req.params.profileID, meta: req.query.metaCondition};
+        }
+        else {
+            var condition = {profileId: req.params.profileID};
+        }
         objectList.find(condition, function (err, objects) {
-            if(err) done(err);
+            if (err) done(err);
             else if (objects != null && objects.length > 0) {
                 req.profileId = objects[0].profileId;
                 channelHelper.getChannelDetails(req, res, function (err, channel) {
@@ -98,11 +104,11 @@ var self = module.exports = {
             }
         });
     },
-    sendVerificationMail: function(mailOptions,done){
+    sendVerificationMail: function (mailOptions, done) {
         transporter.sendMail(mailOptions, function (error, info) {
             if (error) done(error)
             else {
-                done(null,'success')
+                done(null, 'success')
             }
         });
     },
@@ -112,6 +118,31 @@ var self = module.exports = {
             else if (!object) return res.status(204).json({error: 'No records found'});
             else done(null, object)
         });
+    },
+    getObjectsProfilesForInsights: function (req, res, done) {
+        var userDetails = [];
+        Object.findOne({_id: req.objectId}, function (err, object) {
+            if (err) return res.status(500).json({error: err});
+            else if (!object) return res.status(204).json({error: 'No records found'});
+            else {
+                Profile.findOne({_id: object.profileId}, function (err, profile) {
+                    if (err) return res.status(500).json({error: err});
+                    else if (!profile) return res.status(204).json({error: 'No records found'});
+                    else {
+                        userDetails.push({userId: profile.userId, name: profile.name})
+                        for (var i = 0; i < response.charts[0].competitors.length; i++) {
+                            userDetails.push({
+                                userId: response.charts[0].competitors[i].remoteObjectId,
+                                name: response.charts[0].competitors[i].name
+                            })
+                        }
+                        var entireObjectProfileDetail = {userDetails: userDetails, objectDetails: object}
+                        done(null, entireObjectProfileDetail)
+                    }
+
+                })
+            }
+        })
     }
 };
 

@@ -367,11 +367,19 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                                         $("#widgetData-"+$scope.dashboard.widgetData[i].id).hide();
                                         $("#errorWidgetData-"+$scope.dashboard.widgetData[i].id).hide();
                                         $("#errorWidgetTokenexpire-" + $scope.dashboard.widgetData[i].id).show()
+                                        $("#insightDataProcessing-" + $scope.dashboard.widgetData[i].id).hide();
+                                    }
+                                    else if ($scope.dashboard.widgetData[i].insightloading === true) {
+                                        $("#widgetData-" + $scope.dashboard.widgetData[i].id).hide();
+                                        $("#errorWidgetData-" + $scope.dashboard.widgetData[i].id).hide();
+                                        $("#errorWidgetTokenexpire-" + $scope.dashboard.widgetData[i].id).hide()
+                                        $("#insightDataProcessing-" + $scope.dashboard.widgetData[i].id).show();
                                     }
                                     else{
                                         $("#widgetData-"+$scope.dashboard.widgetData[i].id).hide();
                                         $("#errorWidgetData-"+$scope.dashboard.widgetData[i].id).show();
                                         $("#errorWidgetTokenexpire-" + $scope.dashboard.widgetData[i].id).hide()
+                                        $("#insightDataProcessing-" + $scope.dashboard.widgetData[i].id).hide();
                                     }
 
                                 }
@@ -595,10 +603,14 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                     var widgetID=0;
                     var dashboardWidgets = [];
                     for(var getWidgetInfo in dashboardWidgetList){
-                        dashboardWidgets.push(createWidgets.widgetHandler(dashboardWidgetList[getWidgetInfo],{
-                            'startDate': moment($scope.dashboardCalendar.start_date).format('YYYY-MM-DD'),
-                            'endDate': moment($scope.dashboardCalendar.end_date).format('YYYY-MM-DD')
-                        }));
+                        if(dashboardWidgetList[getWidgetInfo].widgetType === 'insights'){
+                            dashboardWidgets.push(createWidgets.insightWidgetHandler(dashboardWidgetList[getWidgetInfo]));
+                        }
+                        else
+                            dashboardWidgets.push(createWidgets.widgetHandler(dashboardWidgetList[getWidgetInfo],{
+                                'startDate': moment($scope.dashboardCalendar.start_date).format('YYYY-MM-DD'),
+                                'endDate': moment($scope.dashboardCalendar.end_date).format('YYYY-MM-DD')
+                            }));
                         $scope.dashboard.widgets.push({
                             'row': (typeof dashboardWidgetList[getWidgetInfo].row != 'undefined'? dashboardWidgetList[getWidgetInfo].row : 0),
                             'col': (typeof dashboardWidgetList[getWidgetInfo].col != 'undefined'? dashboardWidgetList[getWidgetInfo].col : 0),
@@ -625,7 +637,9 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                         });
                         dashboardWidgets[getWidgetInfo].then(
                             function successCallback(dashboardWidgets) {
-                                var widgetIndex = $scope.dashboard.widgets.map(function(el) {return el.id;}).indexOf(dashboardWidgets.id);
+                                var widgetIndex = $scope.dashboard.widgets.map(function (el) {
+                                    return el.id;
+                                }).indexOf(dashboardWidgets.id);
                                 $scope.dashboard.widgetData[widgetIndex] = dashboardWidgets;
                                 isExportOptionSet=1;
                                 $scope.loadedWidgetCount++;
@@ -633,17 +647,35 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                             function errorCallback(error){
                                 if(error.status === 401) {
                                     if (error.data.errorstatusCode === 1003) {
-                                        k = $scope.dashboard.widgetData.map(function(e) { return e.id; }).indexOf(error.data.id);
-                                        if(k !== -1 ){
-                                            $scope.dashboard.widgetData[k].dataerror=true;
+                                        k = $scope.dashboard.widgetData.map(function (e) {
+                                            return e.id;
+                                        }).indexOf(error.data.id);
+                                        if (k !== -1) {
+                                            $scope.dashboard.widgetData[k].dataerror = true;
                                         }
                                         $("#widgetData-"+error.data.id).hide();
                                         $("#errorWidgetData-"+error.data.id).hide();
                                         $("#errorWidgetTokenexpire-" + error.data.id).show();
-                                        $scope.widgetErrorCode=1;
+                                        $("#insightDataProcessing-" +
+                                             error.data.id).hide();
+                                        $scope.widgetErrorCode = 1;
                                         $scope.loadedWidgetCount++;
                                         isExportOptionSet = 0;
                                     }
+                                }
+                                else if (error.status === 202) {
+                                    k = $scope.dashboard.widgetData.map(function (e) {
+                                        return e.id;
+                                    }).indexOf(error.data.id);
+                                    if (k !== -1) {
+                                        $scope.dashboard.widgetData[k].insightloading = true;
+                                    }
+                                    $("#widgetData-" + error.data.id).hide();
+                                    $("#errorWidgetData-" + error.data.id).hide();
+                                    $("#errorWidgetTokenexpire-" + error.data.id).hide();
+                                    $("#insightDataProcessing-" + error.data.id).show();
+                                    $scope.loadedWidgetCount++;
+                                    isExportOptionSet = 0;
                                 }
                                 else {
                                     $scope.loadedWidgetCount++;
@@ -651,7 +683,8 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                                         $("#widgetData-"+error.data.id).hide();
                                         $("#errorWidgetData-"+error.data.id).show();
                                         $("#errorWidgetTokenexpire-" + error.data.id).hide();
-                                        isExportOptionSet=0;
+                                        $("#insightDataProcessing-" + error.data.id).hide();
+                                        isExportOptionSet = 0;
                                     }
                                 }
                             }
@@ -672,13 +705,18 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
     //To catch a request for a new widget creation and create the dashboard in the frontend
     $scope.$on('populateWidget', function(e,widget){
         var inputWidget = [];
-        inputWidget.push(createWidgets.widgetHandler(widget,{
-            'startDate': moment($scope.dashboardCalendar.start_date).format('YYYY-MM-DD'),
-            'endDate': moment($scope.dashboardCalendar.end_date).format('YYYY-MM-DD')
-        }));
+        if(widget.widgetType === 'insights'){
+            inputWidget.push(createWidgets.insightWidgetHandler(widget));  
+        }
+        else{ console.log("here1")
+            inputWidget.push(createWidgets.widgetHandler(widget,{
+                'startDate': moment($scope.dashboardCalendar.start_date).format('YYYY-MM-DD'),
+                'endDate': moment($scope.dashboardCalendar.end_date).format('YYYY-MM-DD')
+            }));
+        }
+
 
         $scope.widgetsPresent = true;
-
         //To temporarily create an empty widget with same id as the widgetId till all the data required for the widget is fetched by the called service
         $scope.dashboard.widgets.push({
             'row': (typeof widget.row != 'undefined'? widget.row : 0),
@@ -709,28 +747,47 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         $q.all(inputWidget).then(
             function successCallback(inputWidget){
                 $scope.loadedWidgetCount++;
-                var widgetIndex = $scope.dashboard.widgets.map(function(el) {return el.id;}).indexOf(inputWidget[0].id);
+                var widgetIndex = $scope.dashboard.widgets.map(function (el) {
+                    return el.id;
+                }).indexOf(inputWidget[0].id);
                 $scope.dashboard.widgetData[widgetIndex] = inputWidget[0];
                 isExportOptionSet=1;
             },
             function errorCallback(error){
                 if(error.status === 401) {
                     if (error.data.errorstatusCode === 1003) {
-                        k = $scope.dashboard.widgetData.map(function(e) { return e.id; }).indexOf(error.data.id);
-                        if(k !== -1 ){
-                            $scope.dashboard.widgetData[k].dataerror=true;
+                        k = $scope.dashboard.widgetData.map(function (e) {
+                            return e.id;
+                        }).indexOf(error.data.id);
+                        if (k !== -1) {
+                            $scope.dashboard.widgetData[k].dataerror = true;
                         }
                         $("#widgetData-" + widget._id).hide();
                         $("#errorWidgetData-" + widget._id).hide();
                         $("#errorWidgetTokenexpire-" + widget._id).show();
-                        $scope.widgetErrorCode=1;
+                        $("#insightDataProcessing-" + widget._id).hide()
                         $scope.loadedWidgetCount++;
                         isExportOptionSet = 0;
                     }
-                } else{
+                } else if (error.status === 202) {
+                    k = $scope.dashboard.widgetData.map(function (e) {
+                        return e.id;
+                    }).indexOf(error.data.id);
+                    if (k !== -1) {
+                        $scope.dashboard.widgetData[k].insightloading = true;
+                    }
+                    $("#widgetData-" + widget._id).hide();
+                    $("#errorWidgetData-" + widget._id).hide();
+                    $("#errorWidgetTokenexpire-" + widget._id).hide();
+                    $("#insightDataProcessing-" + widget._id).show()
+                    $scope.loadedWidgetCount++;
+                    isExportOptionSet = 0;
+                }
+                else {
                     $("#widgetData-" + widget._id).hide();
                     $("#errorWidgetData-" + widget._id).show();
                     $("#errorWidgetTokenexpire-" + widget._id).hide()
+                    $("#insightDataProcessing-" + widget._id).hide()
                     $scope.loadedWidgetCount++;
                     isExportOptionSet = 0;
                 }
@@ -1186,15 +1243,99 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             }
         }
 
-    }; // callThePosition
-    
-    $scope.closeCommentMode = function () {
-        count=0;
-        $(".commentPoint").html("");
-        $(".context").removeClass("commentPoint");
-        $rootScope.tempDashboard=true;
-        $rootScope.$emit("CallSwitchChangeFunc", {value:0});
-    };
-*/
+     }; // callThePosition
 
+     $scope.closeCommentMode = function () {
+     count=0;
+     $(".commentPoint").html("");
+     $(".context").removeClass("commentPoint");
+     $rootScope.tempDashboard=true;
+     $rootScope.$emit("CallSwitchChangeFunc", {value:0});
+     };
+     */
+    $rootScope.refreshWidget = function (widget) {
+        var dashboardWidgets=[];
+        dashboardWidgets.push(createWidgets.insightWidgetHandler(widget));
+        dashboardWidgets[0].then(
+            function successCallback(dashboardWidgets) {
+                $scope.loadedWidgetCount++;
+                var widgetIndex = $scope.dashboard.widgets.map(function (el) {
+                    return el.id;
+                }).indexOf(dashboardWidgets.id);
+                $scope.dashboard.widgetData[widgetIndex] = dashboardWidgets;
+                isExportOptionSet = 1;
+
+            },
+            function errorCallback(error) {
+                if (error.status === 401) {
+                    if (error.data.errorstatusCode === 1003) {
+                        k = $scope.dashboard.widgetData.map(function (e) {
+                            return e.id;
+                        }).indexOf(error.data.id);
+                        if (k !== -1) {
+                            $scope.dashboard.widgetData[k].dataerror = true;
+                        }
+                        $("#widgetData-" + error.data.id).hide();
+                        $("#errorWidgetData-" + error.data.id).hide();
+                        $("#errorWidgetTokenexpire-" + error.data.id).show();
+                        $("#insightDataProcessing-" + error.data.id).hide();
+                        $scope.widgetErrorCode = 1;
+                        $scope.loadedWidgetCount++;
+                        isExportOptionSet = 0;
+                    }
+                }
+                else if (error.status === 202) {
+                    k = $scope.dashboard.widgetData.map(function (e) {
+                        return e.id;
+                    }).indexOf(error.data.id);
+                    if (k !== -1) {
+                        $scope.dashboard.widgetData[k].insightloading = true;
+                    }
+                    $("#widgetData-" + error.data.id).hide();
+                    $("#errorWidgetData-" + error.data.id).hide();
+                    $("#errorWidgetTokenexpire-" + error.data.id).hide();
+                    $("#insightDataProcessing-" + error.data.id).show();
+                    $scope.loadedWidgetCount++;
+                    isExportOptionSet = 0;
+                }
+                else {
+                    $scope.loadedWidgetCount++;
+                    if (typeof error.data.id != 'undefined') {
+                        $("#widgetData-" + error.data.id).hide();
+                        $("#errorWidgetData-" + error.data.id).show();
+                        $("#errorWidgetTokenexpire-" + error.data.id).hide();
+                        $("#insightDataProcessing-" + error.data.id).hide();
+                        isExportOptionSet = 0;
+                    }
+                }
+            }
+        );
+    }
+    $scope.copyDashboard = function() {
+        $scope.loading=true;
+        var jsonData = {
+            startDate:moment(new Date()).subtract(30,'days'),
+            endDate: new Date(),
+            name:$scope.dashboard.dashboardName,
+            dashboardId:$state.params.id
+        };
+        $http(
+            {
+                method: 'POST',
+                url: '/api/v1/copy/dashboard',
+                data:jsonData
+            }
+        ).then(
+            function successCallback(response){
+                $state.go('app.reporting.dashboard',{id: response.data});
+            },
+            function errorCallback(error){
+                swal({
+                    title: "",
+                    text: "<span style='sweetAlertFont'>Something went wrong! Please try again!</span> .",
+                    html: true
+                });
+            }
+        )
+    };
 }

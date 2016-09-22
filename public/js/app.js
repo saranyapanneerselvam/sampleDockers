@@ -14,9 +14,11 @@
         'ui.bootstrap.tpls',
         'gridster',
         'nvd3',
+        //'d3-cloud',
         /*'daterangepicker',*/
         'xeditable',
         'uiSwitch'
+
     ])
 })();
 

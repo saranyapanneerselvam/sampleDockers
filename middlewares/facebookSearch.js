@@ -27,7 +27,7 @@ exports.getSearchResult = function (req, res, next) {
             "redirect_uri": configAuth.facebookAuth.callbackURL
         },
         function (response) {
-            var query = configAuth.apiVersions.FBInsights+'/search?access_token=' + response.access_token + '&fields=id,name,page&q=' + req.query.keyWord + '&type=page';
+            var query = configAuth.apiVersions.FBInsights+'/search?access_token=' + response.access_token + '&fields=page,name,picture,link&q=' + req.query.keyWord + '&type=page';
             callSearchApi(query);
         }
     );
@@ -39,25 +39,28 @@ exports.getSearchResult = function (req, res, next) {
         FB.api(
             query,
             function (pageList) {
-                if (pageList.paging.next) {
+
+                if ( pageList.paging !==undefined && pageList.paging.next  !== undefined) {
                     var query = pageList.paging.next.substr(pageList.paging.next.indexOf('v'));
-                    for (key in pageList.data) {
-                        finalPageList.push(pageList.data[key]);
-                    }
+                    pageList.data.forEach(function(item){
+                        finalPageList.push(item);
+                    })
                     callSearchApi(query);
                 }
-                else if (pageList.paging.next == undefined && pageList.paging.previous) {
-                    for (key in pageList.data) {
-                        finalPageList.push(pageList.data[key]);
-                    }
+                else if (pageList.paging !==undefined && pageList.paging.next == undefined && pageList.paging.previous) {
+
+                    pageList.data.forEach(function(item){
+                        finalPageList.push(item);
+                    })
 
                     req.app.result = finalPageList;
                     next();
                 }
                 else {
-                    for (key in pageList.data) {
-                        finalPageList.push(pageList.data);
-                    }
+
+                    pageList.data.forEach(function(item){
+                        finalPageList.push(item);
+                    })
                     req.app.result = finalPageList;
                     next();
                 }

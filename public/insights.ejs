@@ -1,0 +1,100 @@
+<div class="modal-dialog modal-lg" ng-init="open('insights')">
+    <style>
+        .content{
+            display:none
+        }
+        .modal-insights{
+            height:500px;
+        }
+    </style>
+    <script type="text/ng-template" id="modal.ejs">
+        <div class="modal-content" class="profilelistmodal" ng-controller="InsightsController" ng-init="getInsightsRefrenceWidgets()">
+            <div class="modal-header">
+                <button type="button" class="close"
+                        ng-click="closeProfilelistModal()"><span
+                            aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+                <h3 class="modal-title" Style="text-align: center;color: #04509B;">
+                    Insights
+                </h3>
+            </div>
+            <div class="modal-body" >
+                <div  class="insightstitle" id="scroller">
+
+                    <div  class="row insightsname"  ng-repeat="insights in insightsReferenceWidgetsList" id="inights-{{insights._id}}" ng-click="showdetail(insights._id);getProfileForDropDown(insights.charts[0].channelId) ">
+                        <div class="col-sm-2"> <img  src="image/thumbnail/Facebook.png"  width="17px" /> </div>
+                        <div class="col-sm-6">{{insights.name}}</div>
+                        <div class="col-sm-2 insight  " id="icon-{{insights._id}}"></div>
+                    </div>
+                </div>
+                <div class="insightContent" id="scroller">
+                    <div  style="width:100%" class="row content" ng-repeat="insights in insightsReferenceWidgetsList" id="insightContent-{{insights._id}}" >
+                        <div>{{insights.name}}</div>
+                        <div class="insightDescription">{{insights.description}}
+                            {{insights.charts[0].competitor}}</div>
+                        <div >
+                            <div ng-if="insights.charts[0].keywordNeeded === true" style="margin-top: 5px">
+                                <label> Keyword:</label><br>
+                                <input style="width:48%"  placeholder="Enter a keyword" type="text" ng-model="keyword" ng-change="SaveKeyword(keyword)">
+                            </div>
+                            <div ng-if="insights.charts[0].self=== true"style="margin-top: 5px" ng-init="">
+                                <div>choose your profile</div><br>
+                                <div class="col-sm-6"><select class="form-control m-b choose-text"
+                                                              ng-model="profileOptionsModel"
+                                                              id="profileOptions"
+                                                              ng-options="profiles.name for profiles in profileList"
+                                                              ng-change="getObjectForChoosenprofile(profileOptionsModel,insights)">
+                                        <option value="">Select a Profile</option>
+                                    </select>
+                                </div>{{insights}}
+                                <div class="col-sm-6" ng-if = "insights.charts[0].channelName !== 'Twitter'">
+                                    <select class="form-control m-b"
+                                            ng-model="objectOptionsModel"
+                                            ng-options="objects.name for objects in  objectList"
+                                            ng-change="saveObject(objectOptionsModel);enableButton(insights)">
+                                        <option value="">Select an item</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div ng-if="insights.charts[0].competitor === true">
+                                <div>Choose your competitors</div>
+                                <div ng-class="insights.charts[0].self === true ? 'searchSelfheight':'searchCompeitorheight'">
+                                    <div class="col-sm-8">
+                                        <form ng-submit="topSentiment.getResult(pageName,insights)">
+                                            <input type="text" ng-model="pageName">
+                                        </form>
+                                        <div ng-show="pageloading === true" >
+                                            <div class="sk-spinner sk-spinner-double-bounce">
+                                                <div class="sk-double-bounce1"></div>
+                                                <div class="sk-double-bounce2"></div>
+                                            </div>
+                                        </div>
+                                        <div ng-if="pagelist !== null && pageloading === false" ng-class="insights.charts[0].self === true ? 'searchSelf':'searchCompeitor'" id="scroller" >
+                                            <div ng-repeat="page in pagelist">
+                                                <div ng-click="topSentiment.storePage(page)"  class="searchlist page-{{page.id}}" >
+                                                    <div class="col-sm-2"><img src="{{page.picture.data.url}}" width="50px" height="45px"></div>
+                                                    <div class="col-sm-6 pagename" ><p>{{page.name}}</p> </div>
+                                                    <div style="padding-top: 6%" class="col-sm-1"> <a href="{{page.link}}" target="_blank" class="glyphicon glyphicon-new-window"></a></div>
+                                                    <div style="padding-top: 6%" class="col-sm-1"> <a ng-click="addCompetitors(page,insights.charts[0].maxCompetitors);enableButton(insights)" target="_blank" class="glyphicon glyphicon-plus"></a></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4" ng-if="insights.charts[0].maxCompetitors > 0">
+                                        <div> Selected competitors</div>
+                                        <div class="compeitorslist"  ng-repeat="competitor in storedCompetitors">
+                                            <div class="competitorsname col-sm-6"><p>{{competitor.name}}</p> </div>
+                                            <div style="padding-top: 6%" class="col-sm-1"> <a ng-click="removeCompetitors(competitor);enableButton(insights)" target="_blank" class="glyphicon glyphicon-remove"></a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div >
+                            <button  class="btn btn-white button-mode finishbutton"  ng-click="createInsightWidget(insights);ok()"    ng-disabled="showbutton=== false" >submit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </script>
+</div>

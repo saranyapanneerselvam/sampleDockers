@@ -4753,6 +4753,77 @@ hr{
         border:none !important;
     }
 }
+.insightsname{
+    height: 40px;
+    padding: 9px;
+    width: 100%;
+    border-bottom: 1px solid black;
+}
+.insightstitle {
+    width:20%;
+    float:left;
+    text-align: center;
+    overflow-x: hidden;
+}
+.insightContent{
+    width:78%;
+    float:right
+}
+.insightDescription{
+    height:40px;
+    border-bottom:1px solid black
+}
+.topentimentButton{
+    float:right;
+    margin-right: 5px;
+}
+input{
+    width: 64%;
+    height: 30px
+}
+.searchField{
+    height:300px;
+    width:100%;
+    overflow-x: hidden;
+}
+.searchlist{
+    min-height:65px;
+    height:auto;
+    margin: 5px;
+    border:1px solid lightgrey
+}
+.pagename{
+    margin: 5px;font-size: 81%;text-align: center
+}
+.compeitorslist{
+    border:1px solid lightgrey;
+    height:40px;
+}
+.competitorsname{
+    margin: 5px;font-size: 81%;
+    text-align: center
+}
+.finishbutton{
+    float:right;
+}
+
+.searchSelfheight{
+    height:150px;
+}
+.searchCompeitorheight{
+    height:300px;
+}
+.searchSelf{
+    height:150px;
+    overflow-x: hidden;
+}
+.searchCompeitorheight{
+    height:295px;
+    overflow-x: hidden;
+}
+.insightModal{
+    height:600px;
+}
 
 .titleMargin{
     margin-left: 0px!important;margin-right: 0px!important;

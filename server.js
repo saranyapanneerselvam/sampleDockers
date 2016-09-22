@@ -57,14 +57,12 @@ var accessLogStream = FileStreamRotator.getStream({
     frequency: configAuth.dataFormat.frequency
 })
 app.use(morgan('dev')); // log every request to the console
-/*
 app.use(morgan({format:configAuth.dataFormat.logDataFormat,stream: {
     write: function(str)
     {
         accessLogStream.write(str);
     }
 },skip:function (req, res) { return res.statusCode < 400 }}));
-*/
 app.use(cookieParser()); // read cookies (needed for auth)
 app.use(bodyParser({limit: "50mb"})); // get information from html forms
 app.set('view engine', 'ejs'); // set up ejs for templating
@@ -186,6 +184,7 @@ require('./controllers/exportHtml5ToPDF')(app);
 require('./controllers/alert')(app);
 require('./controllers/bgFetchUpdation')(app);
 require('./controllers/youTubeAuth')(app);
+require('./batchJobs');
 
 router.use(function (req, res, next) {
     req.app = {};
@@ -193,7 +192,7 @@ router.use(function (req, res, next) {
 });
 
 // launch ======================================================================
-app.listen(port);
+app.listen(port).timeout=6000000;;
 /*https.createServer({
     key: fs.readFileSync('./key.pem', 'utf8'),
     cert: fs.readFileSync('./server.crt', 'utf8')

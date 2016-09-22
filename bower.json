@@ -29,6 +29,7 @@
     "angular-xeditable": "*",
     "jspdf": "*",
     "angular-gridster": "*",
-    "lodash": "*"
+    "lodash": "*",
+    "d3-cloud": "^1.2.2"
   }
 }

@@ -17,5 +17,9 @@ module.exports = function (app) {
         res.json({top10Fans:req.app.result});
     });
 
+    //To get insights for a page
+    app.get('/api/v1/getInsights',facebookPageInsights.getInsights, function (req, res) {
+        res.json({insights:req.app.result});
+    });
     module.exports = app;
 }

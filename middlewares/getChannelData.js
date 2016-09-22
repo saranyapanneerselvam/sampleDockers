@@ -714,7 +714,10 @@ exports.getChannelData = function (req, res, next) {
                             var dimensionList = [];
                             var dimension;
                             var dimensionArray = [];
-                            var dimensionList = metric[j].objectTypes[0].meta.dimension;
+                            if(metric[j].name === configAuth.googleAnalytics.topPages)
+                                var dimensionList = dataFromRemote[j].Dimension;
+                            else
+                                var dimensionList = metric[j].objectTypes[0].meta.dimension;
                             if (dimensionList[0].name === "ga:date" || dimensionList[0].name === "mcf:conversionDate" || dimensionList[0].name === 'day') {
                                 if (dataFromRemote[j].metric.objectTypes[0].meta.endpoint.length)
                                     finalData = findDaysDifference(dataFromRemote[j].startDate, dataFromRemote[j].endDate, dataFromRemote[j].metric.objectTypes[0].meta.endpoint);
@@ -2226,10 +2229,12 @@ exports.getChannelData = function (req, res, next) {
                                 return res.status(500).json({error: 'Internal server error', id: req.params.widgetId})
                         }
                         else {
+                            var analyticsDimension=[]
+                            if(result.columnHeaders != undefined)
+                                 analyticsDimension=result.columnHeaders;
                             if (result.rows != undefined) {
-                                for (var i = 0; i < result.rows.length; i++) {
+                                for (var i = 0; i < result.rows.length; i++)
                                     googleResult.push(result.rows[i]);
-                                }
                             }
                             else googleResult = 'No Data';
                             if (result.nextLink != undefined) {
@@ -2280,7 +2285,8 @@ exports.getChannelData = function (req, res, next) {
                                     channelId: results.metric[0].channelId,
                                     startDate: allObjects.startDate,
                                     endDate: allObjects.endDate,
-                                    metric: allObjects.metric
+                                    metric: allObjects.metric,
+                                    Dimension:analyticsDimension
                                 };
                                 callback(null, finalData);
                             }
@@ -2515,7 +2521,7 @@ exports.getChannelData = function (req, res, next) {
                             }
                         }
                         else {
-                            if (results.metric.objectTypes[0].responseType === 'object')
+                            if (results.metric.objectTypes[0].meta.responseType === 'object')
                                 var storeDefaultValues = findDaysDifference(storeStartDate, storeEndDate, undefined, 'noEndPoint');
                             else var storeDefaultValues = findDaysDifference(storeStartDate, storeEndDate, undefined);
                         }
@@ -2554,7 +2560,7 @@ exports.getChannelData = function (req, res, next) {
             work(initialResults.data, initialResults.object, initialResults.metric, callback);
             function work(data, object, metric, done) {
                 async.timesSeries(metric.length, function (j, next) {
-                    var adAccountId = initialResults.object[j].channelObjectId
+                    var adAccountId = initialResults.object[j].channelObjectId;
                     d = new Date();
                     objectType.findOne({
                         '_id':initialResults.object[j].objectTypeId ,
@@ -2618,6 +2624,7 @@ exports.getChannelData = function (req, res, next) {
                                     next(null, 'DataFromDb');
                             }
                             else {
+                                var d = new Date();
                                 //call google api
                                 d.setDate(d.getDate() - 365);
                                 var startDate = formatDate(d);

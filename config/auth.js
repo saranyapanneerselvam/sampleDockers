@@ -192,14 +192,14 @@ module.exports = {
     'googleAdwordsStatic':{
         host:'https://adwords.google.com/api/adwords/reportdownload/v201601',
         ADGROUP_PERFORMANCE_REPORT:'ADGROUP_PERFORMANCE_REPORT',
-        adGroupId:'AdGroupId,',
-        date:'Date,',
-        adGroupIdEqual:"AdGroupId=",
-        campaignId:'CampaignId,',
+        adGroupId:'AdGroupId',
+        date:'Date',
+        adGroupIdEqual:"AdGroupId",
+        campaignId:'CampaignId',
         CAMPAIGN_PERFORMANCE_REPORT:'CAMPAIGN_PERFORMANCE_REPORT',
-        campaignEqual:"CampaignId=",
-        id:'Id,',
-        idEquals:"Id=",
+        campaignEqual:"CampaignId",
+        id:'Id',
+        idEquals:"Id",
         AD_PERFORMANCE_REPORT:'AD_PERFORMANCE_REPORT',
         ACCOUNT_PERFORMANCE_REPORT:'ACCOUNT_PERFORMANCE_REPORT'
     },
@@ -252,7 +252,8 @@ module.exports = {
     },
 
     widgetType:{
-        customFusion:'customFusion'
+        customFusion:'customFusion',
+        insights:'insights'
     },
 
     dataFormat:{
@@ -366,6 +367,13 @@ module.exports = {
         page_authority:'page_authority',
         domain_authority:'domain_authority'
     },
+    
+    insights:{
+        topSentiment:'topSentiment', 
+        shareOfVoice:'shareOfVoice', 
+        twitterWordCloud:'twitterWordCloud'
+    },
+    
     emailVerification:{
         validity:24*60*60*1000,
         duration:2,
@@ -381,8 +389,16 @@ module.exports = {
         mailResend:'mailResend',
         redirectVerifyUserToken:'https://datapoolt.co/verifyUserToken?token=',
         inValid:'Invalid'
-    }
+    },
 
+    JobTypes:{
+        insightsJobs:['batchjobforinsights','shareOfVoice']
+    },
 
+    googleAnalytics:{
+        topPages:'Top Pages by Visit'
+    },
+    
+    dataValidityInHours:4
 };
 

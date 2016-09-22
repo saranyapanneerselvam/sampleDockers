@@ -567,11 +567,15 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
             $("#exportModalContent").removeClass('md-show');
             $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
             $("#exportJPEGModalContent").addClass('md-show');
+            $("#dashboardContent").removeClass('dashboardContent');
+            $("#dashboardContent").addClass('dashboardContentJpeg');
             $rootScope.closePdfModal();
 
             domtoimage.toBlob(dashboardLayout)
                 .then(
                     function (blob) {
+                        $("#dashboardContent").removeClass('dashboardContentJpeg');
+                        $("#dashboardContent").addClass('dashboardContent');
                         var timestamp = Number(new Date());
                         $("#exportJPEGModalContent").removeClass('md-show');
                         window.saveAs(blob, dashboardName + "_" + timestamp + ".jpeg");

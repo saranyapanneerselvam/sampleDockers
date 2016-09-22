@@ -854,21 +854,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         var dropDwn = "settingsDropdown-"+id;
         document.getElementById(String(dropDwn)).classList.toggle("shw");
     }
-
-// Close the dropdown if the user clicks outside of it
-    window.onclick = function(event) {
-        if (!event.target.matches('.fa.fa-cog')){
-            var dropdowns = document.getElementsByClassName("dropdown-content");
-            var i;
-            for (i = 0; i < dropdowns.length; i++) {
-                var openDropdown = dropdowns[i];
-                if (openDropdown.classList.contains('shw')) {
-                    openDropdown.classList.remove('shw');
-                }
-            }
-        }
-    }
-
     $scope.toggleLegends = function (widgetId) {
         for(var widgetData in $scope.dashboard.widgetData) {
             if($scope.dashboard.widgetData[widgetData].id == widgetId) {

@@ -59,7 +59,6 @@ var self = module.exports = {
             if(err) done(err);
             else if (objects != null && objects.length > 0) {
                 req.profileId = objects[0].profileId;
-
                 channelHelper.getChannelDetails(req, res, function (err, channel) {
                     if (err)
                         return res.status(500).json({error: 'Internal server error'});

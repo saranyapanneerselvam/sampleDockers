@@ -186,6 +186,7 @@ function minimalizaSidebar($timeout) {
 
                 }
                 if (!$('body').hasClass('mini-navbar') || $('body').hasClass('body-small')) {
+                    $('.tooltip').hide();
                     var width = document.getElementById('CustomTemplate').offsetWidth;
                     if(width<900){
                         $('#dashboardTitleIcons').hide();
@@ -212,9 +213,11 @@ function minimalizaSidebar($timeout) {
                             $('#side-menu').fadeIn(500);
                         }, 300);
                 } else {
+                    $('.tooltip').hide();
                     // Remove all inline style from jquery fadeIn function to reset menu state
                     $('#side-menu').removeAttr('style');
                     if ($('body').hasClass('mini-navbar')){
+                        $('.tooltip').show();
                         $('#dashboardTitleIcons').show();
                            /* document.getElementById('tabs-container-desk-view').setAttribute('style','padding-left: 71px;');
                             document.getElementById('tabs-container-response-view').setAttribute('style','padding-left: 71px;');*/

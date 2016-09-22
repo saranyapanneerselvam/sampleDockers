@@ -395,6 +395,10 @@ module.exports = {
         insightsJobs:['batchjobforinsights','shareOfVoice']
     },
     
+    googleAnalytics:{
+        topPages:'Top Pages by Visit'
+    },
+    
     dataValidityInHours:4
 };
 

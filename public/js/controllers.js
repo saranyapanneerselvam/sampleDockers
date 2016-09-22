@@ -724,45 +724,67 @@ showMetricApp.service('createWidgets',function($http,$q){
                         var topPages={};
                         if(typeof widget.charts[charts].chartData[0] != 'undefined') {
                             if(typeof(widget.charts[charts].chartData[0].total) === 'object') {
-                                var pagePath = 'pagePath';
-                                var total ='total';
-                                var arrSize = widget.charts[charts].chartData.length;
-                                for(var datas in widget.charts[charts].chartData) {
-                                    var size = Object.keys(widget.charts[charts].chartData[datas].total).length;
-                                    for(var i=0;i<size;i++){
-                                        topPages[widget.charts[charts].chartData[datas].total[i][pagePath]] = topPages[widget.charts[charts].chartData[datas].total[i][pagePath]] || 0;
-                                        topPages[widget.charts[charts].chartData[datas].total[i][pagePath]]+= parseInt(widget.charts[charts].chartData[datas].total[i][total]);
+                                var groupedArray=[]
+                                for(var k=0;k < widget.charts[charts].chartData.length;k++){
+                                    var sampleArray = $.map(widget.charts[charts].chartData[k].total, function(value, index) {
+                                        return [value];
+                                    });
+                                    groupedArray=groupedArray.concat(sampleArray)
                                     }
-                                }
-                                var size = Object.keys(topPages).length;
-                                var sortedData = [];
-                                for (var key in topPages)
-                                    sortedData.push([key, topPages[key]])
-                                sortedData.sort(
-                                    function(a, b) {
-                                        return b[1] - a[1]
-                                    }
-                                )
-                                var formattedChartDataArray = [];
+                                var pageTitle='pageTitle';
 
-                                if(sortedData.length > 100) {
-                                    for(var datas=0; datas<100;datas++) {
-                                        var formattedChartData = {
-                                            pagePath: sortedData[datas][0] != undefined ? sortedData[datas][0] : [],
-                                            pageVisits : sortedData[datas][1]
-                                        };
-                                        formattedChartDataArray.push(formattedChartData);
+                                var formattedChartDataArray=[]
+                                var sortdata=_.groupBy(groupedArray,'pagePath')
+                                for(var key in sortdata){
+                                    var path = key;
+                                    var sessions = 0;
+                                    var pageviews = 0;
+                                    var timeOnPage = 0;
+                                    var exits = 0;
+                                    var bounces = 0;
+                                    var page;
+
+                                    for(var i=0;i< sortdata[key].length ;i++ ){
+                                        sessions += parseFloat(sortdata[key][i].sessions);
+                                        pageviews += parseFloat(sortdata[key][i].pageviews);
+                                        bounces += parseFloat(sortdata[key][i].bounces);
+                                        exits += parseFloat(sortdata[key][i].exits);
+                                        timeOnPage += parseFloat(sortdata[key][i].timeOnPage);
                                     }
-                                }
-                                else if(sortedData.length >0){
-                                    for(var datas in sortedData) {
-                                        var formattedChartData = {
-                                            pagePath: sortedData[datas][0] != undefined ? sortedData[datas][0] : [],
-                                            pageVisits : sortedData[datas][1]
-                                        };
-                                        formattedChartDataArray.push(formattedChartData);
+                                    var bouncedivide = difference(pageviews,exits)
+                                    function difference(pageviews, exits){
+                                        return (exits > pageviews)? exits - pageviews : pageviews - exits
                                     }
+                                    if(sessions === 0)
+                                        var bouncesRate = bounces;
+                                    else
+                                        var bouncesRate = ((bounces/sessions) * 100).toFixed(2);
+    
+                                    if( bouncedivide === 0)
+                                        var  avgTimeOnpage = timeOnPage;
+                                    else
+                                        var avgTimeOnpage = (timeOnPage/bouncedivide);
+    
+                                    avgTimeOnpage = Math.ceil(avgTimeOnpage);
+                                    var date = new Date(null);
+                                    date.setSeconds(avgTimeOnpage); // specify value for SECONDS here
+                                    avgTimeOnpage = date.toISOString().substr(11, 8);
+    
+                                    var path = {
+                                        bouncesRate: bounces,
+                                        pagePath: path,
+                                        sessions: sessions,
+                                        pageTitle: sortdata[key][0][pageTitle],
+                                        bouncesRate: bouncesRate,
+                                        avgTimeOnpage: avgTimeOnpage,
+                                        pageviews: pageviews
+                                    }
+                                    formattedChartDataArray.push(path)
                                 }
+                                formattedChartDataArray.sort(function(a, b) {
+                                    return parseFloat(a.pageviews) - parseFloat(b.pageviews);
+                                });
+                                formattedChartDataArray.reverse();
                                 widget.charts[charts].chartData = formattedChartDataArray;
                             }
                         }

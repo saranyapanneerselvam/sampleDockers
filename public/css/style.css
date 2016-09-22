@@ -5,6 +5,48 @@
  *   version 0.1
  *
 */
+.sideBar-wrapper {
+
+    position: relative;
+    margin :10px auto
+}
+.sideBar-wrapper .tooltip {
+    background: #2b3947;
+    bottom: 100%;
+    color: #fff;
+    display: block;
+    left: 70px;
+    margin-bottom: -51px;
+    opacity: 0;
+    padding: 18px 11px 17px 16px;;
+    pointer-events: none;
+    position: absolute;
+    width: 205px;
+    -webkit-transform: translateX(-10px);
+    -moz-transform: translateX(-10px);
+    -ms-transform: translateX(-10px);
+    -o-transform: translateX(-10px);
+    transform: translateX(-10px);
+    -webkit-transition: all .25s ease-out;
+    -moz-transition: all .25s ease-out;
+    -ms-transition: all .25s ease-out;
+    -o-transition: all .25s ease-out;
+    transition: all .25s ease-out;
+    -webkit-box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28);
+    -moz-box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28);
+    -ms-box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28);
+    -o-box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28);
+    box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28);
+}
+.sideBar-wrapper:hover .tooltip {
+    opacity: 1;
+    pointer-events: auto;
+    -webkit-transform: translateX(0px);
+    -moz-transform: translateX(0px);
+    -ms-transform: translateX(0px);
+    -o-transform: translateX(0px);
+    transform: translateX(0px);
+}
 .gobutton-mode{
     background-color: #efefef  !important;
     color:#000000  !important;
@@ -94,6 +136,16 @@ svg:hover #Calendar-Icon { fill: #293846; }
 }
 .nv-axis.nv-y1 .tick line {
     display:none;opacity: 0;
+}
+.sidebaricon{
+    height:17px;
+    width:19px;
+}
+.sidebarword{
+    height: 17px;
+    width: 149px;
+    float: right;
+    margin-top: -25px;
 }
 .nv-axis.nv-y2 .tick line {
     display:none;opacity: 0;

@@ -1,57 +1,36 @@
-<div class="row border-bottom"  ng-controller="TopNavbarController">
-    <nav class="navbar navbar-fixed-top" role="navigation">
+<div style=" margin-right: 0px !important;margin-left: 0px !important;" class="row border-bottom"  ng-controller="TopNavbarController">
+    <nav class="navbar navbar-static-top" role="navigation">
         <div class="navbar-header topnavbar-header">
             <span minimaliza-sidebar class="menus-img"></span>
-            <span style="float: right">
-                <a class="navbar-minimalize minimalize-styl-1" href="/signout" style="margin-top: 10px;">
-                    <i class="fa fa-power-off fa-3x" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Logout"style="color: #898989;"></i>
+            <div>
+                <span class="sessionName" style="float: right">
+                       <h3 style="vertical-align: middle; color: #898989;padding-top: 17px; float: left">
+                         Welcome {{userName}}&nbsp&nbsp
+                       </h3>
+                    <div  style="float: right">
+                        <div class="topdropdown">
+                            <button ng-click="getDropdown()" class="topdropbtn">
+                                <i class="glyphicon glyphicon-chevron-down"></i>
+                            </button>
+                            <div id="myDropdown" class="topdropdown-content">
+                                <a class="navbar-minimalize minimalize-styl-1 md-trigger md-setperspective md-effect-19" ui-sref="app.reporting.dashboard.listProfile">
+                                    Linked Profiles
                 </a>
-            </span>
-
-
-            <span style="float: right">
-<!--
-                <div class="" id="bs-example-navbar-collapse-1">
-                    <ul class="nav navbar-nav">
-                        <li class="dropdown">
-                            <a class="dropdown-toggle">
-                                <span class="nav-label">Manage users</span>
-                                <i class="fa fa-users fa-3x"></i>
+                                <a class="navbar-minimalize minimalize-styl-1 md-trigger md-setperspective md-effect-19" ui-sref="app.changePassword" data-modal="settingModalContent" >
+                                    Change Password
                             </a>
-                            <ul class="dropdown-menu" ng-controller="NavigationController">
-                                <li class="md-trigger md-setperspective md-effect-19 addRemoveModalContent" data-modal="addRemoveModalContent"><a>Add / Remove User</a></li>
-                                <li class="md-trigger md-setperspective md-effect-19 modifyUserModalContent" data-modal="modifyUserModalContent"><a>Modify User Permissions</a></li>
-                                <li class="md-trigger md-setperspective md-effect-19 newAccountModalContent" data-modal="newAccountModalContent"><a>Create New Account</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
--->
-                <a id="soonModel" class="navbar-minimalize minimalize-styl-1 md-trigger md-setperspective md-effect-19 addRemoveModalContent" style="margin-top: 10px;" data-modal="addRemoveModalContent">
-                    <i class="icon icon-profile-male topnavbar-menu-icon" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="User Management"></i>
+                                <a id="soonModel" class="navbar-minimalize minimalize-styl-1 md-trigger md-setperspective md-effect-19 addRemoveModalContent" data-modal="addRemoveModalContent">
+                                    User Management
                 </a>
-                <ul class="nav nav-second-level collapse">
-                    <li class="md-trigger md-setperspective md-effect-19 addRemoveModalContent" data-modal="addRemoveModalContent"><a>Add / Remove User</a></li>
-                    <li class="md-trigger md-setperspective md-effect-19 modifyUserModalContent" data-modal="modifyUserModalContent"><a>Modify User Permissions</a></li>
-                    <li class="md-trigger md-setperspective md-effect-19 newAccountModalContent" data-modal="newAccountModalContent"><a>Create New Account</a></li>
-                </ul>
-            </span>
-
-
-
-
-            <span style="float: right">
-                <a class="navbar-minimalize minimalize-styl-1 md-trigger md-setperspective md-effect-19" ui-sref="app.changePassword" data-modal="settingModalContent" style="margin-top: 10px;">
-                    <i class="icon icon-key topnavbar-menu-icon " data-toggle="tooltip" data-placement="bottom" title="" data-original-title="ChangePassword"></i>
+                                <a class="navbar-minimalize minimalize-styl-1" href="/signout">
+                                    Logout
                 </a>
+                            </div>
+                        </div>
+                    </div>
             </span>
+            </div>
 
-
-            <span class="sessionName" style="float: right">
-                <h3 style="vertical-align: middle; color: #898989;padding-top: 13px;">
-                    Welcome {{userName}}
-                </h3>
-            </span>
 <!--
             <div class="tabs-container desk-view">
                     <ul class="nav nav-tabs" style="padding-left: 71px" id="tabs-container-desk-view">

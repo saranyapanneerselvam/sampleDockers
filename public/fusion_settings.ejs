@@ -1,8 +1,10 @@
 <div class="modal-content" ng-init="selectedFusableWidgets()" ng-cloak>
+    <button type="button" class="overlayCloseButton" ng-click="dismiss()">
+        <i class="fa fa-times fa-lg" aria-hidden="true"></i>
+    </button>
     <div class="modal-header">
         <div class="row">
             <div class="col-lg-12">
-                <button type="button" class="close" ng-click="dismiss()" aria-hidden="true">&times;</button>
                 <h3 class="model-title">Fusion Widget Settings</h3>
             </div>
         </div>
@@ -24,7 +26,7 @@
                 <div class="row" style="margin: 0px">
                     <div class="col-sm-4 fuse-widgets panel panel-default" style="margin-left: 34px;">
                         <label for="availableWidgets">Available Dashboard Widgets</label>
-                        <select size="15" class="form-control select-widget" multiple ng-model="availableWidgets" ng-options="widgets as widgets.label for widgets in widgetsList"></select>
+                        <select size="15" class="form-control select-widget scrollbar scroller" multiple ng-model="availableWidgets" ng-options="widgets as widgets.label for widgets in widgetsList"></select>
                     </div>
                     <div class="col-sm-3 pull-push-widgets">
                         <div>
@@ -37,7 +39,7 @@
                     <div class="col-sm-1"></div>
                     <div class="col-sm-4 fuse-widgets panel panel-default">
                         <label for="availableWidgets">Widgets to be fused</label>
-                        <select size="15" multiple class="form-control select-widget" multiple ng-model="selectedWidgets" ng-options="selectedWidgets as selectedWidgets.label for selectedWidgets in selectedWidgetsList"></select>
+                        <select size="15" multiple class="form-control select-widget scrollbar scroller" multiple ng-model="selectedWidgets" ng-options="selectedWidgets as selectedWidgets.label for selectedWidgets in selectedWidgetsList"></select>
                     </div>
                 </div>
             </div>

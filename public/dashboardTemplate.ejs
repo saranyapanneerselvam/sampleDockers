@@ -1,7 +1,7 @@
 <div ng-init="dashboardConfiguration()">
     <div id="dashboardLayout" class="dashboardLayout">
         <div class="border-bottom dashboardTitle white-bg">
-            <div class="row">
+            <div class="row titleMargin">
                 <div class="col col-sm-12" id="CustomTemplate">
                     <div class="dashboardTemplate-items">
                         <div class="col-sm-3 dashboardName">
@@ -12,41 +12,33 @@
 
                         </div >
                         <div class="col-sm-4">
-                            <div class="daterange daterange--double three"></div>
+                            <div class="daterange daterange--double two"></div>
                         </div>
-                        <div class="col-sm-3 pull-right dashboardTitleIcons" id="dashboardTitleIcons" style="padding-top: 5px;">
+                        <div class="col-sm-3 pull-right dashboardTitleIcons" id="dashboardTitleIcons" >
                             <form class="dashboardIcons">
-                                <a>
-                                    <div class="title-icons" ng-click="deleteDashboard()">
-                                        <i class="glyphicon glyphicon-trash favigon-img" style="color:#2f4050;font-size:22px" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Delete"></i>
-                                    </div>
-                                </a>
-                                <a class="md-trigger md-setperspective md-effect-19" ng-click="exportModal('app.reporting.dashboard.exportModal')" ng-show="loadedWidgetCount == dashboard.widgets.length"> <!-- ng-click="exportModal('app.reporting.dashboard.exportModal')" -->
-                                    <div class="title-icons navigation-menu-icon">
-                                        <i class="icon icon-download" style="color:#2f4050;font-size: 25px !important;" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Export"></i>
-                                    </div>
-                                </a>
-                                <a ng-click="setAutoArrange()"  ng-show="loadedWidgetCount == dashboard.widgets.length">
-                                    <div class="title-icons">
-                                        <i class="icon icon-adjustments navigation-menu-icon" aria-hidden="true" style="color:#2f4050;font-size: 25px !important;" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Auto-arrange"></i>
-                                    </div>
-                                </a>
+                                <button class="grey rightMargin auto-arrange"  ng-click="setAutoArrange()" ng-class="{'arrangeDisabled': loadedWidgetCount != dashboard.widgets.length}" ng-disabled="loadedWidgetCount != dashboard.widgets.length">
+                                    Auto-arrange
+                                </button>
+                                <button class="grey rightMargin export"  ng-click="exportModal('app.reporting.dashboard.exportModal')" ng-class="{'exportDisabled': loadedWidgetCount != dashboard.widgets.length}" ng-disabled="loadedWidgetCount != dashboard.widgets.length">
+                                    Export
+                                </button>
+                                <button class="grey rightMargin delete"  ng-click="deleteDashboard()">
+                                    Delete
+                                </button>
                             </form>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div class="parallel-dashboard" ng-if="widgetsPresent == false">
-            <a ui-sref="app.reporting.dashboard.basicWidget({widgetType:'basic'})"><div class="empty-dashboard"><span>Add your first widget</span></div></a>
+        <div class="parallel-dashboard greyish-bg" ng-if="widgetsPresent == false">
+            <a ui-sref="app.reporting.dashboard.basicWidget({widgetType:'basic'})"><div class="white-bg empty-dashboard"><span>Add your first widget</span></div></a>
         </div>
-
-        <div class="white-bg dashboardContent">
-            <div gridster="gridsterOptions" class="row" style="border: 1px solid #efefef;min-height: 500px" id="gridsterItems"><!--ng-switch-when="true"-->
+        <div id="dashboardContent"class="greyish-bg dashboardContent" ng-if="widgetsPresent == true">
+            <div gridster="gridsterOptions" class="row gridsterStlyeOptions" id="gridsterItems"><!--ng-switch-when="true"-->
                 <ul>
                     <li gridster-item="widget" ng-repeat="(widgetIndex,widget) in dashboard.widgets">
-                        <div class="box getBox-{{widget.id}}" ng-controller="CustomWidgetController" id="{{widget.id}}">
+                        <div class="box getBox-{{widget.id}}" style=" border: 0px !important;" ng-controller="CustomWidgetController" id="{{widget.id}}">
                             <div class="box-header" id="getWidgetColor-{{widget.id}}" ref="{{dashboard.widgetData[widgetIndex].color}}" style="background-color: #ffffff;"> <!--ng-style="{'background-color': dashboard.widgetData[widgetIndex].color}"-->
                                 <div style="float: left;width: 93%;">
                                     <img src="image/thumbnail/{{widget.channelName}}.png" style="float:left;vertical-align: super;max-height: 31px; max-width: 50px; padding:5px"/>
@@ -64,7 +56,7 @@
                                         <a title="Alerts" ng-click="alertModal('app.reporting.dashboard.alertModal',widget)" ng-hide="widget.widgetType == 'customFusion' || widget.isAlert == false"><i class="fa fa-bell-o"></i> Alerts</a>
                                         <a title="Toggle Legends" ng-click="toggleLegends(widget.id)"><i class="fa fa-filter"></i> Filter</a>
                                         <a title="Delete Widget" ng-click="removeWid(widget);deleteWidget(widget)"><i class="glyphicon glyphicon-trash favigon-img"></i>Delete</a>
-                                        <a title="Click to fuse this widget with other widgets" ng-show="widget.widgetType != 'customFusion'" ng-click="openSettings(widget)"><i class="fa fa-cog"></i> Fusion</a>
+                                        <a title="Click to fuse this widget with other widgets" ng-show="widget.widgetType != 'customFusion'" ng-click="openSettings(widget)"><i class="fa fa-random"></i> Fusion</a>
                                         <a title="Find out how to send data for custom widgets - Documentation" ng-if="widget.widgetType==='custom'" href="/customDataDocumentation" target="_blank" class="findOutHow">Custom Documentation</a>
                                     </div>
                                 </div>
@@ -119,13 +111,14 @@
                                         </div>
                                     </div>
                                     <div ng-repeat="(chartIndex,chart) in dashboard.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'mozoverview'" style="padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/dashboard.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/dashboard.widgetData[widgetIndex].layoutOptionsX)+'%'}">
-                                        <div class="row scrollbar scroller" style="margin:0px;background-color:whitesmoke !important;"  ng-style="calculateSummaryHeightMoz(widget.sizeY,chart.data.length)">
+                                        <div class="" style="margin:0px;background-color:whitesmoke !important;"  ng-style="calculateSummaryHeightMoz(widget.sizeY,chart.data.length)">
                                             <ul style="height:100%;font-size:12px;padding-left: 5px;">
                                                 <li  ng-repeat="data in chart.data"   ng-class="calculateColumnWidthMoz(chart.data.length,widget.sizeX,dashboard.widgetData[widgetIndex].chart.length)" ng-style="calculateRowHeight(data,widget.sizeX,dashboard.widgetData[widgetIndex].chart.length)" style="text-align: center;padding-top: 1px;padding-left:0px;padding-right: 2px;font-size: 1.0em!important;" id="li-{{widget.id}}-{{$index}}" ><!--size-watcher-width="data.mywidth"-->
                                                     <div ng-repeat="values in data.values">
                                                         <div style="margin: 0px;height: 100%;overflow: hidden;white-space: nowrap;color: #000000;text-align: center;" ng-show="values.x===currentDate">
-                                                            <p ng-style="{'color': '#979797', 'font-family' : 'Heebo-Medium','font-size':'12px', 'text-transform':'uppercase', 'padding-left': '3px'}" style="margin:0px 0px 3px!important;font-weight: bold;"> {{data.key}}</p>
-                                                            <p ng-style="{'color': '#979797', 'font-family' : 'Heebo-Medium','font-size':'11px', 'text-transform':'uppercase', 'padding-left': '3px'}" style="margin:0px 0px 3px!important;font-weight: bold;"> {{values.y}}</p>
+                                                            <pre ng-style="{'color': '#979797', 'font-family' : 'Heebo-Medium','font-size':'12px', 'text-transform':'uppercase', 'padding-left': '3px'}" style="margin:0px 0px 3px!important;font-weight: bold;"> {{data.key}}</pre>
+                                                            <pre ng-style="{'color': '#979797', 'font-family' : 'Heebo-Medium','font-size':'11px', 'text-transform':'uppercase', 'padding-left': '3px'}" style="margin:0px 0px 3px!important;font-weight: bold;"> {{values.y}}</pre>
+                                                            <br>
                                                         </div>
                                                     </div>
                                                 </li>
@@ -146,7 +139,7 @@
                                         <div class="row" style="margin: 0px;height: 100%" id='chartTable-{{widget.id}}'>
                                             <div events="events" style="height: 99%" ng-if="dashboard.widgetData[widgetIndex].visibility == true">
                                                 <div class="scrollbar scrollInWidget" id="scroller">
-                                                    <div class="col-lg-12 listed" ng-repeat="data in chart.data">
+                                                    <div class="col-lg-12 listed" ng-class="{responsiveInstagramListed:widget.sizeX<2}" ng-repeat="data in chart.data">
                                                         <div class="col-lg-1 listed-image" >
                                                             <a  href="{{data.links}}" target="_blank"><img ng-src="{{data.image}}" height="50px" widget="50px"/></a>
                                                         </div>
@@ -155,7 +148,7 @@
                                                             <div class="impression">
                                                                 <div class="likes"><span>likes:{{data.likes}}</span></div>
                                                                 <div class="comment"><span>Comments:{{data.comments}}</span></div>
-                                                                <div class="date"><span>{{data.date}}</span></div>
+                                                                <div class="date"><span class="date">{{data.date}}</span></div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -185,7 +178,7 @@
                                         <div class="row" style="margin: 0px;height: 100%" id='chartTable-{{widget.id}}'>
                                             <div events="events" style="height: 99%" ng-if="dashboard.widgetData[widgetIndex].visibility == true">
                                                 <div class="scrollbar scrollInWidget" id="scroller">
-                                                    <div class="col-lg-12 listed" ng-repeat="data in chart.data" ng-if="data.postComment">
+                                                    <div class="col-lg-12 listed" ng-class="{responsiveListed:widget.sizeX<2}" ng-repeat="data in chart.data" ng-if="data.postComment">
                                                         <div class="col-lg-12">
                                                             <div class="postComment"><a class="apiLink" href="{{data.link}} " target="_blank">{{data.postComment}}</a></div>
                                                             <div class="impression">
@@ -194,7 +187,7 @@
                                                                 <div class="comment"><span>shares: {{data.shares}}</span></div>
                                                                 <div class="comment"><span>clicks: {{data.clicks}}</span></div>
                                                                 <div class="comment"><span>impressions: {{data.impressions}}</span></div>
-                                                                <div ng-style="widget.sizeX!=2  && {'float':'right'}  || widget.sizeX==2 && {'float':'left'} " ><span>{{data.date}}</span></div>
+                                                                <div ng-style="widget.sizeX<=2  && {'float':'left'}  || widget.sizeX>2 && {'float':'right'}"><span>{{data.date}}</span></div>
                                                             </div>
                                                         </div>
                                                     </div>

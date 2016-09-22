@@ -8,7 +8,8 @@ function LightBoxController($scope, $uibModal, $log, $state) {
             animation: $scope.animationsEnabled,
             templateUrl: 'modal.ejs',
             controller: 'ModalInstanceController',
-            size: size
+            size: size,
+            windowClass : 'modal-background'
         });
         modalInstance.result.then(function (selectedItem) {
             $scope.selected = selectedItem;
@@ -23,7 +24,8 @@ function LightBoxController($scope, $uibModal, $log, $state) {
             templateUrl: 'modal.ejs',
             controller: 'ModalInstanceController',
             size: size,
-            backdrop:'static'
+            backdrop:'static',
+            windowClass : 'modal-background'
         });
         modalInstance.result.then(function (selectedItem) {
             $scope.selected = selectedItem;

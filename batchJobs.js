@@ -2,10 +2,16 @@
 var _ = require('lodash');
 //job scheduling library
 var Agenda = require('agenda');
+var AdwordsReport = require('node-adwords').AdwordsReport
 //set googleAdwords node module
-var googleAds = require('./lib/googleAdwords');
-var spec = {host: 'https://adwords.google.com/api/adwords/reportdownload/v201601'};
-googleAds.GoogleAdwords(spec);
+/*
+ var googleAds = require('./lib/googleAdwords');
+ var spec = {host: 'https://adwords.google.com/api/adwords/reportdownload/v201601'};
+ googleAds.GoogleAdwords(spec);
+ */
+
+var objectType = require('./models/objectTypes');
+
 var request = require('request');
 //To use google api's
 //importing pinterest node module
@@ -478,7 +484,7 @@ agenda.define('Update channel data', function (job, done) {
                                 channelId: queries.get_tweet_queries.channelId,
                                 queryResults: results
                             }
-                           return  callback(null, response);
+                            return  callback(null, response);
                         }
                         else {
                             callback(null, response);
@@ -507,7 +513,7 @@ agenda.define('Update channel data', function (job, done) {
                             channelId: queries.get_tweet_queries.channelId,
                             queryResults: results
                         };
-                      return  callback(null, response);
+                        return  callback(null, response);
                     }
                     else {
                         if (queries.get_tweet_queries.metricCode === configAuth.twitterMetric.tweets || queries.get_tweet_queries.metricCode === configAuth.twitterMetric.followers || queries.get_tweet_queries.metricCode === configAuth.twitterMetric.following || queries.get_tweet_queries.metricCode === configAuth.twitterMetric.favourites || queries.get_tweet_queries.metricCode === configAuth.twitterMetric.listed || queries.get_tweet_queries.metricCode === configAuth.twitterMetric.retweets_of_your_tweets) {
@@ -1312,7 +1318,7 @@ agenda.define('Update channel data', function (job, done) {
                     function callGoogleApi(apiQuery) {
                         analytics(apiQuery, function (err, result) {
                             if (err)
-                               return callback(null)
+                                return callback(null)
                             else {
                                 if (result.rows != undefined) {
                                     for (var i = 0; i < result.rows.length; i++) {
@@ -1397,48 +1403,62 @@ agenda.define('Update channel data', function (job, done) {
                 if (initialResults.data != null) {
                     var updated = initialResults.data.updated;
                     var startDate = moment(new Date()).format('YYYY-MM-DD');
-                    var newEndDate = startDate.replace(/-/g, "");
-                    startDate = newEndDate;
                     if (initialResults.data.updated < new Date()) {
-                       var updated=moment(updated).format('YYYY-MM-DD');
+                        var updated=moment(updated).format('YYYY-MM-DD');
                         var currentDate=moment(new Date()).format('YYYY-MM-DD');
                         if(updated!=currentDate) {
                             var updated = initialResults.data.updated;
                             var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
                             updated.setTime(updated.getTime() + oneDay);
                             updated = moment(updated).format('YYYY-MM-DD');
-                            var newStartDate = updated.replace(/-/g, "");
-                            updated = newStartDate;
                         }
-                        else{
-                            var newStartDate = updated.replace(/-/g, "");
-                            updated = newStartDate;
-                        }
+                        else
+                            updated = updated;
+                        objectType.findOne({
+                            '_id':initialResults.object.objectTypeId ,
+                        }, function (err, objectType) {
+                            if (err)
+                                return res.status(500).json({error: err});
+                            else {
 
-                        if(configAuth.objectType.googleAdwordAdGrouptypeId == String(initialResults.object.objectTypeId)){
-                            var query ='AdGroupId,' +'Date,' + initialResults.metric.objectTypes[0].meta.gAdsMetricName;
-                            var performance='ADGROUP_PERFORMANCE_REPORT';
-                            var clientId=initialResults.object. meta.accountId;
-                            var objects="AdGroupId="+initialResults.object.channelObjectId;
-                        }
-                        else if(configAuth.objectType.googleAdwordCampaigntypeId == String(initialResults.object.objectTypeId)){
-                            var query ='CampaignId,' +'Date,' + initialResults.metric.objectTypes[0].meta.gAdsMetricName;
-                            var performance='CAMPAIGN_PERFORMANCE_REPORT';
-                            var clientId=initialResults.object. meta.accountId;
-                            var objects="CampaignId="+initialResults.object.channelObjectId;
-                        }
-                        else if(configAuth.objectType.googleAdwordsAdtypeId == String(initialResults.object.objectTypeId)){
-                            var query = 'Id,'+'Date,' + initialResults.metric.objectTypes[0].meta.gAdsMetricName;
-                            var performance='AD_PERFORMANCE_REPORT';
-                            var clientId=initialResults.object.meta.accountId;
-                            var objects="Id="+initialResults.object.channelObjectId;
-                        }
-                        else{
-                            var query = 'Date,' + initialResults.metric.objectTypes[0].meta.gAdsMetricName;
-                            var performance='ACCOUNT_PERFORMANCE_REPORT';
-                            var clientId=initialResults.object.channelObjectId;
-                            var objects=""
-                        }
+                                if (configAuth.objectType.googleAdwordAdGroup == objectType.type) {
+                                    var query = [configAuth.googleAdwordsStatic.adGroupId, configAuth.googleAdwordsStatic.date, initialResults.metric.objectTypes[0].meta.gAdsMetricName];
+                                    var performance = configAuth.googleAdwordsStatic.ADGROUP_PERFORMANCE_REPORT;
+                                    var clientId=initialResults.object. meta.accountId;
+                                    var objects = [{
+                                        field: configAuth.googleAdwordsStatic.adGroupIdEqual,
+                                        operator: "EQUALS",
+                                        values: [initialResults.object.channelObjectId]
+                                    }];
+                                }
+                                else if (configAuth.objectType.googleAdwordCampaign == objectType.type) {
+                                    var query = [configAuth.googleAdwordsStatic.campaignId, configAuth.googleAdwordsStatic.date, initialResults.metric.objectTypes[0].meta.gAdsMetricName];
+                                    var performance = configAuth.googleAdwordsStatic.CAMPAIGN_PERFORMANCE_REPORT;
+                                    var clientId=initialResults.object. meta.accountId;
+                                    var objects = [{
+                                        field: configAuth.googleAdwordsStatic.campaignEqual,
+                                        operator: "EQUALS",
+                                        values: [initialResults.object.channelObjectId]
+                                    }];
+                                }
+                                else if (configAuth.objectType.googleAdwordAd == objectType.type) {
+                                    var query = [configAuth.googleAdwordsStatic.id, configAuth.googleAdwordsStatic.date, initialResults.metric.objectTypes[0].meta.gAdsMetricName];
+                                    var performance = configAuth.googleAdwordsStatic.AD_PERFORMANCE_REPORT;
+                                    var clientId=initialResults.object.meta.accountId;
+                                    var objects = [{
+                                        field: configAuth.googleAdwordsStatic.idEquals,
+                                        operator: "EQUALS",
+                                        values: [initialResults.object.channelObjectId]
+                                    }];
+                                }
+                                else {
+                                    var query = [configAuth.googleAdwordsStatic.date, initialResults.metric.objectTypes[0].meta.gAdsMetricName];
+                                    var performance = configAuth.googleAdwordsStatic.ACCOUNT_PERFORMANCE_REPORT;
+                                    var clientId=initialResults.object.channelObjectId;
+                                    var objects=""
+                                }
+                            }
+                        });
                         allObjects = {
                             profile: initialResults.profile,
                             query: query,
@@ -1466,16 +1486,16 @@ agenda.define('Update channel data', function (job, done) {
                 var count = 0;
                 var actualFinalApiData = {};
                 if (allObjects.call_adword_data == 'DataFromDb') {
-                        actualFinalApiData = {
-                            apiResponse: 'DataFromDb',
-                            queryResults: initialResults,
-                            channelId: initialResults.metric.channelId
-                        };
-                        callback(null, actualFinalApiData);
-                    }
-                    else {
-                        getAdwordsDataForEachMetric(allObjects.call_adword_data, callback);
-                    }
+                    actualFinalApiData = {
+                        apiResponse: 'DataFromDb',
+                        queryResults: initialResults,
+                        channelId: initialResults.metric.channelId
+                    };
+                    callback(null, actualFinalApiData);
+                }
+                else {
+                    getAdwordsDataForEachMetric(allObjects.call_adword_data, callback);
+                }
 
             }
 
@@ -1483,61 +1503,77 @@ agenda.define('Update channel data', function (job, done) {
                 semaphore.take(function () {
                     var errorCount = 0;
                     var during = results.startDate + ',' + results.endDate;
-                    googleAds.use({
-                        clientID: configAuth.googleAdwordsAuth.clientID,
-                        clientSecret: configAuth.googleAdwordsAuth.clientSecret,
-                        developerToken: configAuth.googleAdwordsAuth.developerToken
+                    var report = new AdwordsReport({
+                        developerToken: configAuth.googleAdwordsAuth.developerToken,
+                        userAgent: configAuth.googleAdwordsAuth.userAgent,//your adwords developerToken
+                        clientCustomerId: results.clientId, //the Adwords Account id (e.g. 123-123-123)
+                        client_id: configAuth.googleAdwordsAuth.clientID, //this is the api console client_id
+                        client_secret: configAuth.googleAdwordsAuth.clientSecret,
+                        refresh_token: results.profile.refreshToken
                     });
-                    googleAds.use({
-                        accessToken: results.profile.accessToken,
-                        //tokenExpires: 1424716834341, // Integer: Unix Timestamp of expiration time
-                        refreshToken: results.profile.refreshToken,
-                        clientCustomerID: results.clientId
-
-                    });
-                    googleAds.awql({
-                            select: results.query,
-                            from: results.performance,
-                            where: results.objects,
-                            during: during
-                        })
-                        .send().then(function (response) {
-                            storeAdwordsFinalData(results, response.data);
-                            semaphore.leave();
-                        })
-                        .catch(function (error) {
-                            semaphore.leave();
-                            callback(null);
-                        });
-                });
+                    report.getReport('v201605', {
+                            reportName: 'Custom Adgroup Performance Report',
+                            reportType: results.performance,
+                            fields: results.query,
+                            filters: results.objects,
+                            startDate: new Date(results.startDate),
+                            endDate: new Date(results.endDate),
+                            format: 'TSV'
+                        }, function(error, report) {
+                            if (error) {
+                                semaphore.leave();
+                                callback(null)
+                            }
+                            else {
+                                semaphore.leave();
+                                data = tsvJSON(report);
+                                function tsvJSON(tsv) {
+                                    var lines = tsv.split("\n");
+                                    var result = [];
+                                    var headers = lines[1].split("\t");
+                                    for (var i = 2; i < lines.length - 2; i++) {
+                                        var obj = {};
+                                        var currentline = lines[i].split("\t");
+                                        for (var j = 0; j < headers.length; j++) {
+                                            obj[headers[j]] = currentline[j];
+                                        }
+                                        result.push(obj);
+                                    }
+                                    return (result); //JSON
+                                }
+                                storeAdwordsFinalData(results, data)
+                            }
+                        }
+                    )
+                })
 
                 //To store the final result in db
                 function storeAdwordsFinalData(results, data) {
                     var actualFinalApiData = {};
                     if (data.error) {
-                       callback(null);
+                        callback(null);
                     }
 
                     //Array to hold the final result
                     var param = [];
                     if (results.metricCode === configAuth.googleAdwordsMetric.clicks)
-                        param.push('clicks');
+                        param.push('Clicks');
                     else if (results.metricCode === configAuth.googleAdwordsMetric.cost)
-                        param.push('cost');
+                        param.push('Cost');
                     else if (results.metricCode === configAuth.googleAdwordsMetric.conversionRate)
-                        param.push('conv. rate');
+                        param.push('Conv. rate');
                     else if (results.metricCode === configAuth.googleAdwordsMetric.conversions)
-                        param.push('conversions');
+                        param.push('Conversions');
                     else if (results.metricCode === configAuth.googleAdwordsMetric.impressions)
-                        param.push('impressions');
+                        param.push('Impressions');
                     else if (results.metricCode === configAuth.googleAdwordsMetric.clickThroughRate)
-                        param.push('ctr')
+                        param.push('CTR')
                     else if (results.metricCode === configAuth.googleAdwordsMetric.costPerClick)
-                        param.push('avg. cpc');
+                        param.push('Avg. CPC');
                     else if (results.metricCode === configAuth.googleAdwordsMetric.costPerThousandImpressions)
-                        param.push('avg. cpm');
+                        param.push('Avg. CPM');
                     else
-                        param.push('cost / conv.');
+                        param.push('Cost / conv.');
                     var finalData = [];
                     var totalValue;
                     for (var prop = 0; prop < data.length; prop++) {
@@ -1553,13 +1589,13 @@ agenda.define('Update channel data', function (job, done) {
                         finalData.push(value);
                     }
 
-                        actualFinalApiData = {
-                            apiResponse: finalData,
-                            metricId: results.metricId,
-                            queryResults: initialResults,
-                            channelId: initialResults.metric.channelId
-                        }
-                        callback(null, actualFinalApiData);
+                    actualFinalApiData = {
+                        apiResponse: finalData,
+                        metricId: results.metricId,
+                        queryResults: initialResults,
+                        channelId: initialResults.metric.channelId
+                    }
+                    callback(null, actualFinalApiData);
 
 
 
@@ -2309,40 +2345,40 @@ agenda.define('Update channel data', function (job, done) {
                         }
                     };
                     pinterest.api(result.query, params).then(function (response) {
-                            var endPointMetric;
-                            endPointMetric = result.endPoint;
-                            if (endPointMetric.indexOf("/") > -1) {
-                                endPointMetric = endPointMetric.items.split("/");
-                            }
-                            var count = endPointMetric[0];
-                            var pins = endPointMetric[1];
-                            var collaborate = endPointMetric[2];
-                            var followers = endPointMetric[3];
-                            for (var key in response.data) {
-                                arrayOfResponse.push(response.data[key]);
-                            }
-                            for (var i = 0; i < arrayOfResponse.length; i++) {
-                                var temp = arrayOfResponse[i][count];
-                                arrayOfBoards.push({
-                                    date: response.data[i].name,
-                                    total: {pins: temp[pins], collaborators: temp[collaborate], followers: temp[followers]}
-                                })
-                            }
-                            var MediasArray = _.sortBy(arrayOfBoards, ['total.followers']);
-                            var collectionBoard = _.orderBy(MediasArray, ['total.followers', 'total.pins'], ['desc', 'asc']);
-                            for (var j = 0; j < 10; j++) {
-                                topTenBoard.push(collectionBoard[j]);
-                            }
-                            actualFinalApiData = {
-                                apiResponse: topTenBoard,
-                                metricId: result.metricId,
-                                queryResults: initialResults,
-                                channelId: initialResults.metric[0].channelId
-                            };
+                        var endPointMetric;
+                        endPointMetric = result.endPoint;
+                        if (endPointMetric.indexOf("/") > -1) {
+                            endPointMetric = endPointMetric.items.split("/");
+                        }
+                        var count = endPointMetric[0];
+                        var pins = endPointMetric[1];
+                        var collaborate = endPointMetric[2];
+                        var followers = endPointMetric[3];
+                        for (var key in response.data) {
+                            arrayOfResponse.push(response.data[key]);
+                        }
+                        for (var i = 0; i < arrayOfResponse.length; i++) {
+                            var temp = arrayOfResponse[i][count];
+                            arrayOfBoards.push({
+                                date: response.data[i].name,
+                                total: {pins: temp[pins], collaborators: temp[collaborate], followers: temp[followers]}
+                            })
+                        }
+                        var MediasArray = _.sortBy(arrayOfBoards, ['total.followers']);
+                        var collectionBoard = _.orderBy(MediasArray, ['total.followers', 'total.pins'], ['desc', 'asc']);
+                        for (var j = 0; j < 10; j++) {
+                            topTenBoard.push(collectionBoard[j]);
+                        }
+                        actualFinalApiData = {
+                            apiResponse: topTenBoard,
+                            metricId: result.metricId,
+                            queryResults: initialResults,
+                            channelId: initialResults.metric[0].channelId
+                        };
 
-                            callback(null, actualFinalApiData);
+                        callback(null, actualFinalApiData);
 
-                        })
+                    })
                         .catch(function (error) {
                             callback(null);
                         });
@@ -2476,12 +2512,12 @@ agenda.define('Update channel data', function (job, done) {
                             tot_metric.push({date: finalDate, total: storeMetric});
                             storeStartDate.setDate(storeStartDate.getDate() + 1);
 
-                           /* if (result.endDate === tot_metric[i].date) {
-                                tot_metric[i] = {
-                                    total: storeMetric,
-                                    date: result.endDate
-                                };
-                            }*/
+                            /* if (result.endDate === tot_metric[i].date) {
+                             tot_metric[i] = {
+                             total: storeMetric,
+                             date: result.endDate
+                             };
+                             }*/
 
 
                         }
@@ -2692,7 +2728,7 @@ agenda.define('Update channel data', function (job, done) {
                                     if (String(metric[j]._id) == String(dataFromRemote[key].metricId))
                                         finalApiData = dataFromRemote[key].apiResponse;
                                 }
-                                
+
                                 if (dataFromDb[j].data != null) {
 
                                     //merge the old data with new one and update it in db
@@ -3471,15 +3507,15 @@ agenda.define(configAuth.batchJobs.alertName, function (job, done) {
                 data: {$elemMatch: {date: time}},
             }, function (err, data) {
                 if (err || !data)
-                   return callback(null, 'success')
+                    return callback(null, 'success')
                 else {
                     Metric.findOne({_id: alert.metricId}, function (err, metric) {
                         if (err || !data)
-                          return  callback(null, 'success');
+                            return  callback(null, 'success');
                         else {
                             Object.findOne({_id: alert.objectId}, function (err, object) {
                                 if (err || !object)
-                                 return   callback(null, 'success')
+                                    return   callback(null, 'success')
                                 else {
                                     var dataArray = data.data;
                                     var chosenValue = _.find(dataArray, function (o) {
@@ -3507,7 +3543,7 @@ agenda.define(configAuth.batchJobs.alertName, function (job, done) {
                                     if (alert.interval === configAuth.interval.setDaily) {
                                         if (checkingThreshold === true) {
                                             utility.sendEmail(mailOptions, alert._id, function (err, response) {
-                                              return  callback(null, 'success');
+                                                return  callback(null, 'success');
                                             });
                                         }
                                         else return callback(null, 'success');
@@ -3515,7 +3551,7 @@ agenda.define(configAuth.batchJobs.alertName, function (job, done) {
                                     else if (alert.interval === configAuth.interval.setWeekly) {
                                         if (checkingThreshold === true && currentDayName === configAuth.dayNames.Friday) {
                                             utility.sendEmail(mailOptions, alert._id, function (err, response) {
-                                               return callback(null, 'success');
+                                                return callback(null, 'success');
                                             });
                                         }
                                         else return callback(null, 'success');

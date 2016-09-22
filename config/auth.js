@@ -401,7 +401,8 @@ module.exports = {
     
     JobTypes:{
         insightsJobs:['batchjobforinsights','shareOfVoice']
-    }
-
+    },
+    
+    dataValidityInHours:4
 };
 

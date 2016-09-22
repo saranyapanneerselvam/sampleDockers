@@ -1006,6 +1006,7 @@ exports.getChannelData = function (req, res, next) {
                     async.timesSeries(Math.min(widget.length, dataFromDb.length), function (j, next) {
                         var beforeReplaceEmptyData = [];
                         var finalData1 = [];
+                        var dbFinalData=[];
 
                         //Array to hold the final result
                         for (var key in dataFromRemote) {
@@ -1030,8 +1031,21 @@ exports.getChannelData = function (req, res, next) {
                         if (dataFromRemote[j].data != 'DataFromDb') {
                             if (dataFromDb[j].data != null) {
                                 //merge the old data with new one and update it in db
-                                for (var key = 0; key < dataFromDb[j].data.data.length; key++) {
-                                    finalData.push(dataFromDb[j].data.data[key]);
+                                for (var r = 0; r < dataFromDb[j].data.data.length; r++) {
+                                    //merge old data with new one
+                                    dbFinalData.push(dataFromDb[j].data.data[r]);
+                                }
+
+                                for (var r = 0; r < finalData.length; r++) {
+                                    var findCurrentDate = _.findIndex(dbFinalData, function (o) {
+                                        return o.date == finalData[r].date;
+                                    });
+                                    if (findCurrentDate === -1) dbFinalData.push(finalData[r]);
+                                    else dbFinalData[findCurrentDate] = finalData[r];
+                                }
+                                finalData = [];
+                                for (var k = 0; k < dbFinalData.length; k++) {
+                                    finalData.push(dbFinalData[k]);
                                 }
                                 var metricId = dataFromRemote[j].metricId;
                             }
@@ -1206,6 +1220,7 @@ exports.getChannelData = function (req, res, next) {
                 function storeDataForInstagram(dataFromRemote, dataFromDb, widget, metric, done) {
                     async.times(metric.length, function (j, next) {
                         var finalData = [];
+                        var dbFinalData=[];
                         if (metric[j].code === configAuth.instagramStaticVariables.recentPost) {
                             callback(null, dataFromRemote[j]);
                         }
@@ -1226,7 +1241,18 @@ exports.getChannelData = function (req, res, next) {
 
                                         //merge the old data with new one and update it in db
                                         for (var key = 0; key < dataFromDb[j].data.data.length; key++) {
-                                            finalData.push(dataFromDb[j].data.data[key]);
+                                            dbFinalData.push(dataFromDb[j].data.data[key]);
+                                        }
+                                        for (var r = 0; r <finalData.length; r++) {
+                                            var findCurrentDate = _.findIndex(dbFinalData, function (o) {
+                                                return o.date == finalData[r].date;
+                                            });
+                                            if (findCurrentDate === -1) dbFinalData.push(finalData[r]);
+                                            else dbFinalData[findCurrentDate] = finalData[r];
+                                        }
+                                        finalData=[];
+                                        for (var k = 0; k <dbFinalData.length; k++) {
+                                            finalData.push(dbFinalData[k]);
                                         }
                                     }
                                 }
@@ -1367,8 +1393,12 @@ exports.getChannelData = function (req, res, next) {
                                 return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
                             }
                             if (dataFromDb[j].data != null) {
+                                var updated = new Date(dataFromDb[j].data.updated);
+                                updated= updated.setHours(updated.getHours() + configAuth.dataValidityInHours);
+                                updated=new Date(updated);
+                                var now = new Date();
+                                if (updated < now) {
                                 var updated = formatDate(dataFromDb[j].data.updated);
-                                if (updated < currentDate) {
                                     var daysDifference = populateDefaultData(updated, currentDate);
                                 }
                             }
@@ -1391,8 +1421,7 @@ exports.getChannelData = function (req, res, next) {
                                 }
                                 storeTweetDetails = daysDifference;
                             }
-
-                            if (dataFromRemote[key].data != 'DataFromDb') {
+                            if (dataFromRemote[j].data != 'DataFromDb') {
                                 if (dataFromDb[j].data != null) {
                                     dataFromDb[j].data.data.forEach(function (value, index) {
                                         if (String(metric[j]._id) == String(dataFromRemote[j].metricId))
@@ -1449,6 +1478,7 @@ exports.getChannelData = function (req, res, next) {
                 function storeDataFormailchimp(dataFromRemote, dataFromDb, widget, metric, done) {
                     async.times(metric.length, function (j, next) {
                         var finalData = [];
+                        var dbFinalData=[];
 
                         //Array to hold the final result
                         for (var key in dataFromRemote) {
@@ -1464,8 +1494,20 @@ exports.getChannelData = function (req, res, next) {
                                 if (dataFromRemote[j].metricId == dataFromDb[j].metricId) {
 
                                     //merge the old data with new one and update it in db
+                                    //merge the old data with new one and update it in db
                                     for (var key = 0; key < dataFromDb[j].data.data.length; key++) {
-                                        finalData.push(dataFromDb[j].data.data[key]);
+                                        dbFinalData.push(dataFromDb[j].data.data[key]);
+                                    }
+                                    for (var r = 0; r <finalData.length; r++) {
+                                        var findCurrentDate = _.findIndex(dbFinalData, function (o) {
+                                            return o.date == finalData[r].date;
+                                        });
+                                        if (findCurrentDate === -1) dbFinalData.push(finalData[r]);
+                                        else dbFinalData[findCurrentDate] = finalData[r];
+                                    }
+                                    finalData=[];
+                                    for (var k = 0; k <dbFinalData.length; k++) {
+                                        finalData.push(dbFinalData[k]);
                                     }
                                 }
                             }
@@ -1504,6 +1546,7 @@ exports.getChannelData = function (req, res, next) {
                 function storeDataForpinterest(dataFromRemote, dataFromDb, widget, metric, done) {
                     async.times(metric.length, function (j, next) {
                         var finalData = [];
+                        var dbFinalData=[];
                         if (metric[j].code === configAuth.pinterestMetrics.boardsLeaderBoard || metric[j].code === configAuth.pinterestMetrics.engagementRate) return callback(null, dataFromRemote[j])
                         else {
                             //Array to hold the final result
@@ -1522,7 +1565,18 @@ exports.getChannelData = function (req, res, next) {
                                     if (dataFromRemote[j].metricId == dataFromDb[j].metricId) {
                                         //merge the old data with new one and update it in db
                                         for (var key = 0; key < dataFromDb[j].data.data.length; key++) {
-                                            finalData.push(dataFromDb[j].data.data[key]);
+                                            dbFinalData.push(dataFromDb[j].data.data[key]);
+                                        }
+                                        for (var r = 0; r < finalData.length; r++) {
+                                            var findCurrentDate = _.findIndex(dbFinalData, function (o) {
+                                                return o.date == finalData[r].date;
+                                            });
+                                            if (findCurrentDate === -1) dbFinalData.push(finalData[r]);
+                                            else dbFinalData[findCurrentDate] = finalData[r];
+                                        }
+                                        finalData = [];
+                                        for (var k = 0; k < dbFinalData.length; k++) {
+                                            finalData.push(dbFinalData[k]);
                                         }
                                         var metricId = metric._id;
                                     }
@@ -1637,6 +1691,7 @@ exports.getChannelData = function (req, res, next) {
                 function storeDataForVimeo(dataFromRemote, dataFromDb, widget, metric, done) {
                     async.times(metric.length, function (j, next) {
                         var finalData = [];
+                        var dbFinalData=[];
                         if (metric[j].code === configAuth.vimeoMetric.vimeohighengagement)
                             callback(null, dataFromRemote[j]);
                         else {
@@ -1655,9 +1710,19 @@ exports.getChannelData = function (req, res, next) {
 
                                         //merge the old data with new one and update it in db
                                         for (var key = 0; key < dataFromDb[j].data.data.length; key++) {
-                                            finalData.push(dataFromDb[j].data.data[key]);
+                                            dbFinalData.push(dataFromDb[j].data.data[key]);
                                         }
+                                        for (var r = 0; r <finalData.length; r++) {
+                                            var findCurrentDate = _.findIndex(dbFinalData, function (o) {
+                                                return o.date == finalData[r].date;
+                                            });
+                                            if (findCurrentDate === -1) dbFinalData.push(finalData[r]);
+                                            else dbFinalData[findCurrentDate] = finalData[r];
                                     }
+                                        finalData=[];
+                                        for (var k = 0; k <dbFinalData.length; k++) {
+                                            finalData.push(dbFinalData[k]);
+                                        }                                    }
                                 }
                                 var now = new Date();
                                 //Updating the old data with new one
@@ -1695,7 +1760,7 @@ exports.getChannelData = function (req, res, next) {
                 function storeDataForaweber(dataFromRemote, dataFromDb, widget, metric, done) {
                     async.times(metric.length, function (j, next) {
                         var finalData = [];
-
+                        var dbFinalData=[];
                         //Array to hold the final result
                         for (var key in dataFromRemote) {
                             if (dataFromRemote[key].apiResponse === 'DataFromDb') {
@@ -1711,7 +1776,18 @@ exports.getChannelData = function (req, res, next) {
 
                                     //merge the old data with new one and update it in db
                                     for (var key = 0; key < dataFromDb[j].data.data.length; key++) {
-                                        finalData.push(dataFromDb[j].data.data[key]);
+                                        dbFinalData.push(dataFromDb[j].data.data[key]);
+                                    }
+                                    for (var r = 0; r <finalData.length; r++) {
+                                        var findCurrentDate = _.findIndex(dbFinalData, function (o) {
+                                            return o.date == finalData[r].date;
+                                        });
+                                        if (findCurrentDate === -1) dbFinalData.push(finalData[r]);
+                                        else dbFinalData[findCurrentDate] = finalData[r];
+                                    }
+                                    finalData=[];
+                                    for (var k = 0; k <dbFinalData.length; k++) {
+                                        finalData.push(dbFinalData[k]);
                                     }
                                 }
                             }
@@ -2493,7 +2569,7 @@ exports.getChannelData = function (req, res, next) {
                                 updated=new Date(updated);
                                 var currentDate = new Date();
                                 console.log('diffime',updated,currentDate);
-                                if (calculateDate(data[j].data.updated) < currentDate) {
+                                if (updated < currentDate) {
                                     var updated = data[j].data.updated;
                                     var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
                                     updated = moment(updated).format('YYYY-MM-DD');
@@ -2713,7 +2789,7 @@ exports.getChannelData = function (req, res, next) {
                 else
                     param.push('Cost / conv.');
                 var finalData = [];
-                var sampleArray;
+                var sampleArray = [];
                 var totalValue;
                 for (var prop = 0; prop < data.length; prop++) {
                     if (results.metricCode === configAuth.googleAdwordsMetric.costPerConversion || results.metricCode === configAuth.googleAdwordsMetric.costPerClick || results.metricCode === configAuth.googleAdwordsMetric.costPerThousandImpressions || results.metricCode === configAuth.googleAdwordsMetric.cost)
@@ -2795,8 +2871,11 @@ exports.getChannelData = function (req, res, next) {
                     var query = metric[j].objectTypes[0].meta.TweetMetricName;
                     var metricType = metric[j].code;
                     if (data[j].data != null) {
-                        var updated = formatDate(data[j].data.updated);
-                        if (updated > req.body.endDate) {
+                        var updated = new Date(data[j].data.updated);
+                        updated= updated.setHours(updated.getHours() + configAuth.dataValidityInHours);
+                        updated=new Date(updated);
+                        var endDate=new Date();
+                        if (updated > endDate) {
                             queries = {
                                 inputs: 'DataFromDb',
                                 query: '',
@@ -2806,7 +2885,7 @@ exports.getChannelData = function (req, res, next) {
                             };
                             next(null, queries);
                         }
-                        else if (updated < req.body.endDate)
+                        else if ( updated < endDate)
                             setTweetQuery();
                         else {
                             queries = {
@@ -3352,14 +3431,14 @@ exports.getChannelData = function (req, res, next) {
                     d = new Date();
                     var allObjects = {};
                     if (data[j].data != null) {
-                        var updatedDb = calculateDate(data[j].data.updated);
-                        var updated = data[j].data.updated;
-                        var currentDate = calculateDate(new Date());
+                        var updated = new Date(data[j].data.updated);
+                        updated= updated.setHours(updated.getHours() + configAuth.dataValidityInHours);
+                        updated=new Date(updated);
+                        var currentDate = new Date();
+                        if (updated < currentDate) {
+                             currentDate = calculateDate(new Date());
                         // d.setDate(d.getDate() + 1);
-                        var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
-                        updated.setTime(updated.getTime() + oneDay);
                         var startDate = calculateDate(updated);
-                        if (updatedDb < currentDate) {
                             var query = metric[j].objectTypes[0].meta.igMetricName;
                             allObjects = {
                                 profile: initialResults.get_profile[j],
@@ -3636,14 +3715,13 @@ exports.getChannelData = function (req, res, next) {
                     d = new Date();
                     var allObjects = {};
                     if (data[j].data != null) {
-                        var updatedDb = calculateDate(data[j].data.updated);
-                        var updated = data[j].data.updated;
+                        var updated = new Date(data[j].data.updated);
+                        updated= updated.setHours(updated.getHours() + configAuth.dataValidityInHours);
+                        updated=new Date(updated);
+                        var currentDate = new Date();
+                        if (updated < currentDate) {
+                            var updated = calculateDate(data[j].data.updated);
                         var currentDate = calculateDate(new Date());
-                        // d.setDate(d.getDate() + 1);
-                        var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
-                        updated.setTime(updated.getTime() + oneDay);
-                        var startDate = calculateDate(updated);
-                        if (updatedDb < currentDate) {
                             var query = metric[j].objectTypes[0].meta.pinMetricName;
                             allObjects = {
                                 profile: initialResults.get_profile[j],
@@ -3949,13 +4027,13 @@ exports.getChannelData = function (req, res, next) {
                     d = new Date();
                     var allObjects = {};
                     if (data[j].data != null) {
-                        var updatedDb = calculateDate(data[j].data.updated);
-                        var updated = data[j].data.updated;
+                        var updated = new Date(data[j].data.updated);
+                        updated= updated.setHours(updated.getHours() + configAuth.dataValidityInHours);
+                        updated=new Date(updated);
+                        var currentDate = new Date();
+                        if (updated < currentDate) {
+                            updated=calculateDate(updated);
                         var currentDate = calculateDate(new Date());
-                        var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
-                        updated.setTime(updated.getTime() + oneDay);
-                        var startDate = calculateDate(updated);
-                        if (updatedDb < currentDate) {
                             if (metric[j].objectTypes[0].meta.endpoint[0] === 'lists')
                                 var query = 'https://' + initialResults.get_profile[j].dataCenter + '.api.mailchimp.com/3.0/lists/' + channelObjectId + '/?count=100';
                             else
@@ -4134,13 +4212,13 @@ exports.getChannelData = function (req, res, next) {
                     d = new Date();
                     var allObjects = {};
                     if (data[j].data != null) {
-                        var updatedDb = calculateDate(data[j].data.updated);
-                        var updated = data[j].data.updated;
+                        var updated = new Date(data[j].data.updated);
+                        updated= updated.setHours(updated.getHours() + configAuth.dataValidityInHours);
+                        updated=new Date(updated);
+                        var currentDate = new Date();
+                        if (updated < currentDate) {
+                            var updated = calculateDate(data[j].data.updated);
                         var currentDate = calculateDate(new Date());
-                        var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
-                        updated.setTime(updated.getTime() + oneDay);
-                        var startDate = calculateDate(updated);
-                        if (updatedDb < currentDate) {
                             if (metric[j].objectTypes[0].meta.endpoint[0] === configAuth.aweberStatic.aweberMainList) {
                                 var query = 'accounts/' + initialResults.get_profile[j].userId + '/lists/' + object[j].channelObjectId;
 
@@ -4165,6 +4243,7 @@ exports.getChannelData = function (req, res, next) {
                                 startDate: updated,
                                 endDate: currentDate,
                                 metricId: metric[j]._id,
+                                metricCode: metric[j].code,
                                 endpoint: metric[j].objectTypes[0].meta.endpoint[0]
                             }
                             next(null, allObjects);
@@ -4357,14 +4436,13 @@ exports.getChannelData = function (req, res, next) {
                     d = new Date();
                     var allObjects = {};
                     if (data[j].data != null) {
+                        var updated = new Date(data[j].data.updated);
+                        updated= updated.setHours(updated.getHours() + configAuth.dataValidityInHours);
+                        updated=new Date(updated);
+                        var currentDate = new Date();
+                        if (updated < currentDate) {
                         var updatedDb = calculateDate(data[j].data.updated);
-                        var updated = data[j].data.updated;
                         var currentDate = calculateDate(new Date());
-                        // d.setDate(d.getDate() + 1);
-                        var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
-                        updated.setTime(updated.getTime() + oneDay);
-                        var startDate = calculateDate(updated);
-                        if (updatedDb < currentDate) {
                             if (metric[j].objectTypes[0].meta.endpoint[0] === configAuth.linkedInMetrics.endPoints.followers) {
                                 var query = 'https://api.linkedin.com/v1/companies/' + channelObjectId + '/num-followers?oauth2_access_token=' + initialResults.get_profile[j].accessToken + '&format=json';
 
@@ -4663,10 +4741,13 @@ exports.getChannelData = function (req, res, next) {
                 async.timesSeries(metric.length, function (j, next) {
                     var metricType = metric[j].code;
                     if (data[j].data != null) {
-                        var updated = moment(data[j].data.updated).format("YYYY-MM-DD");
-                        var endDate = moment(new Date).format("YYYY-MM-DD");
+                        var updated = new Date(data[j].data.updated);
+                        updated= updated.setHours(updated.getHours() + configAuth.dataValidityInHours);
+                        updated=new Date(updated);
+                        var endDate = new Date();
                         if (updated < endDate) {
-                            var newDate = moment(updated, "YYYY-MM-DD").add(1, 'days').format('YYYY-MM-DD');
+                            var newDate = moment(updated).format('YYYY-MM-DD');
+                            var endDate=moment(new Date()).format('YYYY-MM-DD')
                             var query = moz.newQuery('url-metrics')
                                 .target(object[0].name)
                                 .cols([metric[j].code]);
@@ -4805,14 +4886,13 @@ exports.getChannelData = function (req, res, next) {
                     d = new Date();
                     var allObjects = {};
                     if (data[j].data != null) {
-                        var updatedDb = calculateDate(data[j].data.updated);
-                        var updated = data[j].data.updated;
+                        var updated = new Date(data[j].data.updated);
+                        updated= updated.setHours(updated.getHours() + configAuth.dataValidityInHours);
+                        updated=new Date(updated);
+                        var currentDate = new Date();
+                        if (updated < currentDate) {
+                            var updated = calculateDate(data[j].data.updated);
                         var currentDate = calculateDate(new Date());
-                        // d.setDate(d.getDate() + 1);
-                        var oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
-                        updated.setTime(updated.getTime() + oneDay);
-                        var startDate = calculateDate(updated);
-                        if (updatedDb < currentDate) {
                             allObjects = {
                                 profile: initialResults.get_profile[j],
                                 query: query,

@@ -10,40 +10,51 @@
                     <a href="{{siteUrl}}" target="_blank"><img class="dataimage" alt="Datapoolt" src="image/logo.png"/></a>
                 </div>
             </li>
-            <li class="tool" data-toggle="tooltip" data-placement="right" title="Add Empty Dashboard" >
+            <li class="sideBar-wrapper">
                 <a ng-click="createNewDashboard()">
                     <i class="icon icon-edit navigation-menu-icon"></i>
                     <span class="nav-label"> Add Empty Dashboard</span>
                 </a>
+                <div class="tooltip">Add Empty Dashboard</div>
             </li>
-            <li class="tool" data-toggle="tooltip" data-placement="right" title="Add Recommended Dashboard">
+            <li  class="sideBar-wrapper">
                 <a ng-click="stateValidation('recommendedDashboard')">
-                    <i class="icon icon-browser navigation-menu-icon"></i>
-                    <span class="nav-label"> Add Recommended Dashboard</span>
+                        <div class="sidebaricon">
+                            <i class="icon icon-browser navigation-menu-icon"></i>
+                        </div>
+                        <span class="sidebarword nav-label">
+                            Add Recommended Dashboard
+                        </span>
+                    <div class="tooltip">Add Empty Dashboard</div>
                 </a>
             </li>
-            <li class="tool" data-toggle="tooltip" data-placement="right" title="Grid View">
+            <li class="sideBar-wrapper">
                 <a ui-sref="app.reporting.dashboards">
                     <i class="icon icon-grid navigation-menu-icon"></i>
                     <span class="nav-label"> Grid View</span>
+                    <div class="tooltip">Grid View</div>
                 </a>
             </li>
-            <li class="tool" data-toggle="tooltip" data-placement="right" title="Add Widgets">
+
+            <li class="sideBar-wrapper">
                 <a ng-click="stateValidation('basicWidget')">
                     <i class="icon icon-presentation navigation-menu-icon"></i>
                     <span class="nav-label"> Add Widgets</span>
+                    <div class="tooltip">Add Widgets</div>
                 </a>
             </li>
-            <li class="tool"  data-toggle="tooltip" data-placement="right" title="Add Fusion widgets">
+            <li class="sideBar-wrapper">
                 <a ng-click="stateValidation('fusionWidget')">
                     <i class="icon icon-expand navigation-menu-icon"></i>
                     <span class="nav-label"> Fusions</span>
+                    <div class="tooltip">Fusions</div>
                 </a>
             </li>
-            <li class="tool" data-toggle="tooltip" data-placement="right" title="Insights"><!--class="md-trigger md-setperspective md-effect-19 addRemoveModalContent" data-modal="addRemoveModalContent"-->
+            <li class="sideBar-wrapper"><!--class="md-trigger md-setperspective md-effect-19 addRemoveModalContent" data-modal="addRemoveModalContent"-->
                 <a ng-click="stateValidation('insights')">
                     <i class="icon icon-megaphone navigation-menu-icon"></i>
                     <span class="nav-label"> Insights</span>
+                    <div class="tooltip">Insights</div>
                 </a>
             </li>
         </ul>
@@ -66,19 +77,14 @@
 
 
 <script>
-    $('.tool').mouseenter(function() {
+    $( document ).ready(function() {
         var minibar = $("#page-top").hasClass("mini-navbar");
-        if (minibar == true)
-            $('.tool').tooltip('enable');
-        else
-            $('.tool').tooltip('disable');
+        $('.tooltip').hide();
     });
-    $('.tool').click(function() {
-        $('.tool').tooltip('disable');
+    $('.tooltip').click(function() {
+        $('.tooltip').hide();
     });
-    $('.tool').mouseleave(function() {
-        $('.tool').tooltip('disable');
-    });
+
 
 
 </script>

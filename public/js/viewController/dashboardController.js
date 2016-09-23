@@ -16,7 +16,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         if(widgetsizeX==1){
             return {float:"left"}
         }
-    }
+    };
 
 
      // document.getElementById('dashLayout').style.visibility = "hidden";
@@ -27,6 +27,9 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
     //Sets up all the required parameters for the dashboard to function properly when it is initially loaded. This is called in the ng-init function of the dashboard template
     $scope.dashboardConfiguration = function () {
+        //To set height for Window scroller in dashboard Template
+        $scope.docHeight = window.innerHeight;
+        $scope.docHeight = $scope.docHeight-110;
 
         //Defining configuration parameters for dashboard layout
         $scope.dashboard = { widgets: [], widgetData: [] };
@@ -103,6 +106,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                 }
             ).then(
                 function successCallback(response) {
+                    console.log('DASHBOARD BEING UPDATED');
                     if (response.status == 200) {
                         $scope.startDate = response.config.data.startDate;
                         $scope.endDate = response.config.data.endDate;
@@ -390,6 +394,8 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         });
 
         angular.element($window).on('resize', function (e) {
+            $scope.docHeight = window.innerHeight;
+            $scope.docHeight = $scope.docHeight-110;
             $scope.$broadcast('resize');
         });
 

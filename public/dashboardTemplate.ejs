@@ -11,7 +11,7 @@
                             </a>
                         </div >
                         <div class="col-sm-4">
-                            <div class="daterange daterange--double two"></div>
+                            <div style="width:100%" class="daterange daterange--double three"></div>
                         </div>
                         <div class="col-sm-3 pull-right dashboardTitleIcons" id="dashboardTitleIcons" >
                             <form class="dashboardIcons">
@@ -30,10 +30,10 @@
                 </div>
             </div>
         </div>
-        <div class="parallel-dashboard greyish-bg" ng-if="widgetsPresent == false">
+        <div class="parallel-dashboard greyish-bg" ng-style="{'height': docHeight+'px'}" ng-if="widgetsPresent == false">
             <a ui-sref="app.reporting.dashboard.basicWidget({widgetType:'basic'})"><div class="white-bg empty-dashboard"><span>Add your first widget</span></div></a>
         </div>
-        <div id="dashboardContent"class="greyish-bg dashboardContent" ng-if="widgetsPresent == true">
+        <div class="greyish-bg dashboardContent" ng-style="{'height': docHeight+'px'}" ng-if="widgetsPresent == true">
             <div gridster="gridsterOptions" class="row gridsterStlyeOptions" id="gridsterItems"><!--ng-switch-when="true"-->
                 <ul>
                     <li gridster-item="widget" ng-repeat="(widgetIndex,widget) in dashboard.widgets">
@@ -95,8 +95,8 @@
                                             <ul style="height:100%;font-size:12px;padding-left: 5px;">
                                                 <li  ng-repeat="data in chart.data" ng-class="calculateColumnWidth(chart.data.length,widget.sizeX,dashboard.widgetData[widgetIndex].layoutOptionsX)" ng-style="calculateRowHeight(data,chart.data.length,widget.sizeX,widget.sizeY,dashboard.widgetData[widgetIndex].layoutOptionsX)" style="text-align: center;padding-top: 1px;padding-left:0px;padding-right: 2px;font-size: 1.0em!important;" id="li-{{widget.id}}-{{$index}}" ><!--size-watcher-width="data.mywidth"-->
                                                     <div style="margin: 0px;height: 100%;overflow: hidden;white-space: nowrap;color: #000000;text-align: center;">
-                                                        <p ng-show="data.showComparision==false" ng-style="{'color': '#979797', 'font-family' : 'Heebo-Medium','font-size':'10px', 'text-transform':'uppercase', 'background-color': '#eaeff3', 'border-bottom': '4px solid', 'border-color': data.color, 'padding-left': '3px', 'border-right': '3px solid white'}" style="margin:0px 0px 3px!important;font-weight: bold;padding-top: 2px;padding-bottom: 2px;"> {{data.key}} - {{data.summaryDisplay}}</p>
-                                                        <p ng-show="data.showComparision==true" ng-style="{'color': '#979797', 'font-family' : 'Heebo-Medium','font-size':'14px', 'text-transform':'uppercase', 'background-color': '#eaeff3', 'border-bottom': '4px solid', 'border-color': data.color, 'padding-left': '3px', 'border-right': '3px solid white'}" style="margin:0px 0px 3px!important;font-weight: bold;padding-top: 2px;padding-bottom: 2px;"> {{data.key}}</p>
+                                                        <p ng-show="data.showComparision==false" ng-style="{'color': '#979797', 'font-family' : 'Heebo-Medium','font-size':'10px', 'text-transform':'uppercase', 'background-color': '#eaeff3', 'border-bottom': '4px solid', 'border-color': data.color, 'padding-left': '3px'}" style="margin:0px 0px 3px!important;font-weight: bold;padding-top: 2px;padding-bottom: 2px;"> {{data.key}} - {{data.summaryDisplay}}</p>
+                                                        <p ng-show="data.showComparision==true" ng-style="{'color': '#979797', 'font-family' : 'Heebo-Medium','font-size':'14px', 'text-transform':'uppercase', 'background-color': '#eaeff3', 'border-bottom': '4px solid', 'border-color': data.color, 'padding-left': '3px'}" style="margin:0px 0px 3px!important;font-weight: bold;padding-top: 2px;padding-bottom: 2px;"> {{data.key}}</p>
                                                         <p ng-show="data.showComparision==true" ng-style="{'color': '#979797', 'font-family' : 'Heebo-Medium','font-size':'14px', 'text-transform':'uppercase', 'padding-left': '3px', 'border-right': '3px solid white'}" style="margin:0px 0px 3px!important;font-weight: bold;"> {{data.summaryDisplay}}</p>
                                                         <!--<p ng-style="{'color': '#979797', 'font-family' : 'Heebo-Medium','font-size':'12px', 'text-transform':'uppercase', 'background-color': 'whitesmoke'}" style="margin:0px 0px 3px!important;font-weight: bold;">{{data.key}} - <b ng-style="{'color':data.color, 'font-family' : 'Heebo-Medium'}"> {{data.summaryDisplay}} </b></p>-->
                                                         <p ng-if="chart.options.chart.type != 'pieChart'" ng-show="data.showComparision==true" style="margin:1px 0px 1px!important;overflow: hidden">{{data.period}}: <span ng-if="data.variance !=0">{{data.variance}}%  </span><i ng-if="data.arrow==='up' && data.variance !=0" style="font-size: 0.8em;color:#2A8539" class="fa fa-arrow-up" aria-hidden="true"></i><i ng-if='data.arrow==="down" && data.variance !=0' style="font-size: 0.8em;color:#FF1B1B" class="fa fa-arrow-down" aria-hidden="true"></i></p>

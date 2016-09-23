@@ -163,7 +163,8 @@
                             <h5 class="model-title">Step 1 : Choose a Metric</h5>
                             <div class="col-lg-12">
                                 <div ng-repeat="referenceWidgets in referenceWidgetsList" name="{{referenceWidgets.name}}" class="col-lg-2 widget-icons showReferenceWidgets" ng-click="storeReferenceWidget();changeViewsInBasicWidget('step_two');">
-                                    <p class="metricNames">{{referenceWidgets.name}}</p>
+                                    <p class="FusionMetricNames">{{referenceWidgets.name}}</p>
+                                    <img ng-repeat="channels in referenceWidgets.channels" src="image/thumbnail/{{channels}}.png" class="img-thumbnail" style="max-width:30%;max-height:35%; margin: 0px 5px 0px 0px;"/>
                                     <!--
                                                                         <P class="metricDescription" >{{referenceWidgets.description}}</P>
                                     -->

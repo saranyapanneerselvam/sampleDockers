@@ -1,11 +1,19 @@
 showMetricApp.controller('GridviewController', GridviewController);
 
-function GridviewController($scope,$http) {
+function GridviewController($scope,$http,$window) {
     $scope.dashboardList = null;
     $scope.gridloading=true;
     $(".navbar").css('z-index','1');
     $(".md-overlay").css("background","rgba(0,0,0,0.5)");
+
+    angular.element($window).on('resize', function (e) {
+        $scope.docHeight = window.innerHeight;
+        $scope.docHeight = $scope.docHeight - 105;
+    });
+
     $scope.fetchAllDashboards = function(){
+        $scope.docHeight = window.innerHeight;
+        $scope.docHeight = $scope.docHeight-105;
         $http({
             method: 'GET', url: '/api/v1/get/dashboardList'
         }).then(

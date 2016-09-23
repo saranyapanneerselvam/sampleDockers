@@ -202,16 +202,16 @@
                                             <div events="events" style="height: 99%" ng-if="dashboard.widgetData[widgetIndex].visibility == true" ng-init="limitScroll=20">
                                                 <div class="scrollbar scrollInWidget" id="scroller">
                                                     <div class="col-xs-12 toplisted" style="height:40px !important">
-                                                        <div class="col-xs-6" style="float:left;overflow: hidden; height: inherit; height:25px;padding-left:2px;padding-right:2px" ><p style="margin:0px 0px 0px 0px !important;">Page</p></div>
-                                                        <div class="col-xs-2" style="float:left;text-align: center; height: inherit; height:25px;padding-left:2px;padding-right:2px"><p style="margin:0px 0px 0px 0px !important;">Page views</p></div>
-                                                        <div class="col-xs-2" style="float:left;text-align: center; height: inherit; height:25px;padding-left:2px;padding-right:2px"><p style="margin:0px 0px 0px 0px !important;">Avg. Time on page</p></div>
-                                                        <div class="col-xs-2" style="float:left;text-align: center; height: inherit; height:25px;padding-left:2px;padding-right:2px"><p style="margin:0px 0px 0px 0px !important;">Bounce Rate</p></div>
+                                                        <div class="col-xs-6" style="float:left;overflow: hidden; height: inherit; height:25px;padding:1% 0%;font-weight:bolder" ><p style="margin:0px 0px 0px 0px !important;">Page</p></div>
+                                                        <div class="col-xs-2" style="float:left;text-align: center; height: inherit; height:25px;padding:1% 0%;font-weight:bolder"><p style="margin:0px 0px 0px 0px !important;">Page views</p></div>
+                                                        <div class="col-xs-2" style="float:left;text-align: center; height: inherit; height:25px;padding:1% 0%;font-weight:bolder"><p style="margin:0px 0px 0px 0px !important;">Avg. Time on page</p></div>
+                                                        <div class="col-xs-2" style="float:left;text-align: center; height: inherit; height:25px;padding:1% 0%;font-weight:bolder"><p style="margin:0px 0px 0px 0px !important;">Bounce Rate</p></div>
                                                     </div>
                                                     <div class="col-xs-12 toplisted" ng-repeat="data in chart.data | limitTo: limitScroll" ng-if="data.pagePath" style="height:60px !important">
-                                                        <div class="col-xs-6" style="float:left;overflow: hidden;padding-left:2px;padding-right:2px" ><p style="margin:0px 0px 0px 0px !important;">{{data.pageTitle}}</p><i style="font-size:10px">{{data.pagePath}}</i></div>
-                                                        <div class="col-xs-2" style="float:left;text-align: center; height: inherit;padding-left:2px;padding-right:2px"><p style="margin:0px 0px 0px 0px !important;">{{data.pageviews}}</p></div>
-                                                        <div class="col-xs-2" style="float:left;text-align: center; height: inherit;padding-left:2px;padding-right:2px"><p style="margin:0px 0px 0px 0px !important;">{{data.avgTimeOnpage}}</p></div>
-                                                        <div class="col-xs-2" style="float:left;text-align: center; height: inherit;padding-left:2px;padding-right:2px"><p style="margin:0px 0px 0px 0px !important;">{{data.bouncesRate}}%</p></div>
+                                                        <div class="col-xs-6" style="float:left;overflow: hidden;padding: 0% 0%;" ><p style="margin:0px 0px 0px 0px !important;">{{data.pageTitle}}</p><i style="font-size:10px">{{data.pagePath}}</i></div>
+                                                        <div class="col-xs-2" style="float:left;text-align: center; height: inherit;padding: 5% 0%;"><p style="margin:0px 0px 0px 0px !important;">{{data.pageviews}}</p></div>
+                                                        <div class="col-xs-2" style="float:left;text-align: center; height: inherit;padding: 5% 0%;"><p style="margin:0px 0px 0px 0px !important;">{{data.avgTimeOnpage}}</p></div>
+                                                        <div class="col-xs-2" style="float:left;text-align: center; height: inherit;padding: 5% 0%;"><p style="margin:0px 0px 0px 0px !important;">{{data.bouncesRate}}%</p></div>
                                                     </div>
                                                     <div class="showmore" style="text-align:center" ng-show="chart.data.length>20">
                                                         <a href ng-click="limitScroll=(limitScroll+10)" ng-show="limitScroll<chart.data.length">Show More</a>

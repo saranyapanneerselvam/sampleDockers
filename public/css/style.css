@@ -141,10 +141,15 @@ svg:hover #Calendar-Icon { fill: #04509B; }
     width:19px;
 }
 .dashboardSelect{
-    width:300px;
+    width: 200px;
+    font-family: inherit;
+    border: none;
+    background-color: #FFFFFF;
+    height: 20px;
     margin-top:15px;
+    margin-bottom: 15px;
 }
-@media(max-width : 767px) and (min-width : 320px) {
+@media(max-width : 767px) and (min-width : 310px) {
     .dashboardSelect{display:none;}
 }
 .sidebarword{
@@ -197,6 +202,7 @@ svg:hover #Calendar-Icon { fill: #04509B; }
 }*/
 .topnavbar-header{
     height: 50px;
+    padding-left:20px;
 }
 .widget-body{padding: 25px 10px 10px 10px !important;height: 380px !important;}
 .favigon-img{padding-right: 5px;}
@@ -4412,7 +4418,6 @@ body.rtls.top-navigation .footer.fixed {
     outline-style: none;
 }
 .topdropbtn:hover{
-    background-color:#efefef !important;
     border: none;
     outline-style: none;
 }
@@ -4423,7 +4428,6 @@ body.rtls.top-navigation .footer.fixed {
 
 .topdropdown {
     padding-left: 0px;
-    padding-top: 20px;
     position: relative;
     display: inline-block;
 
@@ -4436,12 +4440,12 @@ body.rtls.top-navigation .footer.fixed {
     min-width: 160px;
     min-height: 10px;
     overflow: auto;
-    left:-144px;
-    top:50px;
+    left:-155px;
+    top:35px;
     z-index: 1000;
     border: medium none;
-    border-radius: 3px;
     box-shadow: 0 0 3px rgba(86, 96, 117, 0.7);
+    max-width: 170px ;
 }
 
 .topdropdown-content a {
@@ -4456,7 +4460,8 @@ body.rtls.top-navigation .footer.fixed {
 
 .show {display:block;}
 .topName{
-    margin-top:-35px;
+    float: right;
+    height: inherit;
 }
 @media(max-width: 320px) and (min-width : 767px) {
     .topName{
@@ -4918,6 +4923,9 @@ button.overlayCloseButton {
     box-shadow: inset 0px 0px 1px 1px rgba(255, 255, 255, 0.1);
     color: #ffffff;
     border: 2px #ffffff;
+}
+button.overlayCloseButton:hover{
+    background:#d14836;
 }
 .dashboardContentJpeg{
     min-height: 500px !important;

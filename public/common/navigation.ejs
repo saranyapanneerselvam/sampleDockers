@@ -13,29 +13,26 @@
             <li class="sideBar-wrapper">
                 <a ng-click="createNewDashboard()">
                     <i class="icon icon-edit navigation-menu-icon"></i>
-                    <span class="nav-label"> Add Empty Dashboard</span>
+                    <span class="nav-label"> Blank Dashboard</span>
                 </a>
-                <div class="tooltip">Add Empty Dashboard</div>
+                <div class="tooltip">Blank Dashboard</div>
             </li>
             <li  class="sideBar-wrapper">
                 <a ng-click="stateValidation('recommendedDashboard')">
-                        <div class="sidebaricon">
-                            <i class="icon icon-browser navigation-menu-icon"></i>
-                        </div>
-                        <span class="sidebarword nav-label">
-                            Add Recommended Dashboard
-                        </span>
-                    <div class="tooltip">Add Recommended Dashboard</div>
+                    <i class="icon icon-browser navigation-menu-icon"></i>
+                    <span class="nav-label">Dashboard Templates</span>
+                    <div class="tooltip">Dashboard Templates</div>
                 </a>
             </li>
+<!--
             <li class="sideBar-wrapper">
                 <a ui-sref="app.reporting.dashboards">
                     <i class="icon icon-grid navigation-menu-icon"></i>
-                    <span class="nav-label"> Grid View</span>
-                    <div class="tooltip">Grid View</div>
+                    <span class="nav-label"> All Dashboards</span>
+                    <div class="tooltip">All Dashboards</div>
                 </a>
             </li>
-
+-->
             <li class="sideBar-wrapper">
                 <a ng-click="stateValidation('basicWidget')">
                     <i class="icon icon-presentation navigation-menu-icon"></i>
@@ -50,13 +47,15 @@
                     <div class="tooltip">Fusions</div>
                 </a>
             </li>
-            <li class="sideBar-wrapper"><!--class="md-trigger md-setperspective md-effect-19 addRemoveModalContent" data-modal="addRemoveModalContent"-->
+<!--
+            <li class="sideBar-wrapper">&lt;!&ndash;class="md-trigger md-setperspective md-effect-19 addRemoveModalContent" data-modal="addRemoveModalContent"&ndash;&gt;
                 <a ng-click="stateValidation('insights')">
                     <i class="icon icon-megaphone navigation-menu-icon"></i>
                     <span class="nav-label"> Insights</span>
                     <div class="tooltip">Insights</div>
                 </a>
             </li>
+-->
         </ul>
         <!--
                 &lt;!&ndash;List to be displayed in the sidebar when the 'adReporting' state is active&ndash;&gt;

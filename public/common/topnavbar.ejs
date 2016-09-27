@@ -2,19 +2,19 @@
     <nav class="navbar navbar-static-top" role="navigation">
         <div class="navbar-header topnavbar-header">
             <!--<span minimaliza-sidebar class="menus-img"></span>-->
-            <select class="chosen-select dashboardSelect"
+            <select class="dashboardSelect"
                     ng-model="recentDashboardModel"
                     ng-change="chosenDashboard(recentDashboardModel)">
-                <option value="">Recent Dashboards</option>
+                    <option value="" disabled>Recent Dashboards</option>
                 <option  ng-repeat="recentDashboard in recentDashboardList" value={{recentDashboard}}>{{recentDashboard.name || 'unnamed'}} </option>
-                <option value="gridview" style="background: #bebec3;border: solid">All Dashboards</option>
+                    <option value="gridview" style="background: #f1f1f1; font-weight: bolder">All Dashboards</option>
             </select>
             <div class="topName">
-                <span class="sessionName" style="float: right">
-                       <h3 style="vertical-align: middle; color: #ffffff;padding-top: 17px; float: left">
+                <span class="sessionName" style="float: right;padding-right:20px;height: inherit;">
+                       <h3 style="vertical-align: middle;color: #ffffff;float: left;margin: 0px;padding: 15px 0px;height: inherit;">
                          Welcome {{userName}}&nbsp&nbsp
                        </h3>
-                    <div  style="float: right">
+                    <div  style="float: right;height: inherit;padding: 15px 0px;">
                         <div class="topdropdown">
                             <button ng-click="getDropdown()" class="topdropbtn">
                                 <i class="glyphicon glyphicon-chevron-down"></i>

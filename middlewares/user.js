@@ -1,5 +1,6 @@
 var user = require('../models/user');
 var profile = require('../models/profiles');
+var dashboard=require('../models/dashboards')
 var exports = module.exports = {};
 var bcrypt = require('bcrypt-nodejs');
 // to create a random string
@@ -40,8 +41,16 @@ exports.updateLastDashboardId = function (req,res,next) {
         else if (user == 0)
             return res.status(501).json({error: 'Not implemented'})
         else{
+            dashboard.update({'_id': req.params.id},{$set: {updated: new Date()}},{upsert: true},function (err,user) {
+                if (err)
+                    return res.status(500).json({error: 'Internal server error'})
+                else if (user == 0)
+                    return res.status(501).json({error: 'Not implemented'})
+                else{
             req.app.result = {'status': '200', 'dashboardId': req.params.id};
             next();
+        }
+    });
         }
     });
 };

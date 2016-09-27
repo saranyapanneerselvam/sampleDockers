@@ -742,7 +742,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                                     var bounces = 0;
                                     var page;
 
-                                    console.log(sortdata[key][i]);
                                     for(var i=0;i< sortdata[key].length ;i++ ){
                                         sessions += parseFloat(sortdata[key][i].sessions);
                                         pageviews += parseFloat(sortdata[key][i].pageviews);
@@ -759,18 +758,14 @@ showMetricApp.service('createWidgets',function($http,$q){
                                     else
                                         var bouncesRate = ((bounces/sessions) * 100).toFixed(2);
 
-                                    console.log(bouncedivide,typeof bouncedivide,timeOnPage,typeof timeOnPage)
                                     if( bouncedivide === 0)
                                         var  avgTimeOnpage = timeOnPage;
                                     else
                                         var avgTimeOnpage = (timeOnPage/bouncedivide);
 
-                                    console.log(avgTimeOnpage,typeof avgTimeOnpage);
                                     avgTimeOnpage = Math.ceil(avgTimeOnpage);
                                     var date = new Date(null);
-                                    console.log('BEFORECHANGE',date,avgTimeOnpage,typeof avgTimeOnpage);
                                     date.setSeconds(avgTimeOnpage); // specify value for SECONDS here
-                                    console.log('AFTERCHANGE',date);
                                     avgTimeOnpage = date.toISOString().substr(11, 8);
 
                                     var path = {

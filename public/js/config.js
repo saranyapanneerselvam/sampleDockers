@@ -77,7 +77,7 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                     ]);
                 }
             },
-            onEnter: function ($stateParams,$http,$state) {
+            onEnter: function ($stateParams,$http,$state,$rootScope) {
                 var dashboardId = $stateParams.id? $stateParams.id : $state.params.id;
                 if(typeof dashboardId != 'undefined') {
                     $http(
@@ -87,6 +87,7 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                         }
                     ).then(
                         function successCallback(response){
+                            $rootScope.fetchRecentDashboards();
                         },
                         function errorCallback (error){
                         }

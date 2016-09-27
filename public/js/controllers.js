@@ -1078,6 +1078,18 @@ showMetricApp.service('createWidgets',function($http,$q){
                                             'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
                                         });
                                     }
+                                    else if(chartType == 'bar' && nonZeroPoints<1 && summaryValue==0) {
+                                        widgetCharts.push({
+                                            'type': 'line',
+                                            'values': widget.charts[charts].chartData,      //values - represents the array of {x,y} data points
+                                            'key': widget.charts[charts].metricDetails.name, //key  - the name of the series.
+                                            'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
+                                            'arrow':comparingData,
+                                            'variance':percentage,
+                                            'period':granularity,
+                                            'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
+                                        });
+                                    }
                                     else {
                                         widgetCharts.push({
                                             'type': widget.charts[charts].chartType,
@@ -1227,6 +1239,19 @@ showMetricApp.service('createWidgets',function($http,$q){
                                     }
                                     var endpointDisplayCode = widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items];
                                     if(chartType == 'line' || chartType == 'bar' || chartType=='mozoverview') {
+                                        if(chartType == 'bar' && nonZeroPoints<1 && summaryValue==0) {
+                                            widgetCharts.push({
+                                                'type': 'line',
+                                                'values': widget.charts[charts].chartData,      //values - represents the array of {x,y} data points
+                                                'key': widget.charts[charts].metricDetails.name, //key  - the name of the series.
+                                                'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
+                                                'arrow':comparingData,
+                                                'variance':percentage,
+                                                'period':granularity,
+                                                'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
+                                            });
+                                        }
+                                        else
                                         widgetCharts.push({
                                             'type': widget.charts[charts].chartType,
                                             'values': widget.charts[charts].chartData[items],      //values - represents the array of {x,y} data points

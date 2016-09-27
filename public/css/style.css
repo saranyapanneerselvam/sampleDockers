@@ -8,45 +8,45 @@
 .sideBar-wrapper {
 
     position: relative;
-    margin :10px auto
+    margin :20px auto
 }
-.sideBar-wrapper .tooltip {
-    background: #2b3947;
-    bottom: 100%;
-    color: #fff;
-    display: block;
-    left: 70px;
-    margin-bottom: -51px;
-    opacity: 0;
-    padding: 18px 11px 17px 16px;;
-    pointer-events: none;
-    position: absolute;
-    width: 205px;
-    -webkit-transform: translateX(-10px);
-    -moz-transform: translateX(-10px);
-    -ms-transform: translateX(-10px);
-    -o-transform: translateX(-10px);
-    transform: translateX(-10px);
-    -webkit-transition: all .25s ease-out;
-    -moz-transition: all .25s ease-out;
-    -ms-transition: all .25s ease-out;
-    -o-transition: all .25s ease-out;
-    transition: all .25s ease-out;
-    -webkit-box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28);
-    -moz-box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28);
-    -ms-box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28);
-    -o-box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28);
-    box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28);
-}
-.sideBar-wrapper:hover .tooltip {
-    opacity: 1;
-    pointer-events: auto;
-    -webkit-transform: translateX(0px);
-    -moz-transform: translateX(0px);
-    -ms-transform: translateX(0px);
-    -o-transform: translateX(0px);
-    transform: translateX(0px);
-}
+/*.sideBar-wrapper .tooltip {*/
+    /*background: #2b3947;*/
+    /*bottom: 100%;*/
+    /*color: #fff;*/
+    /*display: block;*/
+    /*left: 70px;*/
+    /*margin-bottom: -51px;*/
+    /*opacity: 0;*/
+    /*padding: 18px 11px 17px 16px;;*/
+    /*pointer-events: none;*/
+    /*position: absolute;*/
+    /*width: 205px;*/
+    /*-webkit-transform: translateX(-10px);*/
+    /*-moz-transform: translateX(-10px);*/
+    /*-ms-transform: translateX(-10px);*/
+    /*-o-transform: translateX(-10px);*/
+    /*transform: translateX(-10px);*/
+    /*-webkit-transition: all .25s ease-out;*/
+    /*-moz-transition: all .25s ease-out;*/
+    /*-ms-transition: all .25s ease-out;*/
+    /*-o-transition: all .25s ease-out;*/
+    /*transition: all .25s ease-out;*/
+    /*-webkit-box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28);*/
+    /*-moz-box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28);*/
+    /*-ms-box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28);*/
+    /*-o-box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28);*/
+    /*box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28);*/
+/*}*/
+/*.sideBar-wrapper:hover .tooltip {*/
+    /*opacity: 1;*/
+    /*pointer-events: auto;*/
+    /*-webkit-transform: translateX(0px);*/
+    /*-moz-transform: translateX(0px);*/
+    /*-ms-transform: translateX(0px);*/
+    /*-o-transform: translateX(0px);*/
+    /*transform: translateX(0px);*/
+/*}*/
     .gobutton-mode{
     background-color: #efefef  !important;
     color:#000000  !important;
@@ -150,7 +150,8 @@ svg:hover #Calendar-Icon { fill: #04509B; }
 .sidebarword{
     height: 17px;
     width: 149px;
-    float: right;
+    /*float: right;*/
+    margin-left: 25px;
     margin-top: -25px;
 }
 .nv-axis.nv-y2 .tick line {
@@ -236,7 +237,7 @@ svg:hover #Calendar-Icon { fill: #04509B; }
 .FusionMetricNames{font-family:Heebo-Medium; font-size:14px;word-wrap: break-word;line-height:1;margin-top: 5px;}
 .getMetricName{margin-top:-10px;}
 .metricDescription{font-family: Heebo-Thin;font-size: 11px;line-height: 1.3;}
-.nav-label{font-size: 12px;font-family: Heebo-Light;padding-left: 5px;color: #fff;}
+.nav-label{font-size: 12px;font-family: Heebo-Light;padding-left: 15px;color: #fff; display:none}
 .logout{height: 11px;color:#fff}
 .nav .nav-tabs li:active{background: #000 url('data:image/svg+xml;utf8,<svg width="7px" height="5px" viewBox="102 51 7 5" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><desc>Created with Sketch.</desc><defs></defs></svg>')  no-repeat;}
 .choose-text{border-radius: 5px}
@@ -573,7 +574,7 @@ body{font-family: Heebo-Light; }
     font-size: 12px;
 }
 .nav-header {
-    padding: 33px 25px;
+    padding:11px;
     /*background: #04509B  url('data:image/svg+xml;utf8,<svg width="168px" height="142px" viewBox="13 -4 168 142" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><defs><path d="M17,96.4198718 L39.2909091,48.3173077 L61.5818182,0.21474359 L119.290909,0.0858974359 L177,0 L177,53.6858974 C177,91.7384615 176.890909,107.371795 176.6,107.371795 C176.381818,107.371795 153.836364,100.800641 126.527273,92.8121795 C99.1818182,84.8237179 76.5272727,78.1666667 76.1636364,78.0807692 C75.6181818,77.9948718 73,83.3634615 62.4909091,105.86859 L49.5090909,133.785256 L33.2545455,133.914103 L17,134 L17,115.23141 L17,96.4198718 Z" id="path-1"></path><filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-2"><feOffset dx="0" dy="0" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset><feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0" type="matrix" in="shadowOffsetOuter1" result="shadowMatrixOuter1"></feColorMatrix><feOffset dx="0" dy="0" in="SourceAlpha" result="shadowOffsetOuter2"></feOffset><feGaussianBlur stdDeviation="2" in="shadowOffsetOuter2" result="shadowBlurOuter2"></feGaussianBlur><feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0" type="matrix" in="shadowBlurOuter2" result="shadowMatrixOuter2"></feColorMatrix><feMerge><feMergeNode in="shadowMatrixOuter1"></feMergeNode><feMergeNode in="shadowMatrixOuter2"></feMergeNode></feMerge></filter></defs><g id="Shape" stroke="none" fill="none"><use fill="black" fill-opacity="1" filter="url(#filter-2)" xlink:href="#path-1"></use><use fill="#512DA8" fill-rule="evenodd" xlink:href="#path-1" ></use></g></svg>')  no-repeat ;*/
 }
 .pace-done .nav-header {
@@ -2035,7 +2036,7 @@ a:focus {
 @media (min-width: 768px) {
     #page-wrapper {
         position: inherit;
-        margin: 0 0 0 240px;
+        margin: 0 0 0 70px;
         min-height: 1100px;
     }
 }
@@ -2393,6 +2394,28 @@ body.mini-navbar .logo-element {
     height: 25px;
     width:50px;
 }
+.navbar-static-side .profile-element{
+    display: none;
+}
+/*Defining Media Query for Side Bar in Mobile view*/
+@media (min-width: 768px) {
+    .navbar-static-side:hover .profile-element {
+        display: inline-block;
+    }
+    .navbar-static-side:hover .logo-element{
+        display: none;
+    }
+    .navbar-static-side:hover .nav-label{
+        display: inline-block;
+    }
+    .navbar-static-side:hover .nav-header {
+        padding: 33px 25px;
+        /*background: #04509B  url('data:image/svg+xml;utf8,<svg width="168px" height="142px" viewBox="13 -4 168 142" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><defs><path d="M17,96.4198718 L39.2909091,48.3173077 L61.5818182,0.21474359 L119.290909,0.0858974359 L177,0 L177,53.6858974 C177,91.7384615 176.890909,107.371795 176.6,107.371795 C176.381818,107.371795 153.836364,100.800641 126.527273,92.8121795 C99.1818182,84.8237179 76.5272727,78.1666667 76.1636364,78.0807692 C75.6181818,77.9948718 73,83.3634615 62.4909091,105.86859 L49.5090909,133.785256 L33.2545455,133.914103 L17,134 L17,115.23141 L17,96.4198718 Z" id="path-1"></path><filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-2"><feOffset dx="0" dy="0" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset><feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0" type="matrix" in="shadowOffsetOuter1" result="shadowMatrixOuter1"></feColorMatrix><feOffset dx="0" dy="0" in="SourceAlpha" result="shadowOffsetOuter2"></feOffset><feGaussianBlur stdDeviation="2" in="shadowOffsetOuter2" result="shadowBlurOuter2"></feGaussianBlur><feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0" type="matrix" in="shadowBlurOuter2" result="shadowMatrixOuter2"></feColorMatrix><feMerge><feMergeNode in="shadowMatrixOuter1"></feMergeNode><feMergeNode in="shadowMatrixOuter2"></feMergeNode></feMerge></filter></defs><g id="Shape" stroke="none" fill="none"><use fill="black" fill-opacity="1" filter="url(#filter-2)" xlink:href="#path-1"></use><use fill="#512DA8" fill-rule="evenodd" xlink:href="#path-1" ></use></g></svg>')  no-repeat ;*/
+    }
+}
+.navbar-static-side .logo-element{
+    display: inline-block;
+}
 
 /* INVOICE */
 
@@ -2685,7 +2708,8 @@ a.customApiLink{
 }
 
 #page-wrapper{
-    margin-top:0px !important;
+    /*margin-top:0px !important;*/
+    margin:0 0 0 70px !important;
 }
 
 .errorExportMessage{
@@ -4442,14 +4466,32 @@ body.rtls.top-navigation .footer.fixed {
 @media (min-width: 768px) {
     #page-wrapper {
         position: inherit;
-        margin: 0 0 0 220px;
+        margin: 0 0 0 70px;
         min-height: 1200px;
     }
     .navbar-static-side {
-        /*z-index: 2001;*/
+        width:70px;
         position: absolute;
-        width: 220px;
+        -webkit-transition: all .075s ease-in-out !important;
+        -moz-transition: all .075s ease-in-out !important;
+        -ms-transition: all .075s ease-in-out !important;
+        -o-transition: all .075s ease-in-out !important;
+        transition: all .075s ease-in-out !important;
     }
+    .navbar-static-side:hover {
+        z-index: 2001;
+        width: 220px !important;
+        position: absolute;
+        /*background-color: rgba(255,255,255, 0.3);*/
+        /*border-right: 2px solid #ffffff;*/
+        box-shadow: 4px 0 5px rgba(0,0,0,0.2);
+        cursor: pointer;
+
+    }
+    .navbar-static-side .nav-label{
+        display: none;
+    }
+
     .navbar-header {
         float: left;
         display: block;
@@ -4510,7 +4552,7 @@ body.rtls.top-navigation .footer.fixed {
     .button-mode{width: 25% !important;}
     .daterange{width: 100% !important;margin-left:0px !important;padding-bottom: 7px;}
     .svg-line1{width:280px }.svg-line2{width:280px ;}
-    #page-wrapper{margin-top:0px !important;}
+    #page-wrapper{margin:0 0 0 70px !important;}
 
 
 
@@ -4529,7 +4571,7 @@ body.rtls.top-navigation .footer.fixed {
 }
 @media(max-width : 1020px) and (min-width:800px){.daterange{width: 280px !important; margin-left:0px !important;}}
 @media(max-width: 1000px) and (min-width : 768px)  {
-    #page-wrapper{margin-top:0px !important;} .fixed-nav #wrapper {margin-top: -6px;}
+    #page-wrapper{margin-top:0px !important;margin-left: 70px !important;} .fixed-nav #wrapper {margin-top: -6px;}
 }
 @media(max-width: 846px) and (min-width : 308px) {
     .fixed-nav #wrapper {margin-top: -10px;}
@@ -4892,6 +4934,10 @@ button.overlayCloseButton {
     font-style: normal !important;
     font-weight:200 !important;
     text-transform: uppercase;
+}
+.grid-font{
+    font-family: Heebo-Medium !important;
+    text-transform: capitalize !important;
 }
 .mozOverViewTitle{
     float: left;

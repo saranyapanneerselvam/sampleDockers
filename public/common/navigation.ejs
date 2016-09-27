@@ -1,4 +1,4 @@
-<nav class="navbar-default navbar-static-side navbarFixed" role="navigation" ng-controller="NavigationController">
+<nav class="navbar-default navbar-static-side navbarFixed" ng-style="{'height':navbarHeight+'px'}" role="navigation" ng-controller="NavigationController">
     <div class="sidebar-collapse">
         <!--List to be displayed in the sidebar when the 'dashboardReporting' state is active-->
         <ul side-navigation class="nav metismenu" id="side-menu" ng-class="{active: $state.includes('reporting')}">
@@ -25,7 +25,7 @@
                         <span class="sidebarword nav-label">
                             Add Recommended Dashboard
                         </span>
-                    <div class="tooltip">Add Empty Dashboard</div>
+                    <div class="tooltip">Add Recommended Dashboard</div>
                 </a>
             </li>
             <li class="sideBar-wrapper">

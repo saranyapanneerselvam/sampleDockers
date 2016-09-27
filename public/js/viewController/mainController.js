@@ -6,8 +6,12 @@
 
 showMetricApp.controller('MainCtrl', MainCtrl)
 
-function MainCtrl() {
-
+function MainCtrl($scope) {
+    //For the purpose of determining height for nav-bar
+    $scope.navbarHeight = window.innerHeight;
+    window.addEventListener("resize", function (e) {
+        $scope.navbarHeight = window.innerHeight;
+    });
     /**
      * daterange - Used as initial model for data range picker in Advanced form view
      */

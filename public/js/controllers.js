@@ -2120,9 +2120,41 @@ showMetricApp.service('createWidgets',function($http,$q){
             }
 
             if (finalCharts.mozoverview.length > 0){
+                var dataArray=[]
+                for(var i=0;i < finalCharts.mozoverview.length;i++){
+                        var m= finalCharts.mozoverview[i].values.length-1;
+                    switch (finalCharts.mozoverview[i].key) {
+                        case 'Links':
+                            var links =finalCharts.mozoverview[i].values[m].y;
+                            break;
+                        case 'External equity links':
+                            var externalEquityLinks= finalCharts.mozoverview[i].values[m].y;
+                            break;
+                        case 'Domainage Authority':
+                            var domainageAuthority =finalCharts.mozoverview[i].values[m].y;
+                            break;
+                        case 'Page Authority':
+                            var pageAuthority = finalCharts.mozoverview[i].values[m].y;
+                            break;
+                        case 'MozRank URL':
+                            var mozRankURL = finalCharts.mozoverview[i].values[m].y;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+              var displayData={
+                  mozRankURL:mozRankURL,
+                  externalEquityLinks:externalEquityLinks,
+                  domainageAuthority:domainageAuthority,
+                  links:links,
+                  pageAuthority:pageAuthority
+              }
+                console.log("displayData",displayData)
                 finalChartData.push({
                     'options': graphOptions.mozoverview,
-                    'data': finalCharts.mozoverview
+                    'data': finalCharts.mozoverview,
+                    'displayData':displayData
                 });
             }
 

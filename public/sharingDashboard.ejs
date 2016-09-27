@@ -94,18 +94,31 @@
                                                 </div>
                                             </div>
                                             <div ng-repeat="(chartIndex,chart) in dashboard.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'mozoverview'" style="padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/dashboard.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/dashboard.widgetData[widgetIndex].layoutOptionsX)+'%'}">
-                                                <div class="row scrollbar scroller" style="margin:0px;background-color:whitesmoke !important;"  ng-style="calculateSummaryHeight(widget.sizeY,chart.data.length)">
-                                                    <ul style="height:100%;font-size:12px;padding-left: 5px;">
-                                                        <li  ng-repeat="data in chart.data" ng-class="calculateColumnWidthMoz(chart.data.length,widget.sizeX,dashboard.widgetData[widgetIndex].chart.length)" ng-style="calculateRowHeight(data,widget.sizeX,dashboard.widgetData[widgetIndex].chart.length)" style="text-align: center;padding-top: 1px;padding-left:0px;padding-right: 2px;font-size: 1.0em!important;" id="li-{{widget.id}}-{{$index}}" ><!--size-watcher-width="data.mywidth"-->
-                                                            <div ng-repeat="values in data.values">
-                                                                <div style="margin: 0px;height: 100%;overflow: hidden;white-space: nowrap;color: #000000;text-align: center;" ng-show="values.x===currentDate">
-                                                                    <p ng-style="{'color': '#979797', 'font-family' : 'Heebo-Medium','font-size':'12px', 'text-transform':'uppercase', 'padding-left': '3px'}" style="margin:0px 0px 3px!important;font-weight: bold;"> {{data.key}}</p>
-                                                                    <p ng-style="{'color': '#979797', 'font-family' : 'Heebo-Medium','font-size':'11px', 'text-transform':'uppercase', 'padding-left': '3px'}" style="margin:0px 0px 3px!important;font-weight: bold;"> {{values.y}}</p>
-                                                                </div>
-                                                            </div>
-
-                                                        </li>
-                                                    </ul>
+                                                <div events="events" style="height: 99%;" ng-if="dashboard.widgetData[widgetIndex].visibility == true" >
+                                                    <div class="scrollbar scrollInWidget" id="scroller">
+                                                        <table class="table table-striped">
+                                                            <tr style="padding:2px 5px;width:100%">
+                                                                <th style="padding:5px 5px;width:55%;">Moz Rank</th>
+                                                                <th style="padding:5px 5px;width:15%;text-align:right;">{{chart.displayData.mozRankURL}}</th>
+                                                            </tr>
+                                                            <tr style="padding:2px 5px;width:100%">
+                                                                <th style="padding:5px 5px;width:55%;">External Links</th>
+                                                                <th style="padding:5px 5px;width:15%;text-align:right;">{{chart.displayData.externalEquityLinks}}</th>
+                                                            </tr>
+                                                            <tr style="padding:2px 5px;width:100%">
+                                                                <th style="padding:5px 5px;width:55%;">Back Links</th>
+                                                                <th style="padding:5px 5px;width:15%;text-align:right;">{{chart.displayData.links}}</th>
+                                                            </tr>
+                                                            <tr style="padding:2px 5px;width:100%">
+                                                                <th style="padding:5px 5px;width:55%;">domain Authority</th>
+                                                                <th style="padding:5px 5px;width:15%;text-align:right;">{{chart.displayData.domainageAuthority}}</th>
+                                                            </tr>
+                                                            <tr style="padding:2px 5px;width:100%">
+                                                                <th style="padding:5px 5px;width:55%;">Page Authority</th>
+                                                                <th style="padding:5px 5px;width:15%;text-align:right;">{{chart.displayData.pageAuthority}}</th>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
                                                 </div>
                                             </div>
 
@@ -122,7 +135,7 @@
                                                 <div class="row" style="margin: 0px;height: 100%">
                                                     <div events="events" style="height: 99%" ng-if="dashboard.widgetData[widgetIndex].visibility == true">
                                                         <div class="scrollbar scrollInWidget" id="scroller">
-                                                            <div class="col-lg-12 listed" ng-repeat="data in chart.data">
+                                                            <div class="col-lg-12 listed" ng-class-odd="'odd'" ng-class-even="'even'"  ng-repeat="data in chart.data">
                                                                 <div class="col-lg-1 listed-image" >
                                                                     <a  href="{{data.links}}" target="_blank"><img src="{{data.image}}" height="50px" widget="50px"/></a>
                                                                 </div>
@@ -143,7 +156,7 @@
                                                 <div class="row" style="margin: 0px;height: 100%">
                                                     <div events="events" style="height: 99%" ng-if="dashboard.widgetData[widgetIndex].visibility == true">
                                                         <div class="scrollbar scrollInWidget" id="scroller">
-                                                            <div class="col-lg-12 listed" ng-repeat="data in chart.data" ng-if="data.postComment">
+                                                            <div class="col-lg-12 listed" ng-class-odd="'odd'" ng-class-even="'even'"  ng-repeat="data in chart.data" ng-if="data.postComment">
                                                                 <div class="col-lg-12">
                                                                     <div class="postComment"><a class="apiLink" href="{{data.links.media[0].expanded_url}} " target="_blank">{{data.postComment}}</a></div>
                                                                     <div class="impression">
@@ -161,7 +174,7 @@
                                                 <div class="row" style="margin: 0px;height: 100%">
                                                     <div events="events" style="height: 99%" ng-if="dashboard.widgetData[widgetIndex].visibility == true">
                                                         <div class="scrollbar scrollInWidget" id="scroller">
-                                                            <div class="col-lg-12 listed" ng-repeat="data in chart.data" ng-if="data.postComment">
+                                                            <div class="col-lg-12 listed" ng-class-odd="'odd'" ng-class-even="'even'"  ng-repeat="data in chart.data" ng-if="data.postComment">
                                                                 <div class="col-lg-12">
                                                                     <div class="postComment"><a class="apiLink" href="{{data.link}} " target="_blank">{{data.postComment}}</a></div>
                                                                     <div class="impression">
@@ -185,17 +198,25 @@
                                                 <div class="row" style="margin: 0px;height: 100%" >
                                                     <div events="events" style="height: 99%" ng-if="dashboard.widgetData[widgetIndex].visibility == true" ng-init="limitScroll=20">
                                                         <div class="scrollbar scrollInWidget" id="scroller">
-                                                            <div class="col-xs-12 toplisted" style="height:40px !important">
-                                                                <div class="col-xs-6" style="float:left;overflow: hidden; height: inherit; height:25px;padding:1% 0%;font-weight:bolder" ><p style="margin:0px 0px 0px 0px !important;">Page</p></div>
-                                                                <div class="col-xs-2" style="float:left;text-align: center; height: inherit; height:25px;padding:1% 0%;font-weight:bolder"><p style="margin:0px 0px 0px 0px !important;">Page views</p></div>
-                                                                <div class="col-xs-2" style="float:left;text-align: center; height: inherit; height:25px;padding:1% 0%;font-weight:bolder"><p style="margin:0px 0px 0px 0px !important;">Avg. Time on page</p></div>
-                                                                <div class="col-xs-2" style="float:left;text-align: center; height: inherit; height:25px;padding:1% 0%;font-weight:bolder"><p style="margin:0px 0px 0px 0px !important;">Bounce Rate</p></div>
-                                                            </div>
-                                                            <div class="col-xs-12 toplisted" ng-repeat="data in chart.data | limitTo: limitScroll" ng-if="data.pagePath" style="height:60px !important">
-                                                                <div class="col-xs-6" style="float:left;overflow: hidden;padding: 0% 0%;" ><p style="margin:0px 0px 0px 0px !important;">{{data.pageTitle}}</p><i style="font-size:10px">{{data.pagePath}}</i></div>
-                                                                <div class="col-xs-2" style="float:left;text-align: center; height: inherit;padding: 1% 0%;"><p style="margin:0px 0px 0px 0px !important;">{{data.pageviews}}</p></div>
-                                                                <div class="col-xs-2" style="float:left;text-align: center; height: inherit;padding: 1% 0%;"><p style="margin:0px 0px 0px 0px !important;">{{data.avgTimeOnpage}}</p></div>
-                                                                <div class="col-xs-2" style="float:left;text-align: center; height: inherit;padding: 1% 0%;"><p style="margin:0px 0px 0px 0px !important;">{{data.bouncesRate}}%</p></div>
+                                                            <div class="col-lg-12 table-responsive" style="overflow-x: hidden;padding:0px;">
+                                                                <table class="table table-striped">
+                                                                    <thead>
+                                                                    <tr style="padding:2px 5px;width:100%">
+                                                                        <th style="padding:5px 5px;width:55%;text-align:center;">Page</th>
+                                                                        <th style="padding:5px 5px;width:15%;text-align:right;">Page views</th>
+                                                                        <th style="padding:5px 5px;width:15%;text-align:right;">Avg. Time on page</th>
+                                                                        <th style="padding:5px 5px;width:15%;text-align:right;">Bounce Rate</th>
+                                                                    </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                    <tr style="padding:2px 5px;width:100%" ng-repeat="data in chart.data | limitTo: limitScroll" ng-if="data.pagePath">
+                                                                        <td style="padding:5px 5px;width:55%;text-align:left;">{{data.pageTitle}}<br><i>{{data.pagePath}}</i></td>
+                                                                        <td style="padding:5px 5px;width:15%;text-align:right;">{{data.pageviews}}</td>
+                                                                        <td style="padding:5px 5px;width:15%;text-align:right;">{{data.avgTimeOnpage}}</td>
+                                                                        <td style="padding:5px 5px;width:15%;text-align:right;">{{data.bouncesRate}}</td>
+                                                                    </tr>
+                                                                    </tbody>
+                                                                </table>
                                                             </div>
                                                             <div class="showmore" style="text-align:center" ng-show="chart.data.length>20">
                                                                 <a href ng-click="limitScroll=(limitScroll+10)" ng-show="limitScroll<chart.data.length">Show More</a>
@@ -210,7 +231,7 @@
                                                 <div class="row" style="margin: 0px;height: 100%">
                                                     <div events="events" style="height: 99%" ng-if="dashboard.widgetData[widgetIndex].visibility == true">
                                                         <div class="scrollbar scrollInWidget" id="scroller">
-                                                            <div class="col-lg-12 listed" ng-repeat="data in chart.data">
+                                                            <div class="col-lg-12 listed" ng-class-odd="'odd'" ng-class-even="'even'"  ng-repeat="data in chart.data">
                                                                 <div class="col-lg-12">
                                                                     <div class="postComment"><a class="apiLink" href="{{data.links}} " target="_blank">{{data.postComment}}</a></div>
                                                                     <div class="impression">
@@ -229,7 +250,7 @@
                                                 <div class="row" style="margin: 0px;height: 100%" >
                                                     <div events="events" style="height: 99%" ng-if="dashboard.widgetData[widgetIndex].visibility == true">
                                                         <div class="scrollbar scrollInWidget" id="scroller">
-                                                            <div class="col-lg-12 listed"  ng-repeat="data in chart.data">
+                                                            <div class="col-lg-12 listed" ng-class-odd="'odd'" ng-class-even="'even'"  ng-repeat="data in chart.data">
                                                                 <div class="col-lg-12">
                                                                     <div class="postComment"><a class="apiLink" href="{{data.links}} " target="_blank">{{data.postComment}}</a></div>
                                                                     <div class="impression">
@@ -248,7 +269,7 @@
                                                 <div class="row" style="margin: 0px;height: 100%" >
                                                     <div events="events" style="height: 99%" ng-if="dashboard.widgetData[widgetIndex].visibility == true">
                                                         <div class="scrollbar scrollInWidget" id="scroller">
-                                                            <div class="col-lg-12 listed" ng-repeat="data in chart.data" ng-if="data.title">
+                                                            <div class="col-lg-12 listed" ng-class-odd="'odd'" ng-class-even="'even'"  ng-repeat="data in chart.data" ng-if="data.title">
                                                                 <div class="col-lg-1 listed-image" >
                                                                     <a  href="{{data.link }}" target="_blank"><img src="{{data.picture}}" height="50px" widget="50px" /></a>
                                                                 </div>

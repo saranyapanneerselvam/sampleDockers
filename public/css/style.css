@@ -122,7 +122,7 @@
 .date{float: right;font-size: 11px;}
 .responsiveListed{height:auto !important;}
 .responsiveInstagramListed{height:90px !important;}
-.listed{height:63px;width: 98%;background-color: #eaeff3; margin-bottom: 5px;padding: 0px;padding-top: 3px;}
+.listed{height:63px;width: 98%;background-color: #eaeff3; border-bottom: 1px solid #e7eaec;padding: 0px;padding-top: 3px;}
 .toplisted{height:20px;width: 97%;background-color: #eaeff3; margin-bottom: 5px;padding-top: 3px;padding-right: 0px!important;;padding-left: 6px!important;overflow:hidden;}
 .plus{color:#04509B !important;}
 .fontClass{color:#999;}
@@ -2489,15 +2489,15 @@ del {
     background-color:#FFFFFF;
 }
 #scroller::-webkit-scrollbar-thumb{
-    background-color: #04509B;
+    background-color: #1074ae;
     border-radius:10px;
 }
 #scroller::-webkit-scrollbar-thumb:hover{
-    background-color:#04509B;
+    background-color:#1074ae;
     border:1px solid #FFFFFF;
 }
 #scroller::-webkit-scrollbar-thumb:active{
-    background-color:#04509B;
+    background-color:#1074ae;
     border:1px solid #FFFFFF;
 }
 #scroller::-webkit-scrollbar-track{
@@ -2510,15 +2510,15 @@ del {
     background-color:#FFFFFF;
 }
 .scroller::-webkit-scrollbar-thumb{
-    background-color: #04509B;
+    background-color: #1074ae;
     border-radius:5px;
 }
 .scroller::-webkit-scrollbar-thumb:hover{
-    background-color:#04509B;
+    background-color:#1074ae;
     border:1px solid #FFFFFF;
 }
 .scroller::-webkit-scrollbar-thumb:active{
-    background-color:#04509B;
+    background-color:#1074ae;
     border:1px solid #FFFFFF;
 }
 .scroller::-webkit-scrollbar-track{
@@ -4872,10 +4872,10 @@ button.overlayCloseButton {
     height: 30px;
     border-radius: 30px;
     z-index: 999;
-    background:#efefef;
+    background:#1074ae;
     box-shadow: inset 0px 0px 1px 1px rgba(255, 255, 255, 0.1);
-    color: #04509B;
-    border: 2px #04509B
+    color: #ffffff;
+    border: 2px #ffffff;
 }
 .dashboardContentJpeg{
     min-height: 500px !important;
@@ -4892,4 +4892,55 @@ button.overlayCloseButton {
     font-style: normal !important;
     font-weight:200 !important;
     text-transform: uppercase;
+}
+.mozOverViewTitle{
+    float: left;
+    font-weight: bolder;
+    font-size: initial;
+    padding:1% 0%;
+}
+.mozOverViewValue{
+    float: right;
+    font-weight: bolder;
+    font-size: initial;
+    padding:1% 0%;
+}
+.refrencewidget {
+    padding: 5px;
+    margin: 10px;
+    text-align: center;
+    border: 2px solid #e7eaec;
+    width: 95%;
+    height:100px;
+    float: left;
+    cursor: pointer;
+}
+.refrenceinput{
+    float:left;
+}
+.refrencewidgetdetails{
+    width: 65%;
+    float: left;
+    position: relative;
+    left: -5%;
+    text-align: -webkit-auto;
+    padding: 0px !important;
+}
+.refrencewidgetimage{
+    width: 80%;
+    position: relative;
+    top: 7px;
+    left: -18%;
+}
+.refrencewidgetcheck{
+    float: left;
+    width: 5%;
+    position: relative;
+    top: 35%;
+}
+.odd{
+    background-color:#ffffff;
+}
+.even{
+    background-color:#f9f9f9;
 }

@@ -142,7 +142,7 @@ svg:hover #Calendar-Icon { fill: #04509B; }
 }
 .dashboardSelect{
     width: 200px;
-    font-family: inherit;
+    font-family: Heebo-Medium;
     border: none;
     background-color: #FFFFFF;
     height: 20px;
@@ -223,7 +223,7 @@ svg:hover #Calendar-Icon { fill: #04509B; }
     text-align:center !important;
     font-size: 20px;
     font-family: Heebo-Medium;
-    color:#04509B;
+    color:#1074ae;
 }
 .dashboardContentmodel-title {
     text-align:center !important;

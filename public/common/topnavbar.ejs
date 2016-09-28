@@ -7,7 +7,7 @@
                     ng-change="chosenDashboard(recentDashboardModel)">
                     <option value="" disabled>Recent Dashboards</option>
                 <option  ng-repeat="recentDashboard in recentDashboardList" value={{recentDashboard}}>{{recentDashboard.name || 'unnamed'}} </option>
-                    <option value="gridview" style="background: #f1f1f1; font-weight: bolder">All Dashboards</option>
+                    <option value="gridview" style="background: #f1f1f1; font-weight: bolder;font-size:16px;">All Dashboards</option>
             </select>
             <div class="topName">
                 <span class="sessionName" style="float: right;padding-right:20px;height: inherit;">

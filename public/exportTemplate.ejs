@@ -111,7 +111,7 @@
                                                 <div class="col col-sm-12">
                                                     <div class="expdashboardTemplate-items">
                                                         <div class="col-sm-2" style="float: left;"><img ng-src="{{orgLogoSrc}}" style="max-width: 90%;max-height:35px;padding: 0px 5px;"/></div>
-                                                        <div class="col-sm-4 dashboardName" style="padding:4px!important;float: left;"><p class="exportDashbdNameStyle">{{expCtrl.dashboard.dashboardName || 'UnNamed Dashboard'}}</p></div>
+                                                        <div class="col-sm-4 dashboardName" style="float:left;"> <pre ng-style="!expCtrl.dashboard.dashboardName  && {'color':'#999'}  || expCtrl.dashboard.dashboardName && {'color':'#000'}">{{expCtrl.dashboard.dashboardName || 'Name your dashboard'}}</pre></div>
                                                         <div class="col-sm-4"style="float: left;"><div id='expdaterange'class="daterange daterange--double three"></div></div>
                                                         <div class="col-sm-2"style="float: right;"><img ng-src="{{cliLogoSrc}}" style="max-width: 90%;max-height:35px;padding: 0px 5px;float:right;"/></div>
                                                     </div>
@@ -372,6 +372,7 @@
                                                                 </div>
                                                                 <!--<div class="context widgetTransparentImage" id="widgetTransparentImage-{{widget.id}}" ng-hide="tempDashboard" ng-click="callThePosition($event,widget.id)" style="width: 100%;height: 100%;"></div>-->
                                                             </div>
+
                                                         </div>
                                                     </li>
                                                     <li gridster-item="widget" ng-repeat="(widgetIndex,widget) in aexppage.empWidget"></li>

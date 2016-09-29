@@ -7,7 +7,7 @@
                     <a href="{{siteUrl}}" target="_blank"><img alt="Datapoolt" src="image/logo.png"/></a>
                 </div>
                 <div class="logo-element">
-                    <a href="{{siteUrl}}" target="_blank"><img class="dataimage" alt="Datapoolt" src="image/logo.png"/></a>
+                    <a href="{{siteUrl}}" target="_blank"><img class="dataimage" alt="Datapoolt" src="image/logo-small.png"/></a>
                 </div>
             </li>
             <li class="sideBar-wrapper">
@@ -19,8 +19,8 @@
             </li>
             <li  class="sideBar-wrapper">
                 <a ng-click="stateValidation('recommendedDashboard')">
-                    <i class="icon icon-browser navigation-menu-icon"></i>
-                    <span class="nav-label">Dashboard Templates</span>
+                    <i class="icon icon-browser navigation-menu-icon" style="font-size: 13px !important;"></i>
+                    <span class="nav-label" style="padding-left: 13px;">Dashboard Templates</span>
                     <div class="tooltip">Dashboard Templates</div>
                 </a>
             </li>
@@ -79,10 +79,23 @@
     $( document ).ready(function() {
         var minibar = $("#page-top").hasClass("mini-navbar");
         $('.tooltip').hide();
+
+        $('.navbar-static-side').hover(function(){
+            /* $('.navbar-static-side').toggle('slide', {
+             direction: 'right'
+            /!* }, 1000);*/
+            $('.navbar-static-side').toggle(function() {
+                $('.navbar-static-side').animate(
+                        { width:'220px' },
+                        1000);
+            }
+        })
     });
     $('.tooltip').click(function() {
         $('.tooltip').hide();
     });
+
+
 
 
 

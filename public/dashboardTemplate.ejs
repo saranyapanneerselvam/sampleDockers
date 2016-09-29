@@ -34,7 +34,13 @@
             <a ui-sref="app.reporting.dashboard.basicWidget({widgetType:'basic'})"><div class="white-bg empty-dashboard"><span>Add your first widget</span></div></a>
         </div>
         <div class="greyish-bg dashboardContent" ng-style="{'height': docHeight+'px'}" ng-if="widgetsPresent == true">
-            <div gridster="gridsterOptions" class="row gridsterStlyeOptions" id="gridsterItems"><!--ng-switch-when="true"-->
+            <div class="spiner-mobile-example" ng-if="loadedWidgetCount != dashboard.widgets.length">
+                <div class="sk-spinner sk-spinner-double-bounce">
+                    <div class="sk-double-bounce1"></div>
+                    <div class="sk-double-bounce2"></div>
+                </div>
+            </div>
+            <div gridster="gridsterOptions" class="row gridsterStlyeOptions" id="gridsterItems" ng-hide="(isMobile)&&(loadedWidgetCount != dashboard.widgets.length)"><!--ng-switch-when="true"-->
                 <ul>
                     <li gridster-item="widget" ng-repeat="(widgetIndex,widget) in dashboard.widgets">
                         <div class="box getBox-{{widget.id}}" style=" border: 0px !important;" ng-controller="CustomWidgetController" id="{{widget.id}}">

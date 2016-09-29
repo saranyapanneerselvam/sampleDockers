@@ -17,17 +17,41 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
     $scope.gaAdObjId='';
     $scope.canManage = true;
     $scope.fusionRefreshButton='';
+    var apiResponse = 0;
+
+    angular.element(document).ready(function () {
+        $('.ladda-button').addClass('icon-arrow-right');
+        Ladda.bind( '.ladda-button',{
+            callback: function( instance ){
+                $scope.createAndFetchBasicWidget();
+                $('.ladda-button').removeClass('icon-arrow-right');
+                var progress = 0;
+                var interval = setInterval( function(){
+                    progress = Math.min( progress + Math.random() * 0.1, 1 );
+                    instance.setProgress( progress );
+
+                    if( progress === 1 && apiResponse === 1){
+                        instance.stop();
+                        clearInterval( interval );
+                        $scope.ok();
+                    }
+                }, 50 );
+            }
+        });
+      
+
+    });
 
     $scope.changeViewsInBasicWidget = function (obj) {
         $scope.currentView = obj;
         if ($scope.currentView === 'step_one') {
-            document.getElementById('basicWidgetBackButton1').disabled = true;
-            document.getElementById('basicWidgetNextButton').disabled = true;
+          /*  document.getElementById('basicWidgetBackButton1').disabled = true;
+            document.getElementById('basicWidgetNextButton').disabled = true;*/
             $scope.clearReferenceWidget();
             $scope.listOfReferenceWidget();
         }
         else if ($scope.currentView === 'step_two') {
-            document.getElementById('basicWidgetBackButton1').disabled = true;
+           /* document.getElementById('basicWidgetBackButton1').disabled = true;*/
             $scope.getProfilesForDropdown();
         }
     };
@@ -526,10 +550,12 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
             data: inputParams
         }).then(
             function successCallback(response) {
+                apiResponse = 1;
                 for(widgetObjects in response.data.widgetsList)
                     $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
             },
             function errorCallback(error) {
+                apiResponse = 1;
                 swal({
                     title: "",
                     text: "<span style='sweetAlertFont'>Please try again! Something is missing</span> .",

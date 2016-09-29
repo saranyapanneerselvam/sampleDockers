@@ -30,6 +30,28 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
         return {'height': (heightPercent + '%')};
 
     };
+    angular.element(document).ready(function () {
+        $('.ladda-button').addClass('icon-arrow-right');
+        Ladda.bind( '.ladda-button',{
+            callback: function( instance ){
+                $('.ladda-button').removeClass('icon-arrow-right');
+                var progress = 0;
+                var interval = setInterval( function(){
+                    progress = Math.min( progress + Math.random() * 0.1, 1 );
+                    instance.setProgress( progress );
+
+                    if( progress === 1 ){
+                        instance.stop();
+                        clearInterval( interval );
+                        $scope.closeExport();
+                    }
+                }, 50 );
+            }
+        });
+
+
+    });
+
     $scope.calculateColumnWidthMoz = function(noOfItems,widgetWidth,noOfCharts) {
         if(widgetWidth==1){
             return ('col-sm-'+12+' col-md-'+12+' col-lg-'+12);

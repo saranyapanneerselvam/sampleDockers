@@ -1,13 +1,20 @@
-<div style=" margin-right: 0px !important;margin-left: 0px !important;" class="row border-bottom"  ng-controller="TopNavbarController">
+<div style=" margin-right: 0px !important;margin-left: 0px !important;" class="row border-bottom"  ng-controller="TopNavbarController" ng-init="fetchRecentDashboards()">
     <nav class="navbar navbar-static-top" role="navigation">
         <div class="navbar-header topnavbar-header">
-            <span minimaliza-sidebar class="menus-img"></span>
-            <div>
-                <span class="sessionName" style="float: right">
-                       <h3 style="vertical-align: middle; color: #898989;padding-top: 17px; float: left">
+            <!--<span minimaliza-sidebar class="menus-img"></span>-->
+            <select class="dashboardSelect"
+                    ng-model="recentDashboardModel"
+                    ng-change="chosenDashboard(recentDashboardModel)">
+                    <option value="" disabled>Recent Dashboards</option>
+                <option  ng-repeat="recentDashboard in recentDashboardList" value={{recentDashboard}}>{{recentDashboard.name || 'unnamed'}} </option>
+                    <option value="gridview" style="background: #f1f1f1; font-weight: bolder;font-size:16px;">All Dashboards</option>
+            </select>
+            <div class="topName">
+                <span class="sessionName" style="float: right;padding-right:20px;height: inherit;">
+                       <h3 style="vertical-align: middle;color: #ffffff;float: left;margin: 0px;padding: 15px 0px;height: inherit;">
                          Welcome {{userName}}&nbsp&nbsp
                        </h3>
-                    <div  style="float: right">
+                    <div  style="float: right;height: inherit;padding: 15px 0px;">
                         <div class="topdropdown">
                             <button ng-click="getDropdown()" class="topdropbtn">
                                 <i class="glyphicon glyphicon-chevron-down"></i>
@@ -19,7 +26,7 @@
                                 <a class="navbar-minimalize minimalize-styl-1 md-trigger md-setperspective md-effect-19" ui-sref="app.changePassword" data-modal="settingModalContent" >
                                     Change Password
                             </a>
-                                <a id="soonModel" class="navbar-minimalize minimalize-styl-1 md-trigger md-setperspective md-effect-19 addRemoveModalContent" data-modal="addRemoveModalContent">
+                                <a id="soonModel" class="navbar-minimalize minimalize-styl-1 md-trigger md-setperspective md-effect-19 " data-modal="addRemoveModalContent">
                                     User Management
                 </a>
                                 <a class="navbar-minimalize minimalize-styl-1" href="/signout">

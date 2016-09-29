@@ -37,12 +37,14 @@
 }
 
 .daterange .dr-input:hover {
-    border-color: #2693D5
+    /*border-color: #2693D5*/
+    border-color: #04509B
 }
 
 .daterange .dr-input.dr-active {
     box-shadow: 0 0 0 3px rgba(191, 222, 236, .8);
-    border-color: #2693D5
+    /*border-color: #2693D5*/
+    border-color: #04509B
 }
 
 .daterange .dr-input .dr-dates {
@@ -71,8 +73,20 @@
     text-overflow: ellipsis;
     outline: 0
 }
+@media(max-width : 768px) and (min-width : 100px){
+    .daterange .dr-input .dr-dates .dr-date {
+        font-size: 11px;
+        padding: .65625rem 0;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        outline: 0
+    }
+}
 
 .daterange .dr-input .dr-dates .dr-date.dr-active, .daterange .dr-input .dr-dates .dr-date:focus, .daterange .dr-input .dr-dates .dr-date:hover {
+    /*color: #2693D5;*/
     color: #04509B;
 }
 
@@ -121,12 +135,15 @@
 }
 
 .daterange .dr-input .dr-presets.dr-active, .daterange .dr-input .dr-presets:hover {
-    border-color: #2693D5;
+    /*border-color: #2693D5;*/
+    border-color: #04509B;
     box-shadow: inset 0 2px 3px #EBF1F4
 }
 
 .daterange .dr-input .dr-presets.dr-active .dr-preset-bar, .daterange .dr-input .dr-presets:hover .dr-preset-bar {
-    background-color: #2693D5
+    /*background-color: #2693D5*/
+    background-color: #04509B
+
 }
 
 .daterange .dr-input .dr-presets .dr-preset-bar {
@@ -209,7 +226,8 @@
 }
 
 .daterange .dr-selections .dr-calendar .dr-range-switcher .dr-switcher i:hover:after, .daterange .dr-selections .dr-calendar .dr-range-switcher .dr-switcher i:hover:before {
-    background-color: #2693D5
+    /*background-color: #2693D5*/
+    background-color: #04509B
 }
 
 .daterange .dr-selections .dr-calendar .dr-range-switcher .dr-switcher i.dr-disabled {
@@ -295,7 +313,8 @@
     text-align: center;
     width: calc(100% / 7);
     cursor: pointer;
-    color: #4f565c
+    /*color: #2693D5*/
+    color: #04509B
 }
 
 .daterange .dr-selections .dr-calendar .dr-day-list .dr-day.dr-hover:not(.dr-current) {
@@ -303,13 +322,15 @@
 }
 
 .daterange .dr-selections .dr-calendar .dr-day-list .dr-day.dr-hover-before {
-    border-left: 2px solid #2693D5 !important;
+    /*border-left: 2px solid #2693D5 !important;*/
+    border-left: 2px solid #04509B !important;
     border-radius: 2px 0 0 2px;
     padding-left: .1875rem !important
 }
 
 .daterange .dr-selections .dr-calendar .dr-day-list .dr-day.dr-hover-after {
-    border-right: 2px solid #2693D5 !important;
+    /*border-right: 2px solid #2693D5 !important;*/
+    border-right: 2px solid #04509B !important;
     border-radius: 0 2px 2px 0;
     padding-right: .1875rem !important
 }
@@ -327,19 +348,22 @@
 }
 
 .daterange .dr-selections .dr-calendar .dr-day-list .dr-start {
-    border-left: 2px solid #2693D5;
+    /*border-left: 2px solid #2693D5;*/
+    border-left: 2px solid #04509B;
     border-radius: 2px 0 0 2px;
     padding-left: .1875rem
 }
 
 .daterange .dr-selections .dr-calendar .dr-day-list .dr-end {
-    border-right: 2px solid #2693D5;
+    /*border-right: 2px solid #2693D5;*/
+    border-right: 2px solid #04509B;
     border-radius: 0 2px 2px 0;
     padding-right: .1875rem
 }
 
 .daterange .dr-selections .dr-calendar .dr-day-list .dr-current {
-    color: #2693D5 !important;
+    /*color: #2693D5 !important;*/
+    color: #04509B !important;
     background-color: rgba(38, 147, 213, .2) !important
 }
 
@@ -351,7 +375,8 @@
 
 .daterange .dr-selections .dr-preset-list {
     background-color: #FFF;
-    color: #2693D5;
+    /*color: #2693D5;*/
+    color: #04509B;
     font-size: .9375rem;
     box-shadow: 0 0 5px #C3CACD;
     border-radius: 5px;

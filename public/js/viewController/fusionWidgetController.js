@@ -17,17 +17,41 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
     $scope.gaAdObjId='';
     $scope.canManage = true;
     $scope.fusionRefreshButton='';
+    var apiResponse = 0;
+
+    angular.element(document).ready(function () {
+        $('.ladda-button').addClass('icon-arrow-right');
+        Ladda.bind( '.ladda-button',{
+            callback: function( instance ){
+                $scope.createAndFetchBasicWidget();
+                $('.ladda-button').removeClass('icon-arrow-right');
+                var progress = 0;
+                var interval = setInterval( function(){
+                    progress = Math.min( progress + Math.random() * 0.1, 1 );
+                    instance.setProgress( progress );
+
+                    if( progress === 1 && apiResponse === 1){
+                        instance.stop();
+                        clearInterval( interval );
+                        $scope.ok();
+                    }
+                }, 50 );
+            }
+        });
+      
+
+    });
 
     $scope.changeViewsInBasicWidget = function (obj) {
         $scope.currentView = obj;
         if ($scope.currentView === 'step_one') {
-            document.getElementById('basicWidgetBackButton1').disabled = true;
-            document.getElementById('basicWidgetNextButton').disabled = true;
+          /*  document.getElementById('basicWidgetBackButton1').disabled = true;
+            document.getElementById('basicWidgetNextButton').disabled = true;*/
             $scope.clearReferenceWidget();
             $scope.listOfReferenceWidget();
         }
         else if ($scope.currentView === 'step_two') {
-            document.getElementById('basicWidgetBackButton1').disabled = true;
+           /* document.getElementById('basicWidgetBackButton1').disabled = true;*/
             $scope.getProfilesForDropdown();
         }
     };
@@ -38,8 +62,39 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
             url: '/api/v1/get/referenceWidgets/' + $scope.widgetType
         }).then(
             function successCallback(response) {
-                for (i = 0; i < response.data.referenceWidgets.length; i++)
-                    $scope.referenceWidgetsList.push(response.data.referenceWidgets[i]);
+                $http({
+                    method: 'GET',
+                    url: '/api/v1/get/channels'
+                }).then(
+                    function successCallback(channel) {
+                        var tempReference=[];
+                        for (var i = 0; i < response.data.referenceWidgets.length; i++){
+                            tempReference.push($scope.getChannelByReference(response.data.referenceWidgets[i],i,channel.data))
+                        }
+                        $q.all(tempReference).then(
+                            function successCallback(temp) {
+                                for (var i = 0; i < response.data.referenceWidgets.length; i++){
+                                    $scope.referenceWidgetsList[i] = temp[i].widget;
+                                    $scope.referenceWidgetsList[i].channels = temp[i].channels;
+                                }
+                            },
+                            function errorCallback(err) {
+                                swal({
+                                    title: "",
+                                    text: "<span style='sweetAlertFont'>Something went wrong! Please reopen fusions link</span> .",
+                                    html: true
+                                });
+                            }
+                        );
+                    },
+                    function errorCallback(error) {
+                        swal({
+                            title: "",
+                            text: "<span style='sweetAlertFont'>Something went wrong! Please reopen fusions link</span> .",
+                            html: true
+                        });
+                    }
+                );
             },
             function errorCallback(error) {
                 swal({
@@ -50,6 +105,35 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
             }
         );
     };
+
+    $scope.getChannelByReference=function(referenceWidget,index,channelData){
+        var deferred = $q.defer();
+        if(referenceWidget != null && referenceWidget!=undefined && channelData!=null && channelData!=undefined) {
+            $scope.getAllChannels = [];
+            $scope.uniqueChannelList = [];
+            $scope.uniquechannelNames = [];
+            var finalResult = {};
+            for (var j = 0; j < referenceWidget.charts.length; j++) {
+                $scope.getAllChannels.push(referenceWidget.charts[j].channelId);
+            }
+            $scope.uniqueChannelList = _.uniq($scope.getAllChannels);
+            for (var k = 0; k < $scope.uniqueChannelList.length; k++) {
+                for (var n = 0; n < channelData.length; n++) {
+                    if (channelData[n]._id == $scope.uniqueChannelList[k]) {
+                        $scope.uniquechannelNames.push(channelData[n].name);
+                    }
+                }
+            }
+            finalResult.widget = referenceWidget;
+            finalResult.channels = $scope.uniquechannelNames
+            deferred.resolve(finalResult);
+        }
+        else
+            deferred.reject('getChannelByReference falied');
+
+        return deferred.promise;
+    }
+
 
     $scope.storeReferenceWidget = function () {
         $scope.storedReferenceWidget = this.referenceWidgets;
@@ -466,10 +550,12 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
             data: inputParams
         }).then(
             function successCallback(response) {
+                apiResponse = 1;
                 for(widgetObjects in response.data.widgetsList)
                     $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
             },
             function errorCallback(error) {
+                apiResponse = 1;
                 swal({
                     title: "",
                     text: "<span style='sweetAlertFont'>Please try again! Something is missing</span> .",

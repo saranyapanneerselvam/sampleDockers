@@ -1,6 +1,7 @@
 showMetricApp.controller('TopNavbarController',TopNavbarController)
 
-function TopNavbarController($scope) {
+function TopNavbarController($scope,$http,$rootScope,$state) {
+    $scope.recentDashboardList=[];
     $(".modifyUserModalContent").on( 'click', function( ev ) {
         $(".navbar").css('z-index','1');
         $(".md-overlay").css("background","rgba(0,0,0,0.5)");
@@ -25,6 +26,41 @@ function TopNavbarController($scope) {
     function removeModalHandler() {
         removeModal( classie.has( el, 'md-setperspective' ) );
     }
+    $rootScope.fetchRecentDashboards = function(){
+        $scope.recentDashboardList=[];
+        $http({
+            method: 'GET', url: '/api/v1/get/dashboardList'
+        }).then(
+            function successCallback(response){
+                this.recentDashboardModel=''
+                $scope.recentDashboardList=[];
+                if(response.status == '200'){
+                    var sortedDashboard= _.orderBy(response.data.dashboardList, ['updated'],['desc']);
+                    if(sortedDashboard.length<=5)
+                        $scope.recentDashboardList = sortedDashboard;
+                    else{
+                        for(var i=0;i<5;i++)
+                            $scope.recentDashboardList.push(sortedDashboard[i]);
+                    }
+                }
+                else
+                    $scope.recentDashboardList  = null;
+            },
+            function errorCallback(error){
+                    $scope.recentDashboardList  = null;
+            }
+        );
+    };
+
+    $scope.chosenDashboard=function(dashboard){
+        this.recentDashboardModel=''
+        if((dashboard!='')&&(dashboard!='gridview')){
+            var dashboard=JSON.parse(dashboard)
+            $state.go('app.reporting.dashboard',{id: dashboard._id});
+        }
+        else if(dashboard=='gridview')
+             $state.go('app.reporting.dashboards');
+    };
 
     $scope.getDropdown=function(){
         document.getElementById("myDropdown").classList.toggle("show");

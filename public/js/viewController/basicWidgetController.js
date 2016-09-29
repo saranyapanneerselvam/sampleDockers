@@ -34,14 +34,56 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
     var getReferenceWidgetsArr = new Array();
     var storeChosenObject = [];
     var profileListBeforeAddition = {};
+    var startWidget=0;
     $scope.profileOptionsModel={};
+
+    angular.element(document).ready(function () {
+        $('.progress-demo .ladda-button').addClass('icon-arrow-right');
+        $('.progress-demo2 .ladda-button').addClass('icon-arrow-right');
+
+        Ladda.bind('.progress-demo .ladda-button', {
+            callback: function (instance) {
+                $('.progress-demo .ladda-button').removeClass('icon-arrow-right');
+                var progress = 0;
+                var interval = setInterval(function () {
+                    progress = Math.min(progress + Math.random() * 0.1, 1);
+                    instance.setProgress(progress);
+
+                    if (progress === 1) {
+                        instance.stop();
+                        clearInterval(interval);
+                        $scope.changeViewsInBasicWidget('step_three');
+                    }
+                }, 50);
+            }
+        });
+
+        Ladda.bind('.progress-demo2 .ladda-button',{
+            callback: function( instance ){
+                $('.progress-demo2 .ladda-button').removeClass('icon-arrow-right');
+                $scope.createAndFetchBasicWidget();
+                var progress = 0;
+                var interval = setInterval( function(){
+                    progress = Math.min( progress + Math.random() * 0.1, 1 );
+                    instance.setProgress( progress );
+
+                    if( progress === 1 && startWidget===1 ){
+                        instance.stop();
+                        clearInterval( interval );
+                        $scope.ok();
+
+                    }
+                }, 50 );
+            }
+        });
+
+
+    });
 
     $scope.changeViewsInBasicWidget = function (obj) {
         $scope.currentView = obj;
         $rootScope.currentModalView = obj;
         if ($scope.currentView === 'step_one') {
-            document.getElementById('basicWidgetBackButton1').disabled = true;
-            document.getElementById('basicWidgetNextButton').disabled = true;
             $scope.listChannels();
             $scope.clearReferenceWidget();
             getReferenceWidgetsArr = [];
@@ -49,14 +91,15 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             $scope.profileList = {};
             $scope.objectTypeList={};
             $scope.canManageClients = null;
+            document.getElementById('basicWidgetFinishButton').disabled = true;
         }
         else if ($scope.currentView === 'step_two') {
             $scope.messageEnable=false;
-            document.getElementById('basicWidgetBackButton1').disabled = false;
             $scope.clearReferenceWidget();
             $scope.profileList = [];
             if (getChannelName == "CustomData") {
                 $scope.storeCustomData();
+                $('#basicWidgetBackButton').hide();
                 $("#basicWidgetNextButton").hide();
                 $("#basicWidgetFinishButtonCustom").show();
             }
@@ -66,11 +109,15 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 $scope.getReferenceWidgetsForChosenChannel();
                 $scope.getProfilesForDropdown();
                 $("#basicWidgetNextButton").show();
+                $('#basicWidgetBackButton').hide();
                 $("#basicWidgetFinishButtonCustom").hide();
+                $('#basicWidgetFinishButton').hide();
             }
         }
         else if ($scope.currentView === 'step_three') {
-            document.getElementById('basicWidgetBackButton1').disabled = false;
+            $('#basicWidgetBackButton2').hide();
+            $('#basicWidgetFinishButton').show();
+            $("#basicWidgetNextButton").hide();
             document.getElementById('basicWidgetFinishButton').disabled = true;
             $scope.getProfilesForDropdown();
             if ($scope.storedChannelName=='FacebookAds'){
@@ -89,6 +136,12 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             }
         }
     };
+
+    $scope.dropdownWidth=function(hasnoAccess,tokenExpired){
+        if(hasnoAccess==true || tokenExpired==true){
+            return ('col-sm-'+10+' col-md-'+10+' col-lg-'+10+' col-xs-10');
+        }
+    }
 
     $scope.mozobject=function(url){
         $scope.weburl=url;
@@ -268,8 +321,8 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 document.getElementById('basicWidgetFinishButton').disabled = true;
             }
             else {
-                if(($scope.profileId!=null)&&($scope.accountId!=null))
-                    document.getElementById('basicWidgetFinishButton').disabled =false;
+                if (($scope.profileId != null) && ($scope.accountId != null))
+                    document.getElementById('basicWidgetFinishButton').disabled = false;
                 else
                     document.getElementById('basicWidgetFinishButton').disabled = true;
             }
@@ -1676,6 +1729,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                             data: inputParams
                         }).then(
                             function successCallback(response) {
+                                startWidget=1
                                 for (var widgetObjects in response.data.widgetsList)
                                     $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
                             },
@@ -1690,6 +1744,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     getReferenceWidgetsArr = [];
                 },
                 function errorCallback() {
+                    startWidget=1
                     $(".navbar").css('z-index', '1');
                     $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
                     $("#somethingWentWrongModalContent").addClass('md-show');
@@ -1758,11 +1813,13 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     data: inputParams
                 }).then(
                     function successCallback(response) {
+                        startWidget=1
                         for (var widgetObjects in response.data.widgetsList) {
                             $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
                         }
                     },
                     function errorCallback(error) {
+                        startWidget=1
                         $(".navbar").css('z-index', '1');
                         $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
                         $("#somethingWentWrongModalContent").addClass('md-show');
@@ -1838,11 +1895,13 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     data: inputParams
                 }).then(
                     function successCallback(response) {
+                        startWidget=1
                         for (var widgetObjects in response.data.widgetsList) {
                             $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
                         }
                     },
                     function errorCallback(error) {
+                        startWidget=1
                         $(".navbar").css('z-index', '1');
                         $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
                         $("#somethingWentWrongModalContent").addClass('md-show');
@@ -1907,13 +1966,13 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                     data: inputParams
                 }).then(
                     function successCallback(response) {
-
+                        startWidget=1
                         for (var widgetObjects in response.data.widgetsList) {
                             $rootScope.$broadcast('populateWidget', response.data.widgetsList[widgetObjects]);
                         }
                     },
                     function errorCallback(error) {
-
+                        startWidget=1
                         $(".navbar").css('z-index', '1');
                         $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
                         $("#somethingWentWrongModalContent").addClass('md-show');

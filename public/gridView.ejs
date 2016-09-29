@@ -1,7 +1,7 @@
-<div class="modal-header white-bg">
-    <p class="grid-header">GridView</p>
+<div class="modal-header white-bg grid-header grid-font">
+    <p>All Dashboards</p>
 </div>
-<div ng-init="fetchAllDashboards()" class="wrapper wrapper-content gridAlign greyish-bg">
+<div ng-init="fetchAllDashboards()" class="wrapper wrapper-content gridAlign greyish-bg" ng-style="{'height': docHeight+'px'}">
     <div ng-show="gridloading === true"  class="spiner-example">
         <div class="sk-spinner sk-spinner-double-bounce">
             <div class="sk-double-bounce1"></div>
@@ -9,7 +9,7 @@
         </div>
     </div>
     <div class="row" ng-show="dashboardList != null && gridloading === false ">
-        <div class="col col-lg-2  grid-text"  ng-repeat="dashboard in dashboardList" >
+        <div class="col col-lg-2 grid-font grid-text"  ng-repeat="dashboard in dashboardList" >
             <div style="height: 10px; cursor: pointer;" ng-click="deleteDashboard(dashboard)" class="col-lg-1 pull-right"><i class="fa fa-times" aria-hidden="true"></i></div>
             <div style="height: 40px" class="contentName">
                 <div class="dashboards col-lg-2"  ng-if="(dashboard.name == null || dashboard.name==' ')">
@@ -21,10 +21,10 @@
                 </div>
             </div>
         </div>
-        <div ng-if="dashboardList.length===0"><p>No Dashboard Available</p></div>
+        <div class="grid-font" ng-if="dashboardList.length===0"><p>No Dashboard Available</p></div>
 
     </div>
-    <div class="row" ng-show="!dashboardList">
+    <div class="row grid-font" ng-show="!dashboardList">
         <p>You don't have access to any dashboards yet</p>
     </div>
 </div>

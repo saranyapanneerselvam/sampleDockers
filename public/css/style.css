@@ -58,6 +58,13 @@
     border-color: #efefef;
     color: #000000;
 }
+.shareUrl{
+    font-size: 15px;
+    font-family: Heebo-Medium;
+}
+.shareUrl p button{
+    margin-left: 8px;
+}
 #refreshButtonFusion{
     width:16px;
     height:16px;
@@ -4849,9 +4856,9 @@ body.rtls.top-navigation .footer.fixed {
     padding-top: 0px;
     text-align: center
 }
-.uploadbutton-mode{border: 1px solid #f5f5f5 !important;
+
+.uploadbutton-mode{
     background-color: #04509B !important;
-    border-radius: 5px !important;
     color:#fff !important;}
 .iconClicked {
     border: 2px solid #04509B;
@@ -4947,7 +4954,7 @@ button.overlayCloseButton:hover{
     background:#d14836;
 }
 .dashboardContentJpeg{
-    min-height: 500px !important;
+    height: auto !important;
     position: relative;
     left: 0px;
     top: 0px;

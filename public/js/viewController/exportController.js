@@ -20,6 +20,10 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
     $scope.cliLogosList = [];
     $scope.orgLogoSrc = '/userFiles/datapoolt.png';
     $scope.cliLogoSrc = '/userFiles/plain-white.jpg';
+    var readyToJPEGDownload;
+    var readyCopyUrl;
+    $scope.exportPDF=false;
+    $scope.exportUrl=false;
     $scope.calculateSummaryHeightMoz = function(widgetHeight,noOfItems) {
         var heightPercent;
 
@@ -30,22 +34,28 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
         return {'height': (heightPercent + '%')};
 
     };
+
     angular.element(document).ready(function () {
         $('.ladda-button').addClass('icon-arrow-right');
         Ladda.bind( '.ladda-button',{
             callback: function( instance ){
                 $('.ladda-button').removeClass('icon-arrow-right');
+                $scope.closeExport();
                 var progress = 0;
                 var interval = setInterval( function(){
                     progress = Math.min( progress + Math.random() * 0.1, 1 );
                     instance.setProgress( progress );
-
-                    if( progress === 1 ){
+                    if( progress === 1  && readyToJPEGDownload===1){
                         instance.stop();
                         clearInterval( interval );
-                        $scope.closeExport();
+                        $rootScope.closePdfModal();
                     }
-                }, 50 );
+                    else if(progress === 1  && readyCopyUrl===1){
+                        instance.stop();
+                        clearInterval( interval );
+
+                    }
+                }, 50);
             }
         });
 
@@ -78,6 +88,7 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
 
         }
     }
+
     $scope.fetchLogosFromDB = function(acType){
         var uploadData= {
             'accType':acType
@@ -148,7 +159,6 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
 
     };
 
-
     $scope.removeLogo = function(imageInfo,accType) {
         var jsonData = {
             'fileUrl': imageInfo.fileUrl,
@@ -179,15 +189,18 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
             }
         );
     }
+    
     $scope.enableUploadbutton=function(accType){
         if(accType=='org')
             document.getElementById('orgUploadButton').disabled = false;
         else if(accType=='cli')
             document.getElementById('clientUploadButton').disabled = false;
     }
+    
     $scope.selectedOrgLogo = function(imageInfo){
         $scope.orgLogoSrc = imageInfo;
     }
+    
     $scope.selectedCliLogo = function(imageInfo){
         $scope.cliLogoSrc = imageInfo;
     }
@@ -381,6 +394,8 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
     var vm = this;
     $scope.pdfPrintPreview = function (opt) {
         $scope.expAct = opt;
+        $scope.exportPDF=opt;
+        $scope.exportUrl=false;
         document.getElementById('submitExportButton').disabled = opt;
     };
 
@@ -565,10 +580,10 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
             document.getElementById('submitExportButton').disabled = true;
             if(setPDFOption==true) {
                 $rootScope.showExport = false;
+                $scope.exportUrl=false;
                 $timeout(function(){$scope.submitExport()},1800);
             }
             else {
-                $rootScope.showExport = false;
                 $scope.submitExport();
             }
 
@@ -588,22 +603,21 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
 
         if (setJPEGOption == true) {
             $(".navbar").css('z-index', '1');
-            $("#exportModalContent").removeClass('md-show');
+            /*$("#exportModalContent").removeClass('md-show');*/
             $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
-            $("#exportJPEGModalContent").addClass('md-show');
+            /*$("#exportJPEGModalContent").addClass('md-show');*/
             $("#dashboardContent").removeClass('dashboardContent');
             $("#dashboardContent").addClass('dashboardContentJpeg');
-            $rootScope.closePdfModal();
-
             domtoimage.toBlob(dashboardLayout)
                 .then(
                     function (blob) {
                         $("#dashboardContent").removeClass('dashboardContentJpeg');
                         $("#dashboardContent").addClass('dashboardContent');
                         var timestamp = Number(new Date());
-                        $("#exportJPEGModalContent").removeClass('md-show');
+                       /* $("#exportJPEGModalContent").removeClass('md-show');*/
                         window.saveAs(blob, dashboardName + "_" + timestamp + ".jpeg");
                         $("#exportOptionJpeg").prop("checked", false);
+                        readyToJPEGDownload=1;
                         $scope.expAct = false;
                     },
                     function errorCallback(error) {
@@ -621,6 +635,7 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
         }
 
         if (setPDFOption == true) {
+
             $(".navbar").css('z-index', '1');
             $("#exportModalContent").removeClass('md-show');
             // $(".md-overlay").css("background","rgba(0,0,0,0.5)");
@@ -629,8 +644,6 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
             $(".exportContentText").html('<b>Please wait while the PDF file is being generated</b>');
             $(".loadingStatus").show();
             var exportImages=[];
-
-
 
             var dashboardExpLayout=[];
             var promiseExportObject = [];
@@ -643,7 +656,8 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
                         },
                         function errorCallback(error) {
                             deferred.reject(error);
-                            console.log("Dom to image fails",error);
+
+                           console.log("Dom to image fails",error);
                         });
                 return deferred.promise;
             }
@@ -673,14 +687,17 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
                             else
                                 domainUrl = "";
                             var dwnldUrl = String(domainUrl + response.data.Response);
-                            $rootScope.closePdfModal();
+                            $(".exportContentText").html('<p><span class="pdfHeadText">PDF has been generated successfully</span><br>' +
+                                '<span class="pdfContentText"><b><a href="' + dwnldUrl + '" download style="color: green;font-size: 20px;"  id="yourLinkID">Click here to download your PDF</a></b></span></p>');
+                            $(".preview-loading").hide();
+                            /*$rootScope.closePdfModal();
                             $("#exportPDFModalContent").removeClass('md-show');
                             $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
                             $("#exportPDFModalContent").addClass('md-show');
 
                             $(".loadingStatus").hide();
                             $(".pdfHeadText").show().text("PDF has been generated successfully");
-                            $(".pdfContentText").html('<b><br/><a href="' + dwnldUrl + '" download style="color: green;"  id="yourLinkID">Click here to download your PDF</a></b>');
+                            $(".pdfContentText").html('<b><br/><a href="' + dwnldUrl + '" download style="color: green;"  id="yourLinkID">Click here to download your PDF</a></b>');*/
                             // window.saveAs(response.data.Response['blob'], dashboardName + "_" + timestamp + ".pdf");
                             // document.getElementById('yourLinkID').click();
                             // $window.open(dwnldUrl);
@@ -713,7 +730,7 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
         }
 
         if (setUrlOption === true) {
-            $rootScope.closePdfModal();
+          /*  $rootScope.closePdfModal();*/
             $http({
                 method: 'GET',
                 url: '/api/v1/get/dashboards/' + $state.params.id
@@ -721,19 +738,21 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
                 function successCallback(response) {
                     var reportId = response.data.reportId;
                     var sharingDomain = window.location.hostname == 'localhost' ? "localhost:8080/reports" : "https://" + window.location.hostname + "/reports";
-                    var sharingUrl = sharingDomain + '#/' + reportId;
+                    $scope.sharingUrl = sharingDomain + '#/' + reportId;
                     $(".navbar").css('z-index', '1');
-                    $("#exportModalContent").removeClass('md-show');
+                    //$("#exportModalContent").removeClass('md-show');
                     $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
-                    $("#exportPDFModalContent").addClass('md-show');
-                    $(".loadingStatus").hide();
+                   /* $("#exportPDFModalContent").addClass('md-show');*/
+                   /* $(".loadingStatus").hide();
                     $(".pdfHeadText").text('');
                     $(".pdfContentText").html('<p id="butt" style="word-wrap: break-word;"><b>Check your dashboard here : ' + '</b>' + sharingUrl + '</p>' + '<button class="btn" id="btnCopyLink" ' + 'data-clipboard-text=sharingUrl">' + '<img src="image/clippy.svg" width="13" alt="Copy to clipboard"></button>');
-                    $("#btnCopyLink").attr('data-clipboard-text', sharingUrl);
+                    $("#btnCopyLink").attr('data-clipboard-text', sharingUrl);*/
+                    readyCopyUrl=1;
+                    $scope.exportUrl=true;
+                    $scope.expAct=true;
                     var clipboard = new Clipboard('.btn');
                     clipboard.on('success', function (e) {
                         e.clearSelection();
-                        swal("Copied", "", "success");
                     });
 
                 },
@@ -748,4 +767,6 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
             );
         }
     };
+
+
 }

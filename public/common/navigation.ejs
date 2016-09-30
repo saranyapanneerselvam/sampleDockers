@@ -80,15 +80,10 @@
         var minibar = $("#page-top").hasClass("mini-navbar");
         $('.tooltip').hide();
 
-        $('.navbar-static-side').hover(function(){
-            /* $('.navbar-static-side').toggle('slide', {
+        $('.side-menu').hover(function(){
+             $('.navbar-static-side').slide('slide', {
              direction: 'right'
-            /!* }, 1000);*/
-            $('.navbar-static-side').toggle(function() {
-                $('.navbar-static-side').animate(
-                        { width:'220px' },
-                        1000);
-            }
+             }, 2000);
         })
     });
     $('.tooltip').click(function() {

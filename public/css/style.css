@@ -58,6 +58,13 @@
     border-color: #efefef;
     color: #000000;
 }
+.shareUrl{
+    font-size: 15px;
+    font-family: Heebo-Medium;
+}
+.shareUrl p button{
+    margin-left: 8px;
+}
 #refreshButtonFusion{
     width:16px;
     height:16px;
@@ -80,6 +87,7 @@
 }
 .dropdown{
     background-color: transparent !important;
+    padding: 5px 5px 0px 24px;
 }
 .nav .dropdown dropdown-toggle:hover{
     background-color: transparent !important;
@@ -130,7 +138,7 @@
 .graph-icon a{color:#979797;}
 .alertList{margin: 30px;}
 .createAlert{margin-top:8px !important;}
-svg:hover #Calendar-Icon { fill: #04509B; }
+svg:hover #Calendar-Icon { fill: #293846; }
 .nv-axis.nv-x .tick line {
     display:none;opacity: 0;
 }
@@ -2409,13 +2417,16 @@ body.mini-navbar.fixed-sidebar .nav-header {
 body.mini-navbar .logo-element {
     display: block !important;
 }
+.nav-header{
+    height: 60px;
+}
 .logo-element {
     text-align: center;
     font-size: 18px;
     font-weight: 600;
     color: white;
     display: none;
-    padding: 18px 0;
+    /*padding: 18px 0;*/
 }
 .dataimage{
     height: 25px;
@@ -2436,7 +2447,7 @@ body.mini-navbar .logo-element {
         display: inline-block;
     }
     .navbar-static-side:hover .nav-header {
-        padding: 33px 25px;
+        padding: 11px 11px;
         /*background: #04509B  url('data:image/svg+xml;utf8,<svg width="168px" height="142px" viewBox="13 -4 168 142" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><defs><path d="M17,96.4198718 L39.2909091,48.3173077 L61.5818182,0.21474359 L119.290909,0.0858974359 L177,0 L177,53.6858974 C177,91.7384615 176.890909,107.371795 176.6,107.371795 C176.381818,107.371795 153.836364,100.800641 126.527273,92.8121795 C99.1818182,84.8237179 76.5272727,78.1666667 76.1636364,78.0807692 C75.6181818,77.9948718 73,83.3634615 62.4909091,105.86859 L49.5090909,133.785256 L33.2545455,133.914103 L17,134 L17,115.23141 L17,96.4198718 Z" id="path-1"></path><filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-2"><feOffset dx="0" dy="0" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset><feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0" type="matrix" in="shadowOffsetOuter1" result="shadowMatrixOuter1"></feColorMatrix><feOffset dx="0" dy="0" in="SourceAlpha" result="shadowOffsetOuter2"></feOffset><feGaussianBlur stdDeviation="2" in="shadowOffsetOuter2" result="shadowBlurOuter2"></feGaussianBlur><feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0" type="matrix" in="shadowBlurOuter2" result="shadowMatrixOuter2"></feColorMatrix><feMerge><feMergeNode in="shadowMatrixOuter1"></feMergeNode><feMergeNode in="shadowMatrixOuter2"></feMergeNode></feMerge></filter></defs><g id="Shape" stroke="none" fill="none"><use fill="black" fill-opacity="1" filter="url(#filter-2)" xlink:href="#path-1"></use><use fill="#512DA8" fill-rule="evenodd" xlink:href="#path-1" ></use></g></svg>')  no-repeat ;*/
     }
 }
@@ -2836,14 +2847,7 @@ button.btn.btn-primary.changePassword {
 }
 
 #submitExportButton{
-    border: none;
-    font-size: 17px;
     float:right;
-    font-weight: 500;
-    border-radius: 5px;
-    padding: 10px;
-    margin: 0 15px 15px 15px;
-    cursor: pointer;
 }
 #submitInsightButton{
     border: none;
@@ -4498,15 +4502,16 @@ body.rtls.top-navigation .footer.fixed {
     .navbar-static-side {
         width:70px;
         position: absolute;
-        -webkit-transition: all .075s ease-in-out !important;
-        -moz-transition: all .075s ease-in-out !important;
-        -ms-transition: all .075s ease-in-out !important;
-        -o-transition: all .075s ease-in-out !important;
-        transition: all .075s ease-in-out !important;
+        /*  -webkit-transition: all .5s ease-in-out !important;
+          -moz-transition: all .075s ease-in-out !important;
+          -ms-transition: all .075s ease-in-out !important;
+          -o-transition: all .075s ease-in-out !important;
+          transition: all .5s ease-in-out !important;*/
     }
     .navbar-static-side:hover {
+        height:100%;
+        width:220px;
         z-index: 2001;
-        width: 220px !important;
         position: absolute;
         /*background-color: rgba(255,255,255, 0.3);*/
         /*border-right: 2px solid #ffffff;*/
@@ -4851,9 +4856,9 @@ body.rtls.top-navigation .footer.fixed {
     padding-top: 0px;
     text-align: center
 }
-.uploadbutton-mode{border: 1px solid #f5f5f5 !important;
+
+.uploadbutton-mode{
     background-color: #04509B !important;
-    border-radius: 5px !important;
     color:#fff !important;}
 .iconClicked {
     border: 2px solid #04509B;
@@ -4949,7 +4954,7 @@ button.overlayCloseButton:hover{
     background:#d14836;
 }
 .dashboardContentJpeg{
-    min-height: 500px !important;
+    height: auto !important;
     position: relative;
     left: 0px;
     top: 0px;
@@ -4958,11 +4963,11 @@ button.overlayCloseButton:hover{
 }
 
 .exportDashbdNameStyle{
-    font-size:19px!important;
-    font-family: Heebo !important ;
+    font-size:18px!important;
+    font-family: Heebo-Mediu !important ;
     font-style: normal !important;
     font-weight:200 !important;
-    text-transform: uppercase;
+    text-transform: capitalize;
 }
 .grid-font{
     font-family: Heebo-Medium !important;
@@ -5018,4 +5023,30 @@ button.overlayCloseButton:hover{
 }
 .even{
     background-color:#f9f9f9;
+}
+input:focus{
+    outline: none;
+}
+.modal-chooseDashboardType{
+    width: 50% !important;
+}
+.chooseDashboardTypeBody{
+    height:250px;
+}
+.editdashboard{
+    margin-top: 100px;
+}
+.goButton{
+    background-color: white;
+    border: none;
+    position: relative;
+    left: -28px;
+}
+.chooseDashboardquestion{
+    font-size: 18px;
+    font-family: hebbo-light;
+}
+.changeButton{
+    border-radius: 0px !important;
+    background-color: #1074ae !important;
 }

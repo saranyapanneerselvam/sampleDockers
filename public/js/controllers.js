@@ -380,14 +380,14 @@ showMetricApp.service('createWidgets',function($http,$q){
         }
 
         function formulateRegularWidgetGraphs(widget) {
-
             var deferred = $q.defer();
             var widgetCharts = [];
+            var totalNonZeroPoints = -1;
+            var summaryValueinChart=0;
 
             if(widget.charts.length > 0) {
                 for(var charts in widget.charts) {
                     var chartType = widget.charts[charts].chartType;
-
                     if(chartType == "line" || chartType == "area" || chartType == "bar" || chartType=="mozoverview") {
                         if(typeof widget.charts[charts].chartData[0].total == 'object') {
                             var endpoint;
@@ -995,6 +995,27 @@ showMetricApp.service('createWidgets',function($http,$q){
                         }
                     }
                 }
+                for(var charts in widget.charts){
+                    if(typeof widget.charts[charts].chartData[0] != 'undefined') {
+                        if(widget.charts[charts].chartData[0].x){
+                            for(var datas in widget.charts[charts].chartData) {
+                                summaryValueinChart += parseFloat(widget.charts[charts].chartData[datas].y)
+                                if(parseFloat(summaryValueinChart) > 0 && parseFloat(summaryValueinChart) != 0)
+                                    ++totalNonZeroPoints;
+                            }
+                        }
+                        else{
+                            for(var items in widget.charts[charts].chartData)
+                                for(var datas in widget.charts[charts].chartData[items]) {
+                                    summaryValueinChart += parseFloat(widget.charts[charts].chartData[items][datas].y);
+                                    if(Number(summaryValueinChart) > 0 && Number(summaryValueinChart) != 0)
+                                        ++totalNonZeroPoints;
+                                }
+                        }
+
+                    }
+                }
+
                 for(var charts in widget.charts) {
                     var chartType = widget.charts[charts].chartType;
                     if(chartType == "line" || chartType == "bar" || chartType == "area" || chartType == "pie" || chartType=='mozoverview' || chartType == "trafficSourcesBrkdwnLine" || chartType == "trafficSourcesBrkdwnPie"||((chartType == "costPerActionType") && (widget.meta != undefined))) {
@@ -1080,7 +1101,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                             'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
                                         });
                                     }
-                                    else if(chartType == 'bar' && nonZeroPoints<1 && summaryValue==0) {
+                                    else if(chartType == 'bar' && totalNonZeroPoints<0 && summaryValue==0) {
                                         widgetCharts.push({
                                             'type': 'line',
                                             'values': widget.charts[charts].chartData,      //values - represents the array of {x,y} data points
@@ -1239,10 +1260,9 @@ showMetricApp.service('createWidgets',function($http,$q){
                                             }
                                         }
                                     }
-
                                     var endpointDisplayCode = widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items];
                                     if(chartType == 'line' || chartType == 'bar' || chartType=='mozoverview') {
-                                        if(chartType == 'bar' && nonZeroPoints<1 && summaryValue==0) {
+                                        if(chartType == 'bar' && totalNonZeroPoints<0 && summaryValue==0) {
                                             widgetCharts.push({
                                                 'type': 'line',
                                                 'values': widget.charts[charts].chartData,      //values - represents the array of {x,y} data points
@@ -1881,7 +1901,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                     chartColorChecker.push(finalCharts.lineCharts[charts].color);
                 }
                 chartColorChecker = [];
-
                 var individualGraphTotals = [];
                 for (var charts in finalCharts.lineCharts) {
                     var summaryTotal = 0;
@@ -1891,10 +1910,14 @@ showMetricApp.service('createWidgets',function($http,$q){
                         summaryTotal: summaryTotal
                     };
                 }
-
                 var cumulativeTotal = 0;
-                for (items in individualGraphTotals)
-                    cumulativeTotal += parseInt(individualGraphTotals[items].summaryTotal);
+                var wantAddDomain=0;
+                for (items in individualGraphTotals) {
+                    cumulativeTotal = parseInt(individualGraphTotals[items].summaryTotal);
+                    if(cumulativeTotal == 0){
+                        wantAddDomain=1;
+                    }
+                }
                 var cumulativeAverage = cumulativeTotal / individualGraphTotals.length;
 
                 for (var charts in finalCharts.lineCharts) {
@@ -1904,13 +1927,15 @@ showMetricApp.service('createWidgets',function($http,$q){
                     if (summaryTotal > cumulativeAverage) finalCharts.lineCharts[charts].yAxis = 2;
                     else finalCharts.lineCharts[charts].yAxis = 1   ;
                 }
-
                 finalChartData.push({
                     'options': graphOptions.multiDataOptions,
                     'data': finalCharts.lineCharts,
                     'api': {}
                 });
-                if(cumulativeTotal == 0) finalChartData[finalChartData.length-1].options.chart.yDomain1 = [0,10];
+                if(wantAddDomain == 1){
+                    finalChartData[finalChartData.length-1].options.chart.yDomain1 = [0,10];
+                }
+
             }
 
             if(finalCharts.barCharts.length > 0) {
@@ -2209,6 +2234,831 @@ showMetricApp.service('createWidgets',function($http,$q){
                 }
             }
 
+            var setLayoutOptions = function() {
+                sizeY = typeof widget.size != 'undefined'? widget.size.h : 3;
+                sizeX = typeof widget.size != 'undefined'? widget.size.w : 3;
+                for(var i=0;i<widgetLayoutOptions.length;i++){
+                    if(widgetLayoutOptions[i].W == sizeX && widgetLayoutOptions[i].H == sizeY && widgetLayoutOptions[i].N == chartsCount){
+                        individualGraphWidthDivider = widgetLayoutOptions[i].c;
+                        individualGraphHeightDivider = widgetLayoutOptions[i].r;
+                    }
+                }
+            };
+            setLayoutOptions();
+            if(widget.widgetType == 'custom') chartName = "Custom Data";
+            else chartName = (typeof widget.name != 'undefined'? widget.name: '');
+
+            var modifiedWidget = {
+                'name': chartName,
+                'visibility': true,
+                'id': widget._id,
+                'color': widget.color,
+                'chart': finalChartData,
+                'layoutOptionsX': individualGraphWidthDivider,
+                'layoutOptionsY': individualGraphHeightDivider
+            };
+            deferred.resolve(modifiedWidget);
+            return deferred.promise;
+        }
+    };
+    this.insightWidgetHandler=function (widget, isPublic){
+        var deferredInsight = $q.defer();
+        var tempWidget = JSON.parse(JSON.stringify(widget));
+        var dataLoadedWidget=getInsightsWidgetElements(tempWidget,isPublic)
+        dataLoadedWidget.then(
+            function successCallback(dataLoadedWidget) {
+                var widgetCharts = formulateInsightsWidgetGraphs(dataLoadedWidget);
+                widgetCharts.then(
+                    function successCallback(widgetCharts) {
+                        var widgetData = createInsightWidgetData(widget,widgetCharts);
+                        widgetData.then(
+                            function successCallback(widgetData) {
+                                deferredInsight.resolve(widgetData);
+                            },
+                            function errorCallback(error) {
+                                deferredInsight.reject(error);
+                            }
+                        );
+                    },
+                    function errorCallback(error) {
+                        deferredInsight.reject(error);
+                    }
+                );
+            },
+            function errorCallback(error) {
+                deferredInsight.reject(error);
+            }
+        );
+        return deferredInsight.promise;
+        function getInsightsWidgetElements(widget) {
+            var deferred = $q.defer();
+            var updatedCharts;
+            updatedCharts = getInsightsWidgetData(widget,isPublic);
+            updatedCharts.then(
+                function successCallback(updatedCharts) {
+                    widget.charts = updatedCharts;
+                    deferred.resolve(widget);
+                },
+                function errorCallback(error) {
+                    deferred.reject(error);
+                }
+            );
+            return deferred.promise;
+        }
+        function getInsightsWidgetData(widget, isPublic) {
+            var deferred = $q.defer();
+            var updatedCharts = [];
+            if (isPublic){
+                var dataUrl = {
+                    method: 'POST',
+                    url: '/api/v1/widgets/data/' + widget._id,
+                    data: {
+                        "params":'public'
+                    }
+                };
+            }
+            else {
+                var dataUrl = {
+                    method: 'POST',
+                    url: '/api/v1/widgets/data/' + widget._id,
+                }
+            }
+            $http(dataUrl).then(
+                function successCallback(response) {
+                    console.log("response",response.data,widget.charts);
+                    for(var chartObjects in widget.charts){
+                        for(var datas in response.data){
+                            widget.charts[chartObjects].data=response.data[datas]
+                            updatedCharts.push({
+                                    channelId: widget.charts[chartObjects].channelId,
+                                    chartType: typeof widget.charts[chartObjects].chartType != 'undefined'? widget.charts[chartObjects].chartType: '',
+                                    chartColour: widget.charts[chartObjects].color,
+                                    chartObjectTypeId: widget.charts[chartObjects].objectTypeId,
+                                    chartObjectName: widget.charts[chartObjects].keyWord,
+                                    chartData:widget.charts[chartObjects].data
+                                });
+                        }
+                    }
+                    deferred.resolve(updatedCharts);
+                },
+                function errorCallback(error) {
+                    console.log("error",error)
+                    if(tempWidget.widgets.length > 0){
+
+                        k = tempWidget.widgets.map(function(e) { return e._id; }).indexOf(error._id);
+                        if(k!== -1){
+                            error.data.id=tempWidget._id;
+                        }
+                        deferred.reject(error);
+                    }
+                    else
+                        deferred.reject(error);
+                }
+            );
+            return deferred.promise;
+        }
+        function formulateInsightsWidgetGraphs(widget) {
+            var deferred = $q.defer();
+            var widgetCharts = [];
+
+            if(widget.charts.length > 0) {
+                for(var charts in widget.charts) {
+                    var chartType = widget.charts[charts].chartType;
+                 if(chartType == "topSentiment") {
+                        var fbTopReactionPost = {"ANGRY": 0,
+                            "SAD": 0,
+                            "WOW": 0,
+                            "HAHA": 0,
+                            "LOVE": 0,
+                            "LIKE":0};
+                            if (typeof(widget.charts[charts].chartData) === 'object') {
+                                fbTopReactionPost=widget.charts[charts].chartData;
+                            }
+
+                        widget.charts[charts].chartData = fbTopReactionPost;
+                    }
+                     if(chartType == "shareOfVoice"){
+                         var formattedChartData = [];
+                         formattedChartData.push(
+                             widget.charts[charts].chartData
+                         );
+                         widget.charts[charts].chartData = formattedChartData;
+                     }
+                   else if(chartType == "line" || chartType == "area" || chartType == "bar") {
+                        if(typeof widget.charts[charts].chartData[0].total == 'object') {
+                            var endpoint;
+                            for(objectTypes in widget.charts[charts].metricDetails.objectTypes){
+                                if(widget.charts[charts].metricDetails.objectTypes[objectTypes].objectTypeId == widget.charts[charts].chartObjectTypeId)
+                                    endpoint = widget.charts[charts].metricDetails.objectTypes[objectTypes].meta.endpoint;
+                            }
+                            var formattedChartDataArray = [];
+                            for(items in endpoint){
+                                var currentItem = endpoint[items];
+                                var formattedChartData = [];
+                                for(datas in widget.charts[charts].chartData){
+                                    var yValue = 0, endpointArray;
+                                    if(widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )) {
+                                        for(var keyValuePairs in widget.charts[charts].chartData[datas].total) {
+                                            if(keyValuePairs.search('/') > -1) {
+                                                endpointArray = keyValuePairs.split('/');
+                                                for(var splittedValues in endpointArray) {
+
+                                                }
+                                            }
+                                            else if(keyValuePairs == currentItem) {
+                                                yValue = widget.charts[charts].chartData[datas].total[currentItem];
+                                            }
+                                        }
+                                    }
+                                    formattedChartData.push({
+                                        x: moment(widget.charts[charts].chartData[datas].date),
+                                        y: yValue
+                                    });
+                                }
+                                formattedChartDataArray.push(formattedChartData);
+                            }
+                            widget.charts[charts].chartData = formattedChartDataArray;
+                        }
+                        else {
+                            var formattedChartData = [];
+                            for(var datas in widget.charts[charts].chartData) {
+                                formattedChartData.push({
+                                    x: moment(widget.charts[charts].chartData[datas].date),
+                                    y: widget.charts[charts].chartData[datas].total != null ? widget.charts[charts].chartData[datas].total : 0
+                                });
+                            }
+                            widget.charts[charts].chartData = formattedChartData;
+                        }
+                    }
+                    else if(chartType == "pie"){
+                        if(typeof(widget.charts[charts].chartData[0].total) === 'object') {
+                            var endpoint = [];
+                            for(objectTypes in widget.charts[charts].metricDetails.objectTypes){
+                                if(widget.charts[charts].metricDetails.objectTypes[objectTypes].objectTypeId == widget.charts[charts].chartObjectTypeId)
+                                    endpoint = widget.charts[charts].metricDetails.objectTypes[objectTypes].meta.endpoint;
+                            }
+                            var formattedChartDataArray = [];
+                            for(items in endpoint){
+                                var currentItem = endpoint[items];
+                                formattedChartData = [];
+                                var yValue = 0;
+                                for(datas in widget.charts[charts].chartData){
+                                    if(widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )) {
+                                        if(typeof widget.charts[charts].chartData[datas].total[currentItem] != 'undefined') {
+                                            yValue += parseInt(widget.charts[charts].chartData[datas].total[currentItem]);
+                                        }
+                                    }
+                                }
+                                formattedChartData.push({
+                                    y: yValue
+                                });
+                                formattedChartDataArray.push(formattedChartData);
+                            }
+                            widget.charts[charts].chartData = formattedChartDataArray;
+                        }
+                        else {
+                            var yValue = 0;
+                            for(datas in widget.charts[charts].chartData) {
+                                yValue += parseInt(widget.charts[charts].chartData[datas].total);
+                            }
+                            formattedChartData.push({
+                                y: yValue
+                            });
+                            widget.charts[charts].chartData = formattedChartData;
+                        }
+                    }
+
+                }
+                for(var charts in widget.charts) {
+                    var chartType = widget.charts[charts].chartType;
+                    if(chartType == "line" || chartType == "bar" || chartType == "area" || chartType == "pie") {
+                        if(typeof widget.charts[charts].chartData[0] != 'undefined') {
+                            if(widget.charts[charts].chartData[0].x){
+                                var summaryValue = 0;
+                                var nonZeroPoints = 0;
+                                var n = widget.charts[charts].chartData.length;
+                                var currentWeek = 0;
+                                var pastWeek = 0;
+                                var granularity;
+                                if(widget.charts[charts].chartData.length >= 14){
+                                    var count=0;
+                                    for(var i = n-1; i >= 0; i--) {
+                                        if(count===0 || count < 7)
+                                            currentWeek +=parseFloat(widget.charts[charts].chartData[i].y);
+                                        else if (count >= 7 && count < 14)
+                                            pastWeek+=parseFloat(widget.charts[charts].chartData[i].y);
+                                        count++;
+                                    }
+                                    granularity='Week';
+                                }
+                                else {
+                                    var lastIndex = _.last(widget.charts[charts].chartData);
+                                    var subtractDate = moment(lastIndex.x).subtract(1, "days").format('YYYY-DD-MM');
+                                    currentWeek = parseFloat(lastIndex.y);
+                                    for(var i = n-1; i >= 0; i--) {
+                                        var dateFormatChange = moment(widget.charts[charts].chartData[i].x).format('YYYY-DD-MM');
+                                        if(subtractDate === dateFormatChange)
+                                            pastWeek = parseFloat(widget.charts[charts].chartData[i].y);
+                                    }
+                                    granularity='Day';
+                                }
+                                var comparingData, percentage, minus;
+                                if(currentWeek > pastWeek){
+                                    comparingData = 'up';
+                                    minus = currentWeek - pastWeek;
+                                    if(pastWeek > 0)
+                                        percentage = parseFloat(minus / pastWeek * 100).toFixed(2);
+                                    else
+                                        percentage = currentWeek;
+                                }
+                                else if(currentWeek < pastWeek){
+                                    comparingData = 'down';
+                                    minus = pastWeek - currentWeek;
+                                    if(pastWeek > 0)
+                                        percentage = parseFloat(minus / pastWeek * 100).toFixed(2);
+                                    else
+                                        percentage = 0;
+                                }
+                                else {
+                                    minus= pastWeek - currentWeek;
+                                    percentage = 0;
+                                }
+                                for(var datas in widget.charts[charts].chartData) {
+                                    summaryValue += parseFloat(widget.charts[charts].chartData[datas].y);
+                                    if(parseFloat(widget.charts[charts].chartData[datas].y) > 0)
+                                        nonZeroPoints++;
+                                }
+                                if(typeof widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType != 'undefined') {
+                                    if(widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType == 'avg') {
+                                        if(nonZeroPoints == 0 && summaryValue == 0) summaryValue = 0;
+                                        else summaryValue = parseFloat(summaryValue/nonZeroPoints).toFixed(2);
+                                    }
+                                    else if(widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType == 'snapshot') {
+                                        var latestDate = '';
+                                        for(var data in widget.charts[charts].chartData) {
+                                            if(latestDate<moment(widget.charts[charts].chartData[data].x)) {
+                                                latestDate = moment(widget.charts[charts].chartData[data].x);
+                                                summaryValue = widget.charts[charts].chartData[data].y;
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if(chartType == 'line' || chartType == 'bar') {
+                                    if((widget.channelName=='FacebookAds')&&(widget.charts[charts].metricDetails.name=='Cost Per Unique Action Type')){
+                                        widgetCharts.push({
+                                            'type': widget.charts[charts].chartType,
+                                            'values': widget.charts[charts].chartData,      //values - represents the array of {x,y} data points
+                                            'key': widget.charts[charts].chartName, //key  - the name of the series.
+                                            'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
+                                            'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
+                                        });
+                                    }
+                                    else {
+                                        widgetCharts.push({
+                                            'type': widget.charts[charts].chartType,
+                                            'values': widget.charts[charts].chartData,      //values - represents the array of {x,y} data points
+                                            'key': widget.charts[charts].metricDetails.name, //key  - the name of the series.
+                                            'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
+                                            'arrow':comparingData,
+                                            'variance':percentage,
+                                            'period':granularity,
+                                            'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
+                                        });
+                                    }
+                                }
+                                else if(chartType == 'area') {
+                                    widgetCharts.push({
+                                        'type': widget.charts[charts].chartType,
+                                        'values': widget.charts[charts].chartData,      //values - represents the array of {x,y} data points
+                                        'key': widget.charts[charts].metricDetails.name, //key  - the name of the series.
+                                        'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
+                                        'arrow':comparingData,
+                                        'variance':percentage,
+                                        'period':granularity,
+                                        'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
+                                        'area': true
+                                    });
+                                }
+                                else {
+                                    widgetCharts.push({
+                                        'type': widget.charts[charts].chartType,
+                                        'y': parseFloat(summaryValue),      //values - represents the array of {x,y} data points
+                                        'key': widget.charts[charts].metricDetails.name, //key  - the name of the series.
+                                        'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
+                                        'arrow':comparingData,
+                                        'period':granularity,
+                                        'variance':percentage,
+                                        'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
+                                    });
+                                }
+                            }
+                            else {
+                                for(var items in widget.charts[charts].chartData) {
+                                    var summaryValue = 0;
+                                    var nonZeroPoints = 0;
+                                    var summaryValue = 0;
+                                    var nonZeroPoints = 0;
+                                    var n=widget.charts[charts].chartData[items].length;
+                                    var currentWeek=0;
+                                    var pastWeek=0;
+                                    var granularity;
+                                    if(widget.charts[charts].chartData[items].length>=14){
+                                        var count = 0;
+                                        for(var i = n-1; i >= 0; i--) {
+                                            if(count === 0 || count < 7)
+                                                currentWeek += parseFloat(widget.charts[charts].chartData[items][i].y);
+                                            else if (count >= 7 && count < 14)
+                                                pastWeek += parseFloat(widget.charts[charts].chartData[items][i].y);
+                                            count++;
+                                        }
+                                        granularity = 'Week';
+                                    }
+                                    else {
+                                        var lastIndex = _.last(widget.charts[charts].chartData[items]);
+                                        var subtractDate= moment(lastIndex.x).subtract(1, "days").format('YYYY-DD-MM');
+                                        currentWeek = parseFloat(lastIndex.y);
+                                        for(var i=n-1;i>=0;i--) {
+                                            var dateFormatChange=moment(widget.charts[charts].chartData[items][i].x).format('YYYY-DD-MM');
+                                            if(subtractDate === dateFormatChange)
+                                                pastWeek = parseFloat(widget.charts[charts].chartData[items][i].y);
+                                        }
+                                        granularity = 'Day';
+                                    }
+                                    var comparingData, minus, percentage;
+                                    if(currentWeek > pastWeek){
+                                        comparingData = 'up';
+                                        minus = currentWeek - pastWeek;
+                                        if(pastWeek > 0)
+                                            percentage = parseFloat(minus / pastWeek * 100).toFixed(2);
+                                        else
+                                            percentage = currentWeek;
+                                    }
+                                    else if(currentWeek < pastWeek){
+                                        comparingData ='down';
+                                        minus = pastWeek - currentWeek;
+                                        if(pastWeek > 0)
+                                            percentage = parseFloat(minus / pastWeek * 100).toFixed(2);
+                                        else
+                                            percentage = 0;
+                                    }
+                                    else {
+                                        var minus = pastWeek - currentWeek;
+                                        var percentage = 0;
+                                    }
+
+                                    for(var datas in widget.charts[charts].chartData[items]) {
+                                        summaryValue += parseFloat(widget.charts[charts].chartData[items][datas].y);
+                                        if(parseFloat(widget.charts[charts].chartData[items][datas].y != 0))
+                                            nonZeroPoints++;
+                                        if(typeof widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType != 'undefined') {
+                                            if(widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType == 'avg') {
+                                                if(nonZeroPoints == 0 && summaryValue == 0) summaryValue = 0;
+                                                else summaryValue = parseFloat(summaryValue/nonZeroPoints).toFixed(2);
+                                            }
+                                            else if(widget.charts[charts].metricDetails.objectTypes[0].meta.summaryType == 'snapshot') {
+                                                var latestDate = '';
+                                                for(var data in widget.charts[charts].chartData[items]) {
+                                                    if(latestDate<moment(widget.charts[charts].chartData[items][data].x)) {
+                                                        latestDate = moment(widget.charts[charts].chartData[items][data].x);
+                                                        summaryValue = widget.charts[charts].chartData[items][data].y;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    var endpointDisplayCode = widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items];
+                                    if(chartType == 'line' || chartType == 'bar') {
+                                        widgetCharts.push({
+                                            'type': widget.charts[charts].chartType,
+                                            'values': widget.charts[charts].chartData[items],      //values - represents the array of {x,y} data points
+                                            'key': typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName != 'undefined'? (typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode] != 'undefined'? widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode]: widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items]) : widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items],
+                                            'color': typeof widget.charts[charts].chartColour != 'undefined' ? (typeof widget.charts[charts].chartColour[items] != 'undefined'? widget.charts[charts].chartColour[items] : '') : '',  //color - optional: choose your own line color.
+                                            'arrow':comparingData,
+                                            'variance':percentage,
+                                            'period':granularity,
+                                            'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
+                                        });
+                                    }
+                                    else if(chartType == 'area') {
+                                        widgetCharts.push({
+                                            'type': widget.charts[charts].chartType,
+                                            'values': widget.charts[charts].chartData[items],      //values - represents the array of {x,y} data points
+                                            'key': typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName != 'undefined'? (typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode] != 'undefined'? widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode]: widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items]) : widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items],
+                                            'color': typeof widget.charts[charts].chartColour != 'undefined' ? (typeof widget.charts[charts].chartColour[items] != 'undefined'? widget.charts[charts].chartColour[items] : '') : '',  //color - optional: choose your own line color.
+                                            'arrow':comparingData,
+                                            'variance':percentage,
+                                            'period':granularity,
+                                            'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
+                                            'area': true
+                                        });
+                                    }
+                                    else {
+                                        widgetCharts.push({
+                                            'type': widget.charts[charts].chartType,
+                                            'y': parseFloat(summaryValue),      //values - represents the array of {x,y} data points
+                                            'key': typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName != 'undefined'? (typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode] != 'undefined'? widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode]: widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items]) : widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items],
+                                            'color': typeof widget.charts[charts].chartColour != 'undefined' ? (typeof widget.charts[charts].chartColour[items] != 'undefined'? widget.charts[charts].chartColour[items] : '') : '',  //color - optional: choose your own line color.
+                                            'arrow':comparingData,
+                                            'variance':percentage,
+                                            'period':granularity,
+                                            'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else  if(chartType == "topSentiment") {
+                        var colorIndex = 0;
+                        for(var index in widget.charts[charts].chartData) {
+                            widgetCharts.push({
+                                'type': 'pie',
+                                'y': parseFloat(widget.charts[charts].chartData[index]),      //values - represents the array of {x,y} data points
+                                'key': index,
+                                'color': typeof widget.charts[charts].chartColour != 'undefined' ? (typeof widget.charts[charts].chartColour[colorIndex] != 'undefined' ? widget.charts[charts].chartColour[colorIndex] : '') : '',  //color - optional: choose your own line color.
+                                'summaryDisplay': (parseFloat(widget.charts[charts].chartData[index]).toFixed(2) % Math.floor(widget.charts[charts].chartData[index])) > 0 ? parseFloat(widget.charts[charts].chartData[index]).toFixed(2) : parseInt(widget.charts[charts].chartData[index])
+                            });
+                            ++colorIndex;
+                        }
+                    }
+                    else  if(chartType == "shareOfVoice") {
+                        var colorIndex = 0;
+                        for(var index in widget.charts[charts].chartData) {
+                            widgetCharts.push({
+                                'type': 'pie',
+                                'y': parseFloat(widget.charts[charts].chartData[index].total),      //values - represents the array of {x,y} data points
+                                'key': widget.charts[charts].chartData[index].pageName,
+                                'color': typeof widget.charts[charts].chartColour != 'undefined' ? (typeof widget.charts[charts].chartColour[colorIndex] != 'undefined' ? widget.charts[charts].chartColour[colorIndex] : '') : '',  //color - optional: choose your own line color.
+                                'summaryDisplay': (parseFloat(widget.charts[charts].chartData[index].total).toFixed(2) % Math.floor(widget.charts[charts].chartData[index].total)) > 0 ? parseFloat(widget.charts[charts].chartData[index].total).toFixed(2) : parseInt(widget.charts[charts].chartData[index].total)
+                            });
+                            ++colorIndex;
+                        }
+                    }
+                }
+            }
+            deferred.resolve(widgetCharts);
+            return deferred.promise;
+        }
+        function createInsightWidgetData(widget,widgetCharts) {
+            var deferred = $q.defer();
+            var finalCharts = [];
+            finalCharts.pieCharts = [];
+            var graphOptions = {
+                pieDataOptions: {
+                    chart: {
+                        type: 'pieChart',
+                        noData: 'No data for chosen date range',
+                        margin : {top: 0, right: 15, bottom: 15, left: 15},
+                        x: function (d) {
+                            return d.key;
+                        },
+                        y: function (d) {
+                            return d.y;
+                        },
+                        showLabels: false,
+                        showLegend: false,
+                        labelsOutside: false,
+                        tooltips: true,
+                        labelThreshold: 0.01,
+                        labelSunbeamLayout: true,
+                        legend: {
+                            rightAlign: false,
+                            margin: {
+                                bottom: 25
+                            }
+                        }
+                    }
+                }
+            };
+            var sizeY,sizeX,chartsCount = 0,individualGraphWidthDivider,individualGraphHeightDivider,chartName,finalChartData = [];
+            var widgetLayoutOptions = [
+                {W:1,H:1,N:0,r:1,c:1},
+
+                {W:1,H:1,N:1,r:1,c:1},
+                {W:1,H:1,N:2,r:2,c:1},
+                {W:1,H:1,N:3,r:3,c:1},
+                {W:1,H:1,N:4,r:4,c:1},
+                {W:1,H:1,N:5,r:5,c:1},
+                {W:1,H:1,N:6,r:6,c:1},
+                {W:1,H:1,N:7,r:7,c:1},
+                {W:1,H:1,N:8,r:8,c:1},
+
+                {W:2,H:1,N:0,r:1,c:1},
+
+                {W:2,H:1,N:1,r:1,c:1},
+                {W:2,H:1,N:2,r:1,c:2},
+                {W:2,H:1,N:3,r:2,c:1},
+                {W:2,H:1,N:4,r:2,c:2},
+                {W:2,H:1,N:5,r:2,c:3},
+                {W:2,H:1,N:6,r:2,c:3},
+                {W:2,H:1,N:7,r:3,c:3},
+                {W:2,H:1,N:8,r:3,c:3},
+
+                {W:3,H:1,N:0,r:1,c:1},
+
+                {W:3,H:1,N:1,r:1,c:1},
+                {W:3,H:1,N:2,r:1,c:2},
+                {W:3,H:1,N:3,r:1,c:3},
+                {W:3,H:1,N:4,r:2,c:2},
+                {W:3,H:1,N:5,r:2,c:3},
+                {W:3,H:1,N:6,r:2,c:3},
+                {W:3,H:1,N:7,r:3,c:3},
+                {W:3,H:1,N:8,r:3,c:3},
+
+                {W:4,H:1,N:0,r:1,c:1},
+
+                {W:4,H:1,N:1,r:1,c:1},
+                {W:4,H:1,N:2,r:1,c:2},
+                {W:4,H:1,N:3,r:1,c:3},
+                {W:4,H:1,N:4,r:1,c:4},
+                {W:4,H:1,N:5,r:2,c:3},
+                {W:4,H:1,N:6,r:2,c:3},
+                {W:4,H:1,N:7,r:3,c:3},
+                {W:4,H:1,N:8,r:3,c:3},
+
+                {W:5,H:1,N:0,r:1,c:1},
+
+                {W:5,H:1,N:1,r:1,c:1},
+                {W:5,H:1,N:2,r:1,c:2},
+                {W:5,H:1,N:3,r:1,c:3},
+                {W:5,H:1,N:4,r:1,c:4},
+                {W:5,H:1,N:5,r:1,c:5},
+                {W:5,H:1,N:6,r:2,c:3},
+                {W:5,H:1,N:7,r:2,c:4},
+                {W:5,H:1,N:8,r:2,c:4},
+
+                {W:6,H:1,N:0,r:1,c:1},
+
+                {W:6,H:1,N:1,r:1,c:1},
+                {W:6,H:1,N:2,r:1,c:2},
+                {W:6,H:1,N:3,r:1,c:3},
+                {W:6,H:1,N:4,r:1,c:4},
+                {W:6,H:1,N:5,r:1,c:5},
+                {W:6,H:1,N:6,r:2,c:3},
+                {W:6,H:1,N:7,r:2,c:4},
+                {W:6,H:1,N:8,r:2,c:4},
+
+                {W:1,H:2,N:0,r:1,c:1},
+
+                {W:1,H:2,N:1,r:1,c:1},
+                {W:1,H:2,N:2,r:2,c:1},
+                {W:1,H:2,N:3,r:3,c:1},
+                {W:1,H:2,N:4,r:4,c:1},
+                {W:1,H:2,N:5,r:5,c:1},
+                {W:1,H:2,N:6,r:6,c:1},
+                {W:1,H:2,N:7,r:7,c:1},
+                {W:1,H:2,N:8,r:8,c:1},
+
+                {W:2,H:2,N:0,r:1,c:1},
+
+                {W:2,H:2,N:1,r:1,c:1},
+                {W:2,H:2,N:2,r:1,c:2},
+                {W:2,H:2,N:3,r:2,c:2},
+                {W:2,H:2,N:4,r:2,c:2},
+                {W:2,H:2,N:5,r:3,c:2},
+                {W:2,H:2,N:6,r:3,c:2},
+                {W:2,H:2,N:7,r:4,c:2},
+                {W:2,H:2,N:8,r:4,c:2},
+
+                {W:3,H:2,N:0,r:1,c:1},
+
+                {W:3,H:2,N:1,r:1,c:1},
+                {W:3,H:2,N:2,r:1,c:2},
+                {W:3,H:2,N:3,r:2,c:2},
+                {W:3,H:2,N:4,r:2,c:2},
+                {W:3,H:2,N:5,r:2,c:3},
+                {W:3,H:2,N:6,r:2,c:3},
+                {W:3,H:2,N:7,r:2,c:4},
+                {W:3,H:2,N:8,r:2,c:4},
+
+                {W:4,H:2,N:0,r:1,c:1},
+
+                {W:4,H:2,N:1,r:1,c:1},
+                {W:4,H:2,N:2,r:1,c:2},
+                {W:4,H:2,N:3,r:1,c:3},
+                {W:4,H:2,N:4,r:2,c:2},
+                {W:4,H:2,N:5,r:2,c:3},
+                {W:4,H:2,N:6,r:2,c:3},
+                {W:4,H:2,N:7,r:2,c:4},
+                {W:4,H:2,N:8,r:2,c:4},
+
+                {W:5,H:2,N:0,r:1,c:1},
+
+                {W:5,H:2,N:1,r:1,c:1},
+                {W:5,H:2,N:2,r:1,c:2},
+                {W:5,H:2,N:3,r:1,c:3},
+                {W:5,H:2,N:4,r:2,c:2},
+                {W:5,H:2,N:5,r:2,c:3},
+                {W:5,H:2,N:6,r:2,c:3},
+                {W:5,H:2,N:7,r:2,c:4},
+                {W:5,H:2,N:8,r:2,c:4},
+
+                {W:6,H:2,N:0,r:1,c:1},
+
+                {W:6,H:2,N:1,r:1,c:1},
+                {W:6,H:2,N:2,r:1,c:2},
+                {W:6,H:2,N:3,r:1,c:3},
+                {W:6,H:2,N:4,r:2,c:2},
+                {W:6,H:2,N:5,r:2,c:3},
+                {W:6,H:2,N:6,r:2,c:3},
+                {W:6,H:2,N:7,r:2,c:4},
+                {W:6,H:2,N:8,r:2,c:4},
+
+                {W:1,H:3,N:0,r:1,c:1},
+
+                {W:1,H:3,N:1,r:1,c:1},
+                {W:1,H:3,N:2,r:2,c:1},
+                {W:1,H:3,N:3,r:3,c:1},
+                {W:1,H:3,N:4,r:4,c:1},
+                {W:1,H:3,N:5,r:5,c:1},
+                {W:1,H:3,N:6,r:6,c:1},
+                {W:1,H:3,N:7,r:7,c:1},
+                {W:1,H:3,N:8,r:8,c:1},
+
+                {W:2,H:3,N:0,r:1,c:1},
+
+                {W:2,H:3,N:1,r:1,c:1},
+                {W:2,H:3,N:2,r:2,c:1},
+                {W:2,H:3,N:3,r:3,c:1},
+                {W:2,H:3,N:4,r:2,c:2},
+                {W:2,H:3,N:5,r:3,c:2},
+                {W:2,H:3,N:6,r:3,c:2},
+                {W:2,H:3,N:7,r:4,c:2},
+                {W:2,H:3,N:8,r:4,c:2},
+
+                {W:3,H:3,N:0,r:1,c:1},
+
+                {W:3,H:3,N:1,r:1,c:1},
+                {W:3,H:3,N:2,r:1,c:2},
+                {W:3,H:3,N:3,r:2,c:2},
+                {W:3,H:3,N:4,r:2,c:2},
+                {W:3,H:3,N:5,r:2,c:3},
+                {W:3,H:3,N:6,r:2,c:3},
+                {W:3,H:3,N:7,r:2,c:4},
+                {W:3,H:3,N:8,r:2,c:4},
+
+                {W:4,H:3,N:0,r:1,c:1},
+
+                {W:4,H:3,N:1,r:1,c:1},
+                {W:4,H:3,N:2,r:1,c:2},
+                {W:4,H:3,N:3,r:1,c:3},
+                {W:4,H:3,N:4,r:2,c:2},
+                {W:4,H:3,N:5,r:2,c:3},
+                {W:4,H:3,N:6,r:2,c:3},
+                {W:4,H:3,N:7,r:2,c:4},
+                {W:4,H:3,N:8,r:2,c:4},
+
+                {W:5,H:3,N:0,r:1,c:1},
+
+                {W:5,H:3,N:1,r:1,c:1},
+                {W:5,H:3,N:2,r:1,c:2},
+                {W:5,H:3,N:3,r:1,c:3},
+                {W:5,H:3,N:4,r:2,c:2},
+                {W:5,H:3,N:5,r:2,c:3},
+                {W:5,H:3,N:6,r:2,c:3},
+                {W:5,H:3,N:7,r:2,c:4},
+                {W:5,H:3,N:8,r:2,c:4},
+
+                {W:6,H:3,N:0,r:1,c:1},
+
+                {W:6,H:3,N:1,r:1,c:1},
+                {W:6,H:3,N:2,r:1,c:2},
+                {W:6,H:3,N:3,r:1,c:3},
+                {W:6,H:3,N:4,r:2,c:2},
+                {W:6,H:3,N:5,r:2,c:3},
+                {W:6,H:3,N:6,r:2,c:3},
+                {W:6,H:3,N:7,r:2,c:4},
+                {W:6,H:3,N:8,r:2,c:4}
+            ];
+            for (var charts in widgetCharts) {
+                if (widgetCharts[charts].type == 'pie')finalCharts.pieCharts.push(widgetCharts[charts]);
+
+                }
+
+            var chartColorChecker = [];
+            var colourChart = ['#EF5350','#EC407A','#9C27B0','#42A5F5','#26A69A','#FFCA28','#FF7043','#8D6E63'];
+            function fetchAColour(currentColour,colourArray){
+                var checker;
+                for(var colors in colourChart) {
+                    checker = false;
+                    for(var items in colourArray) {
+                        if(colourChart[colors] == colourArray[items])
+                            checker = true;
+                    }
+                    if(checker == false)
+                        return colourChart[colors];
+                }
+            }
+
+
+            /*
+             if (finalCharts.barCharts.length > 1) {
+             chartsCount++;
+             for (var charts in finalCharts.barCharts) {
+             for (var items in chartColorChecker) {
+             if (finalCharts.barCharts[charts].color == chartColorChecker[items]) {
+             var neededColour = fetchAColour(finalCharts.barCharts[charts].color, chartColorChecker);
+             finalCharts.barCharts[charts].color = neededColour;
+             }
+             }
+             chartColorChecker.push(finalCharts.barCharts[charts].color);
+             }
+             chartColorChecker = [];
+
+             var individualGraphTotals = [];
+             for (var charts in finalCharts.barCharts) {
+             var summaryTotal = 0;
+             for (values in finalCharts.barCharts[charts].values) {
+             summaryTotal += parseFloat(finalCharts.barCharts[charts].values[values].y);
+             }
+             individualGraphTotals[charts] = summaryTotal;
+             }
+
+             var cumulativeTotal = 0;
+             for (items in individualGraphTotals)
+             cumulativeTotal += parseInt(individualGraphTotals[items]);
+             var cumulativeAverage = cumulativeTotal / individualGraphTotals.length;
+
+             for (var charts in finalCharts.barCharts) {
+             var summaryTotal = 0;
+             for (values in finalCharts.barCharts[charts].values)
+             summaryTotal += parseFloat(finalCharts.barCharts[charts].values[values].y);
+
+             if (summaryTotal > cumulativeAverage)
+             finalCharts.barCharts[charts].yAxis = 2;
+             else
+             finalCharts.barCharts[charts].yAxis = 1;
+             }
+
+             finalChartData.push({
+             'options': graphOptions.multiDataOptions,
+             'data': finalCharts.barCharts,
+             'api': {}
+             });
+             }
+             */
+
+            if(finalCharts.pieCharts.length > 0) {
+                chartsCount++;
+                for(var charts in finalCharts.pieCharts) {
+                    for(var items in chartColorChecker) {
+                        if(finalCharts.pieCharts[charts].color == chartColorChecker[items]) {
+                            var neededColour = fetchAColour(finalCharts.pieCharts[charts].color,chartColorChecker);
+                            finalCharts.pieCharts[charts].color = neededColour;
+                        }
+                    }
+                    chartColorChecker.push(finalCharts.pieCharts[charts].color);
+                }
+                chartColorChecker = [];
+
+                finalChartData.push({
+                    'options': graphOptions.pieDataOptions,
+                    'data': finalCharts.pieCharts,
+                    'api': {}
+                });
+            }
             var setLayoutOptions = function() {
                 sizeY = typeof widget.size != 'undefined'? widget.size.h : 3;
                 sizeX = typeof widget.size != 'undefined'? widget.size.w : 3;

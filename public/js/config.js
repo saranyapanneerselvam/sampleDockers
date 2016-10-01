@@ -125,6 +125,15 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                 }
             }
         })
+        .state('app.reporting.dashboard.chooseDashboardType', {
+            url: "",
+            views: {
+                'lightbox@app.reporting.dashboard': {
+                    templateUrl: "chooseDashbordType.ejs",
+                    controller: 'LightBoxController'
+                }
+            }
+        })
 
         .state('app.reporting.dashboard.exportModal', {
             url: "",

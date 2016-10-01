@@ -8,6 +8,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
     $scope.profileList = [];
     $scope.objectList = [];
     $scope.tempList = [];
+    $scope.recommendeDashboardName;
     $scope.metricList = {};
     $scope.referenceWidgetsList = [];
     $scope.storedObjects = {};
@@ -33,7 +34,6 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
                 var interval = setInterval( function(){
                     progress = Math.min( progress + Math.random() * 0.1, 1 );
                     instance.setProgress( progress );
-
                     if( progress === 1 && progressStart===1){
                         instance.stop();
                         clearInterval( interval );
@@ -73,7 +73,6 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
             url: 'api/get/recommendDashboard'
         }).then(function successCallback(response) {
             $scope.wholeDataDetail = response.data;
-
             for (var i in response.data) {
                 $scope.recommendDashboard.push(response.data[i]);
             }
@@ -414,7 +413,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
     $scope.createRecommendedDashboard = function () {
         var matchingMetric = [];
         var jsonData = {
-            name: $scope.fullOfDashboard.dashboard.name
+            name: $scope.recommendeDashboardName
         };
         $http({
             method: 'POST',

@@ -15,6 +15,9 @@ function NavigationController($scope,$state,$http,$rootScope) {
                 case 'fusionWidget':
                     $state.go('app.reporting.dashboard.'+targetState);
                     break;
+                case 'chooseDashboardType':
+                    $state.go('app.reporting.dashboard.'+targetState);
+                    break;
                 case 'insights':
                     toastr.info('Coming Soon');
                     break;

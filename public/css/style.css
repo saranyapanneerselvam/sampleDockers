@@ -138,7 +138,7 @@
 .graph-icon a{color:#979797;}
 .alertList{margin: 30px;}
 .createAlert{margin-top:8px !important;}
-svg:hover #Calendar-Icon { fill: #04509B; }
+svg:hover #Calendar-Icon { fill: #293846; }
 .nv-axis.nv-x .tick line {
     display:none;opacity: 0;
 }
@@ -5023,4 +5023,30 @@ button.overlayCloseButton:hover{
 }
 .even{
     background-color:#f9f9f9;
+}
+input:focus{
+    outline: none;
+}
+.modal-chooseDashboardType{
+    width: 50% !important;
+}
+.chooseDashboardTypeBody{
+    height:250px;
+}
+.editdashboard{
+    margin-top: 100px;
+}
+.goButton{
+    background-color: white;
+    border: none;
+    position: relative;
+    left: -28px;
+}
+.chooseDashboardquestion{
+    font-size: 18px;
+    font-family: hebbo-light;
+}
+.changeButton{
+    border-radius: 0px !important;
+    background-color: #1074ae !important;
 }

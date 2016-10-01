@@ -350,7 +350,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                         deferred.reject(error);
                     }
                     else
-                    deferred.reject(error);
+                        deferred.reject(error);
                 }
             );
             return deferred.promise;
@@ -382,8 +382,11 @@ showMetricApp.service('createWidgets',function($http,$q){
         function formulateRegularWidgetGraphs(widget) {
             var deferred = $q.defer();
             var widgetCharts = [];
+            var totalNonZeroPoints = -1;
+            var summaryValueinChart=0;
 
             if(widget.charts.length > 0) {
+
                 for(var charts in widget.charts) {
                     var chartType = widget.charts[charts].chartType;
                     if(chartType == "line" || chartType == "area" || chartType == "bar" || chartType=="mozoverview") {
@@ -441,21 +444,21 @@ showMetricApp.service('createWidgets',function($http,$q){
                             }
                             var formattedChartDataArray = [];
 
-                                for(datas in widget.charts[charts].chartData){
-                                    var yValue = 0, endpointArray;
-                                    if(widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )) {
-                                        for(var keyValuePairs in widget.charts[charts].chartData[datas].total) {
-                                            typeof (widget.charts[charts].chartData[datas].total['social/Yes']) != 'undefined' ? Number(widget.charts[charts].chartData[datas].total['social/Yes']):0;
-                                            if(keyValuePairs.search('/') > -1) {
-                                                endpointArray = keyValuePairs.split('/');
-                                                if(endpointArray[1]=='Yes'){
-                                                    widget.charts[charts].chartData[datas].total['social/Yes'] = Number(widget.charts[charts].chartData[datas].total[keyValuePairs]);
-                                                    widget.charts[charts].chartData[datas].total[keyValuePairs] = 0;
-                                                }
+                            for(datas in widget.charts[charts].chartData){
+                                var yValue = 0, endpointArray;
+                                if(widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )) {
+                                    for(var keyValuePairs in widget.charts[charts].chartData[datas].total) {
+                                        typeof (widget.charts[charts].chartData[datas].total['social/Yes']) != 'undefined' ? Number(widget.charts[charts].chartData[datas].total['social/Yes']):0;
+                                        if(keyValuePairs.search('/') > -1) {
+                                            endpointArray = keyValuePairs.split('/');
+                                            if(endpointArray[1]=='Yes'){
+                                                widget.charts[charts].chartData[datas].total['social/Yes'] = Number(widget.charts[charts].chartData[datas].total[keyValuePairs]);
+                                                widget.charts[charts].chartData[datas].total[keyValuePairs] = 0;
                                             }
                                         }
                                     }
                                 }
+                            }
 
                             for(items in endpoint){
                                 var currentItem = endpoint[items];
@@ -993,6 +996,27 @@ showMetricApp.service('createWidgets',function($http,$q){
                         }
                     }
                 }
+                for(var charts in widget.charts){
+                    if(typeof widget.charts[charts].chartData[0] != 'undefined') {
+                        if(widget.charts[charts].chartData[0].x){
+                            for(var datas in widget.charts[charts].chartData) {
+                                summaryValueinChart += parseFloat(widget.charts[charts].chartData[datas].y)
+                                if(parseFloat(summaryValueinChart) > 0 && parseFloat(summaryValueinChart) != 0)
+                                    ++totalNonZeroPoints;
+                            }
+                        }
+                        else{
+                            for(var items in widget.charts[charts].chartData)
+                                for(var datas in widget.charts[charts].chartData[items]) {
+                                    summaryValueinChart += parseFloat(widget.charts[charts].chartData[items][datas].y);
+                                    if(Number(summaryValueinChart) > 0 && Number(summaryValueinChart) != 0)
+                                        ++totalNonZeroPoints;
+                                }
+                        }
+
+                    }
+                }
+
                 for(var charts in widget.charts) {
                     var chartType = widget.charts[charts].chartType;
                     if(chartType == "line" || chartType == "bar" || chartType == "area" || chartType == "pie" || chartType=='mozoverview' || chartType == "trafficSourcesBrkdwnLine" || chartType == "trafficSourcesBrkdwnPie"||((chartType == "costPerActionType") && (widget.meta != undefined))) {
@@ -1078,7 +1102,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                             'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
                                         });
                                     }
-                                    else if(chartType == 'bar' && nonZeroPoints<1 && summaryValue==0) {
+                                    else if(chartType == 'bar' && totalNonZeroPoints<0 && summaryValue==0) {
                                         widgetCharts.push({
                                             'type': 'line',
                                             'values': widget.charts[charts].chartData,      //values - represents the array of {x,y} data points
@@ -1100,7 +1124,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                             'variance':percentage,
                                             'period':granularity,
                                             'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
-                                    });
+                                        });
                                     }
                                 }
                                 else if(chartType == 'area') {
@@ -1239,7 +1263,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                     }
                                     var endpointDisplayCode = widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items];
                                     if(chartType == 'line' || chartType == 'bar' || chartType=='mozoverview') {
-                                        if(chartType == 'bar' && nonZeroPoints<1 && summaryValue==0) {
+                                        if(chartType == 'bar' && totalNonZeroPoints<0 && summaryValue==0) {
                                             widgetCharts.push({
                                                 'type': 'line',
                                                 'values': widget.charts[charts].chartData,      //values - represents the array of {x,y} data points
@@ -1252,16 +1276,16 @@ showMetricApp.service('createWidgets',function($http,$q){
                                             });
                                         }
                                         else
-                                        widgetCharts.push({
-                                            'type': widget.charts[charts].chartType,
-                                            'values': widget.charts[charts].chartData[items],      //values - represents the array of {x,y} data points
-                                            'key': typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName != 'undefined'? (typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode] != 'undefined'? widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode]: widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items]) : widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items],
-                                            'color': typeof widget.charts[charts].chartColour != 'undefined' ? (typeof widget.charts[charts].chartColour[items] != 'undefined'? widget.charts[charts].chartColour[items] : '') : '',  //color - optional: choose your own line color.
-                                            'arrow':comparingData,
-                                            'variance':percentage,
-                                            'period':granularity,
-                                            'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
-                                        });
+                                            widgetCharts.push({
+                                                'type': widget.charts[charts].chartType,
+                                                'values': widget.charts[charts].chartData[items],      //values - represents the array of {x,y} data points
+                                                'key': typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName != 'undefined'? (typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode] != 'undefined'? widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode]: widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items]) : widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items],
+                                                'color': typeof widget.charts[charts].chartColour != 'undefined' ? (typeof widget.charts[charts].chartColour[items] != 'undefined'? widget.charts[charts].chartColour[items] : '') : '',  //color - optional: choose your own line color.
+                                                'arrow':comparingData,
+                                                'variance':percentage,
+                                                'period':granularity,
+                                                'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
+                                            });
                                     }
                                     else if(chartType == 'trafficSourcesBrkdwnLine') {
                                         widgetCharts.push({
@@ -1944,52 +1968,52 @@ showMetricApp.service('createWidgets',function($http,$q){
                 if(cumulativeTotal == 0) finalChartData[finalChartData.length-1].options.chart.yDomain = [0,10];
             }
 
-/*
-            if (finalCharts.barCharts.length > 1) {
-                chartsCount++;
-                for (var charts in finalCharts.barCharts) {
-                    for (var items in chartColorChecker) {
-                        if (finalCharts.barCharts[charts].color == chartColorChecker[items]) {
-                            var neededColour = fetchAColour(finalCharts.barCharts[charts].color, chartColorChecker);
-                            finalCharts.barCharts[charts].color = neededColour;
-                        }
-                    }
-                    chartColorChecker.push(finalCharts.barCharts[charts].color);
-                }
-                chartColorChecker = [];
+            /*
+             if (finalCharts.barCharts.length > 1) {
+             chartsCount++;
+             for (var charts in finalCharts.barCharts) {
+             for (var items in chartColorChecker) {
+             if (finalCharts.barCharts[charts].color == chartColorChecker[items]) {
+             var neededColour = fetchAColour(finalCharts.barCharts[charts].color, chartColorChecker);
+             finalCharts.barCharts[charts].color = neededColour;
+             }
+             }
+             chartColorChecker.push(finalCharts.barCharts[charts].color);
+             }
+             chartColorChecker = [];
 
-                var individualGraphTotals = [];
-                for (var charts in finalCharts.barCharts) {
-                    var summaryTotal = 0;
-                    for (values in finalCharts.barCharts[charts].values) {
-                        summaryTotal += parseFloat(finalCharts.barCharts[charts].values[values].y);
-                    }
-                    individualGraphTotals[charts] = summaryTotal;
-                }
+             var individualGraphTotals = [];
+             for (var charts in finalCharts.barCharts) {
+             var summaryTotal = 0;
+             for (values in finalCharts.barCharts[charts].values) {
+             summaryTotal += parseFloat(finalCharts.barCharts[charts].values[values].y);
+             }
+             individualGraphTotals[charts] = summaryTotal;
+             }
 
-                var cumulativeTotal = 0;
-                for (items in individualGraphTotals)
-                    cumulativeTotal += parseInt(individualGraphTotals[items]);
-                var cumulativeAverage = cumulativeTotal / individualGraphTotals.length;
+             var cumulativeTotal = 0;
+             for (items in individualGraphTotals)
+             cumulativeTotal += parseInt(individualGraphTotals[items]);
+             var cumulativeAverage = cumulativeTotal / individualGraphTotals.length;
 
-                for (var charts in finalCharts.barCharts) {
-                    var summaryTotal = 0;
-                    for (values in finalCharts.barCharts[charts].values)
-                        summaryTotal += parseFloat(finalCharts.barCharts[charts].values[values].y);
+             for (var charts in finalCharts.barCharts) {
+             var summaryTotal = 0;
+             for (values in finalCharts.barCharts[charts].values)
+             summaryTotal += parseFloat(finalCharts.barCharts[charts].values[values].y);
 
-                    if (summaryTotal > cumulativeAverage)
-                        finalCharts.barCharts[charts].yAxis = 2;
-                    else
-                        finalCharts.barCharts[charts].yAxis = 1;
-                }
+             if (summaryTotal > cumulativeAverage)
+             finalCharts.barCharts[charts].yAxis = 2;
+             else
+             finalCharts.barCharts[charts].yAxis = 1;
+             }
 
-                finalChartData.push({
-                    'options': graphOptions.multiDataOptions,
-                    'data': finalCharts.barCharts,
-                    'api': {}
-                });
-            }
-*/
+             finalChartData.push({
+             'options': graphOptions.multiDataOptions,
+             'data': finalCharts.barCharts,
+             'api': {}
+             });
+             }
+             */
 
             if(finalCharts.pieCharts.length > 0) {
                 chartsCount++;
@@ -2147,7 +2171,7 @@ showMetricApp.service('createWidgets',function($http,$q){
             if (finalCharts.mozoverview.length > 0){
                 var dataArray=[]
                 for(var i=0;i < finalCharts.mozoverview.length;i++){
-                        var m= finalCharts.mozoverview[i].values.length-1;
+                    var m= finalCharts.mozoverview[i].values.length-1;
                     switch (finalCharts.mozoverview[i].key) {
                         case 'Links':
                             var links =finalCharts.mozoverview[i].values[m].y;
@@ -2168,13 +2192,13 @@ showMetricApp.service('createWidgets',function($http,$q){
                             break;
                     }
                 }
-              var displayData={
-                  mozRankURL:mozRankURL,
-                  externalEquityLinks:externalEquityLinks,
-                  domainageAuthority:domainageAuthority,
-                  links:links,
-                  pageAuthority:pageAuthority
-              }
+                var displayData={
+                    mozRankURL:mozRankURL,
+                    externalEquityLinks:externalEquityLinks,
+                    domainageAuthority:domainageAuthority,
+                    links:links,
+                    pageAuthority:pageAuthority
+                }
                 console.log("displayData",displayData)
                 finalChartData.push({
                     'options': graphOptions.mozoverview,

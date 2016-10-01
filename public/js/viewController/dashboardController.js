@@ -786,6 +786,34 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         var dropDwn = "settingsDropdown-"+id;
         document.getElementById(String(dropDwn)).classList.toggle("shw");
     }
+    //To generate PNG in Widget Level-dashboard ctrl
+    $scope.exportWidgetInPng =function (widgetId,widgetName) {
+        widgetName = widgetName || 'Untitled Widget';
+        var widgetLayout = document.getElementById(widgetId);
+
+
+        var dropDown = document.getElementById("settingsDropdown-"+widgetId);
+        if (dropDown.classList.contains('shw')) {
+            dropDown.classList.remove('shw');
+        }
+        toastr.info('Please wait while PNG is being generated.Download will start in few seconds');
+
+        document.getElementById('widget-dropdown-'+widgetId).style.visibility = 'hidden';
+
+
+        domtoimage.toBlob(widgetLayout)
+            .then(
+                function (blob) {
+                    var timestamp = Number(new Date());
+                    window.saveAs(blob, widgetName + "_" + timestamp + ".png");
+                    document.getElementById('widget-dropdown-'+widgetId).style.visibility = "visible";
+                },
+                function errorCallback(error) {
+                    toastr.info('Sorry PNG export failed.Please try again later.');
+                    document.getElementById('widget-dropdown-'+widgetId).style.visibility = "visible";
+                }
+            );
+    }
     $scope.toggleLegends = function (widgetId) {
         for(var widgetData in $scope.dashboard.widgetData) {
             if($scope.dashboard.widgetData[widgetData].id == widgetId) {
@@ -827,6 +855,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
     $('#exportOptionPDF').change(function() {
         $(".errorExportMessage").text("").hide();
     });
+    
 
 /*
     $rootScope.$on("getDashboardCommentsFunc", function(getValue){

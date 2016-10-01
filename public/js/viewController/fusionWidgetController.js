@@ -568,7 +568,7 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
     };
     $scope.dropdownWidth=function(hasnoAccess,tokenExpired){
         if(hasnoAccess==true || tokenExpired==true){
-            return ('col-sm-'+10+' col-md-'+10+' col-lg-'+10+' col-xs-10');
+            return ('col-sm-'+9+' col-md-'+10+' col-lg-'+10+' col-xs-10');
         }
     }
 }

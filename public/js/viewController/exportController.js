@@ -15,13 +15,16 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
     $scope.exportObject = {widgets: [], widgetData: []};
     $scope.exportObject.dashboardName = '';
     $scope.windowWidth = false;
+    $scope.closedCancle=true;
 //Logos Section Code Begins
     $scope.orgLogosList = [];
     $scope.cliLogosList = [];
     $scope.orgLogoSrc = '/userFiles/datapoolt.png';
     $scope.cliLogoSrc = '/userFiles/plain-white.jpg';
-    var readyToJPEGDownload;
     var readyCopyUrl;
+    var readyToButtonLoad;
+    var readyToJPEGDownload;
+    var buttonTrigger=false;
     $scope.exportPDF=false;
     $scope.exportUrl=false;
     $scope.calculateSummaryHeightMoz = function(widgetHeight,noOfItems) {
@@ -41,21 +44,29 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
             callback: function( instance ){
                 $('.ladda-button').removeClass('icon-arrow-right');
                 $scope.closeExport();
-                var progress = 0;
-                var interval = setInterval( function(){
-                    progress = Math.min( progress + Math.random() * 0.1, 1 );
-                    instance.setProgress( progress );
-                    if( progress === 1  && readyToJPEGDownload===1){
-                        instance.stop();
-                        clearInterval( interval );
-                        $rootScope.closePdfModal();
-                    }
-                    else if(progress === 1  && readyCopyUrl===1){
-                        instance.stop();
-                        clearInterval( interval );
+                    var progress = 0;
+                if(readyToButtonLoad== false){
+                    var attr = $('.ladda-button').attr('data-style','');
+                    $('.ladda-button').addClass('icon-arrow-right');
+                }
+                else{
+                    var attr = $('.ladda-button').attr('data-style','expand-right');
+                    var interval = setInterval(function () {
+                        progress = Math.min(progress + Math.random() * 0.1, 1);
+                        instance.setProgress(progress);
+                        if (progress === 1 && readyToJPEGDownload === 1) {
+                            instance.stop();
+                            clearInterval(interval);
+                        }
+                        else if (progress === 1 && readyCopyUrl === 1) {
+                            instance.stop();
+                            clearInterval(interval);
+                            $('.ladda-button').addClass('icon-arrow-right');
+                        }
 
-                    }
-                }, 50);
+                    }, 50);
+
+                }
             }
         });
 
@@ -575,15 +586,20 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
             //$(".errorExportMessage").text("* Select the option to export").show();
             //return false;
             $window.alert("* Please Select the option to export");
+            readyToButtonLoad=false;
+
         }
         else {
+            readyToButtonLoad=true;
             document.getElementById('submitExportButton').disabled = true;
             if(setPDFOption==true) {
                 $rootScope.showExport = false;
                 $scope.exportUrl=false;
+                $scope.closedCancle=false;
                 $timeout(function(){$scope.submitExport()},1800);
             }
             else {
+                readyToJPEGDownload=0;
                 $scope.submitExport();
             }
 
@@ -619,6 +635,7 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
                         $("#exportOptionJpeg").prop("checked", false);
                         readyToJPEGDownload=1;
                         $scope.expAct = false;
+                        $rootScope.closePdfModal();
                     },
                     function errorCallback(error) {
                         $("#exportJPEGModalContent").removeClass('md-show');
@@ -687,6 +704,7 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
                             else
                                 domainUrl = "";
                             var dwnldUrl = String(domainUrl + response.data.Response);
+                            $scope.closedCancle=true;
                             $(".exportContentText").html('<p><span class="pdfHeadText">PDF has been generated successfully</span><br>' +
                                 '<span class="pdfContentText"><b><a href="' + dwnldUrl + '" download style="color: green;font-size: 20px;"  id="yourLinkID">Click here to download your PDF</a></b></span></p>');
                             $(".preview-loading").hide();

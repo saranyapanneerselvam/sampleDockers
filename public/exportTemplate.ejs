@@ -2,7 +2,7 @@
     <script src="js/datePicker/Calendar.js"></script>
     <script type="text/ng-template" id="modal.ejs">
         <div class=" modal-expContent" ng-controller="ExportController as expCtrl" ng-cloak>
-                <button type="button" class="overlayCloseButton" ng-click="closeExportModal()">
+                <button type="button" class="overlayCloseButton" ng-click="closeExportModal()" ng-if="closedCancle==true">
                     <i class="fa fa-times fa-lg" aria-hidden="true"></i>
                 </button>
             <div class="row" style="margin-left: 0px;margin-right:0px;padding-top: 15px">

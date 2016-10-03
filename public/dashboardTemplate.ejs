@@ -33,7 +33,7 @@
         <div class="parallel-dashboard greyish-bg" ng-style="{'height': docHeight+'px'}" ng-if="widgetsPresent == false">
             <a ui-sref="app.reporting.dashboard.basicWidget({widgetType:'basic'})"><div class="white-bg empty-dashboard"><span>Add your first widget</span></div></a>
         </div>
-        <div class="greyish-bg dashboardContent" ng-style="{'height': docHeight+'px'}" ng-if="widgetsPresent == true">
+        <div id="dashboardContent"  ng-style="{'height': docHeight+'px'}" class="greyish-bg dashboardContent" ng-if="widgetsPresent == true" >
             <div class="spiner-mobile-example" ng-if="loadedWidgetCount != dashboard.widgets.length">
                 <div class="sk-spinner sk-spinner-double-bounce">
                     <div class="sk-double-bounce1"></div>

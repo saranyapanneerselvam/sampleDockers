@@ -51,20 +51,20 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
                 }
                 else{
                     var attr = $('.ladda-button').attr('data-style','expand-right');
-                var interval = setInterval( function(){
-                    progress = Math.min( progress + Math.random() * 0.1, 1 );
-                    instance.setProgress( progress );
+                    var interval = setInterval(function () {
+                        progress = Math.min(progress + Math.random() * 0.1, 1);
+                        instance.setProgress(progress);
                         if (progress === 1 && readyToJPEGDownload === 1) {
-                        instance.stop();
-                        clearInterval( interval );
-                    }
+                            instance.stop();
+                            clearInterval(interval);
+                        }
                         else if (progress === 1 && readyCopyUrl === 1) {
                             instance.stop();
                             clearInterval(interval);
                             $('.ladda-button').addClass('icon-arrow-right');
                         }
 
-                }, 50 );
+                    }, 50);
 
                 }
             }
@@ -99,6 +99,7 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
 
         }
     }
+
     $scope.fetchLogosFromDB = function(acType){
         var uploadData= {
             'accType':acType
@@ -199,15 +200,18 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
             }
         );
     }
+
     $scope.enableUploadbutton=function(accType){
         if(accType=='org')
             document.getElementById('orgUploadButton').disabled = false;
         else if(accType=='cli')
             document.getElementById('clientUploadButton').disabled = false;
     }
+
     $scope.selectedOrgLogo = function(imageInfo){
         $scope.orgLogoSrc = imageInfo;
     }
+
     $scope.selectedCliLogo = function(imageInfo){
         $scope.cliLogoSrc = imageInfo;
     }
@@ -311,7 +315,6 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
             cols = 3;
             fontSizeEm = 0.7;
         }
-        // console.log("No.of charts",noOfCharts,"Widget Width",widgetWidth,"No of Cols",cols);
         if(widgetWidth === 1 || noOfItems > 15 ||widgetHeight === 1||layoutHeight>1)
             data.showComparision = false;
         else
@@ -626,7 +629,7 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
                         $("#dashboardContent").removeClass('dashboardContentJpeg');
                         $("#dashboardContent").addClass('dashboardContent');
                         var timestamp = Number(new Date());
-                       /* $("#exportJPEGModalContent").removeClass('md-show');*/
+                        /* $("#exportJPEGModalContent").removeClass('md-show');*/
                         window.saveAs(blob, dashboardName + "_" + timestamp + ".jpeg");
                         $("#exportOptionJpeg").prop("checked", false);
                         readyToJPEGDownload=1;
@@ -648,6 +651,7 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
         }
 
         if (setPDFOption == true) {
+
             $(".navbar").css('z-index', '1');
             $("#exportModalContent").removeClass('md-show');
             // $(".md-overlay").css("background","rgba(0,0,0,0.5)");
@@ -668,7 +672,7 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
                         },
                         function errorCallback(error) {
                             deferred.reject(error);
-                            console.log("Dom to image fails",error);
+
                         });
                 return deferred.promise;
             }
@@ -703,13 +707,13 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
                                 '<span class="pdfContentText"><b><a href="' + dwnldUrl + '" download style="color: green;font-size: 20px;"  id="yourLinkID">Click here to download your PDF</a></b></span></p>');
                             $(".preview-loading").hide();
                             /*$rootScope.closePdfModal();
-                            $("#exportPDFModalContent").removeClass('md-show');
-                            $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
-                            $("#exportPDFModalContent").addClass('md-show');
+                             $("#exportPDFModalContent").removeClass('md-show');
+                             $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
+                             $("#exportPDFModalContent").addClass('md-show');
 
-                            $(".loadingStatus").hide();
-                            $(".pdfHeadText").show().text("PDF has been generated successfully");
-                            $(".pdfContentText").html('<b><br/><a href="' + dwnldUrl + '" download style="color: green;"  id="yourLinkID">Click here to download your PDF</a></b>');*/
+                             $(".loadingStatus").hide();
+                             $(".pdfHeadText").show().text("PDF has been generated successfully");
+                             $(".pdfContentText").html('<b><br/><a href="' + dwnldUrl + '" download style="color: green;"  id="yourLinkID">Click here to download your PDF</a></b>');*/
                             // window.saveAs(response.data.Response['blob'], dashboardName + "_" + timestamp + ".pdf");
                             // document.getElementById('yourLinkID').click();
                             // $window.open(dwnldUrl);
@@ -742,23 +746,23 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
         }
 
         if (setUrlOption === true) {
-          /*  $rootScope.closePdfModal();*/
+            /*  $rootScope.closePdfModal();*/
             $http({
                 method: 'GET',
                 url: '/api/v1/get/dashboards/' + $state.params.id
             }).then(
                 function successCallback(response) {
                     var reportId = response.data.reportId;
-                    var sharingDomain = window.location.hostname == 'localhost' ? "localhost:8080/reports" : "https://" + window.location.hostname + "/reports";
+                    var sharingDomain = window.location.hostname == 'localhost' ? "localhost:8080/reports" :  window.location.hostname + "/reports";
                     $scope.sharingUrl = sharingDomain + '#/' + reportId;
                     $(".navbar").css('z-index', '1');
                     //$("#exportModalContent").removeClass('md-show');
                     $(".md-overlay").css("background", "rgba(0,0,0,0.5)");
-                   /* $("#exportPDFModalContent").addClass('md-show');*/
-                   /* $(".loadingStatus").hide();
-                    $(".pdfHeadText").text('');
-                    $(".pdfContentText").html('<p id="butt" style="word-wrap: break-word;"><b>Check your dashboard here : ' + '</b>' + sharingUrl + '</p>' + '<button class="btn" id="btnCopyLink" ' + 'data-clipboard-text=sharingUrl">' + '<img src="image/clippy.svg" width="13" alt="Copy to clipboard"></button>');
-                    $("#btnCopyLink").attr('data-clipboard-text', sharingUrl);*/
+                    /* $("#exportPDFModalContent").addClass('md-show');*/
+                    /* $(".loadingStatus").hide();
+                     $(".pdfHeadText").text('');
+                     $(".pdfContentText").html('<p id="butt" style="word-wrap: break-word;"><b>Check your dashboard here : ' + '</b>' + sharingUrl + '</p>' + '<button class="btn" id="btnCopyLink" ' + 'data-clipboard-text=sharingUrl">' + '<img src="image/clippy.svg" width="13" alt="Copy to clipboard"></button>');
+                     $("#btnCopyLink").attr('data-clipboard-text', sharingUrl);*/
                     readyCopyUrl=1;
                     $scope.exportUrl=true;
                     $scope.expAct=true;

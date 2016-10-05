@@ -3,7 +3,6 @@ var showMetricApp = angular.module('inspinia');
 showMetricApp.service('createWidgets',function($http,$q){
 
     this.widgetHandler = function (widget, dateRange,isPublic) {
-
         var deferredWidget = $q.defer();
         var tempWidget = JSON.parse(JSON.stringify(widget));
         if(widget.widgetType == 'customFusion') {
@@ -350,7 +349,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                         deferred.reject(error);
                     }
                     else
-                    deferred.reject(error);
+                        deferred.reject(error);
                 }
             );
             return deferred.promise;
@@ -386,6 +385,7 @@ showMetricApp.service('createWidgets',function($http,$q){
             var summaryValueinChart=0;
 
             if(widget.charts.length > 0) {
+
                 for(var charts in widget.charts) {
                     var chartType = widget.charts[charts].chartType;
                     if(chartType == "line" || chartType == "area" || chartType == "bar" || chartType=="mozoverview") {
@@ -443,21 +443,21 @@ showMetricApp.service('createWidgets',function($http,$q){
                             }
                             var formattedChartDataArray = [];
 
-                                for(datas in widget.charts[charts].chartData){
-                                    var yValue = 0, endpointArray;
-                                    if(widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )) {
-                                        for(var keyValuePairs in widget.charts[charts].chartData[datas].total) {
-                                            typeof (widget.charts[charts].chartData[datas].total['social/Yes']) != 'undefined' ? Number(widget.charts[charts].chartData[datas].total['social/Yes']):0;
-                                            if(keyValuePairs.search('/') > -1) {
-                                                endpointArray = keyValuePairs.split('/');
-                                                if(endpointArray[1]=='Yes'){
-                                                    widget.charts[charts].chartData[datas].total['social/Yes'] = Number(widget.charts[charts].chartData[datas].total[keyValuePairs]);
-                                                    widget.charts[charts].chartData[datas].total[keyValuePairs] = 0;
-                                                }
+                            for(datas in widget.charts[charts].chartData){
+                                var yValue = 0, endpointArray;
+                                if(widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )) {
+                                    for(var keyValuePairs in widget.charts[charts].chartData[datas].total) {
+                                        typeof (widget.charts[charts].chartData[datas].total['social/Yes']) != 'undefined' ? Number(widget.charts[charts].chartData[datas].total['social/Yes']):0;
+                                        if(keyValuePairs.search('/') > -1) {
+                                            endpointArray = keyValuePairs.split('/');
+                                            if(endpointArray[1]=='Yes'){
+                                                widget.charts[charts].chartData[datas].total['social/Yes'] = Number(widget.charts[charts].chartData[datas].total[keyValuePairs]);
+                                                widget.charts[charts].chartData[datas].total[keyValuePairs] = 0;
                                             }
                                         }
                                     }
                                 }
+                            }
 
                             for(items in endpoint){
                                 var currentItem = endpoint[items];
@@ -614,7 +614,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                                 var post='text';
                                 var link='link';
                                 var url='url';
-
                                 var formattedChartDataArray = [];
                                 for(datas in widget.charts[charts].chartData) {
                                     var formattedChartData = {
@@ -730,7 +729,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                         return [value];
                                     });
                                     groupedArray=groupedArray.concat(sampleArray)
-                                    }
+                                }
                                 var pageTitle='pageTitle';
 
                                 var formattedChartDataArray=[]
@@ -759,17 +758,17 @@ showMetricApp.service('createWidgets',function($http,$q){
                                         var bouncesRate = bounces;
                                     else
                                         var bouncesRate = ((bounces/sessions) * 100).toFixed(2);
-    
+
                                     if( bouncedivide === 0)
                                         var  avgTimeOnpage = timeOnPage;
                                     else
                                         var avgTimeOnpage = (timeOnPage/bouncedivide);
-    
+
                                     avgTimeOnpage = Math.ceil(avgTimeOnpage);
                                     var date = new Date(null);
                                     date.setSeconds(avgTimeOnpage); // specify value for SECONDS here
                                     avgTimeOnpage = date.toISOString().substr(11, 8);
-    
+
                                     var path = {
                                         bouncesRate: bounces,
                                         pagePath: path,
@@ -994,6 +993,36 @@ showMetricApp.service('createWidgets',function($http,$q){
                             widget.charts[charts].chartData = formattedChartData;
                         }
                     }
+                    else if(chartType == "instagramHashtagLeaderBoard"){
+                        if(typeof widget.charts[charts].chartData[0] != 'undefined') {
+                            if(typeof(widget.charts[charts].chartData[0].total) === 'object') {
+                                var tag = 'tag';
+                                var comments='comments';
+                                var likes ='likes';
+                                var comments='comments'
+                                var likes='likes';
+                                var formattedChartDataArray = [];
+                                for(datas in widget.charts[charts].chartData) {
+                                    var formattedChartData = {
+                                        tagLink: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
+                                            (typeof widget.charts[charts].chartData[datas].total[tag] != 'undefined' ? 'https://www.instagram.com/explore/tags/'+widget.charts[charts].chartData[datas].total[tag] : '') : ''),
+                                        tag: (widget.charts[charts].chartData[datas].total != null ?
+                                            (widget.charts[charts].chartData[datas].total[tag] != null?
+                                                (typeof widget.charts[charts].chartData[datas].total[tag]!= 'undefined' ? widget.charts[charts].chartData[datas].total[tag] : 0):0):0),
+                                        likes: (widget.charts[charts].chartData[datas].total != null ?
+                                            (widget.charts[charts].chartData[datas].total[likes] != null?
+                                                (typeof widget.charts[charts].chartData[datas].total[likes]!= 'undefined' ? widget.charts[charts].chartData[datas].total[likes] : 0):0):0),
+
+                                        comments: (widget.charts[charts].chartData[datas].total != null ?
+                                            (widget.charts[charts].chartData[datas].total[comments] != null?
+                                                (typeof widget.charts[charts].chartData[datas].total[comments] != 'undefined' ? widget.charts[charts].chartData[datas].total[comments] : 0):0):0),
+                                    };
+                                    formattedChartDataArray.push(formattedChartData);
+                                }
+                                widget.charts[charts].chartData = formattedChartDataArray;
+                            }
+                        }
+                    }
                 }
                 for(var charts in widget.charts){
                     if(typeof widget.charts[charts].chartData[0] != 'undefined') {
@@ -1123,7 +1152,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                                             'variance':percentage,
                                             'period':granularity,
                                             'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
-                                    });
+                                        });
                                     }
                                 }
                                 else if(chartType == 'area') {
@@ -1265,8 +1294,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                                         if(chartType == 'bar' && totalNonZeroPoints<0 && summaryValue==0) {
                                             widgetCharts.push({
                                                 'type': 'line',
-                                                'values': widget.charts[charts].chartData,      //values - represents the array of {x,y} data points
-                                                'key': widget.charts[charts].metricDetails.name, //key  - the name of the series.
+                                                'values': widget.charts[charts].chartData[items],      //values - represents the array of {x,y} data points
+                                                'key': typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName != 'undefined'? (typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode] != 'undefined'? widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode]: widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items]) : widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items],
                                                 'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
                                                 'arrow':comparingData,
                                                 'variance':percentage,
@@ -1275,16 +1304,16 @@ showMetricApp.service('createWidgets',function($http,$q){
                                             });
                                         }
                                         else
-                                        widgetCharts.push({
-                                            'type': widget.charts[charts].chartType,
-                                            'values': widget.charts[charts].chartData[items],      //values - represents the array of {x,y} data points
-                                            'key': typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName != 'undefined'? (typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode] != 'undefined'? widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode]: widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items]) : widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items],
-                                            'color': typeof widget.charts[charts].chartColour != 'undefined' ? (typeof widget.charts[charts].chartColour[items] != 'undefined'? widget.charts[charts].chartColour[items] : '') : '',  //color - optional: choose your own line color.
-                                            'arrow':comparingData,
-                                            'variance':percentage,
-                                            'period':granularity,
-                                            'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
-                                        });
+                                            widgetCharts.push({
+                                                'type': widget.charts[charts].chartType,
+                                                'values': widget.charts[charts].chartData[items],      //values - represents the array of {x,y} data points
+                                                'key': typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName != 'undefined'? (typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode] != 'undefined'? widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode]: widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items]) : widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items],
+                                                'color': typeof widget.charts[charts].chartColour != 'undefined' ? (typeof widget.charts[charts].chartColour[items] != 'undefined'? widget.charts[charts].chartColour[items] : '') : '',  //color - optional: choose your own line color.
+                                                'arrow':comparingData,
+                                                'variance':percentage,
+                                                'period':granularity,
+                                                'summaryDisplay': (parseFloat(summaryValue).toFixed(2) % Math.floor(parseFloat(summaryValue).toFixed(2))) > 0 ? parseFloat(summaryValue).toFixed(2): parseFloat(summaryValue).toFixed(2) > 1 ? parseInt(summaryValue) : parseFloat(summaryValue) >0 ? parseFloat(summaryValue).toFixed(2) : parseInt(summaryValue),
+                                            });
                                     }
                                     else if(chartType == 'trafficSourcesBrkdwnLine') {
                                         widgetCharts.push({
@@ -1381,7 +1410,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                             'values': widget.charts[charts].chartData
                         });
                     }
-                    else  if(chartType == "fbReachByGender") {
+                    else if(chartType == "fbReachByGender") {
                         var colorIndex = 0;
                         for(var index in widget.charts[charts].chartData) {
                             widgetCharts.push({
@@ -1394,7 +1423,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                             ++colorIndex;
                         }
                     }
-                    else  if(chartType == "fbReachByAge") {
+                    else if(chartType == "fbReachByAge") {
                         var colorIndex = 0;
                         for(var index in widget.charts[charts].chartData) {
                             widgetCharts.push({
@@ -1426,6 +1455,12 @@ showMetricApp.service('createWidgets',function($http,$q){
                             //'configure':
                         });
                     }
+                    else if(chartType == 'instagramHashtagLeaderBoard'){
+                        widgetCharts.push({
+                            'type': widget.charts[charts].chartType,
+                            'values': widget.charts[charts].chartData
+                        });
+                    }
                 }
             }
 
@@ -1437,7 +1472,7 @@ showMetricApp.service('createWidgets',function($http,$q){
             var deferred = $q.defer();
             var finalCharts = [];
             finalCharts.lineCharts = [], finalCharts.barCharts = [], finalCharts.pieCharts = [], finalCharts.instagramPosts = [], finalCharts.highEngagementTweets = [],finalCharts.highestEngagementLinkedIn=[], finalCharts.pinterestEngagementRate=[], finalCharts.pinterestLeaderboard=[];
-            finalCharts.gaTopPagesByVisit=[],finalCharts.fbReachByGender = [],finalCharts.mozoverview = [],finalCharts.fbReachByAge = [],finalCharts.vimeoTopVideos=[],finalCharts.costPerActionType=[];
+            finalCharts.gaTopPagesByVisit=[],finalCharts.fbReachByGender = [],finalCharts.mozoverview = [],finalCharts.fbReachByAge = [],finalCharts.vimeoTopVideos=[],finalCharts.costPerActionType=[],finalCharts.instagramHashtagLeaderBoard = [];
             var graphOptions = {
                 lineDataOptions: {
                     chart: {
@@ -1613,7 +1648,12 @@ showMetricApp.service('createWidgets',function($http,$q){
                             }
                         }
                     }
-                }
+                },
+                instagramHashtagLeaderBoard: {
+                    chart: {
+                        type: 'instagramHashtagLeaderBoard'
+                    }
+                },
             };
             var sizeY,sizeX,chartsCount = 0,individualGraphWidthDivider,individualGraphHeightDivider,chartName,finalChartData = [];
             var widgetLayoutOptions = [
@@ -1834,6 +1874,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                             widgetCharts[charts].values[i].x=moment(widgetCharts[charts].values[i].x).format("YYYY-DD-MM");
                         finalCharts.mozoverview.push(widgetCharts[charts]);
                     }
+                    else if (widgetCharts[charts].type == 'instagramHashtagLeaderBoard') finalCharts.instagramHashtagLeaderBoard.push(widgetCharts[charts]);
                 }
             }
             else {
@@ -1856,6 +1897,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                             widgetCharts[charts].values[i].x=moment(widgetCharts[charts].values[i].x).format("YYYY-DD-MM");
                         finalCharts.mozoverview.push(widgetCharts[charts]);
                     }
+                    else if (widgetCharts[charts].type == 'instagramHashtagLeaderBoard') finalCharts.instagramHashtagLeaderBoard.push(widgetCharts[charts]);
                 }
             }
             var chartColorChecker = [];
@@ -1975,52 +2017,52 @@ showMetricApp.service('createWidgets',function($http,$q){
                 if(cumulativeTotal == 0) finalChartData[finalChartData.length-1].options.chart.yDomain = [0,10];
             }
 
-/*
-            if (finalCharts.barCharts.length > 1) {
-                chartsCount++;
-                for (var charts in finalCharts.barCharts) {
-                    for (var items in chartColorChecker) {
-                        if (finalCharts.barCharts[charts].color == chartColorChecker[items]) {
-                            var neededColour = fetchAColour(finalCharts.barCharts[charts].color, chartColorChecker);
-                            finalCharts.barCharts[charts].color = neededColour;
-                        }
-                    }
-                    chartColorChecker.push(finalCharts.barCharts[charts].color);
-                }
-                chartColorChecker = [];
+            /*
+             if (finalCharts.barCharts.length > 1) {
+             chartsCount++;
+             for (var charts in finalCharts.barCharts) {
+             for (var items in chartColorChecker) {
+             if (finalCharts.barCharts[charts].color == chartColorChecker[items]) {
+             var neededColour = fetchAColour(finalCharts.barCharts[charts].color, chartColorChecker);
+             finalCharts.barCharts[charts].color = neededColour;
+             }
+             }
+             chartColorChecker.push(finalCharts.barCharts[charts].color);
+             }
+             chartColorChecker = [];
 
-                var individualGraphTotals = [];
-                for (var charts in finalCharts.barCharts) {
-                    var summaryTotal = 0;
-                    for (values in finalCharts.barCharts[charts].values) {
-                        summaryTotal += parseFloat(finalCharts.barCharts[charts].values[values].y);
-                    }
-                    individualGraphTotals[charts] = summaryTotal;
-                }
+             var individualGraphTotals = [];
+             for (var charts in finalCharts.barCharts) {
+             var summaryTotal = 0;
+             for (values in finalCharts.barCharts[charts].values) {
+             summaryTotal += parseFloat(finalCharts.barCharts[charts].values[values].y);
+             }
+             individualGraphTotals[charts] = summaryTotal;
+             }
 
-                var cumulativeTotal = 0;
-                for (items in individualGraphTotals)
-                    cumulativeTotal += parseInt(individualGraphTotals[items]);
-                var cumulativeAverage = cumulativeTotal / individualGraphTotals.length;
+             var cumulativeTotal = 0;
+             for (items in individualGraphTotals)
+             cumulativeTotal += parseInt(individualGraphTotals[items]);
+             var cumulativeAverage = cumulativeTotal / individualGraphTotals.length;
 
-                for (var charts in finalCharts.barCharts) {
-                    var summaryTotal = 0;
-                    for (values in finalCharts.barCharts[charts].values)
-                        summaryTotal += parseFloat(finalCharts.barCharts[charts].values[values].y);
+             for (var charts in finalCharts.barCharts) {
+             var summaryTotal = 0;
+             for (values in finalCharts.barCharts[charts].values)
+             summaryTotal += parseFloat(finalCharts.barCharts[charts].values[values].y);
 
-                    if (summaryTotal > cumulativeAverage)
-                        finalCharts.barCharts[charts].yAxis = 2;
-                    else
-                        finalCharts.barCharts[charts].yAxis = 1;
-                }
+             if (summaryTotal > cumulativeAverage)
+             finalCharts.barCharts[charts].yAxis = 2;
+             else
+             finalCharts.barCharts[charts].yAxis = 1;
+             }
 
-                finalChartData.push({
-                    'options': graphOptions.multiDataOptions,
-                    'data': finalCharts.barCharts,
-                    'api': {}
-                });
-            }
-*/
+             finalChartData.push({
+             'options': graphOptions.multiDataOptions,
+             'data': finalCharts.barCharts,
+             'api': {}
+             });
+             }
+             */
 
             if(finalCharts.pieCharts.length > 0) {
                 chartsCount++;
@@ -2050,9 +2092,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                         'options': graphOptions.instagramPosts,
                         'data': finalCharts.instagramPosts[0].values
                     });}
-
             }
-
             if(finalCharts.vimeoTopVideos.length > 0  ) {
                 if(finalCharts.vimeoTopVideos[0].values.length > 0){
                     chartsCount++;
@@ -2061,9 +2101,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                         'data': finalCharts.vimeoTopVideos[0].values
                     });
                 }
-
             }
-
             if(finalCharts.highEngagementTweets.length > 0) {
                 if(finalCharts.highEngagementTweets[0].values.length > 0){
                     chartsCount++;
@@ -2071,25 +2109,17 @@ showMetricApp.service('createWidgets',function($http,$q){
                         'options': graphOptions.highEngagementTweets,
                         'data': finalCharts.highEngagementTweets[0].values
                     });
-
                 }
-
             }
-
             if(finalCharts.highestEngagementLinkedIn.length > 0 ) {
                 if(finalCharts.highestEngagementLinkedIn[0].values.length > 0){
-
-
                     chartsCount++;
                     finalChartData.push({
                         'options': graphOptions.highestEngagementLinkedIn,
                         'data': finalCharts.highestEngagementLinkedIn[0].values
                     });
-
                 }
-
             }
-
             if(finalCharts.gaTopPagesByVisit.length > 0 ) {
 
                 if(finalCharts.gaTopPagesByVisit[0].values.length > 0){
@@ -2103,7 +2133,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                 }
 
             }
-
             if(finalCharts.pinterestEngagementRate.length >0 ) {
                 if (finalCharts.pinterestEngagementRate[0].values.length > 0) {
                     chartsCount++;
@@ -2114,7 +2143,6 @@ showMetricApp.service('createWidgets',function($http,$q){
 
                 }
             }
-
             if(finalCharts.pinterestLeaderboard.length>0){
                 if(finalCharts.pinterestLeaderboard[0].values.length > 0){
                     chartsCount++;
@@ -2125,7 +2153,6 @@ showMetricApp.service('createWidgets',function($http,$q){
 
                 }
             }
-
             if(finalCharts.fbReachByGender.length > 0) {
                 chartsCount++;
 
@@ -2146,7 +2173,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                     'api': {}
                 });
             }
-
             if(finalCharts.fbReachByAge.length > 0) {
                 chartsCount++;
 
@@ -2167,53 +2193,58 @@ showMetricApp.service('createWidgets',function($http,$q){
                     'api': {}
                 });
             }
-
             if(finalCharts.costPerActionType.length > 0){
                 finalChartData.push({
                     'options': graphOptions.costPerActionType,
                     'data':finalCharts.costPerActionType
                 });
             }
-
             if (finalCharts.mozoverview.length > 0){
                 var dataArray=[]
                 for(var i=0;i < finalCharts.mozoverview.length;i++){
-                        var m= finalCharts.mozoverview[i].values.length-1;
+                    var m= finalCharts.mozoverview[i].values.length-1;
                     switch (finalCharts.mozoverview[i].key) {
                         case 'Links':
-                            var links =finalCharts.mozoverview[i].values[m].y;
+                            var links =parseInt(finalCharts.mozoverview[i].values[m].y);
                             break;
                         case 'External equity links':
-                            var externalEquityLinks= finalCharts.mozoverview[i].values[m].y;
+                            var externalEquityLinks= parseInt(finalCharts.mozoverview[i].values[m].y);
                             break;
-                        case 'Domainage Authority':
+                        case 'Domain Authority (/100)':
                             var domainageAuthority =finalCharts.mozoverview[i].values[m].y;
                             break;
-                        case 'Page Authority':
+                        case 'Page Authority (/100)':
                             var pageAuthority = finalCharts.mozoverview[i].values[m].y;
                             break;
-                        case 'MozRank URL':
+                        case 'Moz Rank (/10)':
                             var mozRankURL = finalCharts.mozoverview[i].values[m].y;
                             break;
                         default:
                             break;
                     }
                 }
-              var displayData={
-                  mozRankURL:mozRankURL,
-                  externalEquityLinks:externalEquityLinks,
-                  domainageAuthority:domainageAuthority,
-                  links:links,
-                  pageAuthority:pageAuthority
-              }
-                console.log("displayData",displayData)
+                var displayData={
+                    mozRankURL:mozRankURL,
+                    externalEquityLinks:externalEquityLinks,
+                    domainageAuthority:domainageAuthority,
+                    links:links,
+                    pageAuthority:pageAuthority
+                }
                 finalChartData.push({
                     'options': graphOptions.mozoverview,
                     'data': finalCharts.mozoverview,
                     'displayData':displayData
                 });
             }
+            if(finalCharts.instagramHashtagLeaderBoard.length > 0  ) {
+                if(finalCharts.instagramHashtagLeaderBoard[0].values.length > 0){
+                    chartsCount++;
+                    finalChartData.push({
+                        'options': graphOptions.instagramHashtagLeaderBoard,
+                        'data': finalCharts.instagramHashtagLeaderBoard[0].values
+                    });}
 
+            }
             if(finalChartData.length == 0) {
                 if(widget.widgetType == 'custom') {
                     var customDataUrl = '';
@@ -2325,24 +2356,22 @@ showMetricApp.service('createWidgets',function($http,$q){
             }
             $http(dataUrl).then(
                 function successCallback(response) {
-                    console.log("response",response.data,widget.charts);
                     for(var chartObjects in widget.charts){
                         for(var datas in response.data){
                             widget.charts[chartObjects].data=response.data[datas]
                             updatedCharts.push({
-                                    channelId: widget.charts[chartObjects].channelId,
-                                    chartType: typeof widget.charts[chartObjects].chartType != 'undefined'? widget.charts[chartObjects].chartType: '',
-                                    chartColour: widget.charts[chartObjects].color,
-                                    chartObjectTypeId: widget.charts[chartObjects].objectTypeId,
-                                    chartObjectName: widget.charts[chartObjects].keyWord,
-                                    chartData:widget.charts[chartObjects].data
-                                });
+                                channelId: widget.charts[chartObjects].channelId,
+                                chartType: typeof widget.charts[chartObjects].chartType != 'undefined'? widget.charts[chartObjects].chartType: '',
+                                chartColour: widget.charts[chartObjects].color,
+                                chartObjectTypeId: widget.charts[chartObjects].objectTypeId,
+                                chartObjectName: widget.charts[chartObjects].keyWord,
+                                chartData:widget.charts[chartObjects].data
+                            });
                         }
                     }
                     deferred.resolve(updatedCharts);
                 },
                 function errorCallback(error) {
-                    console.log("error",error)
                     if(tempWidget.widgets.length > 0){
 
                         k = tempWidget.widgets.map(function(e) { return e._id; }).indexOf(error._id);
@@ -2364,27 +2393,27 @@ showMetricApp.service('createWidgets',function($http,$q){
             if(widget.charts.length > 0) {
                 for(var charts in widget.charts) {
                     var chartType = widget.charts[charts].chartType;
-                 if(chartType == "topSentiment") {
+                    if(chartType == "topSentiment") {
                         var fbTopReactionPost = {"ANGRY": 0,
                             "SAD": 0,
                             "WOW": 0,
                             "HAHA": 0,
                             "LOVE": 0,
                             "LIKE":0};
-                            if (typeof(widget.charts[charts].chartData) === 'object') {
-                                fbTopReactionPost=widget.charts[charts].chartData;
-                            }
+                        if (typeof(widget.charts[charts].chartData) === 'object') {
+                            fbTopReactionPost=widget.charts[charts].chartData;
+                        }
 
                         widget.charts[charts].chartData = fbTopReactionPost;
                     }
-                     if(chartType == "shareOfVoice"){
-                         var formattedChartData = [];
-                         formattedChartData.push(
-                             widget.charts[charts].chartData
-                         );
-                         widget.charts[charts].chartData = formattedChartData;
-                     }
-                   else if(chartType == "line" || chartType == "area" || chartType == "bar") {
+                    if(chartType == "shareOfVoice"){
+                        var formattedChartData = [];
+                        formattedChartData.push(
+                            widget.charts[charts].chartData
+                        );
+                        widget.charts[charts].chartData = formattedChartData;
+                    }
+                    else if(chartType == "line" || chartType == "area" || chartType == "bar") {
                         if(typeof widget.charts[charts].chartData[0].total == 'object') {
                             var endpoint;
                             for(objectTypes in widget.charts[charts].metricDetails.objectTypes){
@@ -2975,7 +3004,7 @@ showMetricApp.service('createWidgets',function($http,$q){
             for (var charts in widgetCharts) {
                 if (widgetCharts[charts].type == 'pie')finalCharts.pieCharts.push(widgetCharts[charts]);
 
-                }
+            }
 
             var chartColorChecker = [];
             var colourChart = ['#EF5350','#EC407A','#9C27B0','#42A5F5','#26A69A','#FFCA28','#FF7043','#8D6E63'];

@@ -33,7 +33,7 @@
         <div class="parallel-dashboard greyish-bg" ng-style="{'height': docHeight+'px'}" ng-if="widgetsPresent == false">
             <a ui-sref="app.reporting.dashboard.basicWidget({widgetType:'basic'})"><div class="white-bg empty-dashboard"><span>Add your first widget</span></div></a>
         </div>
-        <div class="greyish-bg dashboardContent" ng-style="{'height': docHeight+'px'}" ng-if="widgetsPresent == true">
+        <div id="dashboardContent"  ng-style="{'height': docHeight+'px'}" class="greyish-bg dashboardContent" ng-if="widgetsPresent == true" >
             <div class="spiner-mobile-example" ng-if="loadedWidgetCount != dashboard.widgets.length">
                 <div class="sk-spinner sk-spinner-double-bounce">
                     <div class="sk-double-bounce1"></div>
@@ -55,7 +55,7 @@
                                         </a>
                                     </h3>
                                 </div>
-                                <div class="dropdown"  id="widget-dropdown-{{widget.id}}" style="float: right; margin-top: 7px;margin-right: -25px;">
+                                <div ng-hide="widget.sizeX === 1" class="dropdown"  id="widget-dropdown-{{widget.id}}" style="float: right; margin-top: 3px;margin-right: -25px;">
                                     <a title="settings" ng-click="showSettings(widget.id);"><i class="fa fa-cog"></i></a>
                                     <div id="settingsDropdown-{{widget.id}}" class="dropdown-content">
                                         <a title="Alerts" ng-click="alertModal('app.reporting.dashboard.alertModal',widget)" ng-hide="widget.widgetType == 'customFusion' || widget.isAlert == false"><i class="fa fa-bell-o"></i> Alerts</a>
@@ -330,6 +330,32 @@
                                                 </div>
                                             </div>
                                             <p ng-show="messageEnable[dashboard.widgetData[widgetIndex].id]==true" style="margin:0px 0px 3px!important;font-weight: normal;color: #000000; font-family : Heebo-Medium;font-size : 14px ; text-transform : uppercase ; text-align:center ; padding-left : 3px ; border-right : 3px solid white;"> Actions related to objective not yet registered </p>
+                                        </div>
+                                    </div>
+                                    <div ng-repeat="chart in dashboard.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'instagramHashtagLeaderBoard'" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/dashboard.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/dashboard.widgetData[widgetIndex].layoutOptionsX)+'%'}">
+                                        <div class="row" style="margin: 0px;height: 100%" >
+                                            <div events="events" style="height: 99%" ng-if="dashboard.widgetData[widgetIndex].visibility == true" ng-init="limitScroll=20">
+                                                <div class="scrollbar scrollInWidget" id="scroller">
+                                                    <div class="col-lg-12 table-responsive" style="overflow-x: hidden;padding:0px;">
+                                                        <table class="table table-striped">
+                                                            <thead>
+                                                            <tr style="padding:2px 5px;width:100%">
+                                                                <th style="padding:5px 5px;width:55%;text-align:center;">HashTag</th>
+                                                                <th style="padding:5px 5px;width:15%;text-align:right;">Likes</th>
+                                                                <th style="padding:5px 5px;width:15%;text-align:right;">Comments</th>
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                            <tr style="padding:2px 5px;width:100%" ng-repeat="data in chart.data ">
+                                                                <td style="padding:5px 5px;width:55%;text-align:left;"><a style="color: #000;" href="{{data.tagLink}}" target="_blank">{{data.tag}}<br></a></td>
+                                                                <td style="padding:5px 5px;width:15%;text-align:right;">{{data.likes}}</td>
+                                                                <td style="padding:5px 5px;width:15%;text-align:right;">{{data.comments}}</td>
+                                                            </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

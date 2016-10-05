@@ -753,8 +753,8 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
             }).then(
                 function successCallback(response) {
                     var reportId = response.data.reportId;
-                    var sharingDomain = window.location.hostname == 'localhost' ? "localhost:8080/reports" :  window.location.hostname + "/reports";
-                    $scope.sharingUrl = sharingDomain + '#/' + reportId;
+                    var sharingDomain = window.location.hostname == 'localhost' ? "localhost:8080" :  window.location.hostname ;
+                    $scope.sharingUrl = sharingDomain + '/reports#/' + reportId;
                     $(".navbar").css('z-index', '1');
                     //$("#exportModalContent").removeClass('md-show');
                     $(".md-overlay").css("background", "rgba(0,0,0,0.5)");

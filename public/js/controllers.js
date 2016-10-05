@@ -3,7 +3,6 @@ var showMetricApp = angular.module('inspinia');
 showMetricApp.service('createWidgets',function($http,$q){
 
     this.widgetHandler = function (widget, dateRange,isPublic) {
-        console.log('widgetHandler');
         var deferredWidget = $q.defer();
         var tempWidget = JSON.parse(JSON.stringify(widget));
         if(widget.widgetType == 'customFusion') {
@@ -615,7 +614,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                                 var post='text';
                                 var link='link';
                                 var url='url';
-
                                 var formattedChartDataArray = [];
                                 for(datas in widget.charts[charts].chartData) {
                                     var formattedChartData = {
@@ -995,6 +993,36 @@ showMetricApp.service('createWidgets',function($http,$q){
                             widget.charts[charts].chartData = formattedChartData;
                         }
                     }
+                    else if(chartType == "instagramHashtagLeaderBoard"){
+                        if(typeof widget.charts[charts].chartData[0] != 'undefined') {
+                            if(typeof(widget.charts[charts].chartData[0].total) === 'object') {
+                                var tag = 'tag';
+                                var comments='comments';
+                                var likes ='likes';
+                                var comments='comments'
+                                var likes='likes';
+                                var formattedChartDataArray = [];
+                                for(datas in widget.charts[charts].chartData) {
+                                    var formattedChartData = {
+                                        tagLink: (widget.charts[charts].chartData[datas].total != null && Object.keys(widget.charts[charts].chartData[datas].total.length != 0 )?
+                                            (typeof widget.charts[charts].chartData[datas].total[tag] != 'undefined' ? 'https://www.instagram.com/explore/tags/'+widget.charts[charts].chartData[datas].total[tag] : '') : ''),
+                                        tag: (widget.charts[charts].chartData[datas].total != null ?
+                                            (widget.charts[charts].chartData[datas].total[tag] != null?
+                                                (typeof widget.charts[charts].chartData[datas].total[tag]!= 'undefined' ? widget.charts[charts].chartData[datas].total[tag] : 0):0):0),
+                                        likes: (widget.charts[charts].chartData[datas].total != null ?
+                                            (widget.charts[charts].chartData[datas].total[likes] != null?
+                                                (typeof widget.charts[charts].chartData[datas].total[likes]!= 'undefined' ? widget.charts[charts].chartData[datas].total[likes] : 0):0):0),
+
+                                        comments: (widget.charts[charts].chartData[datas].total != null ?
+                                            (widget.charts[charts].chartData[datas].total[comments] != null?
+                                                (typeof widget.charts[charts].chartData[datas].total[comments] != 'undefined' ? widget.charts[charts].chartData[datas].total[comments] : 0):0):0),
+                                    };
+                                    formattedChartDataArray.push(formattedChartData);
+                                }
+                                widget.charts[charts].chartData = formattedChartDataArray;
+                            }
+                        }
+                    }
                 }
                 for(var charts in widget.charts){
                     if(typeof widget.charts[charts].chartData[0] != 'undefined') {
@@ -1266,8 +1294,8 @@ showMetricApp.service('createWidgets',function($http,$q){
                                         if(chartType == 'bar' && totalNonZeroPoints<0 && summaryValue==0) {
                                             widgetCharts.push({
                                                 'type': 'line',
-                                                'values': widget.charts[charts].chartData,      //values - represents the array of {x,y} data points
-                                                'key': widget.charts[charts].metricDetails.name, //key  - the name of the series.
+                                                'values': widget.charts[charts].chartData[items],      //values - represents the array of {x,y} data points
+                                                'key': typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName != 'undefined'? (typeof widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode] != 'undefined'? widget.charts[charts].metricDetails.objectTypes[0].meta.endpointDisplayName[endpointDisplayCode]: widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items]) : widget.charts[charts].metricDetails.objectTypes[0].meta.endpoint[items],
                                                 'color': widget.charts[charts].chartColour[0],  //color - optional: choose your own line color.
                                                 'arrow':comparingData,
                                                 'variance':percentage,
@@ -1427,6 +1455,12 @@ showMetricApp.service('createWidgets',function($http,$q){
                             //'configure':
                         });
                     }
+                    else if(chartType == 'instagramHashtagLeaderBoard'){
+                        widgetCharts.push({
+                            'type': widget.charts[charts].chartType,
+                            'values': widget.charts[charts].chartData
+                        });
+                    }
                 }
             }
 
@@ -1438,7 +1472,7 @@ showMetricApp.service('createWidgets',function($http,$q){
             var deferred = $q.defer();
             var finalCharts = [];
             finalCharts.lineCharts = [], finalCharts.barCharts = [], finalCharts.pieCharts = [], finalCharts.instagramPosts = [], finalCharts.highEngagementTweets = [],finalCharts.highestEngagementLinkedIn=[], finalCharts.pinterestEngagementRate=[], finalCharts.pinterestLeaderboard=[];
-            finalCharts.gaTopPagesByVisit=[],finalCharts.fbReachByGender = [],finalCharts.mozoverview = [],finalCharts.fbReachByAge = [],finalCharts.vimeoTopVideos=[],finalCharts.costPerActionType=[];
+            finalCharts.gaTopPagesByVisit=[],finalCharts.fbReachByGender = [],finalCharts.mozoverview = [],finalCharts.fbReachByAge = [],finalCharts.vimeoTopVideos=[],finalCharts.costPerActionType=[],finalCharts.instagramHashtagLeaderBoard = [];
             var graphOptions = {
                 lineDataOptions: {
                     chart: {
@@ -1614,7 +1648,12 @@ showMetricApp.service('createWidgets',function($http,$q){
                             }
                         }
                     }
-                }
+                },
+                instagramHashtagLeaderBoard: {
+                    chart: {
+                        type: 'instagramHashtagLeaderBoard'
+                    }
+                },
             };
             var sizeY,sizeX,chartsCount = 0,individualGraphWidthDivider,individualGraphHeightDivider,chartName,finalChartData = [];
             var widgetLayoutOptions = [
@@ -1835,6 +1874,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                             widgetCharts[charts].values[i].x=moment(widgetCharts[charts].values[i].x).format("YYYY-DD-MM");
                         finalCharts.mozoverview.push(widgetCharts[charts]);
                     }
+                    else if (widgetCharts[charts].type == 'instagramHashtagLeaderBoard') finalCharts.instagramHashtagLeaderBoard.push(widgetCharts[charts]);
                 }
             }
             else {
@@ -1857,6 +1897,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                             widgetCharts[charts].values[i].x=moment(widgetCharts[charts].values[i].x).format("YYYY-DD-MM");
                         finalCharts.mozoverview.push(widgetCharts[charts]);
                     }
+                    else if (widgetCharts[charts].type == 'instagramHashtagLeaderBoard') finalCharts.instagramHashtagLeaderBoard.push(widgetCharts[charts]);
                 }
             }
             var chartColorChecker = [];
@@ -2051,9 +2092,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                         'options': graphOptions.instagramPosts,
                         'data': finalCharts.instagramPosts[0].values
                     });}
-
             }
-
             if(finalCharts.vimeoTopVideos.length > 0  ) {
                 if(finalCharts.vimeoTopVideos[0].values.length > 0){
                     chartsCount++;
@@ -2062,9 +2101,7 @@ showMetricApp.service('createWidgets',function($http,$q){
                         'data': finalCharts.vimeoTopVideos[0].values
                     });
                 }
-
             }
-
             if(finalCharts.highEngagementTweets.length > 0) {
                 if(finalCharts.highEngagementTweets[0].values.length > 0){
                     chartsCount++;
@@ -2072,25 +2109,17 @@ showMetricApp.service('createWidgets',function($http,$q){
                         'options': graphOptions.highEngagementTweets,
                         'data': finalCharts.highEngagementTweets[0].values
                     });
-
                 }
-
             }
-
             if(finalCharts.highestEngagementLinkedIn.length > 0 ) {
                 if(finalCharts.highestEngagementLinkedIn[0].values.length > 0){
-
-
                     chartsCount++;
                     finalChartData.push({
                         'options': graphOptions.highestEngagementLinkedIn,
                         'data': finalCharts.highestEngagementLinkedIn[0].values
                     });
-
                 }
-
             }
-
             if(finalCharts.gaTopPagesByVisit.length > 0 ) {
 
                 if(finalCharts.gaTopPagesByVisit[0].values.length > 0){
@@ -2104,7 +2133,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                 }
 
             }
-
             if(finalCharts.pinterestEngagementRate.length >0 ) {
                 if (finalCharts.pinterestEngagementRate[0].values.length > 0) {
                     chartsCount++;
@@ -2115,7 +2143,6 @@ showMetricApp.service('createWidgets',function($http,$q){
 
                 }
             }
-
             if(finalCharts.pinterestLeaderboard.length>0){
                 if(finalCharts.pinterestLeaderboard[0].values.length > 0){
                     chartsCount++;
@@ -2126,7 +2153,6 @@ showMetricApp.service('createWidgets',function($http,$q){
 
                 }
             }
-
             if(finalCharts.fbReachByGender.length > 0) {
                 chartsCount++;
 
@@ -2147,7 +2173,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                     'api': {}
                 });
             }
-
             if(finalCharts.fbReachByAge.length > 0) {
                 chartsCount++;
 
@@ -2168,32 +2193,30 @@ showMetricApp.service('createWidgets',function($http,$q){
                     'api': {}
                 });
             }
-
             if(finalCharts.costPerActionType.length > 0){
                 finalChartData.push({
                     'options': graphOptions.costPerActionType,
                     'data':finalCharts.costPerActionType
                 });
             }
-
             if (finalCharts.mozoverview.length > 0){
                 var dataArray=[]
                 for(var i=0;i < finalCharts.mozoverview.length;i++){
                     var m= finalCharts.mozoverview[i].values.length-1;
                     switch (finalCharts.mozoverview[i].key) {
                         case 'Links':
-                            var links =finalCharts.mozoverview[i].values[m].y;
+                            var links =parseInt(finalCharts.mozoverview[i].values[m].y);
                             break;
                         case 'External equity links':
-                            var externalEquityLinks= finalCharts.mozoverview[i].values[m].y;
+                            var externalEquityLinks= parseInt(finalCharts.mozoverview[i].values[m].y);
                             break;
-                        case 'Domainage Authority':
+                        case 'Domain Authority (/100)':
                             var domainageAuthority =finalCharts.mozoverview[i].values[m].y;
                             break;
-                        case 'Page Authority':
+                        case 'Page Authority (/100)':
                             var pageAuthority = finalCharts.mozoverview[i].values[m].y;
                             break;
-                        case 'MozRank URL':
+                        case 'Moz Rank (/10)':
                             var mozRankURL = finalCharts.mozoverview[i].values[m].y;
                             break;
                         default:
@@ -2207,14 +2230,21 @@ showMetricApp.service('createWidgets',function($http,$q){
                     links:links,
                     pageAuthority:pageAuthority
                 }
-                console.log("displayData",displayData)
                 finalChartData.push({
                     'options': graphOptions.mozoverview,
                     'data': finalCharts.mozoverview,
                     'displayData':displayData
                 });
             }
+            if(finalCharts.instagramHashtagLeaderBoard.length > 0  ) {
+                if(finalCharts.instagramHashtagLeaderBoard[0].values.length > 0){
+                    chartsCount++;
+                    finalChartData.push({
+                        'options': graphOptions.instagramHashtagLeaderBoard,
+                        'data': finalCharts.instagramHashtagLeaderBoard[0].values
+                    });}
 
+            }
             if(finalChartData.length == 0) {
                 if(widget.widgetType == 'custom') {
                     var customDataUrl = '';
@@ -2326,7 +2356,6 @@ showMetricApp.service('createWidgets',function($http,$q){
             }
             $http(dataUrl).then(
                 function successCallback(response) {
-                    console.log("response",response.data,widget.charts);
                     for(var chartObjects in widget.charts){
                         for(var datas in response.data){
                             widget.charts[chartObjects].data=response.data[datas]
@@ -2343,7 +2372,6 @@ showMetricApp.service('createWidgets',function($http,$q){
                     deferred.resolve(updatedCharts);
                 },
                 function errorCallback(error) {
-                    console.log("error",error)
                     if(tempWidget.widgets.length > 0){
 
                         k = tempWidget.widgets.map(function(e) { return e._id; }).indexOf(error._id);

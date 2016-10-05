@@ -315,7 +315,6 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
             cols = 3;
             fontSizeEm = 0.7;
         }
-        // console.log("No.of charts",noOfCharts,"Widget Width",widgetWidth,"No of Cols",cols);
         if(widgetWidth === 1 || noOfItems > 15 ||widgetHeight === 1||layoutHeight>1)
             data.showComparision = false;
         else
@@ -674,7 +673,6 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
                         function errorCallback(error) {
                             deferred.reject(error);
 
-                           console.log("Dom to image fails",error);
                         });
                 return deferred.promise;
             }
@@ -755,7 +753,7 @@ function ExportController($scope, $http, $state, $rootScope, $window,$q,$statePa
             }).then(
                 function successCallback(response) {
                     var reportId = response.data.reportId;
-                    var sharingDomain = window.location.hostname == 'localhost' ? "localhost:8080/reports" : "https://" + window.location.hostname + "/reports";
+                    var sharingDomain = window.location.hostname == 'localhost' ? "localhost:8080/reports" :  window.location.hostname + "/reports";
                     $scope.sharingUrl = sharingDomain + '#/' + reportId;
                     $(".navbar").css('z-index', '1');
                     //$("#exportModalContent").removeClass('md-show');

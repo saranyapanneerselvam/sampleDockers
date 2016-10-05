@@ -103,7 +103,7 @@
                     <div class="row" ng-cloak>
                         <div class="col-lg-12">
                             <div class="center shareUrl">
-                                <p id="butt" style="word-wrap: break-word;"><strong>The Url to be shared: </strong> <a href="http://{{sharingUrl}}" target="_blank">{{ sharingUrl}}</a>
+                                <p id="butt" style="word-wrap: break-word;">URL to be shared: <a style="color:#1078ae" href="http://{{sharingUrl}}" target="_blank">{{ sharingUrl}}</a>
                                 <button class="btn" id="btnCopyLink" data-clipboard-text={{sharingUrl}}>
                                     <img src="image/clippy.svg" width="13" alt="Copy to clipboard">
                                 </button>
@@ -379,6 +379,32 @@
                                                                         <div ng-show="chart.data[0].values.flag==true">
                                                                             <div class="center" style="vertical-align: middle">
                                                                                 <button class="btn btn-primary gobutton-mode" ng-click="">Configure</button>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div ng-repeat="chart in aexppage.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'instagramHashtagLeaderBoard'" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/dashboard.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/dashboard.widgetData[widgetIndex].layoutOptionsX)+'%'}">
+                                                                        <div class="row" style="margin: 0px;height: 100%" >
+                                                                            <div events="events" style="height: 99%" ng-if="aexppage.widgetData[widgetIndex].visibility == true" ng-init="limitScroll=20">
+                                                                                <div class="scrollbar scrollInWidget" id="scroller">
+                                                                                    <div class="col-lg-12 table-responsive" style="overflow-x: hidden;padding:0px;">
+                                                                                        <table class="table table-striped">
+                                                                                            <thead>
+                                                                                            <tr style="padding:2px 5px;width:100%">
+                                                                                                <th style="padding:5px 5px;width:55%;text-align:center;">HashTag</th>
+                                                                                                <th style="padding:5px 5px;width:15%;text-align:right;">Likes</th>
+                                                                                                <th style="padding:5px 5px;width:15%;text-align:right;">Comments</th>
+                                                                                            </tr>
+                                                                                            </thead>
+                                                                                            <tbody>
+                                                                                            <tr style="padding:2px 5px;width:100%" ng-repeat="data in chart.data ">
+                                                                                                <td style="padding:5px 5px;width:55%;text-align:left;"><a style="color: #000;" href="{{data.tagLink}}" target="_blank">{{data.tag}}<br></a></td>
+                                                                                                <td style="padding:5px 5px;width:15%;text-align:right;">{{data.likes}}</td>
+                                                                                                <td style="padding:5px 5px;width:15%;text-align:right;">{{data.comments}}</td>
+                                                                                            </tr>
+                                                                                            </tbody>
+                                                                                        </table>
+                                                                                    </div>
+                                                                                </div>
                                                                             </div>
                                                                         </div>
                                                                     </div>

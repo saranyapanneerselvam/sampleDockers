@@ -66,10 +66,10 @@
                                                                 <input class="form-control m-b choose-text" placeholder="Enter a name" type="text" name="input" ng-model="name" required/>
                                                             </div>
                                                             <div class="col-sm-6">
-                                                                <select class="form-control m-b choose-text" ng-model="metric" id="metricOptions" required>
+                                                                <select class="form-control m-b choose-text" ng-model="inAlertMetric" id="metricOptions" required>
                                                                     <!--ng-options="metrics as metrics.name for metrics in metricDetails[0].metrics" required >-->
                                                                     <option value="">Select a Metric</option>
-                                                                    <option ng-repeat="metrics in widgetMetrics | orderBy:'$index':true" ng-selected="metrics.name === inAlertMetric" value="{{[metrics.id,metrics.endPoints]}}">{{metrics.name}}</option>
+                                                                    <option ng-repeat="metrics in widgetMetrics | orderBy:'$index':true" ng-selected="inAlertMetric === metrics.name" >{{metrics.name}}</option>
                                                                 </select>
                                                             </div>
                                                         </div>

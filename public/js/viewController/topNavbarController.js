@@ -42,6 +42,7 @@ function TopNavbarController($scope,$http,$rootScope,$state) {
                         for(var i=0;i<5;i++)
                             $scope.recentDashboardList.push(sortedDashboard[i]);
                     }
+                    $rootScope.stateDashboard=$scope.recentDashboardList[0];
                 }
                 else
                     $scope.recentDashboardList  = null;

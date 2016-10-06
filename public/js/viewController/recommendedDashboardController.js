@@ -84,7 +84,22 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
             });
         });
     };
-
+    $scope.closeRecommendedDashboardModal=function(){
+        changeState().then(
+            function () {
+                $state.go('app.reporting.dashboard',{id:$rootScope.stateDashboard._id});
+            }
+        )
+    }
+    function changeState(){
+        var deferred = $q.defer();
+        CloseModal();
+        function CloseModal(){
+            $scope.ok();
+            deferred.resolve("open")
+        }
+        return deferred.promise;
+    }
     $scope.getProfileForChosenChannel = function (dashboards) {
         $scope.fullOfDashboard = dashboards;
         $scope.getChannelList = dashboards.channels;

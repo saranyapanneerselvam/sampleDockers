@@ -610,15 +610,24 @@
                 <div class="wrapper wrapper-content">
                     <div class="scrollbar" id="scroller">
                         <div class="row" ng-if="currentView === 'step_one'" ng-cloak>
-                            <h5 class="model-title">Step 1 : Choose a Channel</h5>
+                            <h5 class="model-title">Step 1 : Choose the Channels</h5>
                             <div class="col-lg-12">
                                 <div ng-repeat="data in channelList | filter:{integrated: true}" name="{{data._id}}"
                                      class="col-lg-2 widget-icons"
-                                     ng-click="storeChannel();changeViewsInBasicWidget('step_two')">
-                                    <img ng-hide="data.name==='CustomData'" src="image/lightbox/{{data.name}}.png"
-                                         style="max-width: 100%;max-height:100%;padding: 15px 5px; "/>
-                                    <p ng-show="data.name==='CustomData'" class="model-title"
-                                       style="padding: 25px 5px;">Custom Data</p>
+                                     ng-click="storeChannel(data);"
+                                     id="channellist-{{data._id}}">
+                                    <div ng-if="data.isSelected==1">
+                                        <img ng-hide="data.name==='CustomData'" src="image/lightbox/{{data.name}}.png"
+                                             style="max-height:100%;padding: 15px 5px;box-shadow: 0px 4px 22px 1px;max-width: 93%;  margin-top: -4px; margin-left: -1px; "/>
+                                        <p ng-show="data.name==='CustomData'" class="model-title"
+                                           style="padding: 25px 5px;">Custom Data</p>
+                                    </div>
+                                    <div ng-if="data.isSelected==0">
+                                        <img ng-hide="data.name==='CustomData'" src="image/lightbox/{{data.name}}.png"
+                                             style="max-width: 100%;max-height:100%;padding: 15px 5px; "/>
+                                        <p ng-show="data.name==='CustomData'" class="model-title"
+                                           style="padding: 25px 5px;">Custom Data</p>
+                                    </div>
                                 </div>
                                 <div><!--style="float:left"--><!--<h4>Coming soon</h4>-->
                                     <div ng-repeat="data in channelList | filter:{integrated: false}"
@@ -632,31 +641,34 @@
                         <div class="row" ng-if="currentView === 'step_two'" ng-cloak>
                             <h5 class="model-title">{{selectCustomLinkHead}}</h5>
                             <div class="col-lg-12">
-                                <div ng-repeat="referenceWidgets in referenceWidgetsList"
-                                     name="{{referenceWidgets.name}}" ref="{{referenceWidgets.isSelectedMetric}}"
-                                     id="referenceWidgets-{{referenceWidgets._id}}"
-                                     style="border:{{referenceWidgets.border}}" ng-hide="metricContent"
-                                     class="col-lg-2 widget-icons showReferenceWidgets"
-                                     ng-click="storeReferenceWidget();">
-                                    <div ng-if="referenceWidgets.isSelectedMetric==1">
-                                        <div id="triangle-topright-{{referenceWidgets._id}}" class="triangle-topright">
-                                            <i id="getCheck-{{referenceWidgets._id}}" class="fa fa-check getCheck"
-                                               style="display:block;"></i>
+                                <div class="col-lg-12" ng-repeat="referenceWidgetsList in referenceWidgetsList">
+                                    <div class="col-xs-12"><img src="image/lightbox/{{referenceWidgetsList.channelName}}.png" style="width:150px;"/></div>
+                                    <div ng-repeat="referenceWidgets in referenceWidgetsList.widgets"
+                                         name="{{referenceWidgets.name}}" ref="{{referenceWidgets.isSelectedMetric}}"
+                                         id="referenceWidgets-{{referenceWidgets._id}}"
+                                         style="border:{{referenceWidgets.border}}" ng-hide="metricContent"
+                                         class="col-lg-2 widget-icons showReferenceWidgets"
+                                         ng-click="storeReferenceWidget();">
+                                        <div ng-if="referenceWidgets.isSelectedMetric==1">
+                                            <div id="triangle-topright-{{referenceWidgets._id}}" class="triangle-topright">
+                                                <i id="getCheck-{{referenceWidgets._id}}" class="fa fa-check getCheck"
+                                                   style="display:block;"></i>
+                                            </div>
+
+                                            <p id="metricNames-{{referenceWidgets._id}}" class="metricNames getMetricName">
+                                                {{referenceWidgets.name}}</p>
                                         </div>
 
-                                        <p id="metricNames-{{referenceWidgets._id}}" class="metricNames getMetricName">
-                                            {{referenceWidgets.name}}</p>
-                                    </div>
+                                        <div ng-if="!(referenceWidgets.isSelectedMetric==1)">
+                                            <div id="triangle-topright-{{referenceWidgets._id}}">
+                                                <i id="getCheck-{{referenceWidgets._id}}" class="fa fa-check getCheck"></i>
+                                            </div>
 
-                                    <div ng-if="!(referenceWidgets.isSelectedMetric==1)">
-                                        <div id="triangle-topright-{{referenceWidgets._id}}">
-                                            <i id="getCheck-{{referenceWidgets._id}}" class="fa fa-check getCheck"></i>
+                                            <p id="metricNames-{{referenceWidgets._id}}" class="metricNames">
+                                                {{referenceWidgets.name}}</p>
                                         </div>
-
-                                        <p id="metricNames-{{referenceWidgets._id}}" class="metricNames">
-                                            {{referenceWidgets.name}}</p>
+                                        <!-- <P class="metricDescription" >{{referenceWidgets.description}}</P> -->
                                     </div>
-                                    <!-- <P class="metricDescription" >{{referenceWidgets.description}}</P> -->
                                 </div>
 
                                 <div class="col-lg-11 showCustomUrlLink well" ng-hide="showCustomContent">
@@ -679,170 +691,236 @@
                             </div>
                         </div>
                         <div class="row" ng-if="currentView === 'step_three'" ng-cloak>
-                            <div ng-hide="storedChannelName=='Moz'">
-                                <h5 class="model-title">Step 3 : Choose an Account</h5>
-                                <div class="col-lg-12" style="background-color: #f3f3f4">
-                                    <div class="row" style="margin: 30px 5px 5px 5px ;">
-                                        <div class="col-lg-2"></div>
-                                        <div class="col-lg-8" style="margin: 0px">
-                                            <div class="ibox float-e-margins">
-                                                <div class="ibox-title" style="vertical-align: middle">
-                                                    <h5><img src="image/lightbox/{{storedChannelName}}.png" align="left"
-                                                             style="max-height: 30px;max-width: 60px"/><span>{{storedChannelName}} Account</span>
-                                                    </h5>
-                                                </div>
-                                                <div class="ibox-content" style="display: block;">
-                                                    <form class="form-horizontal">
-                                                        <div class="form-group">
-                                                            <div class="col-lg-12">
-                                                                <div ng-class="dropdownWidth(profileOptionsModel.hasNoAccess,tokenExpired)">
-                                                                    <select class="form-control m-b choose-text"
-                                                                            ng-model="$parent.profileOptionsModel"
-                                                                            id="profileOptions"
-                                                                            ng-options="profiles.name for profiles in profileList"
-                                                                            ng-change="getObjectsForChosenProfile()">
-                                                                        <option value="">Select a Profile</option>
-                                                                    </select>
-                                                                </div>
-                                                                <div class="infont col-md-1 col-sm-1 background-color"
-                                                                     ng-show="profileOptionsModel.hasNoAccess == true || tokenExpired == true">
-                                                                    <a ng-click="addNewProfile()" class="link-img">
-                                                                        <svg width="7px" height="7px" viewBox="0 0 7 7"
-                                                                             version="1.1"
-                                                                             xmlns="http://www.w3.org/2000/svg"
-                                                                             xmlns:xlink="http://www.w3.org/1999/xlink">
-                                                                            <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
-                                                                            <desc>Created with Sketch.</desc>
-                                                                            <defs></defs>
-                                                                            <path d="M0.364333333,6.36533333 C0.416666667,6.41766667 0.484,6.44033333 0.551333333,6.44033333 C0.626,6.44033333 0.686,6.41766667 0.738333333,6.36533333 L1.277,5.82666667 C1.57633333,6.111 1.913,6.328 2.29466667,6.47766667 C2.676,6.63466667 3.07266667,6.70966667 3.47666667,6.70966667 C4.24,6.70966667 4.90566667,6.47766667 5.47433333,6.01366667 C6.043,5.55 6.417,4.94366667 6.58933333,4.203 C6.59666667,4.19566667 6.59666667,4.188 6.59666667,4.17333333 C6.59666667,4.13566667 6.58166667,4.106 6.55933333,4.076 C6.52933333,4.05366667 6.49933333,4.03866667 6.462,4.03866667 L5.66133333,4.03866667 C5.60166667,4.03866667 5.55666667,4.06833333 5.53433333,4.13566667 C5.41466667,4.41266667 5.34733333,4.57733333 5.30966667,4.622 C5.11533333,4.93633333 4.861,5.19066667 4.539,5.37033333 C4.21,5.55 3.86566667,5.63966667 3.49166667,5.63966667 C3.22233333,5.63966667 2.96066667,5.58733333 2.71366667,5.49 C2.45933333,5.39266667 2.23466667,5.25066667 2.04033333,5.06366667 L2.60866667,4.495 C2.66133333,4.44266667 2.691,4.37533333 2.691,4.308 C2.691,4.233 2.66133333,4.17333333 2.60866667,4.12066667 C2.55633333,4.06833333 2.49666667,4.03866667 2.42166667,4.03866667 L0.551333333,4.03866667 C0.484,4.03866667 0.416666667,4.06833333 0.364333333,4.12066667 C0.312,4.17333333 0.289333333,4.233 0.289333333,4.308 L0.289333333,6.17833333 C0.289333333,6.24566667 0.312,6.313 0.364333333,6.36533333 L0.364333333,6.36533333 Z M0.401666667,2.93133333 C0.424,2.95366667 0.461666667,2.96866667 0.499,2.96866667 L1.32933333,2.96866667 C1.38933333,2.96866667 1.42666667,2.93866667 1.449,2.87133333 C1.569,2.59466667 1.64366667,2.43 1.67366667,2.385 C1.868,2.07066667 2.13,1.81633333 2.45166667,1.637 C2.77333333,1.45733333 3.11766667,1.36733333 3.49166667,1.36733333 C4.053,1.36733333 4.539,1.55466667 4.95066667,1.936 L4.37466667,2.51233333 C4.32233333,2.56466667 4.29233333,2.632 4.29233333,2.69933333 C4.29233333,2.774 4.32233333,2.834 4.37466667,2.88633333 C4.427,2.93866667 4.48666667,2.96866667 4.56166667,2.96866667 L6.432,2.96866667 C6.507,2.96866667 6.56666667,2.93866667 6.619,2.88633333 C6.67133333,2.834 6.70133333,2.774 6.70133333,2.69933333 L6.70133333,0.828666667 C6.70133333,0.761333333 6.67133333,0.694 6.619,0.641666667 C6.56666667,0.589333333 6.507,0.567 6.432,0.567 C6.36466667,0.567 6.29733333,0.589333333 6.245,0.641666667 L5.699,1.18033333 C5.407,0.903666667 5.063,0.686666667 4.68133333,0.529666667 C4.29233333,0.372333333 3.89566667,0.297666667 3.49166667,0.297666667 C2.72866667,0.297666667 2.06266667,0.529666667 1.48666667,0.993333333 C0.918,1.45733333 0.543666667,2.06333333 0.364333333,2.804 L0.364333333,2.834 C0.364333333,2.87133333 0.371666667,2.90133333 0.401666667,2.93133333 L0.401666667,2.93133333 Z"
-                                                                                  id="Fill-15" stroke="none"
-                                                                                  fill="#e26261"
-                                                                                  fill-rule="evenodd"></path>
-                                                                        </svg>
-                                                                        <div class="link-span refresh">Refresh</div>
-                                                                    </a>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-lg-12" style="margin: 0px;padding: 0px">
-                                                                <div class="col-lg-6 add-profile">
-                                                                    <a ng-click="addNewProfile()" class="link-img">
-                                                                        <svg width="10px" height="10px"
-                                                                             viewBox="0 0 10 11" version="1.1"
-                                                                             xmlns="http://www.w3.org/2000/svg"
-                                                                             xmlns:xlink="http://www.w3.org/1999/xlink">
-                                                                            <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
-                                                                            <desc>Created with Sketch.</desc>
-                                                                            <defs></defs>
-                                                                            <path d="M0.630705427,4.17770891 L1.87067992,5.41815976 C2.20222899,5.74970884 2.60856716,5.92072338 3.08969441,5.92072338 C3.57082166,5.92072338 3.98811619,5.74970884 4.33014527,5.3967234 L4.85414524,5.92072338 C4.5011598,6.26275245 4.33014527,6.68004698 4.33014527,7.17165423 C4.33014527,7.64230148 4.4906798,8.04863965 4.82222888,8.37971236 L6.05172337,9.62016322 C6.38327245,9.95171229 6.78961061,10.1227268 7.27073786,10.1227268 C7.74090875,10.1227268 8.14724692,9.96219229 8.47879599,9.63111958 L9.35530505,8.75413416 C9.68685412,8.42258509 9.85786866,8.01624692 9.85786866,7.54607603 C9.85786866,7.06494878 9.68685412,6.65861062 9.35530505,6.32706154 L8.11533055,5.08661069 C7.78378148,4.75506161 7.37744331,4.58404707 6.90679606,4.58404707 C6.42566881,4.58404707 6.00885065,4.75506161 5.66682157,5.10804705 L5.14282159,4.58404707 C5.49580703,4.242018 5.66682157,3.82472347 5.66682157,3.33311622 C5.66682157,2.86246897 5.50628703,2.4561308 5.17473796,2.12505809 L3.94524346,0.884607234 C3.61369439,0.553058158 3.20735622,0.38204362 2.72622897,0.38204362 C2.24510172,0.38204362 1.83876356,0.542578158 1.50721448,0.874127235 L0.630705427,1.75063629 C0.299156351,2.08218536 0.128141813,2.47756716 0.128141813,2.95869442 C0.128141813,3.44029803 0.299156351,3.8466362 0.630705427,4.17770891 L0.630705427,4.17770891 Z M1.44338176,2.56331262 L2.31989081,1.6863272 C2.43755262,1.57962175 2.56569443,1.52626902 2.72622897,1.52626902 C2.88676351,1.52626902 3.01490532,1.57962175 3.13256714,1.69728356 L4.35158163,2.92677805 C4.46924344,3.04443987 4.52259617,3.17258168 4.52259617,3.33311622 C4.52259617,3.50413076 4.45828708,3.64322893 4.33014527,3.77137074 C4.31966527,3.76089074 4.27679254,3.71801802 4.22343982,3.65370893 C4.15913073,3.58987621 4.116258,3.54700348 4.09482164,3.52556712 C4.06290528,3.50413076 4.03098891,3.48269439 3.97715983,3.44029803 C3.9238071,3.39742531 3.87045438,3.37598894 3.82758165,3.36503258 C3.77422893,3.34359622 3.7208762,3.34359622 3.65656711,3.34359622 C3.50698894,3.34359622 3.36789076,3.39742531 3.25022895,3.50413076 C3.1435235,3.62179257 3.08969441,3.76089074 3.08969441,3.91046892 C3.08969441,3.97477801 3.08969441,4.02813073 3.11113077,4.08148346 C3.12208714,4.12435618 3.1435235,4.17770891 3.18591986,4.23106163 C3.22879259,4.28489072 3.25022895,4.31680708 3.27166531,4.34872345 C3.29310167,4.37015981 3.3359744,4.41303253 3.39980712,4.47734162 C3.46411621,4.53069435 3.50698894,4.57356707 3.51746894,4.58404707 C3.39980712,4.70170889 3.25022895,4.76601797 3.08969441,4.76601797 C2.92963624,4.76601797 2.79053806,4.71266525 2.68335625,4.60548344 L1.44338176,3.36503258 C1.32571994,3.25832713 1.27236722,3.11922895 1.27236722,2.95869442 C1.27236722,2.80911624 1.32571994,2.67001807 1.44338176,2.56331262 L1.44338176,2.56331262 Z M5.66682157,6.73339971 C5.67730157,6.74387971 5.7201743,6.78675243 5.77352702,6.84010516 C5.83783611,6.90441424 5.88070883,6.94728697 5.9021452,6.96872333 C5.9231052,6.99015969 5.96597792,7.02207606 6.01933065,7.06494878 C6.07315973,7.09686514 6.1155561,7.12878151 6.16938519,7.13973787 C6.22273791,7.15021787 6.27609063,7.16117423 6.32944336,7.16117423 C6.4899779,7.16117423 6.62907607,7.10734514 6.73578152,6.99015969 C6.85344334,6.88297788 6.90679606,6.74387971 6.90679606,6.58382153 C6.90679606,6.52999244 6.89631606,6.47663972 6.88583606,6.42328699 C6.8748797,6.36993427 6.84296334,6.32706154 6.81057061,6.27370882 C6.76817425,6.21987973 6.73578152,6.18796337 6.71434516,6.156047 C6.6929088,6.13461064 6.65051244,6.09173792 6.58620335,6.02742883 C6.52189426,5.9740761 6.4899779,5.93120338 6.4794979,5.92072338 C6.59668335,5.7921052 6.73578152,5.72827248 6.90679606,5.72827248 C7.0673306,5.72827248 7.19547241,5.7816252 7.31313423,5.89928702 L8.54310508,7.13973787 C8.66076689,7.24644332 8.71411962,7.3855415 8.71411962,7.54607603 C8.71411962,7.69565421 8.66076689,7.83475239 8.54310508,7.94145783 L7.67659966,8.80748689 C7.55941422,8.9146687 7.43079604,8.96802143 7.27073786,8.96802143 C7.11020333,8.96802143 6.97110515,8.9146687 6.8643997,8.80748689 L5.64538521,7.5675124 C5.52772339,7.46033058 5.47437067,7.32123241 5.47437067,7.17165423 C5.47437067,7.00063969 5.53820339,6.85106152 5.66682157,6.73339971 L5.66682157,6.73339971 Z"
-                                                                                  id="Fill-82" stroke="none"
-                                                                                  fill="#1074ae"
-                                                                                  fill-rule="evenodd"></path>
-                                                                        </svg>
-                                                                        <span class="link-span">Link account</span></a>
-                                                                </div>
-                                                                <div class="col-lg-6 remove-profile" style="">
-                                                                    <a class="link-img"
-                                                                       ng-click="removeExistingProfile()">
-                                                                        <svg width="10px" height="10px"
-                                                                             viewBox="0 0 11 11" version="1.1"
-                                                                             xmlns="http://www.w3.org/2000/svg"
-                                                                             xmlns:xlink="http://www.w3.org/1999/xlink">
-                                                                            <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
-                                                                            <desc>Created with Sketch.</desc>
-                                                                            <defs></defs>
-                                                                            <path d="M0.260940154,7.41161985 L2.1897806,7.41161985 C2.24354618,7.41161985 2.28675067,7.39001761 2.31891402,7.35737422 C2.36211851,7.32521088 2.3726796,7.27144529 2.3726796,7.2176797 C2.3726796,7.16343406 2.36211851,7.10966848 2.31891402,7.07750513 C2.28675067,7.04486174 2.24354618,7.02373955 2.1897806,7.02373955 L0.260940154,7.02373955 C0.207174567,7.02373955 0.163970077,7.04486174 0.120765587,7.07750513 C0.0886022449,7.10966848 0.067,7.16343406 0.067,7.2176797 C0.067,7.27144529 0.0886022449,7.32521088 0.120765587,7.35737422 C0.163970077,7.39001761 0.207174567,7.41161985 0.260940154,7.41161985 L0.260940154,7.41161985 Z M0.670422707,4.58844647 L2.69623323,6.61425699 C2.77160106,6.70018592 2.89017338,6.7865949 3.0298679,6.86196273 L3.13787912,5.42901382 L1.48938781,3.78004246 C1.37081549,3.66147014 1.3170499,3.52177563 1.3170499,3.37103996 C1.3170499,3.20926315 1.37081549,3.07964968 1.48938781,2.96107736 L2.3726796,2.08834667 C2.49125193,1.98081549 2.62038535,1.9270499 2.78216216,1.9270499 C2.94393897,1.9270499 3.08411354,1.98081549 3.19164471,2.09938781 L4.82957492,3.73731803 L6.26252383,3.6293068 C6.1765949,3.48913223 6.10074702,3.38160106 6.01481809,3.29519208 L4.01060982,1.28042271 C3.6764951,0.946307986 3.26701254,0.773970077 2.78216216,0.773970077 C2.29731177,0.773970077 1.88782922,0.935746889 1.56475565,1.26986161 L0.670422707,2.1531534 C0.336307986,2.47622697 0.163970077,2.88570953 0.163970077,3.37103996 C0.163970077,3.8342881 0.336307986,4.24377066 0.670422707,4.58844647 L0.670422707,4.58844647 Z M0.896526204,9.85747403 C0.939730693,9.88963737 0.982935183,9.91123961 1.03670077,9.91123961 C1.07990526,9.91123961 1.13367085,9.88963737 1.16583419,9.85747403 L2.70679432,8.31651389 C2.74999881,8.2733094 2.76055991,8.23010491 2.76055991,8.17633932 C2.76055991,8.13313483 2.74999881,8.07936925 2.70679432,8.0472059 C2.67463098,8.00400141 2.62038535,7.99344032 2.56661976,7.99344032 C2.52341527,7.99344032 2.46964968,8.00400141 2.43748634,8.0472059 L0.896526204,9.57712489 C0.853321714,9.62032938 0.842760616,9.66353387 0.842760616,9.71729946 C0.842760616,9.77106505 0.853321714,9.81426954 0.896526204,9.85747403 L0.896526204,9.85747403 Z M3.39662601,10.6221935 C3.42878935,10.665398 3.48255494,10.6870002 3.53632053,10.6870002 C3.59056617,10.6870002 3.64433175,10.665398 3.6764951,10.6221935 C3.70865844,10.5900302 3.73026068,10.5468257 3.73026068,10.4930601 L3.73026068,8.56421963 C3.73026068,8.51045404 3.70865844,8.46724955 3.6764951,8.42452511 C3.64433175,8.39188172 3.59056617,8.37027948 3.53632053,8.37027948 C3.48255494,8.37027948 3.42878935,8.39188172 3.39662601,8.42452511 C3.36398262,8.46724955 3.34238037,8.51045404 3.34238037,8.56421963 L3.34238037,10.4930601 C3.34238037,10.5468257 3.36398262,10.5900302 3.39662601,10.6221935 L3.39662601,10.6221935 Z M4.12918214,8.057767 L6.13339041,10.0730164 C6.46750513,10.4176922 6.87698769,10.5900302 7.36183807,10.5900302 C7.83564731,10.5900302 8.24512986,10.4282533 8.57924458,10.0946187 L9.46253637,9.21084683 C9.7966511,8.87673211 9.968989,8.46724955 9.968989,7.99344032 C9.968989,7.51915103 9.7966511,7.10966848 9.46253637,6.76499266 L7.447767,4.73918214 C7.36183807,4.65277316 7.25382685,4.56684423 7.11365228,4.4914764 L7.00612111,5.92442531 L8.64405132,7.58395776 C8.76262364,7.69148894 8.81638923,7.83166351 8.81638923,7.99344032 C8.81638923,8.14417598 8.76262364,8.28435055 8.64405132,8.39188172 L7.77084058,9.27565356 C7.6633094,9.38318474 7.52313483,9.43695032 7.36183807,9.43695032 C7.18902011,9.43695032 7.05988669,9.37262364 6.95235552,9.26461242 L5.31442531,7.61612111 L3.8814764,7.72413233 C3.96740533,7.86382685 4.04277316,7.97183807 4.12918214,8.057767 L4.12918214,8.057767 Z M6.46750513,2.92891402 C6.49966848,2.96107736 6.55343406,2.9826796 6.60719965,2.9826796 C6.66144529,2.9826796 6.71521088,2.96107736 6.74737422,2.92891402 C6.77953756,2.89675067 6.8011398,2.84298509 6.8011398,2.78873945 L6.8011398,0.870940154 C6.8011398,0.806133419 6.77953756,0.76340898 6.74737422,0.730765587 C6.71521088,0.688041147 6.66144529,0.677 6.60719965,0.677 C6.55343406,0.677 6.49966848,0.688041147 6.46750513,0.730765587 C6.43486174,0.76340898 6.4132595,0.806133419 6.4132595,0.870940154 L6.4132595,2.78873945 C6.4132595,2.84298509 6.43486174,2.89675067 6.46750513,2.92891402 L6.46750513,2.92891402 Z M7.42616476,3.31679432 C7.47993034,3.34943772 7.52313483,3.37103996 7.56633932,3.37103996 C7.62010491,3.37103996 7.6633094,3.34943772 7.70651389,3.31679432 L9.24747403,1.77631424 C9.27963737,1.73310975 9.30123961,1.68990526 9.30123961,1.63613967 C9.30123961,1.58189404 9.27963737,1.5391696 9.24747403,1.49596511 C9.20426954,1.46380176 9.16106505,1.44219952 9.10729946,1.44219952 C9.05353387,1.44219952 9.01032938,1.46380176 8.96712489,1.49596511 L7.42616476,3.03692524 C7.39400141,3.07964968 7.37239917,3.12285417 7.37239917,3.17661976 C7.37239917,3.2308654 7.39400141,3.27358983 7.42616476,3.31679432 L7.42616476,3.31679432 Z M7.95421963,4.32969958 L9.87201893,4.32969958 C9.93682566,4.32969958 9.98003015,4.30809734 10.0121935,4.275934 C10.055398,4.24377066 10.0659591,4.18952502 10.0659591,4.13575943 C10.0659591,4.08199384 10.055398,4.02822826 10.0121935,3.99558486 C9.98003015,3.96342152 9.93682566,3.94181928 9.87201893,3.94181928 L7.95421963,3.94181928 C7.90045404,3.94181928 7.84668846,3.96342152 7.81404506,3.99558486 C7.78188172,4.02822826 7.76027948,4.08199384 7.76027948,4.13575943 C7.76027948,4.18952502 7.78188172,4.24377066 7.81404506,4.275934 C7.84668846,4.30809734 7.90045404,4.32969958 7.95421963,4.32969958 L7.95421963,4.32969958 Z"
-                                                                                  id="Fill-97" stroke="none"
-                                                                                  fill="#1074ae"
-                                                                                  fill-rule="evenodd"></path>
-                                                                        </svg>
-                                                                        <span class="link-span">Delink account</span>
-                                                                    </a>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <div ng-repeat="item in uniqueObjectCount">
+                            <h5 class="model-title">Step 3 : Choose the Accounts</h5>
+                            <div ng-repeat="channel in selectedChannelList track by $index" >
+                                <div ng-hide="channel.name=='Moz'">
+                                    <div class="col-lg-12" style="background-color: #f3f3f4">
+                                        <div class="row" style="margin: 30px 5px 5px 5px ;">
+                                            <div class="col-lg-2"></div>
+                                            <div class="col-lg-8" style="margin: 0px">
+                                                <div class="ibox float-e-margins">
+                                                    <div class="ibox-title" style="vertical-align: middle">
+                                                        <h5><img src="image/lightbox/{{channel.name}}.png" align="left"
+                                                                 style="max-height: 30px;max-width: 60px"/><span>{{channel.name}} Account</span>
+                                                        </h5>
+                                                    </div>
+                                                    <div class="ibox-content" style="display: block;">
+                                                        <form class="form-horizontal">
+                                                            <div class="form-group">
                                                                 <div class="col-lg-12">
-                                                                    <div class="col-lg-10 col-sm-10"
-                                                                         style="margin: 0px;padding: 0px;">
-                                                                        <select class="form-control m-b"
-                                                                                ng-show="storedChannelName=== 'Facebook'"
-                                                                                ng-model="objectOptionsModel[$index]"
-                                                                                ng-options="objects as objects.name for objects in facebookObjectList[$index][$index]"
-                                                                                ng-change="objectForWidgetChosen([objectOptionsModel[$index].name,objectOptionsModel[$index]._id,objectOptionsModel[$index].objectTypeId,$index])">
-                                                                            <option value="">Select an item</option>
-                                                                        </select>
-                                                                        <select class="form-control m-b"
-                                                                                ng-show="storedChannelName=== 'Mailchimp'"
-                                                                                ng-model="objectOptionsModel[$index]"
-                                                                                ng-options="objects as objects.name for objects in mailchimpObjectList[$index][$index]"
-                                                                                ng-change="objectForWidgetChosen([objectOptionsModel[$index].name,objectOptionsModel[$index]._id,objectOptionsModel[$index].objectTypeId,$index])">
-                                                                            <option value="">Select an item</option>
-                                                                        </select>
-                                                                        <select class="form-control m-b"
-                                                                                ng-show="storedChannelName=== 'Aweber'"
-                                                                                ng-model="objectOptionsModel[$index]"
-                                                                                ng-options="objects as objects.name for objects in aweberObjectList[$index][$index]"
-                                                                                ng-change="objectForWidgetChosen([objectOptionsModel[$index].name,objectOptionsModel[$index]._id,objectOptionsModel[$index].objectTypeId,$index])">
-                                                                            <option value="">Select an item</option>
-                                                                        </select>
-                                                                        <select class="form-control m-b"
-                                                                                ng-show="storedChannelName=== 'linkedin'"
-                                                                                ng-model="objectOptionsModel[$index]"
-                                                                                ng-options="objects as objects.name for objects in linkedInObjectList[$index][$index]"
-                                                                                ng-change="objectForWidgetChosen([objectOptionsModel[$index].name,objectOptionsModel[$index]._id,objectOptionsModel[$index].objectTypeId,$index])">
-                                                                            <option value="">Select an item</option>
-                                                                        </select>
-                                                                        <select class="form-control m-b"
-                                                                                ng-show="storedChannelName=== 'YouTube'"
-                                                                                ng-model="objectOptionsModel[$index]"
-                                                                                ng-options="objects as objects.name for objects in youtubeObjectList[$index][$index]"
-                                                                                ng-change="objectForWidgetChosen([objectOptionsModel[$index].name,objectOptionsModel[$index]._id,objectOptionsModel[$index].objectTypeId,$index])">
-                                                                            <option value="">Select an item</option>
-                                                                        </select>
-                                                                        <select class="form-control m-b"
-                                                                                ng-show="storedChannelName=== 'Vimeo'"
-                                                                                ng-model="objectOptionsModel[$index]"
-                                                                                ng-options="objects as objects.name for objects in vimeoObjectList[$index][$index]"
-                                                                                ng-change="objectForWidgetChosen([objectOptionsModel[$index].name,objectOptionsModel[$index]._id,objectOptionsModel[$index].objectTypeId,$index])">
-                                                                            <option value="">Select an item</option>
-                                                                        </select>
-                                                                        <select class="form-control m-b"
-                                                                                ng-show="storedChannelName=== 'FacebookAds'"
-                                                                                ng-model="objectOptionsModel[$index]"
-                                                                                ng-options="objects as objects.name for objects in facebookAdsObjectList[$index][$index]"
-                                                                                ng-change="objectForWidgetChosen([objectOptionsModel[$index].name,objectOptionsModel[$index]._id,objectOptionsModel[$index].objectTypeId,$index,objectOptionsModel[$index].channelObjectId])">
-                                                                            <option value="">Select an item</option>
-                                                                        </select>
-                                                                        <select class="form-control m-b"
-                                                                                ng-show="(storedChannelName=== 'GoogleAdwords')&&(canManageClients==true)"
-                                                                                ng-model="objectOptionsModel[$index]"
-                                                                                ng-options="objects as objects.name for objects in googleAdwordsObjectList[$index][$index]"
-                                                                                ng-change="objectForWidgetChosen([objectOptionsModel[$index].name,objectOptionsModel[$index]._id,objectOptionsModel[$index].objectTypeId,$index,objectOptionsModel[$index].channelObjectId])">
-                                                                            <option value="">Select an item</option>
-                                                                        </select>
-                                                                        <select class="form-control m-b"
-                                                                                ng-show="storedChannelName ==='Google Analytics'"
-                                                                                ng-model="objectOptionsModel[$index]"
-                                                                                ng-change="objectForWidgetChosen([objectOptionsModel[$index],$index])">
-                                                                            <option value="">Select an item</option>
-                                                                            <optgroup style="font-wight:bold"
-                                                                                      ng-repeat="header in googleAnalyticsObjectList[$index]"
-                                                                                      label="{{ header.webPropertyName }}">
-                                                                                <option ng-repeat="item in header.metricDetails"
-                                                                                        value="{{[item.name,item._id,item.objectTypeId]}}">
-                                                                                    {{ item.name }}
-                                                                                </option>
-                                                                            </optgroup>
+                                                                    <div ng-class="dropdownWidth(profileOptionsModel[$index].hasNoAccess,tokenExpired[$index])">
+                                                                        <select class="form-control m-b choose-text"
+                                                                                ng-model="$parent.profileOptionsModel[$index]"
+                                                                                id="profileOptions"
+                                                                                ng-options="profiles.name for profiles in channel.profileList"
+                                                                                ng-change="getObjectsForChosenProfile($index,profileOptionsModel[$index],channel.name,channel.uniqueObjectCount)">
+                                                                            <option value="">Select a Profile</option>
                                                                         </select>
                                                                     </div>
-                                                                    <div class="col-lg-2 col-sm-2">
+                                                                    <div class="infont col-md-1 col-sm-1 background-color"
+                                                                         ng-show="profileOptionsModel[$index].hasNoAccess == true || tokenExpired[$index] == true">
+                                                                        <a ng-click="addNewProfile(channel.profileList,channel.name,channel.id)" class="link-img">
+                                                                            <svg width="7px" height="7px" viewBox="0 0 7 7"
+                                                                                 version="1.1"
+                                                                                 xmlns="http://www.w3.org/2000/svg"
+                                                                                 xmlns:xlink="http://www.w3.org/1999/xlink">
+                                                                                <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
+                                                                                <desc>Created with Sketch.</desc>
+                                                                                <defs></defs>
+                                                                                <path d="M0.364333333,6.36533333 C0.416666667,6.41766667 0.484,6.44033333 0.551333333,6.44033333 C0.626,6.44033333 0.686,6.41766667 0.738333333,6.36533333 L1.277,5.82666667 C1.57633333,6.111 1.913,6.328 2.29466667,6.47766667 C2.676,6.63466667 3.07266667,6.70966667 3.47666667,6.70966667 C4.24,6.70966667 4.90566667,6.47766667 5.47433333,6.01366667 C6.043,5.55 6.417,4.94366667 6.58933333,4.203 C6.59666667,4.19566667 6.59666667,4.188 6.59666667,4.17333333 C6.59666667,4.13566667 6.58166667,4.106 6.55933333,4.076 C6.52933333,4.05366667 6.49933333,4.03866667 6.462,4.03866667 L5.66133333,4.03866667 C5.60166667,4.03866667 5.55666667,4.06833333 5.53433333,4.13566667 C5.41466667,4.41266667 5.34733333,4.57733333 5.30966667,4.622 C5.11533333,4.93633333 4.861,5.19066667 4.539,5.37033333 C4.21,5.55 3.86566667,5.63966667 3.49166667,5.63966667 C3.22233333,5.63966667 2.96066667,5.58733333 2.71366667,5.49 C2.45933333,5.39266667 2.23466667,5.25066667 2.04033333,5.06366667 L2.60866667,4.495 C2.66133333,4.44266667 2.691,4.37533333 2.691,4.308 C2.691,4.233 2.66133333,4.17333333 2.60866667,4.12066667 C2.55633333,4.06833333 2.49666667,4.03866667 2.42166667,4.03866667 L0.551333333,4.03866667 C0.484,4.03866667 0.416666667,4.06833333 0.364333333,4.12066667 C0.312,4.17333333 0.289333333,4.233 0.289333333,4.308 L0.289333333,6.17833333 C0.289333333,6.24566667 0.312,6.313 0.364333333,6.36533333 L0.364333333,6.36533333 Z M0.401666667,2.93133333 C0.424,2.95366667 0.461666667,2.96866667 0.499,2.96866667 L1.32933333,2.96866667 C1.38933333,2.96866667 1.42666667,2.93866667 1.449,2.87133333 C1.569,2.59466667 1.64366667,2.43 1.67366667,2.385 C1.868,2.07066667 2.13,1.81633333 2.45166667,1.637 C2.77333333,1.45733333 3.11766667,1.36733333 3.49166667,1.36733333 C4.053,1.36733333 4.539,1.55466667 4.95066667,1.936 L4.37466667,2.51233333 C4.32233333,2.56466667 4.29233333,2.632 4.29233333,2.69933333 C4.29233333,2.774 4.32233333,2.834 4.37466667,2.88633333 C4.427,2.93866667 4.48666667,2.96866667 4.56166667,2.96866667 L6.432,2.96866667 C6.507,2.96866667 6.56666667,2.93866667 6.619,2.88633333 C6.67133333,2.834 6.70133333,2.774 6.70133333,2.69933333 L6.70133333,0.828666667 C6.70133333,0.761333333 6.67133333,0.694 6.619,0.641666667 C6.56666667,0.589333333 6.507,0.567 6.432,0.567 C6.36466667,0.567 6.29733333,0.589333333 6.245,0.641666667 L5.699,1.18033333 C5.407,0.903666667 5.063,0.686666667 4.68133333,0.529666667 C4.29233333,0.372333333 3.89566667,0.297666667 3.49166667,0.297666667 C2.72866667,0.297666667 2.06266667,0.529666667 1.48666667,0.993333333 C0.918,1.45733333 0.543666667,2.06333333 0.364333333,2.804 L0.364333333,2.834 C0.364333333,2.87133333 0.371666667,2.90133333 0.401666667,2.93133333 L0.401666667,2.93133333 Z"
+                                                                                      id="Fill-15" stroke="none"
+                                                                                      fill="#e26261"
+                                                                                      fill-rule="evenodd"></path>
+                                                                            </svg>
+                                                                            <div class="link-span">Refresh</div>
+                                                                        </a>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-12" style="margin: 0px;padding: 0px">
+                                                                    <div class="col-lg-6 add-profile">
+                                                                        <a ng-click="addNewProfile(channel.profileList,channel.name,channel.id)" class="link-img">
+                                                                            <svg width="10px" height="10px"
+                                                                                 viewBox="0 0 10 11" version="1.1"
+                                                                                 xmlns="http://www.w3.org/2000/svg"
+                                                                                 xmlns:xlink="http://www.w3.org/1999/xlink">
+                                                                                <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
+                                                                                <desc>Created with Sketch.</desc>
+                                                                                <defs></defs>
+                                                                                <path d="M0.630705427,4.17770891 L1.87067992,5.41815976 C2.20222899,5.74970884 2.60856716,5.92072338 3.08969441,5.92072338 C3.57082166,5.92072338 3.98811619,5.74970884 4.33014527,5.3967234 L4.85414524,5.92072338 C4.5011598,6.26275245 4.33014527,6.68004698 4.33014527,7.17165423 C4.33014527,7.64230148 4.4906798,8.04863965 4.82222888,8.37971236 L6.05172337,9.62016322 C6.38327245,9.95171229 6.78961061,10.1227268 7.27073786,10.1227268 C7.74090875,10.1227268 8.14724692,9.96219229 8.47879599,9.63111958 L9.35530505,8.75413416 C9.68685412,8.42258509 9.85786866,8.01624692 9.85786866,7.54607603 C9.85786866,7.06494878 9.68685412,6.65861062 9.35530505,6.32706154 L8.11533055,5.08661069 C7.78378148,4.75506161 7.37744331,4.58404707 6.90679606,4.58404707 C6.42566881,4.58404707 6.00885065,4.75506161 5.66682157,5.10804705 L5.14282159,4.58404707 C5.49580703,4.242018 5.66682157,3.82472347 5.66682157,3.33311622 C5.66682157,2.86246897 5.50628703,2.4561308 5.17473796,2.12505809 L3.94524346,0.884607234 C3.61369439,0.553058158 3.20735622,0.38204362 2.72622897,0.38204362 C2.24510172,0.38204362 1.83876356,0.542578158 1.50721448,0.874127235 L0.630705427,1.75063629 C0.299156351,2.08218536 0.128141813,2.47756716 0.128141813,2.95869442 C0.128141813,3.44029803 0.299156351,3.8466362 0.630705427,4.17770891 L0.630705427,4.17770891 Z M1.44338176,2.56331262 L2.31989081,1.6863272 C2.43755262,1.57962175 2.56569443,1.52626902 2.72622897,1.52626902 C2.88676351,1.52626902 3.01490532,1.57962175 3.13256714,1.69728356 L4.35158163,2.92677805 C4.46924344,3.04443987 4.52259617,3.17258168 4.52259617,3.33311622 C4.52259617,3.50413076 4.45828708,3.64322893 4.33014527,3.77137074 C4.31966527,3.76089074 4.27679254,3.71801802 4.22343982,3.65370893 C4.15913073,3.58987621 4.116258,3.54700348 4.09482164,3.52556712 C4.06290528,3.50413076 4.03098891,3.48269439 3.97715983,3.44029803 C3.9238071,3.39742531 3.87045438,3.37598894 3.82758165,3.36503258 C3.77422893,3.34359622 3.7208762,3.34359622 3.65656711,3.34359622 C3.50698894,3.34359622 3.36789076,3.39742531 3.25022895,3.50413076 C3.1435235,3.62179257 3.08969441,3.76089074 3.08969441,3.91046892 C3.08969441,3.97477801 3.08969441,4.02813073 3.11113077,4.08148346 C3.12208714,4.12435618 3.1435235,4.17770891 3.18591986,4.23106163 C3.22879259,4.28489072 3.25022895,4.31680708 3.27166531,4.34872345 C3.29310167,4.37015981 3.3359744,4.41303253 3.39980712,4.47734162 C3.46411621,4.53069435 3.50698894,4.57356707 3.51746894,4.58404707 C3.39980712,4.70170889 3.25022895,4.76601797 3.08969441,4.76601797 C2.92963624,4.76601797 2.79053806,4.71266525 2.68335625,4.60548344 L1.44338176,3.36503258 C1.32571994,3.25832713 1.27236722,3.11922895 1.27236722,2.95869442 C1.27236722,2.80911624 1.32571994,2.67001807 1.44338176,2.56331262 L1.44338176,2.56331262 Z M5.66682157,6.73339971 C5.67730157,6.74387971 5.7201743,6.78675243 5.77352702,6.84010516 C5.83783611,6.90441424 5.88070883,6.94728697 5.9021452,6.96872333 C5.9231052,6.99015969 5.96597792,7.02207606 6.01933065,7.06494878 C6.07315973,7.09686514 6.1155561,7.12878151 6.16938519,7.13973787 C6.22273791,7.15021787 6.27609063,7.16117423 6.32944336,7.16117423 C6.4899779,7.16117423 6.62907607,7.10734514 6.73578152,6.99015969 C6.85344334,6.88297788 6.90679606,6.74387971 6.90679606,6.58382153 C6.90679606,6.52999244 6.89631606,6.47663972 6.88583606,6.42328699 C6.8748797,6.36993427 6.84296334,6.32706154 6.81057061,6.27370882 C6.76817425,6.21987973 6.73578152,6.18796337 6.71434516,6.156047 C6.6929088,6.13461064 6.65051244,6.09173792 6.58620335,6.02742883 C6.52189426,5.9740761 6.4899779,5.93120338 6.4794979,5.92072338 C6.59668335,5.7921052 6.73578152,5.72827248 6.90679606,5.72827248 C7.0673306,5.72827248 7.19547241,5.7816252 7.31313423,5.89928702 L8.54310508,7.13973787 C8.66076689,7.24644332 8.71411962,7.3855415 8.71411962,7.54607603 C8.71411962,7.69565421 8.66076689,7.83475239 8.54310508,7.94145783 L7.67659966,8.80748689 C7.55941422,8.9146687 7.43079604,8.96802143 7.27073786,8.96802143 C7.11020333,8.96802143 6.97110515,8.9146687 6.8643997,8.80748689 L5.64538521,7.5675124 C5.52772339,7.46033058 5.47437067,7.32123241 5.47437067,7.17165423 C5.47437067,7.00063969 5.53820339,6.85106152 5.66682157,6.73339971 L5.66682157,6.73339971 Z"
+                                                                                      id="Fill-82" stroke="none"
+                                                                                      fill="#1074ae"
+                                                                                      fill-rule="evenodd"></path>
+                                                                            </svg>
+                                                                            <span class="link-span">Link account</span></a>
+                                                                    </div>
+                                                                    <div class="col-lg-6 remove-profile" style="">
+                                                                        <a class="link-img"
+                                                                           ng-click="removeExistingProfile(profileOptionsModel[$index],channel.id)">
+                                                                            <svg width="10px" height="10px"
+                                                                                 viewBox="0 0 11 11" version="1.1"
+                                                                                 xmlns="http://www.w3.org/2000/svg"
+                                                                                 xmlns:xlink="http://www.w3.org/1999/xlink">
+                                                                                <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
+                                                                                <desc>Created with Sketch.</desc>
+                                                                                <defs></defs>
+                                                                                <path d="M0.260940154,7.41161985 L2.1897806,7.41161985 C2.24354618,7.41161985 2.28675067,7.39001761 2.31891402,7.35737422 C2.36211851,7.32521088 2.3726796,7.27144529 2.3726796,7.2176797 C2.3726796,7.16343406 2.36211851,7.10966848 2.31891402,7.07750513 C2.28675067,7.04486174 2.24354618,7.02373955 2.1897806,7.02373955 L0.260940154,7.02373955 C0.207174567,7.02373955 0.163970077,7.04486174 0.120765587,7.07750513 C0.0886022449,7.10966848 0.067,7.16343406 0.067,7.2176797 C0.067,7.27144529 0.0886022449,7.32521088 0.120765587,7.35737422 C0.163970077,7.39001761 0.207174567,7.41161985 0.260940154,7.41161985 L0.260940154,7.41161985 Z M0.670422707,4.58844647 L2.69623323,6.61425699 C2.77160106,6.70018592 2.89017338,6.7865949 3.0298679,6.86196273 L3.13787912,5.42901382 L1.48938781,3.78004246 C1.37081549,3.66147014 1.3170499,3.52177563 1.3170499,3.37103996 C1.3170499,3.20926315 1.37081549,3.07964968 1.48938781,2.96107736 L2.3726796,2.08834667 C2.49125193,1.98081549 2.62038535,1.9270499 2.78216216,1.9270499 C2.94393897,1.9270499 3.08411354,1.98081549 3.19164471,2.09938781 L4.82957492,3.73731803 L6.26252383,3.6293068 C6.1765949,3.48913223 6.10074702,3.38160106 6.01481809,3.29519208 L4.01060982,1.28042271 C3.6764951,0.946307986 3.26701254,0.773970077 2.78216216,0.773970077 C2.29731177,0.773970077 1.88782922,0.935746889 1.56475565,1.26986161 L0.670422707,2.1531534 C0.336307986,2.47622697 0.163970077,2.88570953 0.163970077,3.37103996 C0.163970077,3.8342881 0.336307986,4.24377066 0.670422707,4.58844647 L0.670422707,4.58844647 Z M0.896526204,9.85747403 C0.939730693,9.88963737 0.982935183,9.91123961 1.03670077,9.91123961 C1.07990526,9.91123961 1.13367085,9.88963737 1.16583419,9.85747403 L2.70679432,8.31651389 C2.74999881,8.2733094 2.76055991,8.23010491 2.76055991,8.17633932 C2.76055991,8.13313483 2.74999881,8.07936925 2.70679432,8.0472059 C2.67463098,8.00400141 2.62038535,7.99344032 2.56661976,7.99344032 C2.52341527,7.99344032 2.46964968,8.00400141 2.43748634,8.0472059 L0.896526204,9.57712489 C0.853321714,9.62032938 0.842760616,9.66353387 0.842760616,9.71729946 C0.842760616,9.77106505 0.853321714,9.81426954 0.896526204,9.85747403 L0.896526204,9.85747403 Z M3.39662601,10.6221935 C3.42878935,10.665398 3.48255494,10.6870002 3.53632053,10.6870002 C3.59056617,10.6870002 3.64433175,10.665398 3.6764951,10.6221935 C3.70865844,10.5900302 3.73026068,10.5468257 3.73026068,10.4930601 L3.73026068,8.56421963 C3.73026068,8.51045404 3.70865844,8.46724955 3.6764951,8.42452511 C3.64433175,8.39188172 3.59056617,8.37027948 3.53632053,8.37027948 C3.48255494,8.37027948 3.42878935,8.39188172 3.39662601,8.42452511 C3.36398262,8.46724955 3.34238037,8.51045404 3.34238037,8.56421963 L3.34238037,10.4930601 C3.34238037,10.5468257 3.36398262,10.5900302 3.39662601,10.6221935 L3.39662601,10.6221935 Z M4.12918214,8.057767 L6.13339041,10.0730164 C6.46750513,10.4176922 6.87698769,10.5900302 7.36183807,10.5900302 C7.83564731,10.5900302 8.24512986,10.4282533 8.57924458,10.0946187 L9.46253637,9.21084683 C9.7966511,8.87673211 9.968989,8.46724955 9.968989,7.99344032 C9.968989,7.51915103 9.7966511,7.10966848 9.46253637,6.76499266 L7.447767,4.73918214 C7.36183807,4.65277316 7.25382685,4.56684423 7.11365228,4.4914764 L7.00612111,5.92442531 L8.64405132,7.58395776 C8.76262364,7.69148894 8.81638923,7.83166351 8.81638923,7.99344032 C8.81638923,8.14417598 8.76262364,8.28435055 8.64405132,8.39188172 L7.77084058,9.27565356 C7.6633094,9.38318474 7.52313483,9.43695032 7.36183807,9.43695032 C7.18902011,9.43695032 7.05988669,9.37262364 6.95235552,9.26461242 L5.31442531,7.61612111 L3.8814764,7.72413233 C3.96740533,7.86382685 4.04277316,7.97183807 4.12918214,8.057767 L4.12918214,8.057767 Z M6.46750513,2.92891402 C6.49966848,2.96107736 6.55343406,2.9826796 6.60719965,2.9826796 C6.66144529,2.9826796 6.71521088,2.96107736 6.74737422,2.92891402 C6.77953756,2.89675067 6.8011398,2.84298509 6.8011398,2.78873945 L6.8011398,0.870940154 C6.8011398,0.806133419 6.77953756,0.76340898 6.74737422,0.730765587 C6.71521088,0.688041147 6.66144529,0.677 6.60719965,0.677 C6.55343406,0.677 6.49966848,0.688041147 6.46750513,0.730765587 C6.43486174,0.76340898 6.4132595,0.806133419 6.4132595,0.870940154 L6.4132595,2.78873945 C6.4132595,2.84298509 6.43486174,2.89675067 6.46750513,2.92891402 L6.46750513,2.92891402 Z M7.42616476,3.31679432 C7.47993034,3.34943772 7.52313483,3.37103996 7.56633932,3.37103996 C7.62010491,3.37103996 7.6633094,3.34943772 7.70651389,3.31679432 L9.24747403,1.77631424 C9.27963737,1.73310975 9.30123961,1.68990526 9.30123961,1.63613967 C9.30123961,1.58189404 9.27963737,1.5391696 9.24747403,1.49596511 C9.20426954,1.46380176 9.16106505,1.44219952 9.10729946,1.44219952 C9.05353387,1.44219952 9.01032938,1.46380176 8.96712489,1.49596511 L7.42616476,3.03692524 C7.39400141,3.07964968 7.37239917,3.12285417 7.37239917,3.17661976 C7.37239917,3.2308654 7.39400141,3.27358983 7.42616476,3.31679432 L7.42616476,3.31679432 Z M7.95421963,4.32969958 L9.87201893,4.32969958 C9.93682566,4.32969958 9.98003015,4.30809734 10.0121935,4.275934 C10.055398,4.24377066 10.0659591,4.18952502 10.0659591,4.13575943 C10.0659591,4.08199384 10.055398,4.02822826 10.0121935,3.99558486 C9.98003015,3.96342152 9.93682566,3.94181928 9.87201893,3.94181928 L7.95421963,3.94181928 C7.90045404,3.94181928 7.84668846,3.96342152 7.81404506,3.99558486 C7.78188172,4.02822826 7.76027948,4.08199384 7.76027948,4.13575943 C7.76027948,4.18952502 7.78188172,4.24377066 7.81404506,4.275934 C7.84668846,4.30809734 7.90045404,4.32969958 7.95421963,4.32969958 L7.95421963,4.32969958 Z"
+                                                                                      id="Fill-97" stroke="none"
+                                                                                      fill="#1074ae"
+                                                                                      fill-rule="evenodd"></path>
+                                                                            </svg>
+                                                                            <span class="link-span">Delink account</span>
+                                                                        </a>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <div ng-repeat="item in channel.uniqueObjectCount track by $index">
+                                                                    <div class="col-lg-12">
+                                                                        <div class="col-lg-10 col-sm-10"
+                                                                             style="margin: 0px;padding: 0px;">
+                                                                            <select class="form-control m-b"
+                                                                                    ng-show="channel.name=== 'Facebook'"
+                                                                                    ng-model="objectOptionsModel[$index]"
+                                                                                    ng-options="objects as objects.name for objects in facebookObjectList[$index][$index]"
+                                                                                    ng-change="objectForWidgetChosen([objectOptionsModel[$index].name,objectOptionsModel[$index]._id,objectOptionsModel[$index].objectTypeId,$index,$parent.$index],channel.name,channel.uniqueObjectCount)">
+                                                                                <option value="">Select an item</option>
+                                                                            </select>
+                                                                            <select class="form-control m-b"
+                                                                                    ng-show="channel.name=== 'Mailchimp'"
+                                                                                    ng-model="objectOptionsModel[$index]"
+                                                                                    ng-options="objects as objects.name for objects in mailchimpObjectList[$index][$index]"
+                                                                                    ng-change="objectForWidgetChosen([objectOptionsModel[$index].name,objectOptionsModel[$index]._id,objectOptionsModel[$index].objectTypeId,$index,$parent.$index],channel.name,channel.uniqueObjectCount)">
+                                                                                <option value="">Select an item</option>
+                                                                            </select>
+                                                                            <select class="form-control m-b"
+                                                                                    ng-show="channel.name=== 'Aweber'"
+                                                                                    ng-model="objectOptionsModel[$index]"
+                                                                                    ng-options="objects as objects.name for objects in aweberObjectList[$index][$index]"
+                                                                                    ng-change="objectForWidgetChosen([objectOptionsModel[$index].name,objectOptionsModel[$index]._id,objectOptionsModel[$index].objectTypeId,$index,$parent.$index],channel.name,channel.uniqueObjectCount)">
+                                                                                <option value="">Select an item</option>
+                                                                            </select>
+                                                                            <select class="form-control m-b"
+                                                                                    ng-show="channel.name=== 'linkedin'"
+                                                                                    ng-model="objectOptionsModel[$index]"
+                                                                                    ng-options="objects as objects.name for objects in linkedInObjectList[$index][$index]"
+                                                                                    ng-change="objectForWidgetChosen([objectOptionsModel[$index].name,objectOptionsModel[$index]._id,objectOptionsModel[$index].objectTypeId,$index,$parent.$index],channel.name,channel.uniqueObjectCount)">
+                                                                                <option value="">Select an item</option>
+                                                                            </select>
+                                                                            <select class="form-control m-b"
+                                                                                    ng-show="channel.name=== 'YouTube'"
+                                                                                    ng-model="objectOptionsModel[$index]"
+                                                                                    ng-options="objects as objects.name for objects in youtubeObjectList[$index][$index]"
+                                                                                    ng-change="objectForWidgetChosen([objectOptionsModel[$index].name,objectOptionsModel[$index]._id,objectOptionsModel[$index].objectTypeId,$index,$parent.$index],channel.name,channel.uniqueObjectCount)">
+                                                                                <option value="">Select an item</option>
+                                                                            </select>
+                                                                            <select class="form-control m-b"
+                                                                                    ng-show="channel.name=== 'Vimeo'"
+                                                                                    ng-model="objectOptionsModel[$index]"
+                                                                                    ng-options="objects as objects.name for objects in vimeoObjectList[$index][$index]"
+                                                                                    ng-change="objectForWidgetChosen([objectOptionsModel[$index].name,objectOptionsModel[$index]._id,objectOptionsModel[$index].objectTypeId,$index,$parent.$index],channel.name,channel.uniqueObjectCount)">
+                                                                                <option value="">Select an item</option>
+                                                                            </select>
+                                                                            <select class="form-control m-b"
+                                                                                    ng-show="channel.name=== 'FacebookAds'"
+                                                                                    ng-model="objectOptionsModel[$index]"
+                                                                                    ng-options="objects as objects.name for objects in facebookAdsObjectList[$index][$index]"
+                                                                                    ng-change="objectForWidgetChosen([objectOptionsModel[$index].name,objectOptionsModel[$index]._id,objectOptionsModel[$index].objectTypeId,$index,$parent.$index,objectOptionsModel[$index].channelObjectId],channel.name,channel.uniqueObjectCount)">
+                                                                                <option value="">Select an item</option>
+                                                                            </select>
+                                                                            <select class="form-control m-b"
+                                                                                    ng-show="(channel.name=== 'GoogleAdwords')&&(canManageClients==true)"
+                                                                                    ng-model="objectOptionsModel[$index]"
+                                                                                    ng-options="objects as objects.name for objects in googleAdwordsObjectList[$index][$index]"
+                                                                                    ng-change="objectForWidgetChosen([objectOptionsModel[$index].name,objectOptionsModel[$index]._id,objectOptionsModel[$index].objectTypeId,$index,$parent.$index,objectOptionsModel[$index].channelObjectId],channel.name,channel.uniqueObjectCount)">
+                                                                                <option value="">Select an item</option>
+                                                                            </select>
+                                                                            <select class="form-control m-b"
+                                                                                    ng-show="channel.name ==='Google Analytics'"
+                                                                                    ng-model="objectOptionsModel[$index]"
+                                                                                    ng-change="objectForWidgetChosen([objectOptionsModel[$index],$index,$parent.$index],channel.name,channel.uniqueObjectCount)">
+                                                                                <option value="">Select an item</option>
+                                                                                <optgroup style="font-wight:bold"
+                                                                                          ng-repeat="header in googleAnalyticsObjectList[$index]"
+                                                                                          label="{{ header.webPropertyName }}">
+                                                                                    <option ng-repeat="item in header.metricDetails"
+                                                                                            value="{{[item.name,item._id,item.objectTypeId]}}">
+                                                                                        {{ item.name }}
+                                                                                    </option>
+                                                                                </optgroup>
+                                                                            </select>
+                                                                        </div>
+                                                                        <div class="col-lg-2 col-sm-2">
+                                                                            <div class="infont col-md-1 col-sm-2"
+                                                                                 ng-hide="channel.name=== 'Twitter' || channel.name === 'Pinterest' || channel.name === 'Instagram' || (canManageClients===false && channel.name === 'GoogleAdwords')">
+                                                                                <a ng-show="!profileOptionsModel[$parent.$index].hasNoAccess" ng-click="refreshObjectsForChosenProfile(channel.uniqueObjectCount[$index],channel.name,profileOptionsModel[$parent.$index]._id,channel.uniqueObjectCount,channel.id)"
+                                                                                   class="link-img">
+                                                                                    <svg width="7px" height="7px"
+                                                                                         viewBox="0 0 7 7" version="1.1"
+                                                                                         xmlns="http://www.w3.org/2000/svg"
+                                                                                         xmlns:xlink="http://www.w3.org/1999/xlink">
+                                                                                        <defs></defs>
+                                                                                        <path d="M0.364333333,6.36533333 C0.416666667,6.41766667 0.484,6.44033333 0.551333333,6.44033333 C0.626,6.44033333 0.686,6.41766667 0.738333333,6.36533333 L1.277,5.82666667 C1.57633333,6.111 1.913,6.328 2.29466667,6.47766667 C2.676,6.63466667 3.07266667,6.70966667 3.47666667,6.70966667 C4.24,6.70966667 4.90566667,6.47766667 5.47433333,6.01366667 C6.043,5.55 6.417,4.94366667 6.58933333,4.203 C6.59666667,4.19566667 6.59666667,4.188 6.59666667,4.17333333 C6.59666667,4.13566667 6.58166667,4.106 6.55933333,4.076 C6.52933333,4.05366667 6.49933333,4.03866667 6.462,4.03866667 L5.66133333,4.03866667 C5.60166667,4.03866667 5.55666667,4.06833333 5.53433333,4.13566667 C5.41466667,4.41266667 5.34733333,4.57733333 5.30966667,4.622 C5.11533333,4.93633333 4.861,5.19066667 4.539,5.37033333 C4.21,5.55 3.86566667,5.63966667 3.49166667,5.63966667 C3.22233333,5.63966667 2.96066667,5.58733333 2.71366667,5.49 C2.45933333,5.39266667 2.23466667,5.25066667 2.04033333,5.06366667 L2.60866667,4.495 C2.66133333,4.44266667 2.691,4.37533333 2.691,4.308 C2.691,4.233 2.66133333,4.17333333 2.60866667,4.12066667 C2.55633333,4.06833333 2.49666667,4.03866667 2.42166667,4.03866667 L0.551333333,4.03866667 C0.484,4.03866667 0.416666667,4.06833333 0.364333333,4.12066667 C0.312,4.17333333 0.289333333,4.233 0.289333333,4.308 L0.289333333,6.17833333 C0.289333333,6.24566667 0.312,6.313 0.364333333,6.36533333 L0.364333333,6.36533333 Z M0.401666667,2.93133333 C0.424,2.95366667 0.461666667,2.96866667 0.499,2.96866667 L1.32933333,2.96866667 C1.38933333,2.96866667 1.42666667,2.93866667 1.449,2.87133333 C1.569,2.59466667 1.64366667,2.43 1.67366667,2.385 C1.868,2.07066667 2.13,1.81633333 2.45166667,1.637 C2.77333333,1.45733333 3.11766667,1.36733333 3.49166667,1.36733333 C4.053,1.36733333 4.539,1.55466667 4.95066667,1.936 L4.37466667,2.51233333 C4.32233333,2.56466667 4.29233333,2.632 4.29233333,2.69933333 C4.29233333,2.774 4.32233333,2.834 4.37466667,2.88633333 C4.427,2.93866667 4.48666667,2.96866667 4.56166667,2.96866667 L6.432,2.96866667 C6.507,2.96866667 6.56666667,2.93866667 6.619,2.88633333 C6.67133333,2.834 6.70133333,2.774 6.70133333,2.69933333 L6.70133333,0.828666667 C6.70133333,0.761333333 6.67133333,0.694 6.619,0.641666667 C6.56666667,0.589333333 6.507,0.567 6.432,0.567 C6.36466667,0.567 6.29733333,0.589333333 6.245,0.641666667 L5.699,1.18033333 C5.407,0.903666667 5.063,0.686666667 4.68133333,0.529666667 C4.29233333,0.372333333 3.89566667,0.297666667 3.49166667,0.297666667 C2.72866667,0.297666667 2.06266667,0.529666667 1.48666667,0.993333333 C0.918,1.45733333 0.543666667,2.06333333 0.364333333,2.804 L0.364333333,2.834 C0.364333333,2.87133333 0.371666667,2.90133333 0.401666667,2.93133333 L0.401666667,2.93133333 Z"
+                                                                                              id="Fill-15" stroke="none"
+                                                                                              fill="#1074ae"
+                                                                                              fill-rule="evenodd"></path>
+                                                                                    </svg>
+                                                                                    <div class="link-span refresh">Refresh
+                                                                                    </div>
+                                                                                    <img  ng-if="refreshButtonLoading===channel.uniqueObjectCount[$index]" id="refreshButton" src="image/loading.gif">
+                                                                                </a>
+                                                                                <a style="cursor: not-allowed;" ng-show="profileOptionsModel[$parent.$index].hasNoAccess"
+                                                                                   class="link-img">
+                                                                                    <svg width="7px" height="7px"
+                                                                                         viewBox="0 0 7 7" version="1.1"
+                                                                                         xmlns="http://www.w3.org/2000/svg"
+                                                                                         xmlns:xlink="http://www.w3.org/1999/xlink">
+                                                                                        <defs></defs>
+                                                                                        <path d="M0.364333333,6.36533333 C0.416666667,6.41766667 0.484,6.44033333 0.551333333,6.44033333 C0.626,6.44033333 0.686,6.41766667 0.738333333,6.36533333 L1.277,5.82666667 C1.57633333,6.111 1.913,6.328 2.29466667,6.47766667 C2.676,6.63466667 3.07266667,6.70966667 3.47666667,6.70966667 C4.24,6.70966667 4.90566667,6.47766667 5.47433333,6.01366667 C6.043,5.55 6.417,4.94366667 6.58933333,4.203 C6.59666667,4.19566667 6.59666667,4.188 6.59666667,4.17333333 C6.59666667,4.13566667 6.58166667,4.106 6.55933333,4.076 C6.52933333,4.05366667 6.49933333,4.03866667 6.462,4.03866667 L5.66133333,4.03866667 C5.60166667,4.03866667 5.55666667,4.06833333 5.53433333,4.13566667 C5.41466667,4.41266667 5.34733333,4.57733333 5.30966667,4.622 C5.11533333,4.93633333 4.861,5.19066667 4.539,5.37033333 C4.21,5.55 3.86566667,5.63966667 3.49166667,5.63966667 C3.22233333,5.63966667 2.96066667,5.58733333 2.71366667,5.49 C2.45933333,5.39266667 2.23466667,5.25066667 2.04033333,5.06366667 L2.60866667,4.495 C2.66133333,4.44266667 2.691,4.37533333 2.691,4.308 C2.691,4.233 2.66133333,4.17333333 2.60866667,4.12066667 C2.55633333,4.06833333 2.49666667,4.03866667 2.42166667,4.03866667 L0.551333333,4.03866667 C0.484,4.03866667 0.416666667,4.06833333 0.364333333,4.12066667 C0.312,4.17333333 0.289333333,4.233 0.289333333,4.308 L0.289333333,6.17833333 C0.289333333,6.24566667 0.312,6.313 0.364333333,6.36533333 L0.364333333,6.36533333 Z M0.401666667,2.93133333 C0.424,2.95366667 0.461666667,2.96866667 0.499,2.96866667 L1.32933333,2.96866667 C1.38933333,2.96866667 1.42666667,2.93866667 1.449,2.87133333 C1.569,2.59466667 1.64366667,2.43 1.67366667,2.385 C1.868,2.07066667 2.13,1.81633333 2.45166667,1.637 C2.77333333,1.45733333 3.11766667,1.36733333 3.49166667,1.36733333 C4.053,1.36733333 4.539,1.55466667 4.95066667,1.936 L4.37466667,2.51233333 C4.32233333,2.56466667 4.29233333,2.632 4.29233333,2.69933333 C4.29233333,2.774 4.32233333,2.834 4.37466667,2.88633333 C4.427,2.93866667 4.48666667,2.96866667 4.56166667,2.96866667 L6.432,2.96866667 C6.507,2.96866667 6.56666667,2.93866667 6.619,2.88633333 C6.67133333,2.834 6.70133333,2.774 6.70133333,2.69933333 L6.70133333,0.828666667 C6.70133333,0.761333333 6.67133333,0.694 6.619,0.641666667 C6.56666667,0.589333333 6.507,0.567 6.432,0.567 C6.36466667,0.567 6.29733333,0.589333333 6.245,0.641666667 L5.699,1.18033333 C5.407,0.903666667 5.063,0.686666667 4.68133333,0.529666667 C4.29233333,0.372333333 3.89566667,0.297666667 3.49166667,0.297666667 C2.72866667,0.297666667 2.06266667,0.529666667 1.48666667,0.993333333 C0.918,1.45733333 0.543666667,2.06333333 0.364333333,2.804 L0.364333333,2.834 C0.364333333,2.87133333 0.371666667,2.90133333 0.401666667,2.93133333 L0.401666667,2.93133333 Z"
+                                                                                              id="Fill-15" stroke="none"
+                                                                                              fill="#aaaaaa"
+                                                                                              fill-rule="evenodd"></path>
+                                                                                    </svg>
+                                                                                    <div style="color: #aaaaaa;" class="link-span refresh">Refresh
+                                                                                    </div>
+                                                                                </a>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <div class="col-lg-12">
+                                                                    <select class="form-control m-b choose-text"
+                                                                            ng-show="((channel.name=== 'FacebookAds')&&(fbSelectEnable==true))"
+                                                                            ng-model="objectTypeOptionsModel[$parent.$index]"
+                                                                            ng-options="objectType.name for objectType in fbObjectTypeList"
+                                                                            ng-change="selectLevelChosen('level',$parent.$index)">
+                                                                        <option value="">Choose the Granularity</option>
+                                                                    </select>
+                                                                </div>
+                                                                <p ng-show="messageEnable==true" style="margin:0px 0px 3px!important ; color: #FF0000 ; font-family : Heebo-Medium  ; text-align:center ; padding-left : 3px ; border-right : 3px solid white ; ">One of the chosen metrics is available only at campaign level </p>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <div class="col-lg-12">
+                                                                    <div class="col-lg-10"
+                                                                         style="margin: 0px;padding: 0px;">
+                                                                        <select class="form-control m-b choose-text"
+                                                                                ng-show="((channel.name== 'FacebookAds')&&(campaignEnable==true))"
+                                                                                ng-model="campaignOptionsModel"
+                                                                                ng-options="campaign.name for campaign in campaignList"
+                                                                                ng-change="fbAdsCheck('campaign')">
+                                                                            <option value="">Select an Ad Campaign
+                                                                            </option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="col-lg-2">
                                                                         <div class="infont col-md-1 col-sm-2"
-                                                                             ng-hide="storedChannelName=== 'Twitter' || storedChannelName === 'Pinterest' || storedChannelName === 'Instagram' || canManageClients===false">
-                                                                            <a ng-show="!profileOptionsModel.hasNoAccess" ng-click="refreshObjectsForChosenProfile(uniqueObjectCount[$index])"
+                                                                             ng-show="((channel.name== 'FacebookAds')&&(campaignEnable==true))">
+                                                                            <a ng-click="refreshAdCampaign('fbAdcampaign')"
                                                                                class="link-img">
                                                                                 <svg width="7px" height="7px"
-                                                                                     viewBox="0 0 7 7" version="1.1"
+                                                                                     viewBox="0 0 7 7"
+                                                                                     version="1.1"
                                                                                      xmlns="http://www.w3.org/2000/svg"
                                                                                      xmlns:xlink="http://www.w3.org/1999/xlink">
                                                                                     <defs></defs>
@@ -851,299 +929,235 @@
                                                                                           fill="#1074ae"
                                                                                           fill-rule="evenodd"></path>
                                                                                 </svg>
-                                                                                <div class="link-span refresh">Refresh
-                                                                                </div>
-                                                                                <img  ng-if="refreshButtonLoading===uniqueObjectCount[$index]" id="refreshButton" src="image/loading.gif">
-                                                                            </a>
-                                                                            <a style="cursor: not-allowed;" ng-show="profileOptionsModel.hasNoAccess"
-                                                                               class="link-img">
-                                                                                <svg width="7px" height="7px"
-                                                                                     viewBox="0 0 7 7" version="1.1"
-                                                                                     xmlns="http://www.w3.org/2000/svg"
-                                                                                     xmlns:xlink="http://www.w3.org/1999/xlink">
-                                                                                    <defs></defs>
-                                                                                    <path d="M0.364333333,6.36533333 C0.416666667,6.41766667 0.484,6.44033333 0.551333333,6.44033333 C0.626,6.44033333 0.686,6.41766667 0.738333333,6.36533333 L1.277,5.82666667 C1.57633333,6.111 1.913,6.328 2.29466667,6.47766667 C2.676,6.63466667 3.07266667,6.70966667 3.47666667,6.70966667 C4.24,6.70966667 4.90566667,6.47766667 5.47433333,6.01366667 C6.043,5.55 6.417,4.94366667 6.58933333,4.203 C6.59666667,4.19566667 6.59666667,4.188 6.59666667,4.17333333 C6.59666667,4.13566667 6.58166667,4.106 6.55933333,4.076 C6.52933333,4.05366667 6.49933333,4.03866667 6.462,4.03866667 L5.66133333,4.03866667 C5.60166667,4.03866667 5.55666667,4.06833333 5.53433333,4.13566667 C5.41466667,4.41266667 5.34733333,4.57733333 5.30966667,4.622 C5.11533333,4.93633333 4.861,5.19066667 4.539,5.37033333 C4.21,5.55 3.86566667,5.63966667 3.49166667,5.63966667 C3.22233333,5.63966667 2.96066667,5.58733333 2.71366667,5.49 C2.45933333,5.39266667 2.23466667,5.25066667 2.04033333,5.06366667 L2.60866667,4.495 C2.66133333,4.44266667 2.691,4.37533333 2.691,4.308 C2.691,4.233 2.66133333,4.17333333 2.60866667,4.12066667 C2.55633333,4.06833333 2.49666667,4.03866667 2.42166667,4.03866667 L0.551333333,4.03866667 C0.484,4.03866667 0.416666667,4.06833333 0.364333333,4.12066667 C0.312,4.17333333 0.289333333,4.233 0.289333333,4.308 L0.289333333,6.17833333 C0.289333333,6.24566667 0.312,6.313 0.364333333,6.36533333 L0.364333333,6.36533333 Z M0.401666667,2.93133333 C0.424,2.95366667 0.461666667,2.96866667 0.499,2.96866667 L1.32933333,2.96866667 C1.38933333,2.96866667 1.42666667,2.93866667 1.449,2.87133333 C1.569,2.59466667 1.64366667,2.43 1.67366667,2.385 C1.868,2.07066667 2.13,1.81633333 2.45166667,1.637 C2.77333333,1.45733333 3.11766667,1.36733333 3.49166667,1.36733333 C4.053,1.36733333 4.539,1.55466667 4.95066667,1.936 L4.37466667,2.51233333 C4.32233333,2.56466667 4.29233333,2.632 4.29233333,2.69933333 C4.29233333,2.774 4.32233333,2.834 4.37466667,2.88633333 C4.427,2.93866667 4.48666667,2.96866667 4.56166667,2.96866667 L6.432,2.96866667 C6.507,2.96866667 6.56666667,2.93866667 6.619,2.88633333 C6.67133333,2.834 6.70133333,2.774 6.70133333,2.69933333 L6.70133333,0.828666667 C6.70133333,0.761333333 6.67133333,0.694 6.619,0.641666667 C6.56666667,0.589333333 6.507,0.567 6.432,0.567 C6.36466667,0.567 6.29733333,0.589333333 6.245,0.641666667 L5.699,1.18033333 C5.407,0.903666667 5.063,0.686666667 4.68133333,0.529666667 C4.29233333,0.372333333 3.89566667,0.297666667 3.49166667,0.297666667 C2.72866667,0.297666667 2.06266667,0.529666667 1.48666667,0.993333333 C0.918,1.45733333 0.543666667,2.06333333 0.364333333,2.804 L0.364333333,2.834 C0.364333333,2.87133333 0.371666667,2.90133333 0.401666667,2.93133333 L0.401666667,2.93133333 Z"
-                                                                                          id="Fill-15" stroke="none"
-                                                                                          fill="#aaaaaa"
-                                                                                          fill-rule="evenodd"></path>
-                                                                                </svg>
-                                                                                <div style="color: #aaaaaa;" class="link-span refresh">Refresh
-                                                                                </div>
+                                                                                <div class="link-span refresh">Refresh</div>
+                                                                                <img ng-if="refreshAdCampaignLoading===true" id="refreshButton" src="image/loading.gif">
                                                                             </a>
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <div class="col-lg-12">
-                                                                <select class="form-control m-b choose-text"
-                                                                        ng-show="((storedChannelName=== 'FacebookAds')&&(selectEnable==true))"
-                                                                        ng-model="objectTypeOptionsModel"
-                                                                        ng-options="objectType.name for objectType in objectTypeList"
-                                                                        ng-change="selectLevelChosen('level')">
-                                                                    <option value="">Choose the Granularity</option>
-                                                                </select>
-                                                            </div>
-                                                            <p ng-show="messageEnable==true" style="margin:0px 0px 3px!important ; color: #FF0000 ; font-family : Heebo-Medium  ; text-align:center ; padding-left : 3px ; border-right : 3px solid white ; ">One of the chosen metrics is available only at campaign level </p>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <div class="col-lg-12">
-                                                                <div class="col-lg-10"
-                                                                     style="margin: 0px;padding: 0px;">
-                                                                    <select class="form-control m-b choose-text"
-                                                                            ng-show="((storedChannelName== 'FacebookAds')&&(campaignEnable==true))"
-                                                                            ng-model="campaignOptionsModel"
-                                                                            ng-options="campaign.name for campaign in campaignList"
-                                                                            ng-change="fbAdsCheck('campaign')">
-                                                                        <option value="">Select an Ad Campaign
-                                                                        </option>
-                                                                    </select>
-                                                                </div>
-                                                                <div class="col-lg-2">
-                                                                    <div class="infont col-md-1 col-sm-2"
-                                                                         ng-show="((storedChannelName== 'FacebookAds')&&(campaignEnable==true))">
-                                                                        <a ng-click="refreshAdCampaign('fbAdcampaign')"
-                                                                           class="link-img">
-                                                                            <svg width="7px" height="7px"
-                                                                                 viewBox="0 0 7 7"
-                                                                                 version="1.1"
-                                                                                 xmlns="http://www.w3.org/2000/svg"
-                                                                                 xmlns:xlink="http://www.w3.org/1999/xlink">
-                                                                                <defs></defs>
-                                                                                <path d="M0.364333333,6.36533333 C0.416666667,6.41766667 0.484,6.44033333 0.551333333,6.44033333 C0.626,6.44033333 0.686,6.41766667 0.738333333,6.36533333 L1.277,5.82666667 C1.57633333,6.111 1.913,6.328 2.29466667,6.47766667 C2.676,6.63466667 3.07266667,6.70966667 3.47666667,6.70966667 C4.24,6.70966667 4.90566667,6.47766667 5.47433333,6.01366667 C6.043,5.55 6.417,4.94366667 6.58933333,4.203 C6.59666667,4.19566667 6.59666667,4.188 6.59666667,4.17333333 C6.59666667,4.13566667 6.58166667,4.106 6.55933333,4.076 C6.52933333,4.05366667 6.49933333,4.03866667 6.462,4.03866667 L5.66133333,4.03866667 C5.60166667,4.03866667 5.55666667,4.06833333 5.53433333,4.13566667 C5.41466667,4.41266667 5.34733333,4.57733333 5.30966667,4.622 C5.11533333,4.93633333 4.861,5.19066667 4.539,5.37033333 C4.21,5.55 3.86566667,5.63966667 3.49166667,5.63966667 C3.22233333,5.63966667 2.96066667,5.58733333 2.71366667,5.49 C2.45933333,5.39266667 2.23466667,5.25066667 2.04033333,5.06366667 L2.60866667,4.495 C2.66133333,4.44266667 2.691,4.37533333 2.691,4.308 C2.691,4.233 2.66133333,4.17333333 2.60866667,4.12066667 C2.55633333,4.06833333 2.49666667,4.03866667 2.42166667,4.03866667 L0.551333333,4.03866667 C0.484,4.03866667 0.416666667,4.06833333 0.364333333,4.12066667 C0.312,4.17333333 0.289333333,4.233 0.289333333,4.308 L0.289333333,6.17833333 C0.289333333,6.24566667 0.312,6.313 0.364333333,6.36533333 L0.364333333,6.36533333 Z M0.401666667,2.93133333 C0.424,2.95366667 0.461666667,2.96866667 0.499,2.96866667 L1.32933333,2.96866667 C1.38933333,2.96866667 1.42666667,2.93866667 1.449,2.87133333 C1.569,2.59466667 1.64366667,2.43 1.67366667,2.385 C1.868,2.07066667 2.13,1.81633333 2.45166667,1.637 C2.77333333,1.45733333 3.11766667,1.36733333 3.49166667,1.36733333 C4.053,1.36733333 4.539,1.55466667 4.95066667,1.936 L4.37466667,2.51233333 C4.32233333,2.56466667 4.29233333,2.632 4.29233333,2.69933333 C4.29233333,2.774 4.32233333,2.834 4.37466667,2.88633333 C4.427,2.93866667 4.48666667,2.96866667 4.56166667,2.96866667 L6.432,2.96866667 C6.507,2.96866667 6.56666667,2.93866667 6.619,2.88633333 C6.67133333,2.834 6.70133333,2.774 6.70133333,2.69933333 L6.70133333,0.828666667 C6.70133333,0.761333333 6.67133333,0.694 6.619,0.641666667 C6.56666667,0.589333333 6.507,0.567 6.432,0.567 C6.36466667,0.567 6.29733333,0.589333333 6.245,0.641666667 L5.699,1.18033333 C5.407,0.903666667 5.063,0.686666667 4.68133333,0.529666667 C4.29233333,0.372333333 3.89566667,0.297666667 3.49166667,0.297666667 C2.72866667,0.297666667 2.06266667,0.529666667 1.48666667,0.993333333 C0.918,1.45733333 0.543666667,2.06333333 0.364333333,2.804 L0.364333333,2.834 C0.364333333,2.87133333 0.371666667,2.90133333 0.401666667,2.93133333 L0.401666667,2.93133333 Z"
-                                                                                      id="Fill-15" stroke="none"
-                                                                                      fill="#1074ae"
-                                                                                      fill-rule="evenodd"></path>
-                                                                            </svg>
-                                                                            <div class="link-span refresh">Refresh</div>
-                                                                            <img ng-if="refreshAdCampaignLoading===true" id="refreshButton" src="image/loading.gif">
-                                                                        </a>
+                                                            <div class="form-group">
+                                                                <div class="col-lg-12">
+                                                                    <div class="col-lg-10"
+                                                                         style="margin: 0px;padding: 0px;">
+                                                                        <select class="form-control m-b choose-text"
+                                                                                ng-show="((channel.name=='FacebookAds')&&(adSetEnable==true))"
+                                                                                ng-model="adSetOptionsModel"
+                                                                                ng-options="adSet.name for adSet in adSetList"
+                                                                                ng-change="fbAdsCheck('adset')">
+                                                                            <option value="">Select an Ad set</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="col-lg-2">
+                                                                        <div class="infont col-md-1 col-sm-2"
+                                                                             ng-show="((channel.name=='FacebookAds')&&(adSetEnable==true))">
+                                                                            <a ng-click="refreshAdSet('fbAdSet')"
+                                                                               class="link-img">
+                                                                                <svg width="7px" height="7px"
+                                                                                     viewBox="0 0 7 7"
+                                                                                     version="1.1"
+                                                                                     xmlns="http://www.w3.org/2000/svg"
+                                                                                     xmlns:xlink="http://www.w3.org/1999/xlink">
+                                                                                    <defs></defs>
+                                                                                    <path d="M0.364333333,6.36533333 C0.416666667,6.41766667 0.484,6.44033333 0.551333333,6.44033333 C0.626,6.44033333 0.686,6.41766667 0.738333333,6.36533333 L1.277,5.82666667 C1.57633333,6.111 1.913,6.328 2.29466667,6.47766667 C2.676,6.63466667 3.07266667,6.70966667 3.47666667,6.70966667 C4.24,6.70966667 4.90566667,6.47766667 5.47433333,6.01366667 C6.043,5.55 6.417,4.94366667 6.58933333,4.203 C6.59666667,4.19566667 6.59666667,4.188 6.59666667,4.17333333 C6.59666667,4.13566667 6.58166667,4.106 6.55933333,4.076 C6.52933333,4.05366667 6.49933333,4.03866667 6.462,4.03866667 L5.66133333,4.03866667 C5.60166667,4.03866667 5.55666667,4.06833333 5.53433333,4.13566667 C5.41466667,4.41266667 5.34733333,4.57733333 5.30966667,4.622 C5.11533333,4.93633333 4.861,5.19066667 4.539,5.37033333 C4.21,5.55 3.86566667,5.63966667 3.49166667,5.63966667 C3.22233333,5.63966667 2.96066667,5.58733333 2.71366667,5.49 C2.45933333,5.39266667 2.23466667,5.25066667 2.04033333,5.06366667 L2.60866667,4.495 C2.66133333,4.44266667 2.691,4.37533333 2.691,4.308 C2.691,4.233 2.66133333,4.17333333 2.60866667,4.12066667 C2.55633333,4.06833333 2.49666667,4.03866667 2.42166667,4.03866667 L0.551333333,4.03866667 C0.484,4.03866667 0.416666667,4.06833333 0.364333333,4.12066667 C0.312,4.17333333 0.289333333,4.233 0.289333333,4.308 L0.289333333,6.17833333 C0.289333333,6.24566667 0.312,6.313 0.364333333,6.36533333 L0.364333333,6.36533333 Z M0.401666667,2.93133333 C0.424,2.95366667 0.461666667,2.96866667 0.499,2.96866667 L1.32933333,2.96866667 C1.38933333,2.96866667 1.42666667,2.93866667 1.449,2.87133333 C1.569,2.59466667 1.64366667,2.43 1.67366667,2.385 C1.868,2.07066667 2.13,1.81633333 2.45166667,1.637 C2.77333333,1.45733333 3.11766667,1.36733333 3.49166667,1.36733333 C4.053,1.36733333 4.539,1.55466667 4.95066667,1.936 L4.37466667,2.51233333 C4.32233333,2.56466667 4.29233333,2.632 4.29233333,2.69933333 C4.29233333,2.774 4.32233333,2.834 4.37466667,2.88633333 C4.427,2.93866667 4.48666667,2.96866667 4.56166667,2.96866667 L6.432,2.96866667 C6.507,2.96866667 6.56666667,2.93866667 6.619,2.88633333 C6.67133333,2.834 6.70133333,2.774 6.70133333,2.69933333 L6.70133333,0.828666667 C6.70133333,0.761333333 6.67133333,0.694 6.619,0.641666667 C6.56666667,0.589333333 6.507,0.567 6.432,0.567 C6.36466667,0.567 6.29733333,0.589333333 6.245,0.641666667 L5.699,1.18033333 C5.407,0.903666667 5.063,0.686666667 4.68133333,0.529666667 C4.29233333,0.372333333 3.89566667,0.297666667 3.49166667,0.297666667 C2.72866667,0.297666667 2.06266667,0.529666667 1.48666667,0.993333333 C0.918,1.45733333 0.543666667,2.06333333 0.364333333,2.804 L0.364333333,2.834 C0.364333333,2.87133333 0.371666667,2.90133333 0.401666667,2.93133333 L0.401666667,2.93133333 Z"
+                                                                                          id="Fill-15" stroke="none"
+                                                                                          fill="#1074ae"
+                                                                                          fill-rule="evenodd"></path>
+                                                                                </svg>
+                                                                                <div class="link-span refresh">Refresh</div>
+                                                                                <img  ng-if="refreshAdSetLoading===true" id="refreshButton" src="image/loading.gif">
+                                                                            </a>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <div class="col-lg-12">
-                                                                <div class="col-lg-10"
-                                                                     style="margin: 0px;padding: 0px;">
-                                                                    <select class="form-control m-b choose-text"
-                                                                            ng-show="((storedChannelName=='FacebookAds')&&(adSetEnable==true))"
-                                                                            ng-model="adSetOptionsModel"
-                                                                            ng-options="adSet.name for adSet in adSetList"
-                                                                            ng-change="fbAdsCheck('adset')">
-                                                                        <option value="">Select an Ad set</option>
-                                                                    </select>
-                                                                </div>
-                                                                <div class="col-lg-2">
-                                                                    <div class="infont col-md-1 col-sm-2"
-                                                                         ng-show="((storedChannelName=='FacebookAds')&&(adSetEnable==true))">
-                                                                        <a ng-click="refreshAdSet('fbAdSet')"
-                                                                           class="link-img">
-                                                                            <svg width="7px" height="7px"
-                                                                                 viewBox="0 0 7 7"
-                                                                                 version="1.1"
-                                                                                 xmlns="http://www.w3.org/2000/svg"
-                                                                                 xmlns:xlink="http://www.w3.org/1999/xlink">
-                                                                                <defs></defs>
-                                                                                <path d="M0.364333333,6.36533333 C0.416666667,6.41766667 0.484,6.44033333 0.551333333,6.44033333 C0.626,6.44033333 0.686,6.41766667 0.738333333,6.36533333 L1.277,5.82666667 C1.57633333,6.111 1.913,6.328 2.29466667,6.47766667 C2.676,6.63466667 3.07266667,6.70966667 3.47666667,6.70966667 C4.24,6.70966667 4.90566667,6.47766667 5.47433333,6.01366667 C6.043,5.55 6.417,4.94366667 6.58933333,4.203 C6.59666667,4.19566667 6.59666667,4.188 6.59666667,4.17333333 C6.59666667,4.13566667 6.58166667,4.106 6.55933333,4.076 C6.52933333,4.05366667 6.49933333,4.03866667 6.462,4.03866667 L5.66133333,4.03866667 C5.60166667,4.03866667 5.55666667,4.06833333 5.53433333,4.13566667 C5.41466667,4.41266667 5.34733333,4.57733333 5.30966667,4.622 C5.11533333,4.93633333 4.861,5.19066667 4.539,5.37033333 C4.21,5.55 3.86566667,5.63966667 3.49166667,5.63966667 C3.22233333,5.63966667 2.96066667,5.58733333 2.71366667,5.49 C2.45933333,5.39266667 2.23466667,5.25066667 2.04033333,5.06366667 L2.60866667,4.495 C2.66133333,4.44266667 2.691,4.37533333 2.691,4.308 C2.691,4.233 2.66133333,4.17333333 2.60866667,4.12066667 C2.55633333,4.06833333 2.49666667,4.03866667 2.42166667,4.03866667 L0.551333333,4.03866667 C0.484,4.03866667 0.416666667,4.06833333 0.364333333,4.12066667 C0.312,4.17333333 0.289333333,4.233 0.289333333,4.308 L0.289333333,6.17833333 C0.289333333,6.24566667 0.312,6.313 0.364333333,6.36533333 L0.364333333,6.36533333 Z M0.401666667,2.93133333 C0.424,2.95366667 0.461666667,2.96866667 0.499,2.96866667 L1.32933333,2.96866667 C1.38933333,2.96866667 1.42666667,2.93866667 1.449,2.87133333 C1.569,2.59466667 1.64366667,2.43 1.67366667,2.385 C1.868,2.07066667 2.13,1.81633333 2.45166667,1.637 C2.77333333,1.45733333 3.11766667,1.36733333 3.49166667,1.36733333 C4.053,1.36733333 4.539,1.55466667 4.95066667,1.936 L4.37466667,2.51233333 C4.32233333,2.56466667 4.29233333,2.632 4.29233333,2.69933333 C4.29233333,2.774 4.32233333,2.834 4.37466667,2.88633333 C4.427,2.93866667 4.48666667,2.96866667 4.56166667,2.96866667 L6.432,2.96866667 C6.507,2.96866667 6.56666667,2.93866667 6.619,2.88633333 C6.67133333,2.834 6.70133333,2.774 6.70133333,2.69933333 L6.70133333,0.828666667 C6.70133333,0.761333333 6.67133333,0.694 6.619,0.641666667 C6.56666667,0.589333333 6.507,0.567 6.432,0.567 C6.36466667,0.567 6.29733333,0.589333333 6.245,0.641666667 L5.699,1.18033333 C5.407,0.903666667 5.063,0.686666667 4.68133333,0.529666667 C4.29233333,0.372333333 3.89566667,0.297666667 3.49166667,0.297666667 C2.72866667,0.297666667 2.06266667,0.529666667 1.48666667,0.993333333 C0.918,1.45733333 0.543666667,2.06333333 0.364333333,2.804 L0.364333333,2.834 C0.364333333,2.87133333 0.371666667,2.90133333 0.401666667,2.93133333 L0.401666667,2.93133333 Z"
-                                                                                      id="Fill-15" stroke="none"
-                                                                                      fill="#1074ae"
-                                                                                      fill-rule="evenodd"></path>
-                                                                            </svg>
-                                                                            <div class="link-span refresh">Refresh</div>
-                                                                            <img  ng-if="refreshAdSetLoading===true" id="refreshButton" src="image/loading.gif">
-                                                                        </a>
+                                                            <div class="form-group">
+                                                                <div class="col-lg-12">
+                                                                    <div class="col-lg-10"
+                                                                         style="margin: 0px;padding: 0px;">
+                                                                        <select class="form-control m-b choose-text"
+                                                                                ng-show="((channel.name=='FacebookAds')&&(adSetAdsEnable==true))"
+                                                                                ng-model="adSetAdsOptionsModel"
+                                                                                ng-options="adSetAds.name for adSetAds in adSetAdsList"
+                                                                                ng-change="fbAdsCheck('adsetads')">
+                                                                            <option value="">Select an Ad</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="col-lg-2">
+                                                                        <div class="infont col-md-1 col-sm-2"
+                                                                             ng-show="((channel.name=='FacebookAds')&&(adSetAdsEnable==true))">
+                                                                            <a ng-click="refreshAdSetAds('fbAdSetAds')"
+                                                                               class="link-img">
+                                                                                <svg width="7px" height="7px"
+                                                                                     viewBox="0 0 7 7"
+                                                                                     version="1.1"
+                                                                                     xmlns="http://www.w3.org/2000/svg"
+                                                                                     xmlns:xlink="http://www.w3.org/1999/xlink">
+                                                                                    <defs></defs>
+                                                                                    <path d="M0.364333333,6.36533333 C0.416666667,6.41766667 0.484,6.44033333 0.551333333,6.44033333 C0.626,6.44033333 0.686,6.41766667 0.738333333,6.36533333 L1.277,5.82666667 C1.57633333,6.111 1.913,6.328 2.29466667,6.47766667 C2.676,6.63466667 3.07266667,6.70966667 3.47666667,6.70966667 C4.24,6.70966667 4.90566667,6.47766667 5.47433333,6.01366667 C6.043,5.55 6.417,4.94366667 6.58933333,4.203 C6.59666667,4.19566667 6.59666667,4.188 6.59666667,4.17333333 C6.59666667,4.13566667 6.58166667,4.106 6.55933333,4.076 C6.52933333,4.05366667 6.49933333,4.03866667 6.462,4.03866667 L5.66133333,4.03866667 C5.60166667,4.03866667 5.55666667,4.06833333 5.53433333,4.13566667 C5.41466667,4.41266667 5.34733333,4.57733333 5.30966667,4.622 C5.11533333,4.93633333 4.861,5.19066667 4.539,5.37033333 C4.21,5.55 3.86566667,5.63966667 3.49166667,5.63966667 C3.22233333,5.63966667 2.96066667,5.58733333 2.71366667,5.49 C2.45933333,5.39266667 2.23466667,5.25066667 2.04033333,5.06366667 L2.60866667,4.495 C2.66133333,4.44266667 2.691,4.37533333 2.691,4.308 C2.691,4.233 2.66133333,4.17333333 2.60866667,4.12066667 C2.55633333,4.06833333 2.49666667,4.03866667 2.42166667,4.03866667 L0.551333333,4.03866667 C0.484,4.03866667 0.416666667,4.06833333 0.364333333,4.12066667 C0.312,4.17333333 0.289333333,4.233 0.289333333,4.308 L0.289333333,6.17833333 C0.289333333,6.24566667 0.312,6.313 0.364333333,6.36533333 L0.364333333,6.36533333 Z M0.401666667,2.93133333 C0.424,2.95366667 0.461666667,2.96866667 0.499,2.96866667 L1.32933333,2.96866667 C1.38933333,2.96866667 1.42666667,2.93866667 1.449,2.87133333 C1.569,2.59466667 1.64366667,2.43 1.67366667,2.385 C1.868,2.07066667 2.13,1.81633333 2.45166667,1.637 C2.77333333,1.45733333 3.11766667,1.36733333 3.49166667,1.36733333 C4.053,1.36733333 4.539,1.55466667 4.95066667,1.936 L4.37466667,2.51233333 C4.32233333,2.56466667 4.29233333,2.632 4.29233333,2.69933333 C4.29233333,2.774 4.32233333,2.834 4.37466667,2.88633333 C4.427,2.93866667 4.48666667,2.96866667 4.56166667,2.96866667 L6.432,2.96866667 C6.507,2.96866667 6.56666667,2.93866667 6.619,2.88633333 C6.67133333,2.834 6.70133333,2.774 6.70133333,2.69933333 L6.70133333,0.828666667 C6.70133333,0.761333333 6.67133333,0.694 6.619,0.641666667 C6.56666667,0.589333333 6.507,0.567 6.432,0.567 C6.36466667,0.567 6.29733333,0.589333333 6.245,0.641666667 L5.699,1.18033333 C5.407,0.903666667 5.063,0.686666667 4.68133333,0.529666667 C4.29233333,0.372333333 3.89566667,0.297666667 3.49166667,0.297666667 C2.72866667,0.297666667 2.06266667,0.529666667 1.48666667,0.993333333 C0.918,1.45733333 0.543666667,2.06333333 0.364333333,2.804 L0.364333333,2.834 C0.364333333,2.87133333 0.371666667,2.90133333 0.401666667,2.93133333 L0.401666667,2.93133333 Z"
+                                                                                          id="Fill-15" stroke="none"
+                                                                                          fill="#1074ae"
+                                                                                          fill-rule="evenodd"></path>
+                                                                                </svg>
+                                                                                <div class="link-span refresh">Refresh</div>
+                                                                                <img ng-if="refreshAdSetAdsLoading===true" id="refreshButton" src="image/loading.gif">
+                                                                            </a>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <div class="col-lg-12">
-                                                                <div class="col-lg-10"
-                                                                     style="margin: 0px;padding: 0px;">
+                                                            <div class="form-group">
+                                                                <div class="col-lg-12">
                                                                     <select class="form-control m-b choose-text"
-                                                                            ng-show="((storedChannelName=='FacebookAds')&&(adSetAdsEnable==true))"
-                                                                            ng-model="adSetAdsOptionsModel"
-                                                                            ng-options="adSetAds.name for adSetAds in adSetAdsList"
-                                                                            ng-change="fbAdsCheck('adsetads')">
-                                                                        <option value="">Select an Ad</option>
+                                                                            ng-show="((channel.name=='GoogleAdwords')&&(googleSelectEnable==true))"
+                                                                            ng-model="objectTypeOptionsModel[$parent.$index]"
+                                                                            ng-options="objectType.name for objectType in googleObjectTypeList"
+                                                                            ng-change="googleSelectLevelChosen('level',$parent.$index)">
+                                                                        <option value="">Choose the Granularity</option>
                                                                     </select>
                                                                 </div>
-                                                                <div class="col-lg-2">
-                                                                    <div class="infont col-md-1 col-sm-2"
-                                                                         ng-show="((storedChannelName=='FacebookAds')&&(adSetAdsEnable==true))">
-                                                                        <a ng-click="refreshAdSetAds('fbAdSetAds')"
-                                                                           class="link-img">
-                                                                            <svg width="7px" height="7px"
-                                                                                 viewBox="0 0 7 7"
-                                                                                 version="1.1"
-                                                                                 xmlns="http://www.w3.org/2000/svg"
-                                                                                 xmlns:xlink="http://www.w3.org/1999/xlink">
-                                                                                <defs></defs>
-                                                                                <path d="M0.364333333,6.36533333 C0.416666667,6.41766667 0.484,6.44033333 0.551333333,6.44033333 C0.626,6.44033333 0.686,6.41766667 0.738333333,6.36533333 L1.277,5.82666667 C1.57633333,6.111 1.913,6.328 2.29466667,6.47766667 C2.676,6.63466667 3.07266667,6.70966667 3.47666667,6.70966667 C4.24,6.70966667 4.90566667,6.47766667 5.47433333,6.01366667 C6.043,5.55 6.417,4.94366667 6.58933333,4.203 C6.59666667,4.19566667 6.59666667,4.188 6.59666667,4.17333333 C6.59666667,4.13566667 6.58166667,4.106 6.55933333,4.076 C6.52933333,4.05366667 6.49933333,4.03866667 6.462,4.03866667 L5.66133333,4.03866667 C5.60166667,4.03866667 5.55666667,4.06833333 5.53433333,4.13566667 C5.41466667,4.41266667 5.34733333,4.57733333 5.30966667,4.622 C5.11533333,4.93633333 4.861,5.19066667 4.539,5.37033333 C4.21,5.55 3.86566667,5.63966667 3.49166667,5.63966667 C3.22233333,5.63966667 2.96066667,5.58733333 2.71366667,5.49 C2.45933333,5.39266667 2.23466667,5.25066667 2.04033333,5.06366667 L2.60866667,4.495 C2.66133333,4.44266667 2.691,4.37533333 2.691,4.308 C2.691,4.233 2.66133333,4.17333333 2.60866667,4.12066667 C2.55633333,4.06833333 2.49666667,4.03866667 2.42166667,4.03866667 L0.551333333,4.03866667 C0.484,4.03866667 0.416666667,4.06833333 0.364333333,4.12066667 C0.312,4.17333333 0.289333333,4.233 0.289333333,4.308 L0.289333333,6.17833333 C0.289333333,6.24566667 0.312,6.313 0.364333333,6.36533333 L0.364333333,6.36533333 Z M0.401666667,2.93133333 C0.424,2.95366667 0.461666667,2.96866667 0.499,2.96866667 L1.32933333,2.96866667 C1.38933333,2.96866667 1.42666667,2.93866667 1.449,2.87133333 C1.569,2.59466667 1.64366667,2.43 1.67366667,2.385 C1.868,2.07066667 2.13,1.81633333 2.45166667,1.637 C2.77333333,1.45733333 3.11766667,1.36733333 3.49166667,1.36733333 C4.053,1.36733333 4.539,1.55466667 4.95066667,1.936 L4.37466667,2.51233333 C4.32233333,2.56466667 4.29233333,2.632 4.29233333,2.69933333 C4.29233333,2.774 4.32233333,2.834 4.37466667,2.88633333 C4.427,2.93866667 4.48666667,2.96866667 4.56166667,2.96866667 L6.432,2.96866667 C6.507,2.96866667 6.56666667,2.93866667 6.619,2.88633333 C6.67133333,2.834 6.70133333,2.774 6.70133333,2.69933333 L6.70133333,0.828666667 C6.70133333,0.761333333 6.67133333,0.694 6.619,0.641666667 C6.56666667,0.589333333 6.507,0.567 6.432,0.567 C6.36466667,0.567 6.29733333,0.589333333 6.245,0.641666667 L5.699,1.18033333 C5.407,0.903666667 5.063,0.686666667 4.68133333,0.529666667 C4.29233333,0.372333333 3.89566667,0.297666667 3.49166667,0.297666667 C2.72866667,0.297666667 2.06266667,0.529666667 1.48666667,0.993333333 C0.918,1.45733333 0.543666667,2.06333333 0.364333333,2.804 L0.364333333,2.834 C0.364333333,2.87133333 0.371666667,2.90133333 0.401666667,2.93133333 L0.401666667,2.93133333 Z"
-                                                                                      id="Fill-15" stroke="none"
-                                                                                      fill="#1074ae"
-                                                                                      fill-rule="evenodd"></path>
-                                                                            </svg>
-                                                                            <div class="link-span refresh">Refresh</div>
-                                                                            <img ng-if="refreshAdSetAdsLoading===true" id="refreshButton" src="image/loading.gif">
-                                                                        </a>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <div class="col-lg-12">
+                                                                    <div class="col-lg-10"
+                                                                         style="margin: 0px;padding: 0px;">
+                                                                        <select class="form-control m-b choose-text"
+                                                                                ng-show="((channel.name== 'GoogleAdwords')&&(googleCampaignEnable==true))"
+                                                                                ng-model="googleCampaignOptionsModel"
+                                                                                ng-options="campaign.name for campaign in googleCampaignList"
+                                                                                ng-change="googleAdsCheck('campaign')">
+                                                                            <option value="">Select an Ad Campaign
+                                                                            </option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="col-lg-2">
+                                                                        <div class="infont col-md-1 col-sm-2"
+                                                                             ng-show="((channel.name== 'GoogleAdwords')&&(googleCampaignEnable==true))">
+                                                                            <a ng-click="refreshGoogleCampaign('adwordCampaign')"
+                                                                               class="link-img">
+                                                                                <svg width="7px" height="7px"
+                                                                                     viewBox="0 0 7 7"
+                                                                                     version="1.1"
+                                                                                     xmlns="http://www.w3.org/2000/svg"
+                                                                                     xmlns:xlink="http://www.w3.org/1999/xlink">
+                                                                                    <defs></defs>
+                                                                                    <path d="M0.364333333,6.36533333 C0.416666667,6.41766667 0.484,6.44033333 0.551333333,6.44033333 C0.626,6.44033333 0.686,6.41766667 0.738333333,6.36533333 L1.277,5.82666667 C1.57633333,6.111 1.913,6.328 2.29466667,6.47766667 C2.676,6.63466667 3.07266667,6.70966667 3.47666667,6.70966667 C4.24,6.70966667 4.90566667,6.47766667 5.47433333,6.01366667 C6.043,5.55 6.417,4.94366667 6.58933333,4.203 C6.59666667,4.19566667 6.59666667,4.188 6.59666667,4.17333333 C6.59666667,4.13566667 6.58166667,4.106 6.55933333,4.076 C6.52933333,4.05366667 6.49933333,4.03866667 6.462,4.03866667 L5.66133333,4.03866667 C5.60166667,4.03866667 5.55666667,4.06833333 5.53433333,4.13566667 C5.41466667,4.41266667 5.34733333,4.57733333 5.30966667,4.622 C5.11533333,4.93633333 4.861,5.19066667 4.539,5.37033333 C4.21,5.55 3.86566667,5.63966667 3.49166667,5.63966667 C3.22233333,5.63966667 2.96066667,5.58733333 2.71366667,5.49 C2.45933333,5.39266667 2.23466667,5.25066667 2.04033333,5.06366667 L2.60866667,4.495 C2.66133333,4.44266667 2.691,4.37533333 2.691,4.308 C2.691,4.233 2.66133333,4.17333333 2.60866667,4.12066667 C2.55633333,4.06833333 2.49666667,4.03866667 2.42166667,4.03866667 L0.551333333,4.03866667 C0.484,4.03866667 0.416666667,4.06833333 0.364333333,4.12066667 C0.312,4.17333333 0.289333333,4.233 0.289333333,4.308 L0.289333333,6.17833333 C0.289333333,6.24566667 0.312,6.313 0.364333333,6.36533333 L0.364333333,6.36533333 Z M0.401666667,2.93133333 C0.424,2.95366667 0.461666667,2.96866667 0.499,2.96866667 L1.32933333,2.96866667 C1.38933333,2.96866667 1.42666667,2.93866667 1.449,2.87133333 C1.569,2.59466667 1.64366667,2.43 1.67366667,2.385 C1.868,2.07066667 2.13,1.81633333 2.45166667,1.637 C2.77333333,1.45733333 3.11766667,1.36733333 3.49166667,1.36733333 C4.053,1.36733333 4.539,1.55466667 4.95066667,1.936 L4.37466667,2.51233333 C4.32233333,2.56466667 4.29233333,2.632 4.29233333,2.69933333 C4.29233333,2.774 4.32233333,2.834 4.37466667,2.88633333 C4.427,2.93866667 4.48666667,2.96866667 4.56166667,2.96866667 L6.432,2.96866667 C6.507,2.96866667 6.56666667,2.93866667 6.619,2.88633333 C6.67133333,2.834 6.70133333,2.774 6.70133333,2.69933333 L6.70133333,0.828666667 C6.70133333,0.761333333 6.67133333,0.694 6.619,0.641666667 C6.56666667,0.589333333 6.507,0.567 6.432,0.567 C6.36466667,0.567 6.29733333,0.589333333 6.245,0.641666667 L5.699,1.18033333 C5.407,0.903666667 5.063,0.686666667 4.68133333,0.529666667 C4.29233333,0.372333333 3.89566667,0.297666667 3.49166667,0.297666667 C2.72866667,0.297666667 2.06266667,0.529666667 1.48666667,0.993333333 C0.918,1.45733333 0.543666667,2.06333333 0.364333333,2.804 L0.364333333,2.834 C0.364333333,2.87133333 0.371666667,2.90133333 0.401666667,2.93133333 L0.401666667,2.93133333 Z"
+                                                                                          id="Fill-15" stroke="none"
+                                                                                          fill="#1074ae"
+                                                                                          fill-rule="evenodd"></path>
+                                                                                </svg>
+                                                                                <div class="link-span refresh">Refresh</div>
+                                                                                <img ng-if="refreshGoogleCampaignLoading===true" id="refreshButton" src="image/loading.gif">
+                                                                            </a>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <div class="col-lg-12">
-                                                                <select class="form-control m-b choose-text"
-                                                                        ng-show="((storedChannelName=='GoogleAdwords')&&(selectEnable==true))"
-                                                                        ng-model="objectTypeOptionsModel"
-                                                                        ng-options="objectType.name for objectType in googleObjectTypeList"
-                                                                        ng-change="googleSelectLevelChosen('level')">
-                                                                    <option value="">Choose the Granularity</option>
-                                                                </select>
-                                                            </div>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <div class="col-lg-12">
-                                                                <div class="col-lg-10"
-                                                                     style="margin: 0px;padding: 0px;">
-                                                                    <select class="form-control m-b choose-text"
-                                                                            ng-show="((storedChannelName== 'GoogleAdwords')&&(googleCampaignEnable==true))"
-                                                                            ng-model="googleCampaignOptionsModel"
-                                                                            ng-options="campaign.name for campaign in googleCampaignList"
-                                                                            ng-change="googleAdsCheck('campaign')">
-                                                                        <option value="">Select an Ad Campaign
-                                                                        </option>
-                                                                    </select>
-                                                                </div>
-                                                                <div class="col-lg-2">
-                                                                    <div class="infont col-md-1 col-sm-2"
-                                                                         ng-show="((storedChannelName== 'GoogleAdwords')&&(googleCampaignEnable==true))">
-                                                                        <a ng-click="refreshGoogleCampaign('adwordCampaign')"
-                                                                           class="link-img">
-                                                                            <svg width="7px" height="7px"
-                                                                                 viewBox="0 0 7 7"
-                                                                                 version="1.1"
-                                                                                 xmlns="http://www.w3.org/2000/svg"
-                                                                                 xmlns:xlink="http://www.w3.org/1999/xlink">
-                                                                                <defs></defs>
-                                                                                <path d="M0.364333333,6.36533333 C0.416666667,6.41766667 0.484,6.44033333 0.551333333,6.44033333 C0.626,6.44033333 0.686,6.41766667 0.738333333,6.36533333 L1.277,5.82666667 C1.57633333,6.111 1.913,6.328 2.29466667,6.47766667 C2.676,6.63466667 3.07266667,6.70966667 3.47666667,6.70966667 C4.24,6.70966667 4.90566667,6.47766667 5.47433333,6.01366667 C6.043,5.55 6.417,4.94366667 6.58933333,4.203 C6.59666667,4.19566667 6.59666667,4.188 6.59666667,4.17333333 C6.59666667,4.13566667 6.58166667,4.106 6.55933333,4.076 C6.52933333,4.05366667 6.49933333,4.03866667 6.462,4.03866667 L5.66133333,4.03866667 C5.60166667,4.03866667 5.55666667,4.06833333 5.53433333,4.13566667 C5.41466667,4.41266667 5.34733333,4.57733333 5.30966667,4.622 C5.11533333,4.93633333 4.861,5.19066667 4.539,5.37033333 C4.21,5.55 3.86566667,5.63966667 3.49166667,5.63966667 C3.22233333,5.63966667 2.96066667,5.58733333 2.71366667,5.49 C2.45933333,5.39266667 2.23466667,5.25066667 2.04033333,5.06366667 L2.60866667,4.495 C2.66133333,4.44266667 2.691,4.37533333 2.691,4.308 C2.691,4.233 2.66133333,4.17333333 2.60866667,4.12066667 C2.55633333,4.06833333 2.49666667,4.03866667 2.42166667,4.03866667 L0.551333333,4.03866667 C0.484,4.03866667 0.416666667,4.06833333 0.364333333,4.12066667 C0.312,4.17333333 0.289333333,4.233 0.289333333,4.308 L0.289333333,6.17833333 C0.289333333,6.24566667 0.312,6.313 0.364333333,6.36533333 L0.364333333,6.36533333 Z M0.401666667,2.93133333 C0.424,2.95366667 0.461666667,2.96866667 0.499,2.96866667 L1.32933333,2.96866667 C1.38933333,2.96866667 1.42666667,2.93866667 1.449,2.87133333 C1.569,2.59466667 1.64366667,2.43 1.67366667,2.385 C1.868,2.07066667 2.13,1.81633333 2.45166667,1.637 C2.77333333,1.45733333 3.11766667,1.36733333 3.49166667,1.36733333 C4.053,1.36733333 4.539,1.55466667 4.95066667,1.936 L4.37466667,2.51233333 C4.32233333,2.56466667 4.29233333,2.632 4.29233333,2.69933333 C4.29233333,2.774 4.32233333,2.834 4.37466667,2.88633333 C4.427,2.93866667 4.48666667,2.96866667 4.56166667,2.96866667 L6.432,2.96866667 C6.507,2.96866667 6.56666667,2.93866667 6.619,2.88633333 C6.67133333,2.834 6.70133333,2.774 6.70133333,2.69933333 L6.70133333,0.828666667 C6.70133333,0.761333333 6.67133333,0.694 6.619,0.641666667 C6.56666667,0.589333333 6.507,0.567 6.432,0.567 C6.36466667,0.567 6.29733333,0.589333333 6.245,0.641666667 L5.699,1.18033333 C5.407,0.903666667 5.063,0.686666667 4.68133333,0.529666667 C4.29233333,0.372333333 3.89566667,0.297666667 3.49166667,0.297666667 C2.72866667,0.297666667 2.06266667,0.529666667 1.48666667,0.993333333 C0.918,1.45733333 0.543666667,2.06333333 0.364333333,2.804 L0.364333333,2.834 C0.364333333,2.87133333 0.371666667,2.90133333 0.401666667,2.93133333 L0.401666667,2.93133333 Z"
-                                                                                      id="Fill-15" stroke="none"
-                                                                                      fill="#1074ae"
-                                                                                      fill-rule="evenodd"></path>
-                                                                            </svg>
-                                                                            <div class="link-span refresh">Refresh</div>
-                                                                            <img ng-if="refreshGoogleCampaignLoading===true" id="refreshButton" src="image/loading.gif">
-                                                                        </a>
+                                                            <div class="form-group">
+                                                                <div class="col-lg-12">
+                                                                    <div class="col-lg-10"
+                                                                         style="margin: 0px;padding: 0px;">
+                                                                        <select class="form-control m-b choose-text"
+                                                                                ng-show="((channel.name=='GoogleAdwords')&&(groupEnable==true))"
+                                                                                ng-model="groupOptionsModel"
+                                                                                ng-options="group.name for group in groupList"
+                                                                                ng-change="googleAdsCheck('group')">
+                                                                            <option value="">Select an Ad group</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="col-lg-2">
+                                                                        <div class="infont col-md-1 col-sm-2"
+                                                                             ng-show="((channel.name=='GoogleAdwords')&&(groupEnable==true))">
+                                                                            <a ng-click="refreshGroup('adwordAdgroup')"
+                                                                               class="link-img">
+                                                                                <svg width="7px" height="7px"
+                                                                                     viewBox="0 0 7 7"
+                                                                                     version="1.1"
+                                                                                     xmlns="http://www.w3.org/2000/svg"
+                                                                                     xmlns:xlink="http://www.w3.org/1999/xlink">
+                                                                                    <defs></defs>
+                                                                                    <path d="M0.364333333,6.36533333 C0.416666667,6.41766667 0.484,6.44033333 0.551333333,6.44033333 C0.626,6.44033333 0.686,6.41766667 0.738333333,6.36533333 L1.277,5.82666667 C1.57633333,6.111 1.913,6.328 2.29466667,6.47766667 C2.676,6.63466667 3.07266667,6.70966667 3.47666667,6.70966667 C4.24,6.70966667 4.90566667,6.47766667 5.47433333,6.01366667 C6.043,5.55 6.417,4.94366667 6.58933333,4.203 C6.59666667,4.19566667 6.59666667,4.188 6.59666667,4.17333333 C6.59666667,4.13566667 6.58166667,4.106 6.55933333,4.076 C6.52933333,4.05366667 6.49933333,4.03866667 6.462,4.03866667 L5.66133333,4.03866667 C5.60166667,4.03866667 5.55666667,4.06833333 5.53433333,4.13566667 C5.41466667,4.41266667 5.34733333,4.57733333 5.30966667,4.622 C5.11533333,4.93633333 4.861,5.19066667 4.539,5.37033333 C4.21,5.55 3.86566667,5.63966667 3.49166667,5.63966667 C3.22233333,5.63966667 2.96066667,5.58733333 2.71366667,5.49 C2.45933333,5.39266667 2.23466667,5.25066667 2.04033333,5.06366667 L2.60866667,4.495 C2.66133333,4.44266667 2.691,4.37533333 2.691,4.308 C2.691,4.233 2.66133333,4.17333333 2.60866667,4.12066667 C2.55633333,4.06833333 2.49666667,4.03866667 2.42166667,4.03866667 L0.551333333,4.03866667 C0.484,4.03866667 0.416666667,4.06833333 0.364333333,4.12066667 C0.312,4.17333333 0.289333333,4.233 0.289333333,4.308 L0.289333333,6.17833333 C0.289333333,6.24566667 0.312,6.313 0.364333333,6.36533333 L0.364333333,6.36533333 Z M0.401666667,2.93133333 C0.424,2.95366667 0.461666667,2.96866667 0.499,2.96866667 L1.32933333,2.96866667 C1.38933333,2.96866667 1.42666667,2.93866667 1.449,2.87133333 C1.569,2.59466667 1.64366667,2.43 1.67366667,2.385 C1.868,2.07066667 2.13,1.81633333 2.45166667,1.637 C2.77333333,1.45733333 3.11766667,1.36733333 3.49166667,1.36733333 C4.053,1.36733333 4.539,1.55466667 4.95066667,1.936 L4.37466667,2.51233333 C4.32233333,2.56466667 4.29233333,2.632 4.29233333,2.69933333 C4.29233333,2.774 4.32233333,2.834 4.37466667,2.88633333 C4.427,2.93866667 4.48666667,2.96866667 4.56166667,2.96866667 L6.432,2.96866667 C6.507,2.96866667 6.56666667,2.93866667 6.619,2.88633333 C6.67133333,2.834 6.70133333,2.774 6.70133333,2.69933333 L6.70133333,0.828666667 C6.70133333,0.761333333 6.67133333,0.694 6.619,0.641666667 C6.56666667,0.589333333 6.507,0.567 6.432,0.567 C6.36466667,0.567 6.29733333,0.589333333 6.245,0.641666667 L5.699,1.18033333 C5.407,0.903666667 5.063,0.686666667 4.68133333,0.529666667 C4.29233333,0.372333333 3.89566667,0.297666667 3.49166667,0.297666667 C2.72866667,0.297666667 2.06266667,0.529666667 1.48666667,0.993333333 C0.918,1.45733333 0.543666667,2.06333333 0.364333333,2.804 L0.364333333,2.834 C0.364333333,2.87133333 0.371666667,2.90133333 0.401666667,2.93133333 L0.401666667,2.93133333 Z"
+                                                                                          id="Fill-15" stroke="none"
+                                                                                          fill="#1074ae"
+                                                                                          fill-rule="evenodd"></path>
+                                                                                </svg>
+                                                                                <div class="link-span refresh">Refresh</div>
+                                                                                <img ng-if="refreshGroupLoading===true" id="refreshButton" src="image/loading.gif">
+                                                                            </a>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <div class="col-lg-12">
-                                                                <div class="col-lg-10"
-                                                                     style="margin: 0px;padding: 0px;">
-                                                                    <select class="form-control m-b choose-text"
-                                                                            ng-show="((storedChannelName=='GoogleAdwords')&&(groupEnable==true))"
-                                                                            ng-model="groupOptionsModel"
-                                                                            ng-options="group.name for group in groupList"
-                                                                            ng-change="googleAdsCheck('group')">
-                                                                        <option value="">Select an Ad group</option>
-                                                                    </select>
-                                                                </div>
-                                                                <div class="col-lg-2">
-                                                                    <div class="infont col-md-1 col-sm-2"
-                                                                         ng-show="((storedChannelName=='GoogleAdwords')&&(groupEnable==true))">
-                                                                        <a ng-click="refreshGroup('adwordAdgroup')"
-                                                                           class="link-img">
-                                                                            <svg width="7px" height="7px"
-                                                                                 viewBox="0 0 7 7"
-                                                                                 version="1.1"
-                                                                                 xmlns="http://www.w3.org/2000/svg"
-                                                                                 xmlns:xlink="http://www.w3.org/1999/xlink">
-                                                                                <defs></defs>
-                                                                                <path d="M0.364333333,6.36533333 C0.416666667,6.41766667 0.484,6.44033333 0.551333333,6.44033333 C0.626,6.44033333 0.686,6.41766667 0.738333333,6.36533333 L1.277,5.82666667 C1.57633333,6.111 1.913,6.328 2.29466667,6.47766667 C2.676,6.63466667 3.07266667,6.70966667 3.47666667,6.70966667 C4.24,6.70966667 4.90566667,6.47766667 5.47433333,6.01366667 C6.043,5.55 6.417,4.94366667 6.58933333,4.203 C6.59666667,4.19566667 6.59666667,4.188 6.59666667,4.17333333 C6.59666667,4.13566667 6.58166667,4.106 6.55933333,4.076 C6.52933333,4.05366667 6.49933333,4.03866667 6.462,4.03866667 L5.66133333,4.03866667 C5.60166667,4.03866667 5.55666667,4.06833333 5.53433333,4.13566667 C5.41466667,4.41266667 5.34733333,4.57733333 5.30966667,4.622 C5.11533333,4.93633333 4.861,5.19066667 4.539,5.37033333 C4.21,5.55 3.86566667,5.63966667 3.49166667,5.63966667 C3.22233333,5.63966667 2.96066667,5.58733333 2.71366667,5.49 C2.45933333,5.39266667 2.23466667,5.25066667 2.04033333,5.06366667 L2.60866667,4.495 C2.66133333,4.44266667 2.691,4.37533333 2.691,4.308 C2.691,4.233 2.66133333,4.17333333 2.60866667,4.12066667 C2.55633333,4.06833333 2.49666667,4.03866667 2.42166667,4.03866667 L0.551333333,4.03866667 C0.484,4.03866667 0.416666667,4.06833333 0.364333333,4.12066667 C0.312,4.17333333 0.289333333,4.233 0.289333333,4.308 L0.289333333,6.17833333 C0.289333333,6.24566667 0.312,6.313 0.364333333,6.36533333 L0.364333333,6.36533333 Z M0.401666667,2.93133333 C0.424,2.95366667 0.461666667,2.96866667 0.499,2.96866667 L1.32933333,2.96866667 C1.38933333,2.96866667 1.42666667,2.93866667 1.449,2.87133333 C1.569,2.59466667 1.64366667,2.43 1.67366667,2.385 C1.868,2.07066667 2.13,1.81633333 2.45166667,1.637 C2.77333333,1.45733333 3.11766667,1.36733333 3.49166667,1.36733333 C4.053,1.36733333 4.539,1.55466667 4.95066667,1.936 L4.37466667,2.51233333 C4.32233333,2.56466667 4.29233333,2.632 4.29233333,2.69933333 C4.29233333,2.774 4.32233333,2.834 4.37466667,2.88633333 C4.427,2.93866667 4.48666667,2.96866667 4.56166667,2.96866667 L6.432,2.96866667 C6.507,2.96866667 6.56666667,2.93866667 6.619,2.88633333 C6.67133333,2.834 6.70133333,2.774 6.70133333,2.69933333 L6.70133333,0.828666667 C6.70133333,0.761333333 6.67133333,0.694 6.619,0.641666667 C6.56666667,0.589333333 6.507,0.567 6.432,0.567 C6.36466667,0.567 6.29733333,0.589333333 6.245,0.641666667 L5.699,1.18033333 C5.407,0.903666667 5.063,0.686666667 4.68133333,0.529666667 C4.29233333,0.372333333 3.89566667,0.297666667 3.49166667,0.297666667 C2.72866667,0.297666667 2.06266667,0.529666667 1.48666667,0.993333333 C0.918,1.45733333 0.543666667,2.06333333 0.364333333,2.804 L0.364333333,2.834 C0.364333333,2.87133333 0.371666667,2.90133333 0.401666667,2.93133333 L0.401666667,2.93133333 Z"
-                                                                                      id="Fill-15" stroke="none"
-                                                                                      fill="#1074ae"
-                                                                                      fill-rule="evenodd"></path>
-                                                                            </svg>
-                                                                            <div class="link-span refresh">Refresh</div>
-                                                                            <img ng-if="refreshGroupLoading===true" id="refreshButton" src="image/loading.gif">
-                                                                        </a>
+                                                            <div class="form-group">
+                                                                <div class="col-lg-12">
+                                                                    <div class="col-lg-10"
+                                                                         style="margin: 0px;padding: 0px;">
+                                                                        <select class="form-control m-b choose-text"
+                                                                                ng-show="((channel.name=='GoogleAdwords')&&(adEnable==true))"
+                                                                                ng-model="adOptionsModel"
+                                                                                ng-options="ad.name for ad in adList"
+                                                                                ng-change="googleAdsCheck('ads')">
+                                                                            <option value="">Select an Ad</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="col-lg-2">
+                                                                        <div class="infont col-md-1 col-sm-2"
+                                                                             ng-show="((channel.name=='GoogleAdwords')&&(adEnable==true))">
+                                                                            <a ng-click="refreshAd('adwordsAd')"
+                                                                               class="link-img">
+                                                                                <svg width="7px" height="7px"
+                                                                                     viewBox="0 0 7 7"
+                                                                                     version="1.1"
+                                                                                     xmlns="http://www.w3.org/2000/svg"
+                                                                                     xmlns:xlink="http://www.w3.org/1999/xlink">
+                                                                                    <defs></defs>
+                                                                                    <path d="M0.364333333,6.36533333 C0.416666667,6.41766667 0.484,6.44033333 0.551333333,6.44033333 C0.626,6.44033333 0.686,6.41766667 0.738333333,6.36533333 L1.277,5.82666667 C1.57633333,6.111 1.913,6.328 2.29466667,6.47766667 C2.676,6.63466667 3.07266667,6.70966667 3.47666667,6.70966667 C4.24,6.70966667 4.90566667,6.47766667 5.47433333,6.01366667 C6.043,5.55 6.417,4.94366667 6.58933333,4.203 C6.59666667,4.19566667 6.59666667,4.188 6.59666667,4.17333333 C6.59666667,4.13566667 6.58166667,4.106 6.55933333,4.076 C6.52933333,4.05366667 6.49933333,4.03866667 6.462,4.03866667 L5.66133333,4.03866667 C5.60166667,4.03866667 5.55666667,4.06833333 5.53433333,4.13566667 C5.41466667,4.41266667 5.34733333,4.57733333 5.30966667,4.622 C5.11533333,4.93633333 4.861,5.19066667 4.539,5.37033333 C4.21,5.55 3.86566667,5.63966667 3.49166667,5.63966667 C3.22233333,5.63966667 2.96066667,5.58733333 2.71366667,5.49 C2.45933333,5.39266667 2.23466667,5.25066667 2.04033333,5.06366667 L2.60866667,4.495 C2.66133333,4.44266667 2.691,4.37533333 2.691,4.308 C2.691,4.233 2.66133333,4.17333333 2.60866667,4.12066667 C2.55633333,4.06833333 2.49666667,4.03866667 2.42166667,4.03866667 L0.551333333,4.03866667 C0.484,4.03866667 0.416666667,4.06833333 0.364333333,4.12066667 C0.312,4.17333333 0.289333333,4.233 0.289333333,4.308 L0.289333333,6.17833333 C0.289333333,6.24566667 0.312,6.313 0.364333333,6.36533333 L0.364333333,6.36533333 Z M0.401666667,2.93133333 C0.424,2.95366667 0.461666667,2.96866667 0.499,2.96866667 L1.32933333,2.96866667 C1.38933333,2.96866667 1.42666667,2.93866667 1.449,2.87133333 C1.569,2.59466667 1.64366667,2.43 1.67366667,2.385 C1.868,2.07066667 2.13,1.81633333 2.45166667,1.637 C2.77333333,1.45733333 3.11766667,1.36733333 3.49166667,1.36733333 C4.053,1.36733333 4.539,1.55466667 4.95066667,1.936 L4.37466667,2.51233333 C4.32233333,2.56466667 4.29233333,2.632 4.29233333,2.69933333 C4.29233333,2.774 4.32233333,2.834 4.37466667,2.88633333 C4.427,2.93866667 4.48666667,2.96866667 4.56166667,2.96866667 L6.432,2.96866667 C6.507,2.96866667 6.56666667,2.93866667 6.619,2.88633333 C6.67133333,2.834 6.70133333,2.774 6.70133333,2.69933333 L6.70133333,0.828666667 C6.70133333,0.761333333 6.67133333,0.694 6.619,0.641666667 C6.56666667,0.589333333 6.507,0.567 6.432,0.567 C6.36466667,0.567 6.29733333,0.589333333 6.245,0.641666667 L5.699,1.18033333 C5.407,0.903666667 5.063,0.686666667 4.68133333,0.529666667 C4.29233333,0.372333333 3.89566667,0.297666667 3.49166667,0.297666667 C2.72866667,0.297666667 2.06266667,0.529666667 1.48666667,0.993333333 C0.918,1.45733333 0.543666667,2.06333333 0.364333333,2.804 L0.364333333,2.834 C0.364333333,2.87133333 0.371666667,2.90133333 0.401666667,2.93133333 L0.401666667,2.93133333 Z"
+                                                                                          id="Fill-15" stroke="none"
+                                                                                          fill="#1074ae"
+                                                                                          fill-rule="evenodd"></path>
+                                                                                </svg>
+                                                                                <div class="link-span refresh">Refresh</div>
+                                                                                <img ng-if="refreshAdLoading===true" id="refreshButton" src="image/loading.gif">
+                                                                            </a>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <div class="col-lg-12">
-                                                                <div class="col-lg-10"
-                                                                     style="margin: 0px;padding: 0px;">
-                                                                    <select class="form-control m-b choose-text"
-                                                                            ng-show="((storedChannelName=='GoogleAdwords')&&(adEnable==true))"
-                                                                            ng-model="adOptionsModel"
-                                                                            ng-options="ad.name for ad in adList"
-                                                                            ng-change="googleAdsCheck('ads')">
-                                                                        <option value="">Select an Ad</option>
-                                                                    </select>
-                                                                </div>
-                                                                <div class="col-lg-2">
-                                                                    <div class="infont col-md-1 col-sm-2"
-                                                                         ng-show="((storedChannelName=='GoogleAdwords')&&(adEnable==true))">
-                                                                        <a ng-click="refreshAd('adwordsAd')"
-                                                                           class="link-img">
-                                                                            <svg width="7px" height="7px"
-                                                                                 viewBox="0 0 7 7"
-                                                                                 version="1.1"
-                                                                                 xmlns="http://www.w3.org/2000/svg"
-                                                                                 xmlns:xlink="http://www.w3.org/1999/xlink">
-                                                                                <defs></defs>
-                                                                                <path d="M0.364333333,6.36533333 C0.416666667,6.41766667 0.484,6.44033333 0.551333333,6.44033333 C0.626,6.44033333 0.686,6.41766667 0.738333333,6.36533333 L1.277,5.82666667 C1.57633333,6.111 1.913,6.328 2.29466667,6.47766667 C2.676,6.63466667 3.07266667,6.70966667 3.47666667,6.70966667 C4.24,6.70966667 4.90566667,6.47766667 5.47433333,6.01366667 C6.043,5.55 6.417,4.94366667 6.58933333,4.203 C6.59666667,4.19566667 6.59666667,4.188 6.59666667,4.17333333 C6.59666667,4.13566667 6.58166667,4.106 6.55933333,4.076 C6.52933333,4.05366667 6.49933333,4.03866667 6.462,4.03866667 L5.66133333,4.03866667 C5.60166667,4.03866667 5.55666667,4.06833333 5.53433333,4.13566667 C5.41466667,4.41266667 5.34733333,4.57733333 5.30966667,4.622 C5.11533333,4.93633333 4.861,5.19066667 4.539,5.37033333 C4.21,5.55 3.86566667,5.63966667 3.49166667,5.63966667 C3.22233333,5.63966667 2.96066667,5.58733333 2.71366667,5.49 C2.45933333,5.39266667 2.23466667,5.25066667 2.04033333,5.06366667 L2.60866667,4.495 C2.66133333,4.44266667 2.691,4.37533333 2.691,4.308 C2.691,4.233 2.66133333,4.17333333 2.60866667,4.12066667 C2.55633333,4.06833333 2.49666667,4.03866667 2.42166667,4.03866667 L0.551333333,4.03866667 C0.484,4.03866667 0.416666667,4.06833333 0.364333333,4.12066667 C0.312,4.17333333 0.289333333,4.233 0.289333333,4.308 L0.289333333,6.17833333 C0.289333333,6.24566667 0.312,6.313 0.364333333,6.36533333 L0.364333333,6.36533333 Z M0.401666667,2.93133333 C0.424,2.95366667 0.461666667,2.96866667 0.499,2.96866667 L1.32933333,2.96866667 C1.38933333,2.96866667 1.42666667,2.93866667 1.449,2.87133333 C1.569,2.59466667 1.64366667,2.43 1.67366667,2.385 C1.868,2.07066667 2.13,1.81633333 2.45166667,1.637 C2.77333333,1.45733333 3.11766667,1.36733333 3.49166667,1.36733333 C4.053,1.36733333 4.539,1.55466667 4.95066667,1.936 L4.37466667,2.51233333 C4.32233333,2.56466667 4.29233333,2.632 4.29233333,2.69933333 C4.29233333,2.774 4.32233333,2.834 4.37466667,2.88633333 C4.427,2.93866667 4.48666667,2.96866667 4.56166667,2.96866667 L6.432,2.96866667 C6.507,2.96866667 6.56666667,2.93866667 6.619,2.88633333 C6.67133333,2.834 6.70133333,2.774 6.70133333,2.69933333 L6.70133333,0.828666667 C6.70133333,0.761333333 6.67133333,0.694 6.619,0.641666667 C6.56666667,0.589333333 6.507,0.567 6.432,0.567 C6.36466667,0.567 6.29733333,0.589333333 6.245,0.641666667 L5.699,1.18033333 C5.407,0.903666667 5.063,0.686666667 4.68133333,0.529666667 C4.29233333,0.372333333 3.89566667,0.297666667 3.49166667,0.297666667 C2.72866667,0.297666667 2.06266667,0.529666667 1.48666667,0.993333333 C0.918,1.45733333 0.543666667,2.06333333 0.364333333,2.804 L0.364333333,2.834 C0.364333333,2.87133333 0.371666667,2.90133333 0.401666667,2.93133333 L0.401666667,2.93133333 Z"
-                                                                                      id="Fill-15" stroke="none"
-                                                                                      fill="#1074ae"
-                                                                                      fill-rule="evenodd"></path>
-                                                                            </svg>
-                                                                            <div class="link-span refresh">Refresh</div>
-                                                                            <img ng-if="refreshAdLoading===true" id="refreshButton" src="image/loading.gif">
-                                                                        </a>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </form>
+                                                        </form>
+                                                    </div>
                                                 </div>
                                             </div>
+                                            <div class="col-lg-2"></div>
                                         </div>
-                                        <div class="col-lg-2"></div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div ng-show="storedChannelName=='Moz'">
-                                <h5 class="model-title">Step 3 : Enter an URL</h5>
-                                <div class="col-lg-12" style="background-color: #f3f3f4">
-                                    <div class="row" style="margin: 30px 5px 5px 5px ;">
-                                        <div class="col-lg-2"></div>
-                                        <div class="col-lg-8" style="margin: 0px">
-                                            <div class="ibox float-e-margins">
-                                                <div class="ibox-title" style="vertical-align: middle">
-                                                    <h5><img src="image/lightbox/{{storedChannelName}}.png" align="left"
-                                                             style="max-height: 30px;max-width: 60px"/></h5>
-                                                </div>
-                                                <div class="ibox-content" style="display: block;">
-                                                    <form name="form1" class="form-horizontal">
-                                                        <div class="form-group">
-                                                            <div class="col-lg-12">
-                                                                <label>Enter Site URL:</label>
-                                                                <input class="form-control m-b choose-text" ng-model="weburl" ng-change="mozobject(weburl)"/>
-                                                                <br><br>
+                                <div ng-show="channel.name=='Moz'">
+                                    <h5 class="model-title">Step 3 : Enter an URL</h5>
+                                    <div class="col-lg-12" style="background-color: #f3f3f4">
+                                        <div class="row" style="margin: 30px 5px 5px 5px ;">
+                                            <div class="col-lg-2"></div>
+                                            <div class="col-lg-8" style="margin: 0px">
+                                                <div class="ibox float-e-margins">
+                                                    <div class="ibox-title" style="vertical-align: middle">
+                                                        <h5><img src="image/lightbox/{{channel.name}}.png" align="left"
+                                                                 style="max-height: 30px;max-width: 60px"/>  {{channel.name}}</h5>
+                                                    </div>
+                                                    <div class="ibox-content" style="display: block;">
+                                                        <form name="form1" class="form-horizontal">
+                                                            <div class="form-group">
+                                                                <div class="col-lg-12">
+                                                                    <label>Enter Site URL:</label>
+                                                                    <input class="form-control m-b choose-text" ng-model="weburl" ng-change="mozobject(weburl)"/>
+                                                                    <br><br>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    </form>
+                                                        </form>
+                                                    </div>
                                                 </div>
                                             </div>
+                                            <div class="col-lg-2"></div>
                                         </div>
-                                        <div class="col-lg-2"></div>
                                     </div>
                                 </div>
                             </div>
@@ -1154,7 +1168,7 @@
             <div class="modal-footer">
                 <div class="row">
                     <div class="col-lg-12 text-right">
-                        <div ng-if="currentView === 'step_one'" style="height:100px;margin: 15px 30px;"></div>
+                        <div ng-show="customMessageEnable==true" style="float: left; width: 500px; margin-top: 25px;color: #FF0000 ; font-family : Heebo-Medium ;font-size: 18px;">Custom Data cannot be combined with other channels</div>
                         <button class="componentBtn btn-4 btn-4b icon-arrow-left" id="basicWidgetBackButton"
                                 ng-if="currentView === 'step_three'"  ng-click="changeViewsInBasicWidget('step_two')">
                             Previous
@@ -1163,21 +1177,24 @@
                                 ng-if="currentView === 'step_two'" ng-click="changeViewsInBasicWidget('step_one')">
                             Previous
                         </button>
-                        <span  class="progress-demo">
-                            <button class="ladda-button componentBtn btn-4 btn-4a " data-style="expand-right" id="basicWidgetNextButton"
-                                    ng-show="currentView === 'step_two'"
-                                    disabled="disabled">
-                                <span class="ladda-label">Next</span><span class="ladda-spinner"></span><div class="ladda-progress" style="width: 72px;"></div>
+                        <button class="componentBtn btn-4 btn-4a icon-arrow-right" id="basicWidgetNextButton1"
+                                ng-if="currentView === 'step_one'" ng-click="changeViewsInBasicWidget('step_two')" disabled="disabled">
+                            Next
                         </button>
+                        <button class="componentBtn btn-4 btn-4a icon-arrow-right" data-style="expand-right" id="basicWidgetNextButton2"
+                                ng-show="currentView === 'step_two'"
+                                disabled="disabled" ng-click="changeViewsInBasicWidget('step_three')">
+                            Next
+                        </button>
+                         <span  class="progress-demo2">
+                            <button class="ladda-button  componentBtn btn-4 btn-4a " data-style="expand-right" id="basicWidgetFinishButtonCustom"
+                                    ng-show="currentView === 'step_two'">
+                                <span class="ladda-label">Finish</span>
+                                <span class="ladda-spinner"></span>
+                                <div class="ladda-progress" style="width: 72px;"></div>
+                            </button>
                          </span>
                          <span  class="progress-demo2">
-                        <button class="ladda-button  componentBtn btn-4 btn-4a " data-style="expand-right" id="basicWidgetFinishButtonCustom"
-                                ng-show="currentView === 'step_two'">
-                            <span class="ladda-label">Finish</span>
-                            <span class="ladda-spinner"></span>
-                            <div class="ladda-progress" style="width: 72px;"></div>
-                        </button></span>
-                        <span  class="progress-demo2">
                             <button class="ladda-button  componentBtn btn-4 btn-4a " data-style="expand-right" id="basicWidgetFinishButton"
                                     ng-show="currentView === 'step_three'"
                                     disabled="disabled">

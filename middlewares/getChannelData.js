@@ -160,7 +160,6 @@ exports.getChannelData = function (req, res, next) {
             store_final_data: ['get_channel_data_remote', storeFinalData],
             get_channel_objects_db: ['store_final_data', 'get_channel_data_remote', getChannelDataDB]
         }, function (err, results) {
-
             if (err)
                 return res.status(500).json({error: 'Internal server error', id: req.params.widgetId})
             req.app.result = results.get_channel_objects_db;
@@ -1030,6 +1029,9 @@ exports.getChannelData = function (req, res, next) {
                                     }
                                     if (String(metric[j]._id) === String(dataFromRemote[key].metricId)) {
                                         finalData1 = findDaysDifference(dataFromRemote[key].startDate, dataFromRemote[key].endDate, undefined);
+                                        for (var i = 0; i < finalData1.length; i++) {
+                                            finalData1[i].total = beforeReplaceEmptyData[0].total;
+                                        }
                                         var finalData = replaceEmptyData(finalData1, beforeReplaceEmptyData);
                                     }
                                 }
@@ -3663,7 +3665,7 @@ exports.getChannelData = function (req, res, next) {
                         else
                             return res.status(500).json({error: 'Internal server error', id: req.params.widgetId});
                     }
-                    else{
+                    else {
                         if (result.metricCode === configAuth.instagramStaticVariables.likes || result.metricCode === configAuth.instagramStaticVariables.comments) {
                             for (var key in medias) {
                                 userMediaRecent.push(medias[key])
@@ -4870,13 +4872,12 @@ exports.getChannelData = function (req, res, next) {
                 async.timesSeries(metric.length, function (j, next) {
                     var metricType = metric[j].code;
                     if (data[j].data != null) {
-                        var updated = new Date(data[j].data.updated);
-                        updated = updated.setHours(updated.getHours() + configAuth.dataValidityInHours);
-                        updated = new Date(updated);
-                        var endDate = new Date();
+                        var updated = moment(data[j].data.updated).format('YYYY-MM-DD');
+                        ;
+                        var endDate = moment(new Date()).format('YYYY-MM-DD');
                         if (updated < endDate) {
-                            var newDate = moment(updated).format('YYYY-MM-DD');
-                            var endDate = moment(new Date()).format('YYYY-MM-DD')
+                            var newDate = moment(updated).add(1, 'days').format('YYYY-MM-DD');
+                            var endDate = moment(new Date()).format('YYYY-MM-DD');
                             var query = moz.newQuery('url-metrics')
                                 .target(object[0].name)
                                 .cols([metric[j].code]);
@@ -4900,7 +4901,6 @@ exports.getChannelData = function (req, res, next) {
                             };
                             next(null, queries);
                         }
-
                     }
                     else {
                         var query = moz.newQuery('url-metrics')

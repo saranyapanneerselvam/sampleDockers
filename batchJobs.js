@@ -104,7 +104,6 @@ agenda.define('Update channel data', function (job, done) {
             get_channel_data_remote: ['get_channel', getChannelDataRemote],
             merge_all_final_data: ['get_channel_data_remote', 'get_channel', mergeAllFinalData],
             store_final_data: ['merge_all_final_data', 'get_channel_data_remote', storeFinalData]
-
         }, function (err, results) {
             done(err)
         });
@@ -161,8 +160,15 @@ agenda.define('Update channel data', function (job, done) {
             //Function to get all profile details
             function getEachProfile(channelResults, callback) {
                 //skipping profile for moz
-                if (String(channelResults.channelId) === String(results.metric[0].channelId))
-                    callback(null, ([{channelId: results.metric[0].channelId}]));
+                var channelId='';
+                if (channelResults.channelId) {
+                    for (var i = 0; i < results.metric.length; i++) {
+                        if (String(channelResults.channelId) === String(results.metric[i].channelId))
+                            channelId=results.metric[i].channelId;
+                    }
+                }
+                if (String(channelResults.channelId) === String(channelId))
+                    callback(null, ([{channelId: channelId}]));
                 else
                     Profile.findOne({'_id': channelResults.profileId}, {
                         accessToken: 1,
@@ -2851,8 +2857,7 @@ agenda.define('Update channel data', function (job, done) {
                         //add empty data for  daysdifference
                         else if (dataFromRemote[j].data != 'DataFromDb') {
                             for (var key in dataFromRemote) {
-                                if (String(dataFromRemote[key].channelId) === String(metric[0].channelId)) {
-
+                                if (String(dataFromRemote[key].channelId) === String(metric[j].channelId)) {
                                     if (dataFromRemote[key].data.length) {
                                         var value = {};
                                         value = {

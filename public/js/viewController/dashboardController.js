@@ -498,6 +498,12 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
         $scope.dashboard.widgets = [];
         $scope.dashboard.widgetData = [];
+        $scope.dashboard.dashoboardDate=[];
+        $scope.dashboard.dashoboardDate= {
+            'startDate': moment($scope.dashboardCalendar.start_date).format('YYYY-MM-DD'),
+            'endDate': moment($scope.dashboardCalendar.end_date).format('YYYY-MM-DD')
+        }
+
         $http({
             method: 'GET',
             url: '/api/v1/dashboards/widgets/'+ $state.params.id

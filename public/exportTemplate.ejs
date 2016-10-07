@@ -2,7 +2,7 @@
     <script src="js/datePicker/Calendar.js"></script>
     <script type="text/ng-template" id="modal.ejs">
         <div class=" modal-expContent" ng-controller="ExportController as expCtrl" ng-cloak>
-            <button type="button" class="overlayCloseButton" ng-click="closeExportModal()" ng-hide="showExport == false">
+            <button type="button" class="overlayCloseButton" ng-click="closeExportModal()" ng-if="closedCancle==true">
                 <i class="fa fa-times fa-lg" aria-hidden="true"></i>
             </button>
             <div class="row" style="margin-left: 0px;margin-right:0px;padding-top: 15px">
@@ -15,13 +15,14 @@
                                     <label class="btn btn-default"><input type="radio" id="exportOptionJpeg" name="exportOption" value="JPEG" ng-click="pdfPrintPreview(false);"/> JPEG</label>
                                     <label class="btn btn-default"><input type="radio" id="exportOptionPDF" name="exportOption" value="PDF" ng-click="fetchLogosFromDB('org');fetchLogosFromDB('cli');pdfPrintPreview(true);printpaperPDF();"/> PDF</label>
                                     <label class="btn btn-default"><input type="radio" id="exportOptionUrl" name="exportOption" value="PDF" ng-click="pdfPrintPreview(false);"/> Share URL</label>
+                                    <label class="btn btn-default"><input type="radio" id="exportOptionExcel" name="exportOption" value="Excel" ng-click="pdfPrintPreview(false);exportExcel()"/> Excel</label>
                                 </div>
                             </div>
                         </div>
-                        <div class="row" style="padding-left: 20px;padding-top: 25px;margin-left: 0px;margin-right:0px"  ng-show="expAct==true">
+                        <div class="row" style="padding-left: 20px;padding-top: 25px;margin-left: 0px;margin-right:0px"  ng-if="expAct==true && exportPDF==true">
                             <div class="col-lg-12">
                                 <div class="col-lg-6" style="border-right:1px dotted #aeaeae">
-                                    <legend style="text-align: center;font-family: Heebo-ExtraBold;font-size:18px;color:#04509B !important">Choose Your Logo</legend>
+                                    <legend style="text-align: center;font-family: Heebo-ExtraBold;font-size:18px;color:#1074ae !important">Choose Your Logo</legend>
                                     <div class="scrollbar" id="scroller" style="height:80px!important;">
                                         <div class="col-lg-2 logo-icons orgIcon" id="orgLogoIcons-default">
                                             <div style="height:15%;float:right;margin: -5px 0px 0px 0px;"></div>
@@ -36,11 +37,11 @@
                                     </div>
                                     <form ref='uploadOrgLogoForm' id='uploadOrgLogoForm' name="uploadOrgLogoForm"  style="padding: 5px 5px;">
                                         <div class="col-sm-6"><input type="file" name="sampleFile" file-model="orgFile" ng-click="enableUploadbutton('org')" required/></div>
-                                        <div class="col-sm-6"><button type="submit" class="btn btn-primary uploadbutton-mode" id='orgUploadButton' ng-click="submitUpload(orgFile,'org')" disabled="disabled">Upload</button></div>
+                                        <div class="col-sm-6"><button type="submit" style="padding:9px 19px" class="componentBtn btn-4 btn-4a" id='orgUploadButton' ng-click="submitUpload(orgFile,'org')" disabled="disabled">Upload</button></div>
                                     </form>
                                 </div>
                                 <div class="col-lg-6">
-                                    <legend style="text-align: center;font-family: Heebo-ExtraBold;font-size:18px;color:#04509B !important">Choose Client Logo (Optional)</legend>
+                                    <legend style="text-align: center;font-family: Heebo-ExtraBold;font-size:18px;color:#1074ae !important">Choose Client Logo (Optional)</legend>
                                     <div class="scrollbar" id="scroller" style="height:80px!important">
                                         <div class="col-lg-2 logo-icons cliIcon"  id='cliLogoIcons-default'>
                                             <div style="height:15%;float:right;margin: -5px 0px 0px 0px;"></div>
@@ -54,7 +55,7 @@
                                     </div>
                                     <form ref='uploadClientLogo' id='uploadClientLogo'>
                                         <div class="col-sm-6"><input type="file" name="sampleFile" file-model="cliFile" ng-click="enableUploadbutton('cli')"/></div>
-                                        <div class="col-sm-6"><button type="submit" class="btn btn-primary uploadbutton-mode" id="clientUploadButton" ng-click="submitUpload(cliFile,'cli')" disabled="disabled">Upload</button></div>
+                                        <div class="col-sm-6"><button type="submit" style="padding:9px 19px" class="componentBtn btn-4 btn-4a" id="clientUploadButton" ng-click="submitUpload(cliFile,'cli')" disabled="disabled">Upload</button></div>
                                     </form>
                                 </div>
                             </div>
@@ -73,7 +74,7 @@
                     <div class="md-content previewContentText">
                         <div>
                             <div>
-                                <div class="row" style="margin-left: 0px;margin-right:0px">
+                                <div class="row preview-loading" style="margin-left: 0px;margin-right:0px">
                                     <div class="col-md-12">
                                         <div class="center">
                                             <div class="mainLoading location">
@@ -99,8 +100,21 @@
             </div>
 
             <div class="modalExp-body" ng-if='expAct==true' ng-show="expAct==true">
-                <div class="wrapper wrapper-content">
-                    <h5 class="model-title">PDF Print Preview</h5>
+                <div class="wrapper wrapper-content" ng-show="exportUrl===true">
+                    <div class="row" ng-cloak>
+                        <div class="col-lg-12">
+                            <div class="center shareUrl">
+                                <p id="butt" style="word-wrap: break-word;">URL to be shared: <a style="color:#1078ae" href="http://{{sharingUrl}}" target="_blank">{{ sharingUrl}}</a>
+                                    <button class="btn" id="btnCopyLink" data-clipboard-text={{sharingUrl}}>
+                                        <img src="image/clippy.svg" width="13" alt="Copy to clipboard">
+                                    </button>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="wrapper wrapper-content" ng-if="exportPDF===true">
+                    <h5 class="model-title">Print Preview</h5>
                     <div class="scrollbar" id="scroller">
                         <div class="row" style="margin-left: 0px;margin-right:0px;margin-bottom: 60px;">
                             <div class="col-lg-12"style="padiding:0px 0px !important">
@@ -366,6 +380,32 @@
                                                                         <div ng-show="chart.data[0].values.flag==true">
                                                                             <div class="center" style="vertical-align: middle">
                                                                                 <button class="btn btn-primary gobutton-mode" ng-click="">Configure</button>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div ng-repeat="chart in aexppage.widgetData[widgetIndex].chart" ng-if="chart.options.chart.type=== 'instagramHashtagLeaderBoard'" style="float: left;padding-left: 2px;padding-right: 2px;" ng-style="{'height': (100/dashboard.widgetData[widgetIndex].layoutOptionsY)+'%', 'width': (100/dashboard.widgetData[widgetIndex].layoutOptionsX)+'%'}">
+                                                                        <div class="row" style="margin: 0px;height: 100%" >
+                                                                            <div events="events" style="height: 99%" ng-if="aexppage.widgetData[widgetIndex].visibility == true" ng-init="limitScroll=20">
+                                                                                <div class="scrollbar scrollInWidget" id="scroller">
+                                                                                    <div class="col-lg-12 table-responsive" style="overflow-x: hidden;padding:0px;">
+                                                                                        <table class="table table-striped">
+                                                                                            <thead>
+                                                                                            <tr style="padding:2px 5px;width:100%">
+                                                                                                <th style="padding:5px 5px;width:55%;text-align:center;">HashTag</th>
+                                                                                                <th style="padding:5px 5px;width:15%;text-align:right;">Likes</th>
+                                                                                                <th style="padding:5px 5px;width:15%;text-align:right;">Comments</th>
+                                                                                            </tr>
+                                                                                            </thead>
+                                                                                            <tbody>
+                                                                                            <tr style="padding:2px 5px;width:100%" ng-repeat="data in chart.data ">
+                                                                                                <td style="padding:5px 5px;width:55%;text-align:left;"><a style="color: #000;" href="{{data.tagLink}}" target="_blank">{{data.tag}}<br></a></td>
+                                                                                                <td style="padding:5px 5px;width:15%;text-align:right;">{{data.likes}}</td>
+                                                                                                <td style="padding:5px 5px;width:15%;text-align:right;">{{data.comments}}</td>
+                                                                                            </tr>
+                                                                                            </tbody>
+                                                                                        </table>
+                                                                                    </div>
+                                                                                </div>
                                                                             </div>
                                                                         </div>
                                                                     </div>

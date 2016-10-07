@@ -11,7 +11,7 @@
                 </div>
             </li>
             <li class="sideBar-wrapper">
-                <a ng-click="createNewDashboard()">
+                <a ng-click="stateValidation('chooseDashboardType')">
                     <i class="icon icon-edit navigation-menu-icon"></i>
                     <span class="nav-label"> Blank Dashboard</span>
                 </a>
@@ -24,15 +24,15 @@
                     <div class="tooltip">Dashboard Templates</div>
                 </a>
             </li>
-<!--
-            <li class="sideBar-wrapper">
-                <a ui-sref="app.reporting.dashboards">
-                    <i class="icon icon-grid navigation-menu-icon"></i>
-                    <span class="nav-label"> All Dashboards</span>
-                    <div class="tooltip">All Dashboards</div>
-                </a>
-            </li>
--->
+            <!--
+                        <li class="sideBar-wrapper">
+                            <a ui-sref="app.reporting.dashboards">
+                                <i class="icon icon-grid navigation-menu-icon"></i>
+                                <span class="nav-label"> All Dashboards</span>
+                                <div class="tooltip">All Dashboards</div>
+                            </a>
+                        </li>
+            -->
             <li class="sideBar-wrapper">
                 <a ng-click="stateValidation('basicWidget')">
                     <i class="icon icon-presentation navigation-menu-icon"></i>
@@ -47,15 +47,15 @@
                     <div class="tooltip">Fusions</div>
                 </a>
             </li>
-<!--
-            <li class="sideBar-wrapper">&lt;!&ndash;class="md-trigger md-setperspective md-effect-19 addRemoveModalContent" data-modal="addRemoveModalContent"&ndash;&gt;
-                <a ng-click="stateValidation('insights')">
-                    <i class="icon icon-megaphone navigation-menu-icon"></i>
-                    <span class="nav-label"> Insights</span>
-                    <div class="tooltip">Insights</div>
-                </a>
-            </li>
--->
+            <!--
+                        <li class="sideBar-wrapper">&lt;!&ndash;class="md-trigger md-setperspective md-effect-19 addRemoveModalContent" data-modal="addRemoveModalContent"&ndash;&gt;
+                            <a ng-click="stateValidation('insights')">
+                                <i class="icon icon-megaphone navigation-menu-icon"></i>
+                                <span class="nav-label"> Insights</span>
+                                <div class="tooltip">Insights</div>
+                            </a>
+                        </li>
+            -->
         </ul>
         <!--
                 &lt;!&ndash;List to be displayed in the sidebar when the 'adReporting' state is active&ndash;&gt;
@@ -81,14 +81,16 @@
         $('.tooltip').hide();
 
         $('.side-menu').hover(function(){
-             $('.navbar-static-side').slide('slide', {
-             direction: 'right'
-             }, 2000);
+            $('.navbar-static-side').slide('slide', {
+                direction: 'right'
+            }, 2000);
         })
     });
     $('.tooltip').click(function() {
         $('.tooltip').hide();
     });
+
+
 
 
 

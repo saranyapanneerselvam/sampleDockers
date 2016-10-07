@@ -6,6 +6,7 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
     $scope.metricList = {};
     $scope.tokenExpired=[];
     $scope.referenceWidgetsList = [];
+    $scope.defaultWidgetName;
     $scope.profileList = [];
     $scope.storedObjects = {};
     $scope.referencechannelList = [];
@@ -38,20 +39,20 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
                 }, 50 );
             }
         });
-      
+
 
     });
 
     $scope.changeViewsInBasicWidget = function (obj) {
         $scope.currentView = obj;
         if ($scope.currentView === 'step_one') {
-          /*  document.getElementById('basicWidgetBackButton1').disabled = true;
-            document.getElementById('basicWidgetNextButton').disabled = true;*/
+            /*  document.getElementById('basicWidgetBackButton1').disabled = true;
+             document.getElementById('basicWidgetNextButton').disabled = true;*/
             $scope.clearReferenceWidget();
             $scope.listOfReferenceWidget();
         }
         else if ($scope.currentView === 'step_two') {
-           /* document.getElementById('basicWidgetBackButton1').disabled = true;*/
+            /* document.getElementById('basicWidgetBackButton1').disabled = true;*/
             $scope.getProfilesForDropdown();
         }
     };
@@ -149,6 +150,7 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
     };
 
     $scope.getProfilesForDropdown = function () {
+        $scope.defaultWidgetName=$scope.storedReferenceWidget.name;
         for (var i = 0; i < $scope.storedReferenceCharts.length; i++) {
             $scope.referencechannelList.push($scope.storedReferenceCharts[i].channelId);
         }
@@ -298,7 +300,7 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
             $scope.hasNoAccess = profileObj.hasNoAccess;
             if($scope.uniquechannelNames[index] === 'Google Analytics'){
                 this.objectOptionsModel1='';
-				document.getElementById('basicWidgetFinishButton').disabled = true;
+                document.getElementById('basicWidgetFinishButton').disabled = true;
             }
             if ((profileObj.canManageClients === false) && ($scope.uniquechannelNames[index] === 'GoogleAdwords')) {
                 $scope.canManage = false;
@@ -506,7 +508,7 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
         var matchingMetric = [];
         var inputParams = [];
 
-        var widgetName = $scope.storedReferenceWidget.name;
+        var widgetName = $scope.storedReferenceWidget.name || $scope.defaultWidgetName;
         /*
          for(items in $scope.storedUserChosenValues) {
          widgetName += ' - ' + $scope.storedUserChosenValues[items].profile.name + '(' + $scope.storedUserChosenValues[items].object.name + ')'
@@ -564,5 +566,10 @@ function FusionWidgetController($scope, $http, $q, $window, $state, $rootScope, 
             }
         );
     };
+    $scope.dropdownWidth=function(hasnoAccess,tokenExpired){
+        if(hasnoAccess==true || tokenExpired==true){
+            return ('col-sm-'+9+' col-md-'+10+' col-lg-'+10+' col-xs-10');
+        }
+    }
 }
 

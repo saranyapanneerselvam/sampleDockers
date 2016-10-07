@@ -125,6 +125,15 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
                 }
             }
         })
+        .state('app.reporting.chooseDashboardType', {
+            url: "/choosedashboard/",
+            views: {
+                'main@app': {
+                    templateUrl: "chooseDashbordType.ejs",
+                    controller: 'LightBoxController'
+                }
+            }
+        })
 
         .state('app.reporting.dashboard.exportModal', {
             url: "",
@@ -176,10 +185,10 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
             }
         })
 
-        .state('app.reporting.dashboard.recommendedDashboard', {
+        .state('app.reporting.recommendedDashboard', {
             url: "",
             views: {
-                'lightbox@app.reporting.dashboard': {
+                'main@app': {
                     templateUrl: "recommendedDashboard.ejs",
                     controller: 'LightBoxController'
                 }
@@ -187,7 +196,7 @@ function config($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, IdlePro
         })
 
         .state('app.reporting.dashboards', {
-            url: "/gridView",
+            url: "/gridView/",
             views: {
                 'main@app': {
                     templateUrl: "gridView.ejs",

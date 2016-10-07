@@ -21,29 +21,29 @@
                                     <div class="ibox-content" style="padding: 0px">
                                         <table class="table table-hover">
                                             <thead>
-                                                <tr>
-                                                    <th>AlertName</th>
-                                                    <th>MetricName</th>
-                                                    <th>Email</th>
-                                                    <th>Operation</th>
-                                                    <th>threshold</th>
-                                                    <th>Delete</th>
-                                                    <th>Edit</th>
-                                                </tr>
+                                            <tr>
+                                                <th>AlertName</th>
+                                                <th>MetricName</th>
+                                                <th>Email</th>
+                                                <th>Operation</th>
+                                                <th>threshold</th>
+                                                <th>Delete</th>
+                                                <th>Edit</th>
+                                            </tr>
                                             </thead>
                                             <tbody>
-                                                <tr ng-repeat="alerts in  widgetAlerts" ng-cloak>
-                                                    <td>{{alerts.name}}</td>
-                                                    <td ng-cloak ng-if="alerts.endPoint">{{alertMetrics[$index].name}} - {{alerts.endPoint}}</td>
-                                                    <td ng-cloak ng-if="!alerts.endPoint">{{alertMetrics[$index].name}}</td>
-                                                    <td>{{alerts.mailingId.email}}</td>
-                                                    <td ng-if="alerts.operation.lt == true">Less than</td>
-                                                    <td ng-if="alerts.operation.gt == true">Greater than</td>
-                                                    <td ng-if="alerts.operation.gt == true">{{alerts.threshold.gt}}</td>
-                                                    <td ng-if="alerts.operation.lt == true">{{alerts.threshold.lt}}</td>
-                                                    <td><a ng-click="deleteAlert(alerts)"><i class="fa fa-minus" aria-hidden="true"></i></a></td>
-                                                    <td><a ng-click="editAlert(alerts,alertMetrics[$index])"><i class="fa fa-pencil" aria-hidden="true"></i></a></td>
-                                                </tr>
+                                            <tr ng-repeat="alerts in  widgetAlerts" ng-cloak>
+                                                <td>{{alerts.name}}</td>
+                                                <td ng-cloak ng-if="alerts.endPoint">{{alertMetrics[$index].name}} - {{alerts.endPoint}}</td>
+                                                <td ng-cloak ng-if="!alerts.endPoint">{{alertMetrics[$index].name}}</td>
+                                                <td>{{alerts.mailingId.email}}</td>
+                                                <td ng-if="alerts.operation.lt == true">Less than</td>
+                                                <td ng-if="alerts.operation.gt == true">Greater than</td>
+                                                <td ng-if="alerts.operation.gt == true">{{alerts.threshold.gt}}</td>
+                                                <td ng-if="alerts.operation.lt == true">{{alerts.threshold.lt}}</td>
+                                                <td><a ng-click="deleteAlert(alerts)"><i class="fa fa-minus" aria-hidden="true"></i></a></td>
+                                                <td><a ng-click="editAlert(alerts,alertMetrics[$index])"><i class="fa fa-pencil" aria-hidden="true"></i></a></td>
+                                            </tr>
                                             </tbody>
                                         </table>
                                     </div>
@@ -66,10 +66,10 @@
                                                                 <input class="form-control m-b choose-text" placeholder="Enter a name" type="text" name="input" ng-model="name" required/>
                                                             </div>
                                                             <div class="col-sm-6">
-                                                                <select class="form-control m-b choose-text" ng-model="metric" id="metricOptions" required>
+                                                                <select class="form-control m-b choose-text" ng-model="inAlertMetric" id="metricOptions" required>
                                                                     <!--ng-options="metrics as metrics.name for metrics in metricDetails[0].metrics" required >-->
                                                                     <option value="">Select a Metric</option>
-                                                                    <option ng-repeat="metrics in widgetMetrics | orderBy:'$index':true" ng-selected="metrics.name === inAlertMetric" value="{{[metrics.id,metrics.endPoints]}}">{{metrics.name}}</option>
+                                                                    <option ng-repeat="metrics in widgetMetrics | orderBy:'$index':true" ng-selected="inAlertMetric === metrics.name" >{{metrics.name}}</option>
                                                                 </select>
                                                             </div>
                                                         </div>

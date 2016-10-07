@@ -1,13 +1,13 @@
 <div style=" margin-right: 0px !important;margin-left: 0px !important;" class="row border-bottom"  ng-controller="TopNavbarController" ng-init="fetchRecentDashboards()">
     <nav class="navbar navbar-static-top" role="navigation">
         <div class="navbar-header topnavbar-header">
-            <!--<span minimaliza-sidebar class="menus-img"></span>-->
+            <span minimaliza-sidebar class="menus-img menuButton"></span>
             <select class="dashboardSelect"
                     ng-model="recentDashboardModel"
                     ng-change="chosenDashboard(recentDashboardModel)">
-                    <option value="" disabled>Recent Dashboards</option>
+                <option value="" disabled>Recent Dashboards</option>
                 <option  ng-repeat="recentDashboard in recentDashboardList" value={{recentDashboard}}>{{recentDashboard.name || 'unnamed'}} </option>
-                    <option value="gridview" style="background: #f1f1f1; font-weight: bolder;font-size:16px;">All Dashboards</option>
+                <option value="gridview" style="background: #f1f1f1; font-weight: bolder;font-size:16px;">All Dashboards</option>
             </select>
             <div class="topName">
                 <span class="sessionName" style="float: right;padding-right:20px;height: inherit;">
@@ -22,38 +22,38 @@
                             <div id="myDropdown" class="topdropdown-content">
                                 <a class="navbar-minimalize minimalize-styl-1 md-trigger md-setperspective md-effect-19" ui-sref="app.reporting.dashboard.listProfile">
                                     Linked Profiles
-                </a>
+                                </a>
                                 <a class="navbar-minimalize minimalize-styl-1 md-trigger md-setperspective md-effect-19" ui-sref="app.changePassword" data-modal="settingModalContent" >
                                     Change Password
-                            </a>
+                                </a>
                                 <a id="soonModel" class="navbar-minimalize minimalize-styl-1 md-trigger md-setperspective md-effect-19 " data-modal="addRemoveModalContent">
                                     User Management
-                </a>
+                                </a>
                                 <a class="navbar-minimalize minimalize-styl-1" href="/signout">
                                     Logout
-                </a>
+                                </a>
                             </div>
                         </div>
                     </div>
-            </span>
+                </span>
             </div>
 
-<!--
-            <div class="tabs-container desk-view">
-                    <ul class="nav nav-tabs" style="padding-left: 71px" id="tabs-container-desk-view">
-                        <li class="active first-tab" style="height: 50px;"> <a data-toggle="tab" ui-sref="analyticsReporting/analyticsDashboardTemplate" style="padding-bottom: 10px;margin-right: 0px;"> <span></span> Marketing Dashboards</a></li>
-                    </ul>
-             </div>
-            <div class="tabs-container response-view" style="display:none;">
-                <ul class="nav nav-tabs" style="padding-left: 71px"  id="tabs-container-response-view">
-                    <li class="active first-tab">
-                        <a data-toggle="tab" ui-sref="analyticsReporting/analyticsDashboardTemplate">
-                            <i class="fa fa-line-chart"></i>
-                        </a>
-                    </li>
-                </ul>
-            </div>
--->
+            <!--
+                        <div class="tabs-container desk-view">
+                                <ul class="nav nav-tabs" style="padding-left: 71px" id="tabs-container-desk-view">
+                                    <li class="active first-tab" style="height: 50px;"> <a data-toggle="tab" ui-sref="analyticsReporting/analyticsDashboardTemplate" style="padding-bottom: 10px;margin-right: 0px;"> <span></span> Marketing Dashboards</a></li>
+                                </ul>
+                         </div>
+                        <div class="tabs-container response-view" style="display:none;">
+                            <ul class="nav nav-tabs" style="padding-left: 71px"  id="tabs-container-response-view">
+                                <li class="active first-tab">
+                                    <a data-toggle="tab" ui-sref="analyticsReporting/analyticsDashboardTemplate">
+                                        <i class="fa fa-line-chart"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+            -->
 
         </div>
     </nav>

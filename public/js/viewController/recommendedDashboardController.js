@@ -8,6 +8,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
     $scope.profileList = [];
     $scope.objectList = [];
     $scope.tempList = [];
+    $scope.recommendeDashboardName;
     $scope.metricList = {};
     $scope.referenceWidgetsList = [];
     $scope.storedObjects = {};
@@ -33,7 +34,6 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
                 var interval = setInterval( function(){
                     progress = Math.min( progress + Math.random() * 0.1, 1 );
                     instance.setProgress( progress );
-
                     if( progress === 1 && progressStart===1){
                         instance.stop();
                         clearInterval( interval );
@@ -45,7 +45,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
 
 
     });
-    
+
     $scope.dropdownWidth=function(hasnoAccess,tokenExpired){
         if(hasnoAccess==true || tokenExpired==true){
             return ('col-sm-'+10+' col-md-'+10+' col-lg-'+10+' col-xs-10');
@@ -73,7 +73,6 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
             url: 'api/get/recommendDashboard'
         }).then(function successCallback(response) {
             $scope.wholeDataDetail = response.data;
-
             for (var i in response.data) {
                 $scope.recommendDashboard.push(response.data[i]);
             }
@@ -85,7 +84,22 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
             });
         });
     };
-
+    $scope.closeRecommendedDashboardModal=function(){
+        changeState().then(
+            function () {
+                $state.go('app.reporting.dashboard',{id:$rootScope.stateDashboard._id});
+            }
+        )
+    }
+    function changeState(){
+        var deferred = $q.defer();
+        CloseModal();
+        function CloseModal(){
+            $scope.ok();
+            deferred.resolve("open")
+        }
+        return deferred.promise;
+    }
     $scope.getProfileForChosenChannel = function (dashboards) {
         $scope.fullOfDashboard = dashboards;
         $scope.getChannelList = dashboards.channels;
@@ -166,9 +180,9 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
         }
         else {
             if($scope.getChannelList[index].name === 'Google Analytics'){
-				this.objectOptionsModel1='';			
-				document.getElementById('basicWidgetFinishButton').disabled = true;
-			}
+                this.objectOptionsModel1='';
+                document.getElementById('basicWidgetFinishButton').disabled = true;
+            }
             if ((profileObj.canManageClients === false)&&($scope.getChannelList[index].name === 'GoogleAdwords')){
                 $scope.canManage = false;
                 $scope.objectList[index]=null;
@@ -414,7 +428,7 @@ function RecommendedDashboardController($scope, $http, $window, $q, $state, $roo
     $scope.createRecommendedDashboard = function () {
         var matchingMetric = [];
         var jsonData = {
-            name: $scope.fullOfDashboard.dashboard.name
+            name: $scope.recommendeDashboardName
         };
         $http({
             method: 'POST',

@@ -42,12 +42,13 @@ function TopNavbarController($scope,$http,$rootScope,$state) {
                         for(var i=0;i<5;i++)
                             $scope.recentDashboardList.push(sortedDashboard[i]);
                     }
+                    $rootScope.stateDashboard=$scope.recentDashboardList[0];
                 }
                 else
                     $scope.recentDashboardList  = null;
             },
             function errorCallback(error){
-                    $scope.recentDashboardList  = null;
+                $scope.recentDashboardList  = null;
             }
         );
     };
@@ -59,7 +60,7 @@ function TopNavbarController($scope,$http,$rootScope,$state) {
             $state.go('app.reporting.dashboard',{id: dashboard._id});
         }
         else if(dashboard=='gridview')
-             $state.go('app.reporting.dashboards');
+            $state.go('app.reporting.dashboards');
     };
 
     $scope.getDropdown=function(){

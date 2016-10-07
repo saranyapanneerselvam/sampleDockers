@@ -1,6 +1,6 @@
 showMetricApp.controller('GridviewController', GridviewController);
 
-function GridviewController($scope,$http,$window) {
+function GridviewController($scope,$http,$window,$rootScope) {
     $scope.dashboardList = null;
     $scope.gridloading=true;
     $(".navbar").css('z-index','1');
@@ -20,7 +20,7 @@ function GridviewController($scope,$http,$window) {
             function successCallback(response){
                 $scope.gridloading=false;
                 if(response.status == '200')
-                    $scope.dashboardList = response.data.dashboardList; 
+                    $scope.dashboardList = response.data.dashboardList;
                 else
                     $scope.dashboardList = null;
             },
@@ -54,6 +54,7 @@ function GridviewController($scope,$http,$window) {
                     url: '/api/v1/delete/userDashboards/' + dashboard._id
                 }).then(
                     function successCallback(response) {
+                        $rootScope.fetchRecentDashboards()
                         $scope.fetchAllDashboards();
                     },
                     function errorCallback(error) {

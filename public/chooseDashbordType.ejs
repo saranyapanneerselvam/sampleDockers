@@ -1,0 +1,39 @@
+<div class="modal-dialog " ng-init="open('chooseDashboardType')">
+    <script type="text/ng-template" id="modal.ejs">
+        <div class="modal-content" ng-controller="ChooseDashboardController">
+            <div class="modal-header">
+                <button type="button" class="overlayCloseButton" ng-click="closemodal()">
+                    <i class="fa fa-times fa-lg" aria-hidden="true"></i>
+                </button>
+                <h5 class="model-title">Choose your Dashboard</h5>
+            </div>
+            <div class="modal-body chooseDashboardTypeBody ">
+                <div class="wrapper wrapper-content">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="col-lg-12 center editdashboard ">
+                                <p class="chooseDashboardquestion"> Would you like to explore Pre-built templates?</p>
+                                <button style="width: 139px !important; height: 55px;" class="btn btn-primary button-mode changeButton buttonmargin" ng-click="enableTextField()">Proceed with <br>blank dashboard
+                                </button>
+                                <button style="width: 139px !important; height: 55px;" class="btn btn-primary button-mode changeButton" ng-click="goRecommendedDashboard();" >Explore
+                                </button>
+                            </div>
+                            <div class="center "   ng-if="enabletextField === true">
+                                <form  ng-submit="createDashboard(dashboardName);ok()">
+                                    <input style="padding-left:5px;height: 32px; width: 25%;" type="text" placeholder="Enter Dashboard Name " ng-model="dashboardName"  name="dashboardName" />
+                                    <button class="goButton glyphicon glyphicon-arrow-right"></button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </script>
+</div>
+
+
+
+
+
+

@@ -97,7 +97,7 @@ module.exports = function (app) {
                                                                 res.render('../public/successAuthentication');
                                                             }
                                                             else {
-                                                                ObjectType.findOne({'channelId': response.channelId}, function (err, objectTypeList) {
+                                                                ObjectType.findOne({'channelId': response.channelId,type:configAuth.objectType.googleAdword}, function (err, objectTypeList) {
                                                                     if (!err) {
                                                                         var storeObject = new Object();
                                                                         storeObject.profileId = response._id;

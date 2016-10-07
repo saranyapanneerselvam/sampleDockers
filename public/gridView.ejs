@@ -24,7 +24,7 @@
         <div class="grid-font" ng-if="dashboardList.length===0"><p>No Dashboard Available</p></div>
 
     </div>
-    <div class="row grid-font" ng-show="!dashboardList">
+    <div class="row grid-font" ng-show="!dashboardList && gridloading === false">
         <p>You don't have access to any dashboards yet</p>
     </div>
 </div>

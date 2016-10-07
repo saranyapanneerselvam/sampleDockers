@@ -57,6 +57,7 @@ function AlertController($scope, $http, $q, $state, $rootScope, $window, $stateP
         }).then(
             function successCallback(response) {
                 if(response.status == '200') {
+                    widgetMetricDetails.length=0;
                     $scope.widgetAlerts = response.data;
                     for (var i = 0; i < $scope.widgetAlerts.length; i++)
                         widgetMetricDetails.push($scope.getMetricDetails($scope.widgetAlerts[i].metricId, i));
@@ -165,10 +166,12 @@ function AlertController($scope, $http, $q, $state, $rootScope, $window, $stateP
     };
 
     $scope.saveAlert = function () {
+        var k = $scope.widgetMetrics.map(function(e) { return e.name; }).indexOf($scope.inAlertMetric);
+        $scope.metric=[$scope.widgetMetrics[k].id,$scope.widgetMetrics[k].endPoints];
         var objectId;
         var widgetDetail = $scope.widgetDetails.charts;
         for (var k = 0; k < widgetDetail.length; k++) {
-            var parsedData = JSON.parse($scope.metric);
+            var parsedData = $scope.metric;
             if (widgetDetail[k].metrics[0].metricId === parsedData[0])
                 objectId = widgetDetail[k].metrics[0].objectId;
         }

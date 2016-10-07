@@ -38,17 +38,17 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         $scope.loadedWidgetCount = 0;
         $scope.widgetErrorCode=0;
         //To define the calendar in dashboard header
-            $scope.dashboardCalendar = new Calendar({
-                element: $('.daterange--double'),
-                earliest_date: moment(new Date()).subtract(365, 'days'),
-                latest_date: new Date(), 
-                start_date: moment(new Date()).subtract(30,'days'), 
-                end_date: new Date(),
-                callback: function () {
+        $scope.dashboardCalendar = new Calendar({
+            element: $('.daterange--double'),
+            earliest_date: moment(new Date()).subtract(365, 'days'),
+            latest_date: new Date(),
+            start_date: moment(new Date()).subtract(30,'days'),
+            end_date: new Date(),
+            callback: function () {
                 var start = moment(this.start_date).format('ll'), end = moment(this.end_date).format('ll');
-                    $scope.populateDashboardWidgets();
-                }
-            });
+                $scope.populateDashboardWidgets();
+            }
+        });
 
         //Setting up grid configuration for widgets
         $scope.gridsterOptions = {
@@ -335,11 +335,11 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         });
 
         $scope.calculateColumnWidth = function(noOfItems,widgetWidth,noOfCharts) {
-            
+
             widgetWidth = Math.floor(widgetWidth/noOfCharts);
-            
             if(widgetWidth < 1)
                 widgetWidth = 1;
+
             if(widgetWidth==1)
                 return ('col-sm-'+12+' col-md-'+12+' col-lg-'+12);
             else {
@@ -368,8 +368,8 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
             }
             else if(widgetWidth>=5){
-                        return ('col-sm-' + 2 + ' col-md-' + 2 + ' col-lg-' + 2);
-                }
+                return ('col-sm-' + 2 + ' col-md-' + 2 + ' col-lg-' + 2);
+            }
         };
 
         $scope.calculateRowHeight = function(data,noOfItems,widgetWidth,widgetHeight,noOfCharts) {
@@ -409,11 +409,13 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
         $scope.calculateSummaryHeight = function(widgetHeight,noOfItems) {
             var heightPercent;
+
             if(noOfItems==1 && widgetHeight ==1)
                 heightPercent = 20;
             else
                 heightPercent = 100 / widgetHeight;
             return {'height': (heightPercent + '%')};
+
         };
         $scope.calculateSummaryHeightMoz = function(widgetHeight,noOfItems) {
             var heightPercent;
@@ -426,11 +428,13 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         };
         $scope.calculateChartHeight = function(widgetHeight,noOfItems) {
             var heightPercent;
-                if(noOfItems==1 && widgetHeight ==1)
-                    heightPercent = 80;
-                else
-                    heightPercent = 100-(100/widgetHeight);
-                return {'height':(heightPercent+'%')};
+            if(noOfItems==1 && widgetHeight ==1)
+                heightPercent = 80;
+            else
+                heightPercent = 100-(100/widgetHeight);
+            return {'height':(heightPercent+'%')};
+
+
         };
 
     };
@@ -494,6 +498,12 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
 
         $scope.dashboard.widgets = [];
         $scope.dashboard.widgetData = [];
+        $scope.dashboard.dashoboardDate=[];
+        $scope.dashboard.dashoboardDate= {
+            'startDate': moment($scope.dashboardCalendar.start_date).format('YYYY-MM-DD'),
+            'endDate': moment($scope.dashboardCalendar.end_date).format('YYYY-MM-DD')
+        }
+
         $http({
             method: 'GET',
             url: '/api/v1/dashboards/widgets/'+ $state.params.id
@@ -782,6 +792,34 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
         var dropDwn = "settingsDropdown-"+id;
         document.getElementById(String(dropDwn)).classList.toggle("shw");
     }
+    //To generate PNG in Widget Level-dashboard ctrl
+    $scope.exportWidgetInPng =function (widgetId,widgetName) {
+        widgetName = widgetName || 'Untitled Widget';
+        var widgetLayout = document.getElementById(widgetId);
+
+
+        var dropDown = document.getElementById("settingsDropdown-"+widgetId);
+        if (dropDown.classList.contains('shw')) {
+            dropDown.classList.remove('shw');
+        }
+        toastr.info('Please wait while PNG is being generated.Download will start in few seconds');
+
+        document.getElementById('widget-dropdown-'+widgetId).style.visibility = 'hidden';
+
+
+        domtoimage.toBlob(widgetLayout)
+            .then(
+                function (blob) {
+                    var timestamp = Number(new Date());
+                    window.saveAs(blob, widgetName + "_" + timestamp + ".png");
+                    document.getElementById('widget-dropdown-'+widgetId).style.visibility = "visible";
+                },
+                function errorCallback(error) {
+                    toastr.info('Sorry PNG export failed.Please try again later.');
+                    document.getElementById('widget-dropdown-'+widgetId).style.visibility = "visible";
+                }
+            );
+    }
     $scope.toggleLegends = function (widgetId) {
         for(var widgetData in $scope.dashboard.widgetData) {
             if($scope.dashboard.widgetData[widgetData].id == widgetId) {
@@ -796,7 +834,6 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
             }
         }
     };
-
     var count =0;
     var color = '#F53F72';
     var size = '30px';
@@ -824,6 +861,7 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
     $('#exportOptionPDF').change(function() {
         $(".errorExportMessage").text("").hide();
     });
+
 
     /*
      $rootScope.$on("getDashboardCommentsFunc", function(getValue){

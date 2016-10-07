@@ -178,10 +178,10 @@ exports.deleteWidgets = function (req, res, next) {
                                     objectlength = objects.length;
                                     if(objectlength==1){
                                         //deleting objects for moz
-                                       objectList.remove({_id:objectid},function(err){
-                                           if (err)
-                                               return res.status(500).json({error: 'Internal server error'});
-                                       })
+                                        objectList.remove({_id:objectid},function(err){
+                                            if (err)
+                                                return res.status(500).json({error: 'Internal server error'});
+                                        })
                                         removal();
                                     }
                                     else

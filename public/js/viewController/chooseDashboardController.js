@@ -1,23 +1,15 @@
 showMetricApp.controller('ChooseDashboardController',ChooseDashboardController)
 
-function ChooseDashboardController($scope,$state,$q,$http,$stateParams,$rootScope) {
+function ChooseDashboardController($scope,$state,$q,$http,$rootScope) {
     $scope.enabletextField=false;
     $scope.dashboardName;
     $scope.enableTextField=function (name) {
         $scope.enabletextField=true;
     }
-    $scope.closemodal=function(){
-        changeState().then(
-            function () {
-                $state.go('app.reporting.dashboard',{id:$rootScope.stateDashboard._id});
-            }
-        )
-    }
-
     $scope.goRecommendedDashboard=function () {
         changeState().then(
             function () {
-                $state.go('app.reporting.recommendedDashboard');
+                $state.go('app.reporting.dashboard.recommendedDashboard');
             }
         )
     }

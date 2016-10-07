@@ -161,7 +161,6 @@ svg:hover #Calendar-Icon { fill: #293846; }
 @media(max-width : 767px) and (min-width : 370px) {
     .dashboardSelect{
         width:300px;
-        text-transform: capitalize;
     }
 }
 @media(max-width : 369px) and (min-width : 319px) {
@@ -2434,13 +2433,6 @@ body.mini-navbar .logo-element {
     height: 25px;
     width:50px;
 }
-@media(min-width: 319px) and (max-width : 767px) {
-    .dataimage{
-        margin-top:15px;
-        height: 25px;
-        width:50px;
-    }
-}
 .navbar-static-side .profile-element{
     display: none;
 }
@@ -2615,6 +2607,9 @@ del {
     }
 
 }
+
+
+
 .dashboardIcons {
     float: right;
     height: 20px;
@@ -2625,15 +2620,8 @@ del {
     font-weight: bold;
     display: inline-table;
 }
-.menuButton{
-    display:none;
-}
 
-@media(min-width: 319px) and (max-width : 767px) {
-    .menuButton{
-        display:block;
-    }
-}
+
 
 
 
@@ -2756,6 +2744,11 @@ a.customApiLink{
     font-size: 16px;
     margin: 5px;
     float: right;
+}
+
+#page-wrapper{
+    /*margin-top:0px !important;*/
+    margin:0 0 0 70px !important;
 }
 
 .errorExportMessage{
@@ -4592,6 +4585,11 @@ body.rtls.top-navigation .footer.fixed {
     .button-mode{width: 25% !important;}
     .daterange{width: 100% !important;margin-left:0px !important;padding-bottom: 7px;}
     .svg-line1{width:280px }.svg-line2{width:280px ;}
+    #page-wrapper{margin:0 0 0 70px !important;}
+
+
+
+
 }
 @media (max-width: 1000px) {
     .dashboardName{display:none !important;}
@@ -5038,7 +5036,7 @@ input:focus{
     height:250px;
 }
 .editdashboard{
-    margin-bottom: 30px;
+    margin-top: 100px;
 }
 .goButton{
     background-color: white;
@@ -5048,18 +5046,9 @@ input:focus{
 }
 .chooseDashboardquestion{
     font-size: 18px;
-    font-family: Heebo-Light;
+    font-family: hebbo-light;
 }
 .changeButton{
     border-radius: 0px !important;
     background-color: #1074ae !important;
-}
-.buttonmargin{
-    margin-right:35px !important;
-}
-@media(max-width : 720px) {
-    .buttonmargin{
-        margin-right:0px !important;
-    }
-
 }

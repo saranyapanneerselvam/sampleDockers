@@ -15,7 +15,6 @@
                                     <label class="btn btn-default"><input type="radio" id="exportOptionJpeg" name="exportOption" value="JPEG" ng-click="pdfPrintPreview(false);"/> JPEG</label>
                                     <label class="btn btn-default"><input type="radio" id="exportOptionPDF" name="exportOption" value="PDF" ng-click="fetchLogosFromDB('org');fetchLogosFromDB('cli');pdfPrintPreview(true);printpaperPDF();"/> PDF</label>
                                     <label class="btn btn-default"><input type="radio" id="exportOptionUrl" name="exportOption" value="PDF" ng-click="pdfPrintPreview(false);"/> Share URL</label>
-                                    <label class="btn btn-default"><input type="radio" id="exportOptionExcel" name="exportOption" value="Excel" ng-click="pdfPrintPreview(false);exportExcel()"/> Excel</label>
                                 </div>
                             </div>
                         </div>
@@ -104,7 +103,7 @@
                     <div class="row" ng-cloak>
                         <div class="col-lg-12">
                             <div class="center shareUrl">
-                                <p id="butt" style="word-wrap: break-word;">URL to be shared: <a style="color:#1078ae" href="http://{{sharingUrl}}" target="_blank">{{ sharingUrl}}</a>
+                                <p id="butt" style="word-wrap: break-word;">URL to be shared: <a style="color:#1078ae" href="https://{{sharingUrl}}" target="_blank">{{ sharingUrl}}</a>
                                     <button class="btn" id="btnCopyLink" data-clipboard-text={{sharingUrl}}>
                                         <img src="image/clippy.svg" width="13" alt="Copy to clipboard">
                                     </button>

@@ -1,30 +1,34 @@
 showMetricApp.controller('NavigationController',NavigationController)
 
-function NavigationController($scope,$state,$http,$rootScope) {
-
+function NavigationController($scope,$state,$http,$stateParams,$rootScope) {
+    $state.includes('app.reporting.dashboard')
     $scope.stateValidation = function(targetState) {
-        if($state.includes('app.reporting.dashboard')) {
-            switch(targetState) {
-                case 'recommendedDashboard':
-                    $state.go('app.reporting.dashboard.'+targetState);
-                    break;
-                case 'basicWidget':
+        switch(targetState) {
+            case 'recommendedDashboard':
+                $state.go('app.reporting.'+targetState)
+                break;
+            case 'basicWidget':
+                if($state.includes('app.reporting.dashboard')){
                     var toStateParams = "{widgetType:'basic'}";
                     $state.go('app.reporting.dashboard.'+targetState,{widgetType:'basic'});
-                    break;
-                case 'fusionWidget':
+                }
+                else
+                    toastr.info('Please perform this action from within a dashboard');
+                break;
+            case 'fusionWidget':
+                if($state.includes('app.reporting.dashboard')){
                     $state.go('app.reporting.dashboard.'+targetState);
-                    break;
-                case 'chooseDashboardType':
-                    $state.go('app.reporting.dashboard.'+targetState);
-                    break;
-                case 'insights':
-                    toastr.info('Coming Soon');
-                    break;
-            }
+                }
+                else
+                    toastr.info('Please perform this action from within a dashboard');
+                break;
+            case 'chooseDashboardType':
+                $state.go('app.reporting.'+targetState);
+                break;
+            case 'insights':
+                toastr.info('Coming Soon');
+                break;
         }
-        else
-            toastr.info('Please perform this action from within a dashboard');
     };
 
     $(".insightsModalContent").on( 'click', function( ev ) {

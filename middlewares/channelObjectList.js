@@ -39,6 +39,9 @@ var NA = new NodeAweber(configAuth.aweberAuth.clientID, configAuth.aweberAuth.cl
 // set auth as a global default
 var analytics = googleapis.analytics({version: 'v3', auth: oauth2Client});
 
+//set FB API call version
+graph.setVersion(configAuth.apiVersions.FBVersion);
+FB.options({version: configAuth.apiVersions.FBADs});
 
 exports.listAccounts = function (req, res, next) {
 

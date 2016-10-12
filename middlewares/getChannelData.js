@@ -66,6 +66,11 @@ var moz = require('mozscape-request')({
     secret: configAuth.batchJobsMoz.secret,
     expires: configAuth.batchJobsMoz.expires
 });
+
+//set FB API call version
+graph.setVersion(configAuth.apiVersions.FBVersion);
+FB.options({version: configAuth.apiVersions.FBADs});
+
 //To get the channel data
 exports.getChannelData = function (req, res, next) {
 

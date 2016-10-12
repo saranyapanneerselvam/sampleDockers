@@ -37,6 +37,10 @@ var Channels = require('./models/channels');
 //Importing the fbgraph module
 var graph = require('fbgraph');
 
+//set FB API call version
+graph.setVersion(configAuth.apiVersions.FBVersion);
+FB.options({version: configAuth.apiVersions.FBADs});
+
 //set Twitter module
 var Twitter = require('twitter');
 

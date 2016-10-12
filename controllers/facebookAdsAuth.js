@@ -3,6 +3,9 @@ var channels = require('../models/channels');
 var request = require('request');
 var  FB = require('fb');
 var user = require('../helpers/user');
+//set FB API call version
+FB.options({version: configAuth.apiVersions.FBADs});
+
 module.exports = function(app) {
     var oauth2 = require('simple-oauth2')({
         clientID: configAuth.facebookAdsAuth.clientID,

@@ -1426,7 +1426,6 @@ agenda.define('Update channel data', function (job, done) {
                             if (err)
                                 return res.status(500).json({error: err});
                             else {
-
                                 if (configAuth.objectType.googleAdwordAdGroup == objectType.type) {
                                     var query = [configAuth.googleAdwordsStatic.adGroupId, configAuth.googleAdwordsStatic.date, initialResults.metric.objectTypes[0].meta.gAdsMetricName];
                                     var performance = configAuth.googleAdwordsStatic.ADGROUP_PERFORMANCE_REPORT;
@@ -1463,23 +1462,22 @@ agenda.define('Update channel data', function (job, done) {
                                     var clientId=initialResults.object.channelObjectId;
                                     var objects=""
                                 }
+                                allObjects = {
+                                    profile: initialResults.profile,
+                                    query: query,
+                                    widget: initialResults.metric,
+                                    dataResult: initialResults.data,
+                                    startDate: updated,
+                                    objects: objects,
+                                    endDate: startDate,
+                                    metricId:initialResults.metric._id,
+                                    metricCode: initialResults.metric.code,
+                                    clientId: clientId,
+                                    performance: performance
+                                }
+                                callback(null, allObjects);
                             }
                         });
-                        allObjects = {
-                            profile: initialResults.profile,
-                            query: query,
-                            widget: initialResults.metric,
-                            dataResult: initialResults.data,
-                            startDate: updated,
-                            objects: objects,
-                            endDate: startDate,
-                            metricId:initialResults.metric._id,
-                            metricCode: initialResults.metric.code,
-                            clientId: clientId,
-                            performance: performance
-                        }
-
-                        callback(null, allObjects);
                     }
                     else
                         callback(null, 'DataFromDb');
@@ -2351,40 +2349,40 @@ agenda.define('Update channel data', function (job, done) {
                         }
                     };
                     pinterest.api(result.query, params).then(function (response) {
-                        var endPointMetric;
-                        endPointMetric = result.endPoint;
-                        if (endPointMetric.indexOf("/") > -1) {
-                            endPointMetric = endPointMetric.items.split("/");
-                        }
-                        var count = endPointMetric[0];
-                        var pins = endPointMetric[1];
-                        var collaborate = endPointMetric[2];
-                        var followers = endPointMetric[3];
-                        for (var key in response.data) {
-                            arrayOfResponse.push(response.data[key]);
-                        }
-                        for (var i = 0; i < arrayOfResponse.length; i++) {
-                            var temp = arrayOfResponse[i][count];
-                            arrayOfBoards.push({
-                                date: response.data[i].name,
-                                total: {pins: temp[pins], collaborators: temp[collaborate], followers: temp[followers]}
-                            })
-                        }
-                        var MediasArray = _.sortBy(arrayOfBoards, ['total.followers']);
-                        var collectionBoard = _.orderBy(MediasArray, ['total.followers', 'total.pins'], ['desc', 'asc']);
-                        for (var j = 0; j < 10; j++) {
-                            topTenBoard.push(collectionBoard[j]);
-                        }
-                        actualFinalApiData = {
-                            apiResponse: topTenBoard,
-                            metricId: result.metricId,
-                            queryResults: initialResults,
-                            channelId: initialResults.metric[0].channelId
-                        };
+                            var endPointMetric;
+                            endPointMetric = result.endPoint;
+                            if (endPointMetric.indexOf("/") > -1) {
+                                endPointMetric = endPointMetric.items.split("/");
+                            }
+                            var count = endPointMetric[0];
+                            var pins = endPointMetric[1];
+                            var collaborate = endPointMetric[2];
+                            var followers = endPointMetric[3];
+                            for (var key in response.data) {
+                                arrayOfResponse.push(response.data[key]);
+                            }
+                            for (var i = 0; i < arrayOfResponse.length; i++) {
+                                var temp = arrayOfResponse[i][count];
+                                arrayOfBoards.push({
+                                    date: response.data[i].name,
+                                    total: {pins: temp[pins], collaborators: temp[collaborate], followers: temp[followers]}
+                                })
+                            }
+                            var MediasArray = _.sortBy(arrayOfBoards, ['total.followers']);
+                            var collectionBoard = _.orderBy(MediasArray, ['total.followers', 'total.pins'], ['desc', 'asc']);
+                            for (var j = 0; j < 10; j++) {
+                                topTenBoard.push(collectionBoard[j]);
+                            }
+                            actualFinalApiData = {
+                                apiResponse: topTenBoard,
+                                metricId: result.metricId,
+                                queryResults: initialResults,
+                                channelId: initialResults.metric[0].channelId
+                            };
 
-                        callback(null, actualFinalApiData);
+                            callback(null, actualFinalApiData);
 
-                    })
+                        })
                         .catch(function (error) {
                             callback(null);
                         });
@@ -3574,6 +3572,7 @@ agenda.define(configAuth.batchJobs.alertName, function (job, done) {
 })
 agenda.on('ready', function () {
     agenda.processEvery('2 hours', configAuth.batchJobs.alertJobName);
+    //agenda.now(configAuth.batchJobs.alertJobName)
     agenda.start();
     agenda.on(configAuth.batchJobs.successBatchJobMessage, function (job) {
         if (job) {

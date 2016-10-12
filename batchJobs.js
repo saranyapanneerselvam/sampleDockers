@@ -76,7 +76,7 @@ var Object = require('./models/objects');
 var Profile = require('./models/profiles');
 var mongoose = require('mongoose');
 mongoose.connect(mongoConnectionString);//Connection with mongoose
-mongoose.set('debug', false);
+mongoose.set('debug', true);
 var Alert = require('./models/alert');
 
 //set Twitter module
@@ -1426,7 +1426,6 @@ agenda.define('Update channel data', function (job, done) {
                             if (err)
                                 return res.status(500).json({error: err});
                             else {
-
                                 if (configAuth.objectType.googleAdwordAdGroup == objectType.type) {
                                     var query = [configAuth.googleAdwordsStatic.adGroupId, configAuth.googleAdwordsStatic.date, initialResults.metric.objectTypes[0].meta.gAdsMetricName];
                                     var performance = configAuth.googleAdwordsStatic.ADGROUP_PERFORMANCE_REPORT;
@@ -1436,7 +1435,7 @@ agenda.define('Update channel data', function (job, done) {
                                         operator: "EQUALS",
                                         values: [initialResults.object.channelObjectId]
                                     }];
-                                } 
+                                }
                                 else if (configAuth.objectType.googleAdwordCampaign == objectType.type) {
                                     var query = [configAuth.googleAdwordsStatic.campaignId, configAuth.googleAdwordsStatic.date, initialResults.metric.objectTypes[0].meta.gAdsMetricName];
                                     var performance = configAuth.googleAdwordsStatic.CAMPAIGN_PERFORMANCE_REPORT;
@@ -1463,23 +1462,22 @@ agenda.define('Update channel data', function (job, done) {
                                     var clientId=initialResults.object.channelObjectId;
                                     var objects=""
                                 }
+                                allObjects = {
+                                    profile: initialResults.profile,
+                                    query: query,
+                                    widget: initialResults.metric,
+                                    dataResult: initialResults.data,
+                                    startDate: updated,
+                                    objects: objects,
+                                    endDate: startDate,
+                                    metricId:initialResults.metric._id,
+                                    metricCode: initialResults.metric.code,
+                                    clientId: clientId,
+                                    performance: performance
+                                }
+                                callback(null, allObjects);
                             }
                         });
-                        allObjects = {
-                            profile: initialResults.profile,
-                            query: query,
-                            widget: initialResults.metric,
-                            dataResult: initialResults.data,
-                            startDate: updated,
-                            objects: objects,
-                            endDate: startDate,
-                            metricId:initialResults.metric._id,
-                            metricCode: initialResults.metric.code,
-                            clientId: clientId,
-                            performance: performance
-                        }
-
-                        callback(null, allObjects);
                     }
                     else
                         callback(null, 'DataFromDb');
@@ -3574,6 +3572,7 @@ agenda.define(configAuth.batchJobs.alertName, function (job, done) {
 })
 agenda.on('ready', function () {
     agenda.processEvery('2 hours', configAuth.batchJobs.alertJobName);
+    //agenda.now(configAuth.batchJobs.alertJobName)
     agenda.start();
     agenda.on(configAuth.batchJobs.successBatchJobMessage, function (job) {
         if (job) {

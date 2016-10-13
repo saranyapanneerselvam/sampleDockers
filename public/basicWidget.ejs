@@ -615,19 +615,12 @@
                                 <div ng-repeat="data in channelList | filter:{integrated: true}" name="{{data._id}}"
                                      class="col-lg-2 widget-icons"
                                      ng-click="storeChannel(data);"
-                                     id="channellist-{{data._id}}">
-                                    <div ng-if="data.isSelected==1">
+                                     id="channellist-{{data._id}}"
+                                     ng-class="{'channelSelect': data.isSelected==1}">
                                         <img ng-hide="data.name==='CustomData'" src="image/lightbox/{{data.name}}.png"
-                                             style="max-height:100%;padding: 15px 5px;box-shadow: 0px 4px 22px 1px;max-width: 93%;  margin-top: -4px; margin-left: -1px; "/>
+                                         style="max-width: 100%;max-height:100%;padding: 15px 5px; "/>
                                         <p ng-show="data.name==='CustomData'" class="model-title"
                                            style="padding: 25px 5px;">Custom Data</p>
-                                    </div>
-                                    <div ng-if="data.isSelected==0">
-                                        <img ng-hide="data.name==='CustomData'" src="image/lightbox/{{data.name}}.png"
-                                             style="max-width: 100%;max-height:100%;padding: 15px 5px; "/>
-                                        <p ng-show="data.name==='CustomData'" class="model-title"
-                                           style="padding: 25px 5px;">Custom Data</p>
-                                    </div>
                                 </div>
                                 <div><!--style="float:left"--><!--<h4>Coming soon</h4>-->
                                     <div ng-repeat="data in channelList | filter:{integrated: false}"

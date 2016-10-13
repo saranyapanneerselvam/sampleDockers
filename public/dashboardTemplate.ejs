@@ -62,7 +62,7 @@
                                         <a title="Toggle Legends" ng-click="toggleLegends(widget.id)"><i class="fa fa-filter"></i> Filter</a>
                                         <a title="Delete Widget" ng-click="removeWid(widget);deleteWidget(widget)"><i class="glyphicon glyphicon-trash favigon-img"></i>Delete</a>
                                         <a title="Click to fuse this widget with other widgets" ng-show="widget.widgetType != 'customFusion'" ng-click="openSettings(widget)"><i class="fa fa-random"></i> Fusion</a>
-                                        <a title="Click to export this widget in PNG format" ng-show="dashboard.widgetData[widgetIndex].visibility == true && widget.sizeX>1" ng-click="exportWidgetInPng(widget.id,dashboard.widgetData[widgetIndex].name)"><i class="fa fa-download"></i> &nbsp;PNG &nbsp;  </a>
+                                        <a title="Click to export this widget in PNG format" ng-show="dashboard.widgetData[widgetIndex].chart.length === 0 " ng-click="exportWidgetInPng(widget.id,dashboard.widgetData[widgetIndex].name)"><i class="fa fa-download"></i> &nbsp;PNG &nbsp;  </a>
                                         <a title="Find out how to send data for custom widgets - Documentation" ng-if="widget.widgetType==='custom'" href="/customDataDocumentation" target="_blank" class="findOutHow">Custom Documentation</a>
                                     </div>
                                 </div>

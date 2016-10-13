@@ -3510,20 +3510,8 @@ exports.getChannelData = function (req, res, next) {
                         var startDate = formatDate(d);
                         var endDate = formatDate(new Date());
                         var query = metric[j].objectTypes[0].meta.igMetricName;
-                        if (metric[j].code === 'likes' || metric[j].code === 'comments') {
-                            allObjects = {
-                                profile: initialResults.get_profile[j],
-                                query: query,
-                                widget: metric[j],
-                                dataResult: data[j].data,
-                                startDate: req.body.startDate,
-                                endDate: req.body.endDate,
-                                metricId: metric[j]._id,
-                                metricCode: metric[j].code,
-                                endpoint: metric[j].objectTypes[0].meta.endpoint
-                            };
-                        }
-                        else {
+
+
                             allObjects = {
                                 profile: initialResults.get_profile[j],
                                 query: query,
@@ -3535,7 +3523,6 @@ exports.getChannelData = function (req, res, next) {
                                 metricCode: metric[j].code,
                                 endpoint: metric[j].objectTypes[0].meta.endpoint
                             };
-                        }
                         next(null, allObjects);
 
                     }
@@ -4873,7 +4860,7 @@ exports.getChannelData = function (req, res, next) {
                     var metricType = metric[j].code;
                     if (data[j].data != null) {
                         var updated = moment(data[j].data.updated).format('YYYY-MM-DD');
-                        ;
+
                         var endDate = moment(new Date()).format('YYYY-MM-DD');
                         if (updated < endDate) {
                             var newDate = moment(updated).add(1, 'days').format('YYYY-MM-DD');

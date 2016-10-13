@@ -110,13 +110,13 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                                             $scope.dashboard.widgetData[ind].chart[i].data[j].myheight = elemHeight;
                                         }
                                     }
-
                                 else{
                                     var getWigetId='#getWidgetColor-' + widget.id
                                     var listed = $('#chartTable-'+widget.id).width();
                                     if (listed <= 350){
                                         $('#chartTable-'+widget.id).find('.date').addClass('responsiveDate').removeClass('date');
-                                        $('#chartTable-'+widget.id).find('.listed').addClass('responsiveListed');
+                                        if($scope.dashboard.widgetData[ind].chart[i].options.chart.type !== 'instagramPosts')
+                                             $('#chartTable-'+widget.id).find('.listed').addClass('responsiveListed');
                                         $('#chartTable-'+widget.id).find('.aside').css('padding-left','75px');
                                         $('#chartTable-'+widget.id).find('.impression').css('padding-top','0px');
                                         $('#chartTable-'+widget.id).find('.likes').css('float','none');
@@ -125,7 +125,8 @@ function DashboardController($scope,$timeout,$rootScope,$http,$window,$state,$st
                                     }
                                     else {
                                         $('#chartTable-'+widget.id).find('.responsiveDate').addClass('date').removeClass('responsiveDate');
-                                        $('#chartTable-'+widget.id).find('.listed').removeClass('responsiveListed');
+                                        if($scope.dashboard.widgetData[ind].chart[i].options.chart.type !== 'instagramPosts')
+                                            $('#chartTable-'+widget.id).find('.listed').removeClass('responsiveListed');
                                         $('#chartTable-'+widget.id).find('.comment').css('float','left');
                                         $('#chartTable-'+widget.id).find('.comment').css('margin-left','5px');
                                         $('#chartTable-'+widget.id).find('.likes').css('float','left');

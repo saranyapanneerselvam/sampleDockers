@@ -87,6 +87,9 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             $scope.canManageClients = true;
             document.getElementById('basicWidgetFinishButton').disabled = true;
             $("#basicWidgetNextButton1").show();
+            $('#basicWidgetBackButton').hide();
+            $('#basicWidgetBackButton2').hide();
+            $("#basicWidgetNextButton2").hide();
         }
         else if ($scope.currentView === 'step_two') {
             $scope.customMessageEnable=false;
@@ -108,6 +111,9 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 fbAdsComplete=false;
                 googleAdsComplete=false;
                 mozComplete=false;
+                mozPresent=false;
+                fbAdsPresent=false;
+                googleAdsPresent=false;
                 $scope.fbSelectEnable=false;
                 $scope.googleSelectEnable=false;
                 document.getElementById('basicWidgetFinishButton').disabled = true;
@@ -342,7 +348,6 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
             var setLimitation=0;
             for (var getData in getReferenceWidgetsArr) {
                 if(getReferenceWidgetsArr[getData].name == "Cost per objective") setLimitation=1;
-                else setLimitation=0;
             }
             if(!this.objectTypeOptionsModel[index]){
                 document.getElementById('basicWidgetFinishButton').disabled = true;
@@ -358,6 +363,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 $scope.selectedObjectType = this.objectTypeOptionsModel[index];
                 $scope.selectedLevel =null;
                 $scope.selectedId = null;
+                fbAdsComplete=false;
             }
             else{
                 document.getElementById('basicWidgetFinishButton').disabled = true;
@@ -373,6 +379,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 $scope.selectedObjectType = this.objectTypeOptionsModel[index];
                 $scope.selectedLevel = this.objectTypeOptionsModel[index].type;
                 $scope.selectedId = this.objectTypeOptionsModel[index]._id;
+                fbAdsComplete=false;
             }
         }
         //   else
@@ -726,6 +733,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 $scope.selectedGoogleObjectType = this.objectTypeOptionsModel[index];
                 $scope.selectedGoogleLevel = this.objectTypeOptionsModel[index].type;
                 $scope.selectedGoogleId = this.objectTypeOptionsModel[index]._id;
+                googleAdsComplete=false;
             }
             else{
                 document.getElementById('basicWidgetFinishButton').disabled = true;
@@ -744,6 +752,7 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 $scope.selectedGoogleObjectType = this.objectTypeOptionsModel[index];
                 $scope.selectedGoogleLevel = null;
                 $scope.selectedGoogleId = null;
+                googleAdsComplete=false;
             }
         }
         if($scope.selectedGoogleLevel=='adwordaccount'){
@@ -1251,21 +1260,16 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                             url: '/api/v1/get/objects/' + profileId
                         }).then(
                             function successCallback(response) {
-                                console.log('response',response)
                                 var uniqueObject;
                                 var k = 0;
                                 var tempList = {};
                                 uniqueObject = _.groupBy(response.data.objectList, 'objectTypeId');
-                                console.log('uniqueObject',uniqueObject,'uniqueObjectCount',uniqueObjectCount)
                                 var sortedUniqueObject = {};
                                 for (var objectIds in uniqueObjectCount) {
-                                    for (var uniqueObjects in uniqueObject){
+                                    for (var uniqueObjects in uniqueObject)
                                         if (uniqueObjectCount[objectIds] == uniqueObjects)
                                             sortedUniqueObject[uniqueObjects] = uniqueObject[uniqueObjects];
-                                        console.log('uniqueObject[uniqueObjects]',uniqueObject[uniqueObjects])
-                                    }
                                 }
-                                console.log('sortedUniqueObject',sortedUniqueObject)
                                 for (var items in sortedUniqueObject) {
                                     var tempObjectList = [];
                                     for (var subItems in sortedUniqueObject[items])
@@ -1275,7 +1279,6 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                                     tempList[k] = obj;
                                     k++;
                                 }
-                                console.log('tempList',tempList)
                                 $scope.googleAdwordsObjectList = tempList;
                                 var objectList = $scope.googleAdwordsObjectList;
                                 for (var items in uniqueObjectCount)
@@ -1986,14 +1989,12 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                 if (channel._id == $scope.channelList[i]._id)
                     $scope.channelList[i].isSelected = 1;
             }
-            $("#channellist-" + channel._id).css("border", "2px solid #04509B");
             if (channel.name == "CustomData") {
                 $scope.metricContent = true;
                 $scope.showCustomContent = false;
                 $scope.selectCustomLinkHead = "Step 2 : Custom Data URL";
             }
             else {
-
                 $scope.metricContent = false;
                 $scope.showCustomContent = true;
                 $scope.selectCustomLinkHead = "Step 2 : Choose your Metrics";
@@ -2002,8 +2003,12 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
         else{
             if($scope.showCustomContent == false){
                 if(channel.name == "CustomData"){
+                    for (var i in $scope.channelList) {
+                        if (channel._id == $scope.channelList[i]._id){
+                            $scope.channelList[i].isSelected = 0;
+                        }
+                    }
                     removeByAttr($scope.selectedTempChannelList, 'id', channel._id);
-                    $("#channellist-" + channel._id).css("border", "2px solid #e7eaec");
                     $scope.customMessageEnable=false;
                 }
                 else
@@ -2019,13 +2024,9 @@ function BasicWidgetController($scope, $http, $state, $rootScope, $window, $stat
                         if ($scope.selectedTempChannelList[data].id == channel._id) {
                             var add = 0;
                             removeByAttr($scope.selectedTempChannelList, 'id', channel._id);
-                            $("#channellist-" + channel._id).css("border", "2px solid #e7eaec");
-
                         }
-                        else {
+                        else
                             var add = 1;
-                            $("#channellist-" + channel._id).css("border", "2px solid #04509B");
-                        }
                     }
                     if (add == 1) {
                         $scope.selectedTempChannelList.push({name: channel.name, id: channel._id});
